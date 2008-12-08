@@ -136,10 +136,17 @@ public:
 
      /// Look up the port on the bridge to which the indicated resource is connected.
    OsStatus getResourceInputPortOnBridge(const UtlString &resourceName,
+                                         int outputPortIdx,
                                          int& portOnBridge);
      /**<
      *  @warning You must be sure, that this resource is actually connected
      *           to the bridge.
+     *
+     *  @param[in]  resourceName - name of the resource to lookup.
+     *  @param[in]  outputPortIdx - index of the resource's output port which
+     *              is connected to the bridge.
+     *  @param[out] portOnBridge - index of an input port to which resource
+     *              is connected.
      */
 
      /// @copydoc CpMediaInterface::setConnectionDestination()

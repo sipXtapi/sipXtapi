@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPfoundry Inc.
+// Copyright (C) 2006-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -139,6 +139,86 @@ public:
      /// @copydoc MpResource::getType()
    MpFlowGraphBase::FlowGraphType getType();
 
+     /// Lookup real input port corresponding to given virtual one.
+   OsStatus lookupVirtualInput(const UtlString& virtualName,
+                               int virtualPortIdx,
+                               MpResource*& rpResource,
+                               int &portIdx);
+     /**<
+     *  @param[in]  virtualName - resource name of the virtual input port.
+     *  @param[in]  virtualPortIdx - port index of the virtual input port.
+     *  @param[out] rpResource - pointer to a resource, corresponding to the
+     *              virtual port. Value is undefined if virtual port is not
+     *              found.
+     *  @param[out] portIdx - input port index on \p rpResource corresponding
+     *              to the virtual port. Value is undefined if virtual port is
+     *              not found.
+     *
+     *  @retval OS_SUCCESS if virtual port is found.
+     *  @retval OS_NOT_FOUND if virtual resource is not found.
+     */
+
+     /// Lookup real output port corresponding to given virtual one.
+   OsStatus lookupVirtualOutput(const UtlString& virtualName,
+                                int virtualPortIdx,
+                                MpResource*& rpResource,
+                                int &portIdx);
+     /**<
+     *  @param[in]  virtualName - resource name of the virtual output port.
+     *  @param[in]  virtualPortIdx - port index of the virtual output port.
+     *  @param[out] rpResource - pointer to a resource, corresponding to the
+     *              virtual port. Value is undefined if virtual port is not
+     *              found.
+     *  @param[out] portIdx - output port index on \p rpResource corresponding
+     *              to the virtual port. Value is undefined if virtual port is
+     *              not found.
+     *
+     *  @retval OS_SUCCESS if virtual port is found.
+     *  @retval OS_NOT_FOUND if virtual resource is not found.
+     */
+
+     /// Lookup real or virtual input port.
+   OsStatus lookupInput(const UtlString& resourceName,
+                        int portIdx,
+                        MpResource*& pFoundResource,
+                        int &foundPortIdx);
+     /**<
+     *  This method tries to search for real resource with given name. If real
+     *  resource is not found it then tries to search for virtual port with
+     *  given name/portIdx pair.
+     *
+     *  @param[in]  resourceName - resource name to look for.
+     *  @param[in]  portIdx - input port index to look for.
+     *  @param[out] pFoundResource - found resource. Value is undefined if port
+     *              is not found.
+     *  @param[out] foundPortIdx - found port index. Value is undefined if port
+     *              is not found.
+     *
+     *  @retval OS_SUCCESS if port is found.
+     *  @retval OS_NOT_FOUND if port is not found.
+     */
+
+     /// Lookup real or virtual output port.
+   OsStatus lookupOutput(const UtlString& resourceName,
+                         int portIdx,
+                         MpResource*& pFoundResource,
+                         int &foundPortIdx);
+     /**<
+     *  This method tries to search for real resource with given name. If real
+     *  resource is not found it then tries to search for virtual port with
+     *  given name/portIdx pair.
+     *
+     *  @param[in]  resourceName - resource name to look for.
+     *  @param[in]  portIdx - output port index to look for.
+     *  @param[out] pFoundResource - found resource. Value is undefined if port
+     *              is not found.
+     *  @param[out] foundPortIdx - found port index. Value is undefined if port
+     *              is not found.
+     *
+     *  @retval OS_SUCCESS if port is found.
+     *  @retval OS_NOT_FOUND if port is not found.
+     */
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -162,6 +242,8 @@ protected:
 private:
 
    MpResourceFactory* mpResourceFactory; ///< Factory for resources.
+   UtlHashMap         mVirtualInputs;    ///< Virtual inputs mapping to real inputs.
+   UtlHashMap         mVirtualOutputs;   ///< Virtual outputs mapping to real outputs.
 
      /// Adds all new resources defined in a topology.
    int addTopologyResources(MpResourceTopology& resourceTopology,
@@ -169,6 +251,18 @@ private:
                             UtlHashBag& newResources,
                             UtlBoolean replaceNumInName = FALSE,
                             int resourceNum = -1);
+
+     /// Adds all virtual inputs defined in a topology.
+   int addVirtualInputs(MpResourceTopology& resourceTopology,
+                        UtlHashBag& newResources,
+                        UtlBoolean replaceNumInName = FALSE,
+                        int resourceNum = -1);
+
+     /// Adds all virtual outputs defined in a topology.
+   int addVirtualOutputs(MpResourceTopology& resourceTopology,
+                         UtlHashBag& newResources,
+                         UtlBoolean replaceNumInName = FALSE,
+                         int resourceNum = -1);
 
      /// Adds links defined for resources in resource topology.
    int linkTopologyResources(MpResourceTopology& resourceTopology,

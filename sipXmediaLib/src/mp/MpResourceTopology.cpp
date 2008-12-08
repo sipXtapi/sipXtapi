@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPfoundry Inc.
+// Copyright (C) 2006-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -16,6 +16,9 @@
 #include <utl/UtlDListIterator.h>
 #include <utl/UtlHashBag.h>
 #include <utl/UtlHashBagIterator.h>
+#include <utl/UtlContainablePair.h>
+#include <utl/UtlHashMapIterator.h>
+#include <utl/UtlInt.h>
 #include <mp/MpResourceTopology.h>
 #include <mp/MpResourceFactory.h>
 
@@ -94,6 +97,8 @@ MpResourceTopology::~MpResourceTopology()
 {
    mResources.destroyAll();
    mConnections.destroyAll();
+   mVirtualInputs.destroyAll();
+   mVirtualOutputs.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -127,6 +132,110 @@ OsStatus MpResourceTopology::addConnection(const UtlString& outputResourceName,
                                                           outputPortIndex,
                                                           inputResourceName,
                                                           inputPortIndex));
+   return OS_SUCCESS;
+}
+
+OsStatus MpResourceTopology::addVirtualInput(const UtlString& realResourceName,
+                                             int realPortIndex,
+                                             const UtlString& virtualResourceName,
+                                             int virtualPortIndex)
+{
+   if (realPortIndex < 0 != virtualPortIndex < 0)
+   {
+      // Either both indices must be negative, or both must be positive
+      return OS_INVALID_ARGUMENT;
+   }
+
+   // Allocate pair for the real port and check if it is already present in the map.
+   UtlContainablePair *pRealPort = new UtlContainablePair(new UtlString(realResourceName),
+                                                          new UtlInt(realPortIndex));
+   if (mVirtualInputs.contains(pRealPort))
+   {
+      // Some virtual port is already assigned to this real port.
+      delete pRealPort;
+      return OS_INVALID_ARGUMENT;
+   }
+
+   // Check that the real port exists.
+   UtlDListIterator resourceIterator(mResources);
+   MpResourceDefinition *pResourceDef;
+   UtlBoolean realResourceFound = FALSE;
+   while((pResourceDef = (MpResourceDefinition*) resourceIterator()))
+   {
+      if (pResourceDef->compareTo(realResourceName))
+      {
+         realResourceFound = TRUE;
+      }
+   }
+   if (!realResourceFound)
+   {
+      delete pRealPort;
+      return OS_NOT_FOUND;
+   }
+
+   // Allocate pair for the virtual port and try to add it to the map.
+   UtlContainablePair *pVirtPort = new UtlContainablePair(new UtlString(virtualResourceName),
+                                                          new UtlInt(virtualPortIndex));
+   if (mVirtualInputs.insertKeyAndValue(pRealPort, pVirtPort) == NULL)
+   {
+      // This virtual port is already assigned.
+      delete pRealPort;
+      delete pVirtPort;
+      return OS_INVALID_ARGUMENT;
+   } 
+
+   return OS_SUCCESS;
+}
+
+OsStatus MpResourceTopology::addVirtualOutput(const UtlString& realResourceName,
+                                              int realPortIndex,
+                                              const UtlString& virtualResourceName,
+                                              int virtualPortIndex)
+{
+   if (realPortIndex < 0 != virtualPortIndex < 0)
+   {
+      // Either both indices must be negative, or both must be positive
+      return OS_INVALID_ARGUMENT;
+   }
+
+   // Allocate pair for the real port and check if it is already present in the map.
+   UtlContainablePair *pRealPort = new UtlContainablePair(new UtlString(realResourceName),
+                                                          new UtlInt(realPortIndex));
+   if (mVirtualOutputs.contains(pRealPort))
+   {
+      // Some virtual port is already assigned to this real port.
+      delete pRealPort;
+      return OS_INVALID_ARGUMENT;
+   }
+
+   // Check that the real port exists.
+   UtlDListIterator resourceIterator(mResources);
+   MpResourceDefinition *pResourceDef;
+   UtlBoolean realResourceFound = FALSE;
+   while((pResourceDef = (MpResourceDefinition*) resourceIterator()))
+   {
+      if (pResourceDef->compareTo(realResourceName))
+      {
+         realResourceFound = TRUE;
+      }
+   }
+   if (!realResourceFound)
+   {
+      delete pRealPort;
+      return OS_NOT_FOUND;
+   }
+
+   // Allocate pair for the virtual port and try to add it to the map.
+   UtlContainablePair *pVirtPort = new UtlContainablePair(new UtlString(virtualResourceName),
+                                                          new UtlInt(virtualPortIndex));
+   if (mVirtualOutputs.insertKeyAndValue(pRealPort, pVirtPort) == NULL)
+   {
+      // This virtual port is already assigned.
+      delete pRealPort;
+      delete pVirtPort;
+      return OS_INVALID_ARGUMENT;
+   } 
+
    return OS_SUCCESS;
 }
 
@@ -265,6 +374,18 @@ OsStatus MpResourceTopology::validateResourceTypes(MpResourceFactory& resourceFa
    return result;
 }
 
+void MpResourceTopology::replaceNumInName(UtlString& resourceName,
+                                          int resourceNum)
+{
+   int stringIndex = resourceName.index("%d");
+   if(stringIndex >= 0)
+   {
+      char numBuf[20];
+      sprintf(numBuf, "%d", resourceNum);
+      resourceName.replace(stringIndex, 2, numBuf);
+   }
+}
+
 /* ============================ ACCESSORS ================================= */
 
 OsStatus MpResourceTopology::getResource(int resourceIndex,
@@ -341,23 +462,65 @@ int MpResourceTopology::getNextLogicalPortNumber()
     return --mPriorLogicalPort;
 }
 
+void MpResourceTopology::initVirtualInputIterator(VirtualPortIterator &portIter)
+{
+   portIter = new UtlHashMapIterator(mVirtualInputs);
+}
+
+void MpResourceTopology::freeVirtualInputIterator(VirtualPortIterator &portIter)
+{
+   delete (UtlHashMapIterator*)portIter;
+   portIter = NULL;
+}
+
+OsStatus MpResourceTopology::getNextVirtualInput(VirtualPortIterator &portIter,
+                                                 UtlString& realResourceName,
+                                                 int &realPortIndex,
+                                                 UtlString& virtualResourceName,
+                                                 int &virtualPortIndex)
+{
+   UtlContainablePair *pRealPort = (UtlContainablePair*)(*portIter)();
+   if (pRealPort == NULL)
+   {
+      return OS_NO_MORE_DATA;
+   }
+
+   UtlContainablePair *pVirtPort = (UtlContainablePair*)portIter->value();
+   realResourceName = *(UtlString*)pRealPort->getFirst();
+   realPortIndex = ((UtlInt*)pRealPort->getSecond())->getValue();
+   virtualResourceName = *(UtlString*)pVirtPort->getFirst();
+   virtualPortIndex = ((UtlInt*)pVirtPort->getSecond())->getValue();
+
+   return OS_SUCCESS;
+}
+
+void MpResourceTopology::initVirtualOutputIterator(VirtualPortIterator &portIter)
+{
+   portIter = new UtlHashMapIterator(mVirtualOutputs);
+}
+
+void MpResourceTopology::freeVirtualOutputIterator(VirtualPortIterator &portIter)
+{
+   // Implementation is the same as for getNextVirtualInput().
+   // Only difference between input and output iterator is in its construction.
+   freeVirtualInputIterator(portIter);
+}
+
+OsStatus MpResourceTopology::getNextVirtualOutput(VirtualPortIterator &portIter,
+                                                  UtlString& realResourceName,
+                                                  int &realPortIndex,
+                                                  UtlString& virtualResourceName,
+                                                  int &virtualPortIndex)
+{
+   // Implementation is the same as for getNextVirtualInput().
+   // Only difference between input and output iterator is in its construction.
+   return getNextVirtualInput(portIter, realResourceName, realPortIndex,
+                              virtualResourceName, virtualPortIndex);
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-void MpResourceTopology::replaceNumInName(UtlString& resourceName,
-                                          int resourceNum)
-{
-   int stringIndex = resourceName.index("%d");
-   if(stringIndex >= 0)
-   {
-      char numBuf[20];
-      sprintf(numBuf, "%d", resourceNum);
-      resourceName.replace(stringIndex, 2, numBuf);
-   }
-}
 
 int MpResourceTopology::findResourceConnections(const UtlString& resourceName,
                                                 UtlContainer& connections) const
@@ -377,6 +540,8 @@ int MpResourceTopology::findResourceConnections(const UtlString& resourceName,
    }
    return connectionsFound;
 }
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
 

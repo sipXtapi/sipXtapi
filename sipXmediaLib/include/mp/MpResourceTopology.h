@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPfoundry Inc.
+// Copyright (C) 2006-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -18,6 +18,7 @@
 #include <os/OsStatus.h>
 #include <utl/UtlString.h>
 #include <utl/UtlDList.h>
+#include <utl/UtlHashMap.h>
 
 // APPLICATION INCLUDES
 // DEFINES
@@ -44,11 +45,25 @@
 #define SPEAKER_NAME_SUFFIX "-Spkr"
 #define AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX "-outBuffer"
 
-#ifdef INSERT_DELAY_RESOURCE // [
-#  define DEFAULT_STREAM_LAST_RESOURCE_NAME DEFAULT_DELAY_RESOURCE_NAME CONNECTION_NAME_SUFFIX
-#else // INSERT_DELAY_RESOURCE ][
-#  define DEFAULT_STREAM_LAST_RESOURCE_NAME DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME CONNECTION_NAME_SUFFIX
-#endif // INSERT_DELAY_RESOURCE ]
+/**
+*  VIRTUAL_NAME_RTP_STREAM_OUTPUT is mapped to an outputs of RTP streams. This
+*  way we don't need to know about RTP stream implementation details no more.
+*  E.g. RTP stream might end with Voice Activity Detector resource or with Delay
+*  resource and VIRTUAL_NAME_RTP_STREAM_OUTPUT will always be mapped to
+*  the latest one.
+*/
+#define VIRTUAL_NAME_RTP_STREAM_OUTPUT "StreamOutput" CONNECTION_NAME_SUFFIX
+
+/**
+*  VIRTUAL_NAME_CONNECTION_PORTS is mapped to inputs and outputs to which
+*  output and input RTP connections should be linked. Usually this virtual
+*  inputs and output are mapped to Bridge inputs and outputs. But in case
+*  we want to insert Speaker Selection resource before the Bridge, virtual
+*  VIRTUAL_NAME_CONNECTION_PORTS inputs will be mapped to Speaker Selection
+*  inputs (because the Bridge inputs will be connected to the Speaker Selection
+*  outputs).
+*/
+#define VIRTUAL_NAME_CONNECTION_PORTS  "ConnectionPorts"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -58,6 +73,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpResourceFactory;
+class UtlHashMapIterator;
 
 /**
 *  @brief MpResourceTopology is used to define a set of resources and how they
@@ -97,6 +113,8 @@ public:
         MP_TOPOLOGY_NEXT_AVAILABLE_PORT = -1
     };
 
+    typedef UtlHashMapIterator* VirtualPortIterator;
+
 /* ============================ CREATORS ================================== */
 
       /// Constructor
@@ -129,6 +147,29 @@ public:
                           int outputPortIndex,
                           const UtlString& inputResourceName,
                           int inputPortIndex);
+
+     /// Add a new virtual input definition to the topology
+   OsStatus addVirtualInput(const UtlString& realResourceName,
+                            int realPortIndex,
+                            const UtlString& virtualResourceName,
+                            int virtualPortIndex);
+     /**<
+     *  @retval OS_INVALID_ARGUMENT if given real or virtual port is already
+     *          mapped.
+     *  @retval OS_SUCCESS on success.
+     */
+
+     /// Add a new virtual output definition to the topology
+   OsStatus addVirtualOutput(const UtlString& realResourceName,
+                             int realPortIndex,
+                             const UtlString& virtualResourceName,
+                             int virtualPortIndex);
+     /**<
+     *  @retval OS_INVALID_ARGUMENT if given real or virtual port is already
+     *          mapped.
+     *  @retval OS_NOT_FOUND if real resource name is not found in topology.
+     *  @retval OS_SUCCESS on success.
+     */
 
      /// Validate that the connections are connect the resources
    OsStatus validateConnections(UtlString& firstUnconnectedResourceName,
@@ -193,20 +234,70 @@ public:
      *  the next available port).
      */
 
+     /// Initialize virtual input ports iterator.
+   void initVirtualInputIterator(VirtualPortIterator &portIter);
+
+     /// Destroy virtual input ports iterator.
+   void freeVirtualInputIterator(VirtualPortIterator &portIter);
+
+     /// Get an virtual input data from an iterator.
+   OsStatus getNextVirtualInput(VirtualPortIterator &portIter,
+                                UtlString& realResourceName,
+                                int &realPortIndex,
+                                UtlString& virtualResourceName,
+                                int &virtualPortIndex);
+     /**<
+     *  This method can be called after initVirtualInputIterator() to get first
+     *  virtual input data and then again to get next virtual input data and
+     *  so on. Reaching the end of the virtual inputs list method starts return
+     *  OS_NO_MORE_DATA.
+     *
+     *  @retval OS_NO_MORE_DATA - No more virtual ports available. Output
+     *          parameters are not touched.
+     *  @retval OS_SUCCESS - Next virtual port fetched and all output parameters
+     *          are filed with correct values.
+     */
+
+     /// Initialize virtual output ports iterator.
+   void initVirtualOutputIterator(VirtualPortIterator &portIter);
+
+     /// Destroy virtual output ports iterator.
+   void freeVirtualOutputIterator(VirtualPortIterator &portIter);
+
+     /// Get an virtual output data from an iterator.
+   OsStatus getNextVirtualOutput(VirtualPortIterator &portIter,
+                                 UtlString& realResourceName,
+                                 int &realPortIndex,
+                                 UtlString& virtualResourceName,
+                                 int &virtualPortIndex);
+     /**<
+     *  This method can be called after initVirtualOutputIterator() to get first
+     *  virtual output data and then again to get next virtual output data and
+     *  so on. Reaching the end of the virtual outputs list method starts return
+     *  OS_NO_MORE_DATA.
+     *
+     *  @retval OS_NO_MORE_DATA - No more virtual ports available. Output
+     *          parameters are not touched.
+     *  @retval OS_SUCCESS - Next virtual port fetched and all output parameters
+     *          are filed with correct values.
+     */
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:
-
    int mPriorLogicalPort;
    UtlDList mResources;
    UtlDList mConnections;
+   UtlHashMap mVirtualInputs;  ///< Mapping between virtual and real inputs.
+   UtlHashMap mVirtualOutputs; ///< Mapping between virtual and real outputs.
 
    int findResourceConnections(const UtlString& resourceName,
                                UtlContainer& connectionsToTraverse) const;
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
 
      /// Disabled copy constructor
    MpResourceTopology(const MpResourceTopology& rMpResourceTopology);

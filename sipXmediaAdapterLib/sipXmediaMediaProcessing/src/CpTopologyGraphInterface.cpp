@@ -522,27 +522,31 @@ OsStatus CpTopologyGraphInterface::getConnectionPortOnBridge(int connectionId,
 {
    assert(connectionId >=0);
 
-   UtlString connectionName(DEFAULT_STREAM_LAST_RESOURCE_NAME);
+   UtlString connectionName(VIRTUAL_NAME_RTP_STREAM_OUTPUT);
    MpResourceTopology::replaceNumInName(connectionName, connectionId);
-   connectionName.append(STREAM_NAME_SUFFIX);
-   MpResourceTopology::replaceNumInName(connectionName, streamNum);
+   connectionName.appendFormat(STREAM_NAME_SUFFIX, streamNum);
 
-   return getResourceInputPortOnBridge(connectionName, portOnBridge);
+   return getResourceInputPortOnBridge(connectionName, 0, portOnBridge);
 }
 
 OsStatus CpTopologyGraphInterface::getResourceInputPortOnBridge(const UtlString &resourceName,
+                                                                int outputPortIdx,
                                                                 int& portOnBridge)
 {
-   MpResource* inConnection = NULL;
+   MpResource* pResource = NULL;
+   int realPortIndex;
 
-   OsStatus retStatus = mpTopologyGraph->lookupResource(resourceName, inConnection);
+   OsStatus retStatus = mpTopologyGraph->lookupOutput(resourceName,
+                                                      outputPortIdx,
+                                                      pResource,
+                                                      realPortIndex);
    if(OS_SUCCESS == retStatus)
    {
       MpResource* doNotTouchResource = NULL;
 
-      inConnection->getOutputInfo(0, // first and only port on in connection
-                                  doNotTouchResource, // not safe to access
-                                  portOnBridge);
+      pResource->getOutputInfo(realPortIndex,
+                               doNotTouchResource, // not safe to access
+                               portOnBridge);
    }
    else
    {
@@ -3016,7 +3020,7 @@ OsStatus CpTopologyGraphInterface::setConnectionWeightOnBridge(CpTopologyMediaCo
    MpConnectionID connectionId = mediaConnection->getValue();
 
    // Prepare input RTP streams names.
-   UtlString inStreamName(DEFAULT_STREAM_LAST_RESOURCE_NAME);
+   UtlString inStreamName(VIRTUAL_NAME_RTP_STREAM_OUTPUT);
    MpResourceTopology::replaceNumInName(inStreamName, connectionId);
    inStreamName.append(STREAM_NAME_SUFFIX);
 
@@ -3040,7 +3044,7 @@ OsStatus CpTopologyGraphInterface::setConnectionWeightOnBridge(CpTopologyMediaCo
       UtlString tmpName(inStreamName);
       MpResourceTopology::replaceNumInName(tmpName, i);
       int port;
-      OsStatus stat = getResourceInputPortOnBridge(tmpName, port);
+      OsStatus stat = getResourceInputPortOnBridge(tmpName, 0, port);
       if (stat != OS_SUCCESS)
       {
          assert(!"Can't determine bridge port number for stream!");

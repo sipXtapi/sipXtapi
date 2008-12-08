@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPfoundry Inc.
+// Copyright (C) 2006-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -15,7 +15,9 @@
 #include <utl/UtlInt.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlHashBag.h>
+#include <utl/UtlContainablePair.h>
 #include <utl/UtlHashBagIterator.h>
+#include <utl/UtlVoidPtr.h>
 #include <mp/MpTopologyGraph.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpResourceFactory.h>
@@ -54,6 +56,10 @@ MpTopologyGraph::MpTopologyGraph(int samplesPerFrame,
                          resourceFactory,
                          newResourcesAdded);
 
+    // Add virtual ports defined in the topology
+    addVirtualInputs(initialResourceTopology, newResourcesAdded);
+    addVirtualOutputs(initialResourceTopology, newResourcesAdded);
+
     // Add the links for the resources in the topology
     linkTopologyResources(initialResourceTopology, newResourcesAdded);
 
@@ -85,6 +91,8 @@ MpTopologyGraph::~MpTopologyGraph()
         OsTask::delay(20);   // wait 20 msecs before checking again
     }
 
+    mVirtualInputs.destroyAll();
+    mVirtualOutputs.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -107,6 +115,16 @@ OsStatus MpTopologyGraph::addResources(MpResourceTopology& incrementalTopology,
                          newResourcesAdded,
                          TRUE, 
                          resourceInstanceId);
+
+    // Add new virtual ports
+    addVirtualInputs(incrementalTopology,
+                     newResourcesAdded,
+                     TRUE,
+                     resourceInstanceId);
+    addVirtualOutputs(incrementalTopology,
+                      newResourcesAdded,
+                      TRUE,
+                      resourceInstanceId);
 
     // Add the links for the resources in the topology
     linkTopologyResources(incrementalTopology, 
@@ -221,10 +239,145 @@ OsStatus MpTopologyGraph::loseFocus(void)
 
 /* ============================ ACCESSORS ================================= */
 
-// Returns the type of this flow graph.
 MpFlowGraphBase::FlowGraphType MpTopologyGraph::getType()
 {
    return MpFlowGraphBase::TOPOLOGY_FLOWGRAPH;
+}
+
+OsStatus MpTopologyGraph::lookupVirtualInput(const UtlString& virtualName,
+                                             int virtualPortIdx,
+                                             MpResource*& rpResource,
+                                             int &portIdx)
+{
+   UtlInt virtualPortNum(virtualPortIdx);
+   UtlContainablePair virtPair((UtlContainable*)&virtualName, &virtualPortNum);
+   UtlContainablePair *realPair;
+   
+   // Attempt to search for real port as is
+   realPair = (UtlContainablePair*)mVirtualInputs.findValue(&virtPair);
+   if (realPair == NULL && virtualPortIdx >= 0)
+   {
+      // If not found - try to search for virtual port -1 (wildcard value).
+      virtualPortNum.setValue(-1);
+      realPair = (UtlContainablePair*)mVirtualInputs.findValue(&virtPair);
+   }
+
+   // Set to NULL to prevent deletion of stack variables
+   virtPair.setFirst(NULL);
+   virtPair.setSecond(NULL);
+
+   if (!realPair)
+   {
+      // Nothing found
+      return OS_NOT_FOUND;
+   }
+
+   rpResource = (MpResource*)((UtlVoidPtr*)realPair->getFirst())->getValue();
+   portIdx = ((UtlInt*)realPair->getSecond())->getValue();
+
+   return OS_SUCCESS;
+}
+
+OsStatus MpTopologyGraph::lookupVirtualOutput(const UtlString& virtualName,
+                                              int virtualPortIdx,
+                                              MpResource*& rpResource,
+                                              int &portIdx)
+{
+   UtlInt virtualPortNum(virtualPortIdx);
+   UtlContainablePair virtPair((UtlContainable*)&virtualName, &virtualPortNum);
+   UtlContainablePair *realPair;
+   
+   // Attempt to search for real port as is
+   realPair = (UtlContainablePair*)mVirtualOutputs.findValue(&virtPair);
+   if (realPair == NULL && virtualPortIdx >= 0)
+   {
+      // If not found - try to search for virtual port -1 (wildcard value).
+      virtualPortNum.setValue(-1);
+      realPair = (UtlContainablePair*)mVirtualOutputs.findValue(&virtPair);
+   }
+
+   // Set to NULL to prevent deletion of stack variables
+   virtPair.setFirst(NULL);
+   virtPair.setSecond(NULL);
+
+   if (!realPair)
+   {
+      // Nothing found
+      return OS_NOT_FOUND;
+   }
+
+   rpResource = (MpResource*)((UtlVoidPtr*)realPair->getFirst())->getValue();
+   portIdx = ((UtlInt*)realPair->getSecond())->getValue();
+
+   return OS_SUCCESS;
+}
+
+OsStatus MpTopologyGraph::lookupInput(const UtlString& resourceName,
+                                      int portIdx,
+                                      MpResource*& pFoundResource,
+                                      int &foundPortIdx)
+{
+   OsStatus result;
+
+   // Set default value of port.
+   foundPortIdx = portIdx;
+
+   // Look for real resource first.
+   result = lookupResource(resourceName, pFoundResource);
+   if(result != OS_SUCCESS)
+   {
+      // Look for virtual port
+      int virtPortIdx = portIdx>=0?portIdx:-1;
+      int realPortIdx;
+      result = lookupVirtualInput(resourceName, virtPortIdx,
+                                  pFoundResource, realPortIdx);
+      if (result == OS_SUCCESS)
+      {
+         if (realPortIdx >= 0)
+         {
+            // Update found port index only if returned port index points to
+            // real input.
+            foundPortIdx = realPortIdx;
+         }
+         assert(!(portIdx < -1 && realPortIdx >= 0));
+      }
+   }
+
+   return result;
+}
+
+OsStatus MpTopologyGraph::lookupOutput(const UtlString& resourceName,
+                                       int portIdx,
+                                       MpResource*& pFoundResource,
+                                       int &foundPortIdx)
+{
+   OsStatus result;
+
+   // Set default value of port.
+   foundPortIdx = portIdx;
+
+   // Look for real resource first.
+   result = lookupResource(resourceName, pFoundResource);
+   if(result != OS_SUCCESS)
+   {
+      // Look for virtual port
+      int virtPortIdx = portIdx>=0?portIdx:-1;
+      int realPortIdx;
+      result = lookupVirtualOutput(resourceName, virtPortIdx,
+                                   pFoundResource, realPortIdx);
+      if (result == OS_SUCCESS)
+      {
+         if (realPortIdx >= 0)
+         {
+            // Update found port index only if returned port index points to
+            // real output.
+            foundPortIdx = realPortIdx;
+         }
+         assert(!(portIdx < -1 && realPortIdx >= 0));
+      }
+   }
+
+   return result;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -303,6 +456,116 @@ int MpTopologyGraph::addTopologyResources(MpResourceTopology& resourceTopology,
     return(resourceIndex);
 }
 
+int MpTopologyGraph::addVirtualInputs(MpResourceTopology& resourceTopology,
+                                      UtlHashBag& newResources,
+                                      UtlBoolean replaceNumInName,
+                                      int resourceNum)
+{
+   int portsAdded = 0;
+   MpResourceTopology::VirtualPortIterator portIter;
+   UtlString realResourceName;
+   int realPortIdx;
+   UtlString virtualResourceName;
+   int virtualPortIdx;
+
+   resourceTopology.initVirtualInputIterator(portIter);
+   while (resourceTopology.getNextVirtualInput(portIter,
+                                               realResourceName, realPortIdx,
+                                               virtualResourceName, virtualPortIdx)
+          == OS_SUCCESS)
+   {
+      if(replaceNumInName)
+      {
+         MpResourceTopology::replaceNumInName(realResourceName, resourceNum);
+         MpResourceTopology::replaceNumInName(virtualResourceName, resourceNum);
+      }
+
+      // Lookup real resource.
+      MpResource *pResource = (MpResource*)newResources.find(&realResourceName);
+      assert(pResource);
+      if (!pResource)
+      {
+         continue;
+      }
+
+      // Check port index correctness. Note, that this check gracefully
+      // handles case with realPortIdx equal -1.
+      if (realPortIdx >= pResource->maxInputs())
+      {
+         assert(!"Trying to map virtual port to non existing real port!");
+         continue;
+      }
+
+      // Add entry to virtual ports map.
+      // We need to create UtlVoidPtr wrapper for pResource, or it will be
+      // destroyed on pair deletion.
+      UtlContainablePair *pRealPort = new UtlContainablePair(new UtlVoidPtr(pResource),
+                                                             new UtlInt(realPortIdx));
+      UtlContainablePair *pVirtPort = new UtlContainablePair(new UtlString(virtualResourceName),
+                                                             new UtlInt(virtualPortIdx));
+      mVirtualInputs.insertKeyAndValue(pVirtPort, pRealPort);
+      portsAdded++;
+   }
+   resourceTopology.freeVirtualInputIterator(portIter);
+
+   return portsAdded;
+}
+
+int MpTopologyGraph::addVirtualOutputs(MpResourceTopology& resourceTopology,
+                                       UtlHashBag& newResources,
+                                       UtlBoolean replaceNumInName,
+                                       int resourceNum)
+{
+   int portsAdded = 0;
+   MpResourceTopology::VirtualPortIterator portIter;
+   UtlString realResourceName;
+   int realPortIdx;
+   UtlString virtualResourceName;
+   int virtualPortIdx;
+
+   resourceTopology.initVirtualOutputIterator(portIter);
+   while (resourceTopology.getNextVirtualOutput(portIter,
+                                                realResourceName, realPortIdx,
+                                                virtualResourceName, virtualPortIdx)
+          == OS_SUCCESS)
+   {
+      if(replaceNumInName)
+      {
+         MpResourceTopology::replaceNumInName(realResourceName, resourceNum);
+         MpResourceTopology::replaceNumInName(virtualResourceName, resourceNum);
+      }
+
+      // Lookup real resource.
+      MpResource *pResource = (MpResource*)newResources.find(&realResourceName);
+      assert(pResource);
+      if (!pResource)
+      {
+         continue;
+      }
+
+      // Check port index correctness. Note, that this check gracefully
+      // handles case with realPortIdx equal -1.
+      if (realPortIdx >= pResource->maxOutputs())
+      {
+         assert(!"Trying to map virtual port to non existing real port!");
+         continue;
+      }
+
+      // Add entry to virtual ports map.
+      // We need to create UtlVoidPtr wrapper for pResource, or it will be
+      // destroyed on pair deletion.
+      UtlContainablePair *pRealPort = new UtlContainablePair(new UtlVoidPtr(pResource),
+                                                             new UtlInt(realPortIdx));
+      UtlContainablePair *pVirtPort = new UtlContainablePair(new UtlString(virtualResourceName),
+                                                             new UtlInt(virtualPortIdx));
+      mVirtualOutputs.insertKeyAndValue(pVirtPort, pRealPort);
+      portsAdded++;
+   }
+   resourceTopology.freeVirtualOutputIterator(portIter);
+
+   return portsAdded;
+}
+
 int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
                                            UtlHashBag& newResources,
                                            UtlBoolean replaceNumInName,
@@ -331,10 +594,10 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
 #endif
 
     while(resourceTopology.getConnection(connectionIndex,
-    	                                 outputResourceName,
-    	                                 outputResourcePortIndex,
-    	                                 inputResourceName,
-    	                                 inputResourcePortIndex) == OS_SUCCESS)
+                                         outputResourceName,
+                                         outputResourcePortIndex,
+                                         inputResourceName,
+                                         inputResourcePortIndex) == OS_SUCCESS)
     {
         if(replaceNumInName)
         {
@@ -351,8 +614,14 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
             result = lookupResource(outputResourceName, outputResource);
             if(result != OS_SUCCESS)
             {
-                printf("MpTopologyGraph::linkTopologyResources could not find output resource: \"%s\"\n",
-                    outputResourceName.data());
+                int virtPortIdx = outputResourcePortIndex>=0?outputResourcePortIndex:-1;
+                int realPortIdx;
+                result = lookupVirtualOutput(outputResourceName, virtPortIdx,
+                                             outputResource, realPortIdx);
+                if (result == OS_SUCCESS && outputResourcePortIndex>=0)
+                {
+                   outputResourcePortIndex = realPortIdx;
+                }
             }
             assert(result == OS_SUCCESS);
         }
@@ -360,6 +629,17 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
         if(inputResource == NULL)
         {
             result = lookupResource(inputResourceName, inputResource);
+            if(result != OS_SUCCESS)
+            {
+                int virtPortIdx = inputResourcePortIndex>=0?inputResourcePortIndex:-1;
+                int realPortIdx;
+                result = lookupVirtualInput(inputResourceName, virtPortIdx,
+                                            inputResource, realPortIdx);
+                if (result == OS_SUCCESS && inputResourcePortIndex>=0)
+                {
+                   inputResourcePortIndex = realPortIdx;
+                }
+            }
             assert(result == OS_SUCCESS);
         }
         assert(outputResource);

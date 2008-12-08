@@ -422,6 +422,16 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
                                            DEFAULT_AEC_RESOURCE_NAME);
     assert(result == OS_SUCCESS);
 
+    // Map Bridge inputs to ConnectionPorts
+    result = resourceTopology->addVirtualInput(DEFAULT_BRIDGE_RESOURCE_NAME, -1,
+                                               VIRTUAL_NAME_CONNECTION_PORTS, -1);
+    assert(result == OS_SUCCESS);
+
+    // Map Bridge outputs to ConnectionPorts
+    result = resourceTopology->addVirtualOutput(DEFAULT_BRIDGE_RESOURCE_NAME, -1,
+                                                VIRTUAL_NAME_CONNECTION_PORTS, -1);
+    assert(result == OS_SUCCESS);
+
     // Link fromFile to bridge
     result = resourceTopology->addConnection(DEFAULT_FROM_FILE_RESOURCE_NAME, 0,
                                              DEFAULT_BRIDGE_RESOURCE_NAME, 1);
@@ -578,9 +588,15 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildUnicastConnectionResourceTo
     prevResourceName = delayName;
 #endif // INSERT_DELAY_RESOURCE ]
 
+    // Mark last resource as RTP Stream Output
+    UtlString streamOutputName(VIRTUAL_NAME_RTP_STREAM_OUTPUT "-0");
+    result = resourceTopology->addVirtualOutput(prevResourceName, 0,
+                                                streamOutputName, 0);
+    assert(result == OS_SUCCESS);
+
     // -> bridge
     result = resourceTopology->addConnection(prevResourceName, 0, 
-                                             DEFAULT_BRIDGE_RESOURCE_NAME, logicalPortNum);
+                                             VIRTUAL_NAME_CONNECTION_PORTS, logicalPortNum);
     assert(result == OS_SUCCESS);
 
     addOutputConnectionTopology(resourceTopology, logicalPortNum);
@@ -666,9 +682,16 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildMulticastConnectionResource
        lastResourceName = tmpDelayName;
 #endif // INSERT_DELAY_RESOURCE ]
 
+       // Mark last resource as RTP Stream Output
+       UtlString streamOutputName(VIRTUAL_NAME_RTP_STREAM_OUTPUT);
+       streamOutputName.append(streamSuffix);
+       result = resourceTopology->addVirtualOutput(lastResourceName, 0,
+                                                   streamOutputName, 0);
+       assert(result == OS_SUCCESS);
+
        // -> bridge
        result = resourceTopology->addConnection(lastResourceName, 0,
-                                                DEFAULT_BRIDGE_RESOURCE_NAME,
+                                                VIRTUAL_NAME_CONNECTION_PORTS,
                                                 MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT);
        assert(result == OS_SUCCESS);
     }
@@ -752,7 +775,7 @@ void CpTopologyGraphFactoryImpl::addOutputConnectionTopology(MpResourceTopology*
     assert(result == OS_SUCCESS);
 
     // Link bridge -> Output connection Voice Activity Notifier
-    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, logicalPortNum, 
+    result = resourceTopology->addConnection(VIRTUAL_NAME_CONNECTION_PORTS, logicalPortNum, 
                                              outConnectionVaNotitName, 0);
     assert(result == OS_SUCCESS);
 
