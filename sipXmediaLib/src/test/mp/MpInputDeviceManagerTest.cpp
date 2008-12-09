@@ -262,10 +262,13 @@ public:
          readerTask.start();
 
          // wait for frames to be read with slop time
-         int readerTaskWait = (int)(framePeriodMilliseconds * 1.5 * numBufferedFrames);
-         printf("waiting %dms for reader to finish\n", readerTaskWait);
+         int readerTaskExpectedCompletionMillis = 
+            (int)(framePeriodMilliseconds * 1.5 * numBufferedFrames);
+         int readerTaskWaitMillis = 1000;
+         printf("Expecting reader completion in %dms, waiting %dms for reader to finish\n",
+                readerTaskExpectedCompletionMillis, readerTaskWait);
          // Do not block forever, wait 1sec
-         OsTime maxWaitTime(0, 1000000);
+         OsTime maxWaitTime(0, readerTaskWaitMillis * 1000);
          CPPUNIT_ASSERT(readerFinished.wait(maxWaitTime) == OS_SUCCESS);
          printf("done waiting for reader\n");
 
