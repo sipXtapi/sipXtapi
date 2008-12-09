@@ -236,102 +236,120 @@ public:
          inputDeviceManager.addDevice(*sineWaveDevice);
       CPPUNIT_ASSERT(sineWaveDeviceId > 0);
 
-      // Create a task to read frames from manager
-      MpAudioBufPtr*  storedSignal = new MpAudioBufPtr[numBufferedFrames];
-      OsEvent readerFinished;
-      MpInputDeviceManagerTestReader readerTask(numBufferedFrames,
-                                                framePeriodMilliseconds,
-                                                storedSignal,
-                                                sineWaveDeviceId,
-                                                inputDeviceManager,
-                                                readerFinished);
+      try {
+         // Create a task to read frames from manager
+         MpAudioBufPtr*  storedSignal = new MpAudioBufPtr[numBufferedFrames];
+         OsEvent readerFinished;
+         MpInputDeviceManagerTestReader readerTask(numBufferedFrames,
+                                                   framePeriodMilliseconds,
+                                                   storedSignal,
+                                                   sineWaveDeviceId,
+                                                   inputDeviceManager,
+                                                   readerFinished);
 
-      // Should fail as it is not enabled yet
-      CPPUNIT_ASSERT(inputDeviceManager.disableDevice(sineWaveDeviceId) != OS_SUCCESS);
+         // Should fail as it is not enabled yet
+         CPPUNIT_ASSERT(inputDeviceManager.disableDevice(sineWaveDeviceId) !=
+                        OS_SUCCESS);
 
-      // Enable the device
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           inputDeviceManager.enableDevice(sineWaveDeviceId));
-      CPPUNIT_ASSERT(inputDeviceManager.isDeviceEnabled(sineWaveDeviceId));
+         // Enable the device
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              inputDeviceManager.enableDevice(sineWaveDeviceId));
+         CPPUNIT_ASSERT(inputDeviceManager.isDeviceEnabled(sineWaveDeviceId));
 
-      OsTask::delay(1); // give the device thread a chance to get started
+         OsTask::delay(1); // give the device thread a chance to get started
 
-      // Start the task to read frames
-      readerTask.start();
+         // Start the task to read frames
+         readerTask.start();
 
-      // wait for frames to be read with slop time
-      int readerTaskWait = (int)(framePeriodMilliseconds * 1.5 * numBufferedFrames);
-      printf("waiting %dms for reader to finish\n", readerTaskWait);
-      // Do not block forever, wait 1sec
-      OsTime maxWaitTime(0, 1000000);
-      CPPUNIT_ASSERT(readerFinished.wait(maxWaitTime) == OS_SUCCESS);
-      printf("done waiting for reader\n");
+         // wait for frames to be read with slop time
+         int readerTaskWait = (int)(framePeriodMilliseconds * 1.5 * numBufferedFrames);
+         printf("waiting %dms for reader to finish\n", readerTaskWait);
+         // Do not block forever, wait 1sec
+         OsTime maxWaitTime(0, 1000000);
+         CPPUNIT_ASSERT(readerFinished.wait(maxWaitTime) == OS_SUCCESS);
+         printf("done waiting for reader\n");
 
-      CPPUNIT_ASSERT(readerTask.mRunDone);
-      CPPUNIT_ASSERT_EQUAL(0, readerTask.mNumStarvations);
-      CPPUNIT_ASSERT(readerTask.isShutDown());
+         CPPUNIT_ASSERT(readerTask.mRunDone);
+         CPPUNIT_ASSERT_EQUAL(0, readerTask.mNumStarvations);
+         CPPUNIT_ASSERT(readerTask.isShutDown());
 
-      CPPUNIT_ASSERT(abs(readerTask.mActualLapseTime - readerTask.mLapseTime) < 4000 * numBufferedFrames);
-      CPPUNIT_ASSERT_EQUAL(0, readerTask.mRetryCount);
+         CPPUNIT_ASSERT(abs(readerTask.mActualLapseTime - readerTask.mLapseTime) < 4000 * numBufferedFrames);
+         CPPUNIT_ASSERT_EQUAL(0, readerTask.mRetryCount);
 
-      // Validate the actual frame data
-      int frameIndex;
-      char frameMessage[100];
-      int tolerance = 1;
-      int sampleIndex;
-      MpAudioBufPtr referenceFrame = mpPool->getBuffer();
-      CPPUNIT_ASSERT(referenceFrame.isValid());
-      MpAudioSample* referenceSamples = referenceFrame->getSamplesWritePtr();
-      MpAudioSample* actualSamples;
-      MpFrameTime frameTime = readerTask.mFirstFrameTime;
-      for(frameIndex = 0; frameIndex < numBufferedFrames; frameIndex++)
-      {
-         sprintf(frameMessage, "Validating frame: %d", frameIndex);
-         CPPUNIT_ASSERT_MESSAGE(frameMessage, storedSignal[frameIndex].isValid());
-         CPPUNIT_ASSERT_EQUAL_MESSAGE(frameMessage, 
-                                      samplesPerFrame,
-                                      storedSignal[frameIndex]->getSamplesNumber());
-
-         // Calculate the reference frame data
-         actualSamples = storedSignal[frameIndex]->getSamplesWritePtr();
-         for(sampleIndex = 0; (unsigned)sampleIndex < samplesPerFrame; sampleIndex++)
+         // Validate the actual frame data
+         int frameIndex;
+         char frameMessage[100];
+         int tolerance = 1;
+         int sampleIndex;
+         MpAudioBufPtr referenceFrame = mpPool->getBuffer();
+         CPPUNIT_ASSERT(referenceFrame.isValid());
+         MpAudioSample* referenceSamples = referenceFrame->getSamplesWritePtr();
+         MpAudioSample* actualSamples;
+         MpFrameTime frameTime = readerTask.mFirstFrameTime;
+         for(frameIndex = 0; frameIndex < numBufferedFrames; frameIndex++)
          {
-            referenceSamples[sampleIndex] =
-               MpSineWaveGeneratorDeviceDriver::calculateSample(frameTime, 
-                                                                sineMagnatude,
-                                                                sinePeriod,
-                                                                sampleIndex,
-                                                                samplesPerFrame,
-                                                                samplesPerSecond);
+            sprintf(frameMessage, "Validating frame: %d", frameIndex);
+            CPPUNIT_ASSERT_MESSAGE(frameMessage, storedSignal[frameIndex].isValid());
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(frameMessage, 
+                                         samplesPerFrame,
+                                         storedSignal[frameIndex]->getSamplesNumber());
+
+            // Calculate the reference frame data
+            actualSamples = storedSignal[frameIndex]->getSamplesWritePtr();
+            for(sampleIndex = 0; (unsigned)sampleIndex < samplesPerFrame; sampleIndex++)
+            {
+               referenceSamples[sampleIndex] =
+                  MpSineWaveGeneratorDeviceDriver::calculateSample(frameTime, 
+                                                                   sineMagnatude,
+                                                                   sinePeriod,
+                                                                   sampleIndex,
+                                                                   samplesPerFrame,
+                                                                   samplesPerSecond);
+            }
+
+            /*printf("frame sample[%d,%d] r=%d a=%d\n",
+                    frameIndex,
+                    sampleIndex,
+                    referenceSamples[0],
+                    actualSamples[0]);*/
+
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(frameMessage, 0,
+                                         storedSignal[frameIndex]->compareSamples(referenceFrame, tolerance));
+            frameTime += framePeriodMilliseconds;
          }
 
-         /*printf("frame sample[%d,%d] r=%d a=%d\n",
-                 frameIndex,
-                 sampleIndex,
-                 referenceSamples[0],
-                 actualSamples[0]);*/
 
-         CPPUNIT_ASSERT_EQUAL_MESSAGE(frameMessage, 0,
-                                      storedSignal[frameIndex]->compareSamples(referenceFrame, tolerance));
-         frameTime += framePeriodMilliseconds;
+#ifdef RTL_ENABLED
+         RTL_WRITE("testSineInput1.rtl");
+#endif
+         // Stop generating the sine wave ASAP
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              inputDeviceManager.disableDevice(sineWaveDeviceId));
+
+#ifdef RTL_ENABLED
+         RTL_WRITE("testSineInput2.rtl");
+         RTL_STOP;
+#endif
+
+         printf("finished good clock\n");
+
+         // Cleanup stored signal
+         delete[] storedSignal;
+         storedSignal = NULL;
+      }
+      catch (CppUnit::Exception& e) {
+         // If there is an exception anywhere in here, we need to explicitly
+         // remove the sine wave device, otherwise we will get assertion 
+         // failures from the input device manager destructor
+         CPPUNIT_ASSERT_EQUAL((MpInputDeviceDriver*)sineWaveDevice, 
+            inputDeviceManager.removeDevice(sineWaveDeviceId));
+
+         // and rethrow the exeption
+         throw(e);
       }
 
-
-#ifdef RTL_ENABLED
-      RTL_WRITE("testSineInput1.rtl");
-#endif
-      // Stop generating the sine wave ASAP
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           inputDeviceManager.disableDevice(sineWaveDeviceId));
-
-#ifdef RTL_ENABLED
-      RTL_WRITE("testSineInput2.rtl");
-      RTL_STOP;
-#endif
-
-      printf("finished good clock\n");
-      CPPUNIT_ASSERT_EQUAL(inputDeviceManager.removeDevice(sineWaveDeviceId), 
-                           (MpInputDeviceDriver*)sineWaveDevice);
+      CPPUNIT_ASSERT_EQUAL((MpInputDeviceDriver*)sineWaveDevice, 
+                           inputDeviceManager.removeDevice(sineWaveDeviceId));
       delete sineWaveDevice;
       sineWaveDevice = NULL;
 
@@ -342,8 +360,6 @@ public:
 
       // TODO: Create another driver which runs too fast.
 
-      delete[] storedSignal;
-      storedSignal = NULL;
    }
 
 protected:
