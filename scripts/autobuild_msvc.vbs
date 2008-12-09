@@ -109,13 +109,13 @@ end if
 
 ' For now we say vc8 isn't supported, since priority is on getting vc6 working.
 ' Only vc6 is currently supported.
-'if vcVer = "8.0" then
-'   WScript.stderr.writeline("Visual Studio 2005 is not currently supported")
-'   WScript.Quit(3)
-'elseif vcVer <> "6.0" then
-'   WScript.stderr.writeline("Only Visual Studio 6.0 is currently supported")
-'   WScript.Quit(3)
-'end if 
+if vcVer = "8.0" then
+   WScript.stderr.writeline("Visual Studio 2005 is not currently supported")
+   WScript.Quit(3)
+elseif vcVer <> "6.0" then
+   WScript.stderr.writeline("Only Visual Studio 6.0 is currently supported")
+   WScript.Quit(3)
+end if 
 
 'WScript.echo("PATH = " & objShell.environment("process")("PATH")) ' Debug
 'WScript.Quit(0) ' Debug
@@ -199,6 +199,18 @@ if vcVer = "6.0" then
       objFS.deleteFile(exe)
    end if
    errCode = runWithOutput("msdev sipXtackLibTest.dsp /MAKE ""sipXtackLibTest - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile libspeex (for medialib)
+if vcVer = "6.0" then 
+   staticlibfile = "..\..\lib\libspeex.lib"
+   objShell.CurrentDirectory = cDir & "\sipXmediaLib\contrib\libspeex\win32\libspeex"
+   if objFS.FileExists(staticlibfile) then
+      objFS.deleteFile(staticlibfile)
+   end if
+   errCode = runWithOutput("msdev libspeex.dsp /MAKE ""libspeex - Win32 " & releaseType & """" & doClean)
 end if
 quitIfError(errCode)
 
