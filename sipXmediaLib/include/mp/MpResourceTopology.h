@@ -115,6 +115,23 @@ public:
 
     typedef UtlHashMapIterator* VirtualPortIterator;
 
+      /// A resource type for use with addResources().
+    struct ResourceDef
+    {
+       const UtlString& resourceType;
+       const UtlString& resourceName;
+       MpConnectionID connectionId;
+       int streamId;
+    };
+      /// A connection type for use with addConnections().
+    struct ConnectionDef
+    {
+       const UtlString& outputResourceName;
+       int outputPortIndex;
+       const UtlString& inputResourceName;
+       int inputPortIndex;
+    };
+
 /* ============================ CREATORS ================================== */
 
       /// Constructor
@@ -142,11 +159,34 @@ public:
      *  @returns OS_NAME_IN_USE if resourceName already exists in this topology
      */
 
+     /// Add resources from an array.
+   OsStatus addResources(const ResourceDef *defines, int numDefines);
+     /**<
+     *  This method is barely a convenient wrapper around addResource().
+     *
+     *  @see addResource() for more details.
+     */
+
      /// Add a new connection definition to the topology
    OsStatus addConnection(const UtlString& outputResourceName,
                           int outputPortIndex,
                           const UtlString& inputResourceName,
                           int inputPortIndex);
+
+     /// Add resources from an array.
+   OsStatus addConnections(const ConnectionDef *defines, int numDefines);
+     /**<
+     *  This method is barely a convenient wrapper around addConnection().
+     *  This method also supports easy creation of chained resources. If
+     *  outputResourceName is NULL for some connections, name of a source
+     *  resource is taken from previous inputResourceName. This implies
+     *  that first connection should always have outputResourceName set.
+     *
+     *  @see addConnection() for more details.
+     *
+     *  @return The same values as addConnection() and OS_INVALID_ARGUMENT
+     *          if first connection have NULL outputResourceName.
+     */
 
      /// Add a new virtual input definition to the topology
    OsStatus addVirtualInput(const UtlString& realResourceName,

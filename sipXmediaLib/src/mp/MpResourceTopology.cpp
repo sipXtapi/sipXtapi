@@ -122,7 +122,22 @@ OsStatus MpResourceTopology::addResource(const UtlString& resourceType,
    return result;
 }
 
-    /// Add a new connection definition to the topology
+OsStatus MpResourceTopology::addResources(const ResourceDef *defines,
+                                          int numDefines)
+{
+   OsStatus result;
+   for (int i=0; i<numDefines; i++)
+   {
+      result = addResource(defines[i].resourceType, defines[i].resourceName,
+                           defines[i].connectionId, defines[i].streamId);
+      if (result != OS_SUCCESS)
+      {
+         return result;
+      }
+   }
+   return OS_SUCCESS;
+}
+
 OsStatus MpResourceTopology::addConnection(const UtlString& outputResourceName,
                                            int outputPortIndex,
                                            const UtlString& inputResourceName,
@@ -132,6 +147,37 @@ OsStatus MpResourceTopology::addConnection(const UtlString& outputResourceName,
                                                           outputPortIndex,
                                                           inputResourceName,
                                                           inputPortIndex));
+   return OS_SUCCESS;
+}
+
+OsStatus MpResourceTopology::addConnections(const ConnectionDef *defines,
+                                            int numDefines)
+{
+   OsStatus result;
+
+   // At the beginning we don't know the previous resource.
+   if (defines[0].outputResourceName.isNull())
+   {
+      return OS_INVALID_ARGUMENT;
+   }
+
+   // Create connections
+   for (int i=0; i<numDefines; i++)
+   {
+      // If NULL is passed as a source resource name, connect to last resource.
+      const UtlString outputResourceName = defines[i].outputResourceName.isNull()
+                                          ? defines[i-1].inputResourceName
+                                          : defines[i].outputResourceName;
+      // Add connection.
+      result = addConnection(outputResourceName,
+                             defines[i].outputPortIndex,
+                             defines[i].inputResourceName,
+                             defines[i].inputPortIndex);
+      if (result != OS_SUCCESS)
+      {
+         return result;
+      }
+   }
    return OS_SUCCESS;
 }
 
