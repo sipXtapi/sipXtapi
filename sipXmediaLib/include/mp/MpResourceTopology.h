@@ -217,8 +217,7 @@ public:
                             const UtlString& virtualResourceName,
                             int virtualPortIndex);
      /**<
-     *  @retval OS_INVALID_ARGUMENT if given real or virtual port is already
-     *          mapped.
+     *  @retval OS_INVALID_ARGUMENT if given virtual port is already used.
      *  @retval OS_SUCCESS on success.
      */
 
@@ -228,8 +227,7 @@ public:
                              const UtlString& virtualResourceName,
                              int virtualPortIndex);
      /**<
-     *  @retval OS_INVALID_ARGUMENT if given real or virtual port is already
-     *          mapped.
+     *  @retval OS_INVALID_ARGUMENT if given virtual port is already used.
      *  @retval OS_NOT_FOUND if real resource name is not found in topology.
      *  @retval OS_SUCCESS on success.
      */
@@ -281,6 +279,18 @@ public:
      /// Get the resource name by the resourceIndex
    OsStatus getResource(int resourceIndex,
                         UtlString& resourceName) const;
+
+     /// Get the resource name and port index by the virtual input name and port index.
+   OsStatus getInputVirtualResource(const UtlString &virtualName,
+                                    int virtualPort,
+                                    UtlString& resourceName,
+                                    int &resourcePort) const;
+
+     /// Get the resource name and port index by the virtual output name and port index.
+   OsStatus getOutputVirtualResource(const UtlString &virtualName,
+                                     int virtualPort,
+                                     UtlString& resourceName,
+                                     int &resourcePort) const;
 
      /// Get the connection definition indicated by the connectionIndex
    OsStatus getConnection(int connectionIndex,

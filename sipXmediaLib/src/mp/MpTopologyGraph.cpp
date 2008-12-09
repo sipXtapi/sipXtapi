@@ -277,8 +277,15 @@ OsStatus MpTopologyGraph::lookupVirtualInput(const UtlString& virtualName,
       return OS_NOT_FOUND;
    }
 
+   // Return found values
    rpResource = (MpResource*)((UtlVoidPtr*)realPair->getFirst())->getValue();
    portIdx = ((UtlInt*)realPair->getSecond())->getValue();
+   if (portIdx < 0 && virtualPortIdx > 0)
+   {
+      // If concrete port is requested, but wildcard is found - return
+      // concrete value.
+      portIdx = virtualPortIdx;
+   }
 
    return OS_SUCCESS;
 }
@@ -311,8 +318,15 @@ OsStatus MpTopologyGraph::lookupVirtualOutput(const UtlString& virtualName,
       return OS_NOT_FOUND;
    }
 
+   // Return found values
    rpResource = (MpResource*)((UtlVoidPtr*)realPair->getFirst())->getValue();
    portIdx = ((UtlInt*)realPair->getSecond())->getValue();
+   if (portIdx < 0 && virtualPortIdx > 0)
+   {
+      // If concrete port is requested, but wildcard is found - return
+      // concrete value.
+      portIdx = virtualPortIdx;
+   }
 
    return OS_SUCCESS;
 }

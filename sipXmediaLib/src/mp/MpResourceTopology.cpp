@@ -203,13 +203,13 @@ OsStatus MpResourceTopology::addVirtualInput(const UtlString& realResourceName,
       return OS_INVALID_ARGUMENT;
    }
 
-   // Allocate pair for the real port and check if it is already present in the map.
-   UtlContainablePair *pRealPort = new UtlContainablePair(new UtlString(realResourceName),
-                                                          new UtlInt(realPortIndex));
-   if (mVirtualInputs.contains(pRealPort))
+   // Allocate pair for the virtual port and check if it is already present in the map.
+   UtlContainablePair *pVirtPort = new UtlContainablePair(new UtlString(virtualResourceName),
+                                                          new UtlInt(virtualPortIndex));
+   if (mVirtualInputs.contains(pVirtPort))
    {
-      // Some virtual port is already assigned to this real port.
-      delete pRealPort;
+      // This virtual port is already used.
+      delete pVirtPort;
       return OS_INVALID_ARGUMENT;
    }
 
@@ -226,14 +226,14 @@ OsStatus MpResourceTopology::addVirtualInput(const UtlString& realResourceName,
    }
    if (!realResourceFound)
    {
-      delete pRealPort;
+      delete pVirtPort;
       return OS_NOT_FOUND;
    }
 
-   // Allocate pair for the virtual port and try to add it to the map.
-   UtlContainablePair *pVirtPort = new UtlContainablePair(new UtlString(virtualResourceName),
-                                                          new UtlInt(virtualPortIndex));
-   if (mVirtualInputs.insertKeyAndValue(pRealPort, pVirtPort) == NULL)
+   // Allocate pair for the real port and try to add it to the map.
+   UtlContainablePair *pRealPort = new UtlContainablePair(new UtlString(realResourceName),
+                                                          new UtlInt(realPortIndex));
+   if (mVirtualInputs.insertKeyAndValue(pVirtPort, pRealPort) == NULL)
    {
       // This virtual port is already assigned.
       delete pRealPort;
@@ -255,13 +255,13 @@ OsStatus MpResourceTopology::addVirtualOutput(const UtlString& realResourceName,
       return OS_INVALID_ARGUMENT;
    }
 
-   // Allocate pair for the real port and check if it is already present in the map.
-   UtlContainablePair *pRealPort = new UtlContainablePair(new UtlString(realResourceName),
-                                                          new UtlInt(realPortIndex));
-   if (mVirtualOutputs.contains(pRealPort))
+   // Allocate pair for the virtual port and check if it is already present in the map.
+   UtlContainablePair *pVirtPort = new UtlContainablePair(new UtlString(virtualResourceName),
+                                                          new UtlInt(virtualPortIndex));
+   if (mVirtualOutputs.contains(pVirtPort))
    {
-      // Some virtual port is already assigned to this real port.
-      delete pRealPort;
+      // This virtual port is already used.
+      delete pVirtPort;
       return OS_INVALID_ARGUMENT;
    }
 
@@ -278,13 +278,13 @@ OsStatus MpResourceTopology::addVirtualOutput(const UtlString& realResourceName,
    }
    if (!realResourceFound)
    {
-      delete pRealPort;
+      delete pVirtPort;
       return OS_NOT_FOUND;
    }
 
-   // Allocate pair for the virtual port and try to add it to the map.
-   UtlContainablePair *pVirtPort = new UtlContainablePair(new UtlString(virtualResourceName),
-                                                          new UtlInt(virtualPortIndex));
+   // Allocate pair for the real port and try to add it to the map.
+   UtlContainablePair *pRealPort = new UtlContainablePair(new UtlString(realResourceName),
+                                                          new UtlInt(realPortIndex));
    if (mVirtualOutputs.insertKeyAndValue(pRealPort, pVirtPort) == NULL)
    {
       // This virtual port is already assigned.
@@ -376,6 +376,11 @@ OsStatus MpResourceTopology::validateConnections(UtlString& firstUnconnectedReso
          // Get the first connection
          while((connectionDef = (MpResourceConnectionDefinition*) connectionsToTraverse.get()))
          {
+            UtlString resourceName;
+            int resourcePort;
+
+//            printf("%s(%d) -> %s(%d)\n", connectionDef->data(), connectionDef->mOutputPortIndex,
+//               connectionDef->mInputResourceName.data(), connectionDef->mInputPortIndex);
             // If the output resource for the connection is still in the list
             // add its connections to the connection list to traverse and
             // remove the resource from the list.
@@ -383,12 +388,41 @@ OsStatus MpResourceTopology::validateConnections(UtlString& firstUnconnectedReso
             {
                findResourceConnections(*connectionDef, connectionsToTraverse);
             }
+            else
+            {
+               // Not found... Try virtual resource.
+               OsStatus virtResult = 
+                  getOutputVirtualResource(*connectionDef,
+                                           connectionDef->mOutputPortIndex,
+                                           resourceName,
+                                           resourcePort);
+               if(virtResult == OS_SUCCESS &&
+                  danglingResources.remove(&resourceName))
+               {
+                  findResourceConnections(resourceName, connectionsToTraverse);
+               }
+            }
+
 
             //  Do the same for the input resource for this connection
             if(danglingResources.remove(&(connectionDef->mInputResourceName)))
             {
                findResourceConnections(connectionDef->mInputResourceName,
                                        connectionsToTraverse);
+            }
+            else
+            {
+               // Not found... Try virtual resource.
+               OsStatus virtResult = 
+                  getInputVirtualResource(connectionDef->mInputResourceName,
+                                          connectionDef->mInputPortIndex,
+                                          resourceName,
+                                          resourcePort);
+               if(virtResult == OS_SUCCESS &&
+                  danglingResources.remove(&resourceName))
+               {
+                  findResourceConnections(resourceName, connectionsToTraverse);
+               }
             }
          } // end while we have connections in the list
       }
@@ -488,7 +522,88 @@ OsStatus MpResourceTopology::getResource(int resourceIndex,
    return result;
 }
 
-    /// Get the connection definition indicated by the connectionIndex
+OsStatus MpResourceTopology::getInputVirtualResource(const UtlString &virtualName,
+                                                     int virtualPort,
+                                                     UtlString& resourceName,
+                                                     int &resourcePort) const
+{
+   UtlInt virtualPortNum(virtualPort);
+   UtlContainablePair virtPair((UtlContainable*)&virtualName, &virtualPortNum);
+   UtlContainablePair *realPair;
+   
+   // Attempt to search for real port as is
+   realPair = (UtlContainablePair*)mVirtualInputs.findValue(&virtPair);
+   if (realPair == NULL && virtualPort >= 0)
+   {
+      // If not found - try to search for virtual port -1 (wildcard value).
+      virtualPortNum.setValue(-1);
+      realPair = (UtlContainablePair*)mVirtualInputs.findValue(&virtPair);
+   }
+
+   // Set to NULL to prevent deletion of stack variables
+   virtPair.setFirst(NULL);
+   virtPair.setSecond(NULL);
+
+   if (!realPair)
+   {
+      // Nothing found
+      return OS_NOT_FOUND;
+   }
+
+   // Return found values
+   resourceName = *(UtlString*)realPair->getFirst();
+   resourcePort = ((UtlInt*)realPair->getSecond())->getValue();
+   if (resourcePort < 0 && virtualPort > 0)
+   {
+      // If concrete port is requested, but wildcard is found - return
+      // concrete value.
+      resourcePort = virtualPort;
+   }
+
+   return OS_SUCCESS;
+}
+
+OsStatus MpResourceTopology::getOutputVirtualResource(const UtlString &virtualName,
+                                                      int virtualPort,
+                                                      UtlString& resourceName,
+                                                      int &resourcePort) const
+{
+   UtlInt virtualPortNum(virtualPort);
+   UtlContainablePair virtPair((UtlContainable*)&virtualName, &virtualPortNum);
+   UtlContainablePair *realPair;
+   
+   // Attempt to search for real port as is
+   realPair = (UtlContainablePair*)mVirtualOutputs.findValue(&virtPair);
+   if (realPair == NULL && virtualPort >= 0)
+   {
+      // If not found - try to search for virtual port -1 (wildcard value).
+      virtualPortNum.setValue(-1);
+      realPair = (UtlContainablePair*)mVirtualOutputs.findValue(&virtPair);
+   }
+
+   // Set to NULL to prevent deletion of stack variables
+   virtPair.setFirst(NULL);
+   virtPair.setSecond(NULL);
+
+   if (!realPair)
+   {
+      // Nothing found
+      return OS_NOT_FOUND;
+   }
+
+   // Return found values
+   resourceName = *(UtlString*)realPair->getFirst();
+   resourcePort = ((UtlInt*)realPair->getSecond())->getValue();
+   if (resourcePort < 0 && virtualPort > 0)
+   {
+      // If concrete port is requested, but wildcard is found - return
+      // concrete value.
+      resourcePort = virtualPort;
+   }
+
+   return OS_SUCCESS;
+}
+
 OsStatus MpResourceTopology::getConnection(int connectionIndex,
                                            UtlString& outputResourceName,
                                            int& outputPortIndex,
@@ -536,13 +651,13 @@ OsStatus MpResourceTopology::getNextVirtualInput(VirtualPortIterator &portIter,
                                                  UtlString& virtualResourceName,
                                                  int &virtualPortIndex)
 {
-   UtlContainablePair *pRealPort = (UtlContainablePair*)(*portIter)();
-   if (pRealPort == NULL)
+   UtlContainablePair *pVirtPort = (UtlContainablePair*)(*portIter)();
+   if (pVirtPort == NULL)
    {
       return OS_NO_MORE_DATA;
    }
 
-   UtlContainablePair *pVirtPort = (UtlContainablePair*)portIter->value();
+   UtlContainablePair *pRealPort = (UtlContainablePair*)portIter->value();
    realResourceName = *(UtlString*)pRealPort->getFirst();
    realPortIndex = ((UtlInt*)pRealPort->getSecond())->getValue();
    virtualResourceName = *(UtlString*)pVirtPort->getFirst();
@@ -585,12 +700,15 @@ int MpResourceTopology::findResourceConnections(const UtlString& resourceName,
    UtlDListIterator iterator(mConnections);
    MpResourceConnectionDefinition* connectionDef = NULL;
    int connectionsFound = 0;
+//   printf("   findResourceConnections(%s)\n", resourceName.data());
    while((connectionDef = (MpResourceConnectionDefinition*) iterator()))
    {
       // if the connections input or output resource match
       if(resourceName.compareTo(*connectionDef) == 0 ||
          resourceName.compareTo(connectionDef->mInputResourceName) == 0)
       {
+//         printf("      %s(%d) -> %s(%d)\n", connectionDef->data(), connectionDef->mOutputPortIndex,
+//                connectionDef->mInputResourceName.data(), connectionDef->mInputPortIndex);
          connections.insert(connectionDef);
          connectionsFound++;
       }  
