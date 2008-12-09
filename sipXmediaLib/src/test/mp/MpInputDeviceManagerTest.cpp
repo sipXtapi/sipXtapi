@@ -266,7 +266,7 @@ public:
             (int)(framePeriodMilliseconds * 1.5 * numBufferedFrames);
          int readerTaskWaitMillis = 1000;
          printf("Expecting reader completion in %dms, waiting %dms for reader to finish\n",
-                readerTaskExpectedCompletionMillis, readerTaskWait);
+                readerTaskExpectedCompletionMillis, readerTaskWaitMillis);
          // Do not block forever, wait 1sec
          OsTime maxWaitTime(0, readerTaskWaitMillis * 1000);
          CPPUNIT_ASSERT(readerFinished.wait(maxWaitTime) == OS_SUCCESS);
