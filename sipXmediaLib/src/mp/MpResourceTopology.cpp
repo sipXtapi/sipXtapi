@@ -165,7 +165,7 @@ OsStatus MpResourceTopology::addConnections(const ConnectionDef *defines,
    for (int i=0; i<numDefines; i++)
    {
       // If NULL is passed as a source resource name, connect to last resource.
-      const UtlString outputResourceName = defines[i].outputResourceName.isNull()
+      const UtlString &outputResourceName = defines[i].outputResourceName.isNull()
                                           ? defines[i-1].inputResourceName
                                           : defines[i].outputResourceName;
       // Add connection.
