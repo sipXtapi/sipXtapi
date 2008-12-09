@@ -147,6 +147,14 @@ public:
       return 1;
    }
 
+     /**
+     * Make a publicly accessible waitUntilShutdown, so that unit test
+     * can properly wait until shutdown is fully complete.
+     */
+   UtlBoolean waitUntilShutDownPublic(int milliSecToWait = 20000) {
+      return waitUntilShutDown(milliSecToWait);
+   }
+
    UtlBoolean mRunDone;
    int mNumStarvations;
    MpFrameTime mFirstFrameTime;
@@ -274,6 +282,10 @@ public:
 
          CPPUNIT_ASSERT(readerTask.mRunDone);
          CPPUNIT_ASSERT_EQUAL(0, readerTask.mNumStarvations);
+
+         // Wait until shutdown occurs, waiting maximum of 1sec..
+         readerTask.waitUntilShutDownPublic(readerTaskWaitMillis);
+         CPPUNIT_ASSERT(readerTask.isShutDown());
 
          CPPUNIT_ASSERT(abs(readerTask.mActualLapseTime - readerTask.mLapseTime) < 4000 * numBufferedFrames);
          CPPUNIT_ASSERT_EQUAL(0, readerTask.mRetryCount);
