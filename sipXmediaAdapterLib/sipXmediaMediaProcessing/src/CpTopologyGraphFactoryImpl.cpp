@@ -347,79 +347,84 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     return(resourceFactory);
 }
 
+/// Resource list for Initial Topology.
+static MpResourceTopology::ResourceDef initialTopologyResources[] =
+{
+   {DEFAULT_FROM_FILE_RESOURCE_TYPE, DEFAULT_FROM_FILE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE, DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_VAD_RESOURCE_TYPE, DEFAULT_VAD_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+#ifdef INSERT_DELAY_RESOURCE // [
+   {DEFAULT_DELAY_RESOURCE_TYPE, DEFAULT_DELAY_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+#endif // INSERT_DELAY_RESOURCE ]
+   {DEFAULT_BRIDGE_RESOURCE_TYPE, DEFAULT_BRIDGE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_TONE_GEN_RESOURCE_TYPE, DEFAULT_TONE_GEN_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_VAD_RESOURCE_TYPE, DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_BUFFER_RECORDER_RESOURCE_TYPE, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_NULL_RESOURCE_TYPE, DEFAULT_NULL_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_SPLITTER_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_NULL_AEC_RESOURCE_TYPE, DEFAULT_AEC_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
+};
+static const int initialTopologyResourcesNum =
+   sizeof(initialTopologyResources)/sizeof(MpResourceTopology::ResourceDef);
+
+/// Connection list for Initial Topology.
+static MpResourceTopology::ConnectionDef initialTopologyConnections[] =
+{
+    // Mic -> VAD
+   {DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_VAD_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
+    //     -> Voice Activity Notifier
+   {NULL, 0, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
+#ifdef INSERT_DELAY_RESOURCE // [
+    //     -> Delay
+   {NULL, 0, DEFAULT_DELAY_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
+#endif // INSERT_DELAY_RESOURCE ]
+    //     -> AEC
+   {NULL, 0, DEFAULT_AEC_RESOURCE_NAME, 0},
+    //     -> Bridge(0)
+   {NULL, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0},
+
+    // FromFile -> Bridge(1)
+   {DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1},
+
+    // ToneGen -> Bridge(2)
+   {DEFAULT_TONE_GEN_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 2},
+
+    // Bridge(0) -> Splitter, the splitter leaves a tap for AEC to see the output to speaker
+   {DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0},
+    // Splitter(0) -> VAD
+   {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0, DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, 0},
+    //             -> Voice Activity Notifier
+   {NULL, 0, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX, 0},
+    //             -> Speaker
+   {NULL, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0},
+    // Splitter(1) -> Output Buffer (part of AEC)
+   {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1, DEFAULT_AEC_RESOURCE_NAME AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX, 0},
+
+    // Bridge(1) -> Buffer Recorder
+    // This buffer recorder is intended to record the microphone.
+    // Currently, this records all inputs from the bridge.  Once the bridge
+    // can configure what inputs go to what outputs, this will behave as 
+    // intended
+   {DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, 0},
+
+    // Bridge(2) -> Null(2)
+    // Fill up the unpaired bridge outputs as it currently barfs if
+    // it does not have the same number of inputs and outputs.
+   {DEFAULT_BRIDGE_RESOURCE_NAME, 2, DEFAULT_NULL_RESOURCE_NAME, 2}
+};
+static const int initialTopologyConnectionsNum =
+   sizeof(initialTopologyConnections)/sizeof(MpResourceTopology::ConnectionDef);
+
 MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopology()
 {
     MpResourceTopology* resourceTopology = new MpResourceTopology();
-
-    // For now we just hardcode construct a few resources to get the framework
-    // working
     OsStatus result;
-    result = resourceTopology->addResource(DEFAULT_FROM_FILE_RESOURCE_TYPE, 
-                                           DEFAULT_FROM_FILE_RESOURCE_NAME);
-    assert(result == OS_SUCCESS);
 
-    result = resourceTopology->addResource(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE, 
-                                           DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME);
-    assert(result == OS_SUCCESS);
-
-    UtlString micVadName = DEFAULT_VAD_RESOURCE_NAME;
-    micVadName.append(MIC_NAME_SUFFIX);
-    result = resourceTopology->addResource(DEFAULT_VAD_RESOURCE_TYPE,
-                                           micVadName);
-    assert(result == OS_SUCCESS);
-
-    UtlString micVaNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
-    micVaNotifName.append(MIC_NAME_SUFFIX);
-    result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
-                                           micVaNotifName);
-    assert(result == OS_SUCCESS);
-
-#ifdef INSERT_DELAY_RESOURCE // [
-    UtlString delayName = DEFAULT_DELAY_RESOURCE_NAME;
-    delayName.append(MIC_NAME_SUFFIX);
-    result = resourceTopology->addResource(DEFAULT_DELAY_RESOURCE_TYPE,
-                                           delayName);
-    assert(result == OS_SUCCESS);
-#endif // INSERT_DELAY_RESOURCE ]
-
-    result = resourceTopology->addResource(DEFAULT_BRIDGE_RESOURCE_TYPE, 
-                                           DEFAULT_BRIDGE_RESOURCE_NAME);
-    assert(result == OS_SUCCESS);
-
-    result = resourceTopology->addResource(DEFAULT_TONE_GEN_RESOURCE_TYPE, 
-                                           DEFAULT_TONE_GEN_RESOURCE_NAME);
-    assert(result == OS_SUCCESS);
-
-    UtlString spkrVadName = DEFAULT_VAD_RESOURCE_NAME;
-    spkrVadName.append(SPEAKER_NAME_SUFFIX);
-    result = resourceTopology->addResource(DEFAULT_VAD_RESOURCE_TYPE,
-                                           spkrVadName);
-    assert(result == OS_SUCCESS);
-
-    UtlString spkrVaNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
-    spkrVaNotifName.append(SPEAKER_NAME_SUFFIX);
-    result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
-                                           spkrVaNotifName);
-    assert(result == OS_SUCCESS);
-
-    result = resourceTopology->addResource(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE, 
-                                           DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME);
-    assert(result == OS_SUCCESS);
-
-    result = resourceTopology->addResource(DEFAULT_BUFFER_RECORDER_RESOURCE_TYPE,
-                                           DEFAULT_BUFFER_RECORDER_RESOURCE_NAME);
-    assert(result == OS_SUCCESS);
-
-    result = resourceTopology->addResource(DEFAULT_NULL_RESOURCE_TYPE, 
-                                           DEFAULT_NULL_RESOURCE_NAME);
-    assert(result == OS_SUCCESS);
-
-    result = resourceTopology->addResource(DEFAULT_SPLITTER_RESOURCE_TYPE, 
-                                           DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME);
-    assert(result == OS_SUCCESS);
-
-    result = resourceTopology->addResource(DEFAULT_NULL_AEC_RESOURCE_TYPE, 
-                                           DEFAULT_AEC_RESOURCE_NAME);
+    result = resourceTopology->addResources(initialTopologyResources,
+                                            initialTopologyResourcesNum);
     assert(result == OS_SUCCESS);
 
     // Map Bridge inputs to ConnectionPorts
@@ -432,86 +437,8 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
                                                 VIRTUAL_NAME_CONNECTION_PORTS, -1);
     assert(result == OS_SUCCESS);
 
-    // Link fromFile to bridge
-    result = resourceTopology->addConnection(DEFAULT_FROM_FILE_RESOURCE_NAME, 0,
-                                             DEFAULT_BRIDGE_RESOURCE_NAME, 1);
-    assert(result == OS_SUCCESS);
-
-    // Link mic to VAD
-    result = resourceTopology->addConnection(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0,
-                                             micVadName, 0);
-    assert(result == OS_SUCCESS);
-    UtlString &lastResourceName = micVadName;
-
-    // -> Voice Activity Notifier
-    result = resourceTopology->addConnection(lastResourceName, 0,
-                                             micVaNotifName, 0);
-    assert(result == OS_SUCCESS);
-    lastResourceName = micVaNotifName;
-
-#ifdef INSERT_DELAY_RESOURCE // [
-    // -> Delay
-    result = resourceTopology->addConnection(lastResourceName, 0,
-                                             delayName, 0);
-    assert(result == OS_SUCCESS);
-    lastResourceName = delayName;
-#endif // INSERT_DELAY_RESOURCE ]
-
-    // -> AEC
-    result = resourceTopology->addConnection(lastResourceName, 0,
-                                             DEFAULT_AEC_RESOURCE_NAME, 0);
-    assert(result == OS_SUCCESS);
-
-    // Link AEC to bridge
-    result = resourceTopology->addConnection(DEFAULT_AEC_RESOURCE_NAME, 0,
-                                             DEFAULT_BRIDGE_RESOURCE_NAME, 0);
-    assert(result == OS_SUCCESS);
-
-    // TODO: add a mixer for locally generated audio (e.g. tones, fromFile, etc)
-    result = resourceTopology->addConnection(DEFAULT_TONE_GEN_RESOURCE_NAME, 0,
-                                             DEFAULT_BRIDGE_RESOURCE_NAME, 2);
-    assert(result == OS_SUCCESS);
-
-    // Link bridge to splitter, the splitter leaves a tap for AEC to see the output to speaker
-    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 0,
-                                             DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0);
-    assert(result == OS_SUCCESS);
-
-    // Link splitter to VAD
-    result = resourceTopology->addConnection(DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0,
-                                             spkrVadName, 0);
-    assert(result == OS_SUCCESS);
-
-    // Link VAD to Voice Activity Notifier
-    result = resourceTopology->addConnection(spkrVadName, 0,
-                                             spkrVaNotifName, 0);
-    assert(result == OS_SUCCESS);
-
-    // Link Voice Activity Notifier to speaker
-    result = resourceTopology->addConnection(spkrVaNotifName, 0,
-                                             DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0);
-    assert(result == OS_SUCCESS);
-    
-    // Link splitter to output buffer resource (part of AEC)
-    UtlString outBufferResourceName(DEFAULT_AEC_RESOURCE_NAME);
-    outBufferResourceName.append(AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX);
-    result = resourceTopology->addConnection(DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1,
-                                             outBufferResourceName, 0);
-    assert(result == OS_SUCCESS);
-
-    // Link bridge to buffer recorder
-    // This buffer recorder is intended to record the microphone.
-    // Currently, this records all inputs from the bridge.  Once the bridge
-    // can configure what inputs go to what outputs, this will behave as 
-    // intended
-    result = resourceTopology->addConnection(
-                DEFAULT_BRIDGE_RESOURCE_NAME, 1, 
-                DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, 0);
-    assert(result == OS_SUCCESS);
-
-    // Fill up the unpaired bridge outputs as it currently barfs if
-    // it does not have the same number of inputs and outputs.
-    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 2, DEFAULT_NULL_RESOURCE_NAME, 2);
+    result = resourceTopology->addConnections(initialTopologyConnections,
+                                              initialTopologyConnectionsNum);
     assert(result == OS_SUCCESS);
 
     // Validate the topology to make sure all the resources are connected
