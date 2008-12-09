@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <signal.h>
+#include <conio.h>
 using namespace std;
 
 #include <rtcp/RtcpConfig.h>
@@ -36,6 +37,8 @@ using namespace std;
 #include <os/OsTask.h>
 #include <os/OsProcess.h>
 
+#define BUFFER_SIZE 256
+#define ARG_NUM 10
 namespace
 {
     /// Possible action types
@@ -85,6 +88,7 @@ namespace
         vector<string>  args;
     } Action;
 
+    vector<Action> actions;
     const char* pProgName = 0;
     const char* pFirstRtpAddr = 0;
     //bool connectionExists = false;
@@ -96,6 +100,7 @@ namespace
     int rtpPort_local = DEF_RTP_PORT;
     int rtpPort_remote = DEF_RTP_PORT;
     int lastConnId = -1;
+    int numLastActions=0;
     bool showStats = false;
     bool exitApp = false;
 
@@ -104,9 +109,14 @@ namespace
 }
 
 void showStatus();
+int parseCommands (int argsNum, const char* argsArray[]);
+void createMediaTaskandFlowGraph();
 OsStatus createConnection(const char* pRtpAddr);
 OsStatus deleteConnection(int connId);
+int executeActions();
 int executeAction(Action* pAction);
+int consoleInput(const char* argsArray[ARG_NUM]);
+int parseStr(const char* argsArray[ARG_NUM], char *str);
 
 //******************************************************************************
 void showUsage()
@@ -144,13 +154,9 @@ static void ctrlCHandler(int signo)
 }
 
 //******************************************************************************
-int main(int argc,  char* argv[])
+int main(int argc, const char* argv[])
 {
     pProgName = argv[0];
-
-    if (argc < 2) { showUsage(); return -1; }
-
-    vector<Action> actions;
 
     // Install Ctrl-C handler.
     if ( signal( SIGINT, ctrlCHandler ) == SIG_ERR )
@@ -164,13 +170,44 @@ int main(int argc,  char* argv[])
        exit(1);
     }
 
-    // Walk command line args to create a series of actions
-    for (int argIdx = 1; argIdx < argc; argIdx++)
+    parseCommands (argc, argv);
+
+    createMediaTaskandFlowGraph();
+
+    executeActions();
+
+    showUsage();
+
+    while(!exitApp)
+    {   
+        const char* argsArray[ARG_NUM];
+        int argsNum;
+        argsNum=consoleInput(argsArray);
+        parseCommands (argsNum, argsArray);
+        executeActions();
+    }
+
+    // Delete all connections
+    for (int id = 1; id <= lastConnId; id++)
+        deleteConnection(id);
+
+    // And finally clean up media factory.
+    sipxDestroyMediaFactoryFactory();
+
+    return 0;
+}
+
+//******************************************************************************
+int parseCommands (int argsNum, const char* argsArray[])
+{
+    numLastActions=0;
+// Walk command line args to create a series of actions
+    for (int argIdx = 1; argIdx < argsNum; argIdx++)
     {
-        int argsLeft = argc - argIdx - 1;
+        int argsLeft = argsNum - argIdx - 1;
         bool foundAction = false;
         bool notEnoughArgs = false;
-        string actionName(argv[argIdx]);
+        string actionName(argsArray[argIdx]);
         Action action;
         action.name = actionName;
 
@@ -192,7 +229,7 @@ int main(int argc,  char* argv[])
                 for (int args = pEntry->minArgs; args > 0; args--)
                 {
                     argIdx++;
-                    action.args.push_back(argv[argIdx]);
+                    action.args.push_back(argsArray[argIdx]);
                     argsLeft--;
                 }
                 break;
@@ -221,26 +258,26 @@ int main(int argc,  char* argv[])
         case ACTION_RX:
             rxRtp = true;
             if (!pFirstRtpAddr)
-                pFirstRtpAddr = argv[argIdx];
+                pFirstRtpAddr = argsArray[argIdx];
             break;
 
         case ACTION_TX:
             txRtp = true;
             if (!pFirstRtpAddr)
-                pFirstRtpAddr = argv[argIdx];
+                pFirstRtpAddr = argsArray[argIdx];
             break;
 
         case ACTION_RXTX:
             rxRtp = txRtp = true;
             if (!pFirstRtpAddr)
-                pFirstRtpAddr = argv[argIdx];
+                pFirstRtpAddr = argsArray[argIdx];
             break;
 
         case ACTION_PLAY:
-            if (argsLeft && strcmp(argv[argIdx+1], "loop") == 0)
+            if (argsLeft && strcmp(argsArray[argIdx+1], "loop") == 0)
             {
                 argIdx++;
-                action.args.push_back(argv[argIdx]);
+                action.args.push_back(argsArray[argIdx]);
             }
             break;
 
@@ -268,6 +305,7 @@ int main(int argc,  char* argv[])
         } // switch
 
         actions.push_back(action);
+        numLastActions++;
 
     } // cmd line arg loop
 
@@ -284,7 +322,12 @@ int main(int argc,  char* argv[])
     }
 */
 
-    //**********************************************************
+    return 0;
+}
+
+//******************************************************************************
+void createMediaTaskandFlowGraph()
+{
     // Create foundation Media Task & Flow Graph
 
     OsSysLog::initialize(0, "mstream");
@@ -353,76 +396,59 @@ int main(int argc,  char* argv[])
         codecList.addCodecs(codecNames);
 
         codecList.getCodecs(numCodecs, pCodecArray);
-    }
+    } 
+}
 
-
-    //**********************************************************
+//******************************************************************************
+int executeActions()
+{
     // Loop for each action
 
     vector<Action>::iterator act;
     for (act = actions.begin(); act != actions.end() && !exitApp; act++)
     {
-        if (act->type == ACTION_REPEAT)
+        if ((actions.size() - numLastActions)==0)
         {
-            int num = atoi(act->args[0].c_str());
-            int count = atoi(act->args[1].c_str());
-
-            // Point an iterator to the FIRST action to repeat
-            vector<Action>::iterator startAct = act;
-            for (int decStart = 0; decStart < num; decStart++)
-                startAct--;
-
-            // Point an iterator to the LAST action to repeat
-            vector<Action>::iterator endAct = act;
-            endAct--;
-
-            // Loop <count> times for each repeat cycle
-            for (int repeatCycle = 0; repeatCycle < count; repeatCycle++)
+            if (act->type == ACTION_REPEAT)
             {
-                vector<Action>::iterator repeatAct = startAct;
-                int actNum = 1;
-                do
+                int num = atoi(act->args[0].c_str());
+                int count = atoi(act->args[1].c_str());
+
+                // Point an iterator to the FIRST action to repeat
+                vector<Action>::iterator startAct = act;
+                for (int decStart = 0; decStart < num; decStart++)
+                    startAct--;
+
+                // Point an iterator to the LAST action to repeat
+                vector<Action>::iterator endAct = act;
+                endAct--;
+
+                // Loop <count> times for each repeat cycle
+                for (int repeatCycle = 0; repeatCycle < count; repeatCycle++)
                 {
-                    cout << "---(Repeat cycle " << repeatCycle+1 << " of " << count
-                         << ": action " << actNum << " of " << num << ")---" << endl;
-                    executeAction(&*repeatAct);
-                    actNum++;
-                } while (repeatAct++ != endAct);
+                    vector<Action>::iterator repeatAct = startAct;
+                    int actNum = 1;
+                    do
+                    {
+                        cout << "---(Repeat cycle " << repeatCycle+1 << " of " 
+                             << count << ": action " << actNum << " of " << num 
+                             << ")---"<< endl;
+                        executeAction(&*repeatAct);
+                        actNum++;
+                    } while (repeatAct++ != endAct);
+                }
+            }
+            // Not a repeat action - just go execute it
+            else
+            {
+                executeAction(&*act);
             }
         }
-        // Not a repeat action - just go execute it
         else
         {
-            executeAction(&*act);
+            numLastActions++;
         }
-
     } // action loop
-
-
-    //**********************************************************
-    // Loop forever
-
-    while (!exitApp)
-    {
-        OsTask::delay(1000);
-        cout << ">>>>> MediaTask: FramesProcessed="
-             << pMediaTask->numProcessedFrames()
-#ifdef INCLUDE_RTCP
-//             << " (CBaseClass::TotalRefs=" << CBaseClass::getTotalReferenceCount()
-//             << ", TotalObjs=" << CBaseClass::getTotalObjectCount() << ")"
-#endif
-             << endl;
-//        if (showStats)
-//            pIf->outputStats(cout, "    ");
-    }
-
-    // Delete all connections
-    for (int id = 1; id <= lastConnId; id++)
-        deleteConnection(id);
-
-    // And finally clean up media factory.
-    sipxDestroyMediaFactoryFactory();
-
     return 0;
 }
 
@@ -672,5 +698,61 @@ void showStatus()
     cout << endl;
 
     return;
+}
+//******************************************************************************
+int consoleInput(const char* argsArray[ARG_NUM])
+{
+    char input;
+    int argsNum;
+    char buff[BUFFER_SIZE];
+    int f=0, buffpos=-1;
+    while(f!=1)
+    {
+        OsTask::delay(50);
+        if (kbhit()!=0)
+        {
+            input=getch();
+            if (input==13)
+               f=1;
+            else if(input==8)
+            {
+                if(buffpos>-1)
+                {				
+                    cout<<input<<' '<<input;
+                    buffpos--;
+                }
+            }
+            else 
+            {
+                buffpos++;
+                buff[buffpos]=input;
+                cout<<input;
+            }
+        }
+    }
+    cout<<endl;
+    buff[buffpos+1]='\0';   
+    argsNum=parseStr(argsArray,buff);
+    return argsNum;
+}
+int parseStr(const char* argsArray[ARG_NUM], char *str)
+{
+    char *pattern="[^\\s]*"; 
+    const char *errorMsg;
+    int charNumber;
+    int pairsNumber;
+    int resultVector[2];
+    int vectorSize=2;
+    int shift=0;
+    int argsNum=1;
+    pcre *f=pcre_compile(pattern,PCRE_MULTILINE,&errorMsg,&charNumber,NULL);
+    while((pairsNumber=pcre_exec(f,NULL,str,strlen(str),shift,PCRE_NOTEMPTY,
+                                                resultVector,vectorSize))>=0)
+    {
+        pcre_get_substring(str,resultVector,pairsNumber,0,&argsArray[argsNum]);
+        shift=resultVector[1]+1;
+        argsNum++;
+    }
+    return argsNum;
 }
 
