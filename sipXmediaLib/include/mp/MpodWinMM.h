@@ -20,6 +20,7 @@
 #include <MMSystem.h>
 #include <os/OsMutex.h>
 #include <utl/UtlSList.h>
+#include <utl/UtlVoidPtr.h>
 
 // APPLICATION INCLUDES
 #include "mp/MpOutputDeviceDriver.h"
@@ -29,6 +30,11 @@
 
 // DEFINES
 #define DEFAULT_N_OUTPUT_BUFS 32
+
+//#define DONTUSE_SLIST
+#if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0600)
+#  define DONTUSE_SLIST
+#endif
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -196,17 +202,31 @@ protected:
    HANDLE   mCallbackEvent;    ///< Event to signal that WMM message is available for processing.
    OsAtomicLightBool mExitFlag; ///< Should processing thread finish its execution?
 
+#ifndef DONTUSE_SLIST
      /// Structure used to pass WMM message data to processing thread.
    struct WinAudioDataChain
    {
       SLIST_ENTRY ItemEntry;
       UINT mCbParamMsg;
       WAVEHDR* mCbParamHdr;
-      CRITICAL_SECTION mSection;
    };
 
    SLIST_HEADER mPoolSignaled; ///< Queue of WMM messages signaled for processing.
    SLIST_HEADER mPoolFree;     ///< Pool of WMM messages.
+#else
+     /// Structure used to pass WMM message data to processing thread.
+   class WinAudioData : public UtlVoidPtr
+   {
+   public:
+      WinAudioData() { setValue(this); }
+
+      UINT mCbParamMsg;
+      WAVEHDR* mCbParamHdr;
+   };
+
+   UtlSList mListSignaled; ///< Queue of WMM messages signaled for processing.
+   UtlSList mListFree;     ///< Pool of WMM messages.
+#endif
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

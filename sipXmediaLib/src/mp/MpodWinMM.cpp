@@ -138,8 +138,19 @@ MpodWinMM::MpodWinMM(const UtlString& name,
    mCallbackThread = CreateThread(NULL, 0, ThreadMMProc, this, 0, NULL);
    SetThreadPriority(mCallbackThread, REALTIME_PRIORITY_CLASS);
    //THREAD_PRIORITY_HIGHEST);
-  // SetThreadPriority(mCallbackThread, THREAD_PRIORITY_LOWEST );
+   // SetThreadPriority(mCallbackThread, THREAD_PRIORITY_LOWEST );
 
+#ifdef DONTUSE_SLIST
+   for( i = 0; i < LOW_MESSAGE_QUEUE_LEN; i++)
+   {
+      WinAudioData* ProgramItem = new WinAudioData;
+      ProgramItem->mCbParamHdr = NULL;
+      ProgramItem->mCbParamMsg = 0;
+
+      mListFree.append(ProgramItem);
+   }
+
+#else
    // Initialize the list header.
    InitializeSListHead(&mPoolFree);
    InitializeSListHead(&mPoolSignaled);
@@ -151,11 +162,12 @@ MpodWinMM::MpodWinMM(const UtlString& name,
          MEMORY_ALLOCATION_ALIGNMENT);
       ProgramItem->mCbParamHdr = NULL;
       ProgramItem->mCbParamMsg = 0;
-      InitializeCriticalSection(&ProgramItem->mSection);
 
       InterlockedPushEntrySList(&mPoolFree, 
          &ProgramItem->ItemEntry); 
    }
+#endif
+
 }
 
 
@@ -196,7 +208,10 @@ MpodWinMM::~MpodWinMM()
    SetEvent(mCallbackEvent);
    WaitForSingleObject(mCallbackThread, INFINITE);
 
-
+#ifdef DONTUSE_SLIST
+   mListSignaled.destroyAll();
+   mListFree.destroyAll();
+#else
    for (;;)
    {
       WinAudioDataChain* pListEntry = 
@@ -205,7 +220,6 @@ MpodWinMM::~MpodWinMM()
       if( NULL == pListEntry )
          break;
 
-      DeleteCriticalSection(&pListEntry->mSection);
       _aligned_free(pListEntry);
    }
 
@@ -217,9 +231,10 @@ MpodWinMM::~MpodWinMM()
       if( NULL == pListEntry )
          break;
 
-      DeleteCriticalSection(&pListEntry->mSection);
       _aligned_free(pListEntry);
    }
+#endif
+
 }
 
 /* ============================ MANIPULATORS ================================ */
@@ -353,6 +368,21 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
       return OS_FAILED;
    }
 
+
+#ifdef DONTUSE_SLIST
+   for (;;)
+   {
+      WinAudioData* pListEntry = (WinAudioData*)mListSignaled.at(0);
+      if( NULL == pListEntry )
+         break;
+      mListSignaled.remove(pListEntry);
+
+      pListEntry->mCbParamHdr = NULL;
+      pListEntry->mCbParamMsg = 0;
+
+      mListFree.append(pListEntry);
+   }
+#else
    for (;;)
    {
       WinAudioDataChain* pListEntry = 
@@ -367,7 +397,8 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
       InterlockedPushEntrySList(&mPoolFree, 
          &pListEntry->ItemEntry);
    }
-//   mSignals = 0;
+#endif
+
    return OS_SUCCESS;
 }
 
@@ -751,18 +782,28 @@ DWORD WINAPI MpodWinMM::ThreadMMProc(LPVOID lpMessage)
 
       for (;;)
       {
+#ifdef DONTUSE_SLIST
+         WinAudioData* pListEntry = (WinAudioData*)oddWinMMPtr->mListSignaled.at(0);
+         if( NULL == pListEntry )
+            break;
+         oddWinMMPtr->mListSignaled.remove(pListEntry);
+
+         UINT msg = pListEntry->mCbParamMsg;
+         WAVEHDR* hdr = pListEntry->mCbParamHdr;
+
+         oddWinMMPtr->mListFree.append(pListEntry);
+#else
          WinAudioDataChain* pListEntry = 
             (WinAudioDataChain*)InterlockedPopEntrySList(&oddWinMMPtr->mPoolSignaled);
 
          if (pListEntry == NULL)
             break;
 
-//         EnterCriticalSection(&pListEntry->mSection);
          UINT msg = pListEntry->mCbParamMsg;
          WAVEHDR* hdr = pListEntry->mCbParamHdr;
-//         LeaveCriticalSection(&pListEntry->mSection);
 
          InterlockedPushEntrySList(&oddWinMMPtr->mPoolFree, &pListEntry->ItemEntry);
+#endif
 
          switch(msg)
          {
@@ -812,6 +853,21 @@ MpodWinMM::waveOutCallbackStatic(HWAVEOUT hwo,
       return;
    }
 
+#ifdef DONTUSE_SLIST
+   WinAudioData* pListEntry = (WinAudioData*)oddWinMMPtr->mListFree.at(0);
+   if( NULL == pListEntry )
+   {
+      assert(!"All list exhousted");
+   }
+   oddWinMMPtr->mListFree.remove(pListEntry);
+
+   pListEntry->mCbParamHdr = (WAVEHDR*)dwParam1;
+   pListEntry->mCbParamMsg = uMsg;
+
+   oddWinMMPtr->mListSignaled.append(pListEntry);
+
+#else
+
    WinAudioDataChain* pListEntry = 
       (WinAudioDataChain*)InterlockedPopEntrySList(&oddWinMMPtr->mPoolFree);
 
@@ -820,13 +876,12 @@ MpodWinMM::waveOutCallbackStatic(HWAVEOUT hwo,
       assert(!"All list exhousted");
    }
 
-//   EnterCriticalSection(&pListEntry->mSection);
    pListEntry->mCbParamHdr = (WAVEHDR*)dwParam1;
    pListEntry->mCbParamMsg = uMsg;
-//   LeaveCriticalSection(&pListEntry->mSection);
 
    InterlockedPushEntrySList(&oddWinMMPtr->mPoolSignaled, 
       &pListEntry->ItemEntry);
+#endif
 
    SetEvent(oddWinMMPtr->mCallbackEvent);
 }
