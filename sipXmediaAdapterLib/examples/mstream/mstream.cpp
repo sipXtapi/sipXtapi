@@ -36,6 +36,9 @@ using namespace std;
 #include <os/OsConfigDb.h>
 #include <os/OsTask.h>
 #include <os/OsProcess.h>
+#include <utl/UtlSList.h>
+#include <utl/UtlVoidPtr.h>
+
 
 #define BUFFER_SIZE 256
 #define ARG_NUM 10
@@ -49,7 +52,9 @@ namespace
         ACTION_PORT_LOCAL, ACTION_PORT_REMOTE, ACTION_PLAY, ACTION_DELAY,
         ACTION_REPEAT, ACTION_STATS, ACTION_NOSTATS,
         ACTION_FOCUS, ACTION_NOFOCUS,
-        ACTION_EXIT, NUM_ACTION_TYPES
+        ACTION_ADD_IF, ACTION_SET_IF,
+        ACTION_EXIT, 
+        NUM_ACTION_TYPES
     } ActionType;
 
     /// Table of actions for automated cmd line parsing
@@ -78,6 +83,8 @@ namespace
         { "nostats",  ACTION_NOSTATS,     0  },
         { "focus",    ACTION_FOCUS,       0  },
         { "nofocus",  ACTION_NOFOCUS,     0  },
+        { "add_if",   ACTION_ADD_IF,      0  },
+        { "set_if",   ACTION_SET_IF,      1  },
         { "exit",     ACTION_EXIT,        0  },
     };
 
@@ -95,7 +102,10 @@ namespace
     bool initialFocus = true;
     bool txRtp = false, rxRtp = false;
     bool txRtpEnabled = false;
+    CpMediaInterfaceFactory* pFactory;
     CpMediaInterface* pIf = 0;
+    UtlSList pInterfacesList;
+    int graphCount = 0;
     const int DEF_RTP_PORT = 6000;
     int rtpPort_local = DEF_RTP_PORT;
     int rtpPort_remote = DEF_RTP_PORT;
@@ -117,6 +127,8 @@ int executeActions();
 int executeAction(Action* pAction);
 int consoleInput(const char* argsArray[ARG_NUM]);
 int parseStr(const char* argsArray[ARG_NUM], char *str);
+int createFlowGraph();
+void selectFlowGraph(int index);
 
 //******************************************************************************
 void showUsage()
@@ -143,6 +155,8 @@ void showUsage()
     cout << "         exit             = Exit the application" << endl;
     cout << "         focus            = Give focus to this IF (default)" << endl;
     cout << "         nofocus          = Don't give focus to this IF" << endl;
+    cout << "         add_if           = Create new IF" << endl;
+    cout << "         set_if           = Set default IF for consecutive commands" << endl;
     cout << "Example: " << pProgName << " tx 224.10.11.12" << endl;
 }
 
@@ -190,6 +204,9 @@ int main(int argc, const char* argv[])
     // Delete all connections
     for (int id = 1; id <= lastConnId; id++)
         deleteConnection(id);
+
+
+    pInterfacesList.destroyAll();
 
     // And finally clean up media factory.
     sipxDestroyMediaFactoryFactory();
@@ -299,6 +316,14 @@ int parseCommands (int argsNum, const char* argsArray[])
                     return -1;
                 }
             }
+            break;
+        case ACTION_ADD_IF:
+           // No actions right there
+           break;
+        case ACTION_SET_IF:
+           // No actions right there
+           break;
+
         // OK to ignore all others
         default:
             break;
@@ -325,6 +350,55 @@ int parseCommands (int argsNum, const char* argsArray[])
     return 0;
 }
 
+int createFlowGraph()
+{
+   // Creates a CpPhoneMediaInterface (vals from CpPhoneMediaInterface defaults)
+   CpMediaInterface* pNewIf = pFactory->createMediaInterface(
+      0,      // publicAddress
+      0,      // localAddress
+      0,      // numCodecs
+      NULL,   // sdpCodecArray
+      "",     // locale
+      QOS_LAYER3_LOW_DELAY_IP_TOS,      // expeditedIpTos
+      NULL,   // szStunServer
+      0,      // iStunPort
+      28,     // iStunKeepAlivePeriodSecs
+      NULL,   // szTurnServer
+      0,      // iTurnPort
+      NULL,   // szTurnUsername
+      NULL,   // szTurnPassword
+      0,      // stunOptions
+      28,     // iStunKeepAlivePeriodSecs
+      FALSE); // bEnableICE
+
+   if (pNewIf != NULL)
+   {
+      pInterfacesList.insert(pNewIf);
+      cout << "Created CpMediaInterface (ID:" << graphCount << ")" << endl;
+      
+      return graphCount++;
+   }
+   else
+   {
+      cout << "Error has been occurred during creation of CpMediaInterface!";
+      return -1;
+   }
+}
+
+void selectFlowGraph(int index)
+{
+   CpMediaInterface* pSelIf = (CpMediaInterface*)pInterfacesList.at(index);
+   if (pSelIf != NULL)
+   {
+      cout << "Graph " << index << " has been selected as default" << endl;
+      pIf = pSelIf;
+   }
+   else
+   {
+      cout << "Graph " << index << " doesn't exit!" << endl;
+   }
+}
+
 //******************************************************************************
 void createMediaTaskandFlowGraph()
 {
@@ -340,7 +414,7 @@ void createMediaTaskandFlowGraph()
              << " config entries from mstream.cfg)" << endl;
 
     // Creates a sipXmediaFactoryImpl
-    CpMediaInterfaceFactory* pFactory = sipXmediaFactoryFactory(&cfgDb);
+    pFactory = sipXmediaFactoryFactory(&cfgDb);
 
     MpMediaTask* pMediaTask = MpMediaTask::getMediaTask(1);
     //sleep(0);
@@ -363,25 +437,7 @@ void createMediaTaskandFlowGraph()
 
 #endif
 
-    // Creates a CpPhoneMediaInterface (vals from CpPhoneMediaInterface defaults)
-    pIf = pFactory->createMediaInterface(
-            0,      // publicAddress
-            0,      // localAddress
-            0,      // numCodecs
-            NULL,   // sdpCodecArray
-            "",     // locale
-            QOS_LAYER3_LOW_DELAY_IP_TOS,      // expeditedIpTos
-            NULL,   // szStunServer
-            0,      // iStunPort
-            28,     // iStunKeepAlivePeriodSecs
-            NULL,   // szTurnServer
-            0,      // iTurnPort
-            NULL,   // szTurnUsername
-            NULL,   // szTurnPassword
-            0,      // stunOptions
-            28,     // iStunKeepAlivePeriodSecs
-            FALSE); // bEnableICE
-    cout << "Created CpMediaInterface" << endl;
+    selectFlowGraph(createFlowGraph());
 
     if (initialFocus)
     {
@@ -585,6 +641,16 @@ int executeAction(Action* pAction)
     case ACTION_EXIT:
         exitApp = true;
         break;
+
+    case ACTION_ADD_IF:
+       createFlowGraph();
+       break;
+    case ACTION_SET_IF:
+       {
+          int num = atoi(pAction->args[0].c_str());
+          selectFlowGraph(num);
+       }
+       break;
 
     default:
         cerr << "***ERROR: Unrecognized action " << pAction->type << " in switch" << endl;
