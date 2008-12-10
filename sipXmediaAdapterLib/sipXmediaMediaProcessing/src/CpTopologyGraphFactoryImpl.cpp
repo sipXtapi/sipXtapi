@@ -198,6 +198,8 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 #endif // USE_DEVICE_ADD_HACK ]
 
     mpInitialResourceTopology = buildDefaultInitialResourceTopology();
+    // Add one local connection to initial topology by default.
+    addLocalConnectionTopology(mpInitialResourceTopology);
     mpResourceFactory = buildDefaultResourceFactory();
     int firstInvalidResourceIndex;
     OsStatus result = 
@@ -454,9 +456,6 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
                                               initialTopologyConnectionsNum);
     assert(result == OS_SUCCESS);
 
-    // Add one local connection.
-    addLocalConnectionTopology(resourceTopology);
-
     // Validate the topology to make sure all the resources are connected
     // and that there are no dangling resources
     UtlString firstUnconnectedResourceName;
@@ -552,9 +551,6 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildMulticastConnectionResource
     MpResourceTopology* resourceTopology = new MpResourceTopology();
     OsStatus result;
 
-    // Get abstract port number to be used when connecting to bridge.
-    int logicalPortNum = resourceTopology->getNextLogicalPortNumber();
-
     // Add multicast RTP input
     result = resourceTopology->addResource(DEFAULT_MCAST_RTP_INPUT_RESOURCE_TYPE,
                                            DEFAULT_RTP_INPUT_RESOURCE_NAME);
@@ -640,7 +636,7 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildMulticastConnectionResource
     }
 
 
-    addOutputConnectionTopology(resourceTopology, logicalPortNum);
+    addOutputConnectionTopology(resourceTopology, -1);
 
     return(resourceTopology);
 }
