@@ -63,8 +63,11 @@ public:
      *  @param[in] ssName - name of SS algorithm to use. Use empty string
      *             to get default algorithm.
      *
-     *  @returns Method never returns NULL. If appropriate SS algorithm is
-     *           not found, default one is returned.
+     *  @note To date we have no available SS algorithms in open-source,
+     *        so NULL is always returned.
+     *
+     *  @returns If appropriate SS algorithm is not found, default one is
+     *           returned.
      */
 
      /// Destructor
