@@ -31,7 +31,7 @@
 MpSpeakerSelectBase *MpSpeakerSelectBase::createInstance(const UtlString &name)
 {
    //if (name == MpSpeakerSelectSimple::name)
-   if (true)
+   if (false)
    {
       //return new MpSpeakerSelectSimple();
       return NULL;
