@@ -350,28 +350,57 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
 /// Resource list for Initial Topology.
 static MpResourceTopology::ResourceDef initialTopologyResources[] =
 {
-   {DEFAULT_FROM_FILE_RESOURCE_TYPE, DEFAULT_FROM_FILE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE, DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_VAD_RESOURCE_TYPE, DEFAULT_VAD_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
-#ifdef INSERT_DELAY_RESOURCE // [
-   {DEFAULT_DELAY_RESOURCE_TYPE, DEFAULT_DELAY_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
-#endif // INSERT_DELAY_RESOURCE ]
    {DEFAULT_BRIDGE_RESOURCE_TYPE, DEFAULT_BRIDGE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_FROM_FILE_RESOURCE_TYPE, DEFAULT_FROM_FILE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_TONE_GEN_RESOURCE_TYPE, DEFAULT_TONE_GEN_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_VAD_RESOURCE_TYPE, DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_BUFFER_RECORDER_RESOURCE_TYPE, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_NULL_RESOURCE_TYPE, DEFAULT_NULL_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_SPLITTER_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_NULL_AEC_RESOURCE_TYPE, DEFAULT_AEC_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
+   {DEFAULT_NULL_RESOURCE_TYPE, DEFAULT_NULL_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
 };
 static const int initialTopologyResourcesNum =
    sizeof(initialTopologyResources)/sizeof(MpResourceTopology::ResourceDef);
 
 /// Connection list for Initial Topology.
 static MpResourceTopology::ConnectionDef initialTopologyConnections[] =
+{
+    // FromFile -> Bridge(0)
+   {DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0},
+    // ToneGen -> Bridge(1)
+   {DEFAULT_TONE_GEN_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1},
+
+    // Bridge(0) -> Buffer Recorder
+    // This buffer recorder is intended to record the microphone.
+    // Currently, this records all inputs from the bridge.  Once the bridge
+    // can configure what inputs go to what outputs, this will behave as 
+    // intended
+   {DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, 0},
+    // Bridge(1) -> Null(1)
+    // Fill up the unpaired bridge outputs as it currently barfs if
+    // it does not have the same number of inputs and outputs.
+   {DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_NULL_RESOURCE_NAME, 1},
+};
+static const int initialTopologyConnectionsNum =
+   sizeof(initialTopologyConnections)/sizeof(MpResourceTopology::ConnectionDef);
+
+/// Resource list for Local Connection Topology.
+static MpResourceTopology::ResourceDef localConnectionResources[] =
+{
+   {DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE, DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_VAD_RESOURCE_TYPE, DEFAULT_VAD_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+#ifdef INSERT_DELAY_RESOURCE // [
+   {DEFAULT_DELAY_RESOURCE_TYPE, DEFAULT_DELAY_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+#endif // INSERT_DELAY_RESOURCE ]
+   {DEFAULT_VAD_RESOURCE_TYPE, DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_SPLITTER_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_NULL_AEC_RESOURCE_TYPE, DEFAULT_AEC_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
+};
+static const int localConnectionResourcesNum =
+   sizeof(localConnectionResources)/sizeof(MpResourceTopology::ResourceDef);
+
+/// Connection list for Local Connection Topology.
+static MpResourceTopology::ConnectionDef localConnectionConnections[] =
 {
     // Mic -> VAD
    {DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_VAD_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
@@ -383,17 +412,11 @@ static MpResourceTopology::ConnectionDef initialTopologyConnections[] =
 #endif // INSERT_DELAY_RESOURCE ]
     //     -> AEC
    {NULL, 0, DEFAULT_AEC_RESOURCE_NAME, 0},
-    //     -> Bridge(0)
-   {NULL, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0},
+    //     -> Bridge(2)
+   {NULL, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 2},
 
-    // FromFile -> Bridge(1)
-   {DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1},
-
-    // ToneGen -> Bridge(2)
-   {DEFAULT_TONE_GEN_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 2},
-
-    // Bridge(0) -> Splitter, the splitter leaves a tap for AEC to see the output to speaker
-   {DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0},
+    // Bridge(2) -> Splitter, the splitter leaves a tap for AEC to see the output to speaker
+   {DEFAULT_BRIDGE_RESOURCE_NAME, 2, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0},
     // Splitter(0) -> VAD
    {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0, DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, 0},
     //             -> Voice Activity Notifier
@@ -401,28 +424,17 @@ static MpResourceTopology::ConnectionDef initialTopologyConnections[] =
     //             -> Speaker
    {NULL, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0},
     // Splitter(1) -> Output Buffer (part of AEC)
-   {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1, DEFAULT_AEC_RESOURCE_NAME AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX, 0},
-
-    // Bridge(1) -> Buffer Recorder
-    // This buffer recorder is intended to record the microphone.
-    // Currently, this records all inputs from the bridge.  Once the bridge
-    // can configure what inputs go to what outputs, this will behave as 
-    // intended
-   {DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, 0},
-
-    // Bridge(2) -> Null(2)
-    // Fill up the unpaired bridge outputs as it currently barfs if
-    // it does not have the same number of inputs and outputs.
-   {DEFAULT_BRIDGE_RESOURCE_NAME, 2, DEFAULT_NULL_RESOURCE_NAME, 2}
+   {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1, DEFAULT_AEC_RESOURCE_NAME AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX, 0}
 };
-static const int initialTopologyConnectionsNum =
-   sizeof(initialTopologyConnections)/sizeof(MpResourceTopology::ConnectionDef);
+static const int localConnectionConnectionsNum =
+   sizeof(localConnectionConnections)/sizeof(MpResourceTopology::ConnectionDef);
 
 MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopology()
 {
     MpResourceTopology* resourceTopology = new MpResourceTopology();
     OsStatus result;
 
+    // Add resources to initial topology
     result = resourceTopology->addResources(initialTopologyResources,
                                             initialTopologyResourcesNum);
     assert(result == OS_SUCCESS);
@@ -437,9 +449,13 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
                                                 VIRTUAL_NAME_CONNECTION_PORTS, -1);
     assert(result == OS_SUCCESS);
 
+    // Add connections to initial topology
     result = resourceTopology->addConnections(initialTopologyConnections,
                                               initialTopologyConnectionsNum);
     assert(result == OS_SUCCESS);
+
+    // Add one local connection.
+    addLocalConnectionTopology(resourceTopology);
 
     // Validate the topology to make sure all the resources are connected
     // and that there are no dangling resources
@@ -714,6 +730,21 @@ void CpTopologyGraphFactoryImpl::addOutputConnectionTopology(MpResourceTopology*
     // Link encoder -> RTP output
     result = resourceTopology->addConnection(DEFAULT_ENCODE_RESOURCE_NAME, 0, 
                                              DEFAULT_RTP_OUTPUT_RESOURCE_NAME, 0);
+    assert(result == OS_SUCCESS);
+}
+
+void CpTopologyGraphFactoryImpl::addLocalConnectionTopology(MpResourceTopology* resourceTopology)
+{
+    OsStatus result;
+
+    // Add resources
+    result = resourceTopology->addResources(localConnectionResources,
+                                            localConnectionResourcesNum);
+    assert(result == OS_SUCCESS);
+
+    // Add connections 
+    result = resourceTopology->addConnections(localConnectionConnections,
+                                              localConnectionConnectionsNum);
     assert(result == OS_SUCCESS);
 }
 

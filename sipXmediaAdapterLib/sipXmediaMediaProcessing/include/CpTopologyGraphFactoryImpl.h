@@ -178,8 +178,12 @@ protected:
    MpOutputDeviceManager *mpOutputDeviceManager;
    int                    mNumMcastStreams;
 
-   void addOutputConnectionTopology(MpResourceTopology* resourceTopology,
-                                    int logicalPortNum);
+     /// Add RTP output connection to topology
+   static void addOutputConnectionTopology(MpResourceTopology* resourceTopology,
+                                           int logicalPortNum);
+
+     /// Add local input and local output connections to topology
+   static void addLocalConnectionTopology(MpResourceTopology* resourceTopology);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
