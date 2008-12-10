@@ -285,7 +285,7 @@ OsStatus MpResourceTopology::addVirtualOutput(const UtlString& realResourceName,
    // Allocate pair for the real port and try to add it to the map.
    UtlContainablePair *pRealPort = new UtlContainablePair(new UtlString(realResourceName),
                                                           new UtlInt(realPortIndex));
-   if (mVirtualOutputs.insertKeyAndValue(pRealPort, pVirtPort) == NULL)
+   if (mVirtualOutputs.insertKeyAndValue(pVirtPort, pRealPort) == NULL)
    {
       // This virtual port is already assigned.
       delete pRealPort;
