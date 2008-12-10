@@ -119,6 +119,10 @@ SOURCE=.\interface\MiDtmfNotf.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\interface\MiIntNotf.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\interface\MiNotification.cpp
 # End Source File
 # Begin Source File
@@ -172,6 +176,10 @@ SOURCE=.\sipXmediaMediaProcessing\include\MaNotfTranslatorDispatcher.h
 # Begin Source File
 
 SOURCE=.\interface\mi\MiDtmfNotf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\mi\MiIntNotf.h
 # End Source File
 # Begin Source File
 
