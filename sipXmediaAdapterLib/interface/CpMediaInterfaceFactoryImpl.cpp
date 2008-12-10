@@ -22,6 +22,7 @@
 #include "os/OsFS.h"
 #include "os/OsSysLog.h"
 #include "utl/UtlString.h"
+#include "utl/UtlRegex.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -162,19 +163,17 @@ OsStatus CpMediaInterfaceFactoryImpl::addCodecPaths(const size_t nCodecPaths,
 {
    size_t i;
 
-   // Check each codecPath to see if it is valid.  If any of them are invalid,
-   // return failure.
-   /*
+   // Check each codecPath to see if it is valid.  If any of them are 
+   // syntactically invalid.  If so, return failure.
+   // TODO: Could use a more sophisticated determination of path validity. This one is pretty dumb.
+   RegEx invalidPathChars("^[^*?\"<>|]*$");
    for(i = 0; i < nCodecPaths; i++)
    {
-      // This isn't correct..  We want to check if it's *syntactically* valid
-      // not checking for existence.
-      if(!OsPath(codecPaths[i]).isValid())
+      if(! invalidPathChars.Search(codecPaths[i].data()) )
       {
          return OS_FAILED;
       }
    }
-   */
 
    if(ensureCapacityCodecPaths(mnCodecPaths+nCodecPaths) == OS_FAILED)
    {
