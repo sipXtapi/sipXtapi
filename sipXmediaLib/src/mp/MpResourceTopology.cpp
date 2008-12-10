@@ -156,7 +156,12 @@ OsStatus MpResourceTopology::addConnections(const ConnectionDef *defines,
    OsStatus result;
 
    // At the beginning we don't know the previous resource.
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+   // Visual Studio 6.0 broken
+   if (defines[0].outputResourceName == NULL)
+#else
    if (defines[0].outputResourceName.isNull())
+#endif
    {
       return OS_INVALID_ARGUMENT;
    }
@@ -165,7 +170,13 @@ OsStatus MpResourceTopology::addConnections(const ConnectionDef *defines,
    for (int i=0; i<numDefines; i++)
    {
       // If NULL is passed as a source resource name, connect to last resource.
-      const UtlString &outputResourceName = defines[i].outputResourceName.isNull()
+      const UtlString &outputResourceName = 
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+   // Visual Studio 6.0 broken
+                                            defines[i].outputResourceName == NULL
+#else
+                                            defines[i].outputResourceName.isNull()
+#endif
                                           ? defines[i-1].inputResourceName
                                           : defines[i].outputResourceName;
       // Add connection.

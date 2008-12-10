@@ -118,17 +118,40 @@ public:
       /// A resource type for use with addResources().
     struct ResourceDef
     {
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+       // Visual Studio 6.0 is broken when it comes to statically initializing
+       // an array of structs containing object references, so in this case
+       // just store const char* -- Note: this means reduced functionality
+       // under VS6 -- only static names and types can be used here.
+       const char* resourceType;
+       const char* resourceName;
+#else
        const UtlString& resourceType;
        const UtlString& resourceName;
+#endif
+
        MpConnectionID connectionId;
        int streamId;
     };
       /// A connection type for use with addConnections().
     struct ConnectionDef
     {
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+       // See above notice about VS6 being broken
+       const char* outputResourceName;
+#else
        const UtlString& outputResourceName;
+#endif
+
        int outputPortIndex;
+
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+       // See above notice about VS6 being broken
+       const char* inputResourceName;
+#else
        const UtlString& inputResourceName;
+#endif
+
        int inputPortIndex;
     };
 
