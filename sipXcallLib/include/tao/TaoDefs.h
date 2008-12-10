@@ -12,6 +12,8 @@
 #ifndef _TaoDefs_h_
 #define _TaoDefs_h_
 
+#include <os/OsIntTypes.h>
+
 // Constants
 #define MAXIMUM_INTEGER_STRING_LENGTH 20
 #define DEF_TAO_VERY_BIG_NUMBER 2147483647
