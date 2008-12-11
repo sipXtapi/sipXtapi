@@ -12,12 +12,13 @@
 
 // APPLICATION INCLUDES
 #include "TestStunServerTask.h"
-#include "os/StunMessage.h"
+#include <os/StunMessage.h>
 
-#include "os/OsDatagramSocket.h"
-#include "os/OsSocket.h"
-#include "utl/UtlHashMap.h"
-#include "utl/UtlVoidPtr.h"
+#include <os/OsIntTypes.h>
+#include <os/OsDatagramSocket.h>
+#include <os/OsSocket.h>
+#include <utl/UtlHashMap.h>
+#include <utl/UtlVoidPtr.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -254,7 +255,7 @@ void TestStunServerTask::handleStunMessage(const char* pBuf, int nBuf, const Utl
 
 void TestStunServerTask::handleStunBindRequest(StunMessage* pMsg, const UtlString& fromAddress, unsigned short fromPort) 
 {
-    unsigned short unknownAttributes[STUN_MAX_UNKNOWN_ATTRIBUTES] ;
+    uint16_t unknownAttributes[STUN_MAX_UNKNOWN_ATTRIBUTES] ;
     size_t nUnknownAttributes ;
     StunMessage response ;
     STUN_TRANSACTION_ID transactionId ;
@@ -299,7 +300,7 @@ void TestStunServerTask::handleStunBindRequest(StunMessage* pMsg, const UtlStrin
 
         // Check for response address
         char cResponseAddress[64] ;
-        unsigned short responsePort ;
+        uint16_t responsePort ;
         if (pMsg->getResponseAddress(cResponseAddress, responsePort))
         {
             UtlString sourceIp = mpPrimarySocket->getLocalIp() ;
