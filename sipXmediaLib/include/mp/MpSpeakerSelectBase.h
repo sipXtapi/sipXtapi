@@ -88,7 +88,7 @@ public:
      *  memory reallocation.
      */
 
-     /// Change status of selected participant
+     /// Enable/disable processing of a selected participant.
    virtual OsStatus enableParticipant(int num, UtlBoolean newState) = 0;
      /**<
      * Use this method to enable processing for newly added participants and 
@@ -102,7 +102,7 @@ public:
      * @returns Method returns OS_SUCCESS if processing is ok
      */
 
-     /// Detect speech presence
+     /// Compute speaker ranks.
    virtual OsStatus processFrame(MpSpeechParams* speechParams[],
                                  int frameSize) = 0;
      /**<
@@ -113,7 +113,7 @@ public:
      *          otherwise OS_FAILED
      */
 
-     /// Set algorithmic parameter
+     /// Set algorithm parameter
    virtual OsStatus setParam(const char* paramName, void* value) = 0;
      /**<
      * @param[in] paramName - name of parameter.
