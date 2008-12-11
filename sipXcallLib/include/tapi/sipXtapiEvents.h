@@ -319,6 +319,7 @@ typedef enum SIPX_CALLSTATE_CAUSE
                                                     is part of a transfer. */
    CALLSTATE_CAUSE_CANCEL,        /**< The event was fired in response to a cancel
                                        attempt from the remote party */
+   CALLSTATE_CAUSE_NO_CODECS      /**< An attempt to send INVITE with no codecs in SDP.*/
 } SIPX_CALLSTATE_CAUSE ;
 
 /**

@@ -950,7 +950,11 @@ UtlBoolean SipConnection::dial(const char* dialString,
                 cause = CONNECTION_CAUSE_TRANSFER;
             }
 
-            if (!prepareInviteSdpForSend(&sipInvite, mConnectionId, pSecurity))
+            if (numCodecs == 0)
+            {
+                setState(Connection::CONNECTION_FAILED, Connection::CONNECTION_LOCAL);
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NO_CODECS);
+            } else if (!prepareInviteSdpForSend(&sipInvite, mConnectionId, pSecurity))
             {
                 setState(Connection::CONNECTION_FAILED, Connection::CONNECTION_LOCAL);
                 fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_SMIME_FAILURE) ;
@@ -4849,9 +4853,7 @@ void SipConnection::processInviteResponseFailed(const SipMessage* response)
         else if (responseCode == SIP_REQUEST_NOT_ACCEPTABLE_HERE_CODE)
         {
             setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, cause);
-
-            // BUG: Not accepted here isn't an SMIME failure
-            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_SMIME_FAILURE);
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED);
         }
         else if (responseCode == SIP_REQUEST_TIMEOUT_CODE)
         {
