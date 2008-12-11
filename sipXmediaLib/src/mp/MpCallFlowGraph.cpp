@@ -110,11 +110,12 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 
    for (i=0; i<MAX_CONNECTIONS; i++)
    {
-      mpInputConnections[i] = NULL;
-      mNumRtpStreams[i] = -1;
-      mpDecoders[i] = NULL;
-      mpMcastMixer[i] = NULL;
+      mpInputConnections[i]  = NULL;
       mpOutputConnections[i] = NULL;
+      mNumRtpStreams[i]      = -1;
+      mpDecoders[i]          = NULL;
+      mpEncoders[i]          = NULL;
+      mpMcastMixer[i]        = NULL;
    }
    for (i=0; i<MAX_RECORDERS; i++) mpRecorders[i] = NULL;
 
