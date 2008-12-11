@@ -53,9 +53,13 @@
 // Even now, with VS2008, they aren't compliant, however visual studio
 // has gone about and defined vsnprintf.
 // http://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101293
-#if defined(WIN32) && defined(_MSC_VER) && (_MSC_VER < 1500)
+
+#if defined(WIN32) && defined(_MSC_VER) 
 #  define snprintf _snprintf
+
+#if (_MSC_VER < 1500)
 #  define vsnprintf _vsnprintf
+#endif
 #endif
 
 #if defined(va_copy)
