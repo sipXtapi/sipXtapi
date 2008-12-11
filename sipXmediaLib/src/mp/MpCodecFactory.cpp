@@ -94,11 +94,11 @@ MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
 void MpCodecFactory::freeSingletonHandle()
 {
    sLock.acquire();
-   freeStaticCodecs();
    if (spInstance != NULL)
    {
       delete spInstance;
       spInstance = NULL;
+      freeStaticCodecs();
    }
    sLock.release();
 }
