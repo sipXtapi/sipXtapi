@@ -54,7 +54,7 @@ public:
      *
      *  Should be called before any other class methods. All participants
      *  after initialization are disabled, to enable it call
-     *  enableParticipant()
+     *  enableParticipant().
      */
 
      /// Factory method for SS algorithms creation.
@@ -91,36 +91,37 @@ public:
      /// Enable/disable processing of a selected participant.
    virtual OsStatus enableParticipant(int num, UtlBoolean newState) = 0;
      /**<
-     * Use this method to enable processing for newly added participants and 
-     * disable processing for removed participants. Data from disabled 
-     * participants are just ignored
+     *  Initially all participants are disabled. Use this method to enable
+     *  processing for newly added participants and disable processing for
+     *  removed participants. Data from disabled participants are just ignored.
      *
-     * @param[in] num - number of participant, starting from zero
-     * @param[in] newState - pass TRUE to enable processing of this participant,
-     *                       FALSE to disable.
+     *  @param[in] num - number of participant, starting from zero
+     *  @param[in] newState - pass TRUE to enable processing of this participant,
+     *             FALSE to disable.
      *
-     * @returns Method returns OS_SUCCESS if processing is ok
+     *  @returns Method returns OS_SUCCESS if participant is successfully enabled
+     *           or disabled.
      */
 
      /// Compute speaker ranks.
    virtual OsStatus processFrame(MpSpeechParams* speechParams[],
                                  int frameSize) = 0;
      /**<
-     * @param[in] speechParams - parameters of bridges
-     * @param[in] frameSize - number of milliseconds in frame
+     *  @param[in] speechParams - parameters of bridges
+     *  @param[in] frameSize - number of milliseconds in frame
      *
-     * @returns Method returns OS_SUCCESS if processing is ok,
-     *          otherwise OS_FAILED
+     *  @returns Method returns OS_SUCCESS if processing is ok,
+     *           otherwise OS_FAILED
      */
 
      /// Set algorithm parameter
    virtual OsStatus setParam(const char* paramName, void* value) = 0;
      /**<
-     * @param[in] paramName - name of parameter.
-     * @param[in] value - pointer to a value.
+     *  @param[in] paramName - name of parameter.
+     *  @param[in] value - pointer to a value.
      *
-     * @returns Method returns OS_SUCCESS if parameter has been set,
-     *          otherwise OS_FAILED
+     *  @returns Method returns OS_SUCCESS if parameter has been set,
+     *           otherwise OS_FAILED
      */
 
 //@}
