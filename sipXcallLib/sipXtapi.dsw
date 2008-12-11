@@ -15,7 +15,103 @@ Package=<4>
 
 ###############################################################################
 
+Project: "libspandsp"=..\sipXmediaLib\contrib\libspandsp\libspandsp.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "libspeex"=..\sipXmediaLib\contrib\libspeex\win32\libspeex\libspeex.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "plgg722"=..\sipXmediaLib\src\mp\codecs\plgg722\plgg722.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "plgg726"=..\sipXmediaLib\src\mp\codecs\plgg726\plgg726.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "plggsm"=..\sipXmediaLib\src\mp\codecs\plggsm\plggsm.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "plgl16"=..\sipXmediaLib\src\mp\codecs\plgl16\plgl16.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "plgpcmapcmu"=..\sipXmediaLib\src\mp\codecs\plgpcmapcmu\plgpcmapcmu.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "plgspeex"=..\sipXmediaLib\src\mp\codecs\plgspeex\plgspeex.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "plgtones"=..\sipXmediaLib\src\mp\codecs\plgtones\plgtones.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -47,6 +143,27 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name libspeex
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXcallLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXmediaAdapterLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXmediaLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXportLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXsdpLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXtackLib
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -71,6 +188,21 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name sipXmediaAdapterLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXmediaLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXportLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXsdpLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libspeex
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -95,6 +227,18 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name sipXmediaLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXportLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXsdpLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libspeex
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -119,6 +263,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name sipXportLib
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -143,6 +290,15 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name sipXportLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXsdpLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXtackLib
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -167,6 +323,15 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name sipXportLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXsdpLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXtackLib
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -179,6 +344,27 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name libspeex
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXcallLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXmediaAdapterLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXmediaLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXportLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXsdpLib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXtackLib
+    End Project Dependency
 }}}
 
 ###############################################################################
