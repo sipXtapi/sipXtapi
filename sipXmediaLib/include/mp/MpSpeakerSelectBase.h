@@ -98,6 +98,7 @@ public:
      * @param[in] num - number of participant, starting from zero
      * @param[in] newState - pass TRUE to enable processing of this participant,
      *                       FALSE to disable.
+     *
      * @returns Method returns OS_SUCCESS if processing is ok
      */
 
@@ -107,6 +108,7 @@ public:
      /**<
      * @param[in] speechParams - parameters of bridges
      * @param[in] frameSize - number of milliseconds in frame
+     *
      * @returns Method returns OS_SUCCESS if processing is ok,
      *          otherwise OS_FAILED
      */
@@ -114,12 +116,12 @@ public:
      /// Set algorithmic parameter
    virtual OsStatus setParam(const char* paramName, void* value) = 0;
      /**<
-     * @param[in] paramName - name of parameter
-     * @param[in] value - value, can be any type, before call cast it to void*
+     * @param[in] paramName - name of parameter.
+     * @param[in] value - pointer to a value.
+     *
      * @returns Method returns OS_SUCCESS if parameter has been set,
      *          otherwise OS_FAILED
-     *
-     */ 
+     */
 
 //@}
 
