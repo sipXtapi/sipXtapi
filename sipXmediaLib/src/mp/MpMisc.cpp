@@ -805,7 +805,7 @@ OsStatus mpStartTasks(void)
         }
 
         NetInTask *pTask = NetInTask::getNetInTask();
-        if (NULL != pTask) {
+        if (NULL == pTask) {
             dmaShutdown();
             return OS_TASK_NOT_STARTED;
         }
