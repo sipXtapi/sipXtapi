@@ -136,6 +136,18 @@ public:
 ///@name Inquiry
 //@{
 
+     /// Is processing enabled for a given participant?
+   virtual OsStatus isParticipantEnabled(int num, UtlBoolean &enabled) = 0;
+     /**<
+     *  @param[in]  num - number of a participant, starting from zero.
+     *  @param[out] enabled - variable is set to TRUE processing of this
+     *              participant is enabled, FALSE otherwise.
+     *
+     *  @retval OS_SUCCESS if value is returned.
+     *  @retval OS_INVALID_ARGUMENT if participant number refers to non existing
+     *          participant.
+     */
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
