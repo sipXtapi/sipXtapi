@@ -126,8 +126,8 @@ public:
        const char* resourceType;
        const char* resourceName;
 #else
-       const UtlString& resourceType;
-       const UtlString& resourceName;
+       const UtlString resourceType;
+       const UtlString resourceName;
 #endif
 
        MpConnectionID connectionId;
@@ -140,7 +140,7 @@ public:
        // See above notice about VS6 being broken
        const char* outputResourceName;
 #else
-       const UtlString& outputResourceName;
+       const UtlString outputResourceName;
 #endif
 
        int outputPortIndex;
@@ -149,7 +149,7 @@ public:
        // See above notice about VS6 being broken
        const char* inputResourceName;
 #else
-       const UtlString& inputResourceName;
+       const UtlString inputResourceName;
 #endif
 
        int inputPortIndex;
