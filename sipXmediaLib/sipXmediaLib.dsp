@@ -460,6 +460,10 @@ SOURCE=.\src\mp\MprRtpDispatcherIpAffinity.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprSpeakerSelector.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprSpeexEchoCancel.cpp
 # End Source File
 # Begin Source File
@@ -1397,6 +1401,14 @@ SOURCE=.\include\mp\MprRtpStartReceiveMsg.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprRtpStartSendMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprSpeakerSelector.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprSpeakerSelectorConstructor.h
 # End Source File
 # Begin Source File
 
