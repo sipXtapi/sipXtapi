@@ -99,8 +99,10 @@ public:
      *  @param[in] newState - pass TRUE to enable processing of this participant,
      *             FALSE to disable.
      *
-     *  @returns Method returns OS_SUCCESS if participant is successfully enabled
-     *           or disabled.
+     *  @retval OS_SUCCESS if participant is successfully enabled
+     *          or disabled.
+     *  @retval OS_INVALID_ARGUMENT if participant number refers to non existing
+     *          participant.
      */
 
      /// Compute speaker ranks.
@@ -110,8 +112,7 @@ public:
      *  @param[in] speechParams - parameters of bridges
      *  @param[in] frameSize - number of milliseconds in frame
      *
-     *  @returns Method returns OS_SUCCESS if processing is ok,
-     *           otherwise OS_FAILED
+     *  @retval OS_SUCCESS if processing is ok.
      */
 
      /// Set algorithm parameter
@@ -120,8 +121,7 @@ public:
      *  @param[in] paramName - name of parameter.
      *  @param[in] value - pointer to a value.
      *
-     *  @returns Method returns OS_SUCCESS if parameter has been set,
-     *           otherwise OS_FAILED
+     *  @retval OS_SUCCESS if parameter has been set.
      */
 
 //@}
