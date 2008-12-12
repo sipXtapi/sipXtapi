@@ -61,7 +61,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
-				PreprocessorDefinitions="SIPX_VIDEO;HAVE_SPEEX;WIN32;NDEBUG;_LIB"
+				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;SIPX_VIDEO;HAVE_SPEEX;WIN32;NDEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
@@ -101,7 +101,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
-				PreprocessorDefinitions="HAVE_SPEEX;WIN32;_DEBUG;_LIB"
+				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;HAVE_SPEEX;WIN32;_DEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -142,7 +142,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
-				PreprocessorDefinitions="HAVE_SPEEX;WIN32;NDEBUG;_LIB"
+				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;HAVE_SPEEX;WIN32;NDEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
