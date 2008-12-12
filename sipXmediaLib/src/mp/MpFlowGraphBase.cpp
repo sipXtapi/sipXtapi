@@ -964,7 +964,7 @@ UtlBoolean MpFlowGraphBase::handleAddLink(MpResource* pFrom, int outPortIdx,
       complainAdd(pFrom->getName(), outPortIdx,
                   pTo->getName(), inPortIdx,
                   pFrom->getName(), outPortIdx);
-      // assert(FALSE);
+      assert(FALSE);
       return FALSE;
    }
 
@@ -973,7 +973,7 @@ UtlBoolean MpFlowGraphBase::handleAddLink(MpResource* pFrom, int outPortIdx,
       complainAdd(pFrom->getName(), outPortIdx,
                   pTo->getName(), inPortIdx,
                   pTo->getName(), inPortIdx);
-      // assert(FALSE);
+      assert(FALSE);
       return FALSE;
    }
 
