@@ -34,6 +34,7 @@
 #include <mp/MprVadConstructor.h>
 #include <mp/MprVoiceActivityNotifierConstructor.h>
 #include <mp/MprDelayConstructor.h>
+#include <mp/MprSpeakerSelectorConstructor.h>
 #include "CpTopologyGraphFactoryImpl.h"
 #include "mi/CpMediaInterfaceFactory.h"
 #include "CpTopologyGraphInterface.h"
@@ -313,6 +314,9 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     // Bridge
     resourceFactory->addConstructor(*(new MprBridgeConstructor()));
 
+    // Speaker Selector
+    resourceFactory->addConstructor(*(new MprSpeakerSelectorConstructor()));
+
     // Output RTP connection
     resourceFactory->addConstructor(*(new MprRtpOutputConnectionConstructor()));
 
@@ -353,6 +357,9 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
 static MpResourceTopology::ResourceDef initialTopologyResources[] =
 {
    {DEFAULT_BRIDGE_RESOURCE_TYPE, DEFAULT_BRIDGE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+#ifdef INSERT_SPEAKER_SELECTOR // [
+   {DEFAULT_SPEAKER_SELECTOR_RESOURCE_TYPE, DEFAULT_SPEAKER_SELECTOR_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+#endif // INSERT_SPEAKER_SELECTOR ]
    {DEFAULT_FROM_FILE_RESOURCE_TYPE, DEFAULT_FROM_FILE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_TONE_GEN_RESOURCE_TYPE, DEFAULT_TONE_GEN_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_BUFFER_RECORDER_RESOURCE_TYPE, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
@@ -360,6 +367,7 @@ static MpResourceTopology::ResourceDef initialTopologyResources[] =
 };
 static const int initialTopologyResourcesNum =
    sizeof(initialTopologyResources)/sizeof(MpResourceTopology::ResourceDef);
+static const int initialTopologyInputResourcesNum = 2;
 
 /// Connection list for Initial Topology.
 static MpResourceTopology::ConnectionDef initialTopologyConnections[] =
@@ -368,6 +376,9 @@ static MpResourceTopology::ConnectionDef initialTopologyConnections[] =
    {DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0},
     // ToneGen -> Bridge(1)
    {DEFAULT_TONE_GEN_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1},
+
+    // If INSERT_SPEAKER_SELECTOR is defined, a Speaker Selector will be
+    // manually connected to the Bridge.
 
     // Bridge(0) -> Buffer Recorder
     // This buffer recorder is intended to record the microphone.
@@ -414,11 +425,12 @@ static MpResourceTopology::ConnectionDef localConnectionConnections[] =
 #endif // INSERT_DELAY_RESOURCE ]
     //     -> AEC
    {NULL, 0, DEFAULT_AEC_RESOURCE_NAME, 0},
-    //     -> Bridge(2)
-   {NULL, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 2},
+    //     -> Connection Port(-1)
+   {NULL, 0, VIRTUAL_NAME_CONNECTION_PORTS, -1},
 
-    // Bridge(2) -> Splitter, the splitter leaves a tap for AEC to see the output to speaker
-   {DEFAULT_BRIDGE_RESOURCE_NAME, 2, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0},
+    // Connection Port(-1) -> Splitter
+    // The splitter leaves a tap for AEC to see the output to speaker
+   {VIRTUAL_NAME_CONNECTION_PORTS, -1, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0},
     // Splitter(0) -> VAD
    {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0, DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, 0},
     //             -> Voice Activity Notifier
@@ -441,10 +453,17 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
                                             initialTopologyResourcesNum);
     assert(result == OS_SUCCESS);
 
+#ifndef INSERT_SPEAKER_SELECTOR // [
     // Map Bridge inputs to ConnectionPorts
     result = resourceTopology->addVirtualInput(DEFAULT_BRIDGE_RESOURCE_NAME, -1,
                                                VIRTUAL_NAME_CONNECTION_PORTS, -1);
     assert(result == OS_SUCCESS);
+#else // !INSERT_SPEAKER_SELECTOR ][
+    // Map Speaker Selector inputs to ConnectionPorts
+    result = resourceTopology->addVirtualInput(DEFAULT_SPEAKER_SELECTOR_RESOURCE_NAME, -1,
+                                               VIRTUAL_NAME_CONNECTION_PORTS, -1);
+    assert(result == OS_SUCCESS);
+#endif // INSERT_SPEAKER_SELECTOR ]
 
     // Map Bridge outputs to ConnectionPorts
     result = resourceTopology->addVirtualOutput(DEFAULT_BRIDGE_RESOURCE_NAME, -1,
@@ -455,6 +474,16 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
     result = resourceTopology->addConnections(initialTopologyConnections,
                                               initialTopologyConnectionsNum);
     assert(result == OS_SUCCESS);
+
+#ifdef INSERT_SPEAKER_SELECTOR // [
+    // Add connections between Speaker Selector and Bridge
+    for (int i=0; i<DEFAULT_SPEAKER_SELECTOR_MAX_IN_OUTPUTS; i++)
+    {
+      result = resourceTopology->addConnection(DEFAULT_SPEAKER_SELECTOR_RESOURCE_NAME, i,
+                                               DEFAULT_BRIDGE_RESOURCE_NAME, i+initialTopologyInputResourcesNum);
+      assert(result == OS_SUCCESS);
+    }
+#endif // INSERT_SPEAKER_SELECTOR ]
 
     // Validate the topology to make sure all the resources are connected
     // and that there are no dangling resources
@@ -508,7 +537,11 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildUnicastConnectionResourceTo
     assert(result == OS_SUCCESS);
 
     // Abstract port number to be used when connecting to bridge.
+#ifdef INSERT_SPEAKER_SELECTOR // [
+    int logicalPortNum = -1;
+#else // INSERT_SPEAKER_SELECTOR ][
     int logicalPortNum = resourceTopology->getNextLogicalPortNumber();
+#endif // !INSERT_SPEAKER_SELECTOR ]
 
     // Link RTP input -> decoder
     result = resourceTopology->addConnection(DEFAULT_RTP_INPUT_RESOURCE_NAME, 0, 
