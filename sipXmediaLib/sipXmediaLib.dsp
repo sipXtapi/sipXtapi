@@ -1400,7 +1400,7 @@ SOURCE=.\include\mp\MprRtpStartReceiveMsg.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MprRtpStartSendMsg.h
+SOURCE=.\include\mp\MprRtpStartReceiveMsg.h
 # End Source File
 # Begin Source File
 

@@ -116,6 +116,9 @@ nobase_include_HEADERS =  \
     mp/MprRtpDispatcher.h \
     mp/MprRtpDispatcherActiveSsrcs.h \
     mp/MprRtpDispatcherIpAffinity.h \
+    mp/MprRtpInputConnectionConstructor.h \
+    mp/MprRtpOutputConnectionConstructor.h \
+    mp/MprRtpStartReceiveMsg.h \
     mp/MprSpeexEchoCancel.h \
     mp/MprSpeexPreProcess.h \
     mp/MprSplitter.h \
@@ -126,12 +129,9 @@ nobase_include_HEADERS =  \
     mp/MprToOutputDeviceConstructor.h \
     mp/MprToOutputDevice.h \
     mp/MprToSpkr.h \
-    mp/MprRtpInputConnectionConstructor.h \
-    mp/MpRtpInputConnection.h \
-    mp/MprRtpOutputConnectionConstructor.h \
-    mp/MprRtpStartSendMsg.h \
     mp/MprSpeakerSelector.h \
     mp/MprSpeakerSelectorConstructor.h \
+    mp/MpRtpInputConnection.h \
     mp/MpRtpOutputConnection.h \
     mp/MprVad.h \
     mp/MprVadConstructor.h \

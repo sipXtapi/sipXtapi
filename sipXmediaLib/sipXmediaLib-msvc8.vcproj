@@ -2121,7 +2121,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MprRtpStartSendMsg.h"
+					RelativePath=".\include\mp\MprRtpStartReceiveMsg.h"
 					>
 				</File>
 				<File

@@ -3991,7 +3991,7 @@
 				RelativePath=".\include\mp\MprRtpOutputConnectionConstructor.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRtpStartSendMsg.h">
+				RelativePath=".\include\mp\MprRtpStartReceiveMsg.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MprSpeakerSelector.h">
@@ -4135,10 +4135,10 @@
 				RelativePath="include\rtcp\RTCPTimer.h">
 			</File>
 			<File
-				RelativePath="include\rtcp\RTPHeader.h">
+				RelativePath=".\include\mp\RtpHeader.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\RtpHeader.h">
+				RelativePath="include\rtcp\RTPHeader.h">
 			</File>
 			<File
 				RelativePath="include\rtcp\SenderReport.h">
