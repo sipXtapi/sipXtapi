@@ -133,6 +133,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprRtpDispatcher.cpp \
     mp/MprRtpDispatcherActiveSsrcs.cpp \
     mp/MprRtpDispatcherIpAffinity.cpp \
+    mp/MprSpeakerSelector.cpp \
     mp/MpSineWaveGeneratorDeviceDriver.cpp \
     mp/MpStaticCodecInit.cpp \
     mp/MprSpeexEchoCancel.cpp \

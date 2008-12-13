@@ -1436,6 +1436,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MprSpeakerSelector.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MprSpeexEchoCancel.cpp"
 					>
 				</File>
@@ -2118,6 +2122,14 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MprRtpStartSendMsg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprSpeakerSelector.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprSpeakerSelectorConstructor.h"
 					>
 				</File>
 				<File

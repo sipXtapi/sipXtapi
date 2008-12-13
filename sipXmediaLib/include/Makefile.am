@@ -129,6 +129,9 @@ nobase_include_HEADERS =  \
     mp/MprRtpInputConnectionConstructor.h \
     mp/MpRtpInputConnection.h \
     mp/MprRtpOutputConnectionConstructor.h \
+    mp/MprRtpStartSendMsg.h \
+    mp/MprSpeakerSelector.h \
+    mp/MprSpeakerSelectorConstructor.h \
     mp/MpRtpOutputConnection.h \
     mp/MprVad.h \
     mp/MprVadConstructor.h \
