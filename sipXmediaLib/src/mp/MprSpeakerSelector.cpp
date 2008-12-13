@@ -333,7 +333,7 @@ void MprSpeakerSelector::peekTopSpeakers(MpSpeechParams **frameParams, int frame
    {
       if (frameParams[i] != NULL)
       {
-         topRanks[j].mRank = frameParams[lowRankIdx]->mSpkSelectRang;
+         topRanks[j].mRank = frameParams[lowRankIdx]->mSpeakerRank;
          topRanks[j].mIndex = i;
          if (topRanks[j].mRank > topRanks[lowRankIdx].mRank)
          {
@@ -360,7 +360,7 @@ void MprSpeakerSelector::peekTopSpeakers(MpSpeechParams **frameParams, int frame
          continue;
       }
 
-      unsigned rank = frameParams[i]->mSpkSelectRang;
+      unsigned rank = frameParams[i]->mSpeakerRank;
       if (rank >= topRanks[lowRankIdx].mRank)
       {
          // Nothing interesting... Continue.
