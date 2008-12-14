@@ -401,7 +401,15 @@ public:
 
      /// Calculate maximum value of array
    static inline
+   int16_t maximum(const int16_t *pSrc, int dataLength);
+
+     /// Calculate maximum value of array
+   static inline
    int32_t maximum(const int32_t *pSrc, int dataLength);
+
+     /// Calculate maximum value of array
+   static inline
+   int16_t minimum(const int16_t *pSrc, int dataLength);
 
      /// Calculate maximum value of array
    static inline

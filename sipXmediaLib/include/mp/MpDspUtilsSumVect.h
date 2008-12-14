@@ -207,11 +207,31 @@ int MpDspUtils::maxAbs(const int16_t *pSrc, int dataLength)
    return startValue;
 }
 
+int16_t MpDspUtils::maximum(const int16_t *pSrc, int dataLength)
+{
+   int16_t val = pSrc[0];
+   for (int i = 0; i < dataLength; i++)
+      if (pSrc[i] > val) 
+         val = pSrc[i];
+
+   return val;
+}
+
 int32_t MpDspUtils::maximum(const int32_t *pSrc, int dataLength)
 {
    int32_t val = pSrc[0];
    for (int i = 0; i < dataLength; i++)
       if (pSrc[i] > val) 
+         val = pSrc[i];
+
+   return val;
+}
+
+int16_t MpDspUtils::minimum(const int16_t *pSrc, int dataLength)
+{
+   int16_t val = pSrc[0];
+   for (int16_t i = 0; i < dataLength; i++)
+      if (pSrc[i] < val) 
          val = pSrc[i];
 
    return val;
