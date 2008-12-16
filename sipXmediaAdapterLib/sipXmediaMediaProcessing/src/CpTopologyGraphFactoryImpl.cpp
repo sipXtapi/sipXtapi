@@ -278,8 +278,8 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
 {
     // if the sample rate passed in is zero, use the default.
     samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSec : samplesPerSec;
-
-    return(new CpTopologyGraphInterface(this,
+    CpMediaInterface *pIf =
+          new CpTopologyGraphInterface(this,
                                        (mFrameSizeMs*samplesPerSec)/1000, samplesPerSec, 
                                        publicAddress, localAddress, 
                                        numCodecs, sdpCodecArray, 
@@ -289,7 +289,10 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                        turnServer, turnPort, turnUserName, 
                                        turnPassword, turnKeepAliveSecs, 
                                        enableIce,
-                                       pDispatcher));
+                                       pDispatcher);
+    pIf->setValue(miInterfaceId);
+    miInterfaceId++;
+    return pIf;
 }
 
 MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()

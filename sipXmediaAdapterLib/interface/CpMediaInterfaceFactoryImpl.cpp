@@ -39,7 +39,8 @@ UtlString* CpMediaInterfaceFactoryImpl::mpCodecPaths = NULL;
 
 // Constructor
 CpMediaInterfaceFactoryImpl::CpMediaInterfaceFactoryImpl()
-    : mlockList(OsMutex::Q_FIFO)
+: miInterfaceId(0)
+, mlockList(OsMutex::Q_FIFO)
 {
     miStartRtpPort = 0 ;
     miLastRtpPort = 0;

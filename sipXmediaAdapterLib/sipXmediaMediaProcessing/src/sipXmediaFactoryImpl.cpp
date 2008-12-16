@@ -232,12 +232,16 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface(const char* publicA
 {
    // if the sample rate passed in is zero, use the default.
    samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSec : samplesPerSec;
-
-   return new CpPhoneMediaInterface(this, (mFrameSizeMs*samplesPerSec)/1000, 
+   CpMediaInterface *pIf =
+      new CpPhoneMediaInterface(this, (mFrameSizeMs*samplesPerSec)/1000, 
       samplesPerSec, publicAddress, localAddress, numCodecs, sdpCodecArray, 
       locale, expeditedIpTos, szStunServer, iStunPort, iStunKeepAliveSecs, 
       szTurnServer, iTurnPort, szTurnUsername, szTurnPassword, 
       iTurnKeepAlivePeriodSecs, bEnableICE, pDispatcher);
+
+   pIf->setValue(miInterfaceId);
+   miInterfaceId++;
+   return pIf;
 }
 
 

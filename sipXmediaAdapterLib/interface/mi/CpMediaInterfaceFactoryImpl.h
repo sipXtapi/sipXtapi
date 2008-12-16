@@ -347,6 +347,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   int      miInterfaceId ;   /**< Id for the next media interface */
    int      miGain ;          /**< Gain value stored for unmuting */
    int      miStartRtpPort ;  /**< Requested starting rtp port */
    int      miLastRtpPort ;   /**< Requested ending rtp port */
