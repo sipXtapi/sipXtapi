@@ -232,7 +232,7 @@ protected:
 
      /// Post a message to be handled by this flowgraph.
    virtual OsStatus postMessage(const MpFlowGraphMsg& message,
-                                const OsTime& waitTime = OsTime::NO_WAIT_TIME);
+                                const OsTime& waitTime = OsTime::OS_INFINITY);
 
 
      /// Handle a message for this flowgraph.

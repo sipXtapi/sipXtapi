@@ -47,6 +47,7 @@
 #else
 #define MPMEDIA_DEF_MAX_MSGS OsServerTask::DEF_MAX_MSGS
 #endif /* __pingtel_on_posix__ ] */
+const OsTime MpMediaTask::smOperationQueueTimeout = OsTime::OS_INFINITY;
 
 // STATIC VARIABLE INITIALIZATIONS
 MpMediaTask* MpMediaTask::spInstance = NULL;
@@ -133,7 +134,7 @@ OsStatus MpMediaTask::manageFlowGraph(MpFlowGraphBase& rFlowGraph)
       return OS_INVALID_ARGUMENT;
    }
 
-   res = postMessage(msg, OsTime::NO_WAIT_TIME);
+   res = postMessage(msg, smOperationQueueTimeout);
    assert(res == OS_SUCCESS);
 
    return OS_SUCCESS;
@@ -152,7 +153,7 @@ OsStatus MpMediaTask::unmanageFlowGraph(MpFlowGraphBase& rFlowGraph)
    MpMediaTaskMsg msg(MpMediaTaskMsg::UNMANAGE, &rFlowGraph);
    OsStatus       res;
 
-   res = postMessage(msg, OsTime::NO_WAIT_TIME);
+   res = postMessage(msg, smOperationQueueTimeout);
    assert(res == OS_SUCCESS);
 
    return OS_SUCCESS;
@@ -181,7 +182,7 @@ OsStatus MpMediaTask::setFocus(MpFlowGraphBase* pFlowGraph)
    MpMediaTaskMsg msg(MpMediaTaskMsg::SET_FOCUS, pFlowGraph);
    OsStatus       res;
 
-   res = postMessage(msg, OsTime::NO_WAIT_TIME);
+   res = postMessage(msg, smOperationQueueTimeout);
    assert(res == OS_SUCCESS);
 
    return OS_SUCCESS;
@@ -228,7 +229,7 @@ OsStatus MpMediaTask::setWaitTimeout(int msecs)
 // processing task that it should begin processing the next frame.
 // Returns the result of releasing the binary semaphore that is used to send
 // the signal.
-OsStatus MpMediaTask::signalFrameStart(void)
+OsStatus MpMediaTask::signalFrameStart(const OsTime &timeout)
 {
    OsStatus ret = OS_TASK_NOT_STARTED;
    MpMediaTaskMsg* pMsg;
@@ -261,7 +262,7 @@ OsStatus MpMediaTask::signalFrameStart(void)
          sSignalTicks = now; // record the time
 #endif /* _PROFILE, __pingtel_on_posix__ ] */
 
-         ret = spInstance->postMessage(*pMsg, OsTime::NO_WAIT_TIME);
+         ret = spInstance->postMessage(*pMsg, timeout);
       }
    }
    return ret;
@@ -277,7 +278,7 @@ OsStatus MpMediaTask::startFlowGraph(MpFlowGraphBase& rFlowGraph)
    MpMediaTaskMsg msg(MpMediaTaskMsg::START, &rFlowGraph);
    OsStatus       res;
 
-   res = postMessage(msg, OsTime::NO_WAIT_TIME);
+   res = postMessage(msg, smOperationQueueTimeout);
    if (res != OS_SUCCESS)
    {
       OsSysLog::add(FAC_MP, PRI_DEBUG, " MpMediaTask::startFlowGraph - post"
@@ -301,7 +302,7 @@ OsStatus MpMediaTask::stopFlowGraph(MpFlowGraphBase& rFlowGraph)
    MpMediaTaskMsg msg(MpMediaTaskMsg::STOP, &rFlowGraph);
    OsStatus       res;
 
-   res = postMessage(msg, OsTime::NO_WAIT_TIME);
+   res = postMessage(msg, smOperationQueueTimeout);
    assert(res == OS_SUCCESS);
 
    return OS_SUCCESS;

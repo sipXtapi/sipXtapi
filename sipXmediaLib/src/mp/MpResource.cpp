@@ -27,7 +27,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 const UtlContainableType MpResource::TYPE = "MpResource";
-const OsTime MpResource::sOperationQueueTimeout = OsTime::NO_WAIT_TIME;
+const OsTime MpResource::sOperationQueueTimeout = OsTime::OS_INFINITY;
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -639,7 +639,7 @@ OsStatus MpResource::postMessage(MpFlowGraphMsg& rMsg)
    }
    else
    {
-      return mpFlowGraph->postMessage(rMsg, OsTime::NO_WAIT_TIME);
+      return mpFlowGraph->postMessage(rMsg, sOperationQueueTimeout);
    }
 }
 

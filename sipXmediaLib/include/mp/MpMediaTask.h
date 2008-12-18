@@ -207,7 +207,7 @@ public:
      /// @brief Post NO_WAIT_TIME message to MediaTask queue. This signals
      /// the media processing task that it should begin processing the next
      /// frame.
-   static OsStatus signalFrameStart(void);
+   static OsStatus signalFrameStart(const OsTime &timeout = OsTime::OS_INFINITY);
      /**<
      *  Returns the result of releasing the binary semaphore that is used
      *  to send the signal.
@@ -333,6 +333,8 @@ private:
                              ///< during the last frame processing interval
    OsMsgPool* mpBufferMsgPool; ///< Pool of reusable buffer messages
    OsMsgPool* mpSignalMsgPool; ///< Pool of reusable frame signal messages
+   static const OsTime smOperationQueueTimeout; ///< Timeout for posting messages
+                             ///< to the flowgraph queue.
 
    //  Static data members used to enforce Singleton behavior
    static MpMediaTask* spInstance;  ///< @brief pointer to the single instance

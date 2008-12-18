@@ -36,6 +36,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const OsTime MpFlowGraphBase::smProcessMessagesTimeout = OsTime::OS_INFINITY;
 
 // STATIC VARIABLE INITIALIZATIONS
 int MpFlowGraphBase::gFgMaxNumber = 0;

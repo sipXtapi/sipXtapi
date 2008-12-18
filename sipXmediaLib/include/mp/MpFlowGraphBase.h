@@ -427,7 +427,7 @@ protected:
 
      /// Posts a message to this flow graph.
    virtual OsStatus postMessage(const MpFlowGraphMsg& rMsg,
-                                const OsTime& rTimeout=OsTime::NO_WAIT_TIME);
+                                const OsTime& rTimeout=OsTime::OS_INFINITY);
      /**<
      *  Returns the result of the message send operation.
      */
@@ -492,6 +492,8 @@ private:
    int       mSamplesPerSec;   ///< number of samples per second
    MpResource* mpResourceInProcess; ///< @brief For debugging, keep track of what
                                ///< resource we are working on in processNextFrame().
+   static const OsTime smProcessMessagesTimeout; ///< Timeout for receiving messages
+                               ///< from the flowgraph queue.
 
      /// @brief Computes the execution order for the flow graph by performing a 
      /// topological sort on the resource graph.
