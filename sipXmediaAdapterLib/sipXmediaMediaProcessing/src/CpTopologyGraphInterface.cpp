@@ -2903,7 +2903,7 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
 
    mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpAudioReceivePort);
 
-   if(mediaConnection->mpRtpAudioSocket)
+   if(!mediaConnection->mIsCustomSockets && mediaConnection->mpRtpAudioSocket)
    {
 #ifdef TEST_PRINT
       OsSysLog::add(FAC_CP, PRI_DEBUG, 
@@ -2916,7 +2916,7 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
       delete mediaConnection->mpRtpAudioSocket;
       mediaConnection->mpRtpAudioSocket = NULL;
    }
-   if(mediaConnection->mpRtcpAudioSocket)
+   if(!mediaConnection->mIsCustomSockets && mediaConnection->mpRtcpAudioSocket)
    {
 #ifdef TEST_PRINT
       OsSysLog::add(FAC_CP, PRI_DEBUG, 
