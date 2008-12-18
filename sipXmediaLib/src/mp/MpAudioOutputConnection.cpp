@@ -482,7 +482,8 @@ void MpAudioOutputConnection::tickerCallback(const intptr_t userData, const intp
    // Signal frame processing interval start if we were asked about.
    if (pConnection->mDoFlowgraphTicker)
    {
-      MpMediaTask::signalFrameStart();
+      result = MpMediaTask::signalFrameStart();
+      assert(result == OS_SUCCESS);
    }
 }
 
