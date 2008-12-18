@@ -93,7 +93,7 @@ public:
 
     virtual ~CpTopologyMediaConnection()
     {
-        if(mpRtpAudioSocket)
+        if(!mIsCustomSockets && mpRtpAudioSocket)
         {
 
 #ifdef TEST_PRINT
@@ -106,7 +106,7 @@ public:
             mpRtpAudioSocket = NULL;
         }
 
-        if(mpRtcpAudioSocket)
+        if(!mIsCustomSockets && mpRtcpAudioSocket)
         {
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
