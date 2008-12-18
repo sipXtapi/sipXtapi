@@ -28,6 +28,8 @@ if [ $exitStatus -gt 0 ] ; then
   exit 3
 fi
 
+echo "Installing to directory: $INSTALLDIR"
+
 # Define where we're storing the documentation zipfile artifact
 DOCZIP_PATH="$PWD/sipxtapi_doc.zip"
 
@@ -47,13 +49,16 @@ DOCZIP_PATH="$PWD/sipxtapi_doc.zip"
   exit $exitStatus
 ) &&
 
+rm -rf $INSTALLDIR &&
+
 (
   cd sipXportLib &&
   mkdir -p build &&
   autoreconf -fi &&
   cd build &&
   ../configure --prefix=$INSTALLDIR ${CONFIGFLAGS} &&
-  make doc
+  make doc &&
+  make -C doc install-doc
 ) &&
 
 (
@@ -64,7 +69,8 @@ DOCZIP_PATH="$PWD/sipxtapi_doc.zip"
   autoreconf -fi &&
   cd build &&
   ../configure --prefix=$INSTALLDIR ${CONFIGFLAGS} &&
-  make doc
+  make doc &&
+  make -C doc install-doc
 ) &&
 
 (
@@ -75,7 +81,8 @@ DOCZIP_PATH="$PWD/sipxtapi_doc.zip"
   autoreconf -fi &&
   cd build &&
   ../configure --prefix=$INSTALLDIR ${CONFIGFLAGS} --disable-sipviewer &&
-  make doc
+  make doc &&
+  make -C doc install-doc
 ) &&
 
 #(
@@ -86,7 +93,8 @@ DOCZIP_PATH="$PWD/sipxtapi_doc.zip"
 #  autoreconf -fi &&
 #  cd build &&
 #  ../configure --prefix=$INSTALLDIR  ${CONFIGFLAGS} &&
-#  make doc 
+#  make doc &&
+#  make -C doc install-doc
 #) &&
 
 # making documentation in sipXmediaAdapterLib seems broken right now.
@@ -99,26 +107,17 @@ DOCZIP_PATH="$PWD/sipxtapi_doc.zip"
 #  autoreconf -fi &&
 #  cd build &&
 #  ../configure --prefix=$INSTALLDIR ${CONFIGFLAGS} &&
-#  make doc
+#  make doc &&
+#  make -C doc install-doc
 #) &&
 
 # Zip up the documentation.  We have to delve into each directory so that the
 # paths encoded in the zip file are correct.
 (
-  pushd sipXportLib/build &&
-  zip -g -r $DOCZIP_PATH doc/sipxportlib && 
-  popd &&
-
-  pushd sipXsdpLib/build &&
-  zip -g -r $DOCZIP_PATH doc/sipxsdplib && 
-  popd &&
-
-  pushd sipXtackLib/build &&
-  zip -g -r $DOCZIP_PATH doc/sipxtacklib && 
-  popd
+  cd $INSTALLDIR/share &&
+  zip -r $DOCZIP_PATH doc
 ) &&
 
-rm -rf $INSTALLDIR && 
-
+echo "Installdir: $INSTALLDIR" && 
 echo "Successfully built sipXtapi documentation" &&
 echo "$DOCZIP_PATH"
