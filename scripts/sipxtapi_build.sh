@@ -101,7 +101,5 @@ rm -rf $INSTALLDIR &&
   ../configure --prefix=$INSTALLDIR --enable-topology-graph --disable-stream-player ${CONFIGFLAGS} &&
   make -j3 && make install
 ) &&
-
-echo "Successfully built sipXtapi projects"
+echo "Successfully built sipXtapi projects" &&
 echo "You'll find them installed to $INSTALLDIR"
-
