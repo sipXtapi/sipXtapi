@@ -14,6 +14,9 @@
 #if defined(HAVE_SSL)
 
 // SYSTEM INCLUDES
+#ifdef _WIN32
+#  include <winsock2.h>
+#endif
 #include <openssl/rand.h>
 #include <openssl/x509v3.h>
 #include <openssl/ssl.h>

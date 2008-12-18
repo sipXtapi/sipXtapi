@@ -17,7 +17,7 @@
 #include <stdio.h>
 
 #if defined(_WIN32)
-#   include <winsock.h>
+#   include <winsock2.h>
 #elif defined(_VXWORKS)
 #   include <inetLib.h>
 #   include <netdb.h>
