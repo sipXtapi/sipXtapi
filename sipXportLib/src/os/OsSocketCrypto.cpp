@@ -51,10 +51,14 @@ struct rtpHeader {
 /* //////////////////////////////// PUBLIC //////////////////////////////// */
 
 /* =============================== CREATORS =============================== */
-
 OsSocketCryptoProxy::OsSocketCryptoProxy(OsSocket* pureSocket,
-                                         int (OsSocket::*read)(char*, int, UtlString*, int*),
-                                         int (OsSocket::*write)(const char*, int),
+                                         int (OsSocket::*read1)(char*, int),
+                                         int (OsSocket::*read2)(char*, int, UtlString*, int*),
+                                         int (OsSocket::*read3)(char*, int, struct in_addr*, int*),
+                                         int (OsSocket::*read4)(char*, int, long),
+                                         int (OsSocket::*write1)(const char*, int),
+                                         int (OsSocket::*write2)(const char*, int, const char*, int),
+                                         int (OsSocket::*write3)(const char*, int, long),
                                          const char* pEncBinData,
                                          int encBinLength,
                                          const char* pDecBinData,
@@ -63,8 +67,13 @@ OsSocketCryptoProxy::OsSocketCryptoProxy(OsSocket* pureSocket,
 , mpRtpEncryptKey(NULL)
 , mpRtpDecryptKey(NULL)
 , mPureSocket(pureSocket)
-, mRead(read)
-, mWrite(write)
+, mRead1(read1)
+, mRead2(read2)
+, mRead3(read3)
+, mRead4(read4)
+, mWrite1(write1)
+, mWrite2(write2)
+, mWrite3(write3)
 {
    setSymKeys(pEncBinData, encBinLength, pDecBinData, decBinLength);
 }
@@ -101,16 +110,69 @@ UtlBoolean OsSocketCryptoProxy::setSymKeys(const char* pEncBinData,
    return TRUE;
 }
 
-int OsSocketCryptoProxy::write(const char* buffer, int bufferLength)
+UtlBoolean OsSocketCryptoProxy::decode(char* buffer, int bufferLength, int originalLength, int& decodedLen)
 {
-   // We assume that buffer is RTP packet, if so and payload == pcmu
-   // perform encryption before send
-   struct rtpHeader* ph = (struct rtpHeader* )buffer;
+
+   struct rtpHeader* ph = (struct rtpHeader* )mDecodeBuffer;
 
    unsigned char* payloadData = (unsigned char* )ph + sizeof(struct rtpHeader);
    UtlBoolean padding = ((ph->vpxcc & RTP_P_MASK) == RTP_P_MASK);
 
+   int payloadOctets = originalLength - sizeof(struct rtpHeader);
+   if (padding)
+   {
+      uint8_t padBytes = buffer[originalLength - 1];
+      if ((padBytes & (~3)) != 0) {
+         // For security reason
+         padBytes = 0;
+      }
+      payloadOctets -= padBytes;
+   }
+
+   int payloadType = (ph->mpt & RTP_PT_MASK);
+
+   if (SRTP_PAYLOADTYPE_PCMU == payloadType)
+   {
+      ph->vpxcc &= ~RTP_P_MASK;
+      ph->mpt = (SDP_CODEC_PCMU & RTP_PT_MASK) | (ph->mpt & RTP_M_MASK);
+
+      memcpy(buffer, mDecodeBuffer, sizeof(struct rtpHeader));
+
+      UtlCryptoKey* pKey = mpRtpDecryptKey;
+      int len = bufferLength - sizeof(struct rtpHeader);
+      if (pKey->decrypt(payloadData, payloadOctets,
+         (unsigned char*)buffer + sizeof(struct rtpHeader), &len) == 0)
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "OsSocketCrypto RTP decrypt failed: PayloadLen=%d", payloadOctets);
+         return 0;
+      }
+
+      decodedLen = len + sizeof(struct rtpHeader);
+      return TRUE;
+   }
+   else 
+   {
+      decodedLen = originalLength;
+      memcpy(buffer, mDecodeBuffer, decodedLen);
+      return FALSE;
+   }
+}
+
+
+UtlBoolean OsSocketCryptoProxy::encode(const char* buffer, int bufferLength, int& encodedLen)
+{
+   // We assume that buffer is RTP packet, if so and payload == pcmu
+   // perform encryption before send
+   struct rtpHeader* ph = (struct rtpHeader* )buffer;
+   
    int payloadOctets = bufferLength - sizeof(struct rtpHeader);
+   if (payloadOctets <= 0)
+      return FALSE;
+
+   unsigned char* payloadData = (unsigned char* )ph + sizeof(struct rtpHeader);
+   UtlBoolean padding = ((ph->vpxcc & RTP_P_MASK) == RTP_P_MASK);
+
    if (padding)
    {
       uint8_t padBytes = buffer[bufferLength - 1];
@@ -155,14 +217,77 @@ int OsSocketCryptoProxy::write(const char* buffer, int bufferLength)
          break;
       }
 
-
-     return (mPureSocket->*mWrite)((const char*)mCryptoBuffer,
-          sizeof(struct rtpHeader) + encLen + pad);
+      encodedLen = sizeof(struct rtpHeader) + encLen + pad;
+      return TRUE;
    }
    else
    {
-      return (mPureSocket->*mWrite)(buffer, bufferLength);
+      return FALSE;
    }
+}
+
+
+int OsSocketCryptoProxy::write(const char* buffer, int bufferLength)
+{
+   int encodedLen;
+   if (encode(buffer, bufferLength, encodedLen))
+   {
+      return (mPureSocket->*mWrite1)((const char*)mCryptoBuffer,
+         encodedLen);
+   }
+   else
+   {
+      return (mPureSocket->*mWrite1)(buffer, bufferLength);
+   }
+}
+
+
+int OsSocketCryptoProxy::write(const char* buffer, int bufferLength,
+                               const char* ipAddress, int port)
+{
+   int encodedLen;
+   if (encode(buffer, bufferLength, encodedLen))
+   {
+      return (mPureSocket->*mWrite2)((const char*)mCryptoBuffer,
+         encodedLen, ipAddress, port);
+   }
+   else
+   {
+      return (mPureSocket->*mWrite2)(buffer, bufferLength, ipAddress, port);
+   }
+}
+
+int OsSocketCryptoProxy::write(const char* buffer, int bufferLength, long waitMilliseconds)
+{
+   int encodedLen;
+   if (encode(buffer, bufferLength, encodedLen))
+   {
+      return (mPureSocket->*mWrite3)((const char*)mCryptoBuffer,
+         encodedLen, waitMilliseconds);
+   }
+   else
+   {
+      return (mPureSocket->*mWrite3)(buffer, bufferLength, waitMilliseconds);
+   }
+}
+
+
+int OsSocketCryptoProxy::read(char* buffer, int bufferLength)
+{
+   if (mpRtpDecryptKey == NULL)
+   {
+      return (mPureSocket->*mRead1)(buffer, bufferLength);
+   }
+
+   assert(MAX_CRYPTOBUFFER >= bufferLength);
+   int res = (mPureSocket->*mRead1)((char*)mDecodeBuffer, bufferLength);
+   if (res <= 0)
+      return res;
+
+   int decoded;
+   decode(buffer, bufferLength, res, decoded);
+
+   return decoded;
 }
 
 int OsSocketCryptoProxy::read(char* buffer, int bufferLength,
@@ -170,57 +295,58 @@ int OsSocketCryptoProxy::read(char* buffer, int bufferLength,
 {
    if (mpRtpDecryptKey == NULL)
    {
-      return (mPureSocket->*mRead)(buffer, bufferLength, fromAddress, fromPort);
+      return (mPureSocket->*mRead2)(buffer, bufferLength, fromAddress, fromPort);
    }
- 
+
    assert(MAX_CRYPTOBUFFER >= bufferLength);
-   int res = (mPureSocket->*mRead)((char*)mDecodeBuffer, bufferLength, fromAddress, fromPort);
+   int res = (mPureSocket->*mRead2)((char*)mDecodeBuffer, bufferLength, fromAddress, fromPort);
    if (res <= 0)
       return res;
 
-   struct rtpHeader* ph = (struct rtpHeader* )mDecodeBuffer;
+   int decoded;
+   decode(buffer, bufferLength, res, decoded);
 
-   unsigned char* payloadData = (unsigned char* )ph + sizeof(struct rtpHeader);
-   UtlBoolean padding = ((ph->vpxcc & RTP_P_MASK) == RTP_P_MASK);
-
-   int payloadOctets = res - sizeof(struct rtpHeader);
-   if (padding)
-   {
-      uint8_t padBytes = buffer[bufferLength - 1];
-      if ((padBytes & (~3)) != 0) {
-         // For security reason
-         padBytes = 0;
-      }
-      payloadOctets -= padBytes;
-   }
-
-   int payloadType = (ph->mpt & RTP_PT_MASK);
-   
-   if (SRTP_PAYLOADTYPE_PCMU == payloadType)
-   {
-      ph->vpxcc &= ~RTP_P_MASK;
-      ph->mpt = (SDP_CODEC_PCMU & RTP_PT_MASK) | (ph->mpt & RTP_M_MASK);
-
-      memcpy(buffer, mDecodeBuffer, sizeof(struct rtpHeader));
-
-      UtlCryptoKey* pKey = mpRtpDecryptKey;
-      int len = bufferLength - sizeof(struct rtpHeader);
-      if (pKey->decrypt(payloadData, payloadOctets,
-         (unsigned char*)buffer + sizeof(struct rtpHeader), &len) == 0)
-      {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-            "OsSocketCrypto RTP decrypt failed: PayloadLen=%d", payloadOctets);
-         return 0;
-      }
-
-      res = len + sizeof(struct rtpHeader);
-   }
-   else 
-   {      
-      memcpy(buffer, mDecodeBuffer, res);
-   }
-   return res;
+   return decoded;
 }
+
+int OsSocketCryptoProxy::read(char* buffer, int bufferLength,
+                              struct in_addr* ipAddress, int* port)
+{
+   if (mpRtpDecryptKey == NULL)
+   {
+      return (mPureSocket->*mRead3)(buffer, bufferLength, ipAddress, port);
+   }
+
+   assert(MAX_CRYPTOBUFFER >= bufferLength);
+   int res = (mPureSocket->*mRead3)((char*)mDecodeBuffer, bufferLength, ipAddress, port);
+   if (res <= 0)
+      return res;
+
+   int decoded;
+   decode(buffer, bufferLength, res, decoded);
+
+   return decoded;
+}
+
+int OsSocketCryptoProxy::read(char* buffer, int bufferLength, long waitMilliseconds)
+{
+   if (mpRtpDecryptKey == NULL)
+   {
+      return (mPureSocket->*mRead4)(buffer, bufferLength, waitMilliseconds);
+   }
+
+   assert(MAX_CRYPTOBUFFER >= bufferLength);
+   int res = (mPureSocket->*mRead4)((char*)mDecodeBuffer, bufferLength, waitMilliseconds);
+   if (res <= 0)
+      return res;
+
+   int decoded;
+   decode(buffer, bufferLength, res, decoded);
+
+   return decoded;
+}
+
+
 
 /* ============================== ACCESSORS =============================== */
 
