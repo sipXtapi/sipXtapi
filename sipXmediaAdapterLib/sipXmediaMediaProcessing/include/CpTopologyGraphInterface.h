@@ -100,6 +100,9 @@ public:
      /**<
      *  This version of createConnection() can be used if you want to override
      *  the OsSocket class in order to provide an external socket implementation.
+     *
+     *  @note In this case application should free socket instances by itself,
+     *        because it is not freed in deleteConnection() method.
      */
 
      /// @copydoc CpMediaInterface::setPlcMethod()
