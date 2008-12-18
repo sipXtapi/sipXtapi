@@ -26,6 +26,18 @@ if [ ! -e sipXportLib ] ; then
   exit 2
 fi
 
+# Figure out where to install things to... Make a temporary directory for it.
+INSTALLDIR=`mktemp -t -d sipxtapi_stage.XXXXXX`
+exitStatus=$?
+if [ $exitStatus -gt 0 ] ; then
+  # Failed to create temporary directory for installing to, for some reason.
+  # exit failure.
+  echo "Failed to create temporary directory, for some reason ($exitStatus)" 
+  exit 3
+fi
+
+echo "Installing to directory: $INSTALLDIR"
+
 # Apply patch to sipXmediaLib so that autoconf 2.59 will work.
 (
   exitStatus=0
@@ -41,14 +53,14 @@ fi
   exit $exitStatus
 ) &&
 
-rm -rf /tmp/stage &&
+rm -rf $INSTALLDIR &&
 
 (
   cd sipXportLib &&
   mkdir -p build &&
   autoreconf -fi &&
   cd build &&
-  ../configure --prefix=/tmp/stage ${CONFIGFLAGS} &&
+  ../configure --prefix=$INSTALLDIR ${CONFIGFLAGS} &&
   make -j3 && make install
 ) &&
 
@@ -57,18 +69,18 @@ rm -rf /tmp/stage &&
   mkdir -p build &&
   autoreconf -fi &&
   cd build &&
-  ../configure --prefix=/tmp/stage ${CONFIGFLAGS} &&
+  ../configure --prefix=$INSTALLDIR ${CONFIGFLAGS} &&
   make -j3 && make install
 ) &&
 
 (
   cd sipXtackLib/include &&
-  cp -rp net /tmp/stage/include
+  cp -rp net $INSTALLDIR/include
 ) &&
 
 (
   cd sipXcallLib/include &&
-  cp -rp tapi /tmp/stage/include
+  cp -rp tapi $INSTALLDIR/include
 ) &&
 
 (
@@ -76,7 +88,7 @@ rm -rf /tmp/stage &&
   mkdir -p build &&
   autoreconf -fi &&
   cd build &&
-  ../configure --prefix=/tmp/stage --enable-local-audio --enable-speex-dsp --enable-codec-speex --disable-stream-player ${CONFIGFLAGS} &&
+  ../configure --prefix=$INSTALLDIR --enable-local-audio --enable-speex-dsp --enable-codec-speex --disable-stream-player ${CONFIGFLAGS} &&
   make -j1 && make install &&
   cd contrib/libspeex && make install
 ) &&
@@ -86,7 +98,10 @@ rm -rf /tmp/stage &&
   mkdir -p build &&
   autoreconf -fi &&
   cd build &&
-  ../configure --prefix=/tmp/stage --enable-topology-graph --disable-stream-player ${CONFIGFLAGS} &&
+  ../configure --prefix=$INSTALLDIR --enable-topology-graph --disable-stream-player ${CONFIGFLAGS} &&
   make -j3 && make install
-)
+) &&
+
+echo "Successfully built sipXtapi projects"
+echo "You'll find them installed to $INSTALLDIR"
 
