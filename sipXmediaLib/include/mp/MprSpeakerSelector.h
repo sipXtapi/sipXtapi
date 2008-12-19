@@ -41,11 +41,21 @@ public:
 ///@name Creators
 //@{
 
-     /// Default constructor
+     /// Constructor
    MprSpeakerSelector(const UtlString& rName,
                       int maxInOutputs,
                       int maxActiveSpeakers,
                       const UtlString &algorithmName = "");
+
+     /// Constructor
+   MprSpeakerSelector(const UtlString& rName,
+                      int maxInOutputs,
+                      int maxActiveSpeakers,
+                      MpSpeakerSelectBase *pSS);
+     /**<
+     *  Use this constructor for debug purposes only! Usage of constructor
+     *  specifying Speaker Selection algorithm by name is strongly encouraged.
+     */
 
      /// Destructor
    virtual ~MprSpeakerSelector();

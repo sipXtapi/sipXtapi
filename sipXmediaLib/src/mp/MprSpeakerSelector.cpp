@@ -50,6 +50,26 @@ MprSpeakerSelector::MprSpeakerSelector(const UtlString& rName,
    mSsFresh = TRUE;
 }
 
+// Constructor
+MprSpeakerSelector::MprSpeakerSelector(const UtlString& rName,
+                                       int maxInOutputs,
+                                       int maxActiveSpeakers,
+                                       MpSpeakerSelectBase *pSS)
+:  MpAudioResource(rName, 
+                   1, maxInOutputs, 
+                   1, maxInOutputs)
+, mNumStreams(maxInOutputs)
+, mpSS(pSS)
+, mSsFresh(FALSE)
+, mpFrameParams(new MpSpeechParams*[mNumStreams])
+, mMaxActiveSpeakers(maxActiveSpeakers)
+, mTopRanks(new RankIndexPair[mMaxActiveSpeakers])
+{
+   assert(mpSS != NULL);
+   mpSS->init(mNumStreams);
+   mSsFresh = TRUE;
+}
+
 // Destructor
 MprSpeakerSelector::~MprSpeakerSelector()
 {
@@ -331,9 +351,9 @@ void MprSpeakerSelector::peekTopSpeakers(MpSpeechParams **frameParams, int frame
    // Search for first topRanksNum non-NULL participants.
    for (i=0, j=0; i<frameParamsNum && j<topRanksNum; i++)
    {
-      if (frameParams[i] != NULL)
+      if (frameParams[i] != NULL && frameParams[i]->mSpeakerRank < UINT_MAX)
       {
-         topRanks[j].mRank = frameParams[lowRankIdx]->mSpeakerRank;
+         topRanks[j].mRank = frameParams[i]->mSpeakerRank;
          topRanks[j].mIndex = i;
          if (topRanks[j].mRank > topRanks[lowRankIdx].mRank)
          {
@@ -341,7 +361,6 @@ void MprSpeakerSelector::peekTopSpeakers(MpSpeechParams **frameParams, int frame
             lowRankIdx = j;
          }
          j++;
-         break;
       }
    }
 
@@ -352,7 +371,7 @@ void MprSpeakerSelector::peekTopSpeakers(MpSpeechParams **frameParams, int frame
    }
 
    // Continue and search for top ranked participants.
-   for (i = topRanks[0].mIndex+1; i<frameParamsNum; i++)
+   for (; i<frameParamsNum; i++)
    {
       if (frameParams[i] == NULL)
       {
