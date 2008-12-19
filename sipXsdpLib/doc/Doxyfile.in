@@ -249,7 +249,7 @@ EXCLUDE_PATTERNS      = config-*.h
 # directories that contain example code fragments that are included (see 
 # the \include command). 
 
-EXAMPLE_PATH          = ../examples
+EXAMPLE_PATH          = 
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the 
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
@@ -496,9 +496,7 @@ EXPAND_ONLY_PREDEF    = YES
 # The TAGFILES tag can be used to specify one or more tagfiles. 
 
 TAGFILES              = \
-          @SIPX_DOCDIR@/sipxportlib/sipxportlib.tag=@SIPX_DOCDIR@/sipxportlib/ \
-          @SIPX_DOCDIR@/sipxtacklib/sipxtacklib.tag=@SIPX_DOCDIR@/sipxtacklib/ \
-          @SIPX_DOCDIR@/sipxmedialib/sipxmedialib.tag=@SIPX_DOCDIR@/sipxmedialib/
+          @SIPX_DOCDIR@/sipxportlib/sipxportlib.tag=@SIPX_DOCDIR@/sipxportlib/ 
 
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create 
 # a tag file that is based on the input files it reads. 
