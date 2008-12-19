@@ -17,7 +17,7 @@ unconditional_SUBDIRS = . interface sipXmediaMediaProcessing examples
 
 include $(srcdir)/config/sipXprojtop.mak
 
-SUBDIRS = $(unconditional_SUBDIRS)
+SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 RELEASE = 2
 
 .PHONY : rpm
