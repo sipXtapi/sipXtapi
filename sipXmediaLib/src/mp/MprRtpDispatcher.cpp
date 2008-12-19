@@ -97,15 +97,15 @@ OsStatus MprRtpDispatcher::MpRtpStream::postStreamNotif(OsMsgDispatcher *pMsgQ,
       switch (state)
       {
       case MprnRtpStreamActivityMsg::STREAM_START:
-         osPrintf(" ---------------> MprRtpDispatcher: NOT ACTIVE -> ACTIVE, %s:%d, ssrc = 0x%x\n", 
+         osPrintf(" ---------------> MprRtpDispatcher: NOT ACTIVE -> ACTIVE, 0x%08X:%d, ssrc = 0x%x\n", 
                   mAddress, mPort, getSSRC());
          break;
       case MprnRtpStreamActivityMsg::STREAM_STOP:
-         osPrintf(" ---------------> MprRtpDispatcher: ACTIVE -> NOT ACTIVE, %s:%d, ssrc = 0x%x\n", 
+         osPrintf(" ---------------> MprRtpDispatcher: ACTIVE -> NOT ACTIVE, 0x%08X:%d, ssrc = 0x%x\n", 
                   mAddress, mPort, getSSRC());
          break;
       case MprnRtpStreamActivityMsg::STREAM_CHANGE:
-         osPrintf(" ---------------> MprRtpDispatcher: CHANGE,               %s:%d, ssrc = 0x%x\n", 
+         osPrintf(" ---------------> MprRtpDispatcher: CHANGE,               0x%08X:%d, ssrc = 0x%x\n", 
                   mAddress, mPort, getSSRC());
          break;
       }
