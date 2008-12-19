@@ -85,17 +85,17 @@ rm -rf $INSTALLDIR &&
   make -C doc install-doc
 ) &&
 
-#(
-#  cd sipXmediaLib &&
-#  sed -e '0,/SFAC_LIB_/s/SFAC_LIB_[^ ]*/SFAC_INIT_FLAGS/;/SFAC_LIB_/d' configure.ac > configure.ac.nolibreqs &&
-#  mv configure.ac.nolibreqs configure.ac &&
-#  mkdir -p build &&
-#  autoreconf -fi &&
-#  cd build &&
-#  ../configure --prefix=$INSTALLDIR  ${CONFIGFLAGS} &&
-#  make doc &&
-#  make -C doc install-doc
-#) &&
+(
+  cd sipXmediaLib &&
+  sed -e '0,/SFAC_LIB_/s/SFAC_LIB_[^ ]*/SFAC_INIT_FLAGS/;/SFAC_LIB_/d' configure.ac > configure.ac.nolibreqs &&
+  mv configure.ac.nolibreqs configure.ac &&
+  mkdir -p build &&
+  autoreconf -fi &&
+  cd build &&
+  ../configure --prefix=$INSTALLDIR  ${CONFIGFLAGS} &&
+  make doc &&
+  make -C doc install-doc
+) &&
 
 # making documentation in sipXmediaAdapterLib seems broken right now.
 # Leave it out temporarily
