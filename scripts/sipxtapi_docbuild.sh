@@ -97,19 +97,17 @@ rm -rf $INSTALLDIR &&
   make -C doc install-doc
 ) &&
 
-# making documentation in sipXmediaAdapterLib seems broken right now.
-# Leave it out temporarily
-#(
-#  cd sipXmediaAdapterLib &&
-#  sed -e '0,/SFAC_LIB_/s/SFAC_LIB_[^ ]*/SFAC_INIT_FLAGS/;/SFAC_LIB_/d' configure.ac > configure.ac.nolibreqs &&
-#  mv configure.ac.nolibreqs configure.ac &&
-#  mkdir -p build &&
-#  autoreconf -fi &&
-#  cd build &&
-#  ../configure --prefix=$INSTALLDIR ${CONFIGFLAGS} &&
-#  make doc &&
-#  make -C doc install-doc
-#) &&
+(
+  cd sipXmediaAdapterLib &&
+  sed -e '0,/SFAC_LIB_/s/SFAC_LIB_[^ ]*/SFAC_INIT_FLAGS/;/SFAC_LIB_/d' configure.ac > configure.ac.nolibreqs &&
+  mv configure.ac.nolibreqs configure.ac &&
+  mkdir -p build &&
+  autoreconf -fi &&
+  cd build &&
+  ../configure --prefix=$INSTALLDIR ${CONFIGFLAGS} &&
+  make doc &&
+  make -C doc install-doc
+) &&
 
 # Zip up the documentation.  We have to delve into each directory so that the
 # paths encoded in the zip file are correct.
