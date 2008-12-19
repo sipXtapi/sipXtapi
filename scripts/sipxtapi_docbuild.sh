@@ -115,7 +115,7 @@ rm -rf $INSTALLDIR &&
 # paths encoded in the zip file are correct.
 (
   cd $INSTALLDIR/share &&
-  zip -r $DOCZIP_PATH doc
+  zip -qr $DOCZIP_PATH doc
 ) &&
 
 echo "Installdir: $INSTALLDIR" && 
