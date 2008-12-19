@@ -473,7 +473,7 @@ SEARCH_INCLUDES       = YES
 # contain include files that are not input files but should be processed by 
 # the preprocessor. 
 
-INCLUDE_PATH          = @top_srcdir@/meta/doc
+INCLUDE_PATH          = 
 
 # The PREDEFINED tag can be used to specify one or more macro names that 
 # are defined before the preprocessor is started (similar to the -D option of 
