@@ -496,7 +496,9 @@ EXPAND_ONLY_PREDEF    = YES
 
 # The TAGFILES tag can be used to specify one or more tagfiles. 
 
-TAGFILES              = @SIPX_DOCDIR@/sipxportlib/sipxportlib.tag=@SIPX_DOCDIR@/sipxportlib/
+TAGFILES              = \
+          @SIPX_DOCDIR@/sipxportlib/sipxportlib.tag=@SIPX_DOCDIR@/sipxportlib/ \
+          @SIPX_DOCDIR@/sipxsdplib/sipxsdplib.tag=@SIPX_DOCDIR@/sipxsdplib/ 
 
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create 
 # a tag file that is based on the input files it reads. 
