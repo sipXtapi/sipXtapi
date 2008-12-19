@@ -168,6 +168,10 @@ SOURCE=.\src\test\mp\MprMixerTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MprSpeakerSelectorTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MprSplitterTest.cpp
 # End Source File
 # Begin Source File

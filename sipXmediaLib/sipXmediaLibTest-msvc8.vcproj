@@ -695,6 +695,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MprSpeakerSelectorTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\test\mp\MprSplitterTest.cpp"
 				>
 			</File>

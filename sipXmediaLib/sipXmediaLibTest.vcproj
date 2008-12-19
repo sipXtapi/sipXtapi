@@ -160,9 +160,6 @@
 				RelativePath=".\src\test\mp\MpOutputManagerTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprDelayTest.cpp">
-			</File>
-			<File
 				RelativePath=".\src\test\mp\MprBridgeTest.cpp">
 			</File>
 			<File
@@ -170,6 +167,9 @@
 			</File>
 			<File
 				RelativePath=".\src\test\mp\MprBufferRecorderTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\mp\MprDelayTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\mp\MpResourceTest.cpp">
@@ -185,6 +185,9 @@
 			</File>
 			<File
 				RelativePath=".\src\test\mp\MprMixerTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\mp\MprSpeakerSelectorTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\mp\MprSplitterTest.cpp">
