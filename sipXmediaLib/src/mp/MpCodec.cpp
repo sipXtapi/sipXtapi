@@ -31,7 +31,7 @@ static int sInputMixerId = DEF_INPUTMIXER;
 /**
 *  @file MpCodec.cpp
 *
-*  @TODO The rest of this file is really independent platform-specific
+*  @todo The rest of this file is really independent platform-specific
 *  implementations of the MpCodec module.  These should be broken out into
 *  separate files.
 */

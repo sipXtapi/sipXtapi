@@ -517,8 +517,7 @@ public:
                                UtlBoolean mixWithMic = false,
                                int downScaling = 100) = 0 ;
      /**<
-     *
-     *  @TODO This method should also specify the audio format (e.g. samples/per 
+     *  @todo This method should also specify the audio format (e.g. samples/per 
      *        second, etc.).
      *
      *  @retval    UNKNOWN - << TODO: Add useful return values here - i.e.
@@ -530,7 +529,7 @@ public:
      /// @brief Pause all playing URLs or buffers
    virtual OsStatus pauseAudio() = 0;
      /**<
-     *  @TODO This method should also take an optional uniqueId representing
+     *  @todo This method should also take an optional uniqueId representing
      *        a particular playing instance to pause, instead of all of them.
      *  @retval OS_SUCCESS if the asynchronous request to pause audio succeeded.
      *  @retval OS_NOT_FOUND if required underlying media resources are not found.
@@ -539,7 +538,7 @@ public:
      /// @brief Resume all paused URLs or buffers
    virtual OsStatus resumeAudio() = 0;
      /**<
-     *  @TODO This method should also take an optional uniqueId representing
+     *  @todo This method should also take an optional uniqueId representing
      *        a particular paused instance to resume, instead of all of them.
      *  @retval OS_SUCCESS if the asynchronous request to pause audio succeeded.
      *  @retval OS_NOT_FOUND if required underlying media resources are not found.

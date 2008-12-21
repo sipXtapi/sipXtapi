@@ -220,7 +220,7 @@ public:
       *  @retval  1 if val1 \> val2
       *  @retval -1 if val1 \< val2
       *
-      *  @TODO Write unittest!!!
+      *  @todo Write unittest!!!
       */
 
       /// Is \p val1 bigger, equal or lesser then \p val2 (16-bit).
@@ -236,7 +236,7 @@ public:
       *  @return  1 if val1 \> val2
       *  @return -1 if val1 \< val2
       *
-      *  @TODO Write unittest!!!
+      *  @todo Write unittest!!!
       */
 
 //@}
@@ -248,25 +248,25 @@ public:
    static inline
    void shl16_I(int32_t &a, unsigned scale);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
    static inline
    int32_t shl16(int32_t a, unsigned scale);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
    static inline
    void shl32_I(int32_t &a, unsigned scale);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
    static inline
    int32_t shl32(int32_t a, unsigned scale);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
 //@}
@@ -293,7 +293,7 @@ public:
    static MP_DSP_VECTOR_API
    OsStatus add(const int32_t *pSrc1, const int32_t *pSrc2, int32_t *pDst, int dataLength);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
      /// Multiply source vector by given \p val and add it to accumulator vector.
@@ -306,7 +306,7 @@ public:
    OsStatus addMulLinear_I(const int16_t *pSrc1, int16_t valStart, int16_t valEnd,
                            int32_t *pSrc2Dst, int dataLength);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      *  @note Current implementation works correctly only when
      *        (dataLength << (valStart - valEnd)). See implementation for
      *        further discussion.
@@ -316,7 +316,7 @@ public:
    static MP_DSP_VECTOR_API
    OsStatus mul(const int16_t *pSrc, const int16_t val, int32_t *pDst, int dataLength);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
      /// @brief Multiply source vector by values linearly changing from
@@ -325,7 +325,7 @@ public:
    OsStatus mulLinear(const int16_t *pSrc, int16_t valStart, int16_t valEnd,
                       int32_t *pDst, int dataLength);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      *  @note Current implementation works correctly only when
      *        (dataLength << (valStart - valEnd)). See implementation for
      *        further discussion.
@@ -355,7 +355,7 @@ public:
    static MP_DSP_VECTOR_API
    OsStatus add(const float *pSrc1, const float *pSrc2, float *pDst, int dataLength);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
      /// Multiply source vector by given \p val and add it to accumulator.
@@ -368,14 +368,14 @@ public:
    OsStatus addMulLinear_I(const int16_t *pSrc1, float valStart, float valEnd,
                            float *pSrc2Dst, int dataLength);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
      /// Multiply vector by constant.
    static MP_DSP_VECTOR_API
    OsStatus mul(const int16_t *pSrc, const float val, float *pDst, int dataLength);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
      /// @brief Multiply source vector by values linearly changing from
@@ -384,7 +384,7 @@ public:
    OsStatus mulLinear(const int16_t *pSrc, float valStart, float valEnd,
                       float *pDst, int dataLength);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      *  @note Current implementation works correctly only when
      *        (dataLength << (valStart - valEnd)). See implementation for
      *        further discussion.
@@ -440,21 +440,21 @@ public:
    static MP_DSP_VECTOR_API
    OsStatus convert(const int16_t *pSrc, int32_t *pDst, int dataLength);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
      /// Gain vector of 16-bit integers and convert them to 32-bit integers.
    static MP_DSP_VECTOR_API
    OsStatus convert_Gain(const int16_t *pSrc, int32_t *pDst, int dataLength, unsigned srcScaleFactor);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
      /// Attenuate vector of 16-bit integers and convert them to 32-bit integers.
    static MP_DSP_VECTOR_API
    OsStatus convert_Att(const int16_t *pSrc, int32_t *pDst, int dataLength, unsigned srcScaleFactor);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
 #else  // MP_FIXED_POINT ][
@@ -481,7 +481,7 @@ public:
    static MP_DSP_VECTOR_API
    OsStatus convert(const int16_t *pSrc, float *pDst, int dataLength);
      /**<
-     *  @TODO Write unittest!!!
+     *  @todo Write unittest!!!
      */
 
      /// Stub for fixed-point mode compatibility. It DOES NOT gains values.
