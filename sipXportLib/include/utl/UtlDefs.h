@@ -50,7 +50,7 @@ typedef int UtlBoolean ;
  *      intll xyz;
  *      printf("The value is %" FORMAT_INTLL "d", xyz);
  *  Note that the '%' before and the format specifier after must be provided.
- *  This must be a #define, since this specifier isn't standardized.
+ *  This must be a \#define, since this specifier isn't standardized.
  */
 #if defined(_WIN32)
 #  define   FORMAT_INTLL   "I64"

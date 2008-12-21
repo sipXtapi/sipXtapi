@@ -31,15 +31,15 @@
  * At present, this makes no accomodation for character set differences; input is assumed
  * to be 8 bits.  The following characters are encoded using the mandatory character
  * entities:
- *   - < => &lt;
- *   - & => &amp;
- *   - > => &gt;
- *   - ' => &apos;
- *   - " => &quot;
+ *   - &lt; => &amp;lt;
+ *   - &amp; => &amp;amp;
+ *   - &gt; => &amp;gt;
+ *   - &apos; => &amp;apos;
+ *   - &quot; => &amp;quot;
  *
  * Other character values outside the range of valid 8-bit characters in XML:
- * - #x09 | #x0A | #x0D | [#x20-#FF]
- * are encoded using the numeric entity encoding (&#x??;).
+ * - \#x09 | \#x0A | \#x0D | [\#x20-\#FF]
+ * are encoded using the numeric entity encoding (&amp;\#x??;).
  *
  * While this is not strictly XML conformant (in that it does not explicitly deal with
  * larger-size character encodings), it is symmetric (esaping and unescaping any 8 bit string
