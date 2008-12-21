@@ -26,8 +26,8 @@
 
 // DEFINES
 // MACROS
-// Uncomment MPBUF_DEBUG define to enable deep MpBuf debug with alot of messages
-// and more asserts.
+// Uncomment MPBUF_DEBUG define to enable deep MpBuf debug with a lot of
+// messages and more asserts.
 //#define MPBUF_DEBUG
 
 // EXTERNAL FUNCTIONS
