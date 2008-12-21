@@ -355,6 +355,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+    friend struct MpDataBuf;
 
     MpBuf *mpBuffer;  ///< Pointer to real buffer.
 

@@ -79,7 +79,7 @@ void MpDataBuf::sInitClone(MpBuf *pBuffer)
 
    // This prevents mpData from being freed here:
    ((MpDataBuf*)pBuffer)->mpData.swap(pDataClone);
-   (*(MpArrayBuf**)(&pDataClone)) = NULL;
+   pDataClone.mpBuffer = NULL;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
