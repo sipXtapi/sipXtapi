@@ -357,6 +357,7 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
                                   mediaConnection->mpRtcpAudioSocket);
    if (retValue != OS_SUCCESS)
    {
+      deleteConnection(connectionId);
       return retValue;
    }
 
@@ -2709,6 +2710,8 @@ OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
    {
        delete rtpSocket;
        delete rtcpSocket;
+       rtpSocket = NULL;
+       rtcpSocket = NULL;
        return OS_NETWORK_UNAVAILABLE;
    }
 
