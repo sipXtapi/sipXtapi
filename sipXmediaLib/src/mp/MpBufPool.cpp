@@ -27,10 +27,14 @@
 
 /// @brief Block size will be aligned to this value. Other bound will be aligned
 //  to it later.
-/**
- * Align block size to 4 bytes to avoid problems on ARM.
- */
-#define MP_ALIGN_SIZE 4
+#if defined(__x86_64__) || defined(_M_X64)
+   /// Align block size to 8 bytes on x86_64
+#  define MP_ALIGN_SIZE 8
+#else // __x86_64__ || _M_X64 ][
+   /// Align block size to 4 bytes elsewise to avoid crashes on ARM and
+   /// performance degradation on x86.
+#  define MP_ALIGN_SIZE 4
+#endif // !(__x86_64__ || _M_X64) ]
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
