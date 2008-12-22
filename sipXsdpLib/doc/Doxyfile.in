@@ -95,7 +95,7 @@ FULL_PATH_NAMES       = NO
 # only done if one of the specified strings matches the left-hand part of 
 # the path. 
 
-STRIP_FROM_PATH       = 
+STRIP_FROM_PATH       = @sipx_abs_srcdir@
 
 # The INTERNAL_DOCS tag determines if documentation 
 # that is typed after a \internal command is included. If the tag is set 
