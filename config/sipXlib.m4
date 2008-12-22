@@ -15,6 +15,14 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_SUBST(SIPX_INCDIR, [${includedir}])
     AC_SUBST(SIPX_LIBDIR, [${libdir}])
 
+    # Autoconf already provides a built-in abs_srcdir substitution, however,
+    # while it specifies a root-directory rooted path, it can have relative
+    # parts in the middle of it.  For Doxygen STRIP_FROM_PATH, I need a full, 
+    # path to the project directory, without any relative bits at all.
+    # Thus, sipx_abs_srcdir was conceived.
+    SFAC_SRCDIR_EXPAND
+    AC_SUBST(sipx_abs_srcdir, [${abs_srcdir}])
+
     SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -fmessage-length=0"
 
     SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith"
