@@ -1466,7 +1466,7 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
 # Rtl Defines
     AC_ARG_ENABLE([external-rtl-init],
                   [AS_HELP_STRING([--enable-external-rtl-init],
-                                  [Initialize external RTL collector with sipXmediaLib s internal one @<:@default=no@:>@])],
+                                  [Initialize external RTL collector to log to sipXmediaLib internal one @<:@default=no@:>@])],
                   [ case "${enableval}" in
                        yes) ac_do_rtinit_define=true  ;;
                        no)  ac_do_rtinit_define=false ;;
