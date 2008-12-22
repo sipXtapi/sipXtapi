@@ -80,8 +80,8 @@ public:
      *  Other than for messages sent from an ISR, the receiver is responsible
      *  for freeing the received message.
      *
-     *  @param rpMsg[in] - pointer to msg will be stored here.
-     *  @param rTimeout[in] - how long to wait for a notification..
+     *  @param[in] rpMsg - pointer to msg will be stored here.
+     *  @param[in] rTimeout - how long to wait for a notification..
      *  @retval OS_SUCCESS if the message was received and rpMsg filled in.
      *  @retval OS_WAIT_TIMEOUT if no message is in the queue before the timeout value.
      */

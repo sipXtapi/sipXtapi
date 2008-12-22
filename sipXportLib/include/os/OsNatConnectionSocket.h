@@ -284,8 +284,8 @@ public:
     * 
     * @param type Type of framed buffer - STUN or DATA
     * @param buffer Buffer to be framed.
-    * @param bufferLenght Length of the buffer to be framed.
-    * @param framedBufferLength Output parameter for the length of the 
+    * @param bufferLength Length of the buffer to be framed.
+    * @param framedBufferLen Output parameter for the length of the 
     *        framed buffer.
     *
     * @returns Pointer to a newly allocated buffer.  Must be freed by caller.
@@ -362,7 +362,7 @@ protected:
      * found via STUN/ICE.
      *
      * @param address The new destination address
-     * @param port The new destination port
+     * @param iPort The new destination port
      * @param priority Priority of the destination address
      */
     void evaluateDestinationAddress(const UtlString& address, int iPort, int priority) ;    

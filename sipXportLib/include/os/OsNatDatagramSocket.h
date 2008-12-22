@@ -403,7 +403,7 @@ protected:
      * found via STUN/ICE.
      *
      * @param address The new destination address
-     * @param port The new destination port
+     * @param iPort The new destination port
      * @param priority Priority of the destination address
      */
     void evaluateDestinationAddress(const UtlString& address, int iPort, int priority) ;       

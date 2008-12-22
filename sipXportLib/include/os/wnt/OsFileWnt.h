@@ -85,7 +85,7 @@ public:
     virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const;
       /**< 
       *  Returns all the relevant info on this file
-      *  @param rFileInfo - [OUT] The object that is filled with the
+      *  @param[out] rFileinfo - The object that is filled with the
       *         file information.
       */
 

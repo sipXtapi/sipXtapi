@@ -296,7 +296,7 @@ public:
                                       int srcLen);
      /**<
      *  @param[in]  pSrc - Source data
-     *  @param[in]  pDest - Destination buffer
+     *  @param[in]  srcLen - length of source data
      *
      *  @return Decoded data
      */

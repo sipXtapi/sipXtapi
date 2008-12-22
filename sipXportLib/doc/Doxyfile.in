@@ -237,7 +237,7 @@ RECURSIVE             = YES
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag. 
 
-EXCLUDE               = @top_srcdir@/src/test
+EXCLUDE               = @top_srcdir@/src/test @top_srcdir@/include/tapi @top_srcdir@/src/xmlparser/tinystr.cpp
 
 # If the value of the INPUT tag contains directories, you can use the 
 # EXCLUDE_PATTERNS tag to specify one or more wildcard patterns to exclude 
