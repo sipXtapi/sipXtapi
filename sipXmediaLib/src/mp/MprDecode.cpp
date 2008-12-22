@@ -190,9 +190,11 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
 
 #ifdef RTL_ENABLED // [
    UtlString str_fg(getFlowGraph()->getFlowgraphName());
+   str_fg.append("_");
+   str_fg.append(getName());
 #endif // RTL_ENABLED ]
-   RTL_EVENT(str_fg+"_MprDecode_pushPacket_seq", pRtp->getRtpSequenceNumber());
-   RTL_EVENT(str_fg+"_MprDecode_pushPacket_TS", pRtp->getRtpTimestamp());
+   RTL_EVENT(str_fg+"_pushPacket_seq", pRtp->getRtpSequenceNumber());
+   RTL_EVENT(str_fg+"_pushPacket_TS", pRtp->getRtpTimestamp());
    dprintf("> %"PRIu16" %"PRIu32,
            pRtp->getRtpSequenceNumber(), pRtp->getRtpTimestamp());
 
@@ -220,7 +222,7 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
                                        / getFlowGraph()->getSamplesPerSec();
       mStreamState.playbackStreamPosition = pRtp->getRtpTimestamp();
 
-//      RTL_EVENT(str_fg+"_MprDecode_PF_stream_position", mStreamState.playbackStreamPosition);
+//      RTL_EVENT(str_fg+"_PF_stream_position", mStreamState.playbackStreamPosition);
 
       // Initialize JB estimator.
       mpJbEstimationState->init(mStreamState.sampleRate);
@@ -247,9 +249,9 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
                                   &mStreamState.rtpStreamHint);
    }
 
-   RTL_EVENT(str_fg+"_MprDecode_pushPacket_rtp_stream_hint",
+   RTL_EVENT(str_fg+"_pushPacket_rtp_stream_hint",
              mStreamState.rtpStreamHint);
-   RTL_EVENT(str_fg+"_MprDecode_pushPacket_stream_position",
+   RTL_EVENT(str_fg+"_pushPacket_stream_position",
              mStreamState.playbackStreamPosition);
    dprintf("\n");
 
@@ -280,6 +282,8 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
    MpAudioBufPtr out;
 #ifdef RTL_ENABLED // [
    UtlString str_fg(getFlowGraph()->getFlowgraphName());
+   str_fg.append("_");
+   str_fg.append(getName());
 #endif // RTL_ENABLED ]
 
    if (outBufsSize == 0)
@@ -319,25 +323,25 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
 
    // Pull packets from JB queue, till we won't get enough samples to playback
    dprintf("# pos:%"PRIu32, mStreamState.playbackStreamPosition);
-   RTL_EVENT(str_fg+"_MprDecode_PF_stream_position", mStreamState.playbackStreamPosition);
+   RTL_EVENT(str_fg+"_PF_stream_position", mStreamState.playbackStreamPosition);
    dprintf(" buf=%-3d", mpJB->getSamplesNum());
-   RTL_EVENT(str_fg+"_MprDecode_PF_buffered_samples", mpJB->getSamplesNum());
+   RTL_EVENT(str_fg+"_PF_buffered_samples", mpJB->getSamplesNum());
    while (mpJB->getSamplesNum() < mpFlowGraph->getSamplesPerFrame())
    {
       MpRtpBufPtr rtp;
       UtlBoolean nextPacketAvailable=FALSE;
 
-      RTL_EVENT(str_fg+"_MprDecode_PF_stream_position_inloop",
+      RTL_EVENT(str_fg+"_PF_stream_position_inloop",
                 mStreamState.playbackStreamPosition);
 
       // Step 1. Pull next packet from JB queue (MprDejitter)
-      RTL_EVENT(str_fg+"_MprDecode_PF_dej_pull_position",
+      RTL_EVENT(str_fg+"_PF_dej_pull_position",
                 mStreamState.rtpStreamPosition);
       dprintf(" pull[?%"PRIu32, mStreamState.rtpStreamPosition);
       dprintf(" JBlength=%d/%d",
               mpMyDJ->getNumLatePackets(), mpMyDJ->getNumPackets());
-      RTL_EVENT(str_fg+"_MprDecode_PF_JB_length", mpMyDJ->getNumPackets());
-      RTL_EVENT(str_fg+"_MprDecode_PF_JB_late_packets", mpMyDJ->getNumLatePackets());
+      RTL_EVENT(str_fg+"_PF_JB_length", mpMyDJ->getNumPackets());
+      RTL_EVENT(str_fg+"_PF_JB_late_packets", mpMyDJ->getNumLatePackets());
       rtp = mpMyDJ->pullPacket(mStreamState.rtpStreamPosition,
                                &nextPacketAvailable);
       if (rtp.isValid())
@@ -384,10 +388,10 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       dprintf(" adj[h=%"PRId32" ?%d %d p?%d",
               mStreamState.rtpStreamHint, wantedBufferSamples, adjustment,
               int(isPlayed));
-      RTL_EVENT(str_fg+"_MprDecode_PF_rtp_stream _hint", mStreamState.rtpStreamHint);
-      RTL_EVENT(str_fg+"_MprDecode_PF_wanted_buffer_samples", wantedBufferSamples);
-      RTL_EVENT(str_fg+"_MprDecode_PF_adjustment", adjustment);
-      RTL_EVENT(str_fg+"_MprDecode_PF_is_played", isPlayed);
+      RTL_EVENT(str_fg+"_PF_rtp_stream _hint", mStreamState.rtpStreamHint);
+      RTL_EVENT(str_fg+"_PF_wanted_buffer_samples", wantedBufferSamples);
+      RTL_EVENT(str_fg+"_PF_adjustment", adjustment);
+      RTL_EVENT(str_fg+"_PF_is_played", isPlayed);
       if (isPlayed)
       {
          mStreamState.rtpStreamPosition = rtp->getRtpTimestamp() + decodedSamples;
