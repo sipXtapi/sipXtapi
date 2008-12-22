@@ -1480,7 +1480,7 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
     
     AC_ARG_ENABLE([rtl],
                   [AS_HELP_STRING([--enable-rtl],
-                                  [Use external Rtl in whole library @<:@default=no@:>@])],
+                                  [Enable RTL for the whole library @<:@default=no@:>@])],
                   [ case "${enableval}" in
                        yes) ac_do_rtl_define=true  ;;
                        no)  ac_do_rtl_define=false ;;
@@ -1488,13 +1488,13 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
                     esac],
                   [ac_do_rtl_define=false ])
     if test x${ac_do_rtl_define} != xfalse; then
-	AC_DEFINE(RTL_ENABLED, [1], [Use external Rtl in whole library])
+	AC_DEFINE(RTL_ENABLED, [1], [Enable RTL for the whole library])
 	RTL_CXXFLAGS+=" -DRTL_ENABLED "
     fi
 
     AC_ARG_ENABLE([rtlaudio],
                   [AS_HELP_STRING([--enable-rtlaudio],
-                                  [Use external RtlAudio in whole library @<:@default=no@:>@])],
+                                  [Enable RTL_AUDIO for the whole library @<:@default=no@:>@])],
                   [ case "${enableval}" in
                        yes) ac_do_rtlaudio_define=true  ;;
                        no)  ac_do_rtlaudio_define=false ;;
@@ -1502,7 +1502,7 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
                     esac],
                   [ac_do_rtlaudio_define=false ])
     if test x${ac_do_rtlaudio_define} != xfalse; then
-	AC_DEFINE(RTL_AUDIO_ENABLED, [1], [Use external RtlAudio in whole library])    
+	AC_DEFINE(RTL_AUDIO_ENABLED, [1], [Enable RTL_AUDIO for the whole library])    
 	RTL_CXXFLAGS+=" -DRTL_AUDIO_ENABLED "
     fi
 
