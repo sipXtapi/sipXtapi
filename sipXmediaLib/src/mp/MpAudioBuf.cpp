@@ -78,10 +78,16 @@ int MpAudioBuf::compareSamples(const MpAudioBufPtr& frame,
 
 void MpAudioBuf::init()
 {
+    // No VAD decision yet
     mParams.mSpeechType = MP_SPEECH_UNKNOWN;
+    // No AGC decision yet
     mParams.mAmplitude = MpSpeechParams::MAX_AMPLITUDE;
+    // We can't tell if it clipped or not
     mParams.mIsClipped = FALSE;
+    // Energy is not set yet
     mParams.mFrameEnergy = -1;
+    // Highest speaker rank - just some reasonable default
+    mParams.mSpeakerRank = 0;
 #ifdef MPBUF_DEBUG
     osPrintf(">>> MpAudioBuf::init()\n");
 #endif
