@@ -38,7 +38,7 @@ using namespace std;
 #include <os/OsProcess.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlVoidPtr.h>
-
+#include <utl/UtlInit.h>
 
 #define BUFFER_SIZE 256
 #define ARG_NUM 10
@@ -210,6 +210,8 @@ int main(int argc, const char* argv[])
 
     // And finally clean up media factory.
     sipxDestroyMediaFactoryFactory();
+
+    OsSysLog::shutdown();
 
     return 0;
 }
