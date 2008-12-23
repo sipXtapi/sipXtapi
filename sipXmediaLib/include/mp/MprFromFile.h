@@ -32,7 +32,7 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief The "Audio from file" media processing resource
+*  @brief The "Play audio from file" media processing resource
 */
 class MprFromFile : public MpAudioResource
 {
@@ -43,14 +43,14 @@ public:
 ///@name Creators
 //@{
 
-     //:Constructor
+     /// Constructor
    MprFromFile(const UtlString& rName);
 
-     //:Destructor
+     /// Destructor
    virtual
    ~MprFromFile();
 
-   typedef enum /// $$$ These need more thought and clarification...
+   typedef enum
    {
       PLAY_FINISHED,
       PLAY_STOPPED,
@@ -151,7 +151,7 @@ public:
      */
 
      /// Stop playing from file
-   OsStatus stopFile(void);
+   OsStatus stopFile();
      /**<
      *  Sends a STOP_FILE message to this resource to stop playing audio
      *  from file
@@ -225,8 +225,11 @@ public:
      *  @returns the result of attempting to queue the message to this resource.
      */
 
-   virtual UtlBoolean enable(void);
-   virtual UtlBoolean disable(void);
+     /// @copydoc MpResource::enable()
+   UtlBoolean enable();
+
+     /// @copydoc MpResource::disable()
+   UtlBoolean disable();
 
 //@}
 
@@ -274,11 +277,9 @@ private:
 
    OsTime mLastProgressUpdate;
 
-   /// The progress interval for sending update notifications.  
-   int32_t mProgressIntervalMS; 
-   /**<
-   *  A progress interval of 0 means send no progress updates.
-   */
+   int32_t mProgressIntervalMS; ///< The progress interval for sending update
+                                ///< notifications. A progress interval of 0
+                                ///< means send no progress updates.
 
      /// @brief Convert generic audio data into flowgraph audio data.
    static OsStatus genericAudioBufToFGAudioBuf(

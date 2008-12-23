@@ -176,8 +176,7 @@ OsStatus MprFromFile::playFile(const UtlString& namedResource,
    return stat;
 }
 
-// stop file play
-OsStatus MprFromFile::stopFile(void)
+OsStatus MprFromFile::stopFile()
 {
    MpFlowGraphMsg msg(STOP_FILE, this, NULL, NULL, 0, 0);
    return postMessage(msg);
@@ -213,17 +212,19 @@ OsStatus MprFromFile::sendProgressPeriod(const UtlString& namedResource,
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-UtlBoolean MprFromFile::enable(void) //$$$
+UtlBoolean MprFromFile::enable()
 {
-   if (mpNotify) {
+   if (mpNotify)
+   {
       mpNotify->signal(PLAYING);
    }
    return MpResource::enable();
 }
 
-UtlBoolean MprFromFile::disable(void) //$$$
+UtlBoolean MprFromFile::disable()
 {
-   if (mpNotify) {
+   if (mpNotify)
+   {
       mpNotify->signal(PLAY_STOPPED);
       mpNotify->signal(PLAY_FINISHED);
       mpNotify = NULL;
