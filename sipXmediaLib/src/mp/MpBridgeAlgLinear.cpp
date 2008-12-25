@@ -574,6 +574,10 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                pOutBuf->setAmplitude(MPF_SATURATE16(mpMixDataAmplitude[src]));
                if (mpMixDataAmplitude[src] >= MpSpeechParams::MAX_AMPLITUDE)
                {
+                  // This can be a wrong decision. We need better clipping
+                  // handling here. Probably we should track clipping flag
+                  // down to original inputs through all scaling and then
+                  // use logical OR to determine final clipping flag.
                   pOutBuf->setClipping(TRUE);
                }
 
@@ -674,7 +678,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                                      &mpMixDataStack[mMixDataStackStep * extOutput],
                                      mMixDataStackStep);
                MpBridgeGain scaledGainMax = MpDspUtils::maximum(scaledGainStart, scaledGainEnd);
-               mpMixDataAmplitude[extOutput] += (curAmplitude*scaledGainMax) >> MP_BRIDGE_FRAC_LENGTH;
+               mpMixDataAmplitude[extOutput] = (curAmplitude*scaledGainMax) >> MP_BRIDGE_FRAC_LENGTH;
 #ifdef DEBUG_AGC
                if ( debugFlag && (origInput==0 || origInput==3) )
                {
