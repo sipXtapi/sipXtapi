@@ -29,6 +29,7 @@
 // DEFINES
 #define DEBUG_PRINT
 #undef  DEBUG_PRINT
+//#define RTL_ENABLED
 
 // MACROS
 #ifdef DEBUG_PRINT // [
@@ -36,20 +37,29 @@
 #else  // DEBUG_PRINT ][
 static void debugPrintf(...) {}
 #endif // DEBUG_PRINT ]
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+#else // RTL_ENABLED ][
+#  define RTL_BLOCK(x)
+#  define RTL_EVENT(x,y)
+#endif // RTL_ENABLED ]
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprDejitter::MprDejitter()
+MprDejitter::MprDejitter(MpConnectionID connId, int streamId)
 : mNumPackets(0)
 , mNumLatePackets(0)
 , mNumDiscarded(0)
 , mLastPushed(0)
 , mIsFirstPulledPacket(TRUE)
 // mMaxPulledSeqNo will be initialized on first arrived packet
+, mConnectionId(connId)
+, mStreamId(streamId)
 {
+   mResourceName.appendFormat("MpDejitter-%d-%d", mConnectionId, mStreamId);
 }
 
 // Destructor
@@ -61,6 +71,7 @@ MprDejitter::~MprDejitter()
 
 void MprDejitter::reset()
 {
+   RTL_EVENT(mResourceName+"_reset", 1);
    for (int i=0; i<MAX_RTP_PACKETS; i++)
    {
       if (mpPackets[i].isValid())
@@ -82,6 +93,8 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
 
    // Find place for incoming packet
    index = pRtp->getRtpSequenceNumber() % MAX_RTP_PACKETS;
+   RTL_EVENT(mResourceName+"_push_seq", pRtp->getRtpSequenceNumber());
+   RTL_EVENT(mResourceName+"_push_index", index);
 
    // Place packet to the buffer
    if (mpPackets[index].isValid())
@@ -95,6 +108,7 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
       if (MpDspUtils::compareSerials(iNewSeqNo, iBufSeqNo) > 0) 
       {
          // Insert the new packet over the old packet
+         RTL_EVENT(mResourceName+"_push_result", 2);
          mNumDiscarded++;
          if (mNumDiscarded < 40) 
          {
@@ -114,6 +128,7 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
          }
       } else {
          // Don't insert the new packet - it is an old delayed packet
+         RTL_EVENT(mResourceName+"_push_result", 0);
          mNumDiscarded++;
          return OS_FAILED;
       }
@@ -124,13 +139,26 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
          && MpDspUtils::compareSerials( pRtp->getRtpSequenceNumber()
                                       , mMaxPulledSeqNo) <= 0)
       {
+         RTL_EVENT(mResourceName+"_push_result", 3);
          mNumLatePackets++;
       }
       else
       {
+         RTL_EVENT(mResourceName+"_push_result", 1);
          mNumPackets++;
       }
    }
+
+   RTL_EVENT(mResourceName+"_numPackets", mNumPackets);
+   RTL_EVENT(mResourceName+"_numLatePackets", mNumLatePackets);
+   RTL_EVENT(mResourceName+"_numDiscarded", mNumDiscarded);
+   RTL_EVENT(mResourceName+"_push_lastPushed", mLastPushed);
+
+   // Fake data to keep data streams in sync
+   RTL_EVENT(mResourceName+"_pop_pulled", -1);
+   RTL_EVENT(mResourceName+"_pop_minSeqIndex", -1);
+   RTL_EVENT(mResourceName+"_pop_minSeq", -1);
+   RTL_EVENT(mResourceName+"_pop_nextFrameAvailable", -1);
 
 #ifdef DEBUG_PRINT
    debugPrintf("%5u (%2u) -> (", pRtp->getRtpSequenceNumber(), index);
@@ -185,6 +213,9 @@ MpRtpBufPtr MprDejitter::pullPacket(RtpTimestamp maxTimestamp,
       }
    }
 
+   RTL_EVENT(mResourceName+"_pop_minSeqIndex", minSeqIdx);
+   RTL_EVENT(mResourceName+"_pop_minSeq", mpPackets[minSeqIdx]->getRtpSequenceNumber());
+
    if (  minSeqIdx < MAX_RTP_PACKETS
       && (!lockToTimestamp
          || MpDspUtils::compareSerials(mpPackets[minSeqIdx]->getRtpTimestamp(),
@@ -220,12 +251,43 @@ MpRtpBufPtr MprDejitter::pullPacket(RtpTimestamp maxTimestamp,
          int nextPacket = (minSeqIdx+1)%MAX_RTP_PACKETS;
          *nextFrameAvailable = mpPackets[nextPacket].isValid();
       }
+
+      RTL_EVENT(mResourceName+"_pop_pulled", 1);
    }
+   else
+   {
+      RTL_EVENT(mResourceName+"_pop_pulled", 0);
+   }
+
+   RTL_EVENT(mResourceName+"_numPackets", mNumPackets);
+   RTL_EVENT(mResourceName+"_numLatePackets", mNumLatePackets);
+   RTL_EVENT(mResourceName+"_numDiscarded", mNumDiscarded);
+   RTL_EVENT(mResourceName+"_pop_nextFrameAvailable", *nextFrameAvailable);
+
+   // Fake data to keep data streams in sync
+   RTL_EVENT(mResourceName+"_push_result", -1);
+   RTL_EVENT(mResourceName+"_push_lastPushed", -1);
+   RTL_EVENT(mResourceName+"_push_seq", -1);
+   RTL_EVENT(mResourceName+"_push_index", -1);
 
    // Make sure we does not have copy of this buffer left in other threads.
    found.requestWrite();
 
    return found;
+}
+
+void MprDejitter::setConnectionId(MpConnectionID connId)
+{
+   mConnectionId = connId;
+   mResourceName.remove(0);
+   mResourceName.appendFormat("MpDejitter-%d-%d", mConnectionId, mStreamId);
+}
+
+void MprDejitter::setStreamId(int streamId)
+{
+   mStreamId = streamId;
+   mResourceName.remove(0);
+   mResourceName.appendFormat("MpDejitter-%d-%d", mConnectionId, mStreamId);
 }
 
 /* ============================ ACCESSORS ================================= */

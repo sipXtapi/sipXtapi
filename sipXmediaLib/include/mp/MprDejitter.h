@@ -19,6 +19,7 @@
 #include "os/OsStatus.h"
 #include "os/OsBSem.h"
 #include "mp/MpRtpBuf.h"
+#include "utl/UtlString.h"
 
 // DEFINES
 // MACROS
@@ -49,7 +50,7 @@ public:
 //@{
 
      /// Constructor
-   MprDejitter();
+   MprDejitter(MpConnectionID connId=MP_INVALID_CONNECTION_ID, int streamId=-1);
 
      /// Destructor
    virtual
@@ -112,6 +113,12 @@ public:
      *  amount of time, possible forever.
      */
 
+     /// Set connection ID for debug purposes.
+   void setConnectionId(MpConnectionID connId);
+
+     /// Set RTP stream ID for debug purposes.
+   void setStreamId(int streamId);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -150,6 +157,12 @@ protected:
                   /// Keep track of the last sequence number returned, so that
                   /// we can distinguish out-of-order packets.
    RtpSeq        mMaxPulledSeqNo;
+                  /// Connection ID for debug purposes.
+   MpConnectionID mConnectionId;
+                  /// RTP stream ID for debug purposes.
+   int           mStreamId;
+                  /// Resource name for debug purposes.
+   UtlString     mResourceName;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

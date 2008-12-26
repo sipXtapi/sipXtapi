@@ -128,6 +128,12 @@ public:
      *  @return OS_LIMIT_REACHED if too many codecs used in incoming RTP packets
      */
 
+     /// @copydoc MpResource::setConnectionId()
+   void setConnectionId(MpConnectionID connectionId);
+
+     /// @copydoc MpResource::setStreamId()
+   void setStreamId(int connectionId);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */

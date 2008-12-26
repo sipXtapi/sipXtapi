@@ -181,6 +181,10 @@ void MprDecode::setMyDejitter(MprDejitter* pDJ, UtlBoolean ownDj)
 {
    mpMyDJ = pDJ;
    mOwnDJ = ownDj;
+
+   // Set connectionID and streamID on dejitter.
+   mpMyDJ->setConnectionId(mConnectionId);
+   mpMyDJ->setStreamId(mStreamId);
 }
 
 OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
@@ -256,6 +260,24 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
    dprintf("\n");
 
    return mpMyDJ->pushPacket(pRtp);
+}
+
+void MprDecode::setConnectionId(MpConnectionID connectionId)
+{
+   MpAudioResource::setConnectionId(connectionId);
+   if (mpMyDJ)
+   {
+      mpMyDJ->setConnectionId(connectionId);
+   }
+}
+
+void MprDecode::setStreamId(int StreamId)
+{
+   MpAudioResource::setStreamId(StreamId);
+   if (mpMyDJ)
+   {
+      mpMyDJ->setStreamId(StreamId);
+   }
 }
 
 /* ============================ ACCESSORS ================================= */
