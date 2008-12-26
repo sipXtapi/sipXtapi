@@ -119,6 +119,9 @@ public:
      /// Set RTP stream ID for debug purposes.
    void setStreamId(int streamId);
 
+     /// Set flowgraph name for debug purposes.
+   void setFlowgrapName(const UtlString &fgName);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -161,6 +164,8 @@ protected:
    MpConnectionID mConnectionId;
                   /// RTP stream ID for debug purposes.
    int           mStreamId;
+                  /// Parent flowgraph for debug purposes.
+   UtlString     mFlowgraphName;
                   /// Resource name for debug purposes.
    UtlString     mResourceName;
 

@@ -517,6 +517,26 @@ UtlBoolean MprDecode::tryDecodeAsSignalling(const MpRtpBufPtr &rtp)
    return TRUE;
 }
 
+OsStatus MprDecode::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+   OsStatus stat = MpResource::setFlowGraph(pFlowGraph);
+
+   // If the parent's call was successful, then call
+   // setFlowGraph on any child resources we have.
+   if(stat == OS_SUCCESS)
+   {
+      if (pFlowGraph != NULL)
+      {
+         mpMyDJ->setFlowgrapName(pFlowGraph->getFlowgraphName());
+      }
+      else
+      {
+         mpMyDJ->setFlowgrapName("None");
+      }
+   }
+   return stat;
+}
+
 // Handle old style messages for this resource.
 UtlBoolean MprDecode::handleMessage(MpFlowGraphMsg& rMsg)
 {

@@ -217,6 +217,9 @@ private:
      *  @retval FALSE - packet is not signaling
      */
 
+     /// @copydoc MpResource::setFlowGraph()
+   OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
+
      /// Handle old style messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
 

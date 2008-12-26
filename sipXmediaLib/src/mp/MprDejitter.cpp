@@ -280,14 +280,24 @@ void MprDejitter::setConnectionId(MpConnectionID connId)
 {
    mConnectionId = connId;
    mResourceName.remove(0);
-   mResourceName.appendFormat("MpDejitter-%d-%d", mConnectionId, mStreamId);
+   mResourceName.append(mFlowgraphName);
+   mResourceName.appendFormat("_MpDejitter-%d-%d", mConnectionId, mStreamId);
 }
 
 void MprDejitter::setStreamId(int streamId)
 {
    mStreamId = streamId;
    mResourceName.remove(0);
-   mResourceName.appendFormat("MpDejitter-%d-%d", mConnectionId, mStreamId);
+   mResourceName.append(mFlowgraphName);
+   mResourceName.appendFormat("_MpDejitter-%d-%d", mConnectionId, mStreamId);
+}
+
+void MprDejitter::setFlowgrapName(const UtlString &fgName)
+{
+   mFlowgraphName = fgName;
+   mResourceName.remove(0);
+   mResourceName.append(mFlowgraphName);
+   mResourceName.appendFormat("_MpDejitter-%d-%d", mConnectionId, mStreamId);
 }
 
 /* ============================ ACCESSORS ================================= */
