@@ -168,9 +168,11 @@ public:
      /// Perform absolute value calculation with saturation
    static inline
    int16_t abs(int16_t a);
-     /**< This function saturate INT16_MIN value because of 
-     *  -INT16_MIN == 0 in IEEE format, so 
-     *  abs (INT16_MIN) is INT16_MAX
+     /**<
+     *  This function differs from usual ::abs() because it saturates INT16_MIN
+     *  value. This is essential in DSP calculations, because -INT16_MIN equals
+     *  to 0 in IEEE format. Thus with this implementation
+     *  abs(INT16_MIN) = INT16_MAX
      */
 
      /// Perform minimum value calculation
@@ -184,9 +186,11 @@ public:
      /// Perform absolute value calculation with saturation
    static inline
    int32_t abs(int32_t a);
-     /**< This function saturate INT32_MIN value because of 
-     *  -INT32_MIN == 0 in IEEE format, so 
-     *  abs (INT32_MIN) is INT32_MAX
+     /**<
+     *  This function differs from usual ::abs() because it saturates INT32_MIN
+     *  value. This is essential in DSP calculations, because -INT32_MIN equals
+     *  to 0 in IEEE format. Thus with this implementation
+     *  abs(INT32_MIN) = INT32_MAX
      */
 
      /// Perform minimum value calculation
@@ -207,7 +211,7 @@ public:
 ///@name Serial Number Arithmetic (Arithmetic with Overflow)
 //@{
 
-      /// Is \p val1 bigger, equal or lesser then \p val2 (32-bit).
+      /// Is \p val1 bigger, equal or lesser then \p val2.
    static inline
    int compareSerials(uint32_t val1, uint32_t val2);
       /**<
@@ -223,21 +227,9 @@ public:
       *  @todo Write unittest!!!
       */
 
-      /// Is \p val1 bigger, equal or lesser then \p val2 (16-bit).
+      /// @copydoc compareSerials(uint32_t,uint32_t)
    static inline
    int compareSerials(uint16_t val1, uint16_t val2);
-      /**<
-      *  This function should be used when comparing two values that may
-      *  overflow. It assume that values could not differ by more then half
-      *  of their maximum value. See RFC1982 Serial Number Arithmetic
-      *  for better description and rules of use.
-      *
-      *  @return  0 if val1 == val2
-      *  @return  1 if val1 \> val2
-      *  @return -1 if val1 \< val2
-      *
-      *  @todo Write unittest!!!
-      */
 
 //@}
 
