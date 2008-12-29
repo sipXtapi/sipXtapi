@@ -30,7 +30,7 @@
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy ..\..\..\..\contrib\libspandsp\$(ConfigurationName)\libspandsp.dll $(TargetDir)"
+				CommandLine="copy /Y/B ..\..\..\..\contrib\libspandsp\$(ConfigurationName)\libspandsp.dll &quot;$(TargetDir)&quot;"
 				Outputs="$(TargetDir)libspandsp.dll"/>
 			<Tool
 				Name="VCLinkerTool"
@@ -80,8 +80,8 @@
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy ..\..\..\..\contrib\libamrwb\$(ConfigurationName)\libamrwb.dll $(TargetDir)"
-				Outputs="$(TargetDir)libamrwb.dll"/>
+				CommandLine="copy /Y/B ..\..\..\..\contrib\libspandsp\$(ConfigurationName)\libspandsp.dll &quot;$(TargetDir)&quot;"
+				Outputs="$(TargetDir)libspandsp.dll"/>
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"

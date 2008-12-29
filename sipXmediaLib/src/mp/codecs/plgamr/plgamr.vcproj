@@ -32,7 +32,7 @@
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy ..\..\..\..\contrib\libamrnb\$(ConfigurationName)\libamrnb.dll $(TargetDir)"
+				CommandLine="copy /Y/B ..\..\..\..\contrib\libamrnb\$(ConfigurationName)\libamrnb.dll &quot;$(TargetDir)&quot;"
 				Outputs="$(TargetDir)libamrnb.dll"/>
 			<Tool
 				Name="VCLinkerTool"
@@ -83,7 +83,7 @@
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy ..\..\..\..\contrib\libamrnb\$(ConfigurationName)\libamrnb.dll $(TargetDir)"
+				CommandLine="copy /Y/B ..\..\..\..\contrib\libamrnb\$(ConfigurationName)\libamrnb.dll &quot;$(TargetDir)&quot;"
 				Outputs="$(TargetDir)libamrnb.dll"/>
 			<Tool
 				Name="VCLinkerTool"

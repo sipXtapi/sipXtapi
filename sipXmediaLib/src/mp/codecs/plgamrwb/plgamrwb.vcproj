@@ -32,8 +32,7 @@
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy ..\..\..\..\contrib\libamrwb\$(ConfigurationName)\libamrwb.dll $(TargetDir)
-"
+				CommandLine="copy /Y/B ..\..\..\..\contrib\libamrwb\$(ConfigurationName)\libamrwb.dll &quot;$(TargetDir)&quot;"
 				Outputs="$(TargetDir)libamrwb.dll"/>
 			<Tool
 				Name="VCLinkerTool"
@@ -84,8 +83,7 @@
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="copy ..\..\..\..\contrib\libamrwb\$(ConfigurationName)\libamrwb.dll $(TargetDir)
-"
+				CommandLine="copy /Y/B ..\..\..\..\contrib\libamrwb\$(ConfigurationName)\libamrwb.dll &quot;$(TargetDir)&quot;"
 				Outputs="$(TargetDir)libamrwb.dll"/>
 			<Tool
 				Name="VCLinkerTool"
