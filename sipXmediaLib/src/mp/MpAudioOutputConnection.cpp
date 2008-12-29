@@ -16,6 +16,7 @@
 // APPLICATION INCLUDES
 #include <mp/MpAudioOutputConnection.h>
 #include <mp/MpOutputDeviceDriver.h>
+#include <mp/MpDspUtils.h>
 #include <mp/MpMediaTask.h> // for MpMediaTask::signalFrameStart()
 #include <os/OsLock.h>
 #include <os/OsCallback.h>
@@ -97,8 +98,9 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
       return OS_INVALID_STATE;
    }
 
-   // Driver should be able to request next frame in mixer mode.
-   if (mixerBufferLength > 0 && !mpDeviceDriver->isFrameTickerSupported())
+   // For now driver must always support frame ticker.
+   // Mixer buffer length can't be zero.
+   if (mixerBufferLength == 0 || !mpDeviceDriver->isFrameTickerSupported())
    {
       return OS_NOT_SUPPORTED;
    }
@@ -106,23 +108,17 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
    // Set current frame time for this connection.
    mCurrentFrameTime = currentFrameTime;
 
-   // Allocate mixer buffer if requested.
-   // There is nothing to do if it is not requested, as we're sure that we was
-   // in disabled state and mixer buffer was not allocated.
-   if (mixerBufferLength > 0)
-   {
-      // Calculate number of samples in mixer buffer.
-      // I.e. convert from milliseconds to samples and round to frame boundary.
-      // Note: this calculation may overflow (e.g. 10000msec*44100Hz > 4294967296smp).
-      unsigned bufferSamples = mixerBufferLength*samplesPerSec/1000;
-      bufferSamples = ((bufferSamples + samplesPerFrame - 1) / samplesPerFrame)
-                     * samplesPerFrame;
+   // Calculate number of samples in mixer buffer.
+   // I.e. convert from milliseconds to samples and round to frame boundary.
+   // Note: this calculation may overflow (e.g. 10000msec*44100Hz > 4294967296smp).
+   unsigned bufferSamples = mixerBufferLength*samplesPerSec/1000;
+   bufferSamples = ((bufferSamples + samplesPerFrame - 1) / samplesPerFrame)
+                 * samplesPerFrame;
 
-      // Initialize mixer buffer. All mixer buffer related variables will be set here.
-      if (initMixerBuffer(bufferSamples) != OS_SUCCESS)
-      {
-         return result;
-      }
+   // Initialize mixer buffer. All mixer buffer related variables will be set here.
+   if (initMixerBuffer(bufferSamples) != OS_SUCCESS)
+   {
+      return result;
    }
 
    // Enable ticker if needed.
@@ -222,11 +218,8 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    // From now we access internal data. Take lock.
    OsLock lock(mMutex);
 
-   // Check for late frame. Check for too early frame is done inside mixFrame()
-   // function (if mixer mode is used) and will not be done if direct write
-   // mode is used.
-   // TODO:: This check should be fixed to support frame time wrap around.
-   if (frameTime < mCurrentFrameTime)
+   // Check for late frame. Check for early frame is done inside mixFrame().
+   if (MpDspUtils::compareSerials(frameTime, mCurrentFrameTime) < 0)
    {
       debugPrintf("MpAudioOutputConnection::pushFrame()"
                   " OS_INVALID_STATE frameTime=%d, currentTime=%d\n",
@@ -237,40 +230,19 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
 
    RTL_EVENT("MpAudioOutputConnection::pushFrame", this->getValue());
 
-   // Do we have mixer buffer, i.e. are we in direct write mode or not?
-   if (isMixerBufferAvailable())
+   // Do nothing if no audio was pushed. Mixer buffer will be filled with
+   // silence or data from other sources.
+   if (samples != NULL)
    {
-      // We're in mixer mode.
+      // Convert frameTime to offset in mixer buffer.
+      // Note: frameTime >= mCurrentFrameTime.
+      unsigned mixerBufferOffsetFrames =
+               (frameTime-mCurrentFrameTime) / mpDeviceDriver->getFramePeriod();
+      unsigned mixerBufferOffsetSamples = 
+               mixerBufferOffsetFrames * mpDeviceDriver->getSamplesPerFrame();
 
-      // Do nothing if no audio was pushed. Mixer buffer will be filled with
-      // silence or data from other sources.
-      if (samples != NULL)
-      {
-         // Convert frameTime to offset in mixer buffer.
-         // Note: frameTime >= mCurrentFrameTime.
-         unsigned mixerBufferOffsetFrames =
-                  (frameTime-mCurrentFrameTime) / mpDeviceDriver->getFramePeriod();
-         unsigned mixerBufferOffsetSamples = 
-                  mixerBufferOffsetFrames * mpDeviceDriver->getSamplesPerFrame();
-
-         // Mix this data with other sources.
-         result = mixFrame(mixerBufferOffsetSamples, samples, numSamples);
-      }
-   }
-   else
-   {
-      // We're in direct write mode.
-
-      // In this mode pushed frame should have same size as device driver frame.
-      // Later we may write code which enable pushing frames containing multiple
-      // device driver frames.
-      assert(numSamples == mpDeviceDriver->getSamplesPerFrame());
-
-      // So, push data to device driver and forget.
-      result = mpDeviceDriver->pushFrame(numSamples, samples, frameTime);
-
-      // But do not forget to advance our frame time.
-      mCurrentFrameTime += numSamples * 1000 / mpDeviceDriver->getSamplesPerSec();
+      // Mix this data with other sources.
+      result = mixFrame(mixerBufferOffsetSamples, samples, numSamples);
    }
 
    return result;
@@ -297,11 +269,8 @@ OsStatus MpAudioOutputConnection::initMixerBuffer(unsigned mixerBufferLength)
    }
 
    // Deallocate mixer buffer if it is allocated.
-   if (isMixerBufferAvailable())
-   {
-      // Do not check return value. Nothing fatal may happen inside.
-      freeMixerBuffer();
-   }
+   // Do not check return value. Nothing fatal may happen inside.
+   freeMixerBuffer();
 
    // Initialize variables.
    mMixerBufferLength = mixerBufferLength;
@@ -316,23 +285,15 @@ OsStatus MpAudioOutputConnection::initMixerBuffer(unsigned mixerBufferLength)
 
 OsStatus MpAudioOutputConnection::freeMixerBuffer()
 {
-   OsStatus result = OS_FAILED;
-
-   // Free only if there is something to free.
-   if (isMixerBufferAvailable())
+   mMixerBufferLength = 0;
+   if (mpMixerBuffer != NULL)
    {
-      mMixerBufferLength = 0;
-      if (mpMixerBuffer != NULL)
-      {
-         delete[] mpMixerBuffer;
-         mpMixerBuffer = NULL;
-      }
-      mMixerBufferBegin = 0;
-
-      result = OS_SUCCESS;
+      delete[] mpMixerBuffer;
+      mpMixerBuffer = NULL;
    }
+   mMixerBufferBegin = 0;
 
-   return result;
+   return OS_SUCCESS;
 }
 
 OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
@@ -455,26 +416,21 @@ void MpAudioOutputConnection::tickerCallback(const intptr_t userData, const intp
 
    if (pConnection->mMutex.acquire(OsTime(5)) == OS_SUCCESS)
    {
+      // Push data to device driver and forget.
+      result = pConnection->mpDeviceDriver->pushFrame(
+                     pConnection->mpDeviceDriver->getSamplesPerFrame(),
+                     pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin,
+                     pConnection->mCurrentFrameTime);
+      debugPrintf("MpAudioOutputConnection::tickerCallback()"
+                  " frame=%d, pushFrame result=%d\n",
+                  pConnection->mCurrentFrameTime, result);
+//      assert(result == OS_SUCCESS);
 
-      // If we're in mixer mode - push frame to device.
-      if (pConnection->isMixerBufferAvailable())
-      {
-         // So, push data to device driver and forget.
-         result = pConnection->mpDeviceDriver->pushFrame(
-                        pConnection->mpDeviceDriver->getSamplesPerFrame(),
-                        pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin,
-                        pConnection->mCurrentFrameTime);
-         debugPrintf("MpAudioOutputConnection::tickerCallback()"
-                     " frame=%d, pushFrame result=%d\n",
-                     pConnection->mCurrentFrameTime, result);
-//       assert(result == OS_SUCCESS);
-
-         // Advance mixer buffer and frame time.
-         pConnection->advanceMixerBuffer(pConnection->mpDeviceDriver->getSamplesPerFrame());
-         pConnection->mCurrentFrameTime +=
-                              pConnection->mpDeviceDriver->getSamplesPerFrame() * 1000
-                              / pConnection->mpDeviceDriver->getSamplesPerSec();
-      }
+      // Advance mixer buffer and frame time.
+      pConnection->advanceMixerBuffer(pConnection->mpDeviceDriver->getSamplesPerFrame());
+      pConnection->mCurrentFrameTime +=
+                           pConnection->mpDeviceDriver->getSamplesPerFrame() * 1000
+                           / pConnection->mpDeviceDriver->getSamplesPerSec();
 
       pConnection->mMutex.release();
    }

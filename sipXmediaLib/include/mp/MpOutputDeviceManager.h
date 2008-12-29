@@ -40,9 +40,7 @@ class MpBufPtr;
 *  The MpOutputDeviceManager is a container of output device drivers, serving
 *  as sink for MprToOuputDevice resources. MpOutputDeviceDriver instances are
 *  added to the MpOutputDeviceManager and removed from it by external entities,
-*  using addDevice() and removeDevice(). Device drivers may be used in two modes:
-*  direct write mode and mixer mode. See MpOutputDeviceDriver description for
-*  for detailed description of this modes.
+*  using addDevice() and removeDevice().
 *  The specific device driver is accessed by the device ID (handle).
 *  The MpOutputDeviceManager maintains a device ID to device name mapping. All
 *  device IDs and device names are unique within the scope of this
@@ -83,11 +81,9 @@ public:
      *         in samples per second. Will be used when enabling devices.
      *  @param[in] defaultMixerBufferLength - default length of mixer buffer in
      *         milliseconds. Will be used when enabling devices. Mixer buffer
-     *         is used when direct write mode is disabled to mix multiple media
-     *         streams. Stream sources (callers of pushFrame()) should produce
-     *         data with difference in time less, then mixer buffer length,
-     *         delayed stream data would be rejected. Set <tt>defaultBufferLength</tt>
-     *         to 0 to enable direct write mode by default.
+     *         is used to mix multiple media streams. Stream sources (callers
+     *         of pushFrame()) should produce data with difference in time less,
+     *         then mixer buffer length, delayed stream data would be rejected.
      */
 
 
@@ -276,8 +272,6 @@ public:
      /// Get mixer buffer length (in milliseconds) for given device.
    OsStatus getMixerBufferLength(MpOutputDeviceHandle deviceId, MpFrameTime &length) const;
      /**<
-     *  If device is in direct-write mode, method will return 0.
-     *
      *  @returns OS_SUCCESS if device found and <tt>length</tt> filled in.
      *  @returns OS_NOT_FOUND if specified device could not be found.
      *

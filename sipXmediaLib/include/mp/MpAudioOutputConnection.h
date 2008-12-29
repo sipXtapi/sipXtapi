@@ -130,11 +130,6 @@ public:
      *  buffered for a short window of time and mixed with data from other
      *  contributors.
      *
-     *  Note, that current implementation do not use <tt>frameTime</tt>
-     *  in direct write mode. All pushed data will be forwarded to device
-     *  driver without any checking. Other implication is that pushed frame
-     *  should have same size as device driver frame size.
-     *
      *  This method is usually called from MpOutputDeviceManager::pushFrame().
      *
      *  @param numSamples - (in) Number of samples in <tt>samples</tt> array.
@@ -194,9 +189,6 @@ public:
      /// Return length of mixer buffer in milliseconds.
    inline
    MpFrameTime getMixerBufferLength() const;
-     /**<
-     *  Function returns 0 if direct write mode is used.
-     */
 
      /// Return number of external entities, referring to this connection.
    inline
@@ -247,16 +239,6 @@ protected:
      *        other (synchronized) functions.
      *
      *  @returns OS_FAILED if mixer buffer is not allocated.
-     */
-
-     /// Is mixer buffer available or not.
-   inline
-   UtlBoolean isMixerBufferAvailable() const;
-     /**<
-     *  Use this function to check is connection in mixer mode or not.
-     *
-     *  @NOTE Not thread-safe. This function is supposed to be used from
-     *        other (synchronized) functions.
      */
 
      /// Mix frame to mixer buffer.
@@ -335,7 +317,7 @@ private:
 
    unsigned mMixerBufferLength;   ///< Length of mixer buffer (in samples).
    MpAudioSample *mpMixerBuffer;  ///< Mixer circular buffer. Used to mix
-                   ///< several media streams if direct write mode is not enabled.
+                   ///< several media streams.
    unsigned mMixerBufferBegin;    ///< Index of first available sample in mixer buffer.
 
    OsCallback *mpTickerCallback;  ///< This callback is used in mixer mode
@@ -385,14 +367,9 @@ unsigned MpAudioOutputConnection::getSamplesPerFrame() const
    return getDeviceDriver()->getSamplesPerFrame();
 }
 
-UtlBoolean MpAudioOutputConnection::isMixerBufferAvailable() const
-{
-   return (mMixerBufferLength != 0);
-}
-
 UtlBoolean MpAudioOutputConnection::isTickerNeeded() const
 {
-   return (isMixerBufferAvailable() || mDoFlowgraphTicker);
+   return mDoFlowgraphTicker;
 }
 
 #endif  // _MpAudioOutputConnection_h_
