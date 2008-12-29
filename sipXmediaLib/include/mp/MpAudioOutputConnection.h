@@ -246,10 +246,10 @@ protected:
                      const MpAudioSample* samples,
                      unsigned numSamples);
      /**<
-     *  @param frameOffset - (in) Offset in samples of frame begin, relative
-     *         to buffer start.
-     *  @param samples - (in) Pointer to frame data.
-     *  @param numSamples - (in) Number of samples in frame.
+     *  @param[in] frameOffset - Number of samples between the beginning of
+     *             mixer buffer and the start of pushed frame.
+     *  @param[in] samples - Pointer to frame data.
+     *  @param[in] numSamples - Number of samples in frame.
      *
      *  @returns OS_LIMIT_REACHED if mixer buffer is full.
      *
