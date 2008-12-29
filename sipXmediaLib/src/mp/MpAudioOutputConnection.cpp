@@ -206,6 +206,33 @@ OsStatus MpAudioOutputConnection::disableFlowgraphTicker()
    return result;
 }
 
+OsStatus MpAudioOutputConnection::pushFrameBeginning(unsigned int numSamples,
+                                                     const MpAudioSample* samples,
+                                                     MpFrameTime &frameTime)
+{
+   OsStatus result = OS_SUCCESS;
+   RTL_BLOCK("MpAudioOutputConnection::pushFrameBeginning");
+
+   assert(numSamples > 0);
+
+   // From now we access internal data. Take lock.
+   OsLock lock(mMutex);
+
+   RTL_EVENT("MpAudioOutputConnection::pushFrameBeginning", this->getValue());
+
+   // Do nothing if no audio was pushed. Mixer buffer will be filled with
+   // silence or data from other sources.
+   if (samples != NULL)
+   {
+      // Mix frame to the very beginning of the mixer buffer.
+      result = mixFrame(mMixerBufferBegin, samples, numSamples);
+   }
+
+   frameTime = mCurrentFrameTime;
+
+   return result;
+};
+
 OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
                                             const MpAudioSample* samples,
                                             MpFrameTime frameTime)

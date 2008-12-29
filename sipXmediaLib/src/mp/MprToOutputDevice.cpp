@@ -97,8 +97,6 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       return TRUE;
    }
 
-   RTL_BLOCK("MprToOutputDevice::doProcessFrame");
-
    assert(mpOutputDeviceManager != NULL);
 
    // MprToOutputDevice need one input.
@@ -109,36 +107,6 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
 
    // Milliseconds per frame:
    frameTimeInterval = samplesPerFrame * 1000 / samplesPerSecond;
-
-   // If current frame time is not initialized, suggest putting this frame
-   // in the middle of mixer buffer. In direct-write mode mixer buffer
-   // length is zero, so current frame time will be used without additional
-   // work.
-   // If frame time initialized already - advance one step.
-   if (!mFrameTimeInitialized)
-   {
-      MpFrameTime mixerBufferLength;
-      if (mpOutputDeviceManager->getMixerBufferLength(mDeviceId, mixerBufferLength) != OS_SUCCESS)
-      {
-         return FALSE;
-      }
-
-      mFrameTime = mpOutputDeviceManager->getCurrentFrameTime(mDeviceId);
-
-      debugPrintf("MprToOutputDevice::doProcessFrame(): Initialization: "
-                  "CurrentFrameTime=%u, mixerBufferLength=%u",
-                  mFrameTime, mixerBufferLength);
-
-//      mFrameTime += mixerBufferLength / 2;
-
-      debugPrintf(" mFrameTime=%u\n", mFrameTime);
-
-      mFrameTimeInitialized = TRUE;
-   }
-   else
-   {
-      mFrameTime += frameTimeInterval;
-   }
 
    // Get the name of the device we're writing to.
    UtlString devName = "Unknown device";
@@ -185,43 +153,29 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
    }
 
    // Push buffer to output device even if buffer is NULL. With NULL buffer we
-   // notify output device that we will not push more frames this time interval.
-   status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inAudioBuffer);
+   // notify output device that we will not push more frames during this time
+   // interval.
+   status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inAudioBuffer,
+                                             !mFrameTimeInitialized);
 
+   RTL_EVENT(mpFlowGraph->getFlowgraphName()+getName()+"_pushFrame_result", status);
    debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d %s\n",
                mFrameTime, status, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
 
-   // Do processing only if data is really present.
-   if (inAudioBuffer.isValid())
+   if (!mFrameTimeInitialized)
    {
-      // If push frame fail and we're in mixer mode, advance our current frame
-      // time to fit into mixer buffer.
-      MpFrameTime mixerBufferLength;
-      if (  (status != OS_SUCCESS)
-         && mpOutputDeviceManager->getMixerBufferLength(mDeviceId, mixerBufferLength) == OS_SUCCESS
-         && (mixerBufferLength > 0) )
+      if (status == OS_SUCCESS)
       {
-         // We should never go backward in time, as this causes (1) de-adaptation
-         // of our "jitter buffer" and (2) mixing with past frame (buzzzz noise).
-/*         while (status == OS_LIMIT_REACHED)
-         {
-            RTL_EVENT("MprToOutputDevice::frameTime_adjustment",-1);
-            mFrameTime -= frameTimeInterval;
-            status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inAudioBuffer);
-            debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d ---\n",
-                        mFrameTime, status);
-         }
-*/
-         while (status == OS_INVALID_STATE)
-         {
-            RTL_EVENT("MprToOutputDevice::frameTime_adjustment",1);
-            mFrameTime += frameTimeInterval;
-            status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inAudioBuffer);
-            debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d +++\n",
-                        mFrameTime, status);
-         }
-         RTL_EVENT("MprToOutputDevice::frameTime_adjustment",0);
+         // Frame time should be initialized at this point.
+         mFrameTimeInitialized = TRUE;
+         // Advance frame time by one step.
+         mFrameTime += frameTimeInterval;
       }
+   }
+   else
+   {
+      // Advance frame time by one step.
+      mFrameTime += frameTimeInterval;
    }
 
    return (status == OS_SUCCESS);

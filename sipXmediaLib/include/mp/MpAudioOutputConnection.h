@@ -121,6 +121,24 @@ public:
      *  @returns OS_FAILED if device failed to unregister ticker.
      */
 
+     /// Send data frame to the beginning of mixer buffer and return frame time.
+   OsStatus pushFrameBeginning(unsigned int numSamples,
+                               const MpAudioSample* samples,
+                               MpFrameTime &frameTime);
+     /**<
+     *  This method is usually used only once when first frame is pushed.
+     *  It pushes frame to the very beginning of the mixer buffer and return
+     *  frame time of that position. Client should use this time to initialize
+     *  his own frame time counter to use usual pushFrame() method.
+     *
+     *  @see pushFrame() for more information.
+     *
+     *  @param[in] numSamples - Number of samples in \p samples array.
+     *  @param[in] samples - Array of samples to push to device.
+     *  @param[out] frameTime - Time in milliseconds for beginning of frame
+     *             relative to the MpOutputDeviceManager reference time.
+     */
+
      /// Send data frame to output device.
    OsStatus pushFrame(unsigned int numSamples,
                       const MpAudioSample* samples,
@@ -131,11 +149,6 @@ public:
      *  contributors.
      *
      *  This method is usually called from MpOutputDeviceManager::pushFrame().
-     *
-     *  @param numSamples - (in) Number of samples in <tt>samples</tt> array.
-     *  @param samples - (in) Array of samples to push to device.
-     *  @param frameTime - (in) Time in milliseconds for beginning of frame
-     *         relative to the MpOutputDeviceManager reference time.
      *
      *  @returns OS_LIMIT_REACHED if mixer buffer is full, i.e. frame come too
      *           early.

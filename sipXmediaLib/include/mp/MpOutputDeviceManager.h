@@ -182,20 +182,31 @@ public:
 
      /// Method for sending frame of data to output device.
    OsStatus pushFrame(MpOutputDeviceHandle deviceId,
-                      MpFrameTime frameTime,
-                      const MpBufPtr& frame);
+                      MpFrameTime &frameTime,
+                      const MpBufPtr& frame,
+                      UtlBoolean initFrameTime = FALSE);
      /**<
      *  This method is used to push a frame to the MpOutputDeviceManager to be
      *  buffered for a short window of time and mixed with data from other
      *  contributors.
      *
+     *  If \p initFrameTime is TRUE, value of \p frameTime is ignored and
+     *  frame is pushed to the very beginning of the mixer buffer. \p frameTime
+     *  is set to correct frame time and should be used as a base for later
+     *  pushes. If \p initFrameTime is FALSE, \p frameTime should point
+     *  to correct frame time.
+     *
      *  This method is typically invoked by MprToOutputDevice resources.
      *
      *  @param deviceId[in] - Device id to identify device to which this frame
      *         will be sent.
-     *  @param frameTime[in] - Time in milliseconds for beginning of frame
+     *  @param frameTime[in,out] - Time in milliseconds for beginning of frame
      *         relative to the MpOutputDeviceManager reference time.
      *  @param frame[in] - Frame of media to be sent to output device.
+     *  @param initFrameTime[in] - If TRUE, frame will be pushed to the
+     *         beginning of mixer buffer and \p frameTime will be set to correct
+     *         frame time. If FALSE, \p frameTime will be used to determine
+     *         where to push the frame.
      *
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  @returns OS_LIMIT_REACHED if mixer buffer is full, i.e. frame come too

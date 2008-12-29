@@ -212,8 +212,9 @@ OsStatus MpOutputDeviceManager::disableDevice(MpOutputDeviceHandle deviceId)
 
 
 OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
-                                          MpFrameTime frameTime,
-                                          const MpBufPtr& frame)
+                                          MpFrameTime &frameTime,
+                                          const MpBufPtr& frame,
+                                          UtlBoolean initFrameTime)
 {
    OsStatus status = OS_NOT_FOUND;
    MpAudioOutputConnection* connection = NULL;
@@ -230,19 +231,39 @@ OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
          // Send actual data to output device.
          MpAudioBufPtr pAudioFrame(const_cast<MpBufPtr&>(frame));
 
-         status = 
-            connection->pushFrame(pAudioFrame->getSamplesNumber(),
-                                  pAudioFrame->getSamplesPtr(),
-                                  frameTime);
+         if (!initFrameTime)
+         {
+            status = 
+               connection->pushFrame(pAudioFrame->getSamplesNumber(),
+                                     pAudioFrame->getSamplesPtr(),
+                                     frameTime);
+         }
+         else
+         {
+            status = 
+               connection->pushFrameBeginning(pAudioFrame->getSamplesNumber(),
+                                              pAudioFrame->getSamplesPtr(),
+                                              frameTime);
+         }
       } 
       else
       {
          // Notify output device that no data will be sent during this
          // processing interval.
-         status = 
-            connection->pushFrame(connection->getSamplesPerFrame(),
-                                  NULL,
-                                  frameTime);
+         if (!initFrameTime)
+         {
+            status = 
+               connection->pushFrame(connection->getSamplesPerFrame(),
+                                     NULL,
+                                     frameTime);
+         }
+         else
+         {
+            status = 
+               connection->pushFrameBeginning(connection->getSamplesPerFrame(),
+                                              NULL,
+                                              frameTime);
+         }
       }
    }
 
