@@ -1153,7 +1153,10 @@ void sipxFireCallEvent(const void* pSrc,
        else
        {
           assert(!sessionCallId.isNull());
-          assert(sessionCallId[0] == 's');
+          // Can only assume 's' prefix for calls initiated from this side.
+          // Can potentially get this from the Connetion and conditionally
+          // check, but for now don't check
+          //assert(sessionCallId[0] == 's');
        }
     }
 
