@@ -1613,7 +1613,48 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
         CXXFLAGS+=" -DEXTERNAL_AGC "
     fi
     AC_SUBST(EAGC_LDFLAGS)
+# Speaker selection
+    withval=
+    AC_ARG_WITH(external-ss,
+                [AS_HELP_STRING([--with-external-ss=library],
+                                [Use external library for speaker selection])],
+                )
+    ac_external_ss=${withval}
 
+    withval=
+    AC_ARG_WITH(external-ss-path,
+                [AS_HELP_STRING([--with-external-ss-path=PATH],
+                                [Add path for searching external library for SS])],
+                )
+    ac_external_ss_path=${withval}
+
+    if test x${ac_external_ss} != x; then
+	AC_DEFINE(EXTERNAL_SS, [1], [Use external library for speaker selection])
+	SS_LDFLAGS="-l${ac_external_ss} "
+	if test x${ac_external_ss_path} != x; then
+		SS_LDFLAGS+=" -L${ac_external_ss_path} -Wl,--rpath -Wl,${ac_external_ss_path} "
+	fi
+
+        LDFLAGS+=" $SS_LDFLAGS "
+        CXXFLAGS+=" -DEXTERNAL_SS "
+    fi
+    AC_SUBST(SS_LDFLAGS)
+# Speaker selection enable
+    AC_ARG_ENABLE([enable-ss],
+                  [AS_HELP_STRING([--enable-ss],
+                                  [Enable Sepaker Selection resource in flowgraph @<:@default=no@:>@])],
+                  [ case "${enableval}" in
+                       yes) ac_enable_ss=true  ;;
+                       no)  ac_enable_ss=false ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-ss) ;;
+                    esac],
+                  [ac_enable_ss=false ])
+    if test x${ac_enable_ss} != xfalse; then
+	AC_DEFINE(INSERT_SPEAKER_SELECTOR, [1], [Enable Sepaker Selection resource in flowgraph])
+	CXXFLAGS+=" -DINSERT_SPEAKER_SELECTOR "
+    fi
+
+                                                                        
 
     CXXFLAGS+=" $RTL_CXXFLAGS "
     LDFLAGS+=" ${RTL_LDFLAGS} "
