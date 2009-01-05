@@ -93,6 +93,7 @@ bool ArsVoiceEngineReceiveAdapter::handleData(char* pData, int len, int channel,
                     mpVideoEngine->GIPSVideo_ReceivedRTPPacket(channel, 
                             &pData[ARS_FRAME_TYPE_SIZE],
                             len-ARS_FRAME_TYPE_SIZE) ;
+                    bMarkReadData = true ;
                     break ;
                 case ARS_PACKET_RTCP:
                     mpVideoEngine->GIPSVideo_ReceivedRTCPPacket(channel, 

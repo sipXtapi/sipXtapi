@@ -81,7 +81,9 @@ public:
     bool enableRTCP(int         voiceChannel, 
                     bool        bEnable,
                     const char* szRTCPCName) ;
-
+#ifdef _WIN32
+    void setBitmaps(HBITMAP hNoCamera, HBITMAP hConnecting) ;
+#endif
     /* ============================ ACCESSORS ================================= */
     
     GipsVideoEnginePlatform* getVideoEngine() const ;
@@ -165,7 +167,10 @@ private:
     static bool              sbConsoleTrace ;
     bool                     mbForceCodecReset ;   
     mutable OsMutex          mLock;
-
+#ifdef _WIN32
+    HBITMAP                  mhNoCameraBitmap ;
+    HBITMAP                  mhConnectingBitmap ;
+#endif
     MediaDeviceInfo          mMediaDeviceInfo;
 } ;
 

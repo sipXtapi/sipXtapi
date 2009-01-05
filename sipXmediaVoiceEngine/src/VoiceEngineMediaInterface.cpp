@@ -196,6 +196,9 @@ VoiceEngineMediaInterface::VoiceEngineMediaInterface(IMediaDeviceMgr* pFactoryIm
     mbFocus = FALSE ;
     mpGipsVideoEngine = pVideoEngine ;
     mpVideoEngine = new VideoEngine(pVideoEngine, mbConsoleTrace) ;
+#ifdef _WIN32
+    mpVideoEngine->setBitmaps(mpVEFactoryImpl->getNoCameraBitmap(), mpVEFactoryImpl->getConnectingBitmap()) ;
+#endif
 #if !defined (USE_GIPS)
     if (mpVideoEngine->getVideoEngine())
     {
@@ -410,9 +413,9 @@ OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId,
                 rc = mpVoiceEngine->GIPSVE_SetSendTransport(connectionId, *pGipsTransport) ;
                 checkVoiceEngineReturnCode("GIPSVE_SetSendTransport", connectionId, rc, true) ;
             }
-            if (pMediaConnection->mpRtcpVideoSocketArray[i])
+            if (pMediaConnection->mpRtcpAudioSocketArray[i])
             {
-                getMediaSocketPtr(pMediaConnection->mpRtcpVideoSocketArray[i])->setAudioChannel(connectionId);
+                getMediaSocketPtr(pMediaConnection->mpRtcpAudioSocketArray[i])->setAudioChannel(connectionId);
             }
         }
 
@@ -1198,7 +1201,7 @@ OsStatus VoiceEngineMediaInterface::deleteConnection(int connectionId)
         if (pMediaConnection->mpArsAudioSocket)
             doUnmonitor(pMediaConnection->mpArsAudioSocket->getSocket()) ;
         if (pMediaConnection->mpArsVideoSocket)
-            doUnmonitor(pMediaConnection->mpArsAudioSocket->getSocket()) ;
+            doUnmonitor(pMediaConnection->mpArsVideoSocket->getSocket()) ;
     
         /*
          * Next, delete the GIPS channels
@@ -2372,14 +2375,28 @@ OsStatus VoiceEngineMediaInterface::generateVoiceQualityReport(int connectionId,
         UtlString endWriteTime ;
         UtlBoolean bSuccess ;
 
-        bSuccess = pMediaConnection->getRtpAudioSocket()->getSocket()->getFirstReadTime(time) ;
-        time.getIsoTimeStringZ(startReadTime) ;
-        pMediaConnection->getRtpAudioSocket()->getSocket()->getLastReadTime(time) ;
-        time.getIsoTimeStringZ(endReadTime) ;        
-        bSuccess = pMediaConnection->getRtpAudioSocket()->getSocket()->getFirstWriteTime(time) && bSuccess ;
-        time.getIsoTimeStringZ(startWriteTime) ;
-        pMediaConnection->getRtpAudioSocket()->getSocket()->getLastWriteTime(time) ;
-        time.getIsoTimeStringZ(endWriteTime) ;   
+        if (pMediaConnection->mbUsingAudioARS && pMediaConnection->mpArsAudioSocket)
+        {
+            bSuccess = pMediaConnection->mpArsAudioSocket->getFirstReadTime(time) ;
+            time.getIsoTimeStringZ(startReadTime) ;
+            pMediaConnection->mpArsAudioSocket->getLastReadTime(time) ;
+            time.getIsoTimeStringZ(endReadTime) ;        
+            bSuccess = pMediaConnection->mpArsAudioSocket->getFirstWriteTime(time) && bSuccess ;
+            time.getIsoTimeStringZ(startWriteTime) ;
+            pMediaConnection->mpArsAudioSocket->getLastWriteTime(time) ;
+            time.getIsoTimeStringZ(endWriteTime) ;
+        }
+        else
+        {
+            bSuccess = pMediaConnection->getRtpAudioSocket()->getSocket()->getFirstReadTime(time) ;
+            time.getIsoTimeStringZ(startReadTime) ;
+            pMediaConnection->getRtpAudioSocket()->getSocket()->getLastReadTime(time) ;
+            time.getIsoTimeStringZ(endReadTime) ;        
+            bSuccess = pMediaConnection->getRtpAudioSocket()->getSocket()->getFirstWriteTime(time) && bSuccess ;
+            time.getIsoTimeStringZ(startWriteTime) ;
+            pMediaConnection->getRtpAudioSocket()->getSocket()->getLastWriteTime(time) ;
+            time.getIsoTimeStringZ(endWriteTime) ;   
+        }
 
         // Only generate a report if we have read/written data
         if (bSuccess)

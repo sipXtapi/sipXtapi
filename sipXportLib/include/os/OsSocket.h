@@ -327,6 +327,11 @@ public:
      */
     virtual bool getLastWriteTime(OsDateTime& time) ;
 
+    /**
+     * Clear the first and last read and write times
+     */
+    virtual void clearReadWriteTimes() ;
+
 /* ============================ INQUIRY =================================== */
 
    virtual UtlBoolean isOk() const;

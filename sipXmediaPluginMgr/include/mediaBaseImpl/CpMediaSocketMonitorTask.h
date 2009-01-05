@@ -71,6 +71,7 @@ public:
     
     bool monitor(OsSocket* pSocket, ISocketEvent* pSink, SocketPurpose purpose);
     bool unmonitor(OsSocket* pSocket);
+    UtlBoolean isMonitored(OsSocket* pSocket) ;
     
     static CpMediaSocketMonitorTask* spInstance;
     static CpMediaSocketMonitorTask* createInstance(const int pollingFrequency = 5)
@@ -108,6 +109,8 @@ public:
      * For handling the timer message.
      */
     virtual UtlBoolean handleMessage(OsMsg& rMsg);    
+
+    void printState(const char* szOperation = NULL) ;
 /* ============================ MANIPULATORS ============================== */
 
     void enableSocket(OsSocket* pSocket) ;

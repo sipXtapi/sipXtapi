@@ -136,6 +136,9 @@
 					RelativePath=".\src\ArsVoiceEngineReceiveAdapter.cpp">
 				</File>
 				<File
+					RelativePath=".\src\DllMain.cpp">
+				</File>
+				<File
 					RelativePath=".\src\VideoEngine.cpp">
 				</File>
 				<File
@@ -168,6 +171,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\resource.h">
+			</File>
 			<Filter
 				Name="include"
 				Filter="">
@@ -213,6 +219,18 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath=".\res\connecting.bmp">
+			</File>
+			<File
+				RelativePath=".\res\missing_camera.bmp">
+			</File>
+			<File
+				RelativePath=".\res\resource.h">
+			</File>
+			<File
+				RelativePath=".\res\sipXmediaVoiceEngine.rc">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

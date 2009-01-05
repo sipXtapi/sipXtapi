@@ -137,8 +137,27 @@ bool VideoEngine::createChannel(int voiceChannel, GIPSVideo_CodecInst* pVideoCod
             rc = mpVideoEngine->GIPSVideo_EnableIntraRequest(voiceChannel, true) ;
             checkRC("GIPSVideo_EnableIntraRequest", voiceChannel, rc , true) ;
 
+            rc = mpVideoEngine->GIPSVideo_SetMTU(voiceChannel, 1200) ;
+            checkRC("GIPSVideo_SetMTU", voiceChannel, rc , true) ;
+
+            rc = mpVideoEngine->GIPSVideo_EnablePacketLossBitrateAdaption(voiceChannel, true) ;
+            checkRC("GIPSVideo_EnablePacketLossBitrateAdaption", voiceChannel, rc , true) ;
+
+            rc = mpVideoEngine->GIPSVideo_EnablePLI(voiceChannel, true) ;
+            checkRC("GIPSVideo_EnablePLI", voiceChannel, rc , true) ;
+
+            rc = mpVideoEngine->GIPSVideo_EnableTMMBR(voiceChannel, true) ;
+            checkRC("GIPSVideo_EnableTMMBR", voiceChannel, rc , true) ;
+
             if (mbChannelCreated[voiceChannel % MAX_VE_CONNECTIONS])
                 doUserAgentSpecific(voiceChannel) ;
+#ifdef _WIN32
+            if (mhConnectingBitmap)
+            {
+                mpVideoEngine->GIPSVideo_SetBackgroundImage(rc, mhConnectingBitmap) ;
+            }
+#endif
+
         }
     }
 
@@ -208,7 +227,7 @@ bool VideoEngine::destroyChannel(int voiceChannel)
                 mPreviewDisplay.type == SIPXVE_DIRECT_SHOW_FILTER && 
                 mPreviewDisplay.filter)
         {
-#ifdef WIN32
+#ifdef _WIN32
             ((IBaseFilter*) mPreviewDisplay.filter)->Release() ;
 #endif
             mbPreviewRendererSet = false ;
@@ -219,7 +238,7 @@ bool VideoEngine::destroyChannel(int voiceChannel)
                 mRemoteDisplay[voiceChannel % MAX_VE_CONNECTIONS].type == SIPXVE_DIRECT_SHOW_FILTER &&
                 mRemoteDisplay[voiceChannel % MAX_VE_CONNECTIONS].filter)
         {
-#ifdef WIN32
+#ifdef _WIN32
             ((IBaseFilter*) mRemoteDisplay[voiceChannel % MAX_VE_CONNECTIONS].filter)->Release() ;
 #endif
             mbRemoteRendererSet[voiceChannel % MAX_VE_CONNECTIONS] = false ;
@@ -570,6 +589,21 @@ bool VideoEngine::enableRTCP(int         voiceChannel,
 
     return (rc == 0) ;
 }
+
+
+#ifdef _WIN32
+//////////////////////////////////////////////////////////////////////////////
+void VideoEngine::setBitmaps(HBITMAP hNoCamera, HBITMAP hConnecting) 
+{
+
+    if (mhNoCameraBitmap != hNoCamera)
+    {
+        mhNoCameraBitmap = hNoCamera ;
+        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap) ;
+    }
+    mhConnectingBitmap = hConnecting ;
+}
+#endif
 
 /* ============================ ACCESSORS ================================= */
 

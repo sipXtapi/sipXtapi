@@ -43,6 +43,7 @@ CpMediaConnection::CpMediaConnection(int connectionId)
           mIsMulticast(false),
           mbEnableARS(false)
 {
+    mbUsingAudioARS = false ;
     mpRtpAudioSocketArray[0] = NULL;
     mpRtpAudioSocketArray[1] = NULL;
     mpRtpAudioReadNotifyAdapter[0] = NULL ;
@@ -58,6 +59,7 @@ CpMediaConnection::CpMediaConnection(int connectionId)
     mpAudioSocketAdapterArray[1] = NULL;
 
     mVideoConnectionId = -1;
+    mbUsingVideoARS = false ;
     mpRtpVideoSocketArray[0] = NULL;
     mpRtpVideoSocketArray[1] = NULL;
     mpRtpVideoReadNotifyAdapter[0] = NULL ;

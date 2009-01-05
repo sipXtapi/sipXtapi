@@ -296,7 +296,7 @@ void VoiceEngineDatagramSocket::doPushPacket(char* rtpPacket, size_t packetSize,
                     {
                         if (getVideoChannel() > -1)
                         {
-                            int i = mpVideoEngine->GIPSVideo_ReceivedRTPPacket(getVideoChannel(), cBuf, bytes) ;
+                            mpVideoEngine->GIPSVideo_ReceivedRTPPacket(getVideoChannel(), cBuf, bytes) ;
                         }
                     }
                     break ;

@@ -976,6 +976,8 @@ protected:
     virtual IMediaDeviceMgr* getFactoryImpl() { return mpFactoryImpl ;} ;
     void doUnmonitor(OsSocket* pSocket) ;
 
+    void doEnableMonitoring(bool bEnable, OsSocket* pSocket) ;
+
     void doEnableMonitoring(bool bEnable, 
                             bool bAudio, 
                             bool bVideo,  

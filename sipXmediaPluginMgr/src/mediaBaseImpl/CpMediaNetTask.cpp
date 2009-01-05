@@ -595,7 +595,7 @@ CpMediaNetTask::CpMediaNetTask(int prio, int options, int stack)
                                                        // to a 
                                                        // 5 second
                                                        // poll for now
-    CpMediaSocketMonitorTask::getInstance()->setIdleTimeout(5);
+    CpMediaSocketMonitorTask::getInstance()->setIdleTimeout(30);
                                                       
 }
 

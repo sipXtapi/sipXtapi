@@ -37,6 +37,9 @@
 #include "os/OsLock.h"
 #include "mediaInterface/IMediaSocket.h"
 
+#define SOCKET_MONITOR_DEBUG
+#undef  SOCKET_MONITOR_DEBUG
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -63,6 +66,10 @@ CpMediaSocketMonitorTask::CpMediaSocketMonitorTask(const int pollingFrequency):
 // Destructor
 CpMediaSocketMonitorTask::~CpMediaSocketMonitorTask()
 {
+#ifdef SOCKET_MONITOR_DEBUG
+    printState("~CpMediaSocketMonitorTask()") ;
+#endif
+
     mMapMutex.acquire();
     mpTimer->stop() ;
     spInstance = NULL ;
@@ -85,10 +92,10 @@ bool CpMediaSocketMonitorTask::monitor(OsSocket* pSocket, ISocketEvent* pSink, S
     mMapMutex.acquire();
     bool bRet = false;
     
-    if (!mSocketMap.find(& UtlInt((int)pSocket)))
+    if (!mSocketMap.find(& UtlVoidPtr(pSocket)))
     {
-        mSinkMap.insertKeyAndValue(new UtlInt((int)pSink), new UtlInt((int)pSocket));
-        mSocketMap.insertKeyAndValue(new UtlInt((int)pSocket), new UtlInt((int)pSink));
+        mSinkMap.insertKeyAndValue(new UtlVoidPtr(pSink), new UtlVoidPtr(pSocket));
+        mSocketMap.insertKeyAndValue(new UtlVoidPtr(pSocket), new UtlInt((int)pSink));
         // register as an observer of the object implementing the idle sink
         UtlObservable* pObservable = dynamic_cast<UtlObservable*>(pSink);
         if (pObservable)
@@ -99,11 +106,17 @@ bool CpMediaSocketMonitorTask::monitor(OsSocket* pSocket, ISocketEvent* pSink, S
         bRet = true;
     }
 
-    if (!mSocketPurposeMap.find(&UtlInt((int)pSocket)))
+    if (!mSocketPurposeMap.find(&UtlVoidPtr(pSocket)))
     {
-        mSocketPurposeMap.insertKeyAndValue(new UtlInt((int)pSocket), new UtlInt((int)purpose));
+        mSocketPurposeMap.insertKeyAndValue(new UtlVoidPtr(pSocket), new UtlInt((int)purpose));
     }
+
+    pSocket->clearReadWriteTimes() ;
     mMapMutex.release();
+
+#ifdef SOCKET_MONITOR_DEBUG
+    printState("Post monitor()") ;
+#endif
     
     return bRet;
 }
@@ -112,39 +125,62 @@ bool CpMediaSocketMonitorTask::unmonitor(OsSocket* pSocket)
 {
     bool bRet = false;
 
+    mMapMutex.acquire();        
     assert(pSocket != NULL) ;
     if (pSocket)
     {
-        mMapMutex.acquire();        
-        UtlInt* pSinkPtr = NULL;
+        UtlVoidPtr* pSinkPtr = NULL;
         
-        if (pSinkPtr = (UtlInt*)mSocketMap.findValue(& UtlInt((int)pSocket)))
+        if (pSinkPtr = (UtlVoidPtr*)mSocketMap.findValue(&UtlVoidPtr(pSocket)))
         {
             ISocketEvent* pSink;
             
             if (pSinkPtr)
             {
-                pSink = (ISocketEvent*)pSinkPtr->getValue();
+                pSink = (ISocketEvent*) pSinkPtr->getValue();
                 
                 if (pSink)
                 {
-                    mSinkMap.destroy( & UtlInt((int) pSink));
+                    mSinkMap.destroy(&UtlVoidPtr(pSink));
                 }
             }
 
-            mSocketMap.destroy( & UtlInt((int)pSocket));
+            mSocketMap.destroy( & UtlVoidPtr(pSocket));
             bRet = true;
         }
-        if (mSocketPurposeMap.find(& UtlInt((int)pSocket)))
-        {
-            mSocketPurposeMap.destroy( & UtlInt((int)pSocket));
-        }
-        
-        disableSocket(pSocket) ;
 
-        mMapMutex.release();        
+        if (mSocketPurposeMap.find(&UtlVoidPtr(pSocket)))
+        {
+            mSocketPurposeMap.destroy(&UtlVoidPtr(pSocket));
+        }
+
+        disableSocket(pSocket) ;        
     }
+    mMapMutex.release() ;
+
+#ifdef SOCKET_MONITOR_DEBUG
+    printState("Post unmonitor()") ;
+#endif
+
     return bRet;
+}
+
+UtlBoolean CpMediaSocketMonitorTask::isMonitored(OsSocket* pSocket) 
+{
+    UtlBoolean bRC = false ;    
+    assert(pSocket != NULL) ;
+    if (pSocket != NULL)
+    {
+        UtlVoidPtr key(pSocket) ;    
+        OsLock lock(mMapMutex) ;
+
+        if (mSocketMap.findValue(&key) != NULL)
+        {
+            bRC = true ;
+        }
+    }
+            
+    return bRC ;
 }
 
 UtlBoolean CpMediaSocketMonitorTask::handleMessage(OsMsg& rMsg)
@@ -153,7 +189,11 @@ UtlBoolean CpMediaSocketMonitorTask::handleMessage(OsMsg& rMsg)
     OsDateTime now;
     OsDateTime::getCurTime(now);
     OsDateTime socketAdded ;
-    
+
+#ifdef SOCKET_MONITOR_DEBUG
+    printState("Pre handleMessage()") ;
+#endif
+        
     mMapMutex.acquire();
     
     // don't even bother looking at the message. It should be
@@ -162,11 +202,11 @@ UtlBoolean CpMediaSocketMonitorTask::handleMessage(OsMsg& rMsg)
     // check all of the sockets in our map for timeouts,
     // and notify, if necessary
     UtlHashMapIterator iterator(mSocketMap);
-    UtlInt* pSocketPtr;
-    UtlInt* pSinkPtr;
+    UtlVoidPtr* pSocketPtr;
+    UtlVoidPtr* pSinkPtr;
     ISocketEvent* pSink;
     OsSocket* pSocket;
-    while (pSocketPtr = (UtlInt*)iterator())
+    while (pSocketPtr = (UtlVoidPtr*) iterator())
     {
         OsDateTime check ;
         pSocket = (OsSocket*)pSocketPtr->getValue();
@@ -200,8 +240,16 @@ UtlBoolean CpMediaSocketMonitorTask::handleMessage(OsMsg& rMsg)
             long millisecondsIdle = diff.cvtToMsecs();
             if (!pSocket->isOk() || (then2 != OsTime::OS_INFINITY && (millisecondsIdle > (mIdleTimeoutSeconds * 1000))))
             {
+
+#ifdef SOCKET_MONITOR_DEBUG
+                printf("*************************************\n") ;
+                printf("*************************************\n") ;
+                printf("Firing onIdleData for socket %p\n", pSocket) ;
+                printf("*************************************\n") ;
+                printf("*************************************\n") ;
+#endif
                 // notify the sink that we timed out.
-                pSinkPtr = (UtlInt*)mSocketMap.findValue(pSocketPtr);
+                pSinkPtr = (UtlVoidPtr*)mSocketMap.findValue(pSocketPtr);
                 UtlInt* pPurposeContainer = (UtlInt*)mSocketPurposeMap.findValue(pSocketPtr);
                 SocketPurpose purpose = UNKNOWN;
 
@@ -231,6 +279,10 @@ void CpMediaSocketMonitorTask::enableSocket(OsSocket* pSocket)
     OsLock lock(mMapMutex) ;
 
     assert(pSocket != NULL) ;
+
+    if (pSocket)
+        pSocket->clearReadWriteTimes() ;
+
     if (pSocket && !isSocketEnabled(pSocket, when))
     {
         OsDateTime* pNow = new OsDateTime() ;
@@ -244,14 +296,19 @@ void CpMediaSocketMonitorTask::enableSocket(OsSocket* pSocket)
             assert(isSocketEnabled(pSocket, when) == (UtlBoolean) true) ;
         }
     }
+
+#ifdef SOCKET_MONITOR_DEBUG
+    printState("Post enableSocket()") ;
+#endif
 }
 
 void CpMediaSocketMonitorTask::disableSocket(OsSocket* pSocket) 
 {            
+    OsLock lock(mMapMutex) ;    
+
     assert(pSocket != NULL) ;
     if (pSocket)
     {
-        OsLock lock(mMapMutex) ;    
         UtlVoidPtr key(pSocket) ;        
 
         UtlVoidPtr* pValue = (UtlVoidPtr*) mSocketEnabledTime.findValue(&key) ;
@@ -265,6 +322,12 @@ void CpMediaSocketMonitorTask::disableSocket(OsSocket* pSocket)
         OsDateTime when ;
         assert(isSocketEnabled(pSocket, when) == (UtlBoolean) false) ;   
     }
+
+
+#ifdef SOCKET_MONITOR_DEBUG
+    printState("Post disableSocket()") ;
+#endif
+
 }
     
 UtlBoolean CpMediaSocketMonitorTask::isSocketEnabled(OsSocket* pSocket,
@@ -303,7 +366,7 @@ void CpMediaSocketMonitorTask::onNotify(UtlObservable* observable, int code, voi
     ISocketEvent* pSink = static_cast<ISocketEvent*>(pUserData);
 
     // lookup socket
-    UtlInt* pSocketContainer = (UtlInt*)mSinkMap.findValue(&UtlInt((int)pSink));
+    UtlVoidPtr* pSocketContainer = (UtlVoidPtr*)mSinkMap.findValue(&UtlVoidPtr(pSink));
     if (pSocketContainer)
     {
         OsSocket* pSocket = NULL;
@@ -312,6 +375,78 @@ void CpMediaSocketMonitorTask::onNotify(UtlObservable* observable, int code, voi
     }
 
     mMapMutex.release();    
+}
+
+
+void CpMediaSocketMonitorTask::printState(const char* szOperation) 
+{
+    UtlVoidPtr* pDateTime ; 
+    UtlVoidPtr* pSocket ;
+    UtlVoidPtr* pSink ;
+    UtlInt*     pPurpose ;
+
+    mMapMutex.acquire() ;
+
+    printf("\nCpMediaSocketMonitorTask: pollPeriod=%d, idleTimeout=%d\n",
+            mPollingFrequency, mIdleTimeoutSeconds) ;
+    if (szOperation)
+        printf("Operation: %s\n", szOperation) ;
+
+    // Socket Map
+    UtlHashMapIterator socketMapItor(mSocketMap) ;
+    while (pSocket = (UtlVoidPtr*) socketMapItor())
+    {
+        pSink = (UtlVoidPtr*) mSocketMap.findValue(pSocket) ;
+        printf("SocketMap: Socket: %p Sink: %p\n",
+                pSocket->getValue(), pSink->getValue()) ;
+
+        OsDateTime lastRead, lastWrite;
+        UtlString  strLastRead, strLastWrite ;
+
+        OsSocket* pRealSocket = (OsSocket*) pSocket->getValue() ;
+        if (pRealSocket->getLastReadTime(lastRead))
+            lastRead.getIsoTimeStringZ(strLastRead) ;        
+        else 
+            strLastRead = "NONE" ;
+        if (pRealSocket->getLastWriteTime(lastWrite))
+            lastWrite.getIsoTimeStringZ(strLastWrite) ;
+        else
+            strLastWrite = "NONE" ;
+        printf("\tLast Read: %s, Last Write: %s\n",
+                strLastRead.data(), strLastWrite.data()) ;        
+    }
+
+    // Sink Map
+    UtlHashMapIterator sinkMapItor(mSinkMap) ;
+    while (pSink = (UtlVoidPtr*) sinkMapItor())
+    {
+        pSocket = (UtlVoidPtr*) mSinkMap.findValue(pSink) ;
+        printf("SinkMap: Sink: %p Socket: %p\n",
+                pSink->getValue(), pSocket->getValue()) ;        
+    }
+
+    // Purpose Map
+    UtlHashMapIterator purposeMapItor(mSocketPurposeMap) ;
+    while (pSocket = (UtlVoidPtr*) purposeMapItor())
+    {
+        pPurpose = (UtlInt*) mSocketPurposeMap.findValue(pSocket) ;
+        printf("PurposeMap: Socket: %p Purpose: %d\n",
+                pSocket->getValue(), pPurpose->getValue()) ;        
+    }
+
+    // Enable Map
+    UtlHashMapIterator enableMapItor(mSocketEnabledTime) ;
+    while (pSocket = (UtlVoidPtr*) enableMapItor())
+    {
+        pDateTime = (UtlVoidPtr*) mSocketEnabledTime.findValue(pSocket) ;
+        OsDateTime* pTime = (OsDateTime*) pDateTime->getValue() ;
+        UtlString time ;
+        pTime->getIsoTimeStringZ(time) ;
+        printf("EnableMap: Socket: %p Time: %s\n",
+                pSocket->getValue(), time.data()) ;
+    }
+
+    mMapMutex.release() ;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -324,5 +459,4 @@ void CpMediaSocketMonitorTask::onNotify(UtlObservable* observable, int code, voi
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
 

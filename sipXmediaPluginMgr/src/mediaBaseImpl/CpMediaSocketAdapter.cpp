@@ -156,13 +156,11 @@ int CpMediaSocketAdapter::doSendArs(int channel, bool bRtp, const void* data, in
         memcpy(&cArsBuf[2], &frameType, sizeof(frameType)) ;
         memcpy(&cArsBuf[4], data, packetLen) ;
 
-        // Write w/o blocking.  If we were going to block -- just drop the packet
-        mpArsSocket->write(cArsBuf, packetLen + sizeof(frameLen) + sizeof(frameType), 0) ;
+        int dataWritten = mpArsSocket->write(cArsBuf, packetLen + sizeof(frameLen) + sizeof(frameType)) ;
         mpArsSocket->markWriteTime() ;
 
-        // Do we need error throttles?  Errors will show up if either the socket is 
-        // full or if the socket died.  In both cases, error handling will happen
-        // out of bounds.
+        // Do we need error throttles?  Errors will show up if the socket is dead.
+        // In this case, the error handling will happen out of bounds.
     }
     else
         len = 0 ;

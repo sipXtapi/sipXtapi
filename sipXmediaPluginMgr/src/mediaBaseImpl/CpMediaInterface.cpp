@@ -1497,8 +1497,10 @@ OsStatus CpMediaInterface::setConnectionDestination(int connectionId,
             {
                 if (remoteAudioType == 2)   // ars
                 {
+                    pMediaConnection->mbUsingAudioARS = true ;
                     pMediaConnection->mpAudioSocketAdapterArray[i]->setArsSocket(pMediaConnection->mpArsAudioSocket) ;
                     pMediaConnection->mpRtpAudioSocketArray[i]->disableTurn(false) ;
+                    doUnmonitor(pMediaConnection->mpRtpAudioSocketArray[i]->getSocket()) ;
                 }
                 else if (remoteAudioType == 1)   // our turn relay
                 {
@@ -1506,6 +1508,7 @@ OsStatus CpMediaInterface::setConnectionDestination(int connectionId,
                     pMediaConnection->mpAudioSocketAdapterArray[i]->setRtpDestination(mTurnProxy.getPort(), mTurnProxy.getAddress()) ;
                     if (getMediaSocketPtr(pMediaConnection->mpRtpAudioSocketArray[i]))
                         getMediaSocketPtr(pMediaConnection->mpRtpAudioSocketArray[i])->setPreferredReceiveAddress(mTurnProxy.getAddress(), mTurnProxy.getPort()) ;
+                    pMediaConnection->mbUsingAudioARS = false ;
                     if (pMediaConnection->mpArsAudioSocket)
                     {
                         doUnmonitor(pMediaConnection->mpArsAudioSocket) ;
@@ -1518,6 +1521,7 @@ OsStatus CpMediaInterface::setConnectionDestination(int connectionId,
                     pMediaConnection->mpAudioSocketAdapterArray[i]->setRtpDestination(remoteAudioRtpPort, remoteAudioAddress) ;
                     if (getMediaSocketPtr(pMediaConnection->mpRtpAudioSocketArray[i]))
                         getMediaSocketPtr(pMediaConnection->mpRtpAudioSocketArray[i])->setPreferredReceiveAddress(remoteAudioAddress, remoteAudioRtpPort) ;
+                    pMediaConnection->mbUsingAudioARS = false ;
                     if (pMediaConnection->mpArsAudioSocket) 
                     {
                         doUnmonitor(pMediaConnection->mpArsAudioSocket) ;
@@ -1563,15 +1567,18 @@ OsStatus CpMediaInterface::setConnectionDestination(int connectionId,
             {
                 if (remoteVideoType == 2)   // ars
                 {
+                    pMediaConnection->mbUsingVideoARS = true ;
                     pMediaConnection->mpVideoSocketAdapterArray[i]->setArsSocket(pMediaConnection->mpArsVideoSocket) ;
                     pMediaConnection->mpRtpVideoSocketArray[i]->disableTurn(false) ;
+                    doUnmonitor(pMediaConnection->mpRtpVideoSocketArray[i]->getSocket()) ;
                 }
                 else if (remoteVideoType == 1)    // our turn relay
                 {
                     pMediaConnection->mpRtpVideoSocketArray[i]->setTurnDestination(remoteVideoAddress, remoteVideoRtpPort) ;
                     pMediaConnection->mpVideoSocketAdapterArray[i]->setRtpDestination(mTurnProxy.getPort(), mTurnProxy.getAddress()) ;
                     if (getMediaSocketPtr(pMediaConnection->mpRtpVideoSocketArray[i]))
-                        getMediaSocketPtr(pMediaConnection->mpRtpVideoSocketArray[i])->setPreferredReceiveAddress(mTurnProxy.getAddress(), mTurnProxy.getPort()) ;
+                        getMediaSocketPtr(pMediaConnection->mpRtpVideoSocketArray[i])->setPreferredReceiveAddress(mTurnProxy.getAddress(), mTurnProxy.getPort()) ;                    
+                    pMediaConnection->mbUsingVideoARS = false ;
                     if (pMediaConnection->mpArsVideoSocket)
                     {
                         doUnmonitor(pMediaConnection->mpArsVideoSocket) ;
@@ -1584,6 +1591,7 @@ OsStatus CpMediaInterface::setConnectionDestination(int connectionId,
                     pMediaConnection->mpVideoSocketAdapterArray[i]->setRtpDestination(remoteVideoRtpPort, remoteVideoAddress) ;
                     if (getMediaSocketPtr(pMediaConnection->mpRtpVideoSocketArray[i]))
                         getMediaSocketPtr(pMediaConnection->mpRtpVideoSocketArray[i])->setPreferredReceiveAddress(remoteVideoAddress, remoteVideoRtpPort) ;
+                    pMediaConnection->mbUsingVideoARS = false ;
                     if (pMediaConnection->mpArsVideoSocket)
                     {
                         doUnmonitor(pMediaConnection->mpArsVideoSocket) ;
@@ -1627,6 +1635,23 @@ OsStatus CpMediaInterface::setConnectionDestination(int connectionId,
     return OS_SUCCESS ;
 }
 
+void CpMediaInterface::doEnableMonitoring(bool bEnable, OsSocket* pSocket)
+{
+    CpMediaSocketMonitorTask* pMonTask = CpMediaSocketMonitorTask::getInstance() ;
+
+    if (pSocket && pMonTask->isMonitored(pSocket))
+    {
+        if (bEnable)
+        {
+            pMonTask->enableSocket(pSocket) ;
+        }
+        else
+        {            
+            pMonTask->disableSocket(pSocket) ;
+        }
+    }
+}
+
 void CpMediaInterface::doEnableMonitoring(bool bEnable, 
                                                    bool bAudio,
                                                    bool bVideo,
@@ -1638,41 +1663,25 @@ void CpMediaInterface::doEnableMonitoring(bool bEnable,
     {
         for (int i = 0; i < 2; i++) // UDP and TCP
         {
-            if (bAudio)
+            if (bAudio && pMediaConnection->mpRtpAudioSocketArray[i])
             {
-                if (pMediaConnection->mpRtpAudioSocketArray[i])
-                {
-                    if (bEnable)
-                        pMonTask->enableSocket(pMediaConnection->mpRtpAudioSocketArray[i]->getSocket()) ;
-                    else
-                        pMonTask->disableSocket(pMediaConnection->mpRtpAudioSocketArray[i]->getSocket()) ;
-                }
+                doEnableMonitoring(bEnable, pMediaConnection->mpRtpAudioSocketArray[i]->getSocket()) ;
             }
-            if (bVideo)
+
+            if (bVideo && pMediaConnection->mpRtpVideoSocketArray[i])
             {
-                if (pMediaConnection->mpRtpVideoSocketArray[i])
-                {
-                    if (bEnable)
-                        pMonTask->enableSocket(pMediaConnection->mpRtpVideoSocketArray[i]->getSocket()) ;
-                    else
-                        pMonTask->disableSocket(pMediaConnection->mpRtpVideoSocketArray[i]->getSocket()) ;
-                }
+                doEnableMonitoring(bEnable, pMediaConnection->mpRtpVideoSocketArray[i]->getSocket()) ;
             }
         }
 
         if (bAudio && pMediaConnection->mpArsAudioSocket)
         {
-            if (bEnable)
-                pMonTask->enableSocket(pMediaConnection->mpArsAudioSocket) ;
-            else
-                pMonTask->disableSocket(pMediaConnection->mpArsAudioSocket) ;
+            doEnableMonitoring(bEnable, pMediaConnection->mpArsAudioSocket) ;
         }
+
         if (bVideo && pMediaConnection->mpArsVideoSocket)
         {
-            if (bEnable)
-                pMonTask->enableSocket(pMediaConnection->mpArsVideoSocket) ;
-            else
-                pMonTask->disableSocket(pMediaConnection->mpArsVideoSocket) ;
+            doEnableMonitoring(bEnable, pMediaConnection->mpArsVideoSocket) ;
         }
     }
 }

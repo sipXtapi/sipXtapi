@@ -224,6 +224,11 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPS_media_proces
      */ 
     bool isVideoSessionActive() const;  
 
+#ifdef _WIN32
+    HBITMAP getNoCameraBitmap() const { return mhNoCameraBitmap; } ;
+    HBITMAP getConnectingBitmap() const { return mhConnectingBitmap; } ;
+#endif
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
     mutable OsMutex mRtpPortLock;
@@ -309,6 +314,11 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPS_media_proces
     VoiceEngineSocketFactory* mpFactory ;
     mutable MediaDeviceInfo mAudioDeviceInput ;
     mutable MediaDeviceInfo mAudioDeviceOutput ;
+
+#ifdef _WIN32
+    HBITMAP mhNoCameraBitmap ;
+    HBITMAP mhConnectingBitmap ;
+#endif
 };
 
 /* ============================ INLINE METHODS ============================ */

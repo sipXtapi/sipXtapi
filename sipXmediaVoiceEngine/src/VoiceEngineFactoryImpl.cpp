@@ -63,12 +63,23 @@
 #define __declspec(x)
 #endif
 
-// STATIC VARIABLE INITIALIZATIONS
-//static CpMediaInterfaceFactory* spFactory = NULL;
+#ifdef _WIN32
+#  ifndef IDB_CONNECTING
+#    define IDB_CONNECTING                  101
+#  endif
+#  ifndef IDB_MISSING_CAMERA
+#    define IDB_MISSING_CAMERA              102
+#  endif
+#endif
 
+// STATIC VARIABLE INITIALIZATIONS
 OsMutex sGuard(OsMutex::Q_FIFO);
 VoiceEngineFactoryImpl* spMediaFactory = NULL;
 int iMediaFactoryCount = 0;
+
+#ifdef _WIN32
+extern HANDLE hModule_sipXtapi ;
+#endif
 
 extern "C" __declspec(dllexport) IMediaDeviceMgr* createMediaDeviceMgr()
 {
@@ -174,6 +185,15 @@ VoiceEngineFactoryImpl::VoiceEngineFactoryImpl() :
 {    
     OS_PERF_FUNC("VoiceEngineFactoryImpl::VoiceEngineFactoryImpl") ;
 
+
+#ifdef _WIN32
+    mhNoCameraBitmap = (HBITMAP) LoadImage((HINSTANCE) hModule_sipXtapi, "avNoCamera.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    if (mhNoCameraBitmap == NULL)
+        mhNoCameraBitmap = LoadBitmap((HINSTANCE) hModule_sipXtapi, MAKEINTRESOURCE(IDB_MISSING_CAMERA)) ;
+    mhConnectingBitmap = (HBITMAP) LoadImage((HINSTANCE) hModule_sipXtapi, "avConnecting.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    if (mhConnectingBitmap == NULL)
+        mhConnectingBitmap = LoadBitmap((HINSTANCE) hModule_sipXtapi, MAKEINTRESOURCE(IDB_CONNECTING)) ;
+#endif
 }
 
 void VoiceEngineFactoryImpl::initialize(OsConfigDb* pConfigDb, 

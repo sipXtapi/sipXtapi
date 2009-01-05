@@ -507,6 +507,15 @@ bool ArsConnectionSocket::doSetNoDelay()
         OsSysLog::add(FAC_ARS, PRI_ERR, "%08X Failed to set TCP_NODELAY on socket: errno=%d", 
                 this, OsSocketGetERRNO()) ;
 
+/*
+    int val = 2400 ;
+    rc = setsockopt(getSocketDescriptor(), SOL_SOCKET, SO_SNDBUF, (char*) &val, sizeof(int)) ;
+    assert(rc == 0) ;
+    if (rc != 0)
+        OsSysLog::add(FAC_ARS, PRI_ERR, "%08X Failed to set SO_SNDBUF on socket: errno=%d", 
+                this, OsSocketGetERRNO()) ;
+*/
+
     return (rc == 0) ;
 }
 

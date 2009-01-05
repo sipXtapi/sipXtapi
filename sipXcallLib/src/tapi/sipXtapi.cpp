@@ -111,6 +111,8 @@ static SIPX_MEDIA_PACKET_CALLBACK g_mediaPacketCallback = NULL ;
 
 #if defined(_WIN32)
 
+HANDLE hModule_sipXtapi = NULL ;
+
 BOOL APIENTRY DllMain( HANDLE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
@@ -120,6 +122,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
     {
         case DLL_PROCESS_ATTACH:
         case DLL_THREAD_ATTACH:
+            hModule_sipXtapi = hModule ;
+            break ;
         case DLL_THREAD_DETACH:
         case DLL_PROCESS_DETACH:
             break;

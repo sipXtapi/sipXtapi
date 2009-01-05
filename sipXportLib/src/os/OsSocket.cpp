@@ -135,6 +135,7 @@ OsSocket::OsSocket()
     remoteHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
     mIsConnected = FALSE;
     mpReadNotification = NULL;
+    clearReadWriteTimes();
 }
 
 
@@ -1382,6 +1383,15 @@ bool OsSocket::getLastWriteTime(OsDateTime& time)
     }
 
     return bRC ;
+}
+
+void OsSocket::clearReadWriteTimes() 
+{
+    miRecordTimes = ONDS_MARK_NONE ;
+    mFirstRead = OsDateTime() ;
+    mLastRead = OsDateTime() ;
+    mFirstWrite = OsDateTime() ;
+    mLastWrite = OsDateTime() ;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

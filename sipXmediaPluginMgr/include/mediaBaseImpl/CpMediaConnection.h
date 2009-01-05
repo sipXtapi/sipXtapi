@@ -113,7 +113,8 @@ public:
     int                           miArsVideoPriority ;
     SocketReadNotifyAdapter*      mpArsVideoReadNotifyAdapter ;
     bool mbInitiating ;
-    
+
+    bool mbUsingAudioARS ;
     IOsNatSocket* mpRtpAudioSocketArray[2]; // UDP and TCP
     SocketReadNotifyAdapter* mpRtpAudioReadNotifyAdapter[2] ;  // UDP and TCP
     IOsNatSocket* mpRtcpAudioSocketArray[2]; // UDP and TCP
@@ -129,6 +130,7 @@ public:
     int mConnectionCPU ;
     int mConnectionQuality ;
 
+    bool mbUsingVideoARS ;
     IOsNatSocket* mpRtpVideoSocketArray[2];   // UDP and TCP
     SocketReadNotifyAdapter* mpRtpVideoReadNotifyAdapter[2] ;  // UDP and TCP
     IOsNatSocket* mpRtcpVideoSocketArray[2];  // UDP and TCP
