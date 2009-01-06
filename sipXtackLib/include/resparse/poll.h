@@ -39,6 +39,8 @@ extern "C" {
  * This file is intended to be compatible with the traditional poll.h.
  */
 
+// In Visual Studio 2008, winsock2.h defines all of these already
+#if defined(_MSC_VER) && (_MSC_VER < 1500)
 /*
  * This structure is passed as an array to poll(2).
  */
@@ -67,6 +69,18 @@ struct pollfd {
 #define POLLWRBAND      0x0100          /* OOB/Urgent data can be written */
 
 /*
+ * These events are set if they occur regardless of whether they were
+ * requested.
+ */
+#define POLLERR         0x0008          /* some poll error occurred */
+#define POLLHUP         0x0010          /* file descriptor was "hung up" */
+#define POLLNVAL        0x0020          /* requested events "invalid" */
+#endif
+
+#define POLLSTANDARD    (POLLIN|POLLPRI|POLLOUT|POLLRDNORM|POLLRDBAND|\
+                         POLLWRBAND|POLLERR|POLLHUP|POLLNVAL)
+
+/*
  * FreeBSD extensions: polling on a regular file might return one
  * of these events (currently only supported on UFS).
  */
@@ -74,17 +88,6 @@ struct pollfd {
 #define POLLATTRIB      0x0400          /* file attributes may have changed */
 #define POLLNLINK       0x0800          /* (un)link/rename may have happened */
 #define POLLWRITE       0x1000          /* file's contents may have changed */
-
-/*
- * These events are set if they occur regardless of whether they were
- * requested.
- */
-#define POLLERR         0x0008          /* some poll error occurred */
-#define POLLHUP         0x0010          /* file descriptor was "hung up" */
-#define POLLNVAL        0x0020          /* requested events "invalid" */
-
-#define POLLSTANDARD    (POLLIN|POLLPRI|POLLOUT|POLLRDNORM|POLLRDBAND|\
-                         POLLWRBAND|POLLERR|POLLHUP|POLLNVAL)
 
 /*
  * Request that poll() wait forever.
