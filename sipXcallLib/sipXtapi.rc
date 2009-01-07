@@ -72,7 +72,7 @@ BEGIN
             VALUE "FileDescription", "SIP User-Agent API"
             VALUE "FileVersion", SIPXTAPI_FULL_VERSION
             VALUE "InternalName", "sipXtapi"
-            VALUE "LegalCopyright", "Copyright (C) 2005-2006 SIPFoundry Inc."
+            VALUE "LegalCopyright", "Copyright (C) 2005-2009 SIPFoundry Inc."
             VALUE "OriginalFilename", "sipXtapi.dll"
             VALUE "ProductName", "sipXtapi SDK"
             VALUE "ProductVersion", SIPXTAPI_FULL_VERSION
