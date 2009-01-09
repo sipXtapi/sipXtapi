@@ -734,7 +734,7 @@ typedef struct
  * Possible roles that a Media connection can have.  TCP is currently
  * defined, but not fully implemented.  Use at your own risk.
  */
- typedef enum SIPX_RTP_TRANSPORT
+enum SIPX_RTP_TRANSPORT
 {
    SIPX_RTP_TRANSPORT_UNKNOWN   = 0x00000000,
    SIPX_RTP_TRANSPORT_UDP       = 0x00000001,
