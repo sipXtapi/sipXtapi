@@ -200,7 +200,7 @@ AC_DEFUN([SFAC_LIB_STACK],
         CXXFLAGS="-I$SIPXTACKINC $CXXFLAGS"
     fi
 
-    if test ${disable_stream_player} != true; then
+    if test x${disable_stream_player} != xtrue; then
 
         SFAC_ARG_WITH_LIB([libsipXtack.la],
                 [sipxtacklib],
