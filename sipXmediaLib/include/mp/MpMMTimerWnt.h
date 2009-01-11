@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -58,6 +58,13 @@ public:
 
      /// @copydoc MpMMTimer::waitForNextTick()
    OsStatus waitForNextTick();
+
+    /// @copydoc MpMMTimer::getResolution()
+   virtual OsStatus getResolution(unsigned& resolution);
+
+    /// @copydoc MpMMTimer::getPeriodRange()
+   virtual
+   OsStatus getPeriodRange(unsigned* pMinUSecs, unsigned* pMaxUSecs = NULL);
 
      /// @copydoc MpMMTimer::getUSecSinceLastFire() const
    int getUSecSinceLastFire() const;

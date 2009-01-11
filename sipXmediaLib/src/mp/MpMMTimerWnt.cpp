@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -283,6 +283,39 @@ OsStatus MpMMTimerWnt::waitForNextTick()
    }
 
    return OS_SUCCESS;
+}
+
+OsStatus MpMMTimerWnt::getResolution(unsigned& resolution)
+{
+   return getPeriodRange(&resolution);
+}
+
+OsStatus MpMMTimerWnt::getPeriodRange(unsigned* pMinUSecs, 
+                                      unsigned* pMaxUSecs)
+{
+   OsStatus status = OS_FAILED;
+   TIMECAPS timecaps;
+   // timeGetDevCaps deals in msecs, not usecs.. as does the 
+   // rest of the windows MMTimers - thus multiply by 1000.
+   if(timeGetDevCaps(&timecaps, sizeof(TIMECAPS)) == TIMERR_NOERROR)
+   {
+      status = OS_SUCCESS;
+      if(pMinUSecs)
+      {
+         *pMinUSecs = (unsigned)(timecaps.wPeriodMin) * 1000;
+      }
+      if(pMaxUSecs)
+      {
+         *pMaxUSecs = (unsigned)(timecaps.wPeriodMax) * 1000;
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING, 
+                    "Couldn't get windows MMTimer capabilities!");
+   }
+
+   return status;
 }
 
 int MpMMTimerWnt::getUSecSinceLastFire() const

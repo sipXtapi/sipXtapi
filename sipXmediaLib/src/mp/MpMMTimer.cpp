@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -31,48 +31,6 @@
 // STRUCTS
 // TYPEDEFS
 
-// Static Methods
-OsStatus MpMMTimer::getResolution(unsigned& resolution)
-{
-   OsStatus status = OS_NOT_YET_IMPLEMENTED;
-#ifdef WIN32
-   status = getPeriodRange(&resolution);
-#endif
-   return status;
-}
-
-OsStatus MpMMTimer::getPeriodRange(unsigned* pMinUSecs, 
-                                  unsigned* pMaxUSecs)
-{
-   OsStatus status = OS_NOT_YET_IMPLEMENTED;
-
-#ifdef WIN32
-   status = OS_FAILED;
-   TIMECAPS timecaps;
-   // timeGetDevCaps deals in msecs, not usecs.. as does the 
-   // rest of the windows MMTimers - thus multiply by 1000.
-   if(timeGetDevCaps(&timecaps, sizeof(TIMECAPS)) == TIMERR_NOERROR)
-   {
-      status = OS_SUCCESS;
-      if(pMinUSecs)
-      {
-         *pMinUSecs = (unsigned)(timecaps.wPeriodMin) * 1000;
-      }
-      if(pMaxUSecs)
-      {
-         *pMaxUSecs = (unsigned)(timecaps.wPeriodMax) * 1000;
-      }
-   }
-   else
-   {
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
-                    "Couldn't get windows MMTimer capabilities!");
-   }
-#endif
-   return status;
-}
-
-// Non-static methods
 OsStatus MpMMTimer::setNotification(OsNotification* notification)
 {
    return OS_INVALID_STATE;
@@ -83,6 +41,17 @@ OsStatus MpMMTimer::waitForNextTick()
    OsStatus ret = 
       (mTimerType != Linear) ? OS_INVALID_STATE : OS_NOT_YET_IMPLEMENTED;
    return ret;
+}
+
+OsStatus MpMMTimer::getResolution(unsigned& resolution)
+{
+   return OS_NOT_YET_IMPLEMENTED;
+}
+
+OsStatus MpMMTimer::getPeriodRange(unsigned* pMinUSecs, 
+                                   unsigned* pMaxUSecs)
+{
+   return OS_NOT_YET_IMPLEMENTED;
 }
 
 int MpMMTimer::getUSecSinceLastFire() const

@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -144,9 +144,11 @@ public:
    {
       // Test getting the resolution, and get it..
       unsigned resolution;
-
+      MpMMTimer* pMMTimer = NULL;
 #ifdef WIN32
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, MpMMTimer::getResolution(resolution));
+      MpMMTimerWnt mmTimerWnt(MpMMTimer::Notification);
+      pMMTimer = &mmTimerWnt;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->getResolution(resolution));
       printf("Minimum timer resolution is %d usecs\n", resolution);
 #else
       printf("MpMMTimer::getResolution() not yet implemented on this "
@@ -159,9 +161,12 @@ public:
       // Test the period range static method..
       unsigned unusedMin = 0;
       unsigned unusedMax = 0;
+      MpMMTimer* pMMTimer = NULL;
 #ifdef WIN32
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-         MpMMTimer::getPeriodRange(&unusedMin, &unusedMax));
+      MpMMTimerWnt mmTimerWnt(MpMMTimer::Notification);
+      pMMTimer = &mmTimerWnt;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         pMMTimer->getPeriodRange(&unusedMin, &unusedMax));
 #else
       printf("MpMMTimer::getPeriodRange() not yet implemented on this "
              "platform, excluding test.\n");

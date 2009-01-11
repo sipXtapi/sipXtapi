@@ -1,14 +1,12 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
-
-// Author: 
 
 #ifndef _MpMMTimer_h_
 #define _MpMMTimer_h_
@@ -33,27 +31,6 @@
 #define  MPMMTIMER_ALGORITHM_DEFAULT  0
 class MpMMTimer
 {
-public:
-   static OsStatus getResolution(unsigned& resolution);
-     /**<
-      *  @brief Get resolution of timer in microseconds
-      *
-      *  @param[out] resolution - set to the finest resolution timer we can generate.  
-      *  @retval OS_SUCCESS - the resolution was able to be retrieved.
-      *  @retval OS_FAILED - the resolution wasn't able to be retrieved.
-      */
-
-   static OsStatus getPeriodRange(unsigned* pMinUSecs, 
-                                  unsigned* pMaxUSecs = NULL);
-     /**<
-      *  @brief Get the range of timer periods that can be generated.
-      *
-      *  @param[out] pMinUSecs - set to the smallest period we can generate.  
-      *  @param[out] pMaxUSecs - set to the largest period we can generate.  
-      *  @retval OS_SUCCESS - the min and max periods were able to be retrieved.
-      *  @retval OS_FAILED - the min and max periods weren't able to be retrieved.
-      */
-
 public:
    typedef enum 
    {
@@ -98,7 +75,7 @@ public:
       *                      
       * @retval OS_SUCCESS Returns when timer has been created and ran.
       * @retval OS_INVALID_ARGUMENT Returns when either value of \p uAlgorithm 
-      *                             dosen't support in current realization or 
+      *                             doesn't support in current realization or 
       *                             running OS couldn't create timer with
       *                             specified \p usecPeriodic, but with another 
       *                             value of it, it could.
@@ -137,6 +114,27 @@ public:
       * @retval OS_FAILED Returns when mandatory initialization failed 
       *                   (maybe in constructor) and later calls for this 
       *                   instance will fail too.
+      */
+
+   virtual
+   OsStatus getResolution(unsigned& resolution);
+     /**<
+      *  @brief Get resolution of timer in microseconds
+      *
+      *  @param[out] resolution - set to the finest resolution timer we can generate.  
+      *  @retval OS_SUCCESS - the resolution was able to be retrieved.
+      *  @retval OS_FAILED - the resolution wasn't able to be retrieved.
+      */
+
+   virtual
+   OsStatus getPeriodRange(unsigned* pMinUSecs, unsigned* pMaxUSecs = NULL);
+     /**<
+      *  @brief Get the range of timer periods that can be generated.
+      *
+      *  @param[out] pMinUSecs - set to the smallest period we can generate.  
+      *  @param[out] pMaxUSecs - set to the largest period we can generate.  
+      *  @retval OS_SUCCESS - the min and max periods were able to be retrieved.
+      *  @retval OS_FAILED - the min and max periods weren't able to be retrieved.
       */
 
      /// @brief Get the type of timer fire.
