@@ -31,6 +31,12 @@
 // STRUCTS
 // TYPEDEFS
 
+/* //////////////////////////////// PUBLIC //////////////////////////////// */
+
+/* =============================== CREATORS =============================== */
+
+/* ============================= MANIPULATORS ============================= */
+
 OsStatus MpMMTimer::setNotification(OsNotification* notification)
 {
    return OS_INVALID_STATE;
@@ -42,6 +48,8 @@ OsStatus MpMMTimer::waitForNextTick()
       (mTimerType != Linear) ? OS_INVALID_STATE : OS_NOT_YET_IMPLEMENTED;
    return ret;
 }
+
+/* ============================== ACCESSORS =============================== */
 
 OsStatus MpMMTimer::getResolution(unsigned& resolution)
 {
@@ -69,3 +77,10 @@ OsTime MpMMTimer::getAbsFireTime() const
    return OsTime::OS_INFINITY;
 }
 
+/* =============================== INQUIRY ================================ */
+
+/* ////////////////////////////// PROTECTED /////////////////////////////// */
+
+/* /////////////////////////////// PRIVATE //////////////////////////////// */
+
+/* ============================== FUNCTIONS =============================== */

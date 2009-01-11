@@ -24,19 +24,34 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define  MPMMTIMER_ALGORITHM_DEFAULT  0
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-#define  MPMMTIMER_ALGORITHM_DEFAULT  0
+/**
+*  @brief High-precision periodic timer (MultiMedia timer).
+*/
 class MpMMTimer
 {
+/* //////////////////////////////// PUBLIC //////////////////////////////// */
 public:
    typedef enum 
    {
       Linear = 0,         ///< For use with waitForNextTick()
       Notification = 1,     ///< For use with setNotification()
    } MMTimerType;
+
+/* =============================== CREATORS =============================== */
+///@name Creators
+//@{
+
+//@}
+
+/* ============================= MANIPULATORS ============================= */
+///@name Manipulators
+//@{
 
    virtual
    OsStatus setNotification(OsNotification* notification);
@@ -116,6 +131,12 @@ public:
       *                   instance will fail too.
       */
 
+//@}
+
+/* ============================== ACCESSORS =============================== */
+///@name Accessors
+//@{
+
    virtual
    OsStatus getResolution(unsigned& resolution);
      /**<
@@ -147,28 +168,41 @@ public:
    int getUSecDeltaExpectedFire() const;
 
    OsTime getAbsFireTime() const;
-   
+
+//@}
+
+/* =============================== INQUIRY ================================ */
+///@name Inquiry
+//@{
+
+
+//@}
+
+/* ////////////////////////////// PROTECTED /////////////////////////////// */
 protected:
+   MMTimerType mTimerType;
+
      /// @brief protected constructor, as this is an abstract class.
    inline MpMMTimer(MMTimerType type);
 
      /// @brief protected destructor, as this is an abstract class.
    virtual inline ~MpMMTimer();
 
-protected:
-   MMTimerType mTimerType;
+/* /////////////////////////////// PRIVATE //////////////////////////////// */
+private:
+
 };
 
-
-
-// Inline Function Implementation
+/* ============================ INLINE METHODS ============================ */
 
 MpMMTimer::MpMMTimer(MMTimerType type)
    : mTimerType(type)
-{}
+{
+}
 
 MpMMTimer::~MpMMTimer()
-{}
+{
+}
 
 MpMMTimer::MMTimerType MpMMTimer::getTimerType() const
 {
