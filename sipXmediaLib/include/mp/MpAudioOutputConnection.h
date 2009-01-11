@@ -58,8 +58,8 @@ public:
    MpAudioOutputConnection(MpOutputDeviceHandle deviceId,
                            MpOutputDeviceDriver *deviceDriver);
      /**<
-     *  @param deviceId - (in) Device ID assigned to this connection.
-     *  @param deviceDriver - (in) Device driver, assigned with this connection.
+     *  @param[in] deviceId - Device ID assigned to this connection.
+     *  @param[in] deviceDriver - Device driver, assigned with this connection.
      */
 
      /// Destructor
@@ -81,14 +81,13 @@ public:
      *  This method enables the device driver associated with this connection
      *  and create mixer buffer if requested.
      *
-     *  @param samplesPerFrame - (in) the number of samples in a frame of media
-     *  @param samplesPerSec - (in) sample rate for media frame in samples per second
-     *  @param currentFrameTime - (in) time in milliseconds for beginning of frame
-     *         relative to the MpOutputDeviceManager reference time
-     *  @param mixerBufferLength - (in) length of mixer buffer in milliseconds. 
+     *  @param[in] samplesPerFrame - the number of samples in a frame of media
+     *  @param[in] samplesPerSec - sample rate for media frame in samples per second
+     *  @param[in] currentFrameTime - time in milliseconds for beginning of frame
+     *             relative to the MpOutputDeviceManager reference time
+     *  @param[in] mixerBufferLength - length of mixer buffer in milliseconds. 
      *
      *  @returns OS_INVALID_STATE if device already enabled.
-     *  @returns OS_NOT_SUPPORTED if device does not support ticker notification.
      *  @returns OS_SUCCESSS if device is successfully enabled.
      *  
      *  @see MpOutputDeviceDriver::enableDevice() for more information.
@@ -109,7 +108,6 @@ public:
    OsStatus enableFlowgraphTicker();
      /**<
      *  @returns OS_SUCCESS if ticker registered successfully.
-     *  @returns OS_NOT_SUPPORTED if device could not provide ticker.
      *  @returns OS_FAILED if device failed to register ticker.
      */
 
@@ -117,7 +115,6 @@ public:
    OsStatus disableFlowgraphTicker();
      /**<
      *  @returns OS_SUCCESS if ticker registered successfully.
-     *  @returns OS_NOT_SUPPORTED if device could not provide ticker.
      *  @returns OS_FAILED if device failed to unregister ticker.
      */
 
@@ -238,7 +235,7 @@ protected:
      /// Allocate mixer buffer and initialize all related member variables.
    OsStatus initMixerBuffer(unsigned mixerBufferLength);
      /**<
-     *  @param mixerBufferLength - (in) Number of samples in mixer buffer. This
+     *  @param[in] mixerBufferLength - Number of samples in mixer buffer. This
      *         parameter must be greater then 0.
      *
      *  @NOTE Not thread-safe. This function is supposed to be used from
@@ -279,7 +276,7 @@ protected:
      *  this current frame time should be advanced by appropriate number of
      *  milliseconds to move time window forward.
      *
-     *  @param numSamples - (in) How many samples to advance.
+     *  @param[in] numSamples - How many samples to advance.
      */
 
 //@}
@@ -298,7 +295,6 @@ protected:
    OsStatus setDeviceTicker();
      /**<
      *  @returns OS_SUCCESS if ticker created and registered successfully.
-     *  @returns OS_NOT_SUPPORTED if device do not support ticker callback.
      *  @returns OS_FAILED if device failed to set ticker callback.
      */
 
@@ -308,15 +304,15 @@ protected:
      *  @returns OS_SUCCESS always.
      */
 
-//@}
-
      /// Call this when driver become ready for the next frame.
    static
    void tickerCallback(const intptr_t userData, const intptr_t eventData);
      /**<
-     *  @param userData - (in) Contain pointer connection it is associated with.
-     *  @param eventData - (in) contain 0 for now.
+     *  @param[in] userData - Contain pointer connection it is associated with.
+     *  @param[in] eventData - contains 0 for now.
      */
+
+//@}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

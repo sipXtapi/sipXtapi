@@ -135,9 +135,6 @@ public:
      /// @copydoc MpOutputDeviceDriver::isEnabled()
    virtual inline UtlBoolean isEnabled();
 
-     /// @copydoc MpOutputDeviceDriver::isFrameTickerSupported() const
-   virtual inline UtlBoolean isFrameTickerSupported() const;
-
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -259,11 +256,5 @@ UtlBoolean MpodWinMM::isEnabled()
 {
    return (mIsEnabled);
 }
-
-UtlBoolean MpodWinMM::isFrameTickerSupported() const
-{
-   return (TRUE);
-}
-
 
 #endif  // _MpodWinMM_h_

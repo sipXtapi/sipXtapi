@@ -179,10 +179,5 @@ OsStatus MpodBufferRecorder::setTickerNotification(OsNotification *pFrameTicker)
 
 /* ============================ INQUIRY =================================== */
 
-UtlBoolean MpodBufferRecorder::isFrameTickerSupported() const
-{
-   return TRUE;
-}
-
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

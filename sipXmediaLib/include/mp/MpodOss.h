@@ -68,75 +68,29 @@ public:
 ///@name Manipulators
 //@{
 
-     /// @brief  Initialize OSS device driver and state.
+     /// @copydoc MpOutputDeviceDriver::enableDevice()
    OsStatus enableDevice(unsigned samplesPerFrame,
                          unsigned samplesPerSec,
                          MpFrameTime currentFrameTime);
-     /**<
-     *  This method enables the device driver.
-     *
-     *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
-     *  enabling a device results in state and buffer queues being cleared.
-     *
-     *  @param samplesPerFrame - (in) the number of samples in a frame of media.
-     *  @param samplesPerSec - (in) sample rate for media frame in samples per
-     *         second.
-     *  @param currentFrameTime - (in) time in milliseconds for beginning of frame
-     *         relative to the MpInputDeviceManager reference time.
-     */
 
-     /// @brief Uninitialize OSS device driver
+     /// @copydoc MpOutputDeviceDriver::disableDevice()
    OsStatus disableDevice();
-     /**<
-     *  This method disables the device driver and should release any
-     *  platform device resources so that the device might be used else where.
-     *
-     *  @note this SHOULD NOT be used to mute/unmute a device. Disabling and
-     *        enabling a device results in state and buffer queues being cleared.
-     */
 
-     /// @brief Send data to OSS output device.
+     /// @copydoc MpOutputDeviceDriver::pushFrame()
    OsStatus pushFrame(unsigned int numSamples,
                       const MpAudioSample* samples,
                       MpFrameTime frameTime);
-     /**<
-     *  This method is usually called from MpAudioOutputConnection::pushFrame().
-     *
-     *  @param numSamples - (in) Number of samples in <tt>samples</tt> array.
-     *  @param samples - (in) Array of samples to push to device.
-     */
 
-     /// Set frame ticker notification which this device should signal.
+     /// @copydoc MpOutputDeviceDriver::setTickerNotification()
    OsStatus setTickerNotification(OsNotification *pFrameTicker);
-     /**<
-     *  @param pFrameTicker - (in) notification to signal when device become
-     *         ready. Pass NULL to pFrameTicker if you do not want receive
-     *         frame ticks, e.g. in direct write mode. In this case driver
-     *         may stop its thread if it used one for for notifications.
-     *
-     *  @see See mpFrameTicker documentation for detailed discussion.
-     *  @see See isFrameTickerSupported().
-     *
-     *  @returns OS_SUCCESS if frame ticker notification set successfully.
-     *  @returns OS_NOT_SUPPORTED if this driver implementation does not support
-     *           frame ticker notification.
-     */
 
-    OsStatus setNotificationMode(UtlBoolean bThreadNotification);
+   OsStatus setNotificationMode(UtlBoolean bThreadNotification);
 
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
-
-    /// Is frame ticker notification support by this driver notification.
-  UtlBoolean isFrameTickerSupported() const;
-    /**<
-    *  If this method returns TRUE, setTickerNotification() method may be
-    *  used to set frame ticker notification. If this method returns FALSE,
-    *  setTickerNotification() must return OS_NOT_SUPPORTED.
-    */
 
 //@}
 
@@ -147,8 +101,6 @@ public:
      /// @brief Inquire if the OSS device is valid
    inline UtlBoolean isDeviceValid();
 
-     /// @brief Inquire if the notification is needed
-   inline UtlBoolean isNotificationNeeded();
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -185,11 +137,6 @@ UtlBoolean MpodOss::isDeviceValid()
 {
    //printf("MpRsOdOss::isDeviceValid()\n"); fflush(stdout);
    return ((pDevWrapper != NULL) && pDevWrapper->isDeviceValid());
-}
-
-UtlBoolean MpodOss::isNotificationNeeded()
-{
-   return (isDeviceValid() && (pNotificator != NULL));
 }
 
 #endif  // _MpodOss_h_

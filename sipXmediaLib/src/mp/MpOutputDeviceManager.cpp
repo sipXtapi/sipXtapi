@@ -274,13 +274,10 @@ OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle de
 {
    OsStatus status = OS_SUCCESS;
    MpAudioOutputConnection* connection = NULL;
+   OsWriteLock lock(mRwMutex);
 
-   // No need to take lock here as access to mConnectionsByDeviceId is atomic
-   // read operation.
    if (mCurrentTickerDevice != deviceId)
    {
-      OsWriteLock lock(mRwMutex);
-
       // Stop current ticker if was enabled.
       if (mCurrentTickerDevice != MP_INVALID_OUTPUT_DEVICE_HANDLE)
       {

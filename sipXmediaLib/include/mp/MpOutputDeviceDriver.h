@@ -41,16 +41,9 @@ class OsNotification;
 *  instantiated and then added to the MpOutputDeviceManager.  The driver must
 *  be enabled via the MpOutputDeviceManager to begin consuming frames.
 *
-*  Each audio output driver may be used in two modes: direct write mode and
-*  non direct write (mixer) mode. In direct write mode data is pushed to the device
-*  as soon as it become available. In mixer mode data from several sources will
-*  be buffered and mixed inside connection and pushed to the device only when the
-*  mixer buffer becomes full. Direct write mode has less latency, but can be
-*  fed by only one source. If two or more sources try to push data, only the
-*  first will succeed. Opposite to direct write mode, mixer mode is supposed
-*  to accept several streams and mix them. In this mode the device should provide
-*  a timer which will notify MpAudioOutputConnection when the device is ready to
-*  accept the next frame of data.
+*  Each audio output driver should notify its MpAudioOutputConnection when
+*  the device is ready to accept the next frame of data with provided
+*  OsNotification. See setTickerNotification() for more information.
 *
 *  MpOutputDeviceDriver has a text name which is defined upon construction.
 *  This name will typically be the same as the OS defined name for the
@@ -97,9 +90,9 @@ public:
      *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
      *  enabling a device results in state and buffer queues being cleared.
      *
-     *  @param samplesPerFrame - (in) the number of samples in a frame of media
-     *  @param samplesPerSec - (in) sample rate for media frame in samples per second
-     *  @param currentFrameTime - (in) time in milliseconds for beginning of frame
+     *  @param[in] samplesPerFrame - the number of samples in a frame of media
+     *  @param[in] samplesPerSec - sample rate for media frame in samples per second
+     *  @param[in] currentFrameTime - time in milliseconds for beginning of frame
      *         relative to the MpOutputDeviceManager reference time
      *
      *  @returns OS_INVALID_STATE if device already enabled.
@@ -131,9 +124,9 @@ public:
      /**<
      *  This method is usually called from MpAudioOutputConnection::pushFrame().
      *
-     *  @param numSamples - (in) Number of samples in <tt>samples</tt> array.
-     *  @param samples - (in) Array of samples to push to device.
-     *  @param frameTime - (in) Time of pushed frame. Device may consider
+     *  @param[in] numSamples - Number of samples in \p samples array.
+     *  @param[in] samples - Array of samples to push to device.
+     *  @param[in] frameTime - Time of pushed frame. Device may consider
      *         does it want it or not internally. If frame come too late
      *         driver should return OS_SUCCESS and throw out it silently.
      *         Common problem is when MediaTask queue is jammed - no frames
@@ -151,8 +144,8 @@ public:
    virtual
    OsStatus setTickerNotification(OsNotification *pFrameTicker) = 0;
      /**<
-     *  If pFrameTicker is not NULL, device driver MUST signal this
-     *  notification as soon as it become ready to receive next frame of data.
+     *  Device driver MUST signal this notification as soon as it become ready
+     *  to receive next portion of data to play back.
      *  Note, that signaling this notification may block for some time, as it
      *  would normally be a callback which in turn calls pushFrame() method of
      *  this device driver. Also notification may be used to signal begin of
@@ -160,13 +153,7 @@ public:
      *  uniform as possible, i.e. it should not burst or hold over, driver
      *  should signal this notification after equal intervals of time.
      *
-     *  Pass NULL to pFrameTicker if you do not want receive frame ticks, e.g.
-     *  in direct write mode. In this case driver may stop its thread if it used
-     *  one for for notifications.
-     *
-     *  @param pFrameTicker - (in) notification to signal when device become ready. 
-     *
-     *  @see See isFrameTickerSupported().
+     *  @param[in] pFrameTicker - notification to signal when device become ready. 
      *
      *  @returns OS_SUCCESS if frame ticker notification set successfully.
      *  @returns OS_NOT_SUPPORTED if this driver implementation does not support
@@ -191,15 +178,6 @@ public:
    inline
    unsigned getSamplesPerSec() const;
 
-     /// Is frame ticker notification support by this driver notification.
-   virtual
-   UtlBoolean isFrameTickerSupported() const = 0;
-     /**<
-     *  If this method returns TRUE, setTickerNotification() method may be
-     *  used to set frame ticker notification. If this method returns FALSE,
-     *  setTickerNotification() must return OS_NOT_SUPPORTED.
-     */
-
      /// Calculate the number of milliseconds that a frame occupies in time. 
    static inline
    MpFrameTime getFramePeriod(unsigned samplesPerFrame,
@@ -220,9 +198,9 @@ public:
 protected:
 
    OsAtomicLightBool mIsEnabled;         ///< Whether this device driver is enabled or not.
-   OsAtomicLightUInt mSamplesPerFrame;     ///< Device produce audio frame with this
+   OsAtomicLightUInt mSamplesPerFrame;   ///< Device produce audio frame with this
                    ///< number of samples.
-   OsAtomicLightUInt mSamplesPerSec;       ///< Device produce audio with this number
+   OsAtomicLightUInt mSamplesPerSec;     ///< Device produce audio with this number
                    ///< of samples per second.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

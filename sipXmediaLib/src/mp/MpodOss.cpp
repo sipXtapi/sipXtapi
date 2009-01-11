@@ -190,10 +190,6 @@ OsStatus MpodOss::setTickerNotification(OsNotification *pFrameTicker)
 }
 
 /* ============================ ACCESSORS ================================= */
-UtlBoolean MpodOss::isFrameTickerSupported() const
-{
-   return TRUE;
-}
 
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -201,9 +197,6 @@ UtlBoolean MpodOss::isFrameTickerSupported() const
 OsStatus MpodOss::signalForNextFrame()
 {
    OsStatus ret = OS_FAILED;
-
-   if (!isNotificationNeeded())
-      return ret;
 
    ret = pNotificator->signal(mCurrentFrameTime);
    return ret;

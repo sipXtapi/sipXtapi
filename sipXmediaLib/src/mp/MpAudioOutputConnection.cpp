@@ -98,9 +98,8 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
       return OS_INVALID_STATE;
    }
 
-   // For now driver must always support frame ticker.
    // Mixer buffer length can't be zero.
-   if (mixerBufferLength == 0 || !mpDeviceDriver->isFrameTickerSupported())
+   if (mixerBufferLength == 0)
    {
       return OS_NOT_SUPPORTED;
    }
@@ -160,23 +159,18 @@ OsStatus MpAudioOutputConnection::disableDevice()
 
 OsStatus MpAudioOutputConnection::enableFlowgraphTicker()
 {
-   OsStatus result = OS_NOT_SUPPORTED;
+   OsStatus result = OS_SUCCESS;
    OsLock lock(mMutex);
 
    assert(mDoFlowgraphTicker == FALSE);
 
-   if (mpDeviceDriver->isFrameTickerSupported())
+   // Set flowgraph ticker flag
+   mDoFlowgraphTicker = TRUE;
+
+   // Enable ticker if not enabled already
+   if (mpTickerCallback == NULL)
    {
-      result = OS_SUCCESS;
-
-      // Set flowgraph ticker flag
-      mDoFlowgraphTicker = TRUE;
-
-      // Enable ticker if not enabled already
-      if (mpTickerCallback == NULL)
-      {
-         result = setDeviceTicker();
-      }
+      result = setDeviceTicker();
    }
 
    return result;
@@ -184,23 +178,18 @@ OsStatus MpAudioOutputConnection::enableFlowgraphTicker()
 
 OsStatus MpAudioOutputConnection::disableFlowgraphTicker()
 {
-   OsStatus result = OS_NOT_SUPPORTED;
+   OsStatus result = OS_SUCCESS;
    OsLock lock(mMutex);
 
    assert(mDoFlowgraphTicker == TRUE);
 
-   if (mpDeviceDriver->isFrameTickerSupported())
+   // Set flowgraph ticker flag
+   mDoFlowgraphTicker = FALSE;
+
+   // Disable ticker if we're not in mixer mode.
+   if (!isTickerNeeded())
    {
-      result = OS_SUCCESS;
-
-      // Set flowgraph ticker flag
-      mDoFlowgraphTicker = FALSE;
-
-      // Disable ticker if we're not in mixer mode.
-      if (!isTickerNeeded())
-      {
-         clearDeviceTicker();
-      }
+      clearDeviceTicker();
    }
 
    return result;
@@ -403,12 +392,6 @@ OsStatus MpAudioOutputConnection::advanceMixerBuffer(unsigned numSamples)
 
 OsStatus MpAudioOutputConnection::setDeviceTicker()
 {
-   // Do driver support ticker callback?
-   if (!mpDeviceDriver->isFrameTickerSupported())
-   {
-      return OS_NOT_SUPPORTED;
-   }
-
    // Create callback and register it with device driver
    mpTickerCallback = new OsCallback((intptr_t)this, tickerCallback);
    assert(mpTickerCallback != NULL);
