@@ -39,27 +39,44 @@
 #  define IS_INET_RETURN_OK( x )    (x > 0)
 #endif
 
-// S_IREAD and S_IWRITE are not always defined, e.g. they're not
-// defined in in bionic (Android's libc).
+/*
+* S_IREAD and S_IWRITE are not always defined, e.g. they're not
+* defined in bionic (Android's libc).
+*/
 #ifdef DEFINE_S_IREAD_IWRITE
 #  define S_IREAD  (S_IRUSR | S_IRGRP | S_IROTH)
 #  define S_IWRITE (S_IWUSR)
 #endif
 
-// If we're compiling for windows using a visual studio prior to VS2008
-// http://www.casabasecurity.com/content/visual-studio-2008-crt-bug
-// Basically, prior versions of Visual Studio did not define snprintf
-// or vsnprintf, because they were not ANSI compliant.
-// Even now, with VS2008, they aren't compliant, however visual studio
-// has gone about and defined vsnprintf.
-// http://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101293
-
+/*
+* If we're compiling for windows using a visual studio prior to VS2008
+* http:*www.casabasecurity.com/content/visual-studio-2008-crt-bug
+* Basically, prior versions of Visual Studio did not define snprintf
+* or vsnprintf, because they were not ANSI compliant.
+* Even now, with VS2008, they aren't compliant, however visual studio
+* has gone about and defined vsnprintf.
+* http:*connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101293
+*/
 #if defined(WIN32) && defined(_MSC_VER) 
 #  define snprintf _snprintf
 
 #if (_MSC_VER < 1500)
 #  define vsnprintf _vsnprintf
 #endif
+
+#define popen _popen
+#define pclose _pclose
+/*
+* WIN32 doesn't have wait(), so the return value for children
+* is simply the return value specified by the child, without
+* any additional information on whether the child terminated
+* on its own or via a signal.  These macros are also used
+* to interpret the return value of system().
+*/
+#define WEXITSTATUS(w) (w)
+#define WIFEXITED(w) (true)
+#define WIFSIGNALED(w) (false)
+#define WTERMSIG(w) (0)
 #endif
 
 #if defined(va_copy)
