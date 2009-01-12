@@ -46,7 +46,7 @@ MprSpeakerSelector::MprSpeakerSelector(const UtlString& rName,
 {
    mpSS = MpSpeakerSelectBase::createInstance(algorithmName);
    assert(mpSS != NULL);
-   mpSS->init(mNumStreams);
+   mpSS->init(mNumStreams, mMaxActiveSpeakers);
    mSsFresh = TRUE;
 }
 
@@ -66,7 +66,7 @@ MprSpeakerSelector::MprSpeakerSelector(const UtlString& rName,
 , mTopRanks(new RankIndexPair[mMaxActiveSpeakers])
 {
    assert(mpSS != NULL);
-   mpSS->init(mNumStreams);
+   mpSS->init(mNumStreams, mMaxActiveSpeakers);
    mSsFresh = TRUE;
 }
 

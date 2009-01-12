@@ -47,10 +47,15 @@ public:
 ///@name Creators
 //@{
 
-     /// Initialize SS to initial state with zero conferee
-   virtual OsStatus init(int maxParticipants) = 0;
+     /// Initialize SS to initial state.
+   virtual OsStatus init(int maxParticipants, int maxActive) = 0;
      /**<
-     *  @param[in] maxParticipants - maximum number of participants in conference
+     *  @param[in] maxParticipants - maximum number of participants in a conference.
+     *  @param[in] maxActive - maximum number of participants to be detected 
+     *             as active speech, -1 lead to no constrains. Correct setting
+     *             of \p maxActive helps SS algorithm to minimize number of
+     *             flips between least ranked speaker inside \p maxActive
+     *             speakers and most ranked speaker outside of this number.
      *
      *  Should be called before any other class methods. All participants
      *  after initialization are disabled, to enable it call
