@@ -155,7 +155,7 @@ public:
    virtual ~OsTimer();
 
    /// Non-blocking asynchronous delete operation
-   virtual void deleteAsync(OsTimer* timer);
+   virtual void deleteAsync();
    /**<
     * Stops the timer, then sends a message to the timer task, which will
     * eventually delete it.  Provides a non-blocking way to delete an
@@ -182,10 +182,10 @@ public:
    virtual OsStatus oneshotAfter(const OsTime& offset);
 
    /// Start the timer to fire periodically starting at the indicated date/time
-   virtual OsStatus periodicAt(const OsDateTime& when, OsTime period);
+   virtual OsStatus periodicAt(const OsDateTime& when, const OsTime &period);
 
    /// Start the timer to fire periodically starting at current time + offset
-   virtual OsStatus periodicEvery(OsTime offset, OsTime period);
+   virtual OsStatus periodicEvery(const OsTime &offset, const OsTime &period);
 
    /// @}
 

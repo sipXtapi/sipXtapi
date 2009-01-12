@@ -134,10 +134,10 @@ OsTimer::~OsTimer()
 }
 
 // Non-blocking asynchronous delete operation
-void OsTimer::deleteAsync(OsTimer* timer)
+void OsTimer::deleteAsync()
 {
 #ifndef NDEBUG
-   CHECK_VALIDITY(timer);
+   CHECK_VALIDITY(this);
 #endif
 
    // Update members.
@@ -185,7 +185,7 @@ OsStatus OsTimer::oneshotAfter(const OsTime& offset)
 }
 
 // Arm the timer to fire periodically starting at the indicated date/time
-OsStatus OsTimer::periodicAt(const OsDateTime& when, OsTime period)
+OsStatus OsTimer::periodicAt(const OsDateTime& when, const OsTime &period)
 {
    OsTime whenTime;
    when.cvtToTimeSinceEpoch(whenTime);
@@ -193,7 +193,7 @@ OsStatus OsTimer::periodicAt(const OsDateTime& when, OsTime period)
 }
 
 // Arm the timer to fire periodically starting at current time + offset
-OsStatus OsTimer::periodicEvery(OsTime offset, OsTime period)
+OsStatus OsTimer::periodicEvery(const OsTime &offset, const OsTime &period)
 {
    OsTime curTime;
    OsDateTime::getCurTime(curTime);
