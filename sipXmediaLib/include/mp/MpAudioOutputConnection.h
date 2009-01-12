@@ -20,6 +20,7 @@
 #include <mp/MpOutputDeviceDriver.h>
 #include <utl/UtlInt.h>
 #include <os/OsMutex.h>
+#include <os/OsCallback.h>
 
 // DEFINES
 // MACROS
@@ -29,7 +30,6 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class OsCallback;
 
 /**
 *  @brief Private container class for MpOutputDeviceDriver pointer and
@@ -44,6 +44,8 @@ class OsCallback;
 *  be equal to zero. Note, that calls to increaseUseCount(), decreaseUseCount()
 *  and getUseCount() should be synchronized by external entity, owning object
 *  of this class.
+*
+*  @nosubgrouping
 */
 class MpAudioOutputConnection : public UtlInt
 {
@@ -105,8 +107,11 @@ public:
      */
 
      /// Use this device to signal frame processing interval start.
-   OsStatus enableFlowgraphTicker();
+   OsStatus enableFlowgraphTicker(OsNotification *pFlowgraphTicker);
      /**<
+     *  @param[in] pFlowgraphTicker - Ticker to signal for next frame
+     *             processing interval.
+     *
      *  @returns OS_SUCCESS if ticker registered successfully.
      *  @returns OS_FAILED if device failed to register ticker.
      */
@@ -279,34 +284,9 @@ protected:
      *  @param[in] numSamples - How many samples to advance.
      */
 
-//@}
-
-///@name Ticker methods
-//@{
-
-     /// Return true if ticker is needed.
-   inline
-   UtlBoolean isTickerNeeded() const;
-     /**<
-     *  @returns TRUE if mixer mode is enabled or flowgraph ticker is requested.
-     */
-
-     /// Create notification and register it with device.
-   OsStatus setDeviceTicker();
-     /**<
-     *  @returns OS_SUCCESS if ticker created and registered successfully.
-     *  @returns OS_FAILED if device failed to set ticker callback.
-     */
-
-     /// Unregister and delete it.
-   OsStatus clearDeviceTicker();
-     /**<
-     *  @returns OS_SUCCESS always.
-     */
-
      /// Call this when driver become ready for the next frame.
    static
-   void tickerCallback(const intptr_t userData, const intptr_t eventData);
+   void readyForDataCallback(const intptr_t userData, const intptr_t eventData);
      /**<
      *  @param[in] userData - Contain pointer connection it is associated with.
      *  @param[in] eventData - contains 0 for now.
@@ -329,11 +309,11 @@ private:
                    ///< several media streams.
    unsigned mMixerBufferBegin;    ///< Index of first available sample in mixer buffer.
 
-   OsCallback *mpTickerCallback;  ///< This callback is used in mixer mode
+   OsCallback readyForDataCallbackNotf;  ///< This callback is used in mixer mode
                    ///< to notify connection that device is ready for
                    ///< the next frame.
-   UtlBoolean mDoFlowgraphTicker; ///< Should we call MpMediaTask::signalFrameStart()
-                   ///< in ticker callback or not.
+   OsNotification *mpFlowgraphTicker; ///< Notification to call to notify graph
+                   ///< when it should process next frame.
 
 
      /// Copy constructor (not implemented for this class)
@@ -374,11 +354,6 @@ unsigned MpAudioOutputConnection::getUseCount() const
 unsigned MpAudioOutputConnection::getSamplesPerFrame() const
 {
    return getDeviceDriver()->getSamplesPerFrame();
-}
-
-UtlBoolean MpAudioOutputConnection::isTickerNeeded() const
-{
-   return mDoFlowgraphTicker;
 }
 
 #endif  // _MpAudioOutputConnection_h_

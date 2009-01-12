@@ -17,9 +17,7 @@
 #include <mp/MpAudioOutputConnection.h>
 #include <mp/MpOutputDeviceDriver.h>
 #include <mp/MpDspUtils.h>
-#include <mp/MpMediaTask.h> // for MpMediaTask::signalFrameStart()
 #include <os/OsLock.h>
-#include <os/OsCallback.h>
 #include <os/OsDefs.h>    // for min macro
 
 #ifdef RTL_ENABLED
@@ -59,24 +57,21 @@ MpAudioOutputConnection::MpAudioOutputConnection(MpOutputDeviceHandle deviceId,
 , mMixerBufferLength(0)
 , mpMixerBuffer(NULL)
 , mMixerBufferBegin(0)
-, mpTickerCallback(NULL)
-, mDoFlowgraphTicker(FALSE)
+, readyForDataCallbackNotf((intptr_t)this, readyForDataCallback)
+, mpFlowgraphTicker(NULL)
 {
    assert(mpDeviceDriver != NULL);
+
+   // Register callback it with the device driver
+   OsStatus result = mpDeviceDriver->setTickerNotification(&readyForDataCallbackNotf);
+   assert(result == OS_SUCCESS);
 };
 
 MpAudioOutputConnection::~MpAudioOutputConnection()
 {
-   assert(mpTickerCallback == NULL);
-   if (mpTickerCallback != NULL)
+   if (mpDeviceDriver != NULL)
    {
-      if (mpDeviceDriver != NULL)
-      {
-         mpDeviceDriver->setTickerNotification(NULL);
-      }
-
-      delete mpTickerCallback;
-      mpTickerCallback = NULL;
+      mpDeviceDriver->setTickerNotification(NULL);
    }
 }
 
@@ -120,12 +115,6 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
       return result;
    }
 
-   // Enable ticker if needed.
-   if (isTickerNeeded())
-   {
-      setDeviceTicker();
-   }
-
    // Enable device driver
    result = mpDeviceDriver->enableDevice(samplesPerFrame, samplesPerSec,
                                          mCurrentFrameTime);
@@ -137,12 +126,6 @@ OsStatus MpAudioOutputConnection::disableDevice()
 {
    OsStatus result = OS_FAILED;
    OsLock lock(mMutex);
-
-   // Disable ticker notification and delete it if any.
-   if (isTickerNeeded())
-   {
-      clearDeviceTicker();
-   }
 
    // Disable device and set result code.
    result = mpDeviceDriver->disableDevice();
@@ -157,21 +140,15 @@ OsStatus MpAudioOutputConnection::disableDevice()
    return result;
 }
 
-OsStatus MpAudioOutputConnection::enableFlowgraphTicker()
+OsStatus MpAudioOutputConnection::enableFlowgraphTicker(OsNotification *pFlowgraphTicker)
 {
    OsStatus result = OS_SUCCESS;
    OsLock lock(mMutex);
 
-   assert(mDoFlowgraphTicker == FALSE);
+   assert(mpFlowgraphTicker == NULL);
 
-   // Set flowgraph ticker flag
-   mDoFlowgraphTicker = TRUE;
-
-   // Enable ticker if not enabled already
-   if (mpTickerCallback == NULL)
-   {
-      result = setDeviceTicker();
-   }
+   // Set flowgraph ticker
+   mpFlowgraphTicker = pFlowgraphTicker;
 
    return result;
 }
@@ -181,16 +158,10 @@ OsStatus MpAudioOutputConnection::disableFlowgraphTicker()
    OsStatus result = OS_SUCCESS;
    OsLock lock(mMutex);
 
-   assert(mDoFlowgraphTicker == TRUE);
+   assert(mpFlowgraphTicker != NULL);
 
-   // Set flowgraph ticker flag
-   mDoFlowgraphTicker = FALSE;
-
-   // Disable ticker if we're not in mixer mode.
-   if (!isTickerNeeded())
-   {
-      clearDeviceTicker();
-   }
+   // Clear flowgraph ticker notification
+   mpFlowgraphTicker = NULL;
 
    return result;
 }
@@ -390,34 +361,8 @@ OsStatus MpAudioOutputConnection::advanceMixerBuffer(unsigned numSamples)
    return OS_SUCCESS;
 }
 
-OsStatus MpAudioOutputConnection::setDeviceTicker()
-{
-   // Create callback and register it with device driver
-   mpTickerCallback = new OsCallback((intptr_t)this, tickerCallback);
-   assert(mpTickerCallback != NULL);
-   if (mpDeviceDriver->setTickerNotification(mpTickerCallback) != OS_SUCCESS)
-   {
-      delete mpTickerCallback;
-      mpTickerCallback = NULL;
-      freeMixerBuffer();
-      return OS_FAILED;
-   }
-
-   return OS_SUCCESS;
-}
-
-OsStatus MpAudioOutputConnection::clearDeviceTicker()
-{
-   assert(mpTickerCallback != NULL);
-
-   mpDeviceDriver->setTickerNotification(NULL);
-   delete mpTickerCallback;
-   mpTickerCallback = NULL;
-
-   return OS_SUCCESS;
-}
-
-void MpAudioOutputConnection::tickerCallback(const intptr_t userData, const intptr_t eventData)
+void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
+                                                   const intptr_t eventData)
 {
    OsStatus result;
    MpAudioOutputConnection *pConnection = (MpAudioOutputConnection*)userData;
@@ -431,7 +376,7 @@ void MpAudioOutputConnection::tickerCallback(const intptr_t userData, const intp
                      pConnection->mpDeviceDriver->getSamplesPerFrame(),
                      pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin,
                      pConnection->mCurrentFrameTime);
-      debugPrintf("MpAudioOutputConnection::tickerCallback()"
+      debugPrintf("MpAudioOutputConnection::readyForDataCallback()"
                   " frame=%d, pushFrame result=%d\n",
                   pConnection->mCurrentFrameTime, result);
 //      assert(result == OS_SUCCESS);
@@ -445,11 +390,10 @@ void MpAudioOutputConnection::tickerCallback(const intptr_t userData, const intp
       pConnection->mMutex.release();
    }
 
-   // Signal frame processing interval start if we were asked about.
-   if (pConnection->mDoFlowgraphTicker)
+   // Signal frame processing interval start if requested.
+   if (pConnection->mpFlowgraphTicker)
    {
-      result = MpMediaTask::signalFrameStart();
-      assert(result == OS_SUCCESS);
+      pConnection->mpFlowgraphTicker->signal(0);
    }
 }
 

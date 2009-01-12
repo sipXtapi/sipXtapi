@@ -270,7 +270,8 @@ OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
    return status;
 }
 
-OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle deviceId)
+OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle deviceId,
+                                                         OsNotification *pFlowgraphTicker)
 {
    OsStatus status = OS_SUCCESS;
    MpAudioOutputConnection* connection = NULL;
@@ -304,7 +305,7 @@ OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle de
 
          if (connection != NULL)
          {
-            status = connection->enableFlowgraphTicker();
+            status = connection->enableFlowgraphTicker(pFlowgraphTicker);
             if (status == OS_SUCCESS)
             {
                mCurrentTickerDevice = deviceId;

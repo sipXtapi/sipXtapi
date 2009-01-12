@@ -35,13 +35,16 @@
 #include <mp/MprVoiceActivityNotifierConstructor.h>
 #include <mp/MprDelayConstructor.h>
 #include <mp/MprSpeakerSelectorConstructor.h>
+#include <mp/MpMediaTask.h>
 #include "CpTopologyGraphFactoryImpl.h"
 #include "mi/CpMediaInterfaceFactory.h"
 #include "CpTopologyGraphInterface.h"
 #include <os/OsSysLog.h>
 
-// REMOVE THIS when device enumerator/monitor would be implemented
-#define USE_DEVICE_ADD_HACK
+#ifndef DISABLE_LOCAL_AUDIO // [
+   // REMOVE THIS when device enumerator/monitor is implemented
+#  define USE_DEVICE_ADD_HACK
+#endif // !DISABLE_LOCAL_AUDIO ]
 
 #ifdef USE_DEVICE_ADD_HACK // [
 
@@ -149,6 +152,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 , mpInputDeviceManager(NULL)
 , mpOutputDeviceManager(NULL)
 , mNumMcastStreams(3)
+, mFlowgraphTicker(0, flowgraphTickerCallback)
 {
     assert(MpMisc.RawAudioPool);
     uint32_t mgrSamplesPerFrame = (mFrameSizeMs*mDefaultSamplesPerSec)/1000;
@@ -194,7 +198,8 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     assert(tempRes == OS_SUCCESS);
 
     // Set flowgraph ticker
-    tempRes = mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId);
+    tempRes = mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
+                                                              &mFlowgraphTicker);
     assert(tempRes == OS_SUCCESS);
 #endif // USE_DEVICE_ADD_HACK ]
 
@@ -221,7 +226,8 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
    OsStatus result;
 
    // Clear flowgraph ticker
-   result = mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE);
+   result = mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                            NULL);
    assert(result == OS_SUCCESS);
 
    // Wait for last frame processing cycle call to complete.
@@ -778,6 +784,13 @@ void CpTopologyGraphFactoryImpl::addLocalConnectionTopology(MpResourceTopology* 
     result = resourceTopology->addConnections(localConnectionConnections,
                                               localConnectionConnectionsNum);
     assert(result == OS_SUCCESS);
+}
+
+void CpTopologyGraphFactoryImpl::flowgraphTickerCallback(const intptr_t userData,
+                                                         const intptr_t eventData)
+{
+   OsStatus result = MpMediaTask::signalFrameStart();
+   assert(result == OS_SUCCESS);
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

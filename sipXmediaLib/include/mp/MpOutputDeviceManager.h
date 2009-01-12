@@ -33,6 +33,7 @@ class MpOutputDeviceDriver;
 class MpAudioOutputConnection;
 class UtlString;
 class MpBufPtr;
+class OsNotification;
 
 /**
 *  @brief Container of output devices.
@@ -219,7 +220,8 @@ public:
      */
 
      /// Set device that will be used to send frame start message to media task.
-   OsStatus setFlowgraphTickerSource(MpOutputDeviceHandle deviceId);
+   OsStatus setFlowgraphTickerSource(MpOutputDeviceHandle deviceId,
+                                     OsNotification *pFlowgraphTicker);
      /**<
      *  Selected device will call MpMediaTask::signalFrameStart() method after
      *  every frame period to signal start of next frame processing interval.
@@ -227,9 +229,11 @@ public:
      *  @note Note, that ticker work only when device is enabled. So do not
      *        forget to enable device after call to this function.
      *
-     *  @param deviceId[in] - Device id for device that will be used as ticker
+     *  @param[in] deviceId - Device id for device that will be used as ticker
      *         source. Pass MP_INVALID_OUTPUT_DEVICE_HANDLE to totally disable
      *         flowgraph ticker.
+     *  @param[in] pFlowgraphTicker - Notification to signal. Value is ignored
+     *         if \p deviceId equals to MP_INVALID_OUTPUT_DEVICE_HANDLE.
      *
      *  @returns OS_SUCCESS if device accepted set ticker request.
      *  @returns OS_NOT_FOUND if the device could not be found.
