@@ -29,6 +29,7 @@ class MpResourceTopology;
 class MpResourceFactory;
 class MpInputDeviceManager;
 class MpOutputDeviceManager;
+class MpMMTimer;
 
 /** 
 *  @brief Subsystem manager and creator of CpTopologyGraphInterfaces
@@ -176,6 +177,7 @@ protected:
    MpResourceTopology    *mpMcastConnectionResourceTopology;
    MpInputDeviceManager  *mpInputDeviceManager;
    MpOutputDeviceManager *mpOutputDeviceManager;
+   MpMMTimer             *mpMediaTaskTicker;
    int                    mNumMcastStreams;
 
      /// Add RTP output connection to topology

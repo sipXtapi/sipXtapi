@@ -41,10 +41,14 @@
 #include "CpTopologyGraphInterface.h"
 #include <os/OsSysLog.h>
 
-#ifndef DISABLE_LOCAL_AUDIO // [
+#define DISABLE_LOCAL_AUDIO
+
+#ifdef DISABLE_LOCAL_AUDIO // [
+#  include <mp/MpMMTimerWnt.h>
+#else // DISABLE_LOCAL_AUDIO ][
    // REMOVE THIS when device enumerator/monitor is implemented
 #  define USE_DEVICE_ADD_HACK
-#endif // !DISABLE_LOCAL_AUDIO ]
+#endif // DISABLE_LOCAL_AUDIO ]
 
 #ifdef USE_DEVICE_ADD_HACK // [
 
@@ -151,6 +155,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 , mpMcastConnectionResourceTopology(NULL)
 , mpInputDeviceManager(NULL)
 , mpOutputDeviceManager(NULL)
+, mpMediaTaskTicker(NULL)
 , mNumMcastStreams(3)
 {
     assert(MpMisc.RawAudioPool);
@@ -176,6 +181,8 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 #endif // !WIN32 ]
                                   );
 
+    // Get media task ticker notification
+    OsNotification *pTickerNotf = MpMediaTask::getMediaTask(0)->getTickerNotification();
 
 #ifdef USE_DEVICE_ADD_HACK // [
     // Create source (input) device and add it to manager.
@@ -196,18 +203,22 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     tempRes = mpOutputDeviceManager->enableDevice(sinkDeviceId);
     assert(tempRes == OS_SUCCESS);
 
-    // Set flowgraph ticker
-    OsNotification *pTicker = MpMediaTask::getMediaTask(0)->getTickerNotification();
+    // Use our output device as a source of media task ticks.
     tempRes = mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
-                                                              pTicker);
+                                                              pTickerNotf);
     assert(tempRes == OS_SUCCESS);
 #else // USE_DEVICE_ADD_HACK ][
-
+    // Use multimedia timer as a source of media task ticks.
+    mpMediaTaskTicker = new MpMMTimerWnt(MpMMTimer::Notification);
+    mpMediaTaskTicker->setNotification(pTickerNotf);
+    mpMediaTaskTicker->run(mFrameSizeMs*1000);
 #endif // USE_DEVICE_ADD_HACK ]
 
     mpInitialResourceTopology = buildDefaultInitialResourceTopology();
+#ifndef DISABLE_LOCAL_AUDIO // [
     // Add one local connection to initial topology by default.
     addLocalConnectionTopology(mpInitialResourceTopology);
+#endif // DISABLE_LOCAL_AUDIO ][
     mpResourceFactory = buildDefaultResourceFactory();
     int firstInvalidResourceIndex;
     OsStatus result = 
@@ -250,6 +261,13 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
    MpOutputDeviceDriver *pOutDriver = mpOutputDeviceManager->removeDevice(1);
    assert(pOutDriver != NULL);
    delete pOutDriver;
+
+#else // USE_DEVICE_ADD_HACK ][
+
+   // Stop our ticker timer
+   mpMediaTaskTicker->stop();
+   delete mpMediaTaskTicker;
+
 #endif // USE_DEVICE_ADD_HACK ]
 
    // Free factory and topologies.
