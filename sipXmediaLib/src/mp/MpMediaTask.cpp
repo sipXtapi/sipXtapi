@@ -492,30 +492,30 @@ void MpMediaTask::getQueueUsage(int& numMsgs, int& softLimit, int& hardLimit)
 
 // Default constructor (called only indirectly via getMediaTask())
 MpMediaTask::MpMediaTask(int maxFlowGraph)
-:  OsServerTask("MpMedia", NULL, MPMEDIA_DEF_MAX_MSGS,
-                MEDIA_TASK_PRIORITY),
-   mMutex(OsMutex::Q_PRIORITY),  // create mutex for protecting data
-   mDebugEnabled(FALSE),
-   mTimeLimitCnt(0),
-   mProcessedCnt(0),
-   mManagedCnt(0),
-   mStartedCnt(0),
-   mSemTimeout(DEF_SEM_WAIT_MSECS / 1000, (DEF_SEM_WAIT_MSECS % 1000) * 1000),
-   mSemTimeoutCnt(0),
-   mWaitForSignal(TRUE),
-   mpFocus(NULL),
-   mHandleMsgErrs(0),
-   mpBufferMsgPool(NULL),
-   // numQueuedMsgs(0),
-   mpSignalMsgPool(NULL)
+: OsServerTask("MpMedia", NULL, MPMEDIA_DEF_MAX_MSGS,
+               MEDIA_TASK_PRIORITY)
+, mMutex(OsMutex::Q_PRIORITY)  // create mutex for protecting data
+, mDebugEnabled(FALSE)
+, mTimeLimitCnt(0)
+, mProcessedCnt(0)
+, mManagedCnt(0)
+, mStartedCnt(0)
+, mSemTimeout(DEF_SEM_WAIT_MSECS / 1000, (DEF_SEM_WAIT_MSECS % 1000) * 1000)
+, mSemTimeoutCnt(0)
+, mWaitForSignal(TRUE)
+, mpFocus(NULL)
+, mHandleMsgErrs(0)
+, mpBufferMsgPool(NULL)
+//, numQueuedMsgs(0)
+, mpSignalMsgPool(NULL)
+, mFlowgraphTicker(0, flowgraphTickerCallback)
 #ifdef _PROFILE /* [ */
-   ,
-   mStartToEndTime(20, 0, 1000, " %4d", 5),
-   mStartToStartTime(20, 0, 1000, " %4d", 5),
-   mEndToStartTime(20, 0, 1000, " %4d", 5),
-   mSignalTime(20, 0, 1000, " %4d", 5),
-   mSignalToStartTime(20, 0, 1000, " %4d", 5),
-   mOtherMessages(20, 0, 1000, " %4d", 5)
+, mStartToEndTime(20, 0, 1000, " %4d", 5)
+, mStartToStartTime(20, 0, 1000, " %4d", 5)
+, mEndToStartTime(20, 0, 1000, " %4d", 5)
+, mSignalTime(20, 0, 1000, " %4d", 5)
+, mSignalToStartTime(20, 0, 1000, " %4d", 5)
+, mOtherMessages(20, 0, 1000, " %4d", 5)
 #endif /* _PROFILE ] */
 {
    mMaxFlowGraph = maxFlowGraph;
@@ -967,6 +967,13 @@ UtlBoolean MpMediaTask::isManagedFlowGraph(MpFlowGraphBase* pFlowGraph)
    }
 
    return FALSE;
+}
+
+void MpMediaTask::flowgraphTickerCallback(const intptr_t userData,
+                                          const intptr_t eventData)
+{
+   OsStatus result = MpMediaTask::signalFrameStart();
+   assert(result == OS_SUCCESS);
 }
 
 /* ============================ FUNCTIONS ================================= */

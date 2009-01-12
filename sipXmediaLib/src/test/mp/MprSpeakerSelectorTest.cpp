@@ -33,7 +33,7 @@ public:
    : mNumParticipants(0)
    , mEnabled(NULL)
    {}
-   OsStatus init(int maxParticipants)
+   OsStatus init(int maxParticipants, int maxActive)
       {mNumParticipants = maxParticipants; mEnabled = new UtlBoolean[maxParticipants]; return OS_SUCCESS;};
    ~MpTestSpeakerSelection() {delete[] mEnabled;};
    OsStatus reset() {return OS_SUCCESS;};

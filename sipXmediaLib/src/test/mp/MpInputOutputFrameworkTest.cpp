@@ -167,6 +167,9 @@ public:
       mpMediaTask = MpMediaTask::getMediaTask(10);
       CPPUNIT_ASSERT(mpMediaTask != NULL);
 
+      // Get ticker.
+      mpTicker = mpMediaTask->getTickerNotification();
+
       // Create input and output device managers
       mpInputDeviceManager = new MpInputDeviceManager(TEST_SAMPLES_PER_FRAME, 
                                                       TEST_SAMPLES_PER_SECOND,
@@ -292,7 +295,8 @@ public:
 
          // Set flowgraph ticker
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId));
+                              mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
+                                                                              mpTicker));
 
          try {
             // Enable resources
@@ -310,13 +314,15 @@ public:
 
             // Clear flowgraph ticker
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                                                 NULL));
          }
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                                                 NULL));
 
             // Rethrow exception.
             throw(e);
@@ -398,7 +404,8 @@ public:
 
          // Set flowgraph ticker
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId));
+                              mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
+                                                                              mpTicker));
 
          try {
             // Enable resources
@@ -416,13 +423,15 @@ public:
 
             // Clear flowgraph ticker
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                                                 NULL));
          }
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                                                 NULL));
 
             // Rethrow exception.
             throw(e);
@@ -523,7 +532,8 @@ public:
 
          // Set flowgraph ticker
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              mpOutputDeviceManager->setFlowgraphTickerSource(tickerDeviceId));
+                              mpOutputDeviceManager->setFlowgraphTickerSource(tickerDeviceId,
+                                                                              mpTicker));
 
          try {
             // Manage flowgraph with media task.
@@ -539,14 +549,16 @@ public:
 
             // Clear flowgraph ticker
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                                                 NULL));
 
          }
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                                                 NULL));
 
             // Rethrow exception.
             throw(e);
@@ -664,7 +676,8 @@ public:
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                               mpOutputDeviceManager->enableDevice(tickerDeviceId));
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              mpOutputDeviceManager->setFlowgraphTickerSource(tickerDeviceId));
+                              mpOutputDeviceManager->setFlowgraphTickerSource(tickerDeviceId,
+                                                                              mpTicker));
 
          try {
             // Manage flowgraph with media task.
@@ -678,7 +691,8 @@ public:
 
             // Clear flowgraph ticker and disable device provided it.
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                                                 NULL));
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                  mpOutputDeviceManager->disableDevice(tickerDeviceId));
          }
@@ -686,7 +700,8 @@ public:
          {
             // Clear flowgraph ticker if assert failed.
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                                                 NULL));
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                  mpOutputDeviceManager->disableDevice(tickerDeviceId));
 
@@ -804,7 +819,8 @@ public:
 
          // Set flowgraph ticker
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId));
+                              mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
+                                                                              mpTicker));
 
          try {
             // Manage flowgraph with media task.
@@ -818,13 +834,15 @@ public:
 
             // Clear flowgraph ticker and disable device provided it.
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                                                 NULL));
          }
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
+                                                                                 NULL));
 
             // Rethrow exception.
             throw(e);
@@ -891,6 +909,7 @@ protected:
    MpFlowGraphBase  *mpFlowGraph; ///< Flowgraph for our fromInputDevice and
                                   ///< toOutputDevice resources.
    MpMediaTask *mpMediaTask;      ///< Pointer to media task instance.
+   OsNotification *mpTicker;      ///< Media task ticker.
    MpInputDeviceManager  *mpInputDeviceManager;  ///< Manager for input devices.
    MpOutputDeviceManager *mpOutputDeviceManager; ///< Manager for output devices.
    unsigned     mInputDeviceNumber;

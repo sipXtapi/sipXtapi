@@ -22,6 +22,7 @@
 #include "os/OsRWMutex.h"
 #include "os/OsServerTask.h"
 #include "os/OsMsgPool.h"
+#include "os/OsCallback.h"
 #include "mp/MpMediaTaskMsg.h"
 
 // DEFINES
@@ -37,6 +38,7 @@
 
 // FORWARD DECLARATIONS
 class MpFlowGraphBase;
+class OsNotification;
 
 /**
 *  @brief Object responsible for coordinating the execution of media processing
@@ -89,6 +91,8 @@ class MpFlowGraphBase;
 *  @endlink message.  When the task receives that message, it knows that it is
 *  time to finish the frame processing for the current interval and then wait
 *  for the "start" signal for the next frame before processing any more messages.
+*
+*  @nosubgrouping
 */
 class MpMediaTask : public OsServerTask
 {
@@ -102,13 +106,12 @@ public:
 
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
      /// @brief Return a pointer to the media processing task, creating it if 
      /// necessary
    static MpMediaTask* getMediaTask(int maxFlowGraph);
-
-///@name Creators
-//@{
 
      /// Destructor
    virtual
@@ -202,16 +205,15 @@ public:
      *  next frame interval. For now, this method always returns OS_SUCCESS.
      */
 
-//@}
-
-     /// @brief Post NO_WAIT_TIME message to MediaTask queue. This signals
-     /// the media processing task that it should begin processing the next
-     /// frame.
+     /// @brief Signal the media processing task that it should begin processing
+     /// the next frame.
    static OsStatus signalFrameStart(const OsTime &timeout = OsTime::OS_INFINITY);
      /**<
-     *  Returns the result of releasing the binary semaphore that is used
-     *  to send the signal.
+     *  @see getTickerNotification() for an alternative method of signaling
+     *       frame start.
      */
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
@@ -278,7 +280,15 @@ public:
      /// Returns pointer to pool of reusable buffer messages
    OsMsgPool* getBufferMsgPool(void) const;
 
-//@}
+     /// @brief Get OsNotification to signal for the next frame processing
+     /// interval start.
+   inline OsNotification *getTickerNotification();
+     /**<
+     *  Returned notification is owned by MediaTask and should not be freed
+     *  by a caller.
+     *
+     *  @see signalFrameStart() for an alternative method of signaling frame start.
+     */
 
      /// Displays information on the console about the media processing task.
    static MpFlowGraphBase* mediaInfo(void);
@@ -286,6 +296,8 @@ public:
      /// @brief Returns the maximum number of flow graphs that can be managed by
      /// the media processing task.
    static int maxNumManagedFlowGraphs(void);
+
+//@}
 
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
@@ -335,6 +347,7 @@ private:
    OsMsgPool* mpSignalMsgPool; ///< Pool of reusable frame signal messages
    static const OsTime smOperationQueueTimeout; ///< Timeout for posting messages
                              ///< to the flowgraph queue.
+   OsCallback mFlowgraphTicker; ///< OsNotification to call flowgraphTickerCallback()
 
    //  Static data members used to enforce Singleton behavior
    static MpMediaTask* spInstance;  ///< @brief pointer to the single instance
@@ -414,6 +427,14 @@ private:
      *  @returns <b>FALSE</b> - otherwise.
      */
 
+     /// Callback for flowgraph ticker.
+   static
+   void flowgraphTickerCallback(const intptr_t userData, const  intptr_t eventData);
+     /**<
+     *  @param[in] userData - contains 0 for now.
+     *  @param[in] eventData - contains 0 for now.
+     */
+
      /// Copy constructor (not implemented for this task)
    MpMediaTask(const MpMediaTask& rMpMediaTask);
 
@@ -423,5 +444,10 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+OsNotification *MpMediaTask::getTickerNotification()
+{
+   return &mFlowgraphTicker;
+}
 
 #endif  // _MpMediaTask_h_

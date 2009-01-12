@@ -16,7 +16,6 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <sipXmediaFactoryImpl.h>
-#include <os/OsCallback.h>
 
 // DEFINES
 // MACROS
@@ -178,7 +177,6 @@ protected:
    MpInputDeviceManager  *mpInputDeviceManager;
    MpOutputDeviceManager *mpOutputDeviceManager;
    int                    mNumMcastStreams;
-   OsCallback             mFlowgraphTicker; ///< OsNotification to call flowgraphTickerCallback()
 
      /// Add RTP output connection to topology
    static void addOutputConnectionTopology(MpResourceTopology* resourceTopology,
@@ -186,14 +184,6 @@ protected:
 
      /// Add local input and local output connections to topology
    static void addLocalConnectionTopology(MpResourceTopology* resourceTopology);
-
-     /// Callback for flowgraph ticker.
-   static
-   void flowgraphTickerCallback(const intptr_t userData, const intptr_t eventData);
-     /**<
-     *  @param[in] userData - contains 0 for now.
-     *  @param[in] eventData - contains 0 for now.
-     */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

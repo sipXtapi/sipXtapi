@@ -91,6 +91,8 @@ public:
       CPPUNIT_ASSERT(pBridge != NULL);
       
       MpMediaTask *pMediaTask = MpMediaTask::getMediaTask(10);
+      // Get media task ticker.
+      OsNotification *pTicker = pMediaTask->getTickerNotification();
 
       //setupFramework(pBridge);
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->setNotificationsEnabled(true));
@@ -203,7 +205,7 @@ public:
 
       // Set the flowgraph ticker source..
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-         pOutMgr->setFlowgraphTickerSource(spkrDevHnd));
+         pOutMgr->setFlowgraphTickerSource(spkrDevHnd, pTicker));
 
 
       // Now we enable the flowgraph..  Which should enable resources.
@@ -233,7 +235,7 @@ public:
 
       // Clear the flowgraph ticker so it stops ticking..
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-         pOutMgr->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+         pOutMgr->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE, NULL));
 
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->stopFlowGraph(*mpFlowGraph));
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->unmanageFlowGraph(*mpFlowGraph));

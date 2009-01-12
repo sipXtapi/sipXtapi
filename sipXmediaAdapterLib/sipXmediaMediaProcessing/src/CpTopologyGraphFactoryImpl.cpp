@@ -152,7 +152,6 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 , mpInputDeviceManager(NULL)
 , mpOutputDeviceManager(NULL)
 , mNumMcastStreams(3)
-, mFlowgraphTicker(0, flowgraphTickerCallback)
 {
     assert(MpMisc.RawAudioPool);
     uint32_t mgrSamplesPerFrame = (mFrameSizeMs*mDefaultSamplesPerSec)/1000;
@@ -198,9 +197,12 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     assert(tempRes == OS_SUCCESS);
 
     // Set flowgraph ticker
+    OsNotification *pTicker = MpMediaTask::getMediaTask(0)->getTickerNotification();
     tempRes = mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
-                                                              &mFlowgraphTicker);
+                                                              pTicker);
     assert(tempRes == OS_SUCCESS);
+#else // USE_DEVICE_ADD_HACK ][
+
 #endif // USE_DEVICE_ADD_HACK ]
 
     mpInitialResourceTopology = buildDefaultInitialResourceTopology();
@@ -784,13 +786,6 @@ void CpTopologyGraphFactoryImpl::addLocalConnectionTopology(MpResourceTopology* 
     result = resourceTopology->addConnections(localConnectionConnections,
                                               localConnectionConnectionsNum);
     assert(result == OS_SUCCESS);
-}
-
-void CpTopologyGraphFactoryImpl::flowgraphTickerCallback(const intptr_t userData,
-                                                         const intptr_t eventData)
-{
-   OsStatus result = MpMediaTask::signalFrameStart();
-   assert(result == OS_SUCCESS);
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

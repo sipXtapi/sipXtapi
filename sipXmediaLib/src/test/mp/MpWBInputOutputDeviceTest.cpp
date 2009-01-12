@@ -171,7 +171,7 @@ public:
    {
       // Clear the flowgraph ticker so it stops ticking..
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-         outMgr.setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+         outMgr.setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE, NULL));
 
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->stopFlowGraph(*pFlowgraph));
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->unmanageFlowGraph(*pFlowgraph));
@@ -306,6 +306,7 @@ public:
       MpFrameTime bufRecDevBufferLen = toneDurationMS*numFreqs;
 
       MpMediaTask* pMediaTask = NULL;
+      OsNotification *pTicker = NULL;
       MpFlowGraphBase* pFlowgraph = NULL;
 
       // Things we need for the general flowgraph
@@ -341,6 +342,9 @@ public:
       setupWBMediaTask(sampleRate, samplesPerFrame,
                        pInMgr, pOutMgr,
                        pFlowgraph, pMediaTask);
+
+      // Get media task ticker.
+      pTicker = pMediaTask->getTickerNotification();
 
       // Create the 'record' leg of the flowgraph.
       // Create the input and output devices, and add the devices for the 'record' leg.
@@ -426,7 +430,7 @@ public:
 
       // Set the flowgraph ticker source..
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-                           pOutMgr->setFlowgraphTickerSource(spkrDevHnd));
+                           pOutMgr->setFlowgraphTickerSource(spkrDevHnd, pTicker));
 
       // Now we enable the flowgraph..  Which should enable resources.
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowgraph->enable());
@@ -527,6 +531,7 @@ public:
       size_t mixer_buffers_lenms = 8000; // 8000 millisecond buffer play length hardcoded.
 
       MpMediaTask* pMediaTask = NULL;
+      OsNotification *pTicker = NULL;
       MpFlowGraphBase* pFlowgraph = NULL;
 
       // Things we need for the general flowgraph
@@ -549,6 +554,9 @@ public:
       // always be null when passed in).
       setupWBMediaTask(sampleRate, samplesPerFrame, 
                        pInMgr, pOutMgr, pFlowgraph, pMediaTask);
+
+      // Get media task ticker.
+      pTicker = pMediaTask->getTickerNotification();
 
       try {
 
@@ -593,7 +601,7 @@ public:
 
          // Set the flowgraph ticker source..
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-                              pOutMgr->setFlowgraphTickerSource(spkrDevHnd));
+                              pOutMgr->setFlowgraphTickerSource(spkrDevHnd, pTicker));
 
          // Now we enable the flowgraph..  Which should enable resources.
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowgraph->enable());
