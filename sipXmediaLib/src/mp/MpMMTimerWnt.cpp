@@ -71,6 +71,12 @@ MpMMTimerWnt::~MpMMTimerWnt()
 
 /* ============================= MANIPULATORS ============================= */
 
+OsStatus MpMMTimerWnt::setNotification(OsNotification* notification)
+{ 
+   mpNotification = notification;
+   return OS_SUCCESS;
+}
+
 OsStatus MpMMTimerWnt::run(unsigned usecPeriodic, 
                            unsigned uAlgorithm)
 {
@@ -297,22 +303,6 @@ OsStatus MpMMTimerWnt::getPeriodRange(unsigned* pMinUSecs,
    }
 
    return status;
-}
-
-int MpMMTimerWnt::getUSecSinceLastFire() const
-{
-   return -1;
-}
-
-
-int MpMMTimerWnt::getUSecDeltaExpectedFire() const
-{
-   return -1;
-}
-
-OsTime MpMMTimerWnt::getAbsFireTime() const
-{
-   return OsTime::OS_INFINITY;
 }
 
 /* =============================== INQUIRY ================================ */

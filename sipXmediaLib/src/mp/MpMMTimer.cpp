@@ -35,6 +35,10 @@
 
 /* =============================== CREATORS =============================== */
 
+MpMMTimer::~MpMMTimer()
+{
+}
+
 /* ============================= MANIPULATORS ============================= */
 
 OsStatus MpMMTimer::setNotification(OsNotification* notification)
@@ -60,21 +64,6 @@ OsStatus MpMMTimer::getPeriodRange(unsigned* pMinUSecs,
                                    unsigned* pMaxUSecs)
 {
    return OS_NOT_YET_IMPLEMENTED;
-}
-
-int MpMMTimer::getUSecSinceLastFire() const
-{
-   return -1;
-}
-
-int MpMMTimer::getUSecDeltaExpectedFire() const
-{
-   return -1;
-}
-
-OsTime MpMMTimer::getAbsFireTime() const
-{
-   return OsTime::OS_INFINITY;
 }
 
 /* =============================== INQUIRY ================================ */

@@ -161,14 +161,6 @@ public:
      /// @brief Get the type of timer fire.
    inline MMTimerType getTimerType() const;
 
-     /// @brief Get the number of microseconds elapsed since the timer last fired.
-   int getUSecSinceLastFire() const;
-
-     /// @brief Get the number of microseconds until the timer is next expected to fire.
-   int getUSecDeltaExpectedFire() const;
-
-   OsTime getAbsFireTime() const;
-
 //@}
 
 /* =============================== INQUIRY ================================ */
@@ -186,7 +178,7 @@ protected:
    inline MpMMTimer(MMTimerType type);
 
      /// @brief protected destructor, as this is an abstract class.
-   virtual inline ~MpMMTimer();
+   virtual ~MpMMTimer();
 
 /* /////////////////////////////// PRIVATE //////////////////////////////// */
 private:
@@ -196,11 +188,7 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 MpMMTimer::MpMMTimer(MMTimerType type)
-   : mTimerType(type)
-{
-}
-
-MpMMTimer::~MpMMTimer()
+: mTimerType(type)
 {
 }
 

@@ -52,14 +52,14 @@ public:
 //@{
 
      /// @copydoc MpMMTimer::setNotification()
-   virtual inline OsStatus setNotification(OsNotification* notification);
+   OsStatus setNotification(OsNotification* notification);
 
-   /// @copydoc MpMMTimer::run()
-   virtual OsStatus run(unsigned usecPeriodic, 
+     /// @copydoc MpMMTimer::run()
+   OsStatus run(unsigned usecPeriodic, 
                         unsigned uAlgorithm = MPMMTIMER_ALGORITHM_DEFAULT);
 
      /// @copydoc MpMMTimer::stop()
-   virtual OsStatus stop();
+   OsStatus stop();
 
      /// @copydoc MpMMTimer::waitForNextTick()
    OsStatus waitForNextTick();
@@ -71,20 +71,10 @@ public:
 //@{
 
     /// @copydoc MpMMTimer::getResolution()
-   virtual OsStatus getResolution(unsigned& resolution);
+   OsStatus getResolution(unsigned& resolution);
 
     /// @copydoc MpMMTimer::getPeriodRange()
-   virtual
    OsStatus getPeriodRange(unsigned* pMinUSecs, unsigned* pMaxUSecs = NULL);
-
-     /// @copydoc MpMMTimer::getUSecSinceLastFire() const
-   int getUSecSinceLastFire() const;
-
-     /// @copydoc MpMMTimer::getUSecDeltaExpectedFire() const
-   int getUSecDeltaExpectedFire() const;
-
-     /// @copydoc MpMMTimer::getAbsFireTime() const
-   OsTime getAbsFireTime() const;
 
 //@}
 
@@ -136,12 +126,5 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
-
-OsStatus MpMMTimerWnt::setNotification(OsNotification* notification)
-{ 
-   mpNotification = notification;
-   return OS_SUCCESS;
-}
-
 
 #endif //_MpMMTimerWnt_h_
