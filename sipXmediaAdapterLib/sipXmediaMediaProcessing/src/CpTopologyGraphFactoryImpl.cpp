@@ -41,8 +41,6 @@
 #include "CpTopologyGraphInterface.h"
 #include <os/OsSysLog.h>
 
-#define DISABLE_LOCAL_AUDIO
-
 #ifdef DISABLE_LOCAL_AUDIO // [
 #  include <mp/MpMMTimerWnt.h>
 #else // DISABLE_LOCAL_AUDIO ][
