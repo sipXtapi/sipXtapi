@@ -47,6 +47,9 @@ public:
 ///@name Creators
 //@{
 
+     /// Destructor
+   virtual ~MpMMTimer();
+
 //@}
 
 /* ============================= MANIPULATORS ============================= */
@@ -176,9 +179,6 @@ protected:
 
      /// @brief protected constructor, as this is an abstract class.
    inline MpMMTimer(MMTimerType type);
-
-     /// @brief protected destructor, as this is an abstract class.
-   virtual ~MpMMTimer();
 
 /* /////////////////////////////// PRIVATE //////////////////////////////// */
 private:
