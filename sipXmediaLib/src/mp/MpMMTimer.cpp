@@ -11,17 +11,22 @@
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
 // SYSTEM INCLUDES
-#ifdef WIN32 // [
-# define WIN32_LEAN_AND_MEAN
-# include <windows.h>
-# include <MMSystem.h>
-#endif // WIN32 ]
 #include <os/OsIntTypes.h>
 #include <os/OsStatus.h>
 #include <os/OsSysLog.h>
 
 // APPLICATION INCLUDES
 #include "mp/MpMMTimer.h"
+
+#if defined(WIN32) // [ WIN32
+#  include "mp/MpMMTimerWnt.h"
+#  define DEFAULT_TIMER_CLASS MpMMTimerWnt
+#elif 0 //defined(__pingtel_on_posix__) // ][ POSIX
+#  include "mp/MpMMTimerPosix.h"
+#  define DEFAULT_TIMER_CLASS MpMMTimerPosix
+#else // ][ Unsupported platform
+#  error Unsupported target platform.
+#endif // ] Unsupported platform
 
 // DEFINES
 // MACROS
@@ -34,6 +39,27 @@
 /* //////////////////////////////// PUBLIC //////////////////////////////// */
 
 /* =============================== CREATORS =============================== */
+
+MpMMTimer *MpMMTimer::create(MMTimerType type, const UtlString &name)
+{
+   if (name.isNull())
+   {
+      return new DEFAULT_TIMER_CLASS(type);
+   }
+#ifdef WIN32 // [
+   else if (name.compareTo(MpMMTimerWnt::TYPE, UtlString::ignoreCase))
+   {
+      return new MpMMTimerWnt(type);
+   }
+#endif // WIN32 ]
+#if 0 //def __pingtel_on_posix__ // [
+   else if (name.compareTo(MpMMTimerPosix::TYPE, UtlString::ignoreCase))
+   {
+      return new MpMMTimerPosix(type);
+   }
+#endif // __pingtel_on_posix__ ]
+   return NULL;
+}
 
 MpMMTimer::~MpMMTimer()
 {

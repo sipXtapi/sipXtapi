@@ -20,12 +20,6 @@
 #include <os/OsNotification.h>
 #include <os/OsTask.h>
 
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <mp/MpMMTimerWnt.h>
-#endif
-
 // Forward Decl's
 class MpMMTimerTest;
 
@@ -144,16 +138,16 @@ public:
    {
       // Test getting the resolution, and get it..
       unsigned resolution;
-      MpMMTimer* pMMTimer = NULL;
-#ifdef WIN32
-      MpMMTimerWnt mmTimerWnt(MpMMTimer::Notification);
-      pMMTimer = &mmTimerWnt;
+      MpMMTimer* pMMTimer = MpMMTimer::create(MpMMTimer::Notification);
+      if (pMMTimer == NULL)
+      {
+         printf("MpMMTimer is not yet implemented on this platform, excluding test.\n");
+         return;
+      }
+
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->getResolution(resolution));
       printf("Minimum timer resolution is %d usecs\n", resolution);
-#else
-      printf("MpMMTimer::getResolution() not yet implemented on this "
-             "platform, excluding test.\n");
-#endif
+      delete pMMTimer;
    }
 
    void testPeriodRange()
@@ -161,16 +155,16 @@ public:
       // Test the period range static method..
       unsigned unusedMin = 0;
       unsigned unusedMax = 0;
-      MpMMTimer* pMMTimer = NULL;
-#ifdef WIN32
-      MpMMTimerWnt mmTimerWnt(MpMMTimer::Notification);
-      pMMTimer = &mmTimerWnt;
+      MpMMTimer* pMMTimer = MpMMTimer::create(MpMMTimer::Notification);
+      if (pMMTimer == NULL)
+      {
+         printf("MpMMTimer is not yet implemented on this platform, excluding test.\n");
+         return;
+      }
+
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
          pMMTimer->getPeriodRange(&unusedMin, &unusedMax));
-#else
-      printf("MpMMTimer::getPeriodRange() not yet implemented on this "
-             "platform, excluding test.\n");
-#endif
+      delete pMMTimer;
    }
 
    void testLinearTimer()
@@ -186,17 +180,12 @@ public:
       long upperThresh = periodUSecs*2;      // One for single values
       long upperMeanThresh = 50;             // One for mean values
 
-
-      MpMMTimer* pMMTimer = NULL;
-#ifdef WIN32
-      MpMMTimerWnt mmTimerWnt(MpMMTimer::Linear);
-      pMMTimer = &mmTimerWnt;
-#else
-      // Right now MMTimers are only implemented for win32.
-      // as other platforms are implemented, change this.
-      printf("MMTimer not implemented for this platform.  Test disabled.\n");
-      return;
-#endif
+      MpMMTimer* pMMTimer = MpMMTimer::create(MpMMTimer::Linear);
+      if (pMMTimer == NULL)
+      {
+         printf("MpMMTimer is not yet implemented on this platform, excluding test.\n");
+         return;
+      }
 
       // Allocate time objects to hold measurements
       OsTime perfTimes[TLT_LOOP_CNT];
@@ -239,6 +228,8 @@ public:
                                  TLT_LOOP_CNT-1, 
                                  periodUSecs, 
                                  lowerMeanThresh, upperMeanThresh);
+
+      delete pMMTimer;
    }
 
    void notificationTimerRecordTick()
@@ -270,16 +261,12 @@ public:
       long upperMeanThresh = 50;               // One for mean values
 
       TimerNotification timerNotification(this);
-      MpMMTimer* pMMTimer = NULL;
-#ifdef WIN32
-      MpMMTimerWnt mmTimerWnt(MpMMTimer::Notification);
-      pMMTimer = &mmTimerWnt;
-#else
-      // Right now MMTimers are only implemented for win32.
-      // as other platforms are implemented, change this.
-      printf("MMTimer not implemented for this platform.  Test disabled.\n");
-      return;
-#endif
+      MpMMTimer* pMMTimer = MpMMTimer::create(MpMMTimer::Notification);
+      if (pMMTimer == NULL)
+      {
+         printf("MpMMTimer is not yet implemented on this platform, excluding test.\n");
+         return;
+      }
 
       // Set the notification..
       pMMTimer->setNotification(&timerNotification);
@@ -338,6 +325,7 @@ public:
       mpPerfTimes = NULL;
       mCurNPerfTimes = 0;
       mPerfTimesSz = 0;
+      delete pMMTimer;
    }
 
 protected:

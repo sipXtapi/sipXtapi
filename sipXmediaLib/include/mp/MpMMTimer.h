@@ -15,6 +15,7 @@
 #include <os/OsStatus.h>
 #include <os/OsTime.h>
 #include <os/OsNotification.h>
+#include <utl/UtlString.h>
 
 // APPLICATION INCLUDES
 #include "mp/MpTypes.h"
@@ -24,14 +25,14 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define  MPMMTIMER_ALGORITHM_DEFAULT  0
-
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
 /**
-*  @brief High-precision periodic timer (MultiMedia timer).
+*  @brief High-precision periodic timer (MultiMedia timer) base class.
+*
+*  Use create() static method to get an instantiate of a timer.
 */
 class MpMMTimer
 {
@@ -40,12 +41,21 @@ public:
    typedef enum 
    {
       Linear = 0,         ///< For use with waitForNextTick()
-      Notification = 1,     ///< For use with setNotification()
+      Notification = 1    ///< For use with setNotification()
    } MMTimerType;
 
 /* =============================== CREATORS =============================== */
 ///@name Creators
 //@{
+
+     /// Factory method to create timer class instance of the given type.
+   static MpMMTimer *create(MMTimerType type, const UtlString &name = "");
+     /**<
+     *  @param[in] type = Do we want linear timer or notifications timer?
+     *  @param[in] name - type of a timer to create. Empty string means default
+     *             timer for this platform. To date we support "Windows Multimedia"
+     *             timers on Windows and "Posix" timers on Linux.
+     */
 
      /// Destructor
    virtual ~MpMMTimer();
@@ -73,23 +83,12 @@ public:
       */
 
    virtual 
-   OsStatus run(unsigned usecPeriodic, 
-                unsigned uAlgorithm = MPMMTIMER_ALGORITHM_DEFAULT) = 0;
+   OsStatus run(unsigned usecPeriodic) = 0;
      /**<
       * @brief Start periodical firing.
       * 
       * Start periodical firing with given period and fire type.
       * @param[in] usecPeriodic timer period in microseconds.
-      * @param[in] uAlgorithm timer algorithm. Depending OS exists
-      *                       many ways to organize the file. Using
-      *                       special type could give better performance 
-      *                       in special application. Value of MPMMTIMER_TYPE_DEFAULT 
-      *                       is a default timer type is suitable for most applications.
-      *                       All inherited types MUST support this default type.
-      *                       For example, windows has multimedia timers, 
-      *                       waitable timers, and queue timers.  varying values
-      *                       of \p uAlgorithm would (if implemented) be used to 
-      *                       specify which of these timer types to use.
       *                      
       * @retval OS_SUCCESS Returns when timer has been created and ran.
       * @retval OS_INVALID_ARGUMENT Returns when either value of \p uAlgorithm 

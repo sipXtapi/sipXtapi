@@ -24,18 +24,21 @@
 
 /**
 *  @brief Windows implementation of High-precision periodic timer (MultiMedia timer).
+*
+*  This timer is implemented using Microsoft Multimedia timers (W95+, CE).
+*  Other possible choices, which have yet to be implemented: 
+*    1) Microsoft Waitable Timers (W98/NT+)
+*    2) Microsoft Queue Timers (W2k+)
+*  Queue timers would be good to support though! They have less overhead,
+*  and similar high resolution.
+*  See http://www.codeproject.com/system/timers_intro.asp
 */
 class MpMMTimerWnt : public MpMMTimer
 {
 /* //////////////////////////////// PUBLIC //////////////////////////////// */
 public:
-   typedef enum 
-   {
-      Multimedia = 0         ///< Microsoft Multimedia timers (W95+, CE)
-      // Other possible choices, which have yet to be implemented: 
-      // Microsoft Waitable Timers (W98/NT+) (Not Implemented)
-      // Microsoft Queue Timers (W2k+) (Not Implemented)
-   } MMTimerWntAlgorithms;
+
+   static const char * const TYPE;
 
 /* =============================== CREATORS =============================== */
 ///@name Creators
@@ -55,8 +58,7 @@ public:
    OsStatus setNotification(OsNotification* notification);
 
      /// @copydoc MpMMTimer::run()
-   OsStatus run(unsigned usecPeriodic, 
-                        unsigned uAlgorithm = MPMMTIMER_ALGORITHM_DEFAULT);
+   OsStatus run(unsigned usecPeriodic);
 
      /// @copydoc MpMMTimer::stop()
    OsStatus stop();
@@ -87,7 +89,6 @@ public:
 
 /* ////////////////////////////// PROTECTED /////////////////////////////// */
 protected:
-   MMTimerWntAlgorithms mAlgorithm; ///< The current or last algorithm used.
    BOOL mbInitialized; ///< Whether we're fully initialized or not, or are in some failure state.
    BOOL mbTimerStarted; ///< Indicator of timer started or not.
    unsigned mPeriodMSec; ///< The current millisecond period being used.  0 when no timer.
@@ -96,29 +97,9 @@ protected:
    OsNotification* mpNotification; ///< Notification object used to signal a tick of the timer.
    MMRESULT mTimerId; ///< The ID of the MM timer we're using.
 
+     /// Callback used by Windows Multimedia Timers.
    static void CALLBACK timeProcCallback(UINT uID, UINT uMsg, DWORD dwUser, 
                                          DWORD dw1, DWORD dw2);
-     /**< 
-      *  @brief callback used by windows multimedia timers
-      *
-      *  This should only be called by the windows multimedia timer.
-      */
-
-   OsStatus runMultimedia(unsigned usecPeriodic);
-     /**< 
-      *  @brief start a multimedia timer.
-      *
-      *  This should only be used within the MpMMTimerWnt class.
-      *  @see MpMMTimer::run(unsigned, unsigned)
-      */
-
-   OsStatus stopMultimedia();
-     /**< 
-      *  @brief stop a started multimedia timer.
-      *
-      *  This should only be used within the MpMMTimerWnt class.
-      *  @see MpMMTimer::stop()
-      */
 
 /* /////////////////////////////// PRIVATE //////////////////////////////// */
 private:

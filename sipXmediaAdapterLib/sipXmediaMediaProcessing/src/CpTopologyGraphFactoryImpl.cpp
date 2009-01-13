@@ -42,7 +42,7 @@
 #include <os/OsSysLog.h>
 
 #ifdef DISABLE_LOCAL_AUDIO // [
-#  include <mp/MpMMTimerWnt.h>
+#  include <mp/MpMMTimer.h>
 #else // DISABLE_LOCAL_AUDIO ][
    // REMOVE THIS when device enumerator/monitor is implemented
 #  define USE_DEVICE_ADD_HACK
@@ -207,7 +207,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     assert(tempRes == OS_SUCCESS);
 #else // USE_DEVICE_ADD_HACK ][
     // Use multimedia timer as a source of media task ticks.
-    mpMediaTaskTicker = new MpMMTimerWnt(MpMMTimer::Notification);
+    mpMediaTaskTicker = MpMMTimer::create(MpMMTimer::Notification);
     mpMediaTaskTicker->setNotification(pTickerNotf);
     mpMediaTaskTicker->run(mFrameSizeMs*1000);
 #endif // USE_DEVICE_ADD_HACK ]

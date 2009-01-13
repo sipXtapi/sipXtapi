@@ -17,8 +17,6 @@
 #include "mp/MpMMTimerWnt.h"
 
 // APPLICATION INCLUDES
-
-
 // DEFINES
 // VC6 does not seem to have the MMTimer TIME_KILL_SYNCHRONOUS option
 // that prevents timer events from firing after a timeKillEvent call has been made.
@@ -29,18 +27,20 @@
 #define MPMMTIMER_EXTRA_TIMER_OPTIONS TIME_KILL_SYNCHRONOUS
 #endif
 
+// STATIC VARIABLES INITIALIZATION
+const char * const MpMMTimerWnt::TYPE = "Windows Multimedia";
+
 /* //////////////////////////////// PUBLIC //////////////////////////////// */
 
 /* =============================== CREATORS =============================== */
 
 MpMMTimerWnt::MpMMTimerWnt(MpMMTimer::MMTimerType type)
-   : MpMMTimer(type)
-   , mAlgorithm(Multimedia)  // This will get overwritten
-   , mbTimerStarted(FALSE)
-   , mPeriodMSec(0)
-   , mEventHandle(0)
-   , mpNotification(NULL)
-   , mTimerId(0)
+: MpMMTimer(type)
+, mbTimerStarted(FALSE)
+, mPeriodMSec(0)
+, mEventHandle(0)
+, mpNotification(NULL)
+, mTimerId(0)
 {
    // We support both types of timers --
    // Linear and Notification, so just indicate we're initialized,
@@ -77,36 +77,14 @@ OsStatus MpMMTimerWnt::setNotification(OsNotification* notification)
    return OS_SUCCESS;
 }
 
-OsStatus MpMMTimerWnt::run(unsigned usecPeriodic, 
-                           unsigned uAlgorithm)
+OsStatus MpMMTimerWnt::run(unsigned usecPeriodic)
 {
+   OsStatus status = OS_SUCCESS;
+
    if(mbInitialized == FALSE)
    {
       return OS_FAILED;
    }
-
-   OsStatus stat = OS_FAILED;
-
-   if((MMTimerWntAlgorithms)uAlgorithm == Multimedia)
-   {
-      mAlgorithm = Multimedia;
-      stat = runMultimedia(usecPeriodic);
-   }
-   else
-   {
-      // We don't support other algorithms currently - only Multimedia timers.
-      // Queue timers would be good to support though! they have less overhead,
-      // and I believe similar high resolution.
-      // see http://www.codeproject.com/system/timers_intro.asp
-      stat = OS_INVALID_ARGUMENT;
-   }
-
-   return stat;
-}
-
-OsStatus MpMMTimerWnt::runMultimedia(unsigned usecPeriodic)
-{
-   OsStatus status = OS_SUCCESS;
 
    if(mbTimerStarted)
    {
@@ -188,27 +166,6 @@ OsStatus MpMMTimerWnt::stop()
       return OS_INVALID_STATE;
    }
 
-   OsStatus stat = OS_FAILED;
-
-   // See below else clause for why we assert here.
-   assert(mAlgorithm == Multimedia);
-   if(mAlgorithm == Multimedia)
-   {
-      stat = stopMultimedia();
-   }
-   else
-   {
-      // we don't support other algorithms, and anyway - we should never
-      // reach here as the timer had to be started (and thus, have an implementation
-      // for that algorithm) in order to get here.
-      stat = OS_FAILED;
-   }
-
-   return stat;
-}
-
-OsStatus MpMMTimerWnt::stopMultimedia()
-{
    // for multimedia timer, there must be a matching timeEndPeriod call to the
    // timeBeginPeriod call that was originally made.
    if(timeEndPeriod(mResolution) != TIMERR_NOERROR)
