@@ -182,10 +182,10 @@ public:
 
 
      /// Method for sending frame of data to output device.
-   OsStatus pushFrame(MpOutputDeviceHandle deviceId,
-                      MpFrameTime &frameTime,
-                      const MpBufPtr& frame,
-                      UtlBoolean initFrameTime = FALSE);
+   OsStatus pushFrameFirst(MpOutputDeviceHandle deviceId,
+                           MpFrameTime &frameTime,
+                           const MpBufPtr& frame,
+                           UtlBoolean initFrameTime = FALSE);
      /**<
      *  This method is used to push a frame to the MpOutputDeviceManager to be
      *  buffered for a short window of time and mixed with data from other
@@ -217,6 +217,19 @@ public:
      *           i.e. it would be rejected even if part of frame fit into buffer.
      *
      *  Multi-thread safe.
+     */
+
+     /// Method for sending frame of data to output device with initialized frame time.
+   OsStatus pushFrame(MpOutputDeviceHandle deviceId,
+                      MpFrameTime frameTime,
+                      const MpBufPtr& frame);
+     /**<
+     *  This method may be used instead of pushFrameFirst() when frame time
+     *  is initialized. Thus is does not take \p initFrameTime parameter and
+     *  is not able to return frame time with \p frameTime parameter. In other
+     *  aspects it is identical to pushFrameFirst().
+     *
+     *  @see pushFrameFirst()
      */
 
      /// Set device that will be used to send frame start message to media task.

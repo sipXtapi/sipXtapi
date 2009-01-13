@@ -58,6 +58,7 @@ MprToOutputDevice::MprToOutputDevice(const UtlString& rName,
 , mpOutputDeviceManager(deviceManager)
 , mFrameTimeInitialized(FALSE)
 , mFrameTime(0)
+, mMixerBufferPosition(0)
 , mDeviceId(deviceId)
 , mpResampler(MpResamplerBase::createResampler(1, 8000, 8000))
 {
@@ -152,18 +153,21 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       }
    }
 
-   // Push buffer to output device even if buffer is NULL. With NULL buffer we
+   // We push buffer to output device even if buffer is NULL. With NULL buffer we
    // notify output device that we will not push more frames during this time
    // interval.
-   status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inAudioBuffer,
-                                             !mFrameTimeInitialized);
-
-   RTL_EVENT(mpFlowGraph->getFlowgraphName()+getName()+"_pushFrame_result", status);
-   debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d %s\n",
-               mFrameTime, status, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
 
    if (!mFrameTimeInitialized)
    {
+      status = mpOutputDeviceManager->pushFrameFirst(mDeviceId,
+                                                     mFrameTime,
+                                                     inAudioBuffer,
+                                                     !mFrameTimeInitialized);
+
+      RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_pushFrame_result", status);
+      debugPrintf("MprToOutputDevice::doProcessFrame(): frameTime+mixerBufferPosition=%d+%d=%d pushResult=%d %s\n",
+                  mFrameTime, mMixerBufferPosition, mFrameTime+mMixerBufferPosition,
+                  status, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
       if (status == OS_SUCCESS)
       {
          // Frame time should be initialized at this point.
@@ -174,6 +178,38 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
    }
    else
    {
+      status = mpOutputDeviceManager->pushFrame(mDeviceId,
+                                                mFrameTime+mMixerBufferPosition,
+                                                inAudioBuffer);
+
+      RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_pushFrame_result", status);
+      debugPrintf("MprToOutputDevice::doProcessFrame(): frameTime+mixerBufferPosition=%d+%d=%d pushResult=%d %s\n",
+                  mFrameTime, mMixerBufferPosition, mFrameTime+mMixerBufferPosition,
+                  status, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
+      while (status == OS_INVALID_STATE)
+      {
+         // Ouch.. Frame is reported to be too late. This means that device
+         // processed several frames in a burst. This rarely happens alone,
+         // usually driver burst all the time and we need to move slightly
+         // forward in mixer buffer to iron out this bursts. This will increase
+         // latency, so we adjust only as small as needed.
+         MpFrameTime mixerBufferLength;
+         status = mpOutputDeviceManager->getMixerBufferLength(mDeviceId, mixerBufferLength);
+         if (mMixerBufferPosition + frameTimeInterval > mixerBufferLength - frameTimeInterval)
+         {
+            // We exceeded mixer buffer length, don't go further. Actually
+            // this is bad and means that mixer buffer should be increased,
+            // so assert here.
+            assert(!"Mixer buffer too short, increase it!");
+            break;
+         }
+         mMixerBufferPosition += frameTimeInterval;
+         status = mpOutputDeviceManager->pushFrame(mDeviceId,
+                                                   mFrameTime+mMixerBufferPosition,
+                                                   inAudioBuffer);
+         RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_mixerBufferPosition", mMixerBufferPosition);
+      }
+
       // Advance frame time by one step.
       mFrameTime += frameTimeInterval;
    }

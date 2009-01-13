@@ -211,10 +211,10 @@ OsStatus MpOutputDeviceManager::disableDevice(MpOutputDeviceHandle deviceId)
 }
 
 
-OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
-                                          MpFrameTime &frameTime,
-                                          const MpBufPtr& frame,
-                                          UtlBoolean initFrameTime)
+OsStatus MpOutputDeviceManager::pushFrameFirst(MpOutputDeviceHandle deviceId,
+                                               MpFrameTime &frameTime,
+                                               const MpBufPtr& frame,
+                                               UtlBoolean initFrameTime)
 {
    OsStatus status = OS_NOT_FOUND;
    MpAudioOutputConnection* connection = NULL;
@@ -268,6 +268,13 @@ OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
    }
 
    return status;
+}
+
+OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
+                                          MpFrameTime frameTime,
+                                          const MpBufPtr& frame)
+{
+   return pushFrameFirst(deviceId, frameTime, frame, FALSE);
 }
 
 OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle deviceId,

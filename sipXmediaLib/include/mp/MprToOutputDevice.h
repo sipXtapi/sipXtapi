@@ -96,6 +96,7 @@ private:
    MpOutputDeviceManager* mpOutputDeviceManager;
    UtlBoolean mFrameTimeInitialized;
    MpFrameTime mFrameTime;
+   MpFrameTime mMixerBufferPosition;
    MpOutputDeviceHandle mDeviceId;
    MpResamplerBase *mpResampler;
 
