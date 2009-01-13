@@ -21,7 +21,7 @@
 #if defined(WIN32) // [ WIN32
 #  include "mp/MpMMTimerWnt.h"
 #  define DEFAULT_TIMER_CLASS MpMMTimerWnt
-#elif 0 //defined(__pingtel_on_posix__) // ][ POSIX
+#elif defined(__pingtel_on_posix__) // ][ POSIX
 #  include "mp/MpMMTimerPosix.h"
 #  define DEFAULT_TIMER_CLASS MpMMTimerPosix
 #else // ][ Unsupported platform
@@ -42,18 +42,17 @@
 
 MpMMTimer *MpMMTimer::create(MMTimerType type, const UtlString &name)
 {
-#ifdef WIN32 // [
    if (name.isNull())
    {
       return new DEFAULT_TIMER_CLASS(type);
    }
-//#ifdef WIN32 // [
+#ifdef WIN32 // [
    else if (name.compareTo(MpMMTimerWnt::TYPE, UtlString::ignoreCase))
    {
       return new MpMMTimerWnt(type);
    }
 #endif // WIN32 ]
-#if 0 //def __pingtel_on_posix__ // [
+#ifdef __pingtel_on_posix__ // [
    else if (name.compareTo(MpMMTimerPosix::TYPE, UtlString::ignoreCase))
    {
       return new MpMMTimerPosix(type);

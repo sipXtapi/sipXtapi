@@ -92,6 +92,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpMediaTaskMsg.cpp \
     mp/MpMisc.cpp \
     mp/MpMMTimer.cpp \
+    mp/MpMMTimerPosix.cpp \
     mp/MpodBufferRecorder.cpp \
     mp/MpodOss.cpp \
     mp/MpOss.cpp \

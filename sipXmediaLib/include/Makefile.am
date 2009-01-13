@@ -61,6 +61,7 @@ nobase_include_HEADERS =  \
     mp/MpMediaTaskMsg.h \
     mp/MpMisc.h \
     mp/MpMMTimer.h \
+    mp/MpMMTimerPosix.h \
     mp/MpodBufferRecorder.h \
     mp/MpodOss.h \
     mp/MpOss.h \
