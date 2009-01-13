@@ -136,7 +136,7 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
 {
    OsStatus res;
    OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
-   
+
    res = pShrMgr->loadSharedLib(name);
    if (res != OS_SUCCESS)
    {
@@ -259,6 +259,9 @@ OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFil
    OsPath module;
    OsFileIterator fi(ospath);
 
+   OsSysLog::add(FAC_MP, PRI_INFO, "MpCodecFactory::loadAllDynCodecs(\"%s\", \"%s\")",
+                 path, regexFilter);
+
    OsStatus res;
    res = fi.findFirst(module, regexFilter);
 
@@ -269,7 +272,9 @@ OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFil
       UtlString str = path;
       str += OsPathBase::separator;
       str += module.data();
-      loadDynCodec(str.data());
+      res = loadDynCodec(str.data());
+      OsSysLog::add(FAC_MP, PRI_INFO, "MpCodecFactory::loadDynCodec(\"%s\") returned %d",
+                    str.data(), res);
    } while (fi.findNext(module) == OS_SUCCESS);
 
    return OS_SUCCESS;
