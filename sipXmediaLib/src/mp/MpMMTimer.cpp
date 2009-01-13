@@ -42,11 +42,12 @@
 
 MpMMTimer *MpMMTimer::create(MMTimerType type, const UtlString &name)
 {
+#ifdef WIN32 // [
    if (name.isNull())
    {
       return new DEFAULT_TIMER_CLASS(type);
    }
-#ifdef WIN32 // [
+//#ifdef WIN32 // [
    else if (name.compareTo(MpMMTimerWnt::TYPE, UtlString::ignoreCase))
    {
       return new MpMMTimerWnt(type);
