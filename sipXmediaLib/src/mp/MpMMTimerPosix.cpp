@@ -27,6 +27,11 @@ MpMMTimerPosix::MpMMTimerPosix(MpMMTimer::MMTimerType type)
 : MpMMTimer(type)
 , mbTimerStarted(FALSE)
 {
+   if (mTimerType == Linear)
+   {
+      int res = sem_init(&mSyncSemaphore, 0, 0);
+      assert( res == 0);
+   }
 
 }
 
@@ -35,7 +40,10 @@ MpMMTimerPosix::~MpMMTimerPosix()
    if (mbTimerStarted)
       stop();
 
-
+   if (mTimerType == Linear)
+   {
+      sem_destroy(&mSyncSemaphore);
+   }
 }
 
 OsStatus MpMMTimerPosix::run(unsigned usecPeriodic)
@@ -63,11 +71,12 @@ OsStatus MpMMTimerPosix::run(unsigned usecPeriodic)
    }
 
    struct itimerspec ts;
-   ts.it_value.tv_sec = 0;
-   ts.it_value.tv_nsec = 0;
+   ts.it_value.tv_sec = usecPeriodic / 1000000;
+   ts.it_value.tv_nsec = (usecPeriodic % 1000000) * 1000;
    ts.it_interval.tv_sec = usecPeriodic / 1000000;
    ts.it_interval.tv_nsec = (usecPeriodic % 1000000) * 1000;
 
+//CLOCK_REALTIME //TIMER_ABSTIME
    res = timer_settime(mTimer, CLOCK_REALTIME, &ts, NULL);
    if (res != 0)
    {
@@ -86,6 +95,13 @@ OsStatus MpMMTimerPosix::stop()
 {
    if (mbTimerStarted)
    {
+      struct itimerspec ts;
+      ts.it_value.tv_sec = 0;
+      ts.it_value.tv_nsec = 0;
+      ts.it_interval.tv_sec = 0;
+      ts.it_interval.tv_nsec = 0;
+      timer_settime(mTimer, CLOCK_REALTIME, &ts, NULL);
+
       int res = timer_delete(mTimer);
       assert (res == 0);
 
@@ -98,6 +114,33 @@ OsStatus MpMMTimerPosix::stop()
 }
 
 
+OsStatus MpMMTimerPosix::getPeriodRange(unsigned* pMinUSecs, 
+                                        unsigned* pMaxUSecs)
+{
+   OsStatus status = OS_FAILED;
+
+   if (pMaxUSecs)
+      *pMaxUSecs = INT_MAX;
+
+   if (pMinUSecs)
+      return getResolution(*pMinUSecs);
+
+   return OS_SUCCESS;
+}
+
+OsStatus MpMMTimerPosix::getResolution(unsigned& resolution)
+{
+   struct timespec ts;
+   int res = clock_getres(CLOCK_REALTIME, &ts);
+   if (res != 0)
+     return OS_FAILED;
+
+   resolution = ts.tv_nsec / 1000;
+   if (resolution == 0)
+      resolution++;
+
+   return OS_SUCCESS;
+}
 
 OsStatus MpMMTimerPosix::waitForNextTick()
 {
@@ -114,8 +157,12 @@ OsStatus MpMMTimerPosix::waitForNextTick()
       return OS_FAILED;
    }
 
-  
-   return OS_SUCCESS;
+
+   int res = sem_wait(&mSyncSemaphore);
+   if (res == 0)
+      return OS_SUCCESS;
+
+   return OS_FAILED;
 }
 
 
@@ -142,7 +189,7 @@ void MpMMTimerPosix::callback()
    }
    else
    {
-      assert(!"not implimented");
+      sem_post(&mSyncSemaphore);
    }
 }
 
@@ -164,7 +211,7 @@ MpMMTimerPosix::PosixSignalReg::PosixSignalReg(int sigNum, void (*sa)(int, sigin
 
    struct sigaction act;
    act.sa_sigaction = sa;
-   act.sa_flags = SA_SIGINFO;
+   act.sa_flags = SA_SIGINFO | SA_RESTART;
    act.sa_mask = mask;
 
    int res = sigaction(mSigNum, &act, &mOldAction);

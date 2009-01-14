@@ -8,7 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: Sergey Kostanbaev <sergey.kostanbaev AT SIPez DOT com>
+// Author: Sergey Kostanbaev <sergey DOT kostanbaev AT SIPez DOT com>
 
 #ifndef _MpMMTimerPosix_h_
 #define _MpMMTimerPosix_h_
@@ -16,6 +16,8 @@
 // SYSTEM INCLUDES
 #include <time.h>
 #include <signal.h>
+#include <semaphore.h>
+
 
 // APPLICATION INCLUDES
 #include <utl/UtlDefs.h>
@@ -24,6 +26,8 @@
 
 /**
 *  @brief Posix implementation of periodic timer
+*
+*  NOTE: In notification mode only async-signal-safe functions should be called.
 */
 class MpMMTimerPosix : public MpMMTimer
 {
@@ -83,7 +87,7 @@ public:
 //@}
 
 
-   /// Help class for signal registring
+     /// Help class for signal registring
    class PosixSignalReg
    {
    public:
@@ -94,14 +98,16 @@ public:
       int mSigNum;                 ///< Signal number
    };
 
+     /// Signal callback
    static
    void signalHandler(int signum, siginfo_t *siginfo, void *context);
 
 /* ////////////////////////////// PROTECTED /////////////////////////////// */
 protected:
    OsNotification* mpNotification; ///< Notification object used to signal a tick of the timer.   
-   UtlBoolean mbTimerStarted;
-   timer_t mTimer; ///< Timer object
+   UtlBoolean mbTimerStarted;      ///< Is timer started.
+   timer_t mTimer;                 ///< Timer object.
+   sem_t mSyncSemaphore;           ///< Syncronisation semaphore for linear operation.
 
    void callback();
 
