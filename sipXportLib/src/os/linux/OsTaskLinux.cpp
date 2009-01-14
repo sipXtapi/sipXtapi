@@ -236,12 +236,33 @@ OsStatus OsTaskLinux::varSet(int* pVar, int value)
 // condition that does not have an interrupt associated with it.
 OsStatus OsTaskLinux::delay(const int milliSecs)
 {
+   const clockid_t clock = CLOCK_REALTIME;
    struct timespec ts;
+   int ret;
    assert(milliSecs >= 0);       // negative delays don't make sense
 
-   ts.tv_sec = milliSecs / 1000;
-   ts.tv_nsec = (milliSecs % 1000) * 1000000;
-   nanosleep(&ts, NULL);
+   ret = clock_gettime(clock, &ts);
+   if (ret != 0)
+      return OS_FAILED;
+
+   ts.tv_nsec += (milliSecs % 1000) * 1000000;
+   ts.tv_sec += milliSecs / 1000;
+   while (ts.tv_nsec > 1000000000)
+   {
+      ts.tv_nsec -= 1000000000;
+      ts.tv_sec ++;
+   }
+ 
+   do
+   {
+      ret = clock_nanosleep(clock, TIMER_ABSTIME, &ts, NULL);
+
+      if (ret != 0 && errno != EAGAIN && errno != EINTR && errno != ENOENT)
+      {
+         return OS_FAILED;
+      }
+
+   } while (ret != 0);
 
    return OS_SUCCESS;
 }
