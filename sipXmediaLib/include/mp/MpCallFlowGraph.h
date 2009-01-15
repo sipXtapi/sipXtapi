@@ -34,9 +34,6 @@
 #define DEBUG_POSTPONE
 #undef DEBUG_POSTPONE
 
-#define DISABLE_LOCAL_AUDIO
-#undef DISABLE_LOCAL_AUDIO
-
 /// Undefine this to fully disable AEC
 #define DOING_ECHO_CANCELATION
 /// Undefine this to enable internal AEC.
