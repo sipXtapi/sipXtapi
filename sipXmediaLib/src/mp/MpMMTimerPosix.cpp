@@ -179,25 +179,29 @@ OsStatus MpMMTimerPosix::setNotification(OsNotification* notification)
 
 void MpMMTimerPosix::callback()
 {
-   if (mTimerType == Notification)
+   int overruns = timer_getoverrun(mTimer);
+   do
    {
-      if(mpNotification != NULL)
+      if (mTimerType == Notification)
       {
-         // Then signal it to indicate a tick.
-         mpNotification->signal((intptr_t)this);
+          if(mpNotification != NULL)
+          {
+            // Then signal it to indicate a tick.
+            mpNotification->signal((intptr_t)this);
+          }
       }
-   }
-   else
-   {
-      sem_post(&mSyncSemaphore);
-   }
+      else
+      {
+          sem_post(&mSyncSemaphore);
+      }
+   } while (overruns-- > 0);
 }
 
 void MpMMTimerPosix::signalHandler(int signum, siginfo_t *siginfo, void *context)
 {
    assert(siginfo->si_signo == TIMER_SIGNAL);
    //assert(siginfo->si_code == SI_TIMER);
-   
+
    MpMMTimerPosix* object = (MpMMTimerPosix*)siginfo->si_ptr;
    object->callback();
 }
