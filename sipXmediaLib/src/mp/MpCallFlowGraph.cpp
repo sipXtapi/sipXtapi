@@ -603,7 +603,7 @@ MpCallFlowGraph::~MpCallFlowGraph()
 OsStatus MpCallFlowGraph::gainFocus(void)
 {
    UtlBoolean    boolRes;
-#ifndef DISABLE_LOCAL_AUDIO // ]
+#ifndef DISABLE_LOCAL_AUDIO // [
 
    // enable the FromMic, (EchoCancel), (PreProcessor), and ToSpkr -- we have focus
    boolRes = mpFromMic->enable();       assert(boolRes);
@@ -625,7 +625,7 @@ OsStatus MpCallFlowGraph::gainFocus(void)
 
    boolRes = mpToSpkr->enable();        assert(boolRes);
 
-#endif // DISABLE_LOCAL_AUDIO
+#endif // DISABLE_LOCAL_AUDIO ]
 
    // Re-enable the tone as it is now being heard
    if(mToneGenDefocused)
@@ -930,8 +930,10 @@ OsStatus MpCallFlowGraph::Record(int ms,
 OsStatus MpCallFlowGraph::recordMic(int ms, UtlString* pAudioBuffer)
 {
    OsStatus stat = OS_FAILED;
+#ifndef DISABLE_LOCAL_AUDIO // [
    stat = MprBufferRecorder::startRecording(mpBufferRecorder->getName(),
                                             *getMsgQ(), ms, pAudioBuffer);
+#endif // DISABLE_LOCAL_AUDIO ]
    return stat;
 }
 
