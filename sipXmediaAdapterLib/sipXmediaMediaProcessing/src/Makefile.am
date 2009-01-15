@@ -21,8 +21,13 @@ version_Age=0
 
 libsipXmediaProcessing_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
 
+if ! ENABLE_LOCAL_AUDIO 
+LOCAL_AUDIO_CXXFLAGS = -DDISABLE_LOCAL_AUDIO
+endif
+
 libsipXmediaProcessing_la_CXXFLAGS = \
 	@INTERFACE_FLAGS@ \
+	$(LOCAL_AUDIO_CXXFLAGS) \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
