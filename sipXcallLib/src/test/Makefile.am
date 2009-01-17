@@ -6,7 +6,8 @@ SUBDIRS = tapi
 ## and of course require no setup
 TESTS = testsuite
 
-check_PROGRAMS = testsuite
+## Full regression test and not meant for 'make check'
+check_PROGRAMS = testsuite regression
 
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
@@ -22,9 +23,6 @@ testsuite_SOURCES = \
     cp/CpTestSupport.cpp \
     cp/CpTestSupport.h \
     cp/CallManagerTest.cpp 
-
-## Full regression test and not meant for 'make check'
-noinst_PROGRAMS = regression
 
 regression_LDADD = \
     @SIPXUNIT_LIBS@ \
