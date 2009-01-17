@@ -31,43 +31,83 @@
 
 // Constructor
 MprSpeakerSelector::MprSpeakerSelector(const UtlString& rName,
-                                       int maxInOutputs,
+                                       int maxInputs,
+                                       int maxOutputs,
                                        int maxActiveSpeakers,
                                        const UtlString &algorithmName)
 :  MpAudioResource(rName, 
-                   1, maxInOutputs, 
-                   1, maxInOutputs)
-, mNumStreams(maxInOutputs)
+                   1, maxInputs, 
+                   1, maxOutputs)
+, mNumStreams(maxInputs)
 , mpSS(NULL)
 , mSsFresh(FALSE)
 , mpFrameParams(new MpSpeechParams*[mNumStreams])
 , mMaxActiveSpeakers(maxActiveSpeakers)
 , mTopRanks(new RankIndexPair[mMaxActiveSpeakers])
+, mInToOutMap(new int[maxInputs])
+, mOutToInMap(new int[maxOutputs])
+, mMapTime(0)
+, mChangeMapTime(new int[maxInputs])
 {
+   assert(maxInputs >= maxOutputs);
+   assert(maxOutputs >= maxActiveSpeakers);
+
+   // Initialize Speaker Selection algorithm.
    mpSS = MpSpeakerSelectBase::createInstance(algorithmName);
    assert(mpSS != NULL);
    mpSS->init(mNumStreams, mMaxActiveSpeakers);
    mSsFresh = TRUE;
+
+   // Initialize mappings.
+   for (int i=0; i<maxInputs; i++)
+   {
+      mInToOutMap[i] = -1;
+      mChangeMapTime[i] = 0;
+   }
+   for (int j=0; j<maxOutputs; j++)
+   {
+      mOutToInMap[j] = -1;
+   }
 }
 
 // Constructor
 MprSpeakerSelector::MprSpeakerSelector(const UtlString& rName,
-                                       int maxInOutputs,
+                                       int maxInputs,
+                                       int maxOutputs,
                                        int maxActiveSpeakers,
                                        MpSpeakerSelectBase *pSS)
 :  MpAudioResource(rName, 
-                   1, maxInOutputs, 
-                   1, maxInOutputs)
-, mNumStreams(maxInOutputs)
+                   1, maxInputs, 
+                   1, maxOutputs)
+, mNumStreams(maxInputs)
 , mpSS(pSS)
 , mSsFresh(FALSE)
 , mpFrameParams(new MpSpeechParams*[mNumStreams])
 , mMaxActiveSpeakers(maxActiveSpeakers)
 , mTopRanks(new RankIndexPair[mMaxActiveSpeakers])
+, mInToOutMap(new int[maxInputs])
+, mOutToInMap(new int[maxOutputs])
+, mMapTime(0)
+, mChangeMapTime(new int[maxInputs])
 {
+   assert(maxInputs >= maxOutputs);
+   assert(maxOutputs >= maxActiveSpeakers);
+
+   // Initialize Speaker Selection algorithm.
    assert(mpSS != NULL);
    mpSS->init(mNumStreams, mMaxActiveSpeakers);
    mSsFresh = TRUE;
+
+   // Initialize mappings.
+   for (int i=0; i<maxInputs; i++)
+   {
+      mInToOutMap[i] = -1;
+      mChangeMapTime[i] = 0;
+   }
+   for (int j=0; j<maxOutputs; j++)
+   {
+      mOutToInMap[j] = -1;
+   }
 }
 
 // Destructor
@@ -75,6 +115,10 @@ MprSpeakerSelector::~MprSpeakerSelector()
 {
    delete mpSS;
    delete[] mpFrameParams;
+   delete[] mTopRanks;
+   delete[] mInToOutMap;
+   delete[] mOutToInMap;
+   delete[] mChangeMapTime;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -212,19 +256,13 @@ UtlBoolean MprSpeakerSelector::doProcessFrame(MpBufPtr inBufs[],
       return TRUE;
    }
 
-   // We want correct in/out pairs
-   if (inBufsSize != outBufsSize || inBufsSize != mNumStreams)
-   {
-      return FALSE;
-   }
-
    if (!isEnabled)
    {
       // Do nothing.
       ret = TRUE;
 
-      // Pass inputs to outputs.
-      for (int i=0; i<inBufsSize; i++)
+      // Pass inputs to outputs (keep in mind we have less outputs then inputs).
+      for (int i=0; i<outBufsSize; i++)
       {
          outBufs[i].swap(inBufs[i]);
       }
@@ -263,6 +301,9 @@ UtlBoolean MprSpeakerSelector::doProcessFrame(MpBufPtr inBufs[],
       // Peek top speakers.
       peekTopSpeakers(mpFrameParams, mNumStreams, mTopRanks, mMaxActiveSpeakers);
 
+      // Update inputs to outputs mapping.
+      updateMapping(mTopRanks, mMaxActiveSpeakers);
+
       // Send frames of top speakers to the output
       for (int j=0; j<mMaxActiveSpeakers; j++)
       {
@@ -272,7 +313,7 @@ UtlBoolean MprSpeakerSelector::doProcessFrame(MpBufPtr inBufs[],
             // We've reached the end of the active participants list.
             break;
          }
-         outBufs[index].swap(inBufs[index]);
+         outBufs[getOutputForInput(index)].swap(inBufs[index]);
       }
    }
 
@@ -398,6 +439,88 @@ void MprSpeakerSelector::peekTopSpeakers(MpSpeechParams **frameParams, int frame
          }
       }
    }
+}
+
+void MprSpeakerSelector::updateMapping(MprSpeakerSelector::RankIndexPair *topRanks,
+                                       int topRanksNum)
+{
+   int i;
+   UtlBoolean isChanged = FALSE;
+
+   // Update map time.
+   mMapTime++;
+
+   // Update change time and search for conflicting active speakers.
+   for (i=0; i<topRanksNum && topRanks[i].mIndex > -1; i++)
+   {
+      int speaker = topRanks[i].mIndex;
+      mChangeMapTime[speaker] = mMapTime;
+      if (  mInToOutMap[speaker] == -1
+         || mOutToInMap[mInToOutMap[speaker]] != speaker)
+      {
+         isChanged = TRUE;
+      }
+   }
+   // Resolve conflicts
+   if (isChanged)
+   {
+      for (i=0; i<topRanksNum && topRanks[i].mIndex > -1; i++)
+      {
+         int speaker = topRanks[i].mIndex;
+         if (mInToOutMap[speaker] == -1)
+         {
+            // This input have never been active before, look for an empty
+            // slot for it.
+            mInToOutMap[speaker] = getOldestOutput();
+            mOutToInMap[mInToOutMap[speaker]] = speaker;
+         }
+         else if (mOutToInMap[mInToOutMap[speaker]] != speaker)
+         {
+            if (mChangeMapTime[mInToOutMap[speaker]] != mMapTime)
+            {
+               // This input may know its place and may reside on it.
+               // Its competitor has not been active for a while.
+               mOutToInMap[mInToOutMap[speaker]] = speaker;
+            }
+            else
+            {
+               // Output which this input wants is already occupied by
+               // an active speaker. Seek for an other one.
+               mInToOutMap[speaker] = getOldestOutput();
+               mOutToInMap[mInToOutMap[speaker]] = speaker;
+            }
+         }
+      }
+   }
+}
+
+int MprSpeakerSelector::getOldestOutput()
+{
+   uint32_t minTime = mChangeMapTime[mOutToInMap[0]];
+   int oldestOutput = 0;
+   for (int i=0; i<maxOutputs(); i++)
+   {
+      if (mOutToInMap[i] == -1)
+      {
+         // If this output hasn't been used yet, just return it.
+         return i;
+      }
+
+      // Is this output older then previous one?
+      uint32_t time = mChangeMapTime[mOutToInMap[i]];
+      if (minTime > time)
+      {
+         minTime = time;
+         oldestOutput = i;
+      }
+   }
+
+   return oldestOutput;
+}
+
+int MprSpeakerSelector::getOutputForInput(int inputNum)
+{
+   return mInToOutMap[inputNum];
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

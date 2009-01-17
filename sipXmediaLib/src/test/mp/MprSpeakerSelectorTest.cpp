@@ -25,6 +25,7 @@
 
 #define NUM_ACTIVE_SPEAKERS     2
 #define NUM_STREAMS             10
+#define NUM_OUTPUTS             2
 
 class MpTestSpeakerSelection : public MpSpeakerSelectBase
 {
@@ -88,6 +89,7 @@ public:
        // and links.
        pSpeakerSelector = new MprSpeakerSelector("MprSpeakerSelector",
                                                  NUM_STREAMS,
+                                                 NUM_OUTPUTS,
                                                  NUM_ACTIVE_SPEAKERS,
                                                  pSS);
 
@@ -104,6 +106,7 @@ public:
 
        pSpeakerSelector = new MprSpeakerSelector("MprSpeakerSelector",
                                                  NUM_STREAMS,
+                                                 NUM_OUTPUTS,
                                                  NUM_ACTIVE_SPEAKERS,
                                                  pSS);
        CPPUNIT_ASSERT(pSpeakerSelector != NULL);
@@ -134,6 +137,7 @@ public:
 
        pSpeakerSelector = new MprSpeakerSelector("MprSpeakerSelector",
                                                  NUM_STREAMS,
+                                                 NUM_OUTPUTS,
                                                  NUM_ACTIVE_SPEAKERS,
                                                  pSS);
        CPPUNIT_ASSERT(pSpeakerSelector != NULL);
@@ -166,7 +170,7 @@ public:
 
        // Tell source resource to generate buffers on inputs.
        mpSourceResource->setGenOutBufMask((1<<numInputs)-1);
-       for (stream=0; stream<NUM_ACTIVE_SPEAKERS; stream++)
+       for (stream=0; stream<numInputs; stream++)
        {
           mpSourceResource->setSpeechType(stream, MP_SPEECH_ACTIVE);
        }
@@ -177,14 +181,22 @@ public:
 
        // Check outputs.
        int numActiveOutputs=0;
-       for (stream=0; stream<NUM_STREAMS; stream++)
+       for (stream=0;
+            stream<NUM_STREAMS && stream<numInputs && numActiveOutputs<NUM_OUTPUTS;
+            stream++)
        {
-          if (mpSinkResource->mLastDoProcessArgs.inBufs[stream].isValid())
+          UtlBoolean isFound=FALSE;
+          for (int outPort=0; outPort<NUM_OUTPUTS; outPort++)
           {
-             numActiveOutputs++;
-             CPPUNIT_ASSERT(  mpSinkResource->mLastDoProcessArgs.inBufs[stream]
-                           == mpSourceResource->mLastDoProcessArgs.outBufs[stream]);
+             if (  mpSinkResource->mLastDoProcessArgs.inBufs[outPort]
+                == mpSourceResource->mLastDoProcessArgs.outBufs[numInputs-1-stream])
+             {
+                isFound = TRUE;
+                break;
+             }
           }
+          CPPUNIT_ASSERT(isFound);
+          numActiveOutputs++;
        }
        if (numInputs < NUM_ACTIVE_SPEAKERS)
        {
@@ -220,14 +232,22 @@ public:
 
        // Check outputs.
        int numActiveOutputs=0;
-       for (stream=0; stream<NUM_STREAMS; stream++)
+       for (stream=0;
+            stream<NUM_STREAMS && stream<numInputs && numActiveOutputs<NUM_OUTPUTS;
+            stream++)
        {
-          if (mpSinkResource->mLastDoProcessArgs.inBufs[stream].isValid())
+          UtlBoolean isFound=FALSE;
+          for (int outPort=0; outPort<NUM_OUTPUTS; outPort++)
           {
-             numActiveOutputs++;
-             CPPUNIT_ASSERT(  mpSinkResource->mLastDoProcessArgs.inBufs[stream]
-                           == mpSourceResource->mLastDoProcessArgs.outBufs[stream]);
+             if (  mpSinkResource->mLastDoProcessArgs.inBufs[outPort]
+                == mpSourceResource->mLastDoProcessArgs.outBufs[numInputs-1-stream])
+             {
+                isFound = TRUE;
+                break;
+             }
           }
+          CPPUNIT_ASSERT(isFound);
+          numActiveOutputs++;
        }
        if (numInputs < NUM_ACTIVE_SPEAKERS)
        {
@@ -246,6 +266,7 @@ public:
 
        pSpeakerSelector = new MprSpeakerSelector("MprSpeakerSelector",
                                                  NUM_STREAMS,
+                                                 NUM_OUTPUTS,
                                                  NUM_ACTIVE_SPEAKERS,
                                                  pSS);
        CPPUNIT_ASSERT(pSpeakerSelector != NULL);

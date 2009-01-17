@@ -19,10 +19,12 @@
 #include <mp/MprSpeakerSelector.h>
 
 // DEFINES
-/// Number of Speaker Selector inputs and outputs.
+/// Number of Speaker Selector inputs.
+#define DEFAULT_SPEAKER_SELECTOR_MAX_INPUTS   20
+/// @brief Number of Speaker Selector outputs.
 /// Must be less or equal then number of inputs in the Bridge minus number
 /// of resources initially connected to the Bridge.
-#define DEFAULT_SPEAKER_SELECTOR_MAX_IN_OUTPUTS  18
+#define DEFAULT_SPEAKER_SELECTOR_MAX_OUTPUTS  6
 /// Maximum number of speakers we want to mix.
 #define DEFAULT_SPEAKER_SELECTOR_MAX_SPEAKERS    3
 
@@ -45,11 +47,12 @@ public:
 /* ============================ CREATORS ================================== */
 
       /// Constructor
-   MprSpeakerSelectorConstructor(int maxInOutputs = DEFAULT_SPEAKER_SELECTOR_MAX_IN_OUTPUTS,
+   MprSpeakerSelectorConstructor(int maxInputs = DEFAULT_SPEAKER_SELECTOR_MAX_INPUTS,
+                                 int maxOutputs = DEFAULT_SPEAKER_SELECTOR_MAX_OUTPUTS,
                                  int maxActiveSpeakers = DEFAULT_SPEAKER_SELECTOR_MAX_SPEAKERS)
    : MpAudioResourceConstructor(DEFAULT_SPEAKER_SELECTOR_RESOURCE_TYPE,
-                                1, maxInOutputs, //minInputs, maxInputs,
-                                1, maxInOutputs) //minOutputs, maxOutputs
+                                1, maxInputs, //minInputs, maxInputs,
+                                1, maxOutputs) //minOutputs, maxOutputs
    , mMaxActiveSpeakers(maxActiveSpeakers)
    {
    }
@@ -67,6 +70,7 @@ public:
    {
       MprSpeakerSelector *pResource = new MprSpeakerSelector(resourceName,
                                                              mMaxInputs,
+                                                             mMaxOutputs,
                                                              mMaxActiveSpeakers);
 
       // Return created resource

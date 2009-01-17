@@ -43,13 +43,15 @@ public:
 
      /// Constructor
    MprSpeakerSelector(const UtlString& rName,
-                      int maxInOutputs,
+                      int maxInputs,
+                      int maxOutputs,
                       int maxActiveSpeakers,
                       const UtlString &algorithmName = "");
 
      /// Constructor
    MprSpeakerSelector(const UtlString& rName,
-                      int maxInOutputs,
+                      int maxInputs,
+                      int maxOutputs,
                       int maxActiveSpeakers,
                       MpSpeakerSelectBase *pSS);
      /**<
@@ -111,7 +113,11 @@ protected:
    MpSpeechParams     **mpFrameParams; ///< Array of pointers to frame parameters
                                      ///< for incoming frames.
    int                  mMaxActiveSpeakers; ///< Number of speakers we want to mix.
-   RankIndexPair       *mTopRanks;   ///< Array of top ranked speakers.
+   RankIndexPair       *mTopRanks;   ///< Array of top ranked speakers, sorted by rank.
+   int                 *mInToOutMap; ///< Mapping of inputs to outputs.
+   int                 *mOutToInMap; ///< Mapping of outputs to inputs.
+   uint32_t             mMapTime;
+   int                 *mChangeMapTime;
 
      /// @copydoc MpResource::connectInput()
    UtlBoolean connectInput(MpResource& rFrom, int fromPortIdx, int toPortIdx);
@@ -159,6 +165,10 @@ protected:
      /// Peek top ranked speakers from the list.
    static void peekTopSpeakers(MpSpeechParams **frameParams, int frameParamsNum,
                                RankIndexPair *topRanks, int topRanksNum);
+
+   void updateMapping(RankIndexPair *topRanks, int topRanksNum);
+   inline int getOldestOutput();
+   inline int getOutputForInput(int inputNum);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
