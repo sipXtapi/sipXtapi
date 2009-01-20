@@ -62,22 +62,6 @@ if test ${disable_stream_player} = true; then
    AC_MSG_RESULT(Stream player is disabled)
    CXXFLAGS+=" -DDISABLE_STREAM_PLAYER "
 fi
-
-
-# Enable local audio support (microphone / speaker) 
-AC_ARG_ENABLE(local-audio,
-[  --enable-local-audio    Enable local audio (speaker and microphone)],
-[ case "${enableval}" in
-  yes) enable_local_audio=true ;;
-  no) enable_local_audio=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-local-audio) ;;
-esac],[ enable_local_audio=true ])
-AM_CONDITIONAL(ENABLE_LOCAL_AUDIO, test x$enable_local_audio = xtrue)
-if test x$enable_local_audio = xtrue ; then 
-    echo Local audio is enbled
-else
-    echo Local audio is disabled
-fi
       
 
 EXTERNAL_EXTENITIONS

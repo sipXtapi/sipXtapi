@@ -110,7 +110,7 @@ SFAC_FEATURE_SIP_TLS
 
 # Enable local audio support (microphone / speaker)
 AC_ARG_ENABLE(local-audio,
-[  --enable-local-audio    Enable local audio (speaker and microphone)],
+[  --enable-local-audio    Enable local audio (speaker and microphone), makes sense for CallFlowGraph only],
 [ case "${enableval}" in
   yes) enable_local_audio=true ;;
   no) enable_local_audio=false ;;
