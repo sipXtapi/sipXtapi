@@ -213,7 +213,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     }
 
     mpInitialResourceTopology = buildDefaultInitialResourceTopology();
-    if (!enableLocalAudio)
+    if (enableLocalAudio)
     {
        // Add one local connection to initial topology by default.
        addLocalConnectionTopology(mpInitialResourceTopology);
