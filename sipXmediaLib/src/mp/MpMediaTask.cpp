@@ -50,7 +50,7 @@
 const OsTime MpMediaTask::smOperationQueueTimeout = OsTime::OS_INFINITY;
 
 // STATIC VARIABLE INITIALIZATIONS
-MpMediaTask* MpMediaTask::spInstance = NULL;
+MpMediaTask* volatile MpMediaTask::spInstance = NULL;
 OsBSem       MpMediaTask::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 int          MpMediaTask::mMaxFlowGraph = NULL;
 
@@ -66,25 +66,15 @@ int          MpMediaTask::mMaxFlowGraph = NULL;
 
 /* ============================ CREATORS ================================== */
 
-// Return a pointer to the media task, creating it if necessary
-MpMediaTask* MpMediaTask::getMediaTask(int maxFlowGraph)
+MpMediaTask* MpMediaTask::createMediaTask(int maxFlowGraph)
 {
    UtlBoolean isStarted;
 
-   // If the task object already exists, and the corresponding low-level task
-   // has been started, then use it
-   if (spInstance != NULL && spInstance->isStarted())
-      return spInstance;
+   assert(maxFlowGraph>0);
 
-   // If we can't find existing media task and maxFlowGraph is 0 then
-   // return NULL. We cannot proceed with creating new flowgraph, cause it
-   // asserts (mMaxFlowGraph > 0).
-   if (maxFlowGraph == 0)
-      return NULL;
-
-   // If the task does not yet exist or hasn't been started, then acquire
-   // the lock to ensure that only one instance of the task is started
    OsLock lock(sLock);
+   assert(spInstance == NULL);
+
    if (spInstance == NULL)
        spInstance = new MpMediaTask(maxFlowGraph);
 
@@ -96,6 +86,19 @@ MpMediaTask* MpMediaTask::getMediaTask(int maxFlowGraph)
    }
 
    return spInstance;
+}
+
+MpMediaTask* MpMediaTask::getMediaTask()
+{
+   OsLock lock(sLock);
+
+   // If the task object already exists, and the corresponding low-level task
+   // has been started, then use it
+   if (spInstance != NULL && spInstance->isStarted())
+      return spInstance;
+   else
+      // If we can't find existing media task, return NULL.
+      return NULL;
 }
 
 // Destructor
@@ -395,7 +398,7 @@ MpFlowGraphBase* MpMediaTask::mediaInfo(void)
    MpFlowGraphBase* pFlowGraph;
    OsStatus         res;
 
-   pMediaTask = MpMediaTask::getMediaTask(0);
+   pMediaTask = MpMediaTask::getMediaTask();
 
    osPrintf("\nMedia processing task information\n");
    osPrintf("  Debug mode:                      %s\n",

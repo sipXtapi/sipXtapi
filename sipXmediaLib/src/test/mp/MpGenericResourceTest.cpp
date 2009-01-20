@@ -52,8 +52,8 @@ void MpGenericResourceTest::setUp()
    mpFlowGraph = new MpFlowGraphBase(mSamplesPerFrame, mSamplesPerSec);
    CPPUNIT_ASSERT(mpFlowGraph != NULL);
 
-   // Call getMediaTask() which causes the task to get instantiated
-   pMediaTask = MpMediaTask::getMediaTask(10);
+   // Create MediaTask
+   pMediaTask = MpMediaTask::createMediaTask(10);
    CPPUNIT_ASSERT(pMediaTask != NULL);
 }
 

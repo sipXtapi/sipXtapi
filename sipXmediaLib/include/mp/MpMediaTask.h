@@ -109,9 +109,11 @@ public:
 ///@name Creators
 //@{
 
-     /// @brief Return a pointer to the media processing task, creating it if 
-     /// necessary
-   static MpMediaTask* getMediaTask(int maxFlowGraph);
+     /// Create the media processing task
+   static MpMediaTask* createMediaTask(int maxFlowGraph);
+
+     /// Return a pointer to the media processing task if exists.
+   static MpMediaTask* getMediaTask();
 
      /// Destructor
    virtual
@@ -350,7 +352,7 @@ private:
    OsCallback mFlowgraphTicker; ///< OsNotification to call flowgraphTickerCallback()
 
    //  Static data members used to enforce Singleton behavior
-   static MpMediaTask* spInstance;  ///< @brief pointer to the single instance
+   static MpMediaTask* volatile  spInstance;  ///< @brief pointer to the single instance
                                     ///< of the MpMediaTask class
    static OsBSem       sLock;       ///< @brief semaphore used to ensure that
                                     ///< there is only one instance of this class

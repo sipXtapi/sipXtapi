@@ -159,7 +159,7 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb,
    }
 
    // init the media processing task
-   mpMediaTask = MpMediaTask::getMediaTask(maxFlowGraph); 
+   mpMediaTask = MpMediaTask::createMediaTask(maxFlowGraph); 
 
 #ifdef INCLUDE_RTCP /* [ */
    mpiRTCPControl = CRTCManager::getRTCPControl();

@@ -366,7 +366,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
         }
 
         // Prepare msg to be sent to Media Task
-        spkrPool = MpMediaTask::getMediaTask(0)->getBufferMsgPool();
+        spkrPool = MpMediaTask::getMediaTask()->getBufferMsgPool();
         assert(NULL != spkrPool);
         pMsg = spkrPool ? (MpBufferMsg*) spkrPool->findFreeMsg() : NULL;
         if (NULL == pMsg) 

@@ -150,8 +150,8 @@ public:
 
       pFlowgraph = new MpFlowGraphBase(samplesPerFrame, sampleRate);
 
-      // Call getMediaTask() which causes the task to get instantiated
-      pMediaTask = MpMediaTask::getMediaTask(10);
+      // Create MediaTask
+      pMediaTask = MpMediaTask::createMediaTask(10);
       
       // Turn on notifications
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowgraph->setNotificationsEnabled(true));

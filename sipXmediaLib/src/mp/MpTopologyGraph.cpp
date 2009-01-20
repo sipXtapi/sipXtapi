@@ -64,7 +64,7 @@ MpTopologyGraph::MpTopologyGraph(int samplesPerFrame,
     linkTopologyResources(initialResourceTopology, newResourcesAdded);
 
     // ask the media processing task to manage the new flowgraph
-    MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);
+    MpMediaTask* mediaTask = MpMediaTask::getMediaTask();
     result = mediaTask->manageFlowGraph(*this);
     assert(result == OS_SUCCESS);
 
@@ -81,7 +81,7 @@ MpTopologyGraph::MpTopologyGraph(int samplesPerFrame,
 MpTopologyGraph::~MpTopologyGraph()
 {
     // unmanage the flowgraph
-    MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);
+    MpMediaTask* mediaTask = MpMediaTask::getMediaTask();
     OsStatus result = mediaTask->unmanageFlowGraph(*this);
     assert(result == OS_SUCCESS);
 

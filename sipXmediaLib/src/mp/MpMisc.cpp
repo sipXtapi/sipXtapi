@@ -715,9 +715,9 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 
 OsStatus mpShutdown(void)
 {
-        if (NULL != MpMediaTask::getMediaTask(0)) {
+        if (NULL != MpMediaTask::getMediaTask()) {
            // This will MpMediaTask::spInstance to NULL
-           delete MpMediaTask::getMediaTask(0);
+           delete MpMediaTask::getMediaTask();
         }
 
         if (NULL != MpMisc.pMicQ) {

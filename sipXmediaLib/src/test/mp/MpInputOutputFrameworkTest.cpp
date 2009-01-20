@@ -163,8 +163,8 @@ public:
                                         TEST_SAMPLES_PER_SECOND);
       CPPUNIT_ASSERT(mpFlowGraph != NULL);
 
-      // Call getMediaTask() which causes the task to get instantiated
-      mpMediaTask = MpMediaTask::getMediaTask(10);
+      // Create MediaTask
+      mpMediaTask = MpMediaTask::createMediaTask(10);
       CPPUNIT_ASSERT(mpMediaTask != NULL);
 
       // Get ticker.

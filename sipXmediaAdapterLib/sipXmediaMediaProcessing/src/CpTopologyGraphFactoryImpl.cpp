@@ -170,7 +170,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                   );
 
     // Get media task ticker notification
-    OsNotification *pTickerNotf = MpMediaTask::getMediaTask(0)->getTickerNotification();
+    OsNotification *pTickerNotf = MpMediaTask::getMediaTask()->getTickerNotification();
 
     if (enableLocalAudio)
     {

@@ -544,8 +544,8 @@ public:
        res = pFlowGraph->enable();
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
-       // Call getMediaTask() which causes the task to get instantiated
-       MpMediaTask* pMediaTask = MpMediaTask::getMediaTask(10);
+       // Create MediaTask
+       MpMediaTask* pMediaTask = MpMediaTask::createMediaTask(10);
 
        res = mpStartTasks();
        CPPUNIT_ASSERT(res == OS_SUCCESS);

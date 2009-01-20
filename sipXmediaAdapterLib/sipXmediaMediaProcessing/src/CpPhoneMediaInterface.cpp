@@ -243,7 +243,7 @@ CpPhoneMediaInterface::~CpPhoneMediaInterface()
         //mpMediaFlowGraph->stopReceiveRtp();
         //mpMediaFlowGraph->stopSendRtp();
 
-        MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);
+        MpMediaTask* mediaTask = MpMediaTask::getMediaTask();
 
         // take focus away from the flow graph if it is focus
         if(mpFlowGraph == (MpCallFlowGraph*) mediaTask->getFocus())
@@ -1531,7 +1531,7 @@ OsStatus CpPhoneMediaInterface::giveFocus()
     {
         // There should probably be a lock here
         // Set the flow graph to have the focus
-        MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);
+        MpMediaTask* mediaTask = MpMediaTask::getMediaTask();
         mediaTask->setFocus(mpFlowGraph);
         // osPrintf("Setting focus for flow graph\n");
    }
@@ -1543,7 +1543,7 @@ OsStatus CpPhoneMediaInterface::defocus()
 {
     if(mpFlowGraph)
     {
-        MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);
+        MpMediaTask* mediaTask = MpMediaTask::getMediaTask();
 
         // There should probably be a lock here
         // take focus away from the flow graph if it is focus

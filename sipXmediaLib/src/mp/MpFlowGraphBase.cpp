@@ -248,7 +248,7 @@ OsStatus MpFlowGraphBase::enable(void)
 OsStatus MpFlowGraphBase::gainFocus(void)
 {
    Nprintf("MpFG::gainFocus(0x%X), not supported!\n", (int) this, 0,0,0,0,0);
-   return OS_INVALID_ARGUMENT;
+   return OS_FAILED;
 }
 
 // Inserts "rResource" into the flow graph downstream of the
@@ -608,7 +608,7 @@ void MpFlowGraphBase::synchronize(const char* tag, int val1)
    }
    printf("\n");
 */
-   if (ptr != MpMediaTask::getMediaTask(0)) {
+   if (ptr != MpMediaTask::getMediaTask()) {
       OsEvent event;
       MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE,
                          NULL, (void*)&event, (void*) tag, val1, (intptr_t) ptr);
@@ -637,7 +637,7 @@ void MpFlowGraphBase::flowGraphInfo(MpFlowGraphBase* pFlowGraph)
    MpResource* pResource;
 
    if (NULL == pFlowGraph) {
-      MpMediaTask* pMediaTask = MpMediaTask::getMediaTask(0);
+      MpMediaTask* pMediaTask = MpMediaTask::getMediaTask();
       pFlowGraph = pMediaTask->getFocus();
       if (NULL == pFlowGraph) {
          pMediaTask->getManagedFlowGraphs(&pFlowGraph, 1, i);

@@ -70,8 +70,8 @@ public:
                       6*10, NULL, sNumCodecPaths, sCodecPaths);
       CPPUNIT_ASSERT(res == OS_SUCCESS);
 
-      // Call getMediaTask() which causes the task to get instantiated
-      mpMediaTask = MpMediaTask::getMediaTask(10);
+      // Create MediaTask
+      mpMediaTask = MpMediaTask::createMediaTask(10);
       CPPUNIT_ASSERT(mpMediaTask != NULL);
    }
 

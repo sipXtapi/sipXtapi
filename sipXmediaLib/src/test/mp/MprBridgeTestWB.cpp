@@ -90,7 +90,8 @@ public:
       pBridge = new MprBridge("MprBridge", numParticipants+1);
       CPPUNIT_ASSERT(pBridge != NULL);
       
-      MpMediaTask *pMediaTask = MpMediaTask::getMediaTask(10);
+      // Create MediaTask
+      MpMediaTask *pMediaTask = MpMediaTask::createMediaTask(10);
       // Get media task ticker.
       OsNotification *pTicker = pMediaTask->getTickerNotification();
 

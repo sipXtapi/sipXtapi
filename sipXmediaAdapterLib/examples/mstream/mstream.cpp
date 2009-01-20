@@ -418,7 +418,7 @@ void createMediaTaskandFlowGraph()
     // Creates a sipXmediaFactoryImpl
     pFactory = sipXmediaFactoryFactory(&cfgDb);
 
-    MpMediaTask* pMediaTask = MpMediaTask::getMediaTask(1);
+    MpMediaTask* pMediaTask = MpMediaTask::getMediaTask();
     //sleep(0);
 
     char sdesName[64];
@@ -742,7 +742,7 @@ OsStatus deleteConnection(int connId)
 //******************************************************************************
 void showStatus()
 {
-    MpMediaTask* pMediaTask = MpMediaTask::getMediaTask(1);
+    MpMediaTask* pMediaTask = MpMediaTask::getMediaTask();
 
     pMediaTask->mediaInfo();
 
