@@ -47,6 +47,11 @@ MpSpeakerSelectBase *MpSpeakerSelectBase::createInstance(const UtlString &name)
 
 /* ============================ MANIPULATORS ============================== */
 
+void MpSpeakerSelectBase::setDefaultAlgorithm(const UtlString& name)
+{
+   smDefaultAlgorithm = name;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
