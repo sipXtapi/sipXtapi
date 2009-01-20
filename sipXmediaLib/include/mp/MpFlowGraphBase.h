@@ -214,9 +214,12 @@ public:
    virtual OsStatus gainFocus(void);
      /**<
      *  Only the flow graph that has the focus is permitted to access
-     *  the audio hardware.
+     *  the audio hardware.  This may only be called if this flow graph
+     *  is managed and started. Also this call is meaningful only if local
+     *  audio is enabled for this flowgraph.
      *
-     *  @retval OS_INVALID - only a MpBasicFlowGraph can have focus.
+     *  @retval  OS_SUCCESS on success
+     *  @retval  OS_FAILED if flowgraph does not support setting focus.
      */
 
      /// @brief Inserts \p rResource into the flow graph downstream of the
@@ -257,9 +260,12 @@ public:
    virtual OsStatus loseFocus(void);
      /**<
      *  Only the flow graph that has the focus is permitted to access
-     *  the audio hardware.
+     *  the audio hardware.  This may only be called if this flow graph
+     *  is managed and started. Also this call is meaningful only if local
+     *  audio is enabled for this flowgraph.
      *
-     *  @retval OS_INVALID - only a MpBasicFlowGraph can have focus.
+     *  @retval  OS_SUCCESS on success
+     *  @retval  OS_FAILED if flowgraph does not support setting focus.
      */
 
      /// @brief posts a resource notification message to the Notification dispatcher.
