@@ -24,7 +24,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-// LOCAL DATA TYPES
+UtlString MpJitterBufferEstimation::smDefaultAlgorithm;
 
 /* //////////////////////////////// PUBLIC //////////////////////////////// */
 
@@ -32,21 +32,23 @@
 
 MpJitterBufferEstimation *MpJitterBufferEstimation::createJbe(const UtlString &algName)
 {
-   if (algName == MpJbeFixed::name)
+   const UtlString &name = (algName.length() == 0) ? smDefaultAlgorithm : algName;
+
+   if (name == MpJbeFixed::name)
    {
       return new MpJbeFixed();
    } 
    else
    {
 #ifdef EXTERNAL_JB_ESTIMATION // [
-      return ::createJbe(algName.data());
+      return ::createJbe(name.data());
 
 #else // EXTERNAL_VAD ][
       OsSysLog::add(FAC_MP, PRI_WARNING,
                     "MpJitterBufferEstimation::createJbe(): "
                     "Could not find JBE algorithm with name \"%s\"!"
                     " Using default JBE algorithm instead.",
-                    algName.data());
+                    name.data());
       // Default VAD for unknown names is simple VAD.
       return new MpJbeFixed();
 
@@ -56,6 +58,11 @@ MpJitterBufferEstimation *MpJitterBufferEstimation::createJbe(const UtlString &a
 }
 
 /* ============================= MANIPULATORS ============================= */
+
+void MpJitterBufferEstimation::setDefaultAlgorithm(const UtlString& name)
+{
+   smDefaultAlgorithm = name;
+}
 
 /* ============================== ACCESSORS =============================== */
 

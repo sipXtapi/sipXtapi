@@ -23,6 +23,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+UtlString MpSpeakerSelectBase::smDefaultAlgorithm;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -30,27 +31,18 @@
 
 MpSpeakerSelectBase *MpSpeakerSelectBase::createInstance(const UtlString &name)
 {
-   //if (name == MpSpeakerSelectSimple::name)
-   if (false)
-   {
-      //return new MpSpeakerSelectSimple();
-      return NULL;
-   } 
-   else
-   {
+   const UtlString &algName = (name.length() == 0) ? smDefaultAlgorithm : name;
+
 #ifdef EXTERNAL_SS // [
-      return ::createSS(name.data());
+   return ::createSS(algName.data());
 
 #else // EXTERNAL_SS ][
-      OsSysLog::add(FAC_MP, PRI_WARNING,
-                    "MpSpeakerSelectBase::createInstance(): "
-                    "Could not find SS with name \"%s\"! Using default SS instead.",
-                    name.data());
-      // Default SS for unknown names is simple SS.
-      //return new MpSpeakerSelectSimple();
-      return NULL;
+   OsSysLog::add(FAC_MP, PRI_WARNING,
+                 "MpSpeakerSelectBase::createInstance(): "
+                 "Could not find SS with name \"%s\"!",
+                 algName.data());
+   return NULL;
 #endif // EXTERNAL_SS ]
-   }
 }
 
 /* ============================ MANIPULATORS ============================== */

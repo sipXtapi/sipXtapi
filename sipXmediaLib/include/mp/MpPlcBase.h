@@ -47,9 +47,9 @@ public:
 //@{
 
      /// Factory method for PLC algorithms creation.
-   static MpPlcBase *createPlc(const UtlString &plcName = "");
+   static MpPlcBase *createPlc(const UtlString &name = "");
      /**<
-     *  @param[in] plcName - name of PLC algorithm to use. Use empty string
+     *  @param[in] name - name of PLC algorithm to use. Use empty string
      *             to get default algorithm.
      *
      *  @returns Method never returns NULL. If appropriate PLC algorithm is
@@ -133,6 +133,17 @@ public:
      *            stream (if negative).
      */
 
+     /// Set algorithm to be used by default.
+   static void setDefaultAlgorithm(const UtlString& name);
+     /**<
+     *  Initially default algorithm is defined at compile time. Using this
+     *  function you can change default algorithm at run-time or switch back to
+     *  compile-time default.
+     *
+     *  @param[in] name - name of algorithm to use by default. Reverts to
+     *             compile-time default if empty.
+     */
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -164,6 +175,8 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   static UtlString smDefaultAlgorithm; ///< Name of algorithm to be used by default.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

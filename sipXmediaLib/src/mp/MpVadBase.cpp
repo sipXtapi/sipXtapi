@@ -23,27 +23,30 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+UtlString MpVadBase::smDefaultAlgorithm;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
-MpVadBase *MpVadBase::createVad(const UtlString &vadName)
+MpVadBase *MpVadBase::createVad(const UtlString &name)
 {
-   if (vadName == MpVadSimple::name)
+   const UtlString &algName = (name.length() == 0) ? smDefaultAlgorithm : name;
+
+   if (algName == MpVadSimple::name)
    {
       return new MpVadSimple();
    } 
    else
    {
 #ifdef EXTERNAL_VAD // [
-      return ::createVad(vadName.data());
+      return ::createVad(algName.data());
 
 #else // EXTERNAL_VAD ][
       OsSysLog::add(FAC_MP, PRI_WARNING,
                     "MpVadBase::createVad(): "
                     "Could not find VAD with name \"%s\"! Using default VAD instead.",
-                    vadName.data());
+                    algName.data());
       // Default VAD for unknown names is simple VAD.
       return new MpVadSimple();
 
@@ -52,6 +55,11 @@ MpVadBase *MpVadBase::createVad(const UtlString &vadName)
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+void MpVadBase::setDefaultAlgorithm(const UtlString& name)
+{
+   smDefaultAlgorithm = name;
+}
 
 /* ============================ ACCESSORS ================================= */
 

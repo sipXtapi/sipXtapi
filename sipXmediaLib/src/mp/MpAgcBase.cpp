@@ -23,6 +23,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+UtlString MpAgcBase::smDefaultAlgorithm;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -30,20 +31,22 @@
 
 MpAgcBase *MpAgcBase::createAgc(const UtlString &name)
 {
-   if (name == MpAgcSimple::name)
+   const UtlString &algName = (name.length() == 0) ? smDefaultAlgorithm : name;
+
+   if (algName == MpAgcSimple::name)
    {
       return new MpAgcSimple();
    } 
    else
    {
 #ifdef EXTERNAL_AGC // [
-      return ::createAgc(name.data());
+      return ::createAgc(algName.data());
 
 #else // EXTERNAL_AGC ][
       OsSysLog::add(FAC_MP, PRI_WARNING,
                     "MpAgcBase::createAgc(): "
                     "Could not find AGC with name \"%s\"! Using default AGC instead.",
-                    name.data());
+                    algName.data());
       // Default AGC for unknown names is simple AGC.
       return new MpAgcSimple();
 
@@ -52,6 +55,11 @@ MpAgcBase *MpAgcBase::createAgc(const UtlString &name)
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+void MpAgcBase::setDefaultAlgorithm(const UtlString& name)
+{
+   smDefaultAlgorithm = name;
+}
 
 /* ============================ ACCESSORS ================================= */
 

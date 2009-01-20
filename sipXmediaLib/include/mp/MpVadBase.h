@@ -53,9 +53,9 @@ public:
      */
 
      /// Factory method for VAD algorithms creation.
-   static MpVadBase *createVad(const UtlString &vadName = "");
+   static MpVadBase *createVad(const UtlString &name = "");
      /**<
-     *  @param[in] vadName - name of VAD algorithm to use. Use empty string
+     *  @param[in] name - name of VAD algorithm to use. Use empty string
      *             to get default algorithm.
      *
      *  @returns Method never returns NULL. If appropriate VAD algorithm is
@@ -100,6 +100,17 @@ public:
      *          otherwise OS_FAILED
      */ 
 
+     /// Set algorithm to be used by default.
+   static void setDefaultAlgorithm(const UtlString& name);
+     /**<
+     *  Initially default algorithm is defined at compile time. Using this
+     *  function you can change default algorithm at run-time or switch back to
+     *  compile-time default.
+     *
+     *  @param[in] name - name of algorithm to use by default. Reverts to
+     *             compile-time default if empty.
+     */
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -118,6 +129,8 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   static UtlString smDefaultAlgorithm; ///< Name of algorithm to be used by default.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

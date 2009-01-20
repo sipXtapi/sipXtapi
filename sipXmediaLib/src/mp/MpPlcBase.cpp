@@ -23,27 +23,30 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+UtlString MpPlcBase::smDefaultAlgorithm;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
-MpPlcBase *MpPlcBase::createPlc(const UtlString &plcName)
+MpPlcBase *MpPlcBase::createPlc(const UtlString &name)
 {
-   if (plcName == MpPlcSilence::name)
+   const UtlString &algName = (name.length() == 0) ? smDefaultAlgorithm : name;
+
+   if (algName == MpPlcSilence::name)
    {
       return new MpPlcSilence();
    } 
    else
    {
 #ifdef EXTERNAL_PLC // [
-      return ::createPlc(plcName.data());
+      return ::createPlc(algName.data());
 
 #else // EXTERNAL_PLC ][
       OsSysLog::add(FAC_MP, PRI_WARNING,
                     "MpPlcBase::createPlc(): "
                     "Could not find PLC with name \"%s\"! Using default PLC instead.",
-                    plcName.data());
+                    algName.data());
       // Default PLC for unknown names is silence substitution.
       return new MpPlcSilence();
 
@@ -52,6 +55,11 @@ MpPlcBase *MpPlcBase::createPlc(const UtlString &plcName)
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+void MpPlcBase::setDefaultAlgorithm(const UtlString& name)
+{
+   smDefaultAlgorithm = name;
+}
 
 /* ============================ ACCESSORS ================================= */
 
