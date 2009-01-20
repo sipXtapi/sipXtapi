@@ -1,8 +1,8 @@
 // 
-// Copyright (C) 2005-2008 SIPez LLC
+// Copyright (C) 2005-2009 SIPez LLC
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005-2008 SIPfoundry Inc.
+// Copyright (C) 2005-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // $$
@@ -94,7 +94,7 @@ class PlayAudioOldNotificationTest : public CppUnit::TestCase
         // Initialize the factory factory
         mpMediaFactory = 
            sipXmediaFactoryFactory(NULL, FRAME_SIZE_MS, 
-                                   MAX_SAMPLE_RATE, DEFAULT_SAMPLE_RATE);
+                                   MAX_SAMPLE_RATE, DEFAULT_SAMPLE_RATE, TRUE);
     } 
 
     virtual void tearDown()

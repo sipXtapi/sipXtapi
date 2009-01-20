@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007-2008 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -36,17 +36,14 @@
 #include <mp/MprDelayConstructor.h>
 #include <mp/MprSpeakerSelectorConstructor.h>
 #include <mp/MpMediaTask.h>
+#include <mp/MpMMTimer.h>
 #include "CpTopologyGraphFactoryImpl.h"
 #include "mi/CpMediaInterfaceFactory.h"
 #include "CpTopologyGraphInterface.h"
 #include <os/OsSysLog.h>
 
-#ifdef DISABLE_LOCAL_AUDIO // [
-#  include <mp/MpMMTimer.h>
-#else // DISABLE_LOCAL_AUDIO ][
-   // REMOVE THIS when device enumerator/monitor is implemented
-#  define USE_DEVICE_ADD_HACK
-#endif // DISABLE_LOCAL_AUDIO ]
+// REMOVE THIS when device enumerator/monitor is implemented
+#define USE_DEVICE_ADD_HACK
 
 #ifdef USE_DEVICE_ADD_HACK // [
 
@@ -107,32 +104,24 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 extern CpMediaInterfaceFactory* spFactory;
 extern int siInstanceCount;
 
-extern "C" CpMediaInterfaceFactory* cpTopologyGraphFactoryFactory(OsConfigDb* pConfigDb, 
-                                                                  uint32_t frameSizeMs, 
-                                                                  uint32_t maxSamplesPerSec,
-                                                                  uint32_t defaultDeviceSamplesPerSec)
-{
-    if(spFactory == NULL)
-    {
-        spFactory = new CpMediaInterfaceFactory();
-        spFactory->setFactoryImplementation(new CpTopologyGraphFactoryImpl(pConfigDb,
-                                                                           frameSizeMs, 
-                                                                           maxSamplesPerSec,
-                                                                           defaultDeviceSamplesPerSec));
-    }    
-    siInstanceCount++;
-    return spFactory;
-}
-
 #ifdef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb,
                                                             uint32_t frameSizeMs, 
                                                             uint32_t maxSamplesPerSec,
-                                                            uint32_t defaultDeviceSamplesPerSec)
+                                                            uint32_t defaultDeviceSamplesPerSec,
+                                                            UtlBoolean enableLocalAudio)
 {
-    return(cpTopologyGraphFactoryFactory(pConfigDb, frameSizeMs, 
-                                         maxSamplesPerSec, 
-                                         defaultDeviceSamplesPerSec));
+   if(spFactory == NULL)
+   {
+      spFactory = new CpMediaInterfaceFactory();
+      spFactory->setFactoryImplementation(new CpTopologyGraphFactoryImpl(pConfigDb,
+                                                                         frameSizeMs, 
+                                                                         maxSamplesPerSec,
+                                                                         defaultDeviceSamplesPerSec,
+                                                                         enableLocalAudio));
+   }    
+   siInstanceCount++;
+   return spFactory;
 }
 #endif
 
@@ -145,7 +134,8 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
 CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                                        uint32_t frameSizeMs, 
                                                        uint32_t maxSamplesPerSec,
-                                                       uint32_t defaultSamplesPerSec)
+                                                       uint32_t defaultSamplesPerSec,
+                                                       UtlBoolean enableLocalAudio)
 : sipXmediaFactoryImpl(pConfigDb, frameSizeMs, maxSamplesPerSec, defaultSamplesPerSec)
 , mpInitialResourceTopology(NULL)
 , mpResourceFactory(NULL)
@@ -182,41 +172,51 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     // Get media task ticker notification
     OsNotification *pTickerNotf = MpMediaTask::getMediaTask(0)->getTickerNotification();
 
+    if (enableLocalAudio)
+    {
 #ifdef USE_DEVICE_ADD_HACK // [
-    // Create source (input) device and add it to manager.
-    INPUT_DRIVER *sourceDevice = new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*mpInputDeviceManager));
-    MpInputDeviceHandle  sourceDeviceId = mpInputDeviceManager->addDevice(*sourceDevice);
-    assert(sourceDeviceId > 0);
+      // Create source (input) device and add it to manager.
+      INPUT_DRIVER *sourceDevice =
+         new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*mpInputDeviceManager));
+      MpInputDeviceHandle sourceDeviceId = mpInputDeviceManager->addDevice(*sourceDevice);
+      assert(sourceDeviceId > 0);
 
-    // Create sink (output) device and add it to manager.
-    OUTPUT_DRIVER *sinkDevice = new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-    MpOutputDeviceHandle  sinkDeviceId = mpOutputDeviceManager->addDevice(sinkDevice);
-    assert(sinkDeviceId > 0);
+      // Create sink (output) device and add it to manager.
+      OUTPUT_DRIVER *sinkDevice =
+         new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+      MpOutputDeviceHandle sinkDeviceId = mpOutputDeviceManager->addDevice(sinkDevice);
+      assert(sinkDeviceId > 0);
 
-    OsStatus tempRes;
+      OsStatus tempRes;
 
-    // Enable devices
-    tempRes = mpInputDeviceManager->enableDevice(sourceDeviceId);
-    assert(tempRes == OS_SUCCESS);
-    tempRes = mpOutputDeviceManager->enableDevice(sinkDeviceId);
-    assert(tempRes == OS_SUCCESS);
+      // Enable devices
+      tempRes = mpInputDeviceManager->enableDevice(sourceDeviceId);
+      assert(tempRes == OS_SUCCESS);
+      tempRes = mpOutputDeviceManager->enableDevice(sinkDeviceId);
+      assert(tempRes == OS_SUCCESS);
 
-    // Use our output device as a source of media task ticks.
-    tempRes = mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
-                                                              pTickerNotf);
-    assert(tempRes == OS_SUCCESS);
+      // Use our output device as a source of media task ticks.
+      tempRes = mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
+                                                                pTickerNotf);
+      assert(tempRes == OS_SUCCESS);
 #else // USE_DEVICE_ADD_HACK ][
-    // Use multimedia timer as a source of media task ticks.
-    mpMediaTaskTicker = MpMMTimer::create(MpMMTimer::Notification);
-    mpMediaTaskTicker->setNotification(pTickerNotf);
-    mpMediaTaskTicker->run(mFrameSizeMs*1000);
+       assert(!"Can't enable local audio without USE_DEVICE_ADD_HACK defined!");
 #endif // USE_DEVICE_ADD_HACK ]
+    }
+    else
+    {
+       // Use multimedia timer as a source of media task ticks.
+       mpMediaTaskTicker = MpMMTimer::create(MpMMTimer::Notification);
+       mpMediaTaskTicker->setNotification(pTickerNotf);
+       mpMediaTaskTicker->run(mFrameSizeMs*1000);
+    }
 
     mpInitialResourceTopology = buildDefaultInitialResourceTopology();
-#ifndef DISABLE_LOCAL_AUDIO // [
-    // Add one local connection to initial topology by default.
-    addLocalConnectionTopology(mpInitialResourceTopology);
-#endif // DISABLE_LOCAL_AUDIO ][
+    if (!enableLocalAudio)
+    {
+       // Add one local connection to initial topology by default.
+       addLocalConnectionTopology(mpInitialResourceTopology);
+    }
     mpResourceFactory = buildDefaultResourceFactory();
     int firstInvalidResourceIndex;
     OsStatus result = 

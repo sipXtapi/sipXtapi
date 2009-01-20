@@ -2,10 +2,10 @@
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2009 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -1037,7 +1037,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                         bool      bUseSequentialPorts = false,
                                         const char* szTLSCertificateNickname = NULL,
                                         const char* szTLSCertificatePassword = NULL,
-                                        const char* szDbLocation = NULL) ;
+                                        const char* szDbLocation = NULL,
+                                        bool        bEnableLocalAudio = true) ;
 
 
 /** 
@@ -1089,6 +1090,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
  * @param szTLSCertificateNickname Nickname of the certificate to use as an SSL server.
  * @param szTLSCertificatePassword Password for the SSL server certificate.
  * @param szDbLocation Path to the certificate database.
+ * @param bEnableLocalAudio Should local sound card be engaged or not.
+ *        Setting this parameter to FALSE is useful for server applications
+ *        which should work without a sound card installed.
  */
 SIPXTAPI_API SIPX_RESULT sipxReInitialize(SIPX_INST* phInst,
                                         const int udpPort = DEFAULT_UDP_PORT,

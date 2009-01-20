@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007-2008 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -57,7 +57,8 @@ public:
     CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                uint32_t frameSizeMs, 
                                uint32_t maxSamplesPerSec,
-                               uint32_t defaultDeviceSamplesPerSec);
+                               uint32_t defaultDeviceSamplesPerSec,
+                               UtlBoolean enableLocalAudio);
 
       /// Destructor.
     virtual
