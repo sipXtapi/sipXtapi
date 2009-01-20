@@ -66,7 +66,7 @@ int          MpMediaTask::mMaxFlowGraph = NULL;
 
 /* ============================ CREATORS ================================== */
 
-MpMediaTask* MpMediaTask::createMediaTask(int maxFlowGraph)
+MpMediaTask* MpMediaTask::createMediaTask(int maxFlowGraph, UtlBoolean enableLocalAudio)
 {
    UtlBoolean isStarted;
 
@@ -76,7 +76,7 @@ MpMediaTask* MpMediaTask::createMediaTask(int maxFlowGraph)
    assert(spInstance == NULL);
 
    if (spInstance == NULL)
-       spInstance = new MpMediaTask(maxFlowGraph);
+       spInstance = new MpMediaTask(maxFlowGraph, enableLocalAudio);
 
    isStarted = spInstance->isStarted();
    if (!isStarted)
@@ -182,11 +182,14 @@ OsStatus MpMediaTask::setDebug(UtlBoolean enableFlag)
 // always returns OS_SUCCESS.
 OsStatus MpMediaTask::setFocus(MpFlowGraphBase* pFlowGraph)
 {
-   MpMediaTaskMsg msg(MpMediaTaskMsg::SET_FOCUS, pFlowGraph);
-   OsStatus       res;
+   if (mIsLocalAudioEnabled)
+   {
+      MpMediaTaskMsg msg(MpMediaTaskMsg::SET_FOCUS, pFlowGraph);
+      OsStatus       res;
 
-   res = postMessage(msg, smOperationQueueTimeout);
-   assert(res == OS_SUCCESS);
+      res = postMessage(msg, smOperationQueueTimeout);
+      assert(res == OS_SUCCESS);
+   }
 
    return OS_SUCCESS;
 }
@@ -494,7 +497,7 @@ void MpMediaTask::getQueueUsage(int& numMsgs, int& softLimit, int& hardLimit)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Default constructor (called only indirectly via getMediaTask())
-MpMediaTask::MpMediaTask(int maxFlowGraph)
+MpMediaTask::MpMediaTask(int maxFlowGraph, UtlBoolean enableLocalAudio)
 : OsServerTask("MpMedia", NULL, MPMEDIA_DEF_MAX_MSGS,
                MEDIA_TASK_PRIORITY)
 , mMutex(OsMutex::Q_PRIORITY)  // create mutex for protecting data
@@ -512,6 +515,7 @@ MpMediaTask::MpMediaTask(int maxFlowGraph)
 //, numQueuedMsgs(0)
 , mpSignalMsgPool(NULL)
 , mFlowgraphTicker(0, flowgraphTickerCallback)
+, mIsLocalAudioEnabled(enableLocalAudio)
 #ifdef _PROFILE /* [ */
 , mStartToEndTime(20, 0, 1000, " %4d", 5)
 , mStartToStartTime(20, 0, 1000, " %4d", 5)

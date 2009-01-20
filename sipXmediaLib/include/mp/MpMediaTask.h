@@ -110,7 +110,8 @@ public:
 //@{
 
      /// Create the media processing task
-   static MpMediaTask* createMediaTask(int maxFlowGraph);
+   static MpMediaTask* createMediaTask(int maxFlowGraph,
+                                       UtlBoolean enableLocalAudio = true);
 
      /// Return a pointer to the media processing task if exists.
    static MpMediaTask* getMediaTask();
@@ -323,7 +324,7 @@ public:
 protected:
 
      /// Default constructor
-   MpMediaTask(int maxFlowGraph);
+   MpMediaTask(int maxFlowGraph, UtlBoolean enableLocalAudio);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -350,6 +351,7 @@ private:
    static const OsTime smOperationQueueTimeout; ///< Timeout for posting messages
                              ///< to the flowgraph queue.
    OsCallback mFlowgraphTicker; ///< OsNotification to call flowgraphTickerCallback()
+   UtlBoolean mIsLocalAudioEnabled; ///< Affects setFocus().
 
    //  Static data members used to enforce Singleton behavior
    static MpMediaTask* volatile  spInstance;  ///< @brief pointer to the single instance

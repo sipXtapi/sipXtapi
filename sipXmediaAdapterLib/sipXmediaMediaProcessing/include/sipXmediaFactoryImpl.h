@@ -46,8 +46,10 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 
      /// @brief Default constructor
    sipXmediaFactoryImpl(OsConfigDb* pConfigDb, 
-                        uint32_t frameSizeMs, uint32_t maxSamplesPerSec,
-                        uint32_t defaultSamplesPerSec);
+                        uint32_t frameSizeMs,
+                        uint32_t maxSamplesPerSec,
+                        uint32_t defaultSamplesPerSec,
+                        UtlBoolean enableLocalAudio);
      /**<
      *  @param pConfigDb - a configuration database to pass user-settable config
      *         parameters to sipXmediaLib.  TODO: Someone that knows more, document this better!
@@ -67,6 +69,11 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
      *         the default is 16000kHz.
      *  @param defaultSamplesPerSec - The sample rate that device managers and 
      *         flowgraphs will use when no sample rate is specified.
+     *  @param enableLocalAudio - If TRUE, local sound card will be used to play
+     *         audio and provide heartbeat for media processing. If FALSE, local
+     *         sound card will not be used and high-res timer will be used for
+     *         media processing heartbeat. Setting to FALSE is useful for server
+     *         use case.
      */
      
 

@@ -136,7 +136,8 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                                        uint32_t maxSamplesPerSec,
                                                        uint32_t defaultSamplesPerSec,
                                                        UtlBoolean enableLocalAudio)
-: sipXmediaFactoryImpl(pConfigDb, frameSizeMs, maxSamplesPerSec, defaultSamplesPerSec)
+: sipXmediaFactoryImpl(pConfigDb, frameSizeMs, maxSamplesPerSec,
+                       defaultSamplesPerSec, enableLocalAudio)
 , mpInitialResourceTopology(NULL)
 , mpResourceFactory(NULL)
 , mpConnectionResourceTopology(NULL)

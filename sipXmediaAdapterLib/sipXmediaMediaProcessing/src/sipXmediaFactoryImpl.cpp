@@ -66,7 +66,8 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
       spFactory->setFactoryImplementation(new sipXmediaFactoryImpl(pConfigDb,
                                                                    frameSizeMs, 
                                                                    maxSamplesPerSec,
-                                                                   defaultSamplesPerSec));
+                                                                   defaultSamplesPerSec,
+                                                                   enableLocalAudio));
    }
    siInstanceCount++;
 
@@ -103,7 +104,8 @@ extern "C" void sipxDestroyMediaFactoryFactory()
 sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb, 
                                            uint32_t frameSizeMs, 
                                            uint32_t maxSamplesPerSec,
-                                           uint32_t defaultSamplesPerSec)
+                                           uint32_t defaultSamplesPerSec,
+                                           UtlBoolean enableLocalAudio)
 {
    // See Doxygen comments for this constructor for information on the impact 
    // of the values of maxSamplesPerFrame and maxSamplesPerSec.
@@ -159,7 +161,7 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb,
    }
 
    // init the media processing task
-   mpMediaTask = MpMediaTask::createMediaTask(maxFlowGraph); 
+   mpMediaTask = MpMediaTask::createMediaTask(maxFlowGraph, enableLocalAudio); 
 
 #ifdef INCLUDE_RTCP /* [ */
    mpiRTCPControl = CRTCManager::getRTCPControl();
