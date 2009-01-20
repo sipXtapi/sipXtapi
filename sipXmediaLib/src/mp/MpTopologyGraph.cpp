@@ -184,30 +184,37 @@ OsStatus MpTopologyGraph::gainFocus(void)
 {
    UtlBoolean    boolRes;
    OsStatus      result;
+   OsStatus      retval = OS_FAILED;
 
-#ifndef DISABLE_LOCAL_AUDIO // ]
    // enable the FromInputDevice and ToOutputDevice -- we have focus
    {
       MpResource* pResource = NULL;
       result = lookupResource("FromMic1",
                               pResource);
-      assert(result == OS_SUCCESS);
-      assert(pResource);
-      boolRes = pResource->enable();
-      assert(boolRes);
+      if (result == OS_SUCCESS)
+      {
+         // This flowgraph have local input part. Disable it.
+         assert(pResource);
+         boolRes = pResource->enable();
+         assert(boolRes);
+         retval = OS_SUCCESS;
+      }
    }
    {
       MpResource* pResource = NULL;
       result = lookupResource("ToSpeaker1",
                               pResource);
-      assert(result == OS_SUCCESS);
-      assert(pResource);
-      boolRes = pResource->enable();
-      assert(boolRes);
+      if (result == OS_SUCCESS)
+      {
+         // This flowgraph have local output part. Disable it.
+         assert(pResource);
+         boolRes = pResource->enable();
+         assert(boolRes);
+         retval = OS_SUCCESS;
+      }
    }
-#endif // DISABLE_LOCAL_AUDIO
 
-   return OS_SUCCESS;
+   return retval;
 }
 
 // Notification that this flow graph has just lost the focus.
@@ -216,30 +223,37 @@ OsStatus MpTopologyGraph::loseFocus(void)
 {
    UtlBoolean    boolRes;
    OsStatus      result;
+   OsStatus      retval = OS_FAILED;
 
-#ifndef DISABLE_LOCAL_AUDIO // [
    // disable the FromInputDevice and ToOutputDevice -- we no longer have the focus.
    {
       MpResource* pResource = NULL;
       result = lookupResource("FromMic1",
                               pResource);
-      assert(result == OS_SUCCESS);
-      assert(pResource);
-      boolRes = pResource->disable();
-      assert(boolRes);
+      if (result == OS_SUCCESS)
+      {
+         // This flowgraph have local input part. Disable it.
+         assert(pResource);
+         boolRes = pResource->disable();
+         assert(boolRes);
+         retval = OS_SUCCESS;
+      }
    }
    {
       MpResource* pResource = NULL;
       result = lookupResource("ToSpeaker1",
                               pResource);
-      assert(result == OS_SUCCESS);
-      assert(pResource);
-      boolRes = pResource->disable();
-      assert(boolRes);
+      if (result == OS_SUCCESS)
+      {
+         // This flowgraph have local input part. Disable it.
+         assert(pResource);
+         boolRes = pResource->disable();
+         assert(boolRes);
+         retval = OS_SUCCESS;
+      }
    }
-#endif //DISABLE_LOCAL_AUDIO ]
 
-   return OS_SUCCESS;
+   return retval;
 }
 
 /* ============================ ACCESSORS ================================= */
