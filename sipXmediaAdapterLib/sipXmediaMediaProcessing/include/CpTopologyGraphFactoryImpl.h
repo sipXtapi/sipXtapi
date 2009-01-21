@@ -176,6 +176,7 @@ protected:
    MpResourceFactory     *mpResourceFactory;
    MpResourceTopology    *mpConnectionResourceTopology;
    MpResourceTopology    *mpMcastConnectionResourceTopology;
+   UtlBoolean             mIsLocalAudioEnabled;
    MpInputDeviceManager  *mpInputDeviceManager;
    MpOutputDeviceManager *mpOutputDeviceManager;
    MpMMTimer             *mpMediaTaskTicker;
