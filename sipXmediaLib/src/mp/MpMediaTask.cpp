@@ -980,7 +980,20 @@ void MpMediaTask::flowgraphTickerCallback(const intptr_t userData,
                                           const intptr_t eventData)
 {
    OsStatus result = MpMediaTask::signalFrameStart();
-   assert(result == OS_SUCCESS);
+   if (result == OS_LIMIT_REACHED)
+   {
+      // OS_LIMIT_REACHED is returned when there are no more free messages
+      // in the pool. This means that MediaTask is blocked for too long and
+      // does not process messages and return them to pool. This is a normal
+      // situation when you hit breakpoint during debugging, and in this case
+      // you should just comment out this assert. In production this is NOT
+      // normal and should be fixed.
+      assert(!"Something is blocking MediaTask for too long!");
+   }
+   else
+   {
+      assert(result == OS_SUCCESS);
+   }
 }
 
 /* ============================ FUNCTIONS ================================= */
