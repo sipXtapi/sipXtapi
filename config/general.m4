@@ -1640,16 +1640,16 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
     fi
     AC_SUBST(SS_LDFLAGS)
 # Speaker selection enable
-    AC_ARG_ENABLE([enable-ss],
-                  [AS_HELP_STRING([--enable-ss],
-                                  [Enable Sepaker Selection resource in flowgraph @<:@default=no@:>@])],
+    AC_ARG_ENABLE([speaker-selection],
+                  [AS_HELP_STRING([--enable-speaker-selection],
+                                  [Enable Speaker Selection resource in flowgraph @<:@default=no@:>@])],
                   [ case "${enableval}" in
-                       yes) ac_enable_ss=true  ;;
-                       no)  ac_enable_ss=false ;;
-                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-ss) ;;
+                       yes) ac_enable_speaker_selection=true  ;;
+                       no)  ac_enable_speaker_selection=false ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-speaker-selection) ;;
                     esac],
-                  [ac_enable_ss=false ])
-    if test x${ac_enable_ss} != xfalse; then
+                  [ac_enable_speaker_selection=false ])
+    if test x${ac_enable_speaker_selection} != xfalse; then
 	AC_DEFINE(INSERT_SPEAKER_SELECTOR, [1], [Enable Sepaker Selection resource in flowgraph])
 	CXXFLAGS+=" -DINSERT_SPEAKER_SELECTOR "
     fi
