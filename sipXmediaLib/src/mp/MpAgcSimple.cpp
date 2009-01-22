@@ -48,7 +48,9 @@ MpAgcSimple::~MpAgcSimple()
 
 void MpAgcSimple::reset()
 {
-
+   mAdaptation = INT16_MAX;
+   mAmplitude = INT16_MAX;
+   mWasClipping = FALSE;
 }
 
 /* ============================ MANIPULATORS ============================== */

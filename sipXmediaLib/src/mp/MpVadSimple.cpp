@@ -114,5 +114,6 @@ OsStatus MpVadSimple::setParam(const char* paramName, void* value)
 
 void MpVadSimple::reset()
 {
-   mSamplesPerSecond = 0;
+   mLastFrameSize = 0;
+   mLastEnergy = 0;
 }
