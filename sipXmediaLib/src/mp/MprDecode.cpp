@@ -793,21 +793,28 @@ UtlBoolean MprDecode::handleReset()
 {
    OsLock lock(mLock);
 
-   // Reset JB and dejitter
+   // Reset JB, JBE and dejitter
    mpJB->reset();
+   mpJbEstimationState->reset();
    if (mpMyDJ != NULL)
    {
       mpMyDJ->reset();
    }
 
-   // Reset JBE
-   delete mpJbEstimationState;
-   mpJbEstimationState = MpJitterBufferEstimation::createJbe();
-
    mIsStreamInitialized = FALSE;
    mNumPrevCodecs = 0;
 
    return TRUE;
+}
+
+UtlBoolean MprDecode::handleDisable()
+{
+   if (isEnabled() && mpFlowGraph)
+   {
+      // Reset decoder and all algorithms to start fresh on enable.
+      handleReset();
+   }
+   return MpResource::handleDisable();
 }
 
 /* ============================ FUNCTIONS ================================= */

@@ -109,8 +109,6 @@ MpJitterBuffer::~MpJitterBuffer()
 
 void MpJitterBuffer::reset()
 {
-   OsStatus status;
-
    // Release audio buffers.
    for (int i=0; i<FRAMES_TO_STORE; i++)
    {
@@ -120,27 +118,16 @@ void MpJitterBuffer::reset()
       }
    }
 
-   // Reset variables to initial values.
-   mCurFrameNum = 0;
-   mRemainingSamplesNum = 0;
-   mIsFirstPacket = TRUE;
-   mStreamRtpPayload = -1;
-   mSamplesPerPacket = 0;
-
-   // Reset VAD
-   delete mpVad;
-   mpVad = MpVadBase::createVad();
-   status = mpVad->init(mOutputSampleRate);
-   assert(status == OS_SUCCESS);
-
-   // Reset AGC
-   delete mpAgc;
-   mpAgc = MpAgcBase::createAgc();
-   status = mpAgc->init(mOutputSampleRate);
-   assert(status == OS_SUCCESS);
-
-   // Reset PLC and resampler
-   setPlc(mPlcName);
+   // Reset VAD, AGC, PLC and resampler
+   mpVad->reset();
+   mpAgc->reset();
+   if (!mIsFirstPacket)
+   {
+      // We can't use reset() for PLC, because we do not know whether next
+      // stream will have the same sample rate or not. Thus we have to call
+      // init() for every new stream.
+      setPlc(mPlcName);
+   }
    if (mpResampler != NULL)
    {
       mpResampler->resetStream();

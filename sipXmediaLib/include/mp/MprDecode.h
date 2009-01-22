@@ -254,6 +254,9 @@ private:
      /// Handle MPRM_RESET message.
    UtlBoolean handleReset();
 
+     /// @copydoc MpResource::handleDisable()
+   UtlBoolean handleDisable();
+
      /// Copy constructor (not implemented for this class)
    MprDecode(const MprDecode& rMprDecode);
 
