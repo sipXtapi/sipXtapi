@@ -85,7 +85,7 @@ public:
 //@{
 
      /// Reset algorithm state to initial and prepare for processing of new data.
-   virtual OsStatus reset() = 0;
+   virtual void reset() = 0;
      /**<
      *  It's supposed that init() will not be called after reset(). So reset()
      *  must turn algorithm to the state as right after calling init().
