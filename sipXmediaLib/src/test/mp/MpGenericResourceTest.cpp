@@ -45,7 +45,7 @@ void MpGenericResourceTest::setUp()
    int numCodecPaths = sizeof(codecPaths)/sizeof(codecPaths[0]);
 
    // Setup media task
-   res = mpStartUp(mSamplesPerSec, mSamplesPerFrame, 6*10, 
+   res = mpStartUp(mSamplesPerSec, mSamplesPerFrame, 512,
                    NULL, numCodecPaths, codecPaths);
    CPPUNIT_ASSERT(res == OS_SUCCESS);
 
