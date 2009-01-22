@@ -37,7 +37,7 @@ public:
    OsStatus init(int maxParticipants, int maxActive)
       {mNumParticipants = maxParticipants; mEnabled = new UtlBoolean[maxParticipants]; return OS_SUCCESS;};
    ~MpTestSpeakerSelection() {delete[] mEnabled;};
-   OsStatus reset() {return OS_SUCCESS;};
+   void reset() {};
    OsStatus enableParticipant(int num, UtlBoolean newState)
       {mEnabled[num] = newState; return OS_SUCCESS;};
    OsStatus processFrame(MpSpeechParams* speechParams[], int frameSize)
