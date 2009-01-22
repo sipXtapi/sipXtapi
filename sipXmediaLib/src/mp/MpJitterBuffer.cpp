@@ -124,14 +124,22 @@ void MpJitterBuffer::reset()
    if (!mIsFirstPacket)
    {
       // We can't use reset() for PLC, because we do not know whether next
-      // stream will have the same sample rate or not. Thus we have to call
-      // init() for every new stream.
-      setPlc(mPlcName);
+      // stream will have the same sample rate or not. Thus we have to create
+      // a new virgin PLC every time.
+      delete mpPlc;
+      mpPlc = MpPlcBase::createPlc(mPlcName);
    }
    if (mpResampler != NULL)
    {
       mpResampler->resetStream();
    }
+
+   // Reset variables to initial values.
+   mCurFrameNum = 0;
+   mRemainingSamplesNum = 0;
+   mIsFirstPacket = TRUE;
+   mStreamRtpPayload = -1;
+   mSamplesPerPacket = 0;
 }
 
 OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
