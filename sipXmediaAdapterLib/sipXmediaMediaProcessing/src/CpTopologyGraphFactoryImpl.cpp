@@ -512,7 +512,7 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
 
 #ifdef INSERT_SPEAKER_SELECTOR // [
     // Add connections between Speaker Selector and Bridge
-    for (int i=0; i<DEFAULT_SPEAKER_SELECTOR_MAX_IN_OUTPUTS; i++)
+    for (int i=0; i<DEFAULT_SPEAKER_SELECTOR_MAX_OUTPUTS; i++)
     {
       result = resourceTopology->addConnection(DEFAULT_SPEAKER_SELECTOR_RESOURCE_NAME, i,
                                                DEFAULT_BRIDGE_RESOURCE_NAME, i+initialTopologyInputResourcesNum);
