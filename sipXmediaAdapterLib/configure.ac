@@ -65,6 +65,8 @@ fi
       
 
 EXTERNAL_EXTENITIONS
+SPEACKER_SELECTION_CHECK
+
 
 # Look for CPPUnit libraries
 CHECK_CPPUNIT

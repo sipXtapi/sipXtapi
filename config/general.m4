@@ -1505,6 +1505,10 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
 	AC_DEFINE(RTL_AUDIO_ENABLED, [1], [Enable RTL_AUDIO for the whole library])    
 	RTL_CXXFLAGS+=" -DRTL_AUDIO_ENABLED "
     fi
+])dnl
+
+AC_DEFUN([EXTERNAL_EXTENITIONS_MEDIA],
+[
 
 # VAD
     withval=
@@ -1639,6 +1643,19 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
         CXXFLAGS+=" -DEXTERNAL_SS "
     fi
     AC_SUBST(SS_LDFLAGS)
+                                                                        
+
+    CXXFLAGS+=" $RTL_CXXFLAGS "
+    LDFLAGS+=" ${RTL_LDFLAGS} "
+    AC_SUBST(RTL_CXXFLAGS)
+    AC_SUBST(RTL_LDFLAGS)
+    
+])dnl
+
+
+
+AC_DEFUN([SPEACKER_SELECTION_CHECK],
+[
 # Speaker selection enable
     AC_ARG_ENABLE([speaker-selection],
                   [AS_HELP_STRING([--enable-speaker-selection],
@@ -1654,13 +1671,7 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
 	CXXFLAGS+=" -DINSERT_SPEAKER_SELECTOR "
     fi
 
-                                                                        
 
-    CXXFLAGS+=" $RTL_CXXFLAGS "
-    LDFLAGS+=" ${RTL_LDFLAGS} "
-    AC_SUBST(RTL_CXXFLAGS)
-    AC_SUBST(RTL_LDFLAGS)
-    
 ])dnl
 
 # =============== G726  =====================
