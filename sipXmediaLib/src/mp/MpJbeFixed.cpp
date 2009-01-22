@@ -44,6 +44,8 @@ MpJbeFixed::~MpJbeFixed()
 {
 }
 
+/* ============================= MANIPULATORS ============================= */
+
 OsStatus MpJbeFixed::init(int samplerate)
 {
    mSamplerate = samplerate;
@@ -83,7 +85,15 @@ OsStatus MpJbeFixed::update(const RtpHeader *rtp,
    return OS_SUCCESS;
 }
 
-/* ============================= MANIPULATORS ============================= */
+void MpJbeFixed::reset()
+{
+   // Set JB length to 1/3sec = 333ms
+   mJbLength = mSamplerate/3;
+   mDelay = 0;
+
+   RTL_EVENT("JbUpdate_first_offset", 0);
+
+}
 
 /* ============================== ACCESSORS =============================== */
 

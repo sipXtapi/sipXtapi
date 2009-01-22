@@ -47,7 +47,7 @@ public:
      /// Destructor
    virtual ~MpJbeFixed();
 
-     /// Initialize with given samplerate.
+     /// @copydoc MpJitterBufferEstimation::init()
    virtual OsStatus init(int samplerate);
 
 //@}
@@ -56,11 +56,14 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Update estimation with new received packet.
+     /// @copydoc MpJitterBufferEstimation::update()
    virtual OsStatus update(const RtpHeader *rtp,
                            uint32_t cur_rtp_timestamp,
                            uint32_t cur_playback_time,
                            int32_t *hint);
+
+     /// @copydoc MpJitterBufferEstimation::reset()
+   virtual void reset();
 
 //@}
 
