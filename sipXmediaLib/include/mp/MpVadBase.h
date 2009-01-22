@@ -65,14 +65,12 @@ public:
      /// Destructor
    virtual ~MpVadBase() {};
 
-     /// Reset
-   virtual void reset() = 0;
-
 //@}
 
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+
      /// Detect speech presence
    virtual MpSpeechType processFrame(uint32_t packetTimeStamp,
                                      const MpAudioSample* pBuf,
@@ -109,6 +107,14 @@ public:
      *
      *  @param[in] name - name of algorithm to use by default. Reverts to
      *             compile-time default if empty.
+     */
+
+     /// Prepare to process other unrelated audio stream.
+   virtual void reset() = 0;
+     /**<
+     *  Only initialized algorithm can be reseted. Calling reset() should
+     *  bring algorithm to the original state as it was right after init().
+     *  So init() should NOT be called after reset().
      */
 
 //@}

@@ -40,9 +40,6 @@ public:
      /// Destructor
    ~MpVadSimple();
 
-     /// Reset
-   void reset();
-
 //@}
 
 /* ============================ MANIPULATORS ============================== */
@@ -61,6 +58,9 @@ public:
 
      /// Set threshold energy
    void setMinimumEnergy(int minEnergy);
+
+     /// @copydoc MpVadBase::reset()
+   void reset();
 
 //@}
 

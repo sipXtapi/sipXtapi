@@ -57,11 +57,6 @@ MpVadSimple::~MpVadSimple()
 
 }
 
-void MpVadSimple::reset()
-{
-   mSamplesPerSecond = 0;
-}
-
 /* ============================ MANIPULATORS ============================== */
 
 void MpVadSimple::setMinimumEnergy(int minEnergy)
@@ -115,4 +110,9 @@ OsStatus MpVadSimple::setParam(const char* paramName, void* value)
       return OS_SUCCESS;
    }
    return OS_FAILED;
+}
+
+void MpVadSimple::reset()
+{
+   mSamplesPerSecond = 0;
 }
