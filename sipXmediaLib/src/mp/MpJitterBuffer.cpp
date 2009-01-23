@@ -126,8 +126,7 @@ void MpJitterBuffer::reset()
       // We can't use reset() for PLC, because we do not know whether next
       // stream will have the same sample rate or not. Thus we have to create
       // a new virgin PLC every time.
-      delete mpPlc;
-      mpPlc = MpPlcBase::createPlc(mPlcName);
+      mpPlc->fullReset();
    }
    if (mpResampler != NULL)
    {
