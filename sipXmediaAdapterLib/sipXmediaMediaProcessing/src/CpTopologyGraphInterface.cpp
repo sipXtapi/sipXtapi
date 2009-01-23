@@ -3080,7 +3080,7 @@ OsStatus CpTopologyGraphInterface::setConnectionToConnectionWeight(CpTopologyMed
    {
       return stat;
    }
-   assert(destPort > 0);
+   assert(destPort >= 0);
 
    stat = setConnectionWeightOnBridge(srcConnection, destPort, weight);
    return stat;
