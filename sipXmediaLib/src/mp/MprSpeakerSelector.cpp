@@ -38,10 +38,11 @@ MprSpeakerSelector::MprSpeakerSelector(const UtlString& rName,
 :  MpAudioResource(rName, 
                    1, maxInputs, 
                    1, maxOutputs)
+, mDynamicInputMapping(maxInputs != maxOutputs)
 , mNumStreams(maxInputs)
 , mpSS(NULL)
 , mSsFresh(FALSE)
-, mpFrameParams(new MpSpeechParams*[mNumStreams])
+, mpFrameParams(new MpSpeechParams*[maxInputs])
 , mMaxActiveSpeakers(maxActiveSpeakers)
 , mTopRanks(new RankIndexPair[mMaxActiveSpeakers])
 , mInToOutMap(new int[maxInputs])
@@ -58,15 +59,18 @@ MprSpeakerSelector::MprSpeakerSelector(const UtlString& rName,
    mpSS->init(mNumStreams, mMaxActiveSpeakers);
    mSsFresh = TRUE;
 
-   // Initialize mappings.
-   for (int i=0; i<maxInputs; i++)
+   if (mDynamicInputMapping)
    {
-      mInToOutMap[i] = -1;
-      mChangeMapTime[i] = 0;
-   }
-   for (int j=0; j<maxOutputs; j++)
-   {
-      mOutToInMap[j] = -1;
+      // Initialize mappings.
+      for (int i=0; i<maxInputs; i++)
+      {
+         mInToOutMap[i] = -1;
+         mChangeMapTime[i] = 0;
+      }
+      for (int j=0; j<maxOutputs; j++)
+      {
+         mOutToInMap[j] = -1;
+      }
    }
 }
 
@@ -79,16 +83,17 @@ MprSpeakerSelector::MprSpeakerSelector(const UtlString& rName,
 :  MpAudioResource(rName, 
                    1, maxInputs, 
                    1, maxOutputs)
+, mDynamicInputMapping(maxInputs != maxOutputs)
 , mNumStreams(maxInputs)
 , mpSS(pSS)
 , mSsFresh(FALSE)
-, mpFrameParams(new MpSpeechParams*[mNumStreams])
+, mpFrameParams(new MpSpeechParams*[maxInputs])
 , mMaxActiveSpeakers(maxActiveSpeakers)
-, mTopRanks(new RankIndexPair[mMaxActiveSpeakers])
-, mInToOutMap(new int[maxInputs])
-, mOutToInMap(new int[maxOutputs])
+, mTopRanks(mDynamicInputMapping?new RankIndexPair[mMaxActiveSpeakers]:NULL)
+, mInToOutMap(mDynamicInputMapping?new int[maxInputs]:NULL)
+, mOutToInMap(mDynamicInputMapping?new int[maxOutputs]:NULL)
 , mMapTime(0)
-, mChangeMapTime(new int[maxInputs])
+, mChangeMapTime(mDynamicInputMapping?new int[maxInputs]:NULL)
 {
    assert(maxInputs >= maxOutputs);
    assert(maxOutputs >= maxActiveSpeakers);
@@ -98,15 +103,18 @@ MprSpeakerSelector::MprSpeakerSelector(const UtlString& rName,
    mpSS->init(mNumStreams, mMaxActiveSpeakers);
    mSsFresh = TRUE;
 
-   // Initialize mappings.
-   for (int i=0; i<maxInputs; i++)
+   if (mDynamicInputMapping)
    {
-      mInToOutMap[i] = -1;
-      mChangeMapTime[i] = 0;
-   }
-   for (int j=0; j<maxOutputs; j++)
-   {
-      mOutToInMap[j] = -1;
+      // Initialize mappings.
+      for (int i=0; i<maxInputs; i++)
+      {
+         mInToOutMap[i] = -1;
+         mChangeMapTime[i] = 0;
+      }
+      for (int j=0; j<maxOutputs; j++)
+      {
+         mOutToInMap[j] = -1;
+      }
    }
 }
 
@@ -147,7 +155,8 @@ UtlBoolean MprSpeakerSelector::connectInput(MpResource& rFrom,
    UtlBoolean res = MpAudioResource::connectInput(rFrom, fromPortIdx, toPortIdx);
    if (res)
    {
-      if (isOutputConnected(toPortIdx))
+      // If inputs are mapped to output dynamically we should not consider outputs.
+      if (mDynamicInputMapping || isOutputConnected(toPortIdx))
       {
          // Output is already connected, enable participant
          mpSS->enableParticipant(toPortIdx, TRUE);
@@ -163,7 +172,8 @@ UtlBoolean MprSpeakerSelector::connectOutput(MpResource& rTo,
    UtlBoolean res = MpAudioResource::connectOutput(rTo, toPortIdx, fromPortIdx);
    if (res)
    {
-      if (isInputConnected(fromPortIdx))
+      // If inputs are mapped to output dynamically we should not consider outputs.
+      if (!mDynamicInputMapping && isInputConnected(fromPortIdx))
       {
          // Input is already connected, enable participant
          mpSS->enableParticipant(fromPortIdx, TRUE);
@@ -188,8 +198,12 @@ UtlBoolean MprSpeakerSelector::disconnectOutput(int outPortIdx)
    UtlBoolean res = MpAudioResource::disconnectOutput(outPortIdx);
    if (res)
    {
-      // No need to process stream with disconnected output
-      mpSS->enableParticipant(outPortIdx, FALSE);
+      // If inputs are mapped to output dynamically we should not consider outputs.
+      if (!mDynamicInputMapping)
+      {
+         // No need to process stream with disconnected output
+         mpSS->enableParticipant(outPortIdx, FALSE);
+      }
    }
    return res;
 }
@@ -276,9 +290,23 @@ UtlBoolean MprSpeakerSelector::doProcessFrame(MpBufPtr inBufs[],
          mpSS->isParticipantEnabled(i, enabled);
          if (!enabled)
          {
-            // If participant is not enabled - pass input to output directly.
+            // If participant is not enabled - do not process it.
             mpFrameParams[i] = NULL;
-            outBufs[i].swap(inBufs[i]);
+            if (mDynamicInputMapping)
+            {
+               // Dynamic mapping it enabled, treat input as active if there
+               // are any data.
+               if (inBufs[i].isValid())
+               {
+                  // TODO:: We should find an output for this input and push
+                  //        data to it. As a quick hack we just drop this data.
+               }
+            }
+            else
+            {
+               // Static one-to-one mapping is enabled, just pass input to output.
+               outBufs[i].swap(inBufs[i]);
+            }
          }
          else if (inBufs[i].isValid())
          {
@@ -301,8 +329,11 @@ UtlBoolean MprSpeakerSelector::doProcessFrame(MpBufPtr inBufs[],
       // Peek top speakers.
       peekTopSpeakers(mpFrameParams, mNumStreams, mTopRanks, mMaxActiveSpeakers);
 
-      // Update inputs to outputs mapping.
-      updateMapping(mTopRanks, mMaxActiveSpeakers);
+      if (mDynamicInputMapping)
+      {
+         // Update inputs to outputs mapping.
+         updateMapping(mTopRanks, mMaxActiveSpeakers);
+      }
 
       // Send frames of top speakers to the output
       for (int j=0; j<mMaxActiveSpeakers; j++)
@@ -313,7 +344,12 @@ UtlBoolean MprSpeakerSelector::doProcessFrame(MpBufPtr inBufs[],
             // We've reached the end of the active participants list.
             break;
          }
-         outBufs[getOutputForInput(index)].swap(inBufs[index]);
+         int output = index;
+         if (mDynamicInputMapping)
+         {
+            output = getOutputForInput(index);
+         }
+         outBufs[output].swap(inBufs[index]);
       }
    }
 

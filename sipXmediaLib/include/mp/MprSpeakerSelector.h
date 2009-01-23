@@ -107,6 +107,8 @@ protected:
       int      mIndex; ///< Index of a speaker in mpFrameParams array.
    };
 
+   UtlBoolean           mDynamicInputMapping; ///< Are inputs to outputs mapped dynamically
+                                     ///< or statically one-to-one?
    int                  mNumStreams; ///< Maximum number of speakers we can process.
    MpSpeakerSelectBase *mpSS;        ///< Instance of Speaker Selection algorithm.
    UtlBoolean           mSsFresh;    ///< Have algorithm been just initialized or reseted?
