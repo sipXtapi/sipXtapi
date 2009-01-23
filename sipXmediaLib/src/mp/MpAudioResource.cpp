@@ -142,11 +142,8 @@ UtlBoolean MpAudioResource::processFrame(void)
       if(mpOutConns[i].pResource)
       {
          UtlString outputLabel(mpFlowGraph->getFlowgraphName());
-         outputLabel.append("_");
-         outputLabel.append(*this);
-         outputLabel.append("_output_");
-         outputLabel.append((char) i < 10 ? ('0' + i) : ('A' + i - 10));
-         outputLabel.append('_');
+         outputLabel.appendFormat("_%s_output_%d_",
+                                  getName().data(), i);
          outputLabel.append(*mpOutConns[i].pResource);
          RTL_AUDIO_BUFFER(outputLabel, 
                           mpFlowGraph->getSamplesPerSec(), 
