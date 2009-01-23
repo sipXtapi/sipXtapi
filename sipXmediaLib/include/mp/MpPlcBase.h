@@ -68,6 +68,9 @@ public:
      /// Reset
    virtual void reset() = 0;
 
+     /// Full reset followed by init call
+   virtual void fullReset() = 0;
+
 //@}
 
 /* ============================ MANIPULATORS ============================== */

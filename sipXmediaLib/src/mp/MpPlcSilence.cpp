@@ -45,6 +45,12 @@ void MpPlcSilence::reset()
 
 }
 
+void MpPlcSilence::fullReset()
+{
+
+}
+
+
 /* ============================ MANIPULATORS ============================== */
 
 OsStatus MpPlcSilence::insertToHistory(int frameNum,

@@ -40,6 +40,9 @@ public:
      /// Reset
    void reset();
 
+     /// @copydoc MpPlcBase::fullReset()
+   void fullReset();
+
 //@}
 
 /* ============================ MANIPULATORS ============================== */
