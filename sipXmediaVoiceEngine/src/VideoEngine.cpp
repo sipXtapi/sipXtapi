@@ -98,6 +98,10 @@ void VideoEngine::setGipsVideoEngine(GipsVideoEnginePlatform* pVideoEngine)
 {
     OsLock lock(mLock) ;
     mpVideoEngine = pVideoEngine ;
+
+    if (mpVideoEngine != NULL && mhNoCameraBitmap != NULL)
+        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap) ;
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -599,9 +603,11 @@ void VideoEngine::setBitmaps(HBITMAP hNoCamera, HBITMAP hConnecting)
     if (mhNoCameraBitmap != hNoCamera)
     {
         mhNoCameraBitmap = hNoCamera ;
-        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap) ;
     }
     mhConnectingBitmap = hConnecting ;
+    if (mpVideoEngine != NULL)
+        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap) ;
+
 }
 #endif
 
@@ -967,24 +973,23 @@ void VideoEngine::doUserAgentSpecific(int voiceChannel)
 {
     UtlString userAgent = mUserAgent[voiceChannel % MAX_VE_CONNECTIONS] ;
     userAgent.toLower() ;
-    if (userAgent.contains("rtc/"))
+
+    if (mpVideoEngine)
     {
-//            printf("%s: DO RTC HACK\n", userAgent.data()) ;
+        if (userAgent.contains("rtc/"))
+        {
+            int rc = mpVideoEngine->GIPSVideo_SetInverseH263Logic(voiceChannel, true) ;
 
-        int rc = mpVideoEngine->GIPSVideo_SetInverseH263Logic(voiceChannel, true) ;
-
-        checkRC("GIPSVideo_SetInverseH263Logic", voiceChannel, rc, true) ;                       
-        trace(PRI_INFO, "Remote UserAgent: %s, use inverse h263 logic",
-                userAgent.data()) ;
-        
-    }
-    else
-    {
-//            printf("%s: NO HACK\n", userAgent.data()) ;
-
-        trace(PRI_INFO, "Remote UserAgent: %s, use normal h263 logic",
-                userAgent.data()) ;
-        
+            checkRC("GIPSVideo_SetInverseH263Logic", voiceChannel, rc, true) ;                       
+            trace(PRI_INFO, "Remote UserAgent: %s, use inverse h263 logic",
+                    userAgent.data()) ;
+            
+        }
+        else
+        {
+            trace(PRI_INFO, "Remote UserAgent: %s, use normal h263 logic",
+                    userAgent.data()) ;
+        }
     }
 }
 
