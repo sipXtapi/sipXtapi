@@ -22,6 +22,19 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // DEFINES
+//#define DEBUG_SS
+//#define DEBUG_SS_RTL
+//#define DEBUG_SS_RTL_AUDIO
+#ifdef DEBUG_SS // [
+#  include <mp/MpFlowGraphBase.h>
+#endif // DEBUG_SS ]
+#if defined(RTL_ENABLED) || defined(DEBUG_SS_RTL)
+#  include <rtl_macro.h>
+#  if defined(RTL_AUDIO_ENABLED) || defined(DEBUG_SS_RTL_AUDIO)
+#     include <SeScopeAudioBuffer.h>
+#  endif
+#endif
+
 // STATIC VARIABLE INITIALIZATIONS
 // LOCAL CLASSES DECLARATION
 
@@ -270,6 +283,24 @@ UtlBoolean MprSpeakerSelector::doProcessFrame(MpBufPtr inBufs[],
       return TRUE;
    }
 
+#ifdef DEBUG_SS_RTL // [
+   if (mpFlowGraph->getFlowgraphName() == "FG0")
+   {
+      for (int i=0; i < inBufsSize; i++)
+      {
+         UtlString outputLabel(mpFlowGraph->getFlowgraphName());
+         outputLabel.appendFormat("_%s_input_%d", getName().data(), i);
+#ifdef DEBUG_SS_RTL_AUDIO // [
+         RTL_AUDIO_BUFFER(outputLabel,
+                          mpFlowGraph->getSamplesPerSec(),
+                          ((MpAudioBufPtr)inBufs[i]),
+                          0);
+#endif // DEBUG_SS_RTL_AUDIO ]
+         RTL_EVENT(outputLabel, inBufs[i].isValid());
+      }
+   }
+#endif // DEBUG_SS_RTL
+
    if (!isEnabled)
    {
       // Do nothing.
@@ -352,6 +383,73 @@ UtlBoolean MprSpeakerSelector::doProcessFrame(MpBufPtr inBufs[],
          outBufs[output].swap(inBufs[index]);
       }
    }
+
+#ifdef DEBUG_SS_RTL // [
+   // Save input speech parameters and computed ranks.
+   if (mpFlowGraph->getFlowgraphName() == "FG0")
+   {
+      const UtlString basename(mpFlowGraph->getFlowgraphName() + "_" + getName());
+      for (int i=0; i < inBufsSize; i++)
+      {
+         UtlString outputLabelBase(basename);
+         outputLabelBase.appendFormat("_input_%d_", i);
+         if (mpFrameParams[i] != NULL)
+         {
+            {
+               UtlString outputLabel(outputLabelBase);
+               outputLabel.append("speech_type");
+               RTL_EVENT(outputLabel, mpFrameParams[i]->mSpeechType);
+            }
+            {
+               UtlString outputLabel(outputLabelBase);
+               outputLabel.append("amplitude");
+               RTL_EVENT(outputLabel, mpFrameParams[i]->mAmplitude);
+            }
+            {
+               UtlString outputLabel(outputLabelBase);
+               outputLabel.append("is_clipped");
+               RTL_EVENT(outputLabel, mpFrameParams[i]->mIsClipped);
+            }
+            {
+               UtlString outputLabel(outputLabelBase);
+               outputLabel.append("frame_energy");
+               RTL_EVENT(outputLabel, mpFrameParams[i]->mFrameEnergy);
+            }
+            {
+               UtlString outputLabel(outputLabelBase);
+               outputLabel.append("speaker_rank");
+               RTL_EVENT(outputLabel, mpFrameParams[i]->mSpeakerRank);
+            }
+         }
+         if (mDynamicInputMapping)
+         {
+            UtlString outputLabel(outputLabelBase);
+            outputLabel.append("output");
+            RTL_EVENT(outputLabel, mInToOutMap[i]);
+         }
+      }
+
+      // Save active outputs.
+      for (int i=0; i < outBufsSize; i++)
+      {
+         UtlString outputLabel(basename);
+         outputLabel.appendFormat("_output_%d", i);
+#ifdef DEBUG_SS_RTL_AUDIO // [
+         RTL_AUDIO_BUFFER(outputLabel,
+                          mpFlowGraph->getSamplesPerSec(),
+                          ((MpAudioBufPtr)outBufs[i]),
+                          0);
+#endif // DEBUG_SS_RTL_AUDIO ]
+         RTL_EVENT(outputLabel, outBufs[i].isValid());
+         if (mDynamicInputMapping)
+         {
+            UtlString inputLabel(outputLabel);
+            inputLabel.append("_input");
+            RTL_EVENT(inputLabel, mOutToInMap[i]);
+         }
+      }
+   }
+#endif // DEBUG_SS_RTL ]
 
    return ret;
 }
@@ -527,6 +625,26 @@ void MprSpeakerSelector::updateMapping(MprSpeakerSelector::RankIndexPair *topRan
             }
          }
       }
+#ifdef DEBUG_SS // [
+      printf("   %s:MprSpeakerSelector mapping changed:\n",
+             mpFlowGraph->getFlowgraphName().data());
+      printf("      top ranks:\n");
+      for (i=0; i<topRanksNum; i++)
+      {
+         int index = topRanks[i].mIndex;
+         printf("      Input %d (rank %d) -> output %d\n",
+                index, topRanks[i].mRank, index>0?mInToOutMap[index]:-1);
+      }
+      printf("      mapping:\n");
+      for (i=0; i<mNumStreams; i++)
+      {
+         int output = mInToOutMap[i];
+         printf("      Input %2d %c-> output %2d",
+                i, (output >= 0 && mOutToInMap[output] == output)?'<':' ',
+                output);
+         printf("\n");
+      }
+#endif // DEBUG_SS ]
    }
 }
 
