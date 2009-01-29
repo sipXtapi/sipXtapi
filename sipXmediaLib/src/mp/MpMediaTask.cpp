@@ -706,11 +706,13 @@ UtlBoolean MpMediaTask::handleManage(MpFlowGraphBase* pFlowGraph)
 
    if (mManagedCnt >= mMaxFlowGraph) {
       // PRINTF("MpMediaTask::handleManage: ERROR: too many flow graphs!\n", 0,0,0,0,0,0);
+      syslog(FAC_MP, PRI_ERR, "MpMediaTask::handleManage: too many flow graphs!\n");
       return FALSE;
    }
 
    if (isManagedFlowGraph(pFlowGraph)) { // we are already managing
       // PRINTF("MpMediaTask::handleManage: ERROR: flow graph already managed!\n", 0,0,0,0,0,0);
+      syslog(FAC_MP, PRI_WARNING, "MpMediaTask::handleManage: flow graph already managed!!\n");
       return FALSE;                      // the flow graph, return FALSE
    }
 
