@@ -382,6 +382,9 @@ private:
    UtlHistogram mOtherMessages;
 #endif /* _PROFILE ] */
 
+     /// @copydoc OsServerTask::run()
+   int run(void* pArg);
+
      /// Handle an incoming message
    UtlBoolean handleMessage(OsMsg& rMsg);
      /**<

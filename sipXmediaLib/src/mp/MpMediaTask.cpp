@@ -27,6 +27,7 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpMediaTaskMsg.h"
 #include "mp/MpBufferMsg.h"
+#include "mp/MpMMTimerPosix.h"
 
 #ifdef RTL_ENABLED
 #   include <rtl_macro.h>
@@ -581,6 +582,25 @@ MpMediaTask::MpMediaTask(int maxFlowGraph, UtlBoolean enableLocalAudio)
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+int MpMediaTask::run(void* pArg)
+{
+   int res;
+#ifdef __pingtel_on_posix__
+   if (!mIsLocalAudioEnabled)
+   {
+      MpMMTimerPosix::getSignalDescriptor()->unblockThreadSig();
+   }
+#endif
+   res = OsServerTask::run(pArg);
+#ifdef __pingtel_on_posix__
+   if (!mIsLocalAudioEnabled)
+   {
+      MpMMTimerPosix::getSignalDescriptor()->blockThreadSig();
+   }
+#endif
+   return res;
+}
 
 // Handle an incoming message
 // Return TRUE if the message was handled, otherwise FALSE.

@@ -33,6 +33,7 @@ class MpMMTimerPosix : public MpMMTimer
 {
 /* //////////////////////////////// PUBLIC //////////////////////////////// */
 public:
+   class PosixSignalReg; // Foward declaration
 
    static const char * const TYPE;
 
@@ -83,6 +84,8 @@ public:
 ///@name Inquiry
 //@{
 
+     /// Returns signal descriptor for thread blocking/unbloking operations
+   static PosixSignalReg* getSignalDescriptor();
 
 //@}
 
@@ -93,9 +96,17 @@ public:
    public:
       PosixSignalReg(int sigNum, void (*)(int, siginfo_t *, void *));
       ~PosixSignalReg();
+
+        /// Get number of the signaling signal
+      int getSignalNum() const;
+
+      int blockThreadSig();
+      int unblockThreadSig();
+
    private:
       struct sigaction mOldAction; ///< Old signal action
       int mSigNum;                 ///< Signal number
+      sigset_t mBlockSigMask;      ///< Block mask for only this signal
    };
 
      /// Signal callback

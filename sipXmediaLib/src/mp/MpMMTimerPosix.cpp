@@ -21,7 +21,7 @@
 
 const char * const MpMMTimerPosix::TYPE = "POSIX Timer";
 
-static MpMMTimerPosix::PosixSignalReg sPosixTimerReg(TIMER_SIGNAL, MpMMTimerPosix::signalHandler);
+MpMMTimerPosix::PosixSignalReg gPosixTimerReg(TIMER_SIGNAL, MpMMTimerPosix::signalHandler);
 
 MpMMTimerPosix::MpMMTimerPosix(MpMMTimer::MMTimerType type)
 : MpMMTimer(type)
@@ -117,8 +117,6 @@ OsStatus MpMMTimerPosix::stop()
 OsStatus MpMMTimerPosix::getPeriodRange(unsigned* pMinUSecs, 
                                         unsigned* pMaxUSecs)
 {
-   OsStatus status = OS_FAILED;
-
    if (pMaxUSecs)
       *pMaxUSecs = INT_MAX;
 
@@ -206,12 +204,24 @@ void MpMMTimerPosix::signalHandler(int signum, siginfo_t *siginfo, void *context
    object->callback();
 }
 
+MpMMTimerPosix::PosixSignalReg* MpMMTimerPosix::getSignalDescriptor()
+{
+   return &gPosixTimerReg;
+}
+
 MpMMTimerPosix::PosixSignalReg::PosixSignalReg(int sigNum, void (*sa)(int, siginfo_t *, void *))
 : mSigNum(sigNum)
 {
    sigset_t mask;
    sigemptyset(&mask);
    sigaddset(&mask, mSigNum);
+
+   sigemptyset (&mBlockSigMask);
+   sigaddset (&mBlockSigMask, mSigNum);
+
+   // Block this signal for all the threads by defalut
+   // Interested in signal thread should use unblockThreadSig() to allow to catch it
+   sigprocmask (SIG_BLOCK, &mBlockSigMask, NULL);   
 
    struct sigaction act;
    act.sa_sigaction = sa;
@@ -222,8 +232,25 @@ MpMMTimerPosix::PosixSignalReg::PosixSignalReg(int sigNum, void (*sa)(int, sigin
    assert (res == 0);
 }
 
+int MpMMTimerPosix::PosixSignalReg::getSignalNum() const
+{
+   return mSigNum;
+}
+
+int MpMMTimerPosix::PosixSignalReg::blockThreadSig()
+{
+   return pthread_sigmask (SIG_BLOCK, &mBlockSigMask, NULL);
+}
+
+int MpMMTimerPosix::PosixSignalReg::unblockThreadSig()
+{
+   return pthread_sigmask (SIG_UNBLOCK, &mBlockSigMask, NULL);
+}
+
 MpMMTimerPosix::PosixSignalReg::~PosixSignalReg()
 {
    int res = sigaction(mSigNum, &mOldAction, NULL);
    assert (res == 0);
+
+   sigprocmask (SIG_UNBLOCK, &mBlockSigMask, NULL);  
 }
