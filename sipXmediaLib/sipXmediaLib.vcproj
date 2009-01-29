@@ -76,7 +76,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include;contrib\libgsm\inc;contrib\libspeex\include;contrib\libilbc\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\FFmpeg\include\ffmpeg"
-				PreprocessorDefinitions="HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;SIPX_VIDEO;NDEBUG;WIN32;_LIB"
+				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;SIPX_VIDEO;NDEBUG;WIN32;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -4135,10 +4135,10 @@
 				RelativePath="include\rtcp\RTCPTimer.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\RtpHeader.h">
+				RelativePath="include\rtcp\RTPHeader.h">
 			</File>
 			<File
-				RelativePath="include\rtcp\RTPHeader.h">
+				RelativePath=".\include\mp\RtpHeader.h">
 			</File>
 			<File
 				RelativePath="include\rtcp\SenderReport.h">
