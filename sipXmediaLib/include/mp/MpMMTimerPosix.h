@@ -27,13 +27,16 @@
 /**
 *  @brief Posix implementation of periodic timer
 *
-*  NOTE: In notification mode only async-signal-safe functions should be called.
+*  WARNING: In notification mode only async-signal-safe functions should be
+*  called. To make this real you should use PosixSignalReg to unblock
+*  signals for exactly one thread for a safe period of time. See
+*  MpMediaTask::run() for an example.
 */
 class MpMMTimerPosix : public MpMMTimer
 {
 /* //////////////////////////////// PUBLIC //////////////////////////////// */
 public:
-   class PosixSignalReg; // Foward declaration
+   class PosixSignalReg; // Forward declaration
 
    static const char * const TYPE;
 
@@ -84,13 +87,13 @@ public:
 ///@name Inquiry
 //@{
 
-     /// Returns signal descriptor for thread blocking/unbloking operations
+     /// Returns signal descriptor for thread blocking/unblocking operations
    static PosixSignalReg* getSignalDescriptor();
 
 //@}
 
 
-     /// Help class for signal registring
+     /// Help class for signal registering
    class PosixSignalReg
    {
    public:
@@ -118,7 +121,7 @@ protected:
    OsNotification* mpNotification; ///< Notification object used to signal a tick of the timer.   
    UtlBoolean mbTimerStarted;      ///< Is timer started.
    timer_t mTimer;                 ///< Timer object.
-   sem_t mSyncSemaphore;           ///< Syncronisation semaphore for linear operation.
+   sem_t mSyncSemaphore;           ///< Synchronization semaphore for linear operation.
 
    void callback();
 

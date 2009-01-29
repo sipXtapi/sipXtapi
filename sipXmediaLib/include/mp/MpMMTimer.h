@@ -32,6 +32,13 @@
 /**
 *  @brief High-precision periodic timer (MultiMedia timer) base class.
 *
+*  This class is not supposed to be a generic purpose timer. You MUST read
+*  documentation for specific implementation of the timer and clearly understand
+*  what you're doing before using this. Media timers are very sensitive to
+*  incorrect usage and may cause deadlocks and crashes easily when used
+*  incorrectly. Main purpose of these timers is to provide ticks for MpMediaTask
+*  when there are no enabled sound card.
+*
 *  Use create() static method to get an instantiate of a timer.
 */
 class MpMMTimer
