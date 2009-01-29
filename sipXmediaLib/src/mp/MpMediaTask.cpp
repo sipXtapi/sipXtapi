@@ -28,15 +28,9 @@
 #include "mp/MpMediaTaskMsg.h"
 #include "mp/MpBufferMsg.h"
 
-#if defined(WIN32) // [ WIN32
-#  include "mp/MpMMTimerWnt.h"
-#  define DEFAULT_TIMER_CLASS MpMMTimerWnt
-#elif defined(__pingtel_on_posix__) // ][ POSIX
+#ifdef __pingtel_on_posix__ // [
 #  include "mp/MpMMTimerPosix.h"
-#  define DEFAULT_TIMER_CLASS MpMMTimerPosix
-#else // ][ Unsupported platform
-#  error Unsupported target platform.
-#endif // ] Unsupported platform
+#endif // ] __pingtel_on_posix__
 
 #ifdef RTL_ENABLED
 #   include <rtl_macro.h>
@@ -594,21 +588,45 @@ MpMediaTask::MpMediaTask(int maxFlowGraph, UtlBoolean enableLocalAudio)
 
 int MpMediaTask::run(void* pArg)
 {
-   int res;
-#ifdef __pingtel_on_posix__
-   if (!mIsLocalAudioEnabled)
+   UtlBoolean doShutdown;
+   OsMsg*    pMsg = NULL;
+   OsStatus  res;
+
+   do
    {
-      MpMMTimerPosix::getSignalDescriptor()->unblockThreadSig();
-   }
-#endif
-   res = OsServerTask::run(pArg);
 #ifdef __pingtel_on_posix__
-   if (!mIsLocalAudioEnabled)
-   {
-      MpMMTimerPosix::getSignalDescriptor()->blockThreadSig();
-   }
+      if (!mIsLocalAudioEnabled)
+      {
+          MpMMTimerPosix::getSignalDescriptor()->unblockThreadSig();
+      }
 #endif
-   return res;
+      res = receiveMessage((OsMsg*&) pMsg);          // wait for a message
+#ifdef __pingtel_on_posix__
+      if (!mIsLocalAudioEnabled)
+      {
+          MpMMTimerPosix::getSignalDescriptor()->blockThreadSig();
+
+          // Probably signal may cause to wake up lock
+          if (res == OS_WAIT_TIMEOUT)
+            continue;
+      }
+#endif
+
+      assert(res == OS_SUCCESS);
+
+      doShutdown = isShuttingDown();
+      if (!doShutdown)
+      {                                              // comply with shutdown
+         if (!handleMessage(*pMsg))                  // process the message
+            OsServerTask::handleMessage(*pMsg);
+      }
+
+      if (!pMsg->getSentFromISR())
+         pMsg->releaseMsg();                         // free the message
+   }
+   while (!doShutdown);
+
+   return 0;        // and then exit
 }
 
 // Handle an incoming message
