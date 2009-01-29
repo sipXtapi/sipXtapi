@@ -98,6 +98,8 @@ struct MpSpeechParams
                               ///< length in ms).
    unsigned mSpeakerRank;     ///< Speaker selection rank, 0 is the highest
                               ///< priority, UINT_MAX is for silent participants.
+   double mSpeakerWeight;     ///< Amplitude-based speaker weight, 0 means 
+                              ///< the lowest weight which is silence.
 };
 
 /* ============================== FUNCTIONS ============================== */
