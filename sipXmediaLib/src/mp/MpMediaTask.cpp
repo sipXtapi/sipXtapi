@@ -27,7 +27,16 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpMediaTaskMsg.h"
 #include "mp/MpBufferMsg.h"
-#include "mp/MpMMTimerPosix.h"
+
+#if defined(WIN32) // [ WIN32
+#  include "mp/MpMMTimerWnt.h"
+#  define DEFAULT_TIMER_CLASS MpMMTimerWnt
+#elif defined(__pingtel_on_posix__) // ][ POSIX
+#  include "mp/MpMMTimerPosix.h"
+#  define DEFAULT_TIMER_CLASS MpMMTimerPosix
+#else // ][ Unsupported platform
+#  error Unsupported target platform.
+#endif // ] Unsupported platform
 
 #ifdef RTL_ENABLED
 #   include <rtl_macro.h>
