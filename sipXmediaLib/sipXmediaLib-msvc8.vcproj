@@ -1741,6 +1741,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\mp\MpPackedResourceMsg.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\mp\MpPlayer.h"
 					>
 				</File>
@@ -1922,6 +1926,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MprRecorder.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprRecorderConstructor.h"
 					>
 				</File>
 				<File

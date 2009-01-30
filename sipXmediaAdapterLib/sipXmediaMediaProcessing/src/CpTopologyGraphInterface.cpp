@@ -1,8 +1,8 @@
 // 
-// Copyright (C) 2005-2008 SIPez LLC.
+// Copyright (C) 2005-2009 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -37,6 +37,7 @@
 #include <mp/MpRtpOutputConnection.h>
 #include <mp/MprEncode.h>
 #include <mp/MprBridge.h>
+#include <mp/MprRecorder.h>
 #include <mp/dtmflib.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpCodecFactory.h>
@@ -1465,21 +1466,28 @@ OsStatus CpTopologyGraphInterface::stopChannelAudio(int connectionId)
 
 
 OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
-                                                   const char* szFile) 
+                                                      const char* szFile) 
 {
-    // TODO:: This API is designed to record the audio from a single channel.  
-    // If the connectionId is -1, record all.
-
-    return OS_NOT_SUPPORTED;
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprRecorder::start(DEFAULT_RECORDER_RESOURCE_NAME,
+                                *mpTopologyGraph->getMsgQ(),
+                                szFile,
+                                MprRecorder::WAV_PCM_16);
+   }
+   return stat;
 }
 
 OsStatus CpTopologyGraphInterface::stopRecordChannelAudio(int connectionId) 
 {
-    // TODO:: This API is designed to record the audio from a single channel.  
-    // If the connectionId is -1, record all.
-
-
-    return stopRecording() ;
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprRecorder::stop(DEFAULT_RECORDER_RESOURCE_NAME,
+                               *mpTopologyGraph->getMsgQ());
+   }
+   return stat;
 }
 
 
@@ -1638,11 +1646,10 @@ OsStatus CpTopologyGraphInterface::recordMic(int ms,
     return OS_NOT_SUPPORTED;
 }
 
-OsStatus CpTopologyGraphInterface::ezRecord(int ms, 
-                                         int silenceLength, 
-                                         const char* fileName, 
-                                         double& duration,
-                                         OsProtectedEvent* ev)
+OsStatus CpTopologyGraphInterface::ezRecord(int ms,
+                                            int silenceLength,
+                                            const char* fileName,
+                                            double& duration)
 {
    return OS_NOT_SUPPORTED;
 }

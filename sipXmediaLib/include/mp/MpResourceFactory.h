@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPfoundry Inc.
+// Copyright (C) 2006-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -32,6 +32,7 @@
 #define DEFAULT_RTP_OUTPUT_RESOURCE_TYPE "MpRtpOutputConnection"
 #define DEFAULT_ENCODE_RESOURCE_TYPE "MprEncode"
 #define DEFAULT_BUFFER_RECORDER_RESOURCE_TYPE "MprBufferRecorder"
+#define DEFAULT_RECORDER_RESOURCE_TYPE "MprRecorder"
 #define DEFAULT_SPLITTER_RESOURCE_TYPE "MprSplitter"
 #define DEFAULT_NULL_AEC_RESOURCE_TYPE "MprNullAec"
 #define DEFAULT_VAD_RESOURCE_TYPE "MprVad"

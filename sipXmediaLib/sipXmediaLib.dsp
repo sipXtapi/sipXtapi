@@ -1176,6 +1176,10 @@ SOURCE=.\include\mp\MpOutputDeviceManager.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpPackedResourceMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpPlayer.h
 # End Source File
 # Begin Source File
@@ -1373,6 +1377,10 @@ SOURCE=.\include\mp\MprNullConstructor.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprRecorder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprRecorderConstructor.h
 # End Source File
 # Begin Source File
 

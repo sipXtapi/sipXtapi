@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -56,20 +56,12 @@ public:
 
       FLOWGRAPH_START_PLAY,
       FLOWGRAPH_START_TONE,
-      FLOWGRAPH_START_RECORD,
 
       FLOWGRAPH_STOP_PLAY,
       FLOWGRAPH_STOP_TONE,
       FLOWGRAPH_STOP_RECORD,
       
       FLOWGRAPH_SYNCHRONIZE,
-
-      // Resource notification messages using old flowgraph msg approach
-      // NOTE: this is a temporary fix, and will be replaced by newer
-      //       notification messaging.  (see MpResourceNotificationMsg.h and 
-      //       OsMsgDispatcher)
-      ON_MPRRECORDER_ENABLED,    ///< sent when recording is started
-      ON_MPRRECORDER_DISABLED,   ///< sent when recording is stopped
 
       RESOURCE_SPECIFIC_START = 100     ///< start of resource-specific messages
    } MpFlowGraphMsgType;

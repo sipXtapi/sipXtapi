@@ -1,8 +1,8 @@
 // 
-// Copyright (C) 2005-2008 SIPez LLC.
+// Copyright (C) 2005-2009 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -1343,7 +1343,7 @@ OsStatus CpPhoneMediaInterface::recordChannelAudio(int connectionId,
        from now on, call recorder records both mic, speaker and local dtmf      
        we don't want raw pcm, but wav pcm, raw pcm should be passed to a callback
        meant for recording, for example for conversion to mp3 or other format */
-    return mpFlowGraph->record(0, -1, NULL, NULL, NULL, NULL, NULL, NULL,
+    return mpFlowGraph->record(-1, -1, NULL, NULL, NULL, NULL, NULL, NULL,
                                NULL, NULL, szFile, 0, 0, NULL, MprRecorder::WAV_PCM_16) ;
 }
 
@@ -1609,42 +1609,19 @@ OsStatus CpPhoneMediaInterface::recordMic(int ms,
 }
 
 
-OsStatus CpPhoneMediaInterface::ezRecord(int ms, 
-                                         int silenceLength, 
-                                         const char* fileName, 
-                                         double& duration,
-                                         OsProtectedEvent* ev)
+OsStatus CpPhoneMediaInterface::ezRecord(int ms,
+                                         int silenceLength,
+                                         const char* fileName,
+                                         double& duration)
 {
    OsStatus ret = OS_UNSPECIFIED;
    if (mpFlowGraph && fileName)
    {
-     if (!ev) // default behavior
-     {
         ret = mpFlowGraph->ezRecord(ms,
                                     silenceLength,
                                     fileName,
                                     duration,
                                     MprRecorder::WAV_PCM_16);
-     }
-     else
-     {
-        ret = mpFlowGraph->record(ms,            // timeMS
-                                  silenceLength, // silenceLength
-                                  NULL,          // micName
-                                  NULL,          // echoOutName
-                                  fileName,      // spkrName
-                                  NULL,          // mic32name
-                                  NULL,          // spkr32Name
-                                  NULL,          // echoIn8Name
-                                  NULL,          // echoIn32Name
-                                  NULL,          // playName
-                                  NULL,          // callName
-                                  0,             // toneOptions
-                                  0,             // repeat
-                                  ev,            // completition
-                                  MprRecorder::WAV_PCM_16 // format
-                                  );
-     }
    }
    
    return ret;

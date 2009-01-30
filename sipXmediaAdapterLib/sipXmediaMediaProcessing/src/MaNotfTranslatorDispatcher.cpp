@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -81,9 +81,10 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
       case MpResNotificationMsg::MPRNM_FROMFILE_RESUMED:
       case MpResNotificationMsg::MPRNM_FROMFILE_STOPPED:
       case MpResNotificationMsg::MPRNM_FROMFILE_FINISHED:
-      case MpResNotificationMsg::MPRNM_BUFRECORDER_STOPPED:
-      case MpResNotificationMsg::MPRNM_BUFRECORDER_FINISHED:
-      case MpResNotificationMsg::MPRNM_BUFRECORDER_NOINPUTDATA:
+      case MpResNotificationMsg::MPRNM_RECORDER_STARTED:
+      case MpResNotificationMsg::MPRNM_RECORDER_STOPPED:
+      case MpResNotificationMsg::MPRNM_RECORDER_FINISHED:
+      case MpResNotificationMsg::MPRNM_RECORDER_ERROR:
       case MpResNotificationMsg::MPRNM_DELAY_SPEECH_STARTED:
       case MpResNotificationMsg::MPRNM_DELAY_NO_DELAY:
       case MpResNotificationMsg::MPRNM_DELAY_QUIESCENCE:
@@ -200,14 +201,17 @@ MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgTy
    case MpResNotificationMsg::MPRNM_FROMFILE_FINISHED:
       miNotfType = MiNotification::MI_NOTF_PLAY_FINISHED;
       break;
-   case MpResNotificationMsg::MPRNM_BUFRECORDER_STOPPED:
+   case MpResNotificationMsg::MPRNM_RECORDER_STARTED:
+      miNotfType = MiNotification::MI_NOTF_RECORD_STARTED;
+      break;
+   case MpResNotificationMsg::MPRNM_RECORDER_STOPPED:
       miNotfType = MiNotification::MI_NOTF_RECORD_STOPPED;
       break;
-   case MpResNotificationMsg::MPRNM_BUFRECORDER_FINISHED:
+   case MpResNotificationMsg::MPRNM_RECORDER_FINISHED:
       miNotfType = MiNotification::MI_NOTF_RECORD_FINISHED;
       break;
-   case MpResNotificationMsg::MPRNM_BUFRECORDER_NOINPUTDATA:
-      miNotfType = MiNotification::MI_NOTF_RECORD_NOINPUTDATA;
+   case MpResNotificationMsg::MPRNM_RECORDER_ERROR:
+      miNotfType = MiNotification::MI_NOTF_RECORD_ERROR;
       break;
    case MpResNotificationMsg::MPRNM_DTMF_RECEIVED:
       miNotfType = MiNotification::MI_NOTF_DTMF_RECEIVED;

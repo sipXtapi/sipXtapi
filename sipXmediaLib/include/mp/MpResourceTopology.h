@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2008 SIPfoundry Inc.
+// Copyright (C) 2006-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -33,7 +33,8 @@
 #define DEFAULT_DECODE_RESOURCE_NAME "Decode-%d"
 #define DEFAULT_RTP_OUTPUT_RESOURCE_NAME "OutRtp-%d"
 #define DEFAULT_ENCODE_RESOURCE_NAME "Encode-%d"
-#define DEFAULT_BUFFER_RECORDER_RESOURCE_NAME "BufferRecorder1"
+#define DEFAULT_BUFFER_RECORDER_RESOURCE_NAME "BufferCallRecorder"
+#define DEFAULT_RECORDER_RESOURCE_NAME "CallRecorder"
 #define DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME "ToOutputSplitter1"
 #define DEFAULT_AEC_RESOURCE_NAME "Aec1"
 #define DEFAULT_VAD_RESOURCE_NAME "Vad"

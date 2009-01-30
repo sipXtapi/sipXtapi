@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007-2008 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -46,9 +46,10 @@ public:
       MPRNM_FROMFILE_STOPPED,
       MPRNM_FROMFILE_FINISHED,
       MPRNM_FROMFILE_PROGRESS,  ///< Value for MprnProgressMsg notifications.
-      MPRNM_BUFRECORDER_STOPPED,
-      MPRNM_BUFRECORDER_FINISHED,
-      MPRNM_BUFRECORDER_NOINPUTDATA,
+      MPRNM_RECORDER_STARTED,   ///< Recording started.
+      MPRNM_RECORDER_STOPPED,   ///< Recording stopped by manual command.
+      MPRNM_RECORDER_FINISHED,  ///< Recording stopped automatically.
+      MPRNM_RECORDER_ERROR,     ///< Recording stopped because of an error.
       MPRNM_DTMF_RECEIVED,      ///< Value for MprnDTMFMsg notifications.
       MPRNM_DELAY_SPEECH_STARTED,
       MPRNM_DELAY_NO_DELAY,

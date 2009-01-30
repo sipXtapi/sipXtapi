@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -77,7 +77,7 @@ OsStatus MprBufferRecorder::stopRecording(const UtlString& namedResource,
 UtlBoolean MprBufferRecorder::disable(Completion code)
 {
    // This implementation is broken by design. All this should be done
-   // in handleDisable() acually.
+   // in handleDisable() actually.
 
    UtlBoolean res = FALSE;
 
@@ -90,30 +90,23 @@ UtlBoolean MprBufferRecorder::disable(Completion code)
    res = (MpResource::disable());
 
    // If the recording was stopped or finished,
-   MpResNotificationMsg::RNMsgType noteMsgType = 
-      MpResNotificationMsg::MPRNM_MESSAGE_INVALID;
    switch(code)
    {
       case RECORD_FINISHED:
          // Send resource notification message to indicate recording complete.
-         noteMsgType = MpResNotificationMsg::MPRNM_BUFRECORDER_FINISHED;
+         sendNotification(MpResNotificationMsg::MPRNM_RECORDER_FINISHED);
          break;
       case RECORD_STOPPED:
          // Send resource notification message to indicate recording stopped prematurely.
-         noteMsgType = MpResNotificationMsg::MPRNM_BUFRECORDER_STOPPED;
+         sendNotification(MpResNotificationMsg::MPRNM_RECORDER_STOPPED);
          break;
       case NO_INPUT_DATA:
          // Send resource notification message to indicate error - 
          // no input data buffer provided.
-         noteMsgType = MpResNotificationMsg::MPRNM_BUFRECORDER_NOINPUTDATA;
+         sendNotification(MpResNotificationMsg::MPRNM_RECORDER_ERROR);
          break;
       default:
          break;
-   }
-
-   if(noteMsgType != MpResNotificationMsg::MPRNM_MESSAGE_INVALID)
-   {
-      sendNotification(noteMsgType);
    }
 
    return res;
@@ -277,6 +270,7 @@ UtlBoolean MprBufferRecorder::handleEnable()
    if (mpBuffer != NULL)
    {
       mStatus = RECORDING;
+      sendNotification(MpResNotificationMsg::MPRNM_RECORDER_STARTED);
       OsSysLog::add(FAC_MP, PRI_DEBUG, "MprBufferRecorder::enable");
       MpResource::handleEnable();
    } else 

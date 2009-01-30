@@ -1,8 +1,8 @@
-//  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2006-2009 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -14,8 +14,12 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #ifdef __pingtel_on_posix__
-#include <unistd.h>
-#endif
+#  include <unistd.h>
+#  include <fcntl.h>
+#elif defined(WIN32) && !defined(WINCE) /* [ */
+#  include <io.h>
+#  include <fcntl.h>
+#endif /* WIN32 && !WINCE ] */
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
@@ -25,24 +29,13 @@
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MpFlowGraphBase.h"
+#include "mp/MpFlowGraphMsg.h" // For notifying CallFlowgraph about enable/disable.
 #include "mp/MprRecorder.h"
-#include "os/OsProtectEventMgr.h"
-
-#ifndef ABS
-#define ABS(x) (sipx_max((x), -(x)))
-#endif
+#include "mp/MpPackedResourceMsg.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-#define MIN_SPEECH_ENERGY_THRESHOLD 20000
-#define MAX_SPEECH_ENERGY_THRESHOLD 70000
-
-// Default the silence length to 5 secs
-#define DEFAULT_SILENCE_LEN 5
-#define DEFAULT_FRAMES_TO_RECORD 2000000000
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -58,11 +51,9 @@ MprRecorder::MprRecorder(const UtlString& rName)
    mTotalSamplesWritten(0),
    mConsecutiveInactive(0),
    mSilenceLength(0),
-   mPrevEnergy(MIN_SPEECH_ENERGY_THRESHOLD),
    mpEvent(NULL),
    mFramesToRecord(0),
-   mStatus(RECORD_IDLE),
-   mMutex(OsMutex::Q_FIFO)
+   mState(STATE_IDLE)
 {
 }
 
@@ -79,224 +70,69 @@ MprRecorder::~MprRecorder()
           updateWaveHeaderLengths(mFileDescriptor);
        }
        close(mFileDescriptor);
-       mFileDescriptor = -1;
    }
 }
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus MprRecorder::setup(int file, RecordFileFormat recFormat, 
-                            int timeMS, int silenceLength, OsEvent* event)
+OsStatus MprRecorder::start(const UtlString& namedResource,
+                            OsMsgQ& fgQ,
+                            const char *filename,
+                            RecordFileFormat recFormat,
+                            int time,
+                            int silenceLength,
+                            OsEvent* event)
 {
-   MpFlowGraphMsg msg(SETUP, this, (void*) event, 
-                      (void*)silenceLength, file, timeMS);
+   int file = -1;
+   OsStatus res = OS_FAILED;
 
-   mRecFormat = recFormat;
-   if (isEnabled()) 
+   if (NULL != filename)
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::setup"
-                    " -- attempt to setup while enabled!!");
-      return OS_INVALID;
-   }
-   return postMessage(msg);
-}
-
-OsStatus MprRecorder::begin(void)
-{
-   if (isEnabled()) 
-   {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::begin"
-                    " -- attempt to begin while enabled!!");
-      return OS_INVALID;
-   }
-   handleBegin();
-   return OS_SUCCESS;
-}
-
-OsStatus MprRecorder::stop(void)
-{
-   MpFlowGraphMsg msg(STOP, this, NULL, NULL, 0, 0);
-
-   if (!isEnabled()) 
-   {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::stop"
-         " -- attempt to stop while disabled!!\n");
-      return OS_INVALID;
-   }
-   return postMessage(msg);
-}
-
-UtlBoolean MprRecorder::enable(void)
-{
-   if (mFileDescriptor > -1)
-   {
-      mStatus = RECORDING;
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::enable");
-      UtlBoolean res = MpResource::enable();
-
-      if (res && mpFlowGraph)
-      {
-         /* resource is enabled, we started recording, inform flowgraph
-         so it can send media event to sipxtapi and enable some resources
-         if this is call recorder */
-         MpFlowGraphMsg msg(MpFlowGraphMsg::ON_MPRRECORDER_ENABLED,
-                            NULL, (void*) this, NULL, mStatus);
-         postMessage(msg);
-      }
-
-      return res;
-   } else
-   {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                    "MprRecorder::enable (No file designated!)");
-   }
-   return FALSE;
-}
-
-UtlBoolean MprRecorder::disable(Completion code)
-{
-   UtlBoolean res = FALSE;
-
-   // Lock so that the file contents cannot be changed out
-   // from under us while we are updating the file.
-   OsLock lock(mMutex);
-
-   if (mFileDescriptor > -1)
-   {
-      if (mRecFormat == WAV_PCM_16)
-      {
-         updateWaveHeaderLengths(mFileDescriptor);
-      }
-   }
-   if (mStatus != code)
-   {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                    "MprRecorder::disable to report progress "
-                    "mState(%d) code(%d), mFileDescriptor(0x%08x)",
-                    mStatus, code, mFileDescriptor);
-      progressReport(code);
+      file = open(filename, O_BINARY | O_CREAT | O_RDWR, 0640);
    }
 
-   if (RECORDING == mStatus) 
+   if (file > -1)
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG,
-                    "MprRecorder::disable -- stopping recorder");
-      progressReport(RECORD_STOPPED);
-   } else 
-   {
-      OsSysLog::add(FAC_MP, PRI_DEBUG,
-                    "MprRecorder::disable (not already recording)");
+      OsStatus stat;
+      MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START,
+                              namedResource);
+      UtlSerialized &msgData(msg.getData());
+
+      stat = msgData.serialize(file);
+      assert(stat == OS_SUCCESS);
+      stat = msgData.serialize((int)recFormat);
+      assert(stat == OS_SUCCESS);
+      stat = msgData.serialize(time);
+      assert(stat == OS_SUCCESS);
+      stat = msgData.serialize(silenceLength);
+      assert(stat == OS_SUCCESS);
+      stat = msgData.serialize((void*)event);
+      assert(stat == OS_SUCCESS);
+      msgData.finishSerialize();
+      
+      res = fgQ.send(msg, sOperationQueueTimeout);
    }
-   mConsecutiveInactive = 0;
-
-   OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                 "MprRecorder::disable setting mpEvent (%p) to NULL", 
-                 mpEvent);
-   
+   else
    {
-      if (mpEvent != NULL)
-      {
-         // event may be released, do not signal the event any more
-         mpEvent = NULL;
-      }
-
-      if (mFileDescriptor > -1) 
-      {
-         close(mFileDescriptor);
-         mFileDescriptor = -1;
-      }
-      res = (MpResource::disable() && (mFileDescriptor == -1));
+      OsSysLog::add(FAC_MP, PRI_ERR,
+                    "MprRecorder::setup() failed to open file %s, error code is %i",
+                    filename, errno);
    }
-
-   if (res && mpFlowGraph)
-   {
-      /* resource is disabled, we stopped started recording, inform flowgraph
-      so it can send media event to sipxtapi and disable some resources
-      if this is call recorder */
-      MpFlowGraphMsg msg(MpFlowGraphMsg::ON_MPRRECORDER_DISABLED,
-         NULL, (void*) this, NULL, mStatus);
-      postMessage(msg);
-   }
-
-   // TODO: New Resource Notification message to indicate recording
-   //       complete should go here.
 
    return res;
 }
 
-UtlBoolean MprRecorder::closeRecorder()
+OsStatus MprRecorder::stop(const UtlString& namedResource, OsMsgQ& fgQ)
 {
-   UtlBoolean ret = TRUE;
-
-   OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                 "MprRecorder::closeRecorder entering"
-                 " - mFileDescriptor=%d, mStatus=%d",
-                 mFileDescriptor, mStatus);
-   if (isEnabled())
-   {
-      ret = disable(RECORD_STOPPED);
-   }
-
-   OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                 "MprRecorder::closeRecorder leaving "
-                 "- mFileDescriptor=%d, mStatus=%d",
-                 mFileDescriptor, mStatus);
-   return ret;
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_STOP, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 /* ============================ ACCESSORS ================================= */
 
-void MprRecorder::getRecorderStats(double& nBytes,
-                                   double& nSamples, Completion& status)
-{
-   OsLock lock(mMutex);
-
-   nBytes = mTotalBytesWritten;
-   nSamples = mTotalSamplesWritten;
-   status = mStatus;
-}
-
-void MprRecorder::getRecorderStats(struct MprRecorderStats* p)
-{
-   OsLock lock(mMutex);
-
-   p->mTotalBytesWritten = mTotalBytesWritten;
-   p->mTotalSamplesWritten = mTotalSamplesWritten;
-   p->mFinalStatus = mStatus;
-}
-
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
-{
-    UtlBoolean retCode = FALSE;
-
-    // Lock so that the file contents cannot be changed out
-    // from under us while we are updating the file.
-    OsLock lock(mMutex);
-
-    //find out how many bytes were written so far
-    unsigned long length = lseek(handle,0,SEEK_END);
-    
-    //now go back to beginning
-    lseek(handle,4,SEEK_SET);
-    
-    //and update the RIFF length
-    unsigned long rifflength = length-8;
-    write(handle, (char*)&rifflength,sizeof(length));
-
-    //now seek to the data length
-    lseek(handle,40,SEEK_SET);
-    
-    //this should be the length of just the data
-    unsigned long datalength = length-44;
-    write(handle, (char*)&datalength,sizeof(datalength));
-
-    return retCode;
-}
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
                                        MpBufPtr outBufs[],
@@ -306,268 +142,344 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
                                        int samplesPerFrame,
                                        int samplesPerSecond)
 {
-   int numBytes = 0;
-   int numSamples = 0;
    MpAudioBufPtr in;
-   const MpAudioSample* input;
 
-   // Lock so that mFileDescriptor and file contents cannot be changed out
-   // from under us while we are updating the file.
-   OsLock lock(mMutex);
-
-   // try to pass along first input
-   if (inBufsSize > 0)
+   if (inBufsSize == 0 || outBufsSize == 0)
    {
-      in.swap(inBufs[0]);
+      return FALSE;
    }
 
-   if (numOutputs() > 0) 
-   {
-      outBufs[0] = in;
-   }
+   // Take data from the first input
+   in.swap(inBufs[0]);
 
-   if (!isEnabled) 
+   if (!isEnabled || mState != STATE_RECORDING)
    {
+      // Push data further downstream
+      outBufs[0].swap(in);
       return TRUE;
    }
 
-   if (mFileDescriptor < 0) 
+   if (mFileDescriptor < 0)
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::doProcessFrame to disable recording because mFileDescriptor=%d, mStatus=%d",
-            mFileDescriptor, mStatus);
-      disable(RECORD_STOPPED); // just in case...
-   }
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprRecorder::doProcessFrame to finish recording because mFileDescriptor=%d < 0",
+                    mFileDescriptor);
+      finish(FINISHED_ERROR);
 
-   if (inBufsSize == 0) 
-   {
-      // no input buffers, indicate config error
-      disable(INVALID_SETUP);
+      // Push data further downstream
+      outBufs[0].swap(in);
       return TRUE;
    }
 
    // maximum record time reached or final silence timeout.
-   if ((0 >= mFramesToRecord--) || (mSilenceLength <= mConsecutiveInactive)) 
+   if (  (mFramesToRecord >= 0 && mFramesToRecord-- == 0)
+      || (mSilenceLength >= 0 && mConsecutiveInactive >= mSilenceLength))
    {
       OsSysLog::add(FAC_MP, PRI_INFO,
-         "MprRecorder::doProcessFrame to disable recording because"
-         " mFramesToRecord=%d, mStatus=%d mSilenceLength=%d,"
+         "MprRecorder::doProcessFrame to finish recording because"
+         " mFramesToRecord=%d, mSilenceLength=%d,"
          " mConsecutiveInactive=%d", mFramesToRecord,
-         mStatus, mSilenceLength, mConsecutiveInactive);
-      disable(RECORD_FINISHED);
+         mSilenceLength, mConsecutiveInactive);
+      finish(FINISHED_AUTO);
+
+      // Push data further downstream
+      outBufs[0].swap(in);
+      return TRUE;
    }
-   else 
+
+   // Now write the buffer out
+   if (!in.isValid())
    {
-      //now write the buffer out
-      int bytesWritten = 0;
+      // Silence. Write zeros.
 
-      // Write silence if no input
-      if (!in.isValid()) 
+      MpAudioSample silent=0;
+      for (int i=0; i<samplesPerFrame; i++)
       {
-         in = MpMisc.mpFgSilence;
+         int bytesWritten = write(mFileDescriptor, (char *)&silent, sizeof(silent));
+         if (bytesWritten != sizeof(silent))
+         {
+            finish(FINISHED_ERROR);
+         }
+         else
+         {
+            mTotalBytesWritten += sizeof(silent);
+            mTotalSamplesWritten++;
+         }
       }
+      mConsecutiveInactive++;
+   }
+   else
+   {
+      // Active voice. Write it.
 
-      if (isActiveAudio(in->getSpeechType())) 
+      if (isActiveAudio(in->getSpeechType()))
       {
          mConsecutiveInactive = 0;
-      } else 
+      }
+      else
       {
          mConsecutiveInactive++;
       }
 
-      input = in->getSamplesPtr();
-      numSamples = in->getSamplesNumber();
-      numBytes = numSamples * sizeof(MpAudioSample);
-      if (mFileDescriptor > -1)
+      const MpAudioSample* input = in->getSamplesPtr();
+      int numSamples = in->getSamplesNumber();
+      int numBytes = numSamples * sizeof(MpAudioSample);
+      int bytesWritten = write(mFileDescriptor, (char *)input, numBytes);
+
+      if (bytesWritten != numBytes)
       {
-        bytesWritten = write(mFileDescriptor, (char *)input, numBytes);
+         finish(FINISHED_ERROR);
       }
-   
-      if (bytesWritten != numBytes) 
-      {
-         disable(WRITE_ERROR);
-      } else 
+      else
       {
          mTotalBytesWritten += numBytes;
          mTotalSamplesWritten += samplesPerFrame;
       }
+
+      // Push data further downstream
+      outBufs[0].swap(in);
    }
+
    return TRUE;
-}
-
-void MprRecorder::progressReport(Completion code)
-{
-   intptr_t ud;
-
-   mStatus = code;
-
-   {
-      OsLock lock(mMutex); 
-
-      if (NULL != mpEvent) 
-      {
-         mpEvent->getUserData(ud);
-         OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                       "MprRecorder::progressReport(%d), "
-                       "event=%p, &data=0x%"PRIxPTR,
-                       code, mpEvent, ud);
-         if (0 != ud)
-         {
-            MprRecorderStats *rs = (MprRecorderStats*) ud;
-      
-            //report current stats
-            rs->mTotalBytesWritten   = mTotalBytesWritten;
-            rs->mTotalSamplesWritten = mTotalSamplesWritten;
-            rs->mFinalStatus = code;
-            int sps = mpFlowGraph->getSamplesPerSec();
-            rs->mDuration = (1000 * mTotalSamplesWritten) / sps;
-            OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                          "MprRecorder::progressReport "
-                          "mTotalSamplesWritten(%d), "
-                          "sample per second(%d) duration (%d)", 
-                          (int)mTotalSamplesWritten, 
-                          (int)sps, (int)rs->mDuration);
-
-            //now trigger the event...and pass back our struct
-            OsStatus ret;
-            if (OS_SUCCESS != (ret = mpEvent->signal(code)))
-            {
-               OsSysLog::add(FAC_MP, PRI_WARNING, 
-                             "MprRecorder::progressReport "
-                             "signal failed, returned %d, try again", 
-                             (int)ret);
-               // the event was probably just reset, 
-               // try again after waiting for 10 ms.
-               OsTask::delay(10);
-               intptr_t userdata;
-               mpEvent->getUserData(userdata);
-               OsSysLog::add(FAC_MP, PRI_WARNING, 
-                             "user data - old (0x%08"PRIxPTR"), "
-                             "new (0x%08"PRIxPTR"), event (0x%p) ", 
-                             ud, userdata, mpEvent);
-
-// Comment out the assert for production system
-//	            assert(userdata == ud);
-               if (userdata) 
-               {
-                  ret = mpEvent->signal(code);
-                  OsSysLog::add(FAC_MP, PRI_WARNING, 
-                                "MprRecorder::progressReport "
-                                "signal again, returned %d ", 
-                                (int)ret);
-               }
-            }
-         }
-         else
-         {
-               OsSysLog::add(FAC_MP, PRI_WARNING, 
-                             "MprRecorder::progressReport "
-                             "did not signal user data is 0 "
-                             "for event 0x%p", mpEvent);
-         }
-      }
-      else
-      {
-         OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                       "MprRecorder::progressReport(%d) "
-                       "(No event)", code);
-      }
-   }
 }
 
 // Handle messages for this resource.
-UtlBoolean MprRecorder::handleSetup(int file, int timeMS, 
-                                    int silenceLength, 
-                                    OsProtectedEvent* event)
+UtlBoolean MprRecorder::handleStart(int file,
+                                    RecordFileFormat recFormat,
+                                    int timeMS,
+                                    int silenceLength,
+                                    OsEvent* event)
 {
-   int iMsPerFrame = 
+   int iMsPerFrame =
       (1000 * mpFlowGraph->getSamplesPerFrame()) / mpFlowGraph->getSamplesPerSec();
-
-   if (isEnabled()) 
+   if (timeMS > 0)
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                    "MprRecorder::handleSetup -- "
-                    "attempt to setup while enabled!!");
-      return TRUE;
-   }
-
-   if (timeMS > 0) 
-   {
+      // Convert to number of frames
       mFramesToRecord = timeMS / iMsPerFrame;
-   } else 
+   }
+   else
    {
-      mFramesToRecord = DEFAULT_FRAMES_TO_RECORD;
+      // Do not limit recording length by default.
+      mFramesToRecord = -1;
    }
 
-   // If the silence length passed in is zero or less,
-   // then use the default silence length.
-   if (silenceLength <= 0)
+   if (silenceLength > 0)
    {
-      silenceLength = DEFAULT_SILENCE_LEN;
+      // Convert to number of frames
+      mSilenceLength = silenceLength / iMsPerFrame;
+   }
+   else
+   {
+      mSilenceLength = -1;
    }
 
-   // mSilenceLength is held in #frames
-   // so we convert silenceLength to frames.
-   mSilenceLength = 1000 * silenceLength / iMsPerFrame;
-
-   OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::handleSetup\n");
-
-   {
-      OsLock lock(mMutex); 
-      mFileDescriptor = file;
-      mpEvent = event;   
-   }
-
-   mStatus = RECORD_IDLE;
-   OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                 "MprRecorder::handleSetup(%d, %d, %p)... #frames=%d",
-                 file, timeMS, event, mFramesToRecord);
-   return TRUE;
-}
-
-UtlBoolean MprRecorder::handleBegin()
-{
+   mFileDescriptor = file;
+   mpEvent = event;
    mTotalBytesWritten = 0;
    mTotalSamplesWritten = 0;
-   progressReport(RECORDING);
-   enable();
+   mConsecutiveInactive = 0;
+   mState = STATE_RECORDING;
+   mRecFormat = recFormat;
+
+   if (mRecFormat == MprRecorder::WAV_PCM_16)
+   {
+      writeWAVHeader(file, mpFlowGraph->getSamplesPerSec());
+   }
+
+   handleEnable();
+
+   sendNotification(MpResNotificationMsg::MPRNM_RECORDER_STARTED);
+
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MprRecorder::handleStart(%d, %d, %p) finished #frames=%d",
+                 file, timeMS, event, mFramesToRecord);
    return TRUE;
 }
 
 UtlBoolean MprRecorder::handleStop()
 {
-   disable(RECORD_STOPPED);
+   finish(FINISHED_MANUAL);
    return TRUE;
 }
 
-UtlBoolean MprRecorder::handleMessage(MpFlowGraphMsg& rMsg)
+UtlBoolean MprRecorder::handleDisable()
 {
-   OsSysLog::add(FAC_MP, PRI_DEBUG, 
+   if (mState == STATE_RECORDING)
+   {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprRecorder to finish recording because of resource disable.");
+      finish(FINISHED_MANUAL);
+   }
+   MpAudioResource::handleDisable();
+   return TRUE;
+}
+
+UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
+{
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
                  "MprRecorder::handleMessage(%d)", rMsg.getMsg());
    switch (rMsg.getMsg())
    {
-   case SETUP:
+   case MPRM_START:
       {
-         //params:  Int1 = file descriptor,
-         //         Int2 = time to record in milliseconds,
-         //         Ptr1 = OsEvent pointer
-         int file = rMsg.getInt1();
-         int iMSec = rMsg.getInt2();
-         OsProtectedEvent* pEvent = (OsProtectedEvent*) rMsg.getPtr1();
-         int silenceLength = (intptr_t) rMsg.getPtr2();
-         return handleSetup(file, iMSec, silenceLength, pEvent);
+         OsStatus stat;
+         int file;
+         RecordFileFormat recFormat;
+         int timeMS;
+         int silenceLength;
+         OsEvent* pEvent;
+
+         UtlSerialized &msgData(((MpPackedResourceMsg*)(&rMsg))->getData());
+         stat = msgData.deserialize(file);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize((int&)recFormat);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(timeMS);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(silenceLength);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize((void*&)pEvent);
+         assert(stat == OS_SUCCESS);
+         return handleStart(file, recFormat, timeMS, silenceLength, pEvent);
       }
       break;
 
-   case BEGIN:
-      return handleBegin();
-      break;
-
-   case STOP:
+   case MPRM_STOP:
       return handleStop();
       break;
    }
    return MpAudioResource::handleMessage(rMsg);
 }
+
+UtlBoolean MprRecorder::finish(FinishCause cause)
+{
+   UtlBoolean res = FALSE;
+
+   // Update state.
+   mState = STATE_IDLE;
+
+   // Update WAV-header and close file.
+   if (mFileDescriptor > -1)
+   {
+      if (mRecFormat == WAV_PCM_16)
+      {
+         updateWaveHeaderLengths(mFileDescriptor);
+      }
+      close(mFileDescriptor);
+      mFileDescriptor = -1;
+   }
+
+   // New style notification.
+   switch (cause)
+   {
+   case FINISHED_AUTO:
+      sendNotification(MpResNotificationMsg::MPRNM_RECORDER_FINISHED);
+      break;
+   case FINISHED_MANUAL:
+      sendNotification(MpResNotificationMsg::MPRNM_RECORDER_STOPPED);
+      break;
+   case FINISHED_ERROR:
+      sendNotification(MpResNotificationMsg::MPRNM_RECORDER_ERROR);
+      break;
+   }
+
+   // Old style notification (for MpCallFlowGraph::ezRecord() only!)
+   if (mpEvent != NULL)
+   {
+      OsStatus ret = mpEvent->signal(mTotalSamplesWritten);
+      if (OS_SUCCESS != ret)
+      {
+         OsSysLog::add(FAC_MP, PRI_WARNING,
+                       "MprRecorder::progressReport signal failed, returned %d",
+                       (int)ret);
+      }
+      mpEvent = NULL;
+   }
+
+   return res;
+}
+
+UtlBoolean MprRecorder::writeWAVHeader(int handle, unsigned long samplesPerSecond)
+{
+   UtlBoolean retCode = FALSE;
+   char tmpbuf[80];
+   short sampleSize = sizeof(MpAudioSample);
+   short bitsPerSample = sampleSize*8;
+
+   short compressionCode = 1; //PCM
+   short numChannels = 1;
+   unsigned long averageSamplePerSec = samplesPerSecond*sampleSize;
+   short blockAlign = sampleSize*numChannels;
+   unsigned long bytesWritten = 0;
+
+   //write RIFF & length
+   //8 bytes written
+   strcpy(tmpbuf,"RIFF");
+   unsigned long length = 0;
+   bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
+   bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
+
+   //write WAVE & length
+   //8 bytes written
+   strcpy(tmpbuf,"WAVE");
+   bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
+   //    bytesWritten += write(handle,&length, sizeof(length)); //filled in on close
+
+   //write fmt & length
+   //8 bytes written
+   strcpy(tmpbuf,"fmt ");
+   length = 16;
+   bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
+   bytesWritten += write(handle, (char*)&length,sizeof(length)); //filled in on close
+
+   //now write each piece of the format
+   //16 bytes written
+   bytesWritten += write(handle, (char*)&compressionCode, sizeof(compressionCode));
+   bytesWritten += write(handle, (char*)&numChannels, sizeof(numChannels));
+   bytesWritten += write(handle, (char*)&samplesPerSecond, sizeof(samplesPerSecond));
+   bytesWritten += write(handle, (char*)&averageSamplePerSec, sizeof(averageSamplePerSec));
+   bytesWritten += write(handle, (char*)&blockAlign, sizeof(blockAlign));
+   bytesWritten += write(handle, (char*)&bitsPerSample, sizeof(bitsPerSample));
+
+
+   //write data and length
+   strcpy(tmpbuf,"data");
+   length = 0;
+   bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
+   bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
+
+   //total length at this point should be 44 bytes
+   if (bytesWritten == 44)
+      retCode = TRUE;
+
+   return retCode;
+}
+
+UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
+{
+   UtlBoolean retCode = FALSE;
+
+   //find out how many bytes were written so far
+   unsigned long length = lseek(handle,0,SEEK_END);
+
+   //now go back to beginning
+   lseek(handle,4,SEEK_SET);
+
+   //and update the RIFF length
+   unsigned long rifflength = length-8;
+   write(handle, (char*)&rifflength,sizeof(length));
+
+   //now seek to the data length
+   lseek(handle,40,SEEK_SET);
+
+   //this should be the length of just the data
+   unsigned long datalength = length-44;
+   write(handle, (char*)&datalength,sizeof(datalength));
+
+   return retCode;
+}
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
 

@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -16,16 +16,6 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
-
-#if defined(WIN32) && !defined(WINCE) /* [ */
-#   include <io.h>
-#   include <fcntl.h>
-#endif /* WIN32 && !WINCE ] */
-
-#ifdef __pingtel_on_posix__
-#include <unistd.h>
-#include <fcntl.h>
-#endif
 
 // APPLICATION INCLUDES
 #include "os/OsWriteLock.h"
@@ -692,17 +682,44 @@ OsStatus MpCallFlowGraph::postNotification(const MpResNotificationMsg& msg)
    // being sent up.
    OsStatus stat = OS_SUCCESS;
 
-   if(msg.getMsg() == MpResNotificationMsg::MPRNM_FROMFILE_STOPPED)
+   switch(msg.getMsg())
    {
-      // If a file just finished playing, there is some cleanup that needs to be 
-      // done at the flowgraph level that we can queue up to do now.
-      MpFlowGraphMsg cfgStopPlayMsg(MpFlowGraphMsg::FLOWGRAPH_STOP_PLAY);
-      OsMsgQ* pMsgQ = getMsgQ();
-      assert(pMsgQ != NULL);
-      // Send the cleanup message, use default timeout of infinity,
-      // as it should get processed no prob, and is important to get done,
-      // otherwise state would be inconsistent between fromfile resource and flowgraph.
-      stat = pMsgQ->send(cfgStopPlayMsg);
+   case MpResNotificationMsg::MPRNM_FROMFILE_STOPPED:
+      {
+         // If a file just finished playing, there is some cleanup that needs to be 
+         // done at the flowgraph level that we can queue up to do now.
+         MpFlowGraphMsg cfgStopPlayMsg(MpFlowGraphMsg::FLOWGRAPH_STOP_PLAY);
+         OsMsgQ* pMsgQ = getMsgQ();
+         assert(pMsgQ != NULL);
+         // Send the cleanup message, use default timeout of infinity,
+         // as it should get processed no prob, and is important to get done,
+         // otherwise state would be inconsistent between fromfile resource and flowgraph.
+         stat = pMsgQ->send(cfgStopPlayMsg);
+      }
+      break;
+
+   case MpResNotificationMsg::MPRNM_RECORDER_FINISHED:
+   case MpResNotificationMsg::MPRNM_RECORDER_STOPPED:
+   case MpResNotificationMsg::MPRNM_RECORDER_ERROR:
+      {
+         // If a file just finished recording, let flowgraph to clean up.
+         // This should be called from MediaTask context, thus it should be safe
+         // to call handleOnMprRecorderDisabled() directly. Though this is A HACK!
+         handleOnMprRecorderDisabled(msg.getOriginatingResourceName());
+      }
+      break;
+
+   case MpResNotificationMsg::MPRNM_RECORDER_STARTED:
+      {
+         // If a file just started recording, let flowgraph to setup.
+         // This should be called from MediaTask context, thus it should be safe
+         // to call handleOnMprRecorderDisabled() directly. Though this is A HACK!
+         handleOnMprRecorderEnabled(msg.getOriginatingResourceName());
+      }
+      break;
+
+   default:
+      break;
    }
 
    // Now, let the parent postNotification run and do it's work if the last operation
@@ -774,15 +791,9 @@ int MpCallFlowGraph::closeRecorders(void)
    int ret = 0;
    int i;
 
-   if (NULL == this) {
-      MpMediaTask* pMT = MpMediaTask::getMediaTask();
-      MpCallFlowGraph* pIF = (MpCallFlowGraph*) pMT->getFocus();
-      if (NULL != pIF) return pIF->closeRecorders();
-      return 0;
-   }
    for (i=0; i<MAX_RECORDERS; i++) {
       if (mpRecorders[i]) {
-         mpRecorders[i]->closeRecorder();
+         MprRecorder::stop(mpRecorders[i]->getName(), *getMsgQ());
          ret++;
       }
    }
@@ -914,7 +925,7 @@ OsStatus MpCallFlowGraph::Record(int ms,
       created_echoIn32NamePtr = NULL;
    }
 
-   res = record(ms, 999999, created_micNamePtr, created_echoOutNamePtr,
+   res = record(ms, -1, created_micNamePtr, created_echoOutNamePtr,
               created_spkrNamePtr, created_mic32NamePtr, created_spkr32NamePtr,
               created_echoIn8NamePtr, created_echoIn32NamePtr,
               playFilename, NULL, 0, 0, NULL);
@@ -941,47 +952,12 @@ OsStatus MpCallFlowGraph::recordMic(int ms,
                                     int silenceLength,
                                     const char* fileName)
 {
-    OsStatus ret = OS_WAIT_TIMEOUT ;
-    double duration ;
+   OsStatus ret;
+   ret = record(ms, silenceLength, fileName, NULL, NULL,
+                NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 
+                NULL, MprRecorder::WAV_PCM_16);
 
-    MprRecorderStats rs;
-    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-    OsProtectedEvent* recordEvent = eventMgr->alloc();
-    recordEvent->setUserData((intptr_t)&rs);
-
-    int timeoutSecs = (ms/1000 + 1);
-    OsTime maxEventTime(timeoutSecs, 0);
-
-    record(ms, silenceLength, fileName, NULL, NULL,
-                 NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 
-                 NULL, MprRecorder::WAV_PCM_16);
-
-    // Wait until the call sets the number of connections
-    while(recordEvent->wait(0, maxEventTime) == OS_SUCCESS)
-    {
-        intptr_t info;
-        recordEvent->getUserData(info);
-        if (info)
-        {
-            rs = *((MprRecorderStats *)info);
-            duration = rs.mDuration;
-            if (rs.mFinalStatus != MprRecorder::RECORDING)
-            {
-                ret = OS_SUCCESS;
-                break;
-            }
-            else
-                recordEvent->reset();
-        }
-    }
-
-    closeRecorders();
-    // If the event has already been signaled, clean up
-    if(OS_ALREADY_SIGNALED == recordEvent->signal(0))
-    {
-        eventMgr->release(recordEvent);
-    }
-    return ret;
+   return ret;
 }
 
 
@@ -992,46 +968,22 @@ OsStatus MpCallFlowGraph::ezRecord(int ms,
                                    MprRecorder::RecordFileFormat format)
 {
    OsStatus ret = OS_WAIT_TIMEOUT;
-   MprRecorderStats rs;
-   OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-   OsProtectedEvent* recordEvent = eventMgr->alloc();
-   recordEvent->setUserData((intptr_t)&rs);
-
-   int timeoutSecs = (ms/1000 + 1);
-   OsTime maxEventTime(timeoutSecs, 0);
-
+   OsEvent recordEvent;
 
    record(ms, silenceLength, NULL, NULL, fileName,
-                 NULL, NULL, NULL, NULL, NULL, NULL, 0, 
-                 0, recordEvent,format);
+          NULL, NULL, NULL, NULL, NULL, NULL, 0, 
+          0, &recordEvent, format);
 
-   // Wait until the call sets the number of connections
-   while(recordEvent->wait(0, maxEventTime) == OS_SUCCESS)
-   {
-      intptr_t info;
-      recordEvent->getUserData(info);
-      if (info)
-      {
-         rs = *((MprRecorderStats *)info);
-         duration = rs.mDuration;
-         if (rs.mFinalStatus != MprRecorder::RECORDING)
-         {
-           ret = OS_SUCCESS;
-           break;
-         }
-         else
-            recordEvent->reset();
-      }
+   // Wait for record to finish
+   recordEvent.wait();
 
-   }
+   intptr_t samplesWritten;
+   recordEvent.getUserData(samplesWritten);
+   duration = (1000. * samplesWritten) / getSamplesPerSec();
 
-  closeRecorders();
-  // If the event has already been signaled, clean up
-  if(OS_ALREADY_SIGNALED == recordEvent->signal(0))
-  {
-     eventMgr->release(recordEvent);
-  }
-  return ret;
+   closeRecorders();
+
+   return ret;
 }
 
 OsStatus MpCallFlowGraph::record(int timeMS,
@@ -1047,19 +999,11 @@ OsStatus MpCallFlowGraph::record(int timeMS,
                                  const char* callName /*= NULL*/,
                                  int toneOptions /*= 0*/,
                                  int repeat /*= 0*/,
-                                 OsNotification* completion /*= NULL*/,
+                                 OsEvent* completion /*= NULL*/,
                                  MprRecorder::RecordFileFormat format)
 {
-   if (NULL == this) {
-      MpMediaTask* pMT = MpMediaTask::getMediaTask();
-      MpCallFlowGraph* pIF = (MpCallFlowGraph*) pMT->getFocus();
-      if (NULL != pIF) {
-         return pIF-> record(timeMS, silenceLength, micName, echoOutName, spkrName,
-            mic32Name, spkr32Name, echoIn8Name, echoIn32Name,
-            playName, callName, toneOptions, repeat, completion);
-      }
-      return OS_INVALID;
-   }
+   // Convert seconds to milliseconds.
+   silenceLength = silenceLength*1000;
 
 #ifndef DISABLE_LOCAL_AUDIO // [
    if (NULL != micName) {
@@ -1098,61 +1042,36 @@ OsStatus MpCallFlowGraph::record(int timeMS,
       setupRecorder(RECORDER_CALL, callName,
                     timeMS, silenceLength, completion, format);
    }
-   return startRecording(playName, repeat, toneOptions, completion);
-}
-
-OsStatus MpCallFlowGraph::startRecording(const char* audioFileName,
-                  UtlBoolean repeat, int toneOptions, OsNotification* event)
-{
-   OsStatus  res = OS_SUCCESS;
-   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_START_RECORD, NULL,
-                   NULL, NULL, toneOptions, START_PLAY_NONE);
-
-   if (NULL != audioFileName) {
-      res = mpFromFile->playFile(audioFileName, repeat, event);
-      if (res == OS_SUCCESS) {
-         msg.setInt1(toneOptions);
-         msg.setInt2(START_PLAY_FILE);
-      }
+   if (NULL != playName)
+   {
+      playFile(playName, repeat, toneOptions, completion);
    }
-
-   res = postMessage(msg);
-   return(res);
+   return OS_SUCCESS;
 }
-
 
 // Setup recording on one recorder
 UtlBoolean MpCallFlowGraph::setupRecorder(RecorderChoice which,
-                  const char* audioFileName, int timeMS, 
-                  int silenceLength, OsNotification* event,
+                  const char* audioFileName, int time, 
+                  int silenceLength, OsEvent* event,
                   MprRecorder::RecordFileFormat format)
 {
-   int file = -1;
-   OsStatus  res = OS_INVALID_ARGUMENT;
+   OsStatus res;
 
    if (NULL == mpRecorders[which]) {
       return FALSE;
    }
 
-   if (NULL != audioFileName) {
-        file = open(audioFileName, O_BINARY | O_CREAT | O_RDWR, 0600);
-   }
 
-   if (-1 < file) {
-      if (format == MprRecorder::WAV_PCM_16)
-      {
-          writeWAVHeader(file);
-      }
+   // Turn on notifications from the recorder resource, as they'll be
+   // needed to determine when record stops. Look into postNototification()
+   // to see how this is handled by CallFlowgraph.
+   MpResource::setNotificationsEnabled(TRUE, mpFromFile->getName(), *getMsgQ());
 
-      res = mpRecorders[which]->setup(file, format, timeMS, silenceLength, (OsEvent*)event);
-   }
-   else
-   {
-      OsSysLog::add(FAC_AUDIO, PRI_ERR,
-         "setupRecorder failed to open file %s, error code is %i",
-         audioFileName, errno);
-   }
-   return (file != -1 && res == OS_SUCCESS);
+   res = MprRecorder::start(mpRecorders[which]->getName(), *getMsgQ(),
+                            audioFileName, format, time,
+                            silenceLength, (OsEvent*)event);
+
+   return res == OS_SUCCESS;
 }
 
 // Start playing the indicated audio file.
@@ -1761,64 +1680,6 @@ UtlBoolean MpCallFlowGraph::isCodecSupported(SdpCodec& rCodec)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
-{
-    UtlBoolean retCode = FALSE;
-    char tmpbuf[80];
-    short bitsPerSample = 16;
-
-    short sampleSize = sizeof(MpAudioSample); 
-    short compressionCode = 1; //PCM
-    short numChannels = 1; 
-    unsigned long samplesPerSecond = 8000;
-    unsigned long averageSamplePerSec = samplesPerSecond*sampleSize;
-    short blockAlign = sampleSize*numChannels; 
-    unsigned long bytesWritten = 0;
-
-    //write RIFF & length
-    //8 bytes written
-    strcpy(tmpbuf,"RIFF");
-    unsigned long length = 0;
-    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
-    bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
-    
-    //write WAVE & length
-    //8 bytes written
-    strcpy(tmpbuf,"WAVE");
-    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
-//    bytesWritten += write(handle,&length, sizeof(length)); //filled in on close
-
-    //write fmt & length
-    //8 bytes written
-    strcpy(tmpbuf,"fmt ");
-    length = 16;
-    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
-    bytesWritten += write(handle, (char*)&length,sizeof(length)); //filled in on close
-    
-    //now write each piece of the format
-    //16 bytes written
-    bytesWritten += write(handle, (char*)&compressionCode, sizeof(compressionCode));
-    bytesWritten += write(handle, (char*)&numChannels, sizeof(numChannels));
-    bytesWritten += write(handle, (char*)&samplesPerSecond, sizeof(samplesPerSecond));
-    bytesWritten += write(handle, (char*)&averageSamplePerSec, sizeof(averageSamplePerSec));
-    bytesWritten += write(handle, (char*)&blockAlign, sizeof(blockAlign));
-    bytesWritten += write(handle, (char*)&bitsPerSample, sizeof(bitsPerSample));
-
-
-    //write data and length
-    strcpy(tmpbuf,"data");
-    length = 0;
-    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
-    bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
-    
-    //total length at this point should be 44 bytes
-    if (bytesWritten == 44)
-        retCode = TRUE;
-
-    return retCode;
-
-}
-
 
 // Handles an incoming message for the flow graph.
 // Returns TRUE if the message was handled, otherwise FALSE.
@@ -1882,9 +1743,6 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
       case MpFlowGraphMsg::FLOWGRAPH_START_PLAY:
          retCode = handleStartPlay(*pMsg);
          break;
-      case MpFlowGraphMsg::FLOWGRAPH_START_RECORD:
-         retCode = handleStartRecord(*pMsg);
-         break;
       case MpFlowGraphMsg::FLOWGRAPH_STOP_RECORD:
          // osPrintf("\n++++++ recording stopped\n");
          // retCode = handleStopRecord(rMsg);
@@ -1895,12 +1753,6 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
       case MpFlowGraphMsg::FLOWGRAPH_STOP_PLAY:
       case MpFlowGraphMsg::FLOWGRAPH_STOP_TONE:
          retCode = handleStopToneOrPlay();
-         break;
-      case MpFlowGraphMsg::ON_MPRRECORDER_ENABLED:
-         retCode = handleOnMprRecorderEnabled(*pMsg);
-         break;
-      case MpFlowGraphMsg::ON_MPRRECORDER_DISABLED:
-         retCode = handleOnMprRecorderDisabled(*pMsg);
          break;
       default:
          retCode = MpFlowGraphBase::handleMessage(*pMsg);
@@ -2033,20 +1885,6 @@ UtlBoolean MpCallFlowGraph::handleStartTone(MpFlowGraphMsg& rMsg)
    boolRes = mpEchoCancel->disable();  assert(boolRes);
 #endif // DOING_ECHO_CANCELATION ]
 #endif // DISABLE_LOCAL_AUDIO ]
-   return TRUE;
-}
-
-UtlBoolean MpCallFlowGraph::handleStartRecord(MpFlowGraphMsg& rMsg)
-{
-   int i;
-   int startPlayer = rMsg.getInt2();
-
-   if (START_PLAY_FILE == startPlayer) handleStartPlay(rMsg);
-   for (i=0; i<MAX_RECORDERS; i++) {
-      if (NULL != mpRecorders[i]) {
-         mpRecorders[i]->begin();
-      }
-   }
    return TRUE;
 }
 
@@ -2242,14 +2080,13 @@ UtlBoolean MpCallFlowGraph::handleStreamDestroy(MpStreamMsg& rMsg)
 }
 #endif // DISABLE_STREAM_PLAYER
 
-UtlBoolean MpCallFlowGraph::handleOnMprRecorderEnabled(MpFlowGraphMsg& rMsg)
+UtlBoolean MpCallFlowGraph::handleOnMprRecorderEnabled(const UtlString &resourceName)
 {
    UtlBoolean boolRes; 
-   int status = rMsg.getInt1();
-   MprRecorder* pRecorder = (MprRecorder*) rMsg.getPtr1() ;
-
+   
    // if this call recorder, also enable required resources
-   if (pRecorder && pRecorder == mpRecorders[RECORDER_CALL])
+   if (  mpRecorders[RECORDER_CALL]
+      && resourceName == mpRecorders[RECORDER_CALL]->getName())
    {
       boolRes = mpCallrecMixer->enable();
       assert(boolRes);
@@ -2264,13 +2101,12 @@ UtlBoolean MpCallFlowGraph::handleOnMprRecorderEnabled(MpFlowGraphMsg& rMsg)
    return TRUE;
 }
 
-UtlBoolean MpCallFlowGraph::handleOnMprRecorderDisabled(MpFlowGraphMsg& rMsg)
+UtlBoolean MpCallFlowGraph::handleOnMprRecorderDisabled(const UtlString &resourceName)
 {
    UtlBoolean boolRes;
-   int status = rMsg.getInt1();
-   MprRecorder* pRecorder = (MprRecorder*) rMsg.getPtr1() ;
 
-   if (pRecorder && pRecorder == mpRecorders[RECORDER_CALL])
+   if (  mpRecorders[RECORDER_CALL]
+      && resourceName == mpRecorders[RECORDER_CALL]->getName())
    {
       // also disable mpCallrecMixer and splitters
 

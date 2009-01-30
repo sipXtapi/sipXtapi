@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -58,10 +58,11 @@ public:
       MI_NOTF_PLAY_RESUMED,
       MI_NOTF_PLAY_STOPPED,
       MI_NOTF_PLAY_FINISHED,
-      MI_NOTF_PROGRESS,          ///< Value for MiProgressNotf notifications.
-      MI_NOTF_RECORD_STOPPED,
-      MI_NOTF_RECORD_FINISHED,
-      MI_NOTF_RECORD_NOINPUTDATA,
+      MI_NOTF_PROGRESS,           ///< Value for MiProgressNotf notifications.
+      MI_NOTF_RECORD_STARTED,     ///< Recording started.
+      MI_NOTF_RECORD_STOPPED,     ///< Recording stopped by manual command.
+      MI_NOTF_RECORD_FINISHED,    ///< Recording stopped automatically.
+      MI_NOTF_RECORD_ERROR,       ///< Recording stopped because of an error.
       MI_NOTF_DTMF_RECEIVED,      ///< Value for MiDtmfNotf notifications.
       MI_NOTF_DELAY_SPEECH_STARTED,
       MI_NOTF_DELAY_NO_DELAY,

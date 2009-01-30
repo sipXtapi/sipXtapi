@@ -29,6 +29,7 @@
 #include <mp/MprRtpInputConnectionConstructor.h>
 #include <mp/MprDecodeConstructor.h>
 #include <mp/MprBufferRecorderConstructor.h>
+#include <mp/MprRecorderConstructor.h>
 #include <mp/MprSplitterConstructor.h>
 #include <mp/MprNullAecConstructor.h>
 #include <mp/MprVadConstructor.h>
@@ -370,6 +371,9 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     // Buffer Recorder
     resourceFactory->addConstructor(*(new MprBufferRecorderConstructor()));
 
+    // Recorder
+    resourceFactory->addConstructor(*(new MprRecorderConstructor()));
+
     // Splitter
     resourceFactory->addConstructor(*(new MprSplitterConstructor()));
 
@@ -398,7 +402,7 @@ static MpResourceTopology::ResourceDef initialTopologyResources[] =
    {DEFAULT_FROM_FILE_RESOURCE_TYPE, DEFAULT_FROM_FILE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_TONE_GEN_RESOURCE_TYPE, DEFAULT_TONE_GEN_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_BUFFER_RECORDER_RESOURCE_TYPE, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_NULL_RESOURCE_TYPE, DEFAULT_NULL_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
+   {DEFAULT_RECORDER_RESOURCE_TYPE, DEFAULT_RECORDER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
 };
 static const int initialTopologyResourcesNum =
    sizeof(initialTopologyResources)/sizeof(MpResourceTopology::ResourceDef);
@@ -416,15 +420,11 @@ static MpResourceTopology::ConnectionDef initialTopologyConnections[] =
     // manually connected to the Bridge.
 
     // Bridge(0) -> Buffer Recorder
-    // This buffer recorder is intended to record the microphone.
-    // Currently, this records all inputs from the bridge.  Once the bridge
-    // can configure what inputs go to what outputs, this will behave as 
-    // intended
+    // This buffer recorder records full call to a buffer.
    {DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, 0},
-    // Bridge(1) -> Null(1)
-    // Fill up the unpaired bridge outputs as it currently barfs if
-    // it does not have the same number of inputs and outputs.
-   {DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_NULL_RESOURCE_NAME, 1},
+    // Bridge(1) -> Recorder
+    // This file recorder records full call to a file.
+   {DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_RECORDER_RESOURCE_NAME, 0},
 };
 static const int initialTopologyConnectionsNum =
    sizeof(initialTopologyConnections)/sizeof(MpResourceTopology::ConnectionDef);

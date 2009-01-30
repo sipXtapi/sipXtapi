@@ -1,8 +1,8 @@
 // 
-// Copyright (C) 2005-2008 SIPez LLC.
+// Copyright (C) 2005-2009 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -275,11 +275,10 @@ public:
    virtual void removeToneListener(int connectionId);
 
    virtual OsStatus stopRecording();
-   virtual OsStatus ezRecord(int ms, 
-           int silenceLength, 
-           const char* fileName, 
-           double& duration, 
-           OsProtectedEvent* ev = NULL);
+   virtual OsStatus ezRecord(int ms,
+                             int silenceLength,
+                             const char* fileName,
+                             double& duration);
 
      /// @copydoc CpMediaInterface::recordMic(int,UtlString*)
    virtual OsStatus recordMic(int ms, UtlString* pAudioBuffer);

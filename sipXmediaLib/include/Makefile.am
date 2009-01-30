@@ -68,6 +68,7 @@ nobase_include_HEADERS =  \
     mp/MpOssContainer.h \
     mp/MpOutputDeviceDriver.h \
     mp/MpOutputDeviceManager.h \
+    mp/MpPackedResourceMsg.h \
     mp/MpPlayer.h \
     mp/MpPlayerEvent.h \
     mp/MpPlayerListener.h \
@@ -114,6 +115,7 @@ nobase_include_HEADERS =  \
     mp/MprNull.h \
     mp/MprNullConstructor.h \
     mp/MprRecorder.h \
+    mp/MprRecorderConstructor.h \
     mp/MprRtpDispatcher.h \
     mp/MprRtpDispatcherActiveSsrcs.h \
     mp/MprRtpDispatcherIpAffinity.h \

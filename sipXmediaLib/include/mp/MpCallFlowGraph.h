@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2006-2008 SIPez LLC.
+// Copyright (C) 2006-2009 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -183,15 +183,11 @@ public:
                    const char* callName = NULL,
                    int toneOptions = 0,
                    int repeat = 0,
-                   OsNotification* completion = NULL,
+                   OsEvent* completion = NULL,
                    MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
-
-   OsStatus startRecording(const char* audioFileName, UtlBoolean repeat,
-                  int toneOptions, OsNotification* completion = NULL);
-
    UtlBoolean setupRecorder(RecorderChoice which, const char* audioFileName,
-                  int timeMS, int silenceLength, OsNotification* event = NULL,
+                  int time, int silenceLength, OsEvent* event = NULL,
                   MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
      /// @brief Start playing audio from a buffer passed in.
@@ -513,9 +509,6 @@ private:
    ///  D.W.
    MprRecorder* mpRecorders[MAX_RECORDERS];
 
-     ///  Write out standard 16bit 8k sampled WAV Header
-   UtlBoolean writeWAVHeader(int handle);
-
      /// Handles an incoming message for the flow graph.
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
      /**<
@@ -568,7 +561,7 @@ private:
    /** Handle the ON_MPRRECORDER_ENABLED message. It is sent when
    *   a recorder is really enabled.
    */
-   UtlBoolean handleOnMprRecorderEnabled(MpFlowGraphMsg& rMsg);
+   UtlBoolean handleOnMprRecorderEnabled(const UtlString &resourceName);
    /**<
    *  @returns <b>TRUE</b> if the message was handled
    *  @returns <b>FALSE</b> otherwise.
@@ -579,7 +572,7 @@ private:
    *   sipxtapi in the future. Currently we only disable some other
    *   resources if the recorder is call recorder.
    */
-   UtlBoolean handleOnMprRecorderDisabled(MpFlowGraphMsg& rMsg);
+   UtlBoolean handleOnMprRecorderDisabled(const UtlString &resourceName);
    /**<
    *  @returns <b>TRUE</b> if the message was handled
    *  @returns <b>FALSE</b> otherwise.
