@@ -420,6 +420,11 @@ UtlBoolean MprSpeakerSelector::doProcessFrame(MpBufPtr inBufs[],
                outputLabel.append("speaker_rank");
                RTL_EVENT(outputLabel, mpFrameParams[i]->mSpeakerRank);
             }
+            {
+               UtlString outputLabel(outputLabelBase);
+               outputLabel.append("speaker_weight");
+               RTL_EVENT(outputLabel, mpFrameParams[i]->mSpeakerWeight);
+            }
          }
          if (mDynamicInputMapping)
          {
