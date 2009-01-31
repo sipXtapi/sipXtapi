@@ -1,10 +1,10 @@
 /*
 // 
 // 
-// Copyright (C) 2005-2008 SIPez LLC.
+// Copyright (C) 2005-2009 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -46,6 +46,11 @@
 #ifdef DEFINE_S_IREAD_IWRITE
 #  define S_IREAD  (S_IRUSR | S_IRGRP | S_IROTH)
 #  define S_IWRITE (S_IWUSR)
+#endif
+
+// O_BINARY is needed for WIN32, but is not defined under VxWorks and Linux
+#ifndef O_BINARY
+#  define O_BINARY 0
 #endif
 
 /*

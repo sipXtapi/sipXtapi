@@ -74,10 +74,6 @@ UtlBoolean MpCallFlowGraph::sbEnableNoiseReduction = false ;
 #define INSERT_RECORDERS ///< splices recorders into flowgraph
 // #undef INSERT_RECORDERS 
 
-#ifndef O_BINARY
-#define O_BINARY 0      // O_BINARY is needed for WIN32 not for VxWorks or Linux
-#endif
- 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
