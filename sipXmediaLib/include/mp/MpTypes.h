@@ -85,6 +85,7 @@ struct MpSpeechParams
    , mIsClipped(FALSE)
    , mFrameEnergy(-1)
    , mSpeakerRank(0)
+   , mSpeakerWeight(0)
    {
    };
 #else

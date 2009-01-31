@@ -88,6 +88,8 @@ void MpAudioBuf::init()
     mParams.mFrameEnergy = -1;
     // Highest speaker rank - just some reasonable default
     mParams.mSpeakerRank = 0;
+    // Lowest speaker weight - just some reasonable default
+    mParams.mSpeakerWeight = 0;
 #ifdef MPBUF_DEBUG
     osPrintf(">>> MpAudioBuf::init()\n");
 #endif
