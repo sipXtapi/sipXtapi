@@ -49,7 +49,7 @@
 #endif
 
 // O_BINARY is needed for WIN32, but is not defined under VxWorks and Linux
-#ifndef O_BINARY
+#ifdef __pingtel_on_posix__
 #  define O_BINARY 0
 #endif
 
