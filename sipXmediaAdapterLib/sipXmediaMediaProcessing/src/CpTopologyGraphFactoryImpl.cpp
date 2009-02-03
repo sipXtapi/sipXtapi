@@ -166,7 +166,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                   // should set mixer size big enough to
                                   // iron out this jitter. In case of a good
                                   // OS/sound card combination this does not
-                                  // hurt, because be default only minimal part
+                                  // hurt, because by default only minimal part
                                   // of mixer buffer is used which increases
                                   // in case of bursts.
                                   mFrameSizeMs*16         // mixer buffer length (ms)
