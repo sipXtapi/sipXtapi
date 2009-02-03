@@ -671,10 +671,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprBufferRecorderTest.cpp"
-				>
-			</File>
-			<File
 				RelativePath="src\test\mp\MpResourceTest.cpp"
 				>
 			</File>

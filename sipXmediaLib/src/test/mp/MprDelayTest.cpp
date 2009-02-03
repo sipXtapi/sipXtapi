@@ -23,7 +23,6 @@
 #include "mp/MpMisc.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MprDelay.h"
-#include "mp/MprBufferRecorder.h"
 
 #include "os/OsTask.h"
 #ifdef RTL_ENABLED
@@ -117,9 +116,8 @@ public:
       sourceResource.setSignalAmplitude(0, 16000);
       sourceResource.setSpeechType(0, MP_SPEECH_SILENT);
 
-      //MpTestResource sinkResource("TestSink", 1, 1, 0, 0);
-      MprBufferRecorder sinkResource("TestSink");
-      UtlString         buffer;
+      MpTestResource sinkResource("TestSink", 1, 1, 0, 0);
+      UtlString   buffer;
 
       MprDelay delayResource("TestDelay", TEST_DELAY_FRAMES);      
 

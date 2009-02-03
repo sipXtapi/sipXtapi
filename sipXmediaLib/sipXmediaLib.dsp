@@ -340,10 +340,6 @@ SOURCE=.\src\mp\MprBridge.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MprBufferRecorder.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MprDecode.cpp
 # End Source File
 # Begin Source File
@@ -980,10 +976,6 @@ SOURCE=.\include\mp\MpBufPool.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpBufRecStartResourceMsg.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\MpCallFlowGraph.h
 # End Source File
 # Begin Source File
@@ -1229,14 +1221,6 @@ SOURCE=.\include\mp\MprBridgeConstructor.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprBridgeSetGainsMsg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MprBufferRecorder.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MprBufferRecorderConstructor.h
 # End Source File
 # Begin Source File
 

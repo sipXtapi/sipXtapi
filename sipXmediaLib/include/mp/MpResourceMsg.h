@@ -48,9 +48,6 @@ public:
       MPRM_FROMFILE_SEND_PROGRESS,  ///< MprFromFile: Tell FromFile resource to send progress updates.
       MPRM_FROMFILE_STOP,       ///< MprFromFile: Stop a playing file.
 
-      MPRM_BUF_RECORDER_START,  ///< MprBufferRecorder: Start recording to a buffer.
-      MPRM_BUF_RECORDER_STOP,   ///< MprBufferRecorder: Stop recording to a buffer.
-
       MPRM_BRIDGE_SET_GAINS,    ///< MprBridge: Set row or column in mix matrix.
 
       MPRM_DECODE_SELECT_CODECS,  ///< MprDecode/MprEncode: Select codecs.

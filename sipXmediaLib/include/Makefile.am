@@ -80,9 +80,6 @@ nobase_include_HEADERS =  \
     mp/MprAudioFrameBuffer.h \
     mp/MprBridge.h \
     mp/MprBridgeConstructor.h \
-    mp/MprBufferRecorder.h \
-    mp/MprBufferRecorderConstructor.h \
-    mp/MpBufRecStartResourceMsg.h \
     mp/MprDecode.h \
     mp/MprDecodeConstructor.h \
     mp/MprDejitter.h \

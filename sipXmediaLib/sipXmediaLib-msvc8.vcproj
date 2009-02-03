@@ -1136,10 +1136,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\MprBufferRecorder.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\mp\MprDecode.cpp"
 					>
 				</File>
@@ -1597,10 +1593,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MpBufRecStartResourceMsg.h"
-					>
-				</File>
-				<File
 					RelativePath=".\include\mp\MpCallFlowGraph.h"
 					>
 				</File>
@@ -1790,14 +1782,6 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MprBridgeConstructor.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MprBufferRecorder.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MprBufferRecorderConstructor.h"
 					>
 				</File>
 				<File
