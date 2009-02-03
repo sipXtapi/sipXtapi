@@ -936,14 +936,14 @@ UtlBoolean MpFlowGraphBase::handleSynchronize(MpFlowGraphMsg& rMsg)
          osPrintf(tag, val1, ptr);
       }
 */
-#ifdef DEBUG_POSTPONE /* [ */
    }
+#ifdef DEBUG_POSTPONE /* [ */
    else
    {
       // just delay (postPone()), for debugging race conditions...
       OsTask::delay(val1);
-#endif /* DEBUG_POSTPONE ] */
    }
+#endif /* DEBUG_POSTPONE ] */
    return TRUE;
 }
 
