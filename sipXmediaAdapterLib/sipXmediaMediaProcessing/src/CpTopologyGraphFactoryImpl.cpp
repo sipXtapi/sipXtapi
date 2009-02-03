@@ -28,7 +28,6 @@
 #include <mp/MprEncodeConstructor.h>
 #include <mp/MprRtpInputConnectionConstructor.h>
 #include <mp/MprDecodeConstructor.h>
-#include <mp/MprBufferRecorderConstructor.h>
 #include <mp/MprRecorderConstructor.h>
 #include <mp/MprSplitterConstructor.h>
 #include <mp/MprNullAecConstructor.h>
@@ -368,9 +367,6 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     // Decoder
     resourceFactory->addConstructor(*(new MprDecodeConstructor()));
 
-    // Buffer Recorder
-    resourceFactory->addConstructor(*(new MprBufferRecorderConstructor()));
-
     // Recorder
     resourceFactory->addConstructor(*(new MprRecorderConstructor()));
 
@@ -401,8 +397,8 @@ static MpResourceTopology::ResourceDef initialTopologyResources[] =
 #endif // INSERT_SPEAKER_SELECTOR ]
    {DEFAULT_FROM_FILE_RESOURCE_TYPE, DEFAULT_FROM_FILE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_TONE_GEN_RESOURCE_TYPE, DEFAULT_TONE_GEN_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_BUFFER_RECORDER_RESOURCE_TYPE, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_RECORDER_RESOURCE_TYPE, DEFAULT_RECORDER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
+   {DEFAULT_RECORDER_RESOURCE_TYPE, DEFAULT_RECORDER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_NULL_RESOURCE_TYPE, DEFAULT_NULL_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
 };
 static const int initialTopologyResourcesNum =
    sizeof(initialTopologyResources)/sizeof(MpResourceTopology::ResourceDef);
@@ -421,10 +417,10 @@ static MpResourceTopology::ConnectionDef initialTopologyConnections[] =
 
     // Bridge(0) -> Buffer Recorder
     // This buffer recorder records full call to a buffer.
-   {DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, 0},
-    // Bridge(1) -> Recorder
+   {DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_RECORDER_RESOURCE_NAME, 0},
+    // Bridge(1) -> Null(0)
     // This file recorder records full call to a file.
-   {DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_RECORDER_RESOURCE_NAME, 0},
+   {DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_NULL_RESOURCE_NAME, 0},
 };
 static const int initialTopologyConnectionsNum =
    sizeof(initialTopologyConnections)/sizeof(MpResourceTopology::ConnectionDef);

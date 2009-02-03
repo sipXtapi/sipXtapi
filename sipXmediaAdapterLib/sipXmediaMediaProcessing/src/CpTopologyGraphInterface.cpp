@@ -28,7 +28,6 @@
 #include <os/OsStatus.h>
 #include <mp/MpTopologyGraph.h>
 #include <mp/MpResourceTopology.h>
-#include <mp/MprBufferRecorder.h>
 #include <mp/MprToneGen.h>
 #include <mp/MprFromFile.h>
 #include <mp/MprDecode.h>
