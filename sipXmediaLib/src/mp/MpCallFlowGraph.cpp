@@ -1063,7 +1063,7 @@ UtlBoolean MpCallFlowGraph::setupRecorder(RecorderChoice which,
    // to see how this is handled by CallFlowgraph.
    MpResource::setNotificationsEnabled(TRUE, mpFromFile->getName(), *getMsgQ());
 
-   res = MprRecorder::start(mpRecorders[which]->getName(), *getMsgQ(),
+   res = MprRecorder::startFile(mpRecorders[which]->getName(), *getMsgQ(),
                             audioFileName, format, time,
                             silenceLength, (OsEvent*)event);
 

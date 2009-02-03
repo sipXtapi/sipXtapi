@@ -1471,7 +1471,7 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
-      stat = MprRecorder::start(DEFAULT_RECORDER_RESOURCE_NAME,
+      stat = MprRecorder::startFile(DEFAULT_RECORDER_RESOURCE_NAME,
                                 *mpTopologyGraph->getMsgQ(),
                                 szFile,
                                 MprRecorder::WAV_PCM_16);

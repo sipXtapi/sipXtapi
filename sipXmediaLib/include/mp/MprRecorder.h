@@ -69,8 +69,8 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Start recording with given parameters.
-   static OsStatus start(const UtlString& namedResource, 
+     /// Start recording to a file with given parameters.
+   static OsStatus startFile(const UtlString& namedResource, 
                          OsMsgQ& fgQ,
                          const char *filename,
                          RecordFileFormat recFormat,
@@ -82,6 +82,25 @@ public:
      *  @param[in] fgQ - flowgraph queue to send command to.
      *  @param[in] filename - filename to record to.
      *  @param[in] recFormat - output format type (e.g. WAV_PCM_16)
+     *  @param[in] time - max number of milliseconds to record, or 0 for no limit
+     *  @param[in] silenceLength - length of silence (in milliseconds) after
+     *             which recording is automatically stopped. This feature is
+     *             disabled if -1 is passed.
+     *  @param[in] event - an optional OsEvent to signal on completion (DEPRECATED!).
+     */
+
+     /// Start recording to a buffer with given parameters.
+   static OsStatus startBuffer(const UtlString& namedResource, 
+                               OsMsgQ& fgQ,
+                               MpAudioSample *pBuffer,
+                               int bufferSize,
+                               int time = 0,
+                               int silenceLength = -1);
+     /**<
+     *  @param[in] namedResource - resource name to send command to.
+     *  @param[in] fgQ - flowgraph queue to send command to.
+     *  @param[in] pBuffer - memory buffer to record to.
+     *  @param[in] bufferSize - \p pBuffer size (in samples).
      *  @param[in] time - max number of milliseconds to record, or 0 for no limit
      *  @param[in] silenceLength - length of silence (in milliseconds) after
      *             which recording is automatically stopped. This feature is
@@ -115,15 +134,16 @@ protected:
 
    typedef enum
    {
-      MPRM_START = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+      MPRM_START_FILE = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+      MPRM_START_BUFFER,
       MPRM_STOP
    } AddlMsgTypes;
 
    typedef enum
    {
-      FINISHED_AUTO,
-      FINISHED_MANUAL,
-      FINISHED_ERROR
+      FINISHED_AUTO,   ///< Recording has finished automatically.
+      FINISHED_MANUAL, ///< Recording has stopped manually.
+      FINISHED_ERROR   ///< Recording has stopped because of error.
    } FinishCause;
 
    typedef enum
@@ -133,15 +153,33 @@ protected:
       STATE_PAUSED     ///< Recording is running, but paused (NOT IMPLEMENTED YET!)
    } State;
 
-   int mFileDescriptor;
-   RecordFileFormat mRecFormat;
-   uint32_t mTotalBytesWritten;
-   uint32_t mTotalSamplesWritten;
+   typedef enum
+   {
+      TO_UNDEFINED = -1,
+      TO_FILE,         ///< Record to a file.
+      TO_BUFFER        ///< Record to a buffer.
+   } RecordDestination;
+
+   State mState;            ///< Internal recorder state.
+   RecordDestination mRecordDestination; ///< Where to store recorded samples.
+   int mFramesToRecord;
+   int mSamplesRecorded;
    int mConsecutiveInactive;
    int mSilenceLength;
    OsEvent* mpEvent;
-   int mFramesToRecord;
-   State mState;            ///< Internal recorder state.
+
+///@name File-related variables
+//@{
+   int mFileDescriptor;     ///< File descriptor to write to.
+   RecordFileFormat mRecFormat; ///< Should data be written in WAV or RAW PCM format.
+//@}
+
+///@name Buffer-related variables
+//@{
+   MpAudioSample *mpBuffer; ///< Buffer to write data to. End of the buffer
+                            ///< Is determined by mSamplesRecorded variable.
+   int mBufferSize;         ///< mpBuffer size.
+//@}
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                     MpBufPtr outBufs[],
@@ -151,18 +189,13 @@ protected:
                                     int samplesPerFrame,
                                     int samplesPerSecond);
 
-     /// Handle messages for this resource.
-   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
+     /// Handle MPRM_START_FILE message.
+   UtlBoolean handleStartFile(int file, RecordFileFormat recFormat, int time,
+                              int silenceLength, OsEvent* event);
 
-     /// Copy constructor (not implemented for this class)
-   MprRecorder(const MprRecorder& rMprRecorder);
-
-     /// Assignment operator (not implemented for this class)
-   MprRecorder& operator=(const MprRecorder& rhs);
-
-     /// Handle MPRM_START message.
-   UtlBoolean handleStart(int file, RecordFileFormat recFormat, int time,
-                          int silenceLength, OsEvent* event);
+     /// Handle MPRM_START_BUFFER message.
+   UtlBoolean handleStartBuffer(MpAudioSample *pBuffer, int bufferSize, int time,
+                                int silenceLength);
 
      /// Handle MPRM_STOP message.
    UtlBoolean handleStop();
@@ -170,8 +203,29 @@ protected:
      /// @copydoc MpResource::handleDisable()
    virtual UtlBoolean handleDisable();
 
+     /// Handle messages for this resource.
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
+
+     /// Prepare for recording.
+   void startRecording(int time, int silenceLength);
+
      /// Recording has been stopped with given cause.
    UtlBoolean finish(FinishCause cause);
+
+     /// Close file if it is opened and  update WAV header if needed.
+   void closeFile();
+
+     /// Write silence to the file
+   inline int writeFileSilence(int numSamples);
+
+     /// Write given speech data to the file
+   inline int writeFileSpeech(const MpAudioSample *pBuffer, int numSamples);
+
+     /// Write silence to the buffer
+   inline int writeBufferSilence(int numSamples);
+
+     /// Write given speech data to the buffer
+   inline int writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples);
 
      /// Write out standard 16bit 8k sampled WAV Header
    static UtlBoolean writeWAVHeader(int handle, unsigned long samplesPerSecond = 8000);
@@ -182,6 +236,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+     /// Copy constructor (not implemented for this class)
+   MprRecorder(const MprRecorder& rMprRecorder);
+
+     /// Assignment operator (not implemented for this class)
+   MprRecorder& operator=(const MprRecorder& rhs);
 };
 
 /* ============================ INLINE METHODS ============================ */
