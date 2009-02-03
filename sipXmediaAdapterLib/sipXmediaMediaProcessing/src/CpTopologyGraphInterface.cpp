@@ -1627,14 +1627,16 @@ OsStatus CpTopologyGraphInterface::stopRecording()
    return OS_NOT_SUPPORTED;
 }
 
-OsStatus CpTopologyGraphInterface::recordMic(int ms, UtlString* pAudioBuffer)
+OsStatus CpTopologyGraphInterface::recordMic(int ms,
+                                             int16_t* pAudioBuf,
+                                             int bufferSize)
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
-      stat = MprBufferRecorder::startRecording(
-                DEFAULT_BUFFER_RECORDER_RESOURCE_NAME,
-                *mpTopologyGraph->getMsgQ(), ms, pAudioBuffer);
+      stat = MprRecorder::startBuffer(DEFAULT_RECORDER_RESOURCE_NAME,
+                                      *mpTopologyGraph->getMsgQ(),
+                                      pAudioBuf, bufferSize, ms);
    }
    return stat;
 }

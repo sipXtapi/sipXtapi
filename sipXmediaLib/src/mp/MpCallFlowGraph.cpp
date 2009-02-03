@@ -33,7 +33,6 @@
 #include "mp/MprFromStream.h"
 #include "mp/MprFromFile.h"
 #include "mp/MprFromMic.h"
-#include "mp/MprBufferRecorder.h"
 
 #if defined (SPEEX_ECHO_CANCELATION)
 #include "mp/MprSpeexEchoCancel.h"
@@ -114,7 +113,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 #ifndef DISABLE_LOCAL_AUDIO // [
    mpFromMic          = new MprFromMic("FromMic", MpMisc.pMicQ);
    mpMicSplitter      = new MprSplitter("MicSplitter", 2);
-   mpBufferRecorder   = new MprBufferRecorder("BufferRecorder");
+   mpBufferRecorder   = new MprRecorder("BufferRecorder");
 #if defined (SPEEX_ECHO_CANCELATION)
    mpEchoCancel       = new MprSpeexEchoCancel("SpeexEchoCancel");
 #elif defined (SIPX_ECHO_CANCELATION)
@@ -934,12 +933,13 @@ OsStatus MpCallFlowGraph::Record(int ms,
    return res;
 }
 
-OsStatus MpCallFlowGraph::recordMic(int ms, UtlString* pAudioBuffer)
+OsStatus MpCallFlowGraph::recordMic(int ms, MpAudioSample* pAudioBuf,
+                                    int bufferSize)
 {
    OsStatus stat = OS_FAILED;
 #ifndef DISABLE_LOCAL_AUDIO // [
-   stat = MprBufferRecorder::startRecording(mpBufferRecorder->getName(),
-                                            *getMsgQ(), ms, pAudioBuffer);
+   stat = MprRecorder::startBuffer(mpBufferRecorder->getName(),
+                                   *getMsgQ(), pAudioBuf, bufferSize, ms);
 #endif // DISABLE_LOCAL_AUDIO ]
    return stat;
 }

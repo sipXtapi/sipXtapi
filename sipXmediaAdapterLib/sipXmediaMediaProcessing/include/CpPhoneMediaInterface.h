@@ -234,8 +234,8 @@ public:
    virtual OsStatus ezRecord(int ms, int silenceLength, const char* fileName, 
                              double& duration);
 
-     /// @copydoc CpMediaInterface::recordMic(int,UtlString*)
-   virtual OsStatus recordMic(int ms, UtlString* pAudioBuffer);
+     /// @copydoc CpMediaInterface::recordMic(int,int16_t*,int)
+   virtual OsStatus recordMic(int ms, int16_t* pAudioBuf, int bufferSize);
 
      /// @copydoc CpMediaInterface::recordMic(int, int, const char*)
    virtual OsStatus recordMic(int ms,

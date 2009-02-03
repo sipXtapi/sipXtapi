@@ -76,7 +76,6 @@ class MprBridge;
 class MprFromStream;
 class MprFromFile;
 class MprFromMic;
-class MprBufferRecorder;
 class MprEchoSuppress;
 class MprSpeexEchoCancel;
 class MprSpeexPreprocess;
@@ -158,7 +157,7 @@ public:
             const char* endName,      ///< if NULL, defaults to previous string
             int recorderMask);
 
-   OsStatus recordMic(int ms, UtlString* pAudioBuffer);
+   OsStatus recordMic(int ms, MpAudioSample* pAudioBuf, int bufferSize);
 
    OsStatus recordMic(int ms,
                       int silenceLength,
@@ -469,7 +468,7 @@ private:
 #ifndef DISABLE_LOCAL_AUDIO // [
    MprFromMic*   mpFromMic;
    MprSplitter*  mpMicSplitter;
-   MprBufferRecorder* mpBufferRecorder;
+   MprRecorder* mpBufferRecorder;
 #  ifdef HAVE_SPEEX // [
       MprSpeexPreprocess* mpSpeexPreProcess;
 #  endif // HAVE_SPEEX ]

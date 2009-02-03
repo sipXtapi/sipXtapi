@@ -507,9 +507,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         // Create a buffer to record to.
         // HACK! This assumes recording is done at 8kHz 16bit!
         const int nSecsToRecord = 10;
-        UtlString audioBuffer;
+        const int audioBufferSize = nSecsToRecord*1000*mediaInterface->getSamplesPerSec();
+        int16_t *audioBuffer = new int16_t[audioBufferSize];
 
-        mediaInterface->recordMic(nSecsToRecord*1000, &audioBuffer);
+        mediaInterface->recordMic(nSecsToRecord*1000, audioBuffer, audioBufferSize);
 
         // Wait for a maximum of the size of the buffer (10secs), plus an additional
         // 10 seconds to receive a recording stopped message
@@ -554,8 +555,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         printf("record disabled so no play back of recorded message\n");
 #else
         printf("Play record buffer\n");
-        mediaInterface->playBuffer((char*)audioBuffer.data(), 
-                                   audioBuffer.length(), 
+        mediaInterface->playBuffer((char*)audioBuffer,
+                                   audioBufferSize,
                                    mediaInterface->getSamplesPerSec(), 
                                    0, // type (does not need conversion to raw)
                                    false,  // repeat
@@ -570,6 +571,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         stat = waitForNotf(notfDispatcher, MiNotification::MI_NOTF_PLAY_FINISHED, 15000);
         CPPUNIT_ASSERT_MESSAGE("No play finished notification was sent while playing back recording!",
                                stat == OS_SUCCESS);
+
+        // Free audio buffer used for recording.
+        delete[] audioBuffer;
 #endif
 
         mediaInterface->startTone(0, true, false) ;
