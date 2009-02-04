@@ -71,12 +71,12 @@ public:
 
      /// Start recording to a file with given parameters.
    static OsStatus startFile(const UtlString& namedResource, 
-                         OsMsgQ& fgQ,
-                         const char *filename,
-                         RecordFileFormat recFormat,
-                         int time = 0,
-                         int silenceLength = -1,
-                         OsEvent* event = NULL);
+                             OsMsgQ& fgQ,
+                             const char *filename,
+                             RecordFileFormat recFormat,
+                             int time = 0,
+                             int silenceLength = -1,
+                             OsEvent* event = NULL);
      /**<
      *  @param[in] namedResource - resource name to send command to.
      *  @param[in] fgQ - flowgraph queue to send command to.
@@ -227,7 +227,7 @@ protected:
      /// Write given speech data to the buffer
    inline int writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples);
 
-     /// Write out standard 16bit 8k sampled WAV Header
+     /// Write out standard 16bit WAV Header
    static UtlBoolean writeWAVHeader(int handle, unsigned long samplesPerSecond = 8000);
 
      /// Update WAV-file's header with correct recorded length.
