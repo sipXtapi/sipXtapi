@@ -1471,14 +1471,45 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
    if(mpTopologyGraph != NULL)
    {
       stat = MprRecorder::startFile(DEFAULT_RECORDER_RESOURCE_NAME,
-                                *mpTopologyGraph->getMsgQ(),
-                                szFile,
-                                MprRecorder::WAV_PCM_16);
+                                    *mpTopologyGraph->getMsgQ(),
+                                    szFile,
+                                    MprRecorder::WAV_PCM_16);
    }
    return stat;
 }
 
 OsStatus CpTopologyGraphInterface::stopRecordChannelAudio(int connectionId) 
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprRecorder::stop(DEFAULT_RECORDER_RESOURCE_NAME,
+                               *mpTopologyGraph->getMsgQ());
+   }
+   return stat;
+}
+
+
+OsStatus CpTopologyGraphInterface::recordBufferChannelAudio(int connectionId,
+                                                            char* pBuffer,
+                                                            int bufferSize,
+                                                            int maxRecordTime,
+                                                            int maxSilence) 
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprRecorder::startBuffer(DEFAULT_RECORDER_RESOURCE_NAME,
+                                      *mpTopologyGraph->getMsgQ(),
+                                      (MpAudioSample*)pBuffer,
+                                      bufferSize/sizeof(MpAudioSample),
+                                      maxRecordTime,
+                                      maxSilence);
+   }
+   return stat;
+}
+
+OsStatus CpTopologyGraphInterface::stopRecordBufferChannelAudio(int connectionId) 
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)

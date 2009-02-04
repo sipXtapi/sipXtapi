@@ -181,6 +181,8 @@ public:
     virtual void audioChannelStop(const char* callId, const char* szRemoteAddress);
     virtual OsStatus audioChannelRecordStart(const char* callId, const char* szRemoteAddress, const char* szFile) ;
     virtual OsStatus audioChannelRecordStop(const char* callId, const char* szRemoteAddress) ;
+    virtual OsStatus audioChannelRecordBufferStart(const char* callId, const char* szRemoteAddress, const char* pBuffer, const int bufferSize, const int bufferType, const int maxRecordTime, const int maxSilence);
+    virtual OsStatus audioChannelRecordBufferStop(const char* callId, const char* szRemoteAddress);
     virtual void bufferPlay(const char* callId, const void* audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
 
 #ifndef EXCLUDE_STREAMING

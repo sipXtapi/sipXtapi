@@ -1572,8 +1572,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall) ;
  *
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
- *        a listener interface.  Audio files can only be played and stopped
- *        in the context of a call.
+ *        a listener interface.
  * @param szFile Filename for the resulting audio file.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
@@ -1584,10 +1583,50 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
  *
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
- *        a listener interface.  Audio files can only be played and stopped
- *        in the context of a call.
+ *        a listener interface.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStop(const SIPX_CALL hCall) ;
+
+
+/**
+ * Record a call session (including other parties if this is a multi-party 
+ * call / conference) to a buffer.
+ * Conference join operation on this call will cause the recording to stop.
+ * In case of conference recording, this function should be called for single
+ * conference call only. Conference recording will continue even after the
+ * original call had been dropped/split, as long as there is at least one call
+ * left in the conference. If the original call has been dropped, use handle
+ * of other call in the conference to stop recording.
+ *
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ * @param pBuffer Buffer to record data to.
+ * @param bufferSize Size of the buffer in bytes.
+ * @param bufferType The audio encoding format for the data as specified by
+ *        the SIPX_AUDIO_DATA_FORMAT enumerations.  Currently only RAW_PCM_16
+ *        is supported.
+ * @param maxRecordTime Maximum time to record in milliseconds. Recording stops
+ *        automatically when this amount of time is recorded. Pass -1 to disable
+ *        time limit.
+ * @param maxSilence Maximum silence time before recording is stopped
+ *        automatically. Pass -1 to disable stop on silence.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordBufferStart(const SIPX_CALL hCall,
+                                                        const char* pBuffer,
+                                                        const int bufferSize,
+                                                        const int bufferType = RAW_PCM_16,
+                                                        const int maxRecordTime = -1,
+                                                        const int maxSilence = -1) ;
+
+/**
+ * Stop recording a call to buffer.
+ *
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordBufferStop(const SIPX_CALL hCall) ;
 
 
 /**

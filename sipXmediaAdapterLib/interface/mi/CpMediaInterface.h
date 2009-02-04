@@ -472,6 +472,14 @@ public:
 
    virtual OsStatus stopRecordChannelAudio(int connectionId) = 0 ;
 
+   virtual OsStatus recordBufferChannelAudio(int connectionId,
+                                             char* pBuffer,
+                                             int bufferSize,
+                                             int maxRecordTime = -1,
+                                             int maxSilence = -1) = 0 ;
+
+   virtual OsStatus stopRecordBufferChannelAudio(int connectionId) = 0 ;
+
      /// @brief Play the specified audio URL to the call.
    virtual OsStatus playAudio(const char* url, 
                               UtlBoolean repeat,

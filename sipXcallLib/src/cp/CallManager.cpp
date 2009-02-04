@@ -897,6 +897,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_STOP_AUDIO_CONNECTION:
         case CP_RECORD_AUDIO_CONNECTION_START:
         case CP_RECORD_AUDIO_CONNECTION_STOP:
+        case CP_RECORD_BUFFER_AUDIO_CONNECTION_START:
+        case CP_RECORD_BUFFER_AUDIO_CONNECTION_STOP:
         case CP_REFIRE_MEDIA_EVENT:
         case CP_PLAY_BUFFER_TERM_CONNECTION:
         case CP_CREATE_PLAYER:
@@ -991,6 +993,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         msgSubType == CP_GET_CAN_ADD_PARTY ||
                         msgSubType == CP_RECORD_AUDIO_CONNECTION_START ||
                         msgSubType == CP_RECORD_AUDIO_CONNECTION_STOP ||
+                        msgSubType == CP_RECORD_BUFFER_AUDIO_CONNECTION_START ||
+                        msgSubType == CP_RECORD_BUFFER_AUDIO_CONNECTION_STOP ||
                         msgSubType == CP_OUTGOING_INFO ||
                         msgSubType == CP_GET_USERAGENT)
                     {
@@ -1674,12 +1678,12 @@ OsStatus CallManager::audioChannelRecordStart(const char* callId, const char* sz
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
 
     CpMultiStringMessage message(CP_RECORD_AUDIO_CONNECTION_START, 
-            callId, 
-            szRemoteAddress,
-            szFile, 
-            NULL, 
-            NULL,
-            (intptr_t) pEvent);
+                                 callId, 
+                                 szRemoteAddress,
+                                 szFile, 
+                                 NULL, 
+                                 NULL,
+                                 (intptr_t) pEvent);
     postMessage(message);
 
     // Wait for error response
@@ -1717,12 +1721,12 @@ OsStatus CallManager::audioChannelRecordStop(const char* callId, const char* szR
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
 
     CpMultiStringMessage message(CP_RECORD_AUDIO_CONNECTION_STOP, 
-            callId, 
-            szRemoteAddress,
-            NULL,
-            NULL, 
-            NULL,
-            (intptr_t) pEvent);
+                                 callId, 
+                                 szRemoteAddress,
+                                 NULL,
+                                 NULL, 
+                                 NULL,
+                                 (intptr_t) pEvent);
 
     postMessage(message);
 
@@ -1741,6 +1745,105 @@ OsStatus CallManager::audioChannelRecordStop(const char* callId, const char* szR
     else
     {
         OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::audioChannelRecordStop TIMED OUT\n");
+        // If the event has already been signalled, clean up
+        if(OS_ALREADY_SIGNALED == pEvent->signal(0))
+        {
+            eventMgr->release(pEvent);
+        }
+    }
+
+    return status ;
+}
+
+
+OsStatus CallManager::audioChannelRecordBufferStart(const char* callId,
+                                                    const char* szRemoteAddress,
+                                                    const char* pBuffer,
+                                                    const int bufferSize,
+                                                    const int bufferType,
+                                                    const int maxRecordTime,
+                                                    const int maxSilence)
+{
+    OsStatus status = OS_FAILED ;
+
+    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+    OsProtectedEvent* pEvent = eventMgr->alloc();
+    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
+
+    CpMultiStringMessage message(CP_RECORD_BUFFER_AUDIO_CONNECTION_START,
+                                 callId,
+                                 szRemoteAddress,
+                                 NULL,
+                                 NULL,
+                                 NULL,
+                                 (intptr_t)pEvent,
+                                 (intptr_t)pBuffer,
+                                 bufferSize,
+                                 bufferType,
+                                 maxRecordTime,
+                                 maxSilence);
+    postMessage(message);
+
+    // Wait for error response
+    if(pEvent->wait(0, maxEventTime) == OS_SUCCESS)
+    {
+        intptr_t success;
+        pEvent->getEventData(success);
+        eventMgr->release(pEvent);
+
+        if (success)
+        {
+            status = OS_SUCCESS  ;
+        } 
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::audioChannelRecordStart TIMED OUT\n");
+        // If the event has already been signalled, clean up
+        if(OS_ALREADY_SIGNALED == pEvent->signal(0))
+        {
+            eventMgr->release(pEvent);
+        }
+    }
+
+    return status ;
+}
+
+
+OsStatus CallManager::audioChannelRecordBufferStop(const char* callId,
+                                                   const char* szRemoteAddress) 
+{
+    OsStatus status = OS_FAILED ;
+
+    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+    OsProtectedEvent* pEvent = eventMgr->alloc();
+    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
+
+    CpMultiStringMessage message(CP_RECORD_BUFFER_AUDIO_CONNECTION_STOP, 
+                                 callId, 
+                                 szRemoteAddress,
+                                 NULL,
+                                 NULL, 
+                                 NULL,
+                                 (intptr_t) pEvent);
+
+    postMessage(message);
+
+    // Wait for error response
+    if(pEvent->wait(0, maxEventTime) == OS_SUCCESS)
+    {
+        intptr_t success;
+        pEvent->getEventData(success);
+        eventMgr->release(pEvent);
+
+        if (success)
+        {
+            status = OS_SUCCESS  ;
+        } 
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::audioChannelRecordBufferStop TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == pEvent->signal(0))
         {

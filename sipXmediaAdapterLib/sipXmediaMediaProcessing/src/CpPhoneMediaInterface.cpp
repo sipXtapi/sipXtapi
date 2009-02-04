@@ -1356,6 +1356,20 @@ OsStatus CpPhoneMediaInterface::stopRecordChannelAudio(int connectionId)
     return stopRecording() ;
 }
 
+OsStatus CpPhoneMediaInterface::recordBufferChannelAudio(int connectionId,
+                                                         char* pBuffer,
+                                                         int bufferSize,
+                                                         int maxRecordTime,
+                                                         int maxSilence) 
+{
+    return OS_NOT_YET_IMPLEMENTED;
+}
+
+OsStatus CpPhoneMediaInterface::stopRecordBufferChannelAudio(int connectionId) 
+{
+   return OS_NOT_YET_IMPLEMENTED;
+}
+
 OsStatus CpPhoneMediaInterface::createPlayer(MpStreamPlayer** ppPlayer, 
                                              const char* szStream, 
                                              int flags, 

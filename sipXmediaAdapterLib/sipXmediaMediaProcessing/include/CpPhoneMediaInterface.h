@@ -204,6 +204,14 @@ public:
 
    virtual OsStatus stopRecordChannelAudio(int connectionId);
 
+   virtual OsStatus recordBufferChannelAudio(int connectionId,
+                                             char* pBuffer,
+                                             int bufferSize,
+                                             int maxRecordTime = -1,
+                                             int maxSilence = -1) ;
+
+   virtual OsStatus stopRecordBufferChannelAudio(int connectionId) ;
+
    virtual OsStatus createPlayer(MpStreamPlayer** ppPlayer, 
                                  const char* szStream, 
                                  int flags, 

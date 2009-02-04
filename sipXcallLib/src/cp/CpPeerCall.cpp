@@ -2456,6 +2456,74 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             }
         }
         break ;
+
+    case CallManager::CP_RECORD_BUFFER_AUDIO_CONNECTION_START:
+        {
+            CpMultiStringMessage &stringMessage = (CpMultiStringMessage&)eventMessage;
+            UtlString remoteAddress ;
+            UtlString file ;
+            stringMessage.getString2Data(remoteAddress) ;
+            stringMessage.getString3Data(file) ;
+            OsProtectedEvent* pEvent = (OsProtectedEvent*)stringMessage.getInt1Data();
+            char* pBuffer = (char*)stringMessage.getInt2Data();
+            int bufferSize = stringMessage.getInt3Data();
+            int bufferType = stringMessage.getInt4Data();
+            int maxRecordTime = stringMessage.getInt5Data();
+            int maxSilence = stringMessage.getInt6Data();
+            UtlBoolean bSuccess = false ;
+
+            Connection* connection = findHandlingConnection(remoteAddress);
+            if (connection && mpMediaInterface)
+            {   
+                int connectionId = connection->getConnectionId() ;
+                if (mpMediaInterface->recordBufferChannelAudio(connectionId,
+                                                               pBuffer,
+                                                               bufferSize,
+                                                               maxRecordTime,
+                                                               maxSilence))
+                {
+                    bSuccess = true ;
+                }
+            }
+
+            // If the event has already been signaled, clean up
+            if(pEvent && OS_ALREADY_SIGNALED == pEvent->signal(bSuccess))
+            {
+                // The other end must have timed out on the wait
+                OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+                eventMgr->release(pEvent);
+            }
+        }
+        break ;
+
+    case CallManager::CP_RECORD_BUFFER_AUDIO_CONNECTION_STOP:
+        {
+            UtlString remoteAddress ;
+            ((CpMultiStringMessage&)eventMessage).getString2Data(remoteAddress) ;
+            OsProtectedEvent* pEvent = (OsProtectedEvent*) 
+                    ((CpMultiStringMessage&)eventMessage).getInt1Data();
+            UtlBoolean bSuccess = false ;
+
+            Connection* connection = findHandlingConnection(remoteAddress);
+            if (connection && mpMediaInterface)
+            {   
+                int connectionId = connection->getConnectionId() ;
+                if (mpMediaInterface->stopRecordBufferChannelAudio(connectionId))
+                {
+                    bSuccess = true ;
+                }
+            }
+
+            // If the event has already been signaled, clean up
+            if(pEvent && OS_ALREADY_SIGNALED == pEvent->signal(bSuccess))
+            {
+                // The other end must have timed out on the wait
+                OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+                eventMgr->release(pEvent);
+            }
+        }
+        break ;
+
     case CallManager::CP_REFIRE_MEDIA_EVENT:
         {
             UtlString remoteAddress ;

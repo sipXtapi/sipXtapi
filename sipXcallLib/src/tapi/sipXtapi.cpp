@@ -2178,6 +2178,68 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStop(const SIPX_CALL hCall)
 }
 
 
+SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordBufferStart(const SIPX_CALL hCall,
+                                                        const char* pBuffer,
+                                                        const int bufferSize,
+                                                        const int bufferType,
+                                                        const int maxRecordTime,
+                                                        const int maxSilence)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAudioRecordBufferStart");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallAudioRecordBufferStart hCall=%d pBuffer=%p bufferSize=%d "
+        "bufferType=%d maxRecordTime=%d maxSilence=%d", hCall, pBuffer, bufferSize,
+        bufferType, maxRecordTime, maxSilence);
+
+    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
+    SIPX_INSTANCE_DATA *pInst ;
+    UtlString callId ;
+    UtlString remoteAddress ;
+
+    if (pBuffer && bufferSize && sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {        
+        if (pInst->pCallManager->audioChannelRecordBufferStart(callId, remoteAddress,
+                                 pBuffer, bufferSize, bufferType, maxRecordTime, maxSilence))
+        {
+            sr = SIPX_RESULT_SUCCESS ;
+        }
+    }
+    else
+    {
+        sr = SIPX_RESULT_INVALID_ARGS ;
+    }
+
+    return sr ;
+}
+
+
+SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordBufferStop(const SIPX_CALL hCall) 
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAudioRecordFileStop");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                  "sipxCallAudioRecordFileStop hCall=%d", hCall);
+
+    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
+    SIPX_INSTANCE_DATA *pInst ;
+    UtlString callId ;
+    UtlString remoteAddress ;
+
+    if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {
+        if (pInst->pCallManager->audioChannelRecordBufferStop(callId, remoteAddress))
+        {
+            sr = SIPX_RESULT_SUCCESS ;
+        }
+    }
+    else
+    {
+        sr = SIPX_RESULT_INVALID_ARGS ;
+    }
+
+    return sr ;
+}
+
+
 
 SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStart(const SIPX_CALL hCall,
                                                  const char* szBuffer,
