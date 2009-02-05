@@ -24,15 +24,33 @@
 /* ============================ CREATORS ================================== */
 
 OsMsgDispatcher::OsMsgDispatcher()
-   : OsMsgQ()
+   : mMsgsLost(FALSE)
+{
+   mMsgQueue = new OsMsgQ();
+   mQueueOwned = true;
+}
+
+OsMsgDispatcher::OsMsgDispatcher(OsMsgQ* msgQ) 
+   : mMsgQueue(msgQ)
+   , mQueueOwned(false)
    , mMsgsLost(FALSE)
-{}
+{
+}
+
+OsMsgDispatcher::~OsMsgDispatcher() 
+{
+   // Only delete the queue if we own it.
+   if(mQueueOwned) 
+   {
+      delete mMsgQueue;
+   }
+}
 
 /* ============================ MANIPULATORS ============================== */
 
 OsStatus OsMsgDispatcher::post(const OsMsg& msg)
 {
-   if (numMsgs() == maxMsgs())
+   if (mMsgQueue->numMsgs() == mMsgQueue->maxMsgs())
    {
       setMsgsLost();
       return OS_LIMIT_REACHED;
@@ -40,7 +58,7 @@ OsStatus OsMsgDispatcher::post(const OsMsg& msg)
    else
    {
       // Send the message, give it 1 millisecond to send.
-      OsMsgQ::send(msg, OsTime(1));
+      mMsgQueue->send(msg, OsTime(1));
       return OS_SUCCESS;
    }
 };
@@ -48,7 +66,7 @@ OsStatus OsMsgDispatcher::post(const OsMsg& msg)
 OsStatus OsMsgDispatcher::receive(OsMsg*& rpMsg,
                                   const OsTime& rTimeout)
 {
-   return OsMsgQ::receive(rpMsg, rTimeout);
+   return mMsgQueue->receive(rpMsg, rTimeout);
 };
 
 /* ============================ ACCESSORS ================================= */

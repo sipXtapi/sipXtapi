@@ -27,6 +27,7 @@
 #include <cp/SipConnection.h>
 #include <cp/CpGhostConnection.h>
 #include <mi/CpMediaInterface.h>
+#include <mi/MiDtmfNotf.h>
 #include <net/SipUserAgent.h>
 #include <utl/UtlNameValueTokenizer.h>
 #include <net/Url.h>
@@ -2597,6 +2598,58 @@ UtlBoolean CpPeerCall::handleNotifyMessage(OsEventMsg& eventMsg)
 	}
 
 	return false ;
+}
+
+UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
+{
+   UtlBoolean processed = FALSE;
+   int connectionId = notification.getConnectionId();
+
+   OsReadLock lock(mConnectionMutex);
+   UtlDListIterator iterator(mConnections);
+   Connection* pConnection;
+   while ((pConnection = (Connection*) iterator()))
+   {
+      if (pConnection->getConnectionId() == connectionId)
+      {
+         switch(notification.getMsgSubType())
+         {
+         case MiNotification::MI_NOTF_PLAY_STARTED:
+            // TODO: media audio playback started handling here..
+            break;
+         case MiNotification::MI_NOTF_PLAY_PAUSED:
+            // TODO: media audio playback paused handling here..
+            break;
+         case MiNotification::MI_NOTF_PLAY_RESUMED:
+            // TODO: media audio playback resumed from pausing handling here..
+            break;
+         case MiNotification::MI_NOTF_PLAY_STOPPED:
+            // TODO: media audio playback stopped handling here..
+            break;
+         case MiNotification::MI_NOTF_PLAY_FINISHED:
+            // TODO: media audio playback finished handling here..
+            break;
+         case MiNotification::MI_NOTF_DTMF_RECEIVED:
+            {
+               MiDtmfNotf *pDtmfNotf = (MiDtmfNotf*)&notification;
+               UtlBoolean buttonDown = pDtmfNotf->isPressed();
+               SIPX_TONE_ID id = (SIPX_TONE_ID) pDtmfNotf->getKeyCode();
+
+               pConnection->fireSipXMediaEvent(MEDIA_REMOTE_DTMF,
+                                               buttonDown ? MEDIA_CAUSE_DTMF_START : MEDIA_CAUSE_DTMF_STOP,
+                                               MEDIA_TYPE_AUDIO,
+                                               (void*) id) ;
+
+            }
+            break;
+         default:
+            break;
+         }
+         break ;
+      }
+   }
+
+   return processed;
 }
 
 UtlBoolean CpPeerCall::handleSendInfo(OsMsg* pEventMessage)

@@ -20,12 +20,14 @@
 #include <os/OsRWMutex.h>
 #include "os/OsUtil.h"
 #include "os/OsLockingList.h"
+#include <os/OsMsgDispatcher.h>
 #include <sdp/SdpCodec.h>
 #include <ptapi/PtEvent.h>
 #include <ptapi/PtConnection.h>
 #include <ptapi/PtTerminalConnection.h>
 #include <cp/CallManager.h>
 #include "tao/TaoObjectMap.h"
+#include <mi/MiNotification.h>
 
 // DEFINES
 #define MINIMUM_DTMF_LENGTH 50
@@ -236,6 +238,7 @@ protected:
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
     virtual UtlBoolean handleCallMessage(OsMsg& eventMessage) = 0;
     virtual UtlBoolean handleNotifyMessage(OsEventMsg& eventMsg) = 0 ;
+    virtual UtlBoolean handleMiNotificationMessage(MiNotification& notification) = 0 ;
     virtual void onHook() = 0;
 
     virtual UtlBoolean getConnectionState(const char* remoteAddress, int& state) = 0;
@@ -270,6 +273,8 @@ protected:
     int mLocalConnectionState;
     int mLocalTermConnectionState;
     UtlBoolean mLocalHeld;
+
+    OsMsgDispatcher mMediaMsgDispatcher;
 
     UtlBoolean mDropping;
     int mMetaEventId;

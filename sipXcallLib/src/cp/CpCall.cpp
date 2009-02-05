@@ -54,10 +54,11 @@ CpCall::CpCall(CpCallManager* manager,
                CpMediaInterface* callMediaInterface,
                int callIndex,
                const char* callId,
-               int holdType) :
-OsServerTask("Call-%d", NULL, DEF_MAX_MSGS, DEF_PRIO, DEF_OPTIONS, CALL_STACK_SIZE),
-mCallIdMutex(OsMutex::Q_FIFO),
-mDtmfQMutex(OsMutex::Q_FIFO)
+               int holdType)
+: OsServerTask("Call-%d", NULL, DEF_MAX_MSGS, DEF_PRIO, DEF_OPTIONS, CALL_STACK_SIZE)
+, mCallIdMutex(OsMutex::Q_FIFO)
+, mMediaMsgDispatcher(&mIncomingQ)
+, mDtmfQMutex(OsMutex::Q_FIFO)
 {
     // add the call task name to a list so we can track leaked calls.
     UtlString strCallTaskName = getName();
@@ -117,11 +118,17 @@ mDtmfQMutex(OsMutex::Q_FIFO)
     // Create the media processing channel
     mpMediaInterface = callMediaInterface;
 
+    // Set the media notification dispatcher we created on the media
+    // interface and turn on notifications, so that the CpCall queue 
+    // will receive the media notifications in its queue.
+    mpMediaInterface->setNotificationDispatcher(&mMediaMsgDispatcher);
+    mpMediaInterface->setNotificationsEnabled(true);
+
     mCallState = PtCall::IDLE;
     mLocalConnectionState = PtEvent::CONNECTION_IDLE;
     mLocalTermConnectionState = PtTerminalConnection::IDLE;
 
-    // Meta event intitialization
+    // Meta event initialization
     mMetaEventId = 0;
     mMetaEventType = PtEvent::META_EVENT_NONE;
     mNumMetaEventCalls = 0;
@@ -261,7 +268,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
         switch(msgSubType)
         {
             // If these cases need to be overrided,  they should
-            // be broken out into virutal methods
+            // be broken out into virtual methods
         case CallManager::CP_START_TONE_TERM_CONNECTION:
             addHistoryEvent(msgSubType, multiStringMessage);
             {
@@ -700,7 +707,9 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             mpMediaInterface->getMsgQ()->send(eventMessage) ;
         }
         break ;
-
+    case OsMsg::MI_NOTF_MSG:
+       processedMessage = handleMiNotificationMessage((MiNotification&)eventMessage);
+       break;
     default:
         processedMessage = FALSE;
         osPrintf("Unknown TYPE %d of Call message subtype: %d\n", msgType, msgSubType);

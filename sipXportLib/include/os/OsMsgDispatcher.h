@@ -36,7 +36,7 @@
 *  they can subclass this Message dispatcher and provide filtering to enable 
 *  only certain types of messages to be sent up through it's framework.
 */
-class OsMsgDispatcher : public OsMsgQ
+class OsMsgDispatcher
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -47,9 +47,19 @@ public:
 
      /// Default constructor
    OsMsgDispatcher();
+     /**<
+     *  This constructor creates a queue, which will be destroyed in destructor.
+     */
+
+     /// Constructor for using external message queue for dispatching.
+   OsMsgDispatcher(OsMsgQ* msgQ);
+     /**<
+     *  This constructor does not own the passed queue, so won't be deleted
+     *  in destructor. It's user responsibility to manage the queue.
+     */
 
      /// Destructor
-   virtual ~OsMsgDispatcher() {};
+   virtual ~OsMsgDispatcher();
 
 //@}
 
@@ -92,15 +102,28 @@ public:
 ///@name Accessors
 //@{
 
+     /// Return the number of messages in the queue
+   inline virtual int numMsgs(void);
+
+     /// Returns the maximum number of messages that can be queued
+   inline int maxMsgs() const;
+
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
 //@{
+
+     /// Return TRUE if the message queue is empty, FALSE otherwise
+   inline virtual UtlBoolean isEmpty(void);
+
    inline UtlBoolean isMsgsLost() const;
 
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   OsMsgQ* mMsgQueue; ///< The message queue that this dispatcher is using.
+   UtlBoolean mQueueOwned; ///< Indicates whether or not mMsgQueue is owned by the dispatcher
 
    UtlBoolean mMsgsLost; ///< Whether any messages have been dropped on the 
                          ///< floor due to the queue being full.
@@ -119,6 +142,22 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+
+int OsMsgDispatcher::numMsgs( void )
+{
+   return mMsgQueue->numMsgs();
+}
+
+int OsMsgDispatcher::maxMsgs() const
+{
+   return mMsgQueue->maxMsgs();
+}
+
+UtlBoolean OsMsgDispatcher::isEmpty( void )
+{
+   return mMsgQueue->isEmpty();
+}
 
 UtlBoolean OsMsgDispatcher::isMsgsLost() const
 {
