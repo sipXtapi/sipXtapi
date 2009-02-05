@@ -340,20 +340,34 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
         {
             // and if the mime subtype, sample rate, number of channels
             // and fmtp match.
-            // TODO:: checking for fmtp match must be made intelligent, e.g. by
-            //        defining isCompatible(fmtp) method for SdpCodec. Checking
-            //        by string comparison leads to errors when there are two
-            //        or more parameters and they're presented in random order.
             codecFound->getEncodingName(foundMimeSubType);
-            codecFound->getSdpFmtpField(foundFmtp);
             if(  (foundMimeSubType.compareTo(mimeSubTypeString, UtlString::ignoreCase) == 0)
               && (sampleRate == -1 || codecFound->getSampleRate() == sampleRate)
               && (numChannels == -1 || codecFound->getNumChannels() == numChannels)
-              && (fmtp == foundFmtp)
               && (codecFound->getCPUCost() <= mCodecCPULimit))
             {
-                // we found a match
-                break;
+                // TODO:: checking for fmtp match must be made intelligent, e.g. by
+                //        defining isCompatible(fmtp) method for SdpCodec. Checking
+                //        by string comparison leads to errors when there are two
+                //        or more parameters and they're presented in random order.
+                codecFound->getSdpFmtpField(foundFmtp);
+                if (fmtp.compareTo(foundFmtp, UtlString::ignoreCase) == 0)
+                {
+                    // we found a match
+                    break;
+                }
+                else
+                {
+                    // Workaround for RFC4733. Refer to RFC4733 section 7.1.1.
+                    // paragraph optional "Optional parameters" and
+                    // section 2.4.1 for details.
+                    if (  (fmtp.isNull() || fmtp == "0-15")
+                       && (foundFmtp.isNull() || foundFmtp == "0-15"))
+                    {
+                        // we found a match
+                        break;
+                    }
+                }
             }
         }
     }
