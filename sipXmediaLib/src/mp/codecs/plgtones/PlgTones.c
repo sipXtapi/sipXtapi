@@ -282,6 +282,10 @@ CODEC_API int PLG_SIGNALING_V1(tones)(void* handle,
       *startStatus = FALSE;
    }
 
+   // Fill in data to be returned.
+   *outEvent = mpTones->mActiveEvent;
+   *outDuration = mpTones->mLastEventDuration;
+
    // Check for end of event condition
    if ((0x80 & mpTones->mLastPacketData.dB) > 0)
    {
@@ -297,10 +301,6 @@ CODEC_API int PLG_SIGNALING_V1(tones)(void* handle,
 
    // Signal that packet was parsed.
    mpTones->mHaveValidData = FALSE;
-
-   // Fill in remaining data to be returned.
-   *outEvent = mpTones->mLastPacketData.key;
-   *outDuration = mpTones->mLastPacketData.duration;
 
    // Ok, we have something to signal.
    return RPLG_SUCCESS;
