@@ -623,7 +623,7 @@ void MprEncode::doDtmfCodec(int samplesPerFrame, int samplesPerSecond)
       if (mNewTone == TRUE ||
           ((mLastDtmfSendTimestamp + mDtmfSampleInterval) <= mCurrentTimestamp)) {
 
-         numSampleTimes = (mCurrentTimestamp + samplesPerFrame) - mStartTimestamp2;
+         numSampleTimes = (mCurrentTimestamp + mDtmfSampleInterval) - mStartTimestamp2;
          if (numSampleTimes > ((1<<16) - 1)) numSampleTimes = ((1<<16) - 1);
 
          mpPacket2Payload[0] = mCurrentTone;
