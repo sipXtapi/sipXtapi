@@ -1574,8 +1574,19 @@ OsStatus CpTopologyGraphInterface::startTone(int toneId,
    OsStatus stat = OS_FAILED;
    if(mpTopologyGraph != NULL)
    {
+      // Generate in-band tone
       stat = MprToneGen::startTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
                                    *mpTopologyGraph->getMsgQ(), toneId);
+
+      // Generate RFC4733 out-of-band tone
+      CpTopologyMediaConnection* mediaConnection = NULL;
+      UtlDListIterator connectionIterator(mMediaConnections);
+      while ((mediaConnection = (CpTopologyMediaConnection*) connectionIterator()))
+      {
+         UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+         MpResourceTopology::replaceNumInName(encodeName, mediaConnection->getValue());
+         stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
+      }
    }
    else
    {
@@ -1589,8 +1600,19 @@ OsStatus CpTopologyGraphInterface::stopTone()
    OsStatus stat = OS_FAILED;
    if(mpTopologyGraph != NULL)
    {
+      // Stop in-band tone
       stat = MprToneGen::stopTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
                                   *mpTopologyGraph->getMsgQ());
+
+      // Stop RFC4733 out-of-band tone
+      CpTopologyMediaConnection* mediaConnection = NULL;
+      UtlDListIterator connectionIterator(mMediaConnections);
+      while ((mediaConnection = (CpTopologyMediaConnection*) connectionIterator()))
+      {
+         UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+         MpResourceTopology::replaceNumInName(encodeName, mediaConnection->getValue());
+         stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
+      }
    }
    else
    {
@@ -1599,14 +1621,53 @@ OsStatus CpTopologyGraphInterface::stopTone()
    return stat;
 }
 
-OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote) 
+OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
+                                                    int toneId,
+                                                    UtlBoolean local,
+                                                    UtlBoolean remote) 
 {
-    return OS_NOT_SUPPORTED;
+   OsStatus stat = OS_FAILED;
+
+   if (mpTopologyGraph)
+   {
+      // Generate in-band tone
+      stat = MprToneGen::startTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
+                                   *mpTopologyGraph->getMsgQ(), toneId);
+
+      // Generate RFC4733 out-of-band tone
+      UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(encodeName, connectionId);
+      stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
+   }
+   else
+   {
+      stat = OS_NOT_FOUND;
+   }
+
+   return stat;
 }
 
 OsStatus CpTopologyGraphInterface::stopChannelTone(int connectionId)
 {
-    return OS_NOT_SUPPORTED;
+   OsStatus stat = OS_FAILED;
+
+   if (mpTopologyGraph)
+   {
+      // Stop in-band tone
+      stat = MprToneGen::stopTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
+                                   *mpTopologyGraph->getMsgQ());
+
+      // Stop RFC4733 out-of-band tone
+      UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(encodeName, connectionId);
+      stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
+   }
+   else
+   {
+      stat = OS_NOT_FOUND;
+   }
+
+   return stat;
 }
 
 
