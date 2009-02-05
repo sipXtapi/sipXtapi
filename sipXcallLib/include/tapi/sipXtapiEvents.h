@@ -607,8 +607,8 @@ typedef enum
                                         (device was removed, already in use, etc). */
     MEDIA_CAUSE_INCOMPATIBLE,        /**< Incompatible destination -- We were unable
                                         to negotiate a codec */
-    MEDIA_CAUSE_DTMF_START,			 /**< A DTMF tone has started */
-    MEDIA_CAUSE_DTMF_STOP			 /**< A DTMF tone has stopped */
+    MEDIA_CAUSE_DTMF_START,          /**< A DTMF tone has started */
+    MEDIA_CAUSE_DTMF_STOP            /**< A DTMF tone has stopped */
 
 } SIPX_MEDIA_CAUSE ;
 
