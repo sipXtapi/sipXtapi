@@ -199,8 +199,9 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
 #endif // RTL_ENABLED ]
    RTL_EVENT(str_fg+"_pushPacket_seq", pRtp->getRtpSequenceNumber());
    RTL_EVENT(str_fg+"_pushPacket_TS", pRtp->getRtpTimestamp());
-   dprintf("> %"PRIu16" %"PRIu32,
-           pRtp->getRtpSequenceNumber(), pRtp->getRtpTimestamp());
+   dprintf("> %"PRIu16" %"PRIu32" %d",
+           pRtp->getRtpSequenceNumber(), pRtp->getRtpTimestamp(),
+           pRtp->getRtpPayloadType());
 
    // Get decoder info for this packet.
    int pt = pRtp->getRtpPayloadType();
@@ -246,11 +247,20 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
       // Sample rate mustn't change during the live stream.
       assert(pDecoderInfo->getSampleRate() == mStreamState.sampleRate);
 
-      // Update jitter state data
-      mpJbEstimationState->update(&pRtp->getRtpHeader(),
-                                  mStreamState.rtpStreamPosition,
-                                  mStreamState.playbackStreamPosition,
-                                  &mStreamState.rtpStreamHint);
+      // RFC4733 states that timestamp always refers to the beginning of a tone,
+      // so it will remain constant among a lot of packets. We don't want to
+      // confuse our jitter buffer estimation with this.
+      // TODO: Later, we will want to handle this correctly inside JBE itself,
+      // because non-straightforward timestamps are also the case for, e.g.
+      // redundant payloads.
+      if (!pDecoderInfo->isSignalingCodec())
+      {
+         // Update jitter state data
+         mpJbEstimationState->update(&pRtp->getRtpHeader(),
+                                     mStreamState.rtpStreamPosition,
+                                     mStreamState.playbackStreamPosition,
+                                     &mStreamState.rtpStreamHint);
+      }
    }
 
    RTL_EVENT(str_fg+"_pushPacket_rtp_stream_hint",
@@ -407,6 +417,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                                       decodedSamples,
                                       adjustment,
                                       isPlayed);
+      dprintf(" decoded=%d", decodedSamples);
       dprintf(" adj[h=%"PRId32" ?%d %d p?%d",
               mStreamState.rtpStreamHint, wantedBufferSamples, adjustment,
               int(isPlayed));
@@ -414,13 +425,21 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       RTL_EVENT(str_fg+"_PF_wanted_buffer_samples", wantedBufferSamples);
       RTL_EVENT(str_fg+"_PF_adjustment", adjustment);
       RTL_EVENT(str_fg+"_PF_is_played", isPlayed);
-      if (isPlayed)
+
+      // We should not adjust stream position if we've just decoded a pure
+      // signaling packet. According to RFC4733 its timestamp is set to
+      // the beginning of a tone, so we will constantly jump back in time
+      // if we set our stream position to its timestamp.
+      if (decodedSamples>0)
       {
-         mStreamState.rtpStreamPosition = rtp->getRtpTimestamp() + decodedSamples;
-      } 
-      else
-      {
-         mStreamState.rtpStreamPosition += decodedSamples;
+         if (isPlayed)
+         {
+            mStreamState.rtpStreamPosition = rtp->getRtpTimestamp() + decodedSamples;
+         } 
+         else
+         {
+            mStreamState.rtpStreamPosition += decodedSamples;
+         }
       }
       if (res != OS_SUCCESS)
       {
@@ -486,6 +505,9 @@ UtlBoolean MprDecode::tryDecodeAsSignalling(const MpRtpBufPtr &rtp)
                              (MprnDTMFMsg::KeyCode)event,
                              MprnDTMFMsg::KEY_DOWN);
          sendNotification(dtmfMsg);
+         OsSysLog::add(FAC_MP, PRI_INFO,
+                       "%s: DTMF KEY_DOWN event received for key %d\n",
+                        getName().data(), event);
 
          // Old way to indicate DTMF event. Will be removed soon, I hope.
          if (mpDtmfNotication)
@@ -503,6 +525,9 @@ UtlBoolean MprDecode::tryDecodeAsSignalling(const MpRtpBufPtr &rtp)
                              (MprnDTMFMsg::KeyCode)event,
                              MprnDTMFMsg::KEY_UP, duration);
          sendNotification(dtmfMsg);
+         OsSysLog::add(FAC_MP, PRI_INFO,
+                       "%s: DTMF KEY_UP event received for key %d, duration %d\n",
+                       getName().data(), event, duration);
 
          // Old way to indicate DTMF event. Will be removed soon, I hope.
          if (mpDtmfNotication)
