@@ -923,7 +923,7 @@ OsStatus MpCallFlowGraph::Record(int ms,
    res = record(ms, -1, created_micNamePtr, created_echoOutNamePtr,
               created_spkrNamePtr, created_mic32NamePtr, created_spkr32NamePtr,
               created_echoIn8NamePtr, created_echoIn32NamePtr,
-              playFilename, NULL, 0, 0, NULL);
+              playFilename, NULL, 0, 0);
    playIndex++;
    
    strcpy(saved_playFilename,playFilename);
@@ -949,35 +949,8 @@ OsStatus MpCallFlowGraph::recordMic(int ms,
                                     const char* fileName)
 {
    OsStatus ret;
-   ret = record(ms, silenceLength, fileName, NULL, NULL,
-                NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 
-                NULL, MprRecorder::WAV_PCM_16);
-
-   return ret;
-}
-
-
-OsStatus MpCallFlowGraph::ezRecord(int ms, 
-                                   int silenceLength, 
-                                   const char* fileName, 
-                                   double& duration,
-                                   MprRecorder::RecordFileFormat format)
-{
-   OsStatus ret = OS_WAIT_TIMEOUT;
-   OsEvent recordEvent;
-
-   record(ms, silenceLength, NULL, NULL, fileName,
-          NULL, NULL, NULL, NULL, NULL, NULL, 0, 
-          0, &recordEvent, format);
-
-   // Wait for record to finish
-   recordEvent.wait();
-
-   intptr_t samplesWritten;
-   recordEvent.getUserData(samplesWritten);
-   duration = (1000. * samplesWritten) / getSamplesPerSec();
-
-   closeRecorders();
+   ret = record(ms, silenceLength, fileName, NULL, NULL, NULL, NULL, NULL, NULL,
+                NULL, NULL, 0, 0, MprRecorder::WAV_PCM_16);
 
    return ret;
 }
@@ -995,7 +968,6 @@ OsStatus MpCallFlowGraph::record(int timeMS,
                                  const char* callName /*= NULL*/,
                                  int toneOptions /*= 0*/,
                                  int repeat /*= 0*/,
-                                 OsEvent* completion /*= NULL*/,
                                  MprRecorder::RecordFileFormat format)
 {
    // Convert seconds to milliseconds.
@@ -1004,43 +976,43 @@ OsStatus MpCallFlowGraph::record(int timeMS,
 #ifndef DISABLE_LOCAL_AUDIO // [
    if (NULL != micName) {
       setupRecorder(RECORDER_MIC, micName,
-                    timeMS, silenceLength, completion, format);
+                    timeMS, silenceLength, format);
    }
    if (NULL != echoOutName) {
       setupRecorder(RECORDER_ECHO_OUT, echoOutName,
-                    timeMS, silenceLength, completion, format);
+                    timeMS, silenceLength, format);
    }
    if (NULL != echoIn8Name) {
       setupRecorder(RECORDER_ECHO_IN8, echoIn8Name,
-                    timeMS, silenceLength, completion, format);
+                    timeMS, silenceLength, format);
    }
 #ifdef HIGH_SAMPLERATE_AUDIO // [
    if (NULL != mic32Name) {
       setupRecorder(RECORDER_MIC32K, mic32Name,
-                    timeMS, silenceLength, completion, format);
+                    timeMS, silenceLength, format);
    }
    if (NULL != spkr32Name) {
       setupRecorder(RECORDER_SPKR32K,spkr32Name,
-                    timeMS, silenceLength, completion, format);
+                    timeMS, silenceLength, format);
    }
    if (NULL != echoIn32Name) {
       setupRecorder(RECORDER_ECHO_IN32,
-                    echoIn32Name, timeMS, silenceLength, completion, format);
+                    echoIn32Name, timeMS, silenceLength, format);
    }
 #endif // HIGH_SAMPLERATE_AUDIO ]
 #endif // DISABLE_LOCAL_AUDIO ]
    if (NULL != spkrName) {
       setupRecorder(RECORDER_SPKR, spkrName,
-                    timeMS, silenceLength, completion, format);
+                    timeMS, silenceLength, format);
    }
    // set up call recorder
    if (NULL != callName) {
       setupRecorder(RECORDER_CALL, callName,
-                    timeMS, silenceLength, completion, format);
+                    timeMS, silenceLength, format);
    }
    if (NULL != playName)
    {
-      playFile(playName, repeat, toneOptions, completion);
+      playFile(playName, repeat, toneOptions);
    }
    return OS_SUCCESS;
 }
@@ -1048,7 +1020,7 @@ OsStatus MpCallFlowGraph::record(int timeMS,
 // Setup recording on one recorder
 UtlBoolean MpCallFlowGraph::setupRecorder(RecorderChoice which,
                   const char* audioFileName, int time, 
-                  int silenceLength, OsEvent* event,
+                  int silenceLength,
                   MprRecorder::RecordFileFormat format)
 {
    OsStatus res;
@@ -1064,15 +1036,14 @@ UtlBoolean MpCallFlowGraph::setupRecorder(RecorderChoice which,
    MpResource::setNotificationsEnabled(TRUE, mpFromFile->getName(), *getMsgQ());
 
    res = MprRecorder::startFile(mpRecorders[which]->getName(), *getMsgQ(),
-                            audioFileName, format, time,
-                            silenceLength, (OsEvent*)event);
+                                audioFileName, format, time, silenceLength);
 
    return res == OS_SUCCESS;
 }
 
 // Start playing the indicated audio file.
 OsStatus MpCallFlowGraph::playFile(const char* audioFileName, UtlBoolean repeat,
-                                   int toneOptions, OsNotification* event)
+                                   int toneOptions)
 {
    OsStatus  res;
 
@@ -1082,7 +1053,7 @@ OsStatus MpCallFlowGraph::playFile(const char* audioFileName, UtlBoolean repeat,
    // call stuff in the CallFlowGraph -- a big nono in terms of separation)
    MpResource::setNotificationsEnabled(TRUE, mpFromFile->getName(), *getMsgQ());
 
-   res = mpFromFile->playFile(audioFileName, repeat, event);
+   res = mpFromFile->playFile(audioFileName, repeat);
 
    if (res == OS_SUCCESS)
    {

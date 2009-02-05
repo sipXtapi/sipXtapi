@@ -1190,8 +1190,7 @@ OsStatus CpPhoneMediaInterface::playAudio(const char* url,
                                           UtlBoolean local,
                                           UtlBoolean remote,
                                           UtlBoolean mixWithMic,
-                                          int downScaling,
-                                          OsNotification *event)
+                                          int downScaling)
 {
     OsStatus returnCode = OS_NOT_FOUND;
     UtlString urlString;
@@ -1214,7 +1213,7 @@ OsStatus CpPhoneMediaInterface::playAudio(const char* url,
          }
 
         // Start playing the audio file
-        returnCode = mpFlowGraph->playFile(urlString.data(), repeat, toneOptions, event);
+        returnCode = mpFlowGraph->playFile(urlString.data(), repeat, toneOptions);
     }
 
     if(returnCode != OS_SUCCESS)
@@ -1311,13 +1310,12 @@ OsStatus CpPhoneMediaInterface::playChannelAudio(int connectionId,
                                                  UtlBoolean local,
                                                  UtlBoolean remote,
                                                  UtlBoolean mixWithMic,
-                                                 int downScaling,
-                                                 OsNotification *event) 
+                                                 int downScaling)
 {
     // TODO:: This API is designed to record the audio from a single channel.  
     // If the connectionId is -1, record all.
 
-    return playAudio(url, repeat, local, remote, mixWithMic, downScaling, event) ;
+    return playAudio(url, repeat, local, remote, mixWithMic, downScaling);
 }
 
 
@@ -1344,16 +1342,24 @@ OsStatus CpPhoneMediaInterface::recordChannelAudio(int connectionId,
        we don't want raw pcm, but wav pcm, raw pcm should be passed to a callback
        meant for recording, for example for conversion to mp3 or other format */
     return mpFlowGraph->record(-1, -1, NULL, NULL, NULL, NULL, NULL, NULL,
-                               NULL, NULL, szFile, 0, 0, NULL, MprRecorder::WAV_PCM_16) ;
+                               NULL, NULL, szFile, 0, 0, MprRecorder::WAV_PCM_16);
 }
 
 OsStatus CpPhoneMediaInterface::stopRecordChannelAudio(int connectionId) 
 {
-    // TODO:: This API is designed to record the audio from a single channel.  
-    // If the connectionId is -1, record all.
+   // TODO:: This API is designed to record the audio from a single channel.  
+   // If the connectionId is -1, record all.
 
-
-    return stopRecording() ;
+   OsStatus ret = OS_UNSPECIFIED;
+   if (mpFlowGraph)
+   {
+     OsSysLog::add(FAC_CP, PRI_DEBUG,
+                   "CpPhoneMediaInterface::stopRecordChannelAudio() : calling MpCallFlowGraph::closeRecorders()");
+     mpFlowGraph->closeRecorders();
+     ret = OS_SUCCESS;
+   }
+   
+   return ret;
 }
 
 OsStatus CpPhoneMediaInterface::recordBufferChannelAudio(int connectionId,
@@ -1584,22 +1590,6 @@ void CpPhoneMediaInterface::setCodecCPULimit(int iLimit)
    }
 }
 
-OsStatus CpPhoneMediaInterface::stopRecording()
-{
-   OsStatus ret = OS_UNSPECIFIED;
-   if (mpFlowGraph)
-   {
-#ifdef TEST_PRINT
-     osPrintf("CpPhoneMediaInterface::stopRecording() : calling flowgraph::stoprecorders\n");
-     OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::stopRecording() : calling flowgraph::stoprecorders");
-#endif
-     mpFlowGraph->closeRecorders();
-     ret = OS_SUCCESS;
-   }
-   
-   return ret;
-}
-
 OsStatus CpPhoneMediaInterface::recordMic(int ms, int16_t* pAudioBuf,
                                           int bufferSize)
 {
@@ -1623,24 +1613,6 @@ OsStatus CpPhoneMediaInterface::recordMic(int ms,
     return ret ;
 }
 
-
-OsStatus CpPhoneMediaInterface::ezRecord(int ms,
-                                         int silenceLength,
-                                         const char* fileName,
-                                         double& duration)
-{
-   OsStatus ret = OS_UNSPECIFIED;
-   if (mpFlowGraph && fileName)
-   {
-        ret = mpFlowGraph->ezRecord(ms,
-                                    silenceLength,
-                                    fileName,
-                                    duration,
-                                    MprRecorder::WAV_PCM_16);
-   }
-   
-   return ret;
-}
 
 void CpPhoneMediaInterface::addToneListener(OsNotification *pListener, int connectionId)
 {

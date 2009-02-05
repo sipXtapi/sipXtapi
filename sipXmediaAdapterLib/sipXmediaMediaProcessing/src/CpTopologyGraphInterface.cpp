@@ -1335,8 +1335,7 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
                                           UtlBoolean local,
                                           UtlBoolean remote,
                                           UtlBoolean mixWithMic,
-                                          int downScaling,
-                                          OsNotification *event)
+                                          int downScaling)
 {
     OsStatus stat = OS_NOT_FOUND;
     UtlString filename;
@@ -1349,7 +1348,7 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
        // Currently, this ignores "local", "mixWithMic" and "downScaling".
        stat = MprFromFile::playFile(DEFAULT_FROM_FILE_RESOURCE_NAME, 
           *mpTopologyGraph->getMsgQ(), mpTopologyGraph->getSamplesPerSec(),
-          filename, repeat, event);
+          filename, repeat);
     }
 
     if(stat != OS_SUCCESS)
@@ -1440,18 +1439,17 @@ OsStatus CpTopologyGraphInterface::stopAudio()
 
 
 OsStatus CpTopologyGraphInterface::playChannelAudio(int connectionId,
-                                                 const char* url,
-                                                 UtlBoolean repeat,
-                                                 UtlBoolean local,
-                                                 UtlBoolean remote,
-                                                 UtlBoolean mixWithMic,
-                                                 int downScaling,
-                                                 OsNotification *event) 
+                                                    const char* url,
+                                                    UtlBoolean repeat,
+                                                    UtlBoolean local,
+                                                    UtlBoolean remote,
+                                                    UtlBoolean mixWithMic,
+                                                    int downScaling) 
 {
     // TODO:: This API is designed to record the audio from a single channel.  
     // If the connectionId is -1, record all.
 
-    return playAudio(url, repeat, local, remote, mixWithMic, downScaling, event) ;
+    return playAudio(url, repeat, local, remote, mixWithMic, downScaling) ;
 }
 
 
@@ -1713,11 +1711,6 @@ void CpTopologyGraphInterface::setCodecCPULimit(int iLimit)
    }
 }
 
-OsStatus CpTopologyGraphInterface::stopRecording()
-{
-   return OS_NOT_SUPPORTED;
-}
-
 OsStatus CpTopologyGraphInterface::recordMic(int ms,
                                              int16_t* pAudioBuf,
                                              int bufferSize)
@@ -1737,14 +1730,6 @@ OsStatus CpTopologyGraphInterface::recordMic(int ms,
                                              const char* fileName)
 {
     return OS_NOT_SUPPORTED;
-}
-
-OsStatus CpTopologyGraphInterface::ezRecord(int ms,
-                                            int silenceLength,
-                                            const char* fileName,
-                                            double& duration)
-{
-   return OS_NOT_SUPPORTED;
 }
 
 void CpTopologyGraphInterface::addToneListener(OsNotification *pListener, int connectionId)

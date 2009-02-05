@@ -932,9 +932,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_ENABLE_DTMF_EVENT:
         case CP_DISABLE_DTMF_EVENT:
         case CP_REMOVE_DTMF_EVENT:
-        case CP_EZRECORD:
         case CP_SET_OUTBOUND_LINE:
-        case CP_STOPRECORD:
         case CP_GET_LOCAL_CONTACTS:
         case CP_GET_MEDIA_CONNECTION_ID:
         case CP_GET_MEDIA_ENERGY_LEVELS:
@@ -982,8 +980,6 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         msgSubType == CP_DESTROY_PLAYER ||
                         msgSubType == CP_DESTROY_PLAYLIST_PLAYER ||
                         msgSubType == CP_DESTROY_QUEUE_PLAYER ||
-                        msgSubType == CP_STOPRECORD ||
-                        msgSubType == CP_EZRECORD ||
                         msgSubType == CP_PLAY_BUFFER_TERM_CONNECTION ||
                         msgSubType == CP_GET_LOCAL_CONTACTS || 
                         msgSubType == CP_GET_MEDIA_CONNECTION_ID ||
@@ -2933,51 +2929,6 @@ UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char
     }
     return(isLocal);
 }
-
-OsStatus CallManager::stopRecording(const char* callId)
-{
-    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-    OsProtectedEvent* stoprecEvent = eventMgr->alloc();
-    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
-
-    CpMultiStringMessage recordMessage(CP_STOPRECORD, callId,
-        NULL, NULL, NULL, NULL, (intptr_t)stoprecEvent,0,0,0);
-    postMessage(recordMessage);
-
-    // Wait until the call sets the number of connections
-    if(stoprecEvent->wait(0, maxEventTime) == OS_SUCCESS)
-    {
-        eventMgr->release(stoprecEvent);
-    }
-    else
-    {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::stopRecording TIMED OUT\n");
-        // If the event has already been signalled, clean up
-        if(OS_ALREADY_SIGNALED == stoprecEvent->signal(0))
-        {
-            eventMgr->release(stoprecEvent);
-        }
-    }
-
-    return OS_SUCCESS;
-
-}
-
-OsStatus CallManager::ezRecord(const char* callId,
-                               int ms,
-                               int silenceLength,
-                               int& duration,
-                               const char* fileName,
-                               OsProtectedEvent* recordEvent)
-{
-    CpMultiStringMessage recordMessage(CP_EZRECORD,
-        callId, fileName, NULL, NULL, NULL,
-        (intptr_t)recordEvent, ms, silenceLength);
-    postMessage(recordMessage);
-
-    return OS_SUCCESS;
-}
-
 
 OsStatus CallManager::enableDtmfEvent(const char* callId,
                                       int interDigitSecs,

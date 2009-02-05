@@ -51,7 +51,6 @@ MprRecorder::MprRecorder(const UtlString& rName)
 , mSamplesRecorded(0)
 , mConsecutiveInactive(0)
 , mSilenceLength(0)
-, mpEvent(NULL)
 , mFileDescriptor(-1)
 , mRecFormat(UNINITIALIZED_FORMAT)
 , mpBuffer(NULL)
@@ -74,8 +73,7 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                                 const char *filename,
                                 RecordFileFormat recFormat,
                                 int time,
-                                int silenceLength,
-                                OsEvent* event)
+                                int silenceLength)
 {
    int file = -1;
    OsStatus res = OS_FAILED;
@@ -99,8 +97,6 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
       stat = msgData.serialize(time);
       assert(stat == OS_SUCCESS);
       stat = msgData.serialize(silenceLength);
-      assert(stat == OS_SUCCESS);
-      stat = msgData.serialize((void*)event);
       assert(stat == OS_SUCCESS);
       msgData.finishSerialize();
       
@@ -256,11 +252,9 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 UtlBoolean MprRecorder::handleStartFile(int file,
                                         RecordFileFormat recFormat,
                                         int time,
-                                        int silenceLength,
-                                        OsEvent* event)
+                                        int silenceLength)
 {
    mFileDescriptor = file;
-   mpEvent = event;
    mRecFormat = recFormat;
    mRecordDestination = TO_FILE;
 
@@ -272,8 +266,8 @@ UtlBoolean MprRecorder::handleStartFile(int file,
    startRecording(time, silenceLength);
 
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "MprRecorder::handleStartFile(%d, %d, %d, %d, %p) finished",
-                 file, recFormat, time, silenceLength, event);
+                 "MprRecorder::handleStartFile(%d, %d, %d, %d) finished",
+                 file, recFormat, time, silenceLength);
    return TRUE;
 }
 
@@ -325,7 +319,6 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          RecordFileFormat recFormat;
          int timeMS;
          int silenceLength;
-         OsEvent* pEvent;
 
          UtlSerialized &msgData(((MpPackedResourceMsg*)(&rMsg))->getData());
          stat = msgData.deserialize(file);
@@ -336,9 +329,7 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          assert(stat == OS_SUCCESS);
          stat = msgData.deserialize(silenceLength);
          assert(stat == OS_SUCCESS);
-         stat = msgData.deserialize((void*&)pEvent);
-         assert(stat == OS_SUCCESS);
-         return handleStartFile(file, recFormat, timeMS, silenceLength, pEvent);
+         return handleStartFile(file, recFormat, timeMS, silenceLength);
       }
       break;
 
@@ -434,19 +425,6 @@ UtlBoolean MprRecorder::finish(FinishCause cause)
    case FINISHED_ERROR:
       sendNotification(MpResNotificationMsg::MPRNM_RECORDER_ERROR);
       break;
-   }
-
-   // Old style notification (for MpCallFlowGraph::ezRecord() only!)
-   if (mpEvent != NULL)
-   {
-      OsStatus ret = mpEvent->signal(mSamplesRecorded);
-      if (OS_SUCCESS != ret)
-      {
-         OsSysLog::add(FAC_MP, PRI_WARNING,
-                       "MprRecorder::progressReport signal failed, returned %d",
-                       (int)ret);
-      }
-      mpEvent = NULL;
    }
 
    return res;

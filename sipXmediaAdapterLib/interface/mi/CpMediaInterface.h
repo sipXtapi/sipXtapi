@@ -486,8 +486,7 @@ public:
                               UtlBoolean local, 
                               UtlBoolean remote,
                               UtlBoolean mixWithMic = false,
-                              int downScaling = 100,
-                              OsNotification *event = NULL) = 0 ;
+                              int downScaling = 100) = 0 ;
      /**<
      *
      *  @param[in] url - Audio url to be played -- The sipX implementation is limited 
@@ -510,8 +509,7 @@ public:
                                      UtlBoolean local, 
                                      UtlBoolean remote,
                                      UtlBoolean mixWithMic = false,
-                                     int downScaling = 100,
-                                     OsNotification *event = NULL) = 0 ;
+                                     int downScaling = 100) = 0 ;
 
      /// @brief Play the specified audio buffer to the call. 
    virtual OsStatus playBuffer(char* buf, 
@@ -652,12 +650,6 @@ public:
    //! Remove the specified DTMF listener from this call.
    virtual void removeToneListener(int connectionId) = 0;
 
-   //! Start recording audio for this call.
-   virtual OsStatus ezRecord(int ms,
-                             int silenceLength,
-                             const char* fileName,
-                             double& duration) = 0;
-
      /// @brief Record the microphone data to a file
    virtual OsStatus recordMic(int ms,
                               int silenceLength,
@@ -684,9 +676,6 @@ public:
      *  @param[in] pAudioBuf - Audio buffer to record to.
      *  @param[in] bufferSize - Size of the buffer (in samples).
      */
-
-   //! Stop recording for this call.
-   virtual OsStatus stopRecording() = 0;
 
    //! Set the preferred contact type for this media connection
    virtual void setContactType(int connectionId, SIPX_CONTACT_TYPE eType, SIPX_CONTACT_ID contactId) = 0 ;

@@ -75,8 +75,7 @@ public:
                              const char *filename,
                              RecordFileFormat recFormat,
                              int time = 0,
-                             int silenceLength = -1,
-                             OsEvent* event = NULL);
+                             int silenceLength = -1);
      /**<
      *  @param[in] namedResource - resource name to send command to.
      *  @param[in] fgQ - flowgraph queue to send command to.
@@ -86,7 +85,6 @@ public:
      *  @param[in] silenceLength - length of silence (in milliseconds) after
      *             which recording is automatically stopped. This feature is
      *             disabled if -1 is passed.
-     *  @param[in] event - an optional OsEvent to signal on completion (DEPRECATED!).
      */
 
      /// Start recording to a buffer with given parameters.
@@ -166,7 +164,6 @@ protected:
    int mSamplesRecorded;
    int mConsecutiveInactive;
    int mSilenceLength;
-   OsEvent* mpEvent;
 
 ///@name File-related variables
 //@{
@@ -191,7 +188,7 @@ protected:
 
      /// Handle MPRM_START_FILE message.
    UtlBoolean handleStartFile(int file, RecordFileFormat recFormat, int time,
-                              int silenceLength, OsEvent* event);
+                              int silenceLength);
 
      /// Handle MPRM_START_BUFFER message.
    UtlBoolean handleStartBuffer(MpAudioSample *pBuffer, int bufferSize, int time,

@@ -163,7 +163,6 @@ public:
         CP_ENABLE_DTMF_EVENT,
         CP_DISABLE_DTMF_EVENT,
         CP_REMOVE_DTMF_EVENT,
-        CP_EZRECORD,                    //60
         CP_PLAY_BUFFER_TERM_CONNECTION,
         CP_CREATE_PLAYER,
         CP_DESTROY_PLAYER,
@@ -177,7 +176,6 @@ public:
         CP_GET_CODEC_CPU_COST,
         CP_GET_CODEC_CPU_LIMIT,
         CP_SET_INBOUND_CODEC_CPU_LIMIT,
-        CP_STOPRECORD,
         CP_SET_OUTBOUND_LINE,
         CP_GET_LOCAL_CONTACTS,
         CP_OUTGOING_INFO,

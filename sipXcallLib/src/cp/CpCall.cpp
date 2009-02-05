@@ -569,36 +569,6 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             }
             break;
 
-        case CallManager::CP_EZRECORD:
-            addHistoryEvent(msgSubType, multiStringMessage);
-            {
-                UtlString fileName;
-                ((CpMultiStringMessage&)eventMessage).getString2Data(fileName);
-                OsProtectedEvent* ev = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
-                int ms = ((CpMultiStringMessage&)eventMessage).getInt2Data();
-                int silenceLength = ((CpMultiStringMessage&)eventMessage).getInt3Data();
-
-                double duration;
-                if (mpMediaInterface)
-                {
-                    mpMediaInterface->ezRecord(ms, silenceLength, fileName.data(), duration, ev);
-                }
-
-            }
-            break;
-
-        case CallManager::CP_STOPRECORD:
-            {
-                stopRecord();
-
-                OsProtectedEvent* ev = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
-                if(OS_ALREADY_SIGNALED == ev->signal(0))
-                {
-                    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-                    eventMgr->release(ev);
-                }
-            }
-            break;
         default:
             processedMessage = handleCallMessage(eventMessage);
             break;
@@ -823,20 +793,6 @@ OsStatus CpCall::addTaoListener(OsServerTask* pListener,
 void CpCall::setLocalConnectionState(int newState)
 {
     mLocalConnectionState = newState;
-}
-
-OsStatus CpCall::stopRecord()
-{
-#ifdef TEST_PRINT
-    osPrintf("Calling mpMediaInterface->stopRecording()\n");
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "Calling mpMediaInterface->stopRecording()");
-#endif
-    return mpMediaInterface->stopRecording();
-}
-
-OsStatus CpCall::ezRecord(int ms, int silenceLength, const char* fileName, double& duration)
-{
-    return mpMediaInterface->ezRecord(ms, silenceLength, fileName, duration);
 }
 
 void CpCall::addToneListenerToFlowGraph(intptr_t pListener, Connection* connection)

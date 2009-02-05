@@ -163,12 +163,6 @@ public:
                       int silenceLength,
                       const char* fileName) ;
 
-   OsStatus ezRecord(int ms,
-                     int silenceLength,
-                     const char* fileName,
-                     double& duration,
-                     MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
-
    OsStatus record(int timeMS,
                    int silenceLength,
                    const char* micName = NULL,
@@ -182,11 +176,10 @@ public:
                    const char* callName = NULL,
                    int toneOptions = 0,
                    int repeat = 0,
-                   OsEvent* completion = NULL,
                    MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
    UtlBoolean setupRecorder(RecorderChoice which, const char* audioFileName,
-                  int time, int silenceLength, OsEvent* event = NULL,
+                  int time, int silenceLength,
                   MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
      /// @brief Start playing audio from a buffer passed in.
@@ -218,7 +211,6 @@ public:
                     , int toneOptions   ///< TONE_TO_SPKR/TONE_TO_NET file audio
                                         ///< played locally or both locally and
                                         ///< remotely.
-                    , OsNotification* completion = NULL
                     );
      /**<
      *  @returns <b>OS_INVALID_ARGUMENT</b> - if open on the given file name

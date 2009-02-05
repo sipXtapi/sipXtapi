@@ -278,23 +278,12 @@ public:
 
     virtual void removeDtmfEvent(const char* callId, OsEvent* dtmfEvent);
 
-
-    virtual OsStatus ezRecord(const char* callId,
-                              int ms,
-                              int silenceLength,
-                              int& duration,
-                              const char* fileName,
-                              OsProtectedEvent* recordEvent = NULL);
-
     virtual OsStatus setCodecCPULimitCall(const char* callId, int limit, UtlBoolean bRenegotiate) ;
       //:Sets the CPU codec limit for a call.  Each connection within the call
       //:may only use a codec of the specified CPU intensity (or lesser).
 
     virtual OsStatus setInboundCodecCPULimit(int limit)  ;
       //:Sets the inbound call CPU limit for codecs
-
-    virtual OsStatus stopRecording(const char* callId);
-    //: tells media system stop stop a curretn recording
 
     virtual void setMaxCalls(int maxCalls);
     //:Set the maximum number of calls to admit to the system.

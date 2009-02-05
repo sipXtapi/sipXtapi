@@ -162,8 +162,7 @@ public:
                               UtlBoolean local, 
                               UtlBoolean remote,
                               UtlBoolean mixWithMic = false,
-                              int downScaling = 100,
-                              OsNotification *event = NULL);
+                              int downScaling = 100);
 
 
    virtual OsStatus playBuffer(char* buf, 
@@ -192,8 +191,7 @@ public:
                                     UtlBoolean local,
                                     UtlBoolean remote,
                                     UtlBoolean mixWithMic = false,
-                                    int downScaling = 100,
-                                    OsNotification *event = NULL);
+                                    int downScaling = 100);
 
 
    virtual OsStatus stopChannelAudio(int connectionId);
@@ -237,10 +235,6 @@ public:
    virtual void addToneListener(OsNotification *pListener, int connectionId);
 
    virtual void removeToneListener(int connectionId);
-
-   virtual OsStatus stopRecording();
-   virtual OsStatus ezRecord(int ms, int silenceLength, const char* fileName, 
-                             double& duration);
 
      /// @copydoc CpMediaInterface::recordMic(int,int16_t*,int)
    virtual OsStatus recordMic(int ms, int16_t* pAudioBuf, int bufferSize);
