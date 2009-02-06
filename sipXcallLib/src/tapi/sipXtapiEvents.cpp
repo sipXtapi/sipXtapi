@@ -287,6 +287,18 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
         case MEDIA_PLAYBUFFER_STOP:
             str = "PLAYBUFFER_STOP" ;
             break ;
+        case MEDIA_RECORDFILE_START:
+            str = "RECORDFILE_START" ;
+            break ;
+        case MEDIA_RECORDFILE_STOP:
+            str = "RECORDFILE_STOP" ;
+            break ;
+        case MEDIA_RECORDBUFFER_START:
+            str = "RECORDBUFFER_START" ;
+            break ;
+        case MEDIA_RECORDBUFFER_STOP:
+            str = "RECORDBUFFER_STOP" ;
+            break ;
         case MEDIA_REMOTE_DTMF:
             str = "REMOTE_DTMF" ;
             break ;
@@ -1959,6 +1971,22 @@ SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
 
         case MEDIA_PLAYBUFFER_STOP:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_PLAYBUFFER_STOP") ;
+            break ;
+            
+        case MEDIA_RECORDFILE_START:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_RECORDFILE_START") ;
+            break ;
+
+        case MEDIA_RECORDFILE_STOP:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_RECORDFILE_STOP") ;
+            break ;
+
+        case MEDIA_RECORDBUFFER_START:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_RECORDBUFFER_START") ;
+            break ;
+
+        case MEDIA_RECORDBUFFER_STOP:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_RECORDBUFFER_STOP") ;
             break ;
 
         case MEDIA_REMOTE_DTMF:

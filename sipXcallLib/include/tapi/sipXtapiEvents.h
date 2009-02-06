@@ -527,6 +527,20 @@ typedef enum SIPX_MEDIA_EVENT
                                      finished playing. */
     MEDIA_PLAYBUFFER_STOP,      /**< A buffer has completed playing or was
                                      aborted.*/
+    MEDIA_RECORDFILE_START,     /**< Recording to a file has started. This event
+                                     will be followed by a MEDIA_RECORDFILE_STOP
+                                     when the recording is manually stopped or 
+                                     or finished after specified amount of time. */
+    MEDIA_RECORDFILE_STOP,      /**< A recording has been manually stopped,
+                                     automatically finished or aborted because
+                                     of an error.*/
+    MEDIA_RECORDBUFFER_START,   /**< Recording to a buffer has started. This event
+                                     will be followed by a MEDIA_RECORDBUFFER_STOP
+                                     when the recording is manually stopped or 
+                                     or finished after specified amount of time. */
+    MEDIA_RECORDBUFFER_STOP,    /**< A recording has been manually stopped,
+                                     automatically finished or aborted because
+                                     of an error.*/
     MEDIA_REMOTE_DTMF,          /**< A dtmf tone was started/stopped, see the
                                      cause codes for exact status */
     MEDIA_DEVICE_FAILURE,       /**< Fired if the media device is not present or
