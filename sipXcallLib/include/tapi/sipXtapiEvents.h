@@ -487,7 +487,7 @@ typedef enum SIPX_SECURITY_CAUSE
 /**
  * Enumeration of possible media events
  */
-typedef enum
+typedef enum SIPX_MEDIA_EVENT
 {
     MEDIA_UNKNOWN     = 0,      /**< Unknown or undefined media event, this is
                                      generally the sign of an internal error in 
@@ -539,7 +539,7 @@ typedef enum
 /**
  * Enumeration of possible KEEPALIVE events (EVENT_CATEGORY_KEEPALIVE)
  */
-typedef enum
+typedef enum SIPX_KEEPALIVE_EVENT
 {
     KEEPALIVE_START,        /**< A keepalive attempt has been started.  The
                                  developer is responsible for stopping all
@@ -562,7 +562,7 @@ typedef enum
 /**
  * Enumeration of possible KEEPALIVE cause codes (EVENT_CATEGORY_KEEPALIVE)
  */
-typedef enum
+typedef enum SIPX_KEEPALIVE_CAUSE
 {
     KEEPALIVE_CAUSE_NORMAL
 } SIPX_KEEPALIVE_CAUSE ;
@@ -577,7 +577,7 @@ typedef enum
  * @see SIPX_EVENT_CALLBACK_PROC
  * @see SIPX_EVENT_CATEGORY
  */
-typedef struct
+typedef struct SIPX_KEEPALIVE_INFO
 {
     size_t                  nSize ;     /**< Size of the structure */
     SIPX_KEEPALIVE_EVENT    event ;     /**< Keepalive event identifier. */
@@ -595,7 +595,7 @@ typedef struct
 /**
  * Enumeration of possible media event causes.
  */
-typedef enum
+typedef enum SIPX_MEDIA_CAUSE
 {
     MEDIA_CAUSE_NORMAL,             /**< Normal cause; the call was likely torn down.*/
     MEDIA_CAUSE_HOLD,               /**< Media state changed due to a local or remote
@@ -616,7 +616,7 @@ typedef enum
  * Enumeration of possible media event types.  Today, MEDIA_TYPE_AUDIO and
  * MEDIA_TYPE_VIDEO are supported.
  */
-typedef enum
+typedef enum SIPX_MEDIA_TYPE
 {
     MEDIA_TYPE_AUDIO,   /**< Audio media event type */
     MEDIA_TYPE_VIDEO,   /**< Video media event type */
@@ -633,7 +633,7 @@ typedef enum
  * @see SIPX_EVENT_CALLBACK_PROC
  * @see SIPX_EVENT_CATEGORY
  */
-typedef struct
+typedef struct SIPX_MEDIA_INFO
 {
     size_t              nSize ;     /**< Size of the structure. */
     SIPX_MEDIA_EVENT    event ;     /**< Media event identifier.  See SIPX_MEDIA_EVENT 
@@ -667,7 +667,7 @@ typedef struct
  * @see SIPX_EVENT_CALLBACK_PROC
  * @see SIPX_EVENT_CATEGORY
  */
-typedef struct 
+typedef struct SIPX_CALLSTATE_INFO
 {
     // TODO: Add a bitmask that identified which structure items are valid.  For 
     //       example, codec and hAssociatedCall are only valid for certain event
@@ -710,7 +710,7 @@ typedef struct
 /**
  *  Major classifications of response statuses for a SIP message.
  */
-typedef enum 
+typedef enum SIPX_MESSAGE_STATUS
 {
     SIPX_MESSAGE_OK,                  /**< The message was successfully processed (200) */ 
     SIPX_MESSAGE_FAILURE,             /**< The server received the message, but could or would
@@ -730,7 +730,7 @@ typedef enum
  * @see SIPX_EVENT_CALLBACK_PROC
  * @see SIPX_EVENT_CATEGORY
  */
-typedef struct
+typedef struct SIPX_INFOSTATUS_INFO
 {
     size_t              nSize ;             /**< the size of this structure in bytes */
     SIPX_INFO           hInfo ;             /**< the handle used to make the outbound info request. */ 
@@ -755,7 +755,7 @@ typedef struct
  * @see SIPX_EVENT_CALLBACK_PROC
  * @see SIPX_EVENT_CATEGORY
  */
-typedef struct
+typedef struct SIPX_INFO_INFO
 {
     size_t      nSize ;             /**< Size of structure */
     SIPX_CALL   hCall ;             /**< Call handle if available */
@@ -772,7 +772,7 @@ typedef struct
 /**
  * Enumeration of the possible subscription states visible to the client.
  */
-typedef enum 
+typedef enum SIPX_SUBSCRIPTION_STATE
 {
     SIPX_SUBSCRIPTION_PENDING,      /**< THe subscription is being set up, but not yet active. */
     SIPX_SUBSCRIPTION_ACTIVE ,      /**< The subscription is currently active. */
@@ -784,7 +784,7 @@ typedef enum
 /**
  * Enumeration of cause codes for state subscription state changes.
  */
-typedef enum
+typedef enum SIPX_SUBSCRIPTION_CAUSE
 {
     SUBSCRIPTION_CAUSE_UNKNOWN = -1, /**< No cause specified. */
     SUBSCRIPTION_CAUSE_NORMAL     /**< Normal cause for state change. */
@@ -801,7 +801,7 @@ typedef enum
  * @see SIPX_EVENT_CALLBACK_PROC
  * @see SIPX_EVENT_CATEGORY
  */
-typedef struct 
+typedef struct SIPX_SUBSTATUS_INFO
 {
     size_t nSize ;                      /**< The size of this structure in bytes */
     SIPX_SUB hSub ;                     /**< A handle to the subscription to which
@@ -827,7 +827,7 @@ typedef struct
  * @see SIPX_EVENT_CALLBACK_PROC
  * @see SIPX_EVENT_CATEGORY
  */ 
-typedef struct 
+typedef struct SIPX_NOTIFY_INFO
 {
     size_t      nSize ;             /**< The size of this structure in bytes */
     SIPX_SUB    hSub ;              /**< A handle to the subscrption which
@@ -853,7 +853,7 @@ typedef struct
  * @see SIPX_EVENT_CALLBACK_PROC
  * @see SIPX_EVENT_CATEGORY
  */ 
-typedef struct
+typedef struct SIPX_CONFIG_INFO
 {
     size_t            nSize ;   /**< The size of this structure in bytes */
     SIPX_CONFIG_EVENT event ;   /**< Event code -- see SIPX_CONFIG_EVENT for 
@@ -874,7 +874,7 @@ typedef struct
  * @see SIPX_EVENT_CALLBACK_PROC
  * @see SIPX_EVENT_CATEGORY
  */
-typedef struct
+typedef struct SIPX_SECURITY_INFO
 {
     size_t              nSize ;             /**< the size of this structure in bytes */
     char*               szSRTPkey;          /**< the negotiated SRTP key, if any. */
