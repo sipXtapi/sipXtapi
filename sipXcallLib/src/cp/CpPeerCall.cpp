@@ -2610,25 +2610,51 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
    Connection* pConnection;
    while ((pConnection = (Connection*) iterator()))
    {
-      if (pConnection->getConnectionId() == connectionId)
+      if (connectionId == -1)
       {
+         // Send local events to all connections.
          switch(notification.getMsgSubType())
          {
          case MiNotification::MI_NOTF_PLAY_STARTED:
-            // TODO: media audio playback started handling here..
+            pConnection->fireSipXMediaEvent(MEDIA_PLAYFILE_START,
+                                            MEDIA_CAUSE_NORMAL,
+                                            MEDIA_TYPE_AUDIO) ;
             break;
          case MiNotification::MI_NOTF_PLAY_PAUSED:
-            // TODO: media audio playback paused handling here..
-            break;
          case MiNotification::MI_NOTF_PLAY_RESUMED:
-            // TODO: media audio playback resumed from pausing handling here..
+            // These are not supported by sipXtapi.
             break;
          case MiNotification::MI_NOTF_PLAY_STOPPED:
-            // TODO: media audio playback stopped handling here..
-            break;
          case MiNotification::MI_NOTF_PLAY_FINISHED:
-            // TODO: media audio playback finished handling here..
+            pConnection->fireSipXMediaEvent(MEDIA_PLAYFILE_STOP,
+                                            MEDIA_CAUSE_NORMAL,
+                                            MEDIA_TYPE_AUDIO) ;
             break;
+         case MiNotification::MI_NOTF_RECORD_STARTED:
+            pConnection->fireSipXMediaEvent(MEDIA_RECORDFILE_START,
+                                            MEDIA_CAUSE_NORMAL,
+                                            MEDIA_TYPE_AUDIO) ;
+            break;
+         case MiNotification::MI_NOTF_RECORD_STOPPED:
+         case MiNotification::MI_NOTF_RECORD_FINISHED:
+            pConnection->fireSipXMediaEvent(MEDIA_RECORDFILE_STOP,
+                                            MEDIA_CAUSE_NORMAL,
+                                            MEDIA_TYPE_AUDIO) ;
+            break;
+         case MiNotification::MI_NOTF_RECORD_ERROR:
+            pConnection->fireSipXMediaEvent(MEDIA_RECORDFILE_STOP,
+                                            MEDIA_CAUSE_FAILED,
+                                            MEDIA_TYPE_AUDIO) ;
+            break;
+         default:
+            break;
+         }
+      }
+      else if (pConnection->getConnectionId() == connectionId)
+      {
+         // Handle per-connection events.
+         switch(notification.getMsgSubType())
+         {
          case MiNotification::MI_NOTF_DTMF_RECEIVED:
             {
                MiDtmfNotf *pDtmfNotf = (MiDtmfNotf*)&notification;
