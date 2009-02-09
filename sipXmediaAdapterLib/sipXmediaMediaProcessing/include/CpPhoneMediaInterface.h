@@ -39,7 +39,6 @@ class MpCallFlowGraph;
 class SdpCodec;
 class OsDatagramSocket;
 class CpPhoneMediaConnection;
-class ISocketEvent;
 
 /**
 *  An older media interface
@@ -90,8 +89,6 @@ public:
                                      int localPort = 0,
                                      void* videoWindowHandle = NULL,
                                      void* const pSecurityAttributes = NULL,
-                                     ISocketEvent* pIdleEvent = NULL,
-                                     IMediaEventListener* pMediaEventListener = NULL,
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
 
      /// @copydoc CpMediaInterface::setPlcMethod()

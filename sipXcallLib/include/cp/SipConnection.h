@@ -40,7 +40,7 @@ class SdpCodecList;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
-class SipConnection : public Connection, public ISocketEvent, public IMediaEventListener, public UtlObservable
+class SipConnection : public Connection, public UtlObservable
 {
     /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -160,23 +160,6 @@ public:
     void setContactId(SIPX_CONTACT_ID contactId) { mContactId = contactId; }
 
     void setExternalTransport(SIPX_TRANSPORT_DATA* pTransport) { if (pTransport) { mTransport = *pTransport; }}
-
-    // ISocketEvent::onIdleNotify method
-    void onIdleNotify(IStunSocket* const pSocket,
-                                 SocketPurpose purpose,
-                                 const int millisecondsIdle);
-
-    // ISocketEvent::onReadData method
-    virtual void onReadData(IStunSocket* const pSocket,
-                            SocketPurpose purpose);
-
-    // IMediaEventListener::methods
-    virtual void onFileStart(IMediaEvent_DeviceTypes type);
-    virtual void onFileStop(IMediaEvent_DeviceTypes type);
-    virtual void onBufferStart(IMediaEvent_DeviceTypes type);
-    virtual void onBufferStop(IMediaEvent_DeviceTypes type);
-    virtual void onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_DeviceErrors errCode);
-    virtual void onListenerAddedToEmitter(IMediaEventEmitter* pEmitter);
 
     void setVoiceQualityReportTarget(const char* szTargetSipUrl) ;
     void sendVoiceQualityReport(const char* szTargetSipUrl) ;
@@ -371,7 +354,6 @@ private:
     UtlBoolean mDropping ;
     UtlString mRemoteUserAgent;
     SIPX_TRANSPORT_DATA mTransport;
-    UtlSList mMediaEventEmitters;
     UtlString mVoiceQualityReportTarget;
 
     UtlBoolean getInitialSdpCodecs(const SipMessage* sdpMessage,

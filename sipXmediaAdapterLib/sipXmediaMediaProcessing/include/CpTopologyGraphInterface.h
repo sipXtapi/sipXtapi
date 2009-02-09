@@ -87,8 +87,6 @@ public:
                                      int localPort = 0,
                                      void* videoWindowHandle = NULL,
                                      void* const pSecurityAttributes = NULL,
-                                     ISocketEvent* pIdleEvent = NULL,
-                                     IMediaEventListener* pMediaEventListener = NULL,
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
 
      /// @brief This is non-standard version of createConnection() to be used

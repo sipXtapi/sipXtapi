@@ -190,21 +190,6 @@ SipConnection::~SipConnection()
     else
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: call is Null\n");
 #endif
-
-    // Notify UtlObservers of this UtlObservable
-    notify(0, (void*)dynamic_cast<ISocketEvent*>(this));
-
-    // tell all media event emitters that we are going away
-    UtlSListIterator iterator(mMediaEventEmitters);
-    UtlVoidPtr* pEmitterContainer;
-    IMediaEventEmitter* pEmitter;
-    while ((pEmitterContainer = (UtlVoidPtr*)iterator()))
-    {
-        pEmitter = (IMediaEventEmitter*)pEmitterContainer->getValue();
-        pEmitter->onListenerRemoved();
-    }
-
-
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -827,8 +812,6 @@ UtlBoolean SipConnection::dial(const char* dialString,
                                                0,
                                                (void*)pDisplay,
                                                (void*)pSecurity,
-                                               this,
-                                               dynamic_cast<IMediaEventListener*>(this),
                                                rtpTransportOptions) != OS_SUCCESS)
         {
             setCallId(callId);
@@ -990,7 +973,6 @@ UtlBoolean SipConnection::dial(const char* dialString,
                                 numCodecs,
                                 rtpCodecsArray);
                         fireAudioStartEvents();
-                        mpMediaInterface->enableRtpReadNotification(mConnectionId) ;
                     }
                 }
                 else
@@ -1383,7 +1365,6 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                             mpMediaInterface->startRtpReceive(mConnectionId,
                                     numMatchingCodecs, decoderCodecs);
                             fireAudioStartEvents() ;
-                            mpMediaInterface->enableRtpReadNotification(mConnectionId) ;
 
                             setMediaDestination(remoteRtpAddress.data(),
                                 remoteRtpPort,
@@ -1597,7 +1578,6 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
                 mpMediaInterface->startRtpReceive(mConnectionId,
                         numMatchingCodecs, decoderCodecs);
                 fireAudioStartEvents();
-                mpMediaInterface->enableRtpReadNotification(mConnectionId) ;
 
                 // if early media is desired, start sending RTP
                 if(sendEarlyMedia)
@@ -3240,7 +3220,6 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
                     mpMediaInterface->startRtpReceive(mConnectionId,
                         numMatchingCodecs, decoderCodecs);
                     fireAudioStartEvents(MEDIA_CAUSE_UNHOLD) ;
-                    mpMediaInterface->enableRtpReadNotification(mConnectionId) ;
 
                     mpMediaInterface->startRtpSend(mConnectionId,
                         numMatchingCodecs, encoderCodecs);
@@ -3501,8 +3480,6 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 0,
                 NULL /* VIDEO: WINDOW HANDLE */,
                 mpSecurity,
-                (ISocketEvent*)this,
-                (IMediaEventListener*) this,
                 rtpTransportFlags);
     }
 
@@ -4682,7 +4659,6 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
                         numMatchingCodecs,
                         decoderCodecs);
                     fireAudioStartEvents() ;
-                    mpMediaInterface->enableRtpReadNotification(mConnectionId) ;
 
                     mpMediaInterface->startRtpSend(mConnectionId,
                         numMatchingCodecs,
@@ -5226,7 +5202,6 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
                         numMatchingCodecs,
                         decoderCodecs);
                 fireAudioStartEvents() ;
-                mpMediaInterface->enableRtpReadNotification(mConnectionId) ;
 
                 mpMediaInterface->startRtpSend(mConnectionId,
                         numMatchingCodecs,
@@ -6989,114 +6964,6 @@ UtlBoolean SipConnection::send(SipMessage& message,
 
     return sipUserAgent->send(message, responseListener, responseListenerData, pTransport);
 }
-
-void SipConnection::onIdleNotify(IStunSocket* const pSocket,
-                                 SocketPurpose purpose,
-                                 const int millisecondsIdle)
-{
-    SIPX_MEDIA_TYPE mediaType = (purpose == RTP_AUDIO ||
-                                    purpose == UNKNOWN ||
-                                    purpose == RTCP_AUDIO) ?
-                                    MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO;
-
-    // only fire it if we are connected
-    if (mHoldState == TERMCONNECTION_TALKING)
-    {
-        fireSipXMediaEvent(MEDIA_REMOTE_SILENT, MEDIA_CAUSE_NORMAL, mediaType, (void*)millisecondsIdle) ;
-    }
-}
-
-void SipConnection::onReadData(IStunSocket* const pSocket,
-                               SocketPurpose purpose)
-{
-    SIPX_MEDIA_TYPE mediaType = (purpose == RTP_AUDIO ||
-                                    purpose == UNKNOWN ||
-                                    purpose == RTCP_AUDIO) ?
-                                    MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO;
-    fireSipXMediaEvent(MEDIA_REMOTE_ACTIVE, MEDIA_CAUSE_NORMAL, mediaType) ;
-}
-
-void SipConnection::onFileStart(IMediaEvent_DeviceTypes type)
-{
-    UtlString callId ;
-    UtlString remoteAddress ;
-    SIPX_MEDIA_TYPE mediaType = (type == IDevice_Audio) ? MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO;
-    getCallId(&callId);
-    getRemoteAddress(&remoteAddress);
-
-    CpMultiStringMessage message(CpCallManager::CP_REFIRE_MEDIA_EVENT, callId,
-            remoteAddress, NULL, NULL, NULL,
-            MEDIA_PLAYFILE_START, MEDIA_CAUSE_NORMAL, mediaType) ;
-
-    mpCallManager->postMessage(message);
-}
-
-void SipConnection::onFileStop(IMediaEvent_DeviceTypes type)
-{
-    UtlString callId ;
-    UtlString remoteAddress ;
-    SIPX_MEDIA_TYPE mediaType = (type == IDevice_Audio) ? MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO;
-    getCallId(&callId);
-    getRemoteAddress(&remoteAddress);
-
-    CpMultiStringMessage message(CpCallManager::CP_REFIRE_MEDIA_EVENT, callId,
-            remoteAddress, NULL, NULL, NULL,
-            MEDIA_PLAYFILE_STOP, MEDIA_CAUSE_NORMAL, mediaType) ;
-
-    mpCallManager->postMessage(message);
-}
-
-void SipConnection::onBufferStart(IMediaEvent_DeviceTypes type)
-{
-    UtlString callId ;
-    UtlString remoteAddress ;
-    SIPX_MEDIA_TYPE mediaType = (type == IDevice_Audio) ? MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO;
-    getCallId(&callId);
-    getRemoteAddress(&remoteAddress);
-
-    CpMultiStringMessage message(CpCallManager::CP_REFIRE_MEDIA_EVENT, callId,
-            remoteAddress, NULL, NULL, NULL,
-            MEDIA_PLAYBUFFER_START, MEDIA_CAUSE_NORMAL, mediaType) ;
-
-    mpCallManager->postMessage(message);
-}
-
-void SipConnection::onBufferStop(IMediaEvent_DeviceTypes type)
-{
-    UtlString callId ;
-    UtlString remoteAddress ;
-    SIPX_MEDIA_TYPE mediaType = (type == IDevice_Audio) ? MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO;
-    getCallId(&callId);
-    getRemoteAddress(&remoteAddress);
-
-    CpMultiStringMessage message(CpCallManager::CP_REFIRE_MEDIA_EVENT, callId,
-            remoteAddress, NULL, NULL, NULL,
-            MEDIA_PLAYBUFFER_STOP, MEDIA_CAUSE_NORMAL, mediaType) ;
-
-    mpCallManager->postMessage(message);
-}
-
-void SipConnection::onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_DeviceErrors errCode)
-{
-    UtlString callId ;
-    UtlString remoteAddress ;
-    SIPX_MEDIA_TYPE mediaType = (type == IDevice_Audio) ? MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO;
-    getCallId(&callId);
-    getRemoteAddress(&remoteAddress);
-
-    CpMultiStringMessage message(CpCallManager::CP_REFIRE_MEDIA_EVENT, callId,
-            remoteAddress, NULL, NULL, NULL,
-            MEDIA_DEVICE_FAILURE, MEDIA_CAUSE_DEVICE_UNAVAILABLE, mediaType) ;
-
-    mpCallManager->postMessage(message);
-}
-
-void SipConnection::onListenerAddedToEmitter(IMediaEventEmitter *pEmitter)
-{
-    UtlVoidPtr value((void*) pEmitter) ;
-    mMediaEventEmitters.insert(&value);
-}
-
 
 /**
 * Registers a listener of this observable.

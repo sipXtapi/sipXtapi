@@ -72,58 +72,6 @@ typedef enum SIPXMI_AUDIO_BANDWIDTH_ID
 
 } SIPXMI_AUDIO_BANDWIDTH_ID;
 
-
-/**
-*  @brief Interface declaration for receiving socket idle notifications.
-*/
-class ISocketEvent
-{
-public:
-   virtual void onIdleNotify(IStunSocket* const pSocket,
-                             SocketPurpose purpose,
-                             const int millisecondsIdle) = 0;
-
-   virtual void onReadData(IStunSocket* const pSocket,
-                           SocketPurpose purpose) = 0;
-
-   virtual ~ISocketEvent() { } ;
-};
-
-class IMediaEventEmitter
-{
-public:
-   virtual ~IMediaEventEmitter() { } ;
-   virtual void onListenerRemoved() = 0;
-};
-
-typedef enum IMediaEvent_DeviceErrors
-{
-   IError_DeviceUnplugged
-} IMediaEvent_DeviceErrors;
-
-typedef enum IMediaEvent_DeviceTypes
-{
-   IDevice_Audio,
-   IDevice_Video
-} IMediaEvent_DeviceTypes;
-
-/**
-*  @brief Interface declaration for receiving device error 
-*  notifications/audio events
-*/
-class IMediaEventListener
-{
-public:    
-   virtual void onFileStart(IMediaEvent_DeviceTypes type) = 0 ;
-   virtual void onFileStop(IMediaEvent_DeviceTypes type) = 0 ;
-   virtual void onBufferStart(IMediaEvent_DeviceTypes type) = 0 ;
-   virtual void onBufferStop(IMediaEvent_DeviceTypes type) = 0 ;
-   virtual void onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_DeviceErrors errCode) = 0;
-   virtual void onListenerAddedToEmitter(IMediaEventEmitter* pEmitter) = 0;
-
-   virtual ~IMediaEventListener() { } ;
-};
-
 // FORWARD DECLARATIONS
 class SdpCodec;
 class SdpCodecList;
@@ -175,8 +123,6 @@ public:
                int localPort = 0,
                void* videoWindowHandle = NULL,
                void* const pSecurityAttributes = NULL,
-               ISocketEvent* pSocketIdleSink = NULL,
-               IMediaEventListener* pMediaEventListener = NULL,
                const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP) = 0 ;
      /**<
      *  One instance of the CpMediaInterface exists for each call, however, 
@@ -381,23 +327,6 @@ public:
      *  @retval    UNKNOWN - << TODO: Add useful return values here - i.e.
      *             failure codes to expect, etc. -- kkyzivat 20070801 >>
      */
-
-     /// @brief Enables RTP read notification.
-   virtual OsStatus enableRtpReadNotification(int connectionId,
-                                              UtlBoolean bEnable = TRUE);
-     /**<
-     *  Enables read notification through the ISocketEvent listener passed 
-     *  in via createConnection.  This should be enabled immediately after 
-     *  calling startRtpReceive.  It is automatically disabled as part of 
-     *  stopRtpReceive.
-     *
-     *  @param[in] connectionId - the ID of the connection to enable RTP read
-     *             notification from.
-     *  @param[in] bEnable - Whether or not you want to enable or disable 
-     *             read notification.
-     *  @retval    UNKNOWN - << TODO: Add useful return values here - i.e.
-     *             failure codes to expect, etc. -- kkyzivat 20070801 >>
-     */ 
 
      /// @brief Stop sending RTP and RTCP data for the specified connection
    virtual OsStatus stopRtpSend(int connectionId) = 0 ;

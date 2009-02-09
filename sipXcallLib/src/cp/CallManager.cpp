@@ -749,7 +749,6 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_RECORD_AUDIO_CONNECTION_STOP:
         case CP_RECORD_BUFFER_AUDIO_CONNECTION_START:
         case CP_RECORD_BUFFER_AUDIO_CONNECTION_STOP:
-        case CP_REFIRE_MEDIA_EVENT:
         case CP_PLAY_BUFFER_TERM_CONNECTION:
         case CP_CREATE_PLAYER:
         case CP_DESTROY_PLAYER:

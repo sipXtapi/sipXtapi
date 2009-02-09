@@ -312,8 +312,6 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
                                                     int localPort,
                                                     void* videoWindowHandle, 
                                                     void* const pSecurityAttributes,
-                                                    ISocketEvent* pIdleEvent,
-                                                    IMediaEventListener* pMediaEventListener,
                                                     const RtpTransportOptions rtpTransportOptions)
 {
    OsStatus retValue = OS_SUCCESS;

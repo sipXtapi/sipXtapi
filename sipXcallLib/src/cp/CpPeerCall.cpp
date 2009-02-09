@@ -2463,26 +2463,6 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         }
         break ;
 
-    case CallManager::CP_REFIRE_MEDIA_EVENT:
-        {
-            UtlString remoteAddress ;
-            ((CpMultiStringMessage&)eventMessage).getString2Data(remoteAddress) ;
-            int event = ((CpMultiStringMessage&)eventMessage).getInt1Data() ;
-            int cause = ((CpMultiStringMessage&)eventMessage).getInt2Data() ;
-            int type = ((CpMultiStringMessage&)eventMessage).getInt3Data() ;
-
-            Connection* connection = findHandlingConnection(remoteAddress);
-            if (connection)
-            {   
-                connection->fireSipXMediaEvent(
-                        (SIPX_MEDIA_EVENT) event,
-                        (SIPX_MEDIA_CAUSE) cause,
-                        (SIPX_MEDIA_TYPE) type,
-                        NULL) ;            
-            }
-        }
-        break ;
-
     case CallManager::CP_TRANSFER_OTHER_PARTY_JOIN:
         handleTransferOtherPartyJoin(&eventMessage) ;
         break ;

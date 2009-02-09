@@ -54,12 +54,6 @@ OsStatus CpMediaInterface::setSrtpParams(SdpSrtpParameters& srtpParameters)
     
 }
 
-OsStatus CpMediaInterface::enableRtpReadNotification(int connectionId,
-                                                     UtlBoolean bEnable) 
-{
-   return OS_NOT_SUPPORTED;
-};
-
 /* ============================ ACCESSORS ================================= */
 
 int CpMediaInterface::getInvalidConnectionId()
