@@ -287,12 +287,6 @@ public:
      /// Removes an MpAudioConnection and deletes it and all its resources.
    OsStatus deleteConnection(MpConnectionID connID);
 
-     /// Adds tone listener to receive the dtmf key events.
-   OsStatus addToneListener(OsNotification* pNotify, MpConnectionID connectionId);
-
-     /// Adds tone listener to receive the dtmf key events.
-   OsStatus removeToneListener(MpConnectionID connectionId);
-
 //@}
 
      /// Enables/Disable the transmission of inband DTMF audio

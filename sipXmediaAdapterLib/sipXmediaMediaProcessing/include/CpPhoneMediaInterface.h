@@ -232,10 +232,6 @@ public:
      /// @brief Limits the available codecs to only those within the designated limit
    virtual void setCodecCPULimit(int iLimit);
 
-   virtual void addToneListener(OsNotification *pListener, int connectionId);
-
-   virtual void removeToneListener(int connectionId);
-
      /// @copydoc CpMediaInterface::recordMic(int,int16_t*,int)
    virtual OsStatus recordMic(int ms, int16_t* pAudioBuf, int bufferSize);
 

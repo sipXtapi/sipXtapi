@@ -1732,14 +1732,6 @@ OsStatus CpTopologyGraphInterface::recordMic(int ms,
     return OS_NOT_SUPPORTED;
 }
 
-void CpTopologyGraphInterface::addToneListener(OsNotification *pListener, int connectionId)
-{
-}
-
-void CpTopologyGraphInterface::removeToneListener(int connectionId)
-{
-}
-
 void CpTopologyGraphInterface::setContactType(int connectionId, SIPX_CONTACT_TYPE eType, SIPX_CONTACT_ID contactId) 
 {
     CpTopologyMediaConnection* pMediaConn = getMediaConnection(connectionId);

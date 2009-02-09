@@ -642,14 +642,6 @@ public:
     */
    virtual void setCodecCPULimit(int iLimit) = 0 ;
 
-   //! Add a listener event to this call that will receive callback 
-   //! or queued event notifications upon receipt of DTMF tone events 
-   //! (RFC 2833).
-   virtual void addToneListener(OsNotification *pListener, int connectionId) = 0;
-
-   //! Remove the specified DTMF listener from this call.
-   virtual void removeToneListener(int connectionId) = 0;
-
      /// @brief Record the microphone data to a file
    virtual OsStatus recordMic(int ms,
                               int silenceLength,

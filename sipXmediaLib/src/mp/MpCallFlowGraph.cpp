@@ -1415,32 +1415,6 @@ void MpCallFlowGraph::stopReceiveRtp(MpConnectionID connID)
    }
 }
 
-OsStatus MpCallFlowGraph::addToneListener(OsNotification* pNotify,
-                                          MpConnectionID connectionId)
-{
-   OsLock connectionsLock(mConnTableLock);
-
-   for (int i=0; i<mNumRtpStreams[connectionId]; i++)
-   {
-      mpDecoders[connectionId][i]->setDtmfNotify(pNotify);
-   }
-
-   return OS_SUCCESS;
-}
-
-OsStatus MpCallFlowGraph::removeToneListener(MpConnectionID connectionId)
-{
-   OsLock connectionsLock(mConnTableLock);
-
-   for (int i=0; i<mNumRtpStreams[connectionId]; i++)
-   {
-      mpDecoders[connectionId][i]->clearDtmfNotify();
-   }
-
-   return OS_SUCCESS;
-}
-
-
 // Enables/Disable the transmission of inband DTMF audio
 UtlBoolean MpCallFlowGraph::setInbandDTMF(UtlBoolean bEnable)
 {
