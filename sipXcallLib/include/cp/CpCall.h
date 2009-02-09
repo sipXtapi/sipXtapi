@@ -237,7 +237,6 @@ public:
 protected:
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
     virtual UtlBoolean handleCallMessage(OsMsg& eventMessage) = 0;
-    virtual UtlBoolean handleNotifyMessage(OsEventMsg& eventMsg) = 0 ;
     virtual UtlBoolean handleMiNotificationMessage(MiNotification& notification) = 0 ;
     virtual void onHook() = 0;
 
@@ -293,10 +292,6 @@ protected:
     int mMessageEventCount;
     UtlString mCallHistory[CP_CALL_HISTORY_LENGTH];
 
-    OsRWMutex                           mDtmfQMutex;
-    int                                             mDtmfQLen;
-    DtmfEvent                               mDtmfEvents[MAX_NUM_TONE_LISTENERS];
-
     /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -320,13 +315,6 @@ private:
     //:Copy constructor (disabled)
 
     int tcStateFromEventId(int eventId);
-
-    // utility function used to remove ev from mDtmfEvents.
-    void removeFromDtmfEventList(int ev);
-
-    // utility function used to check if ev exists in mDtmfEvents.
-    int dtmfEventExists(int ev);
-
 };
 
 /* ============================ INLINE METHODS ============================ */

@@ -2569,37 +2569,6 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     return(processedMessage);
 }
 
-UtlBoolean CpPeerCall::handleNotifyMessage(OsEventMsg& eventMsg)
-{
-	Connection* pConnection ;
-	intptr_t eventData;
-	intptr_t pListener;
-	eventMsg.getEventData(eventData);
-	eventMsg.getUserData(pListener);
-
-    OsReadLock lock(mConnectionMutex);
-    UtlDListIterator iterator(mConnections);
-    while ((pConnection = (Connection*) iterator()))
-    {
-		if (((Connection*) pListener) == pConnection)
-		{	
-            bool bButtonUp = ((eventData & 0x80000000) == 0x80000000) ;
-			SIPX_TONE_ID id = (SIPX_TONE_ID) (eventData  >> 16) ;
-            // int iDuration = (eventData & 0xFFFF) ;	// not used
-
-			pConnection->fireSipXMediaEvent(
-					MEDIA_REMOTE_DTMF,
-					bButtonUp ? MEDIA_CAUSE_DTMF_STOP : MEDIA_CAUSE_DTMF_START,
-					MEDIA_TYPE_AUDIO,
-					(void*) id) ;
-
-			break ;
-		}
-	}
-
-	return false ;
-}
-
 UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
 {
    UtlBoolean processed = FALSE;

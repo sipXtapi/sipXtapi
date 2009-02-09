@@ -160,7 +160,6 @@ public:
     /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     virtual UtlBoolean handleCallMessage(OsMsg& eventMessage);
-    virtual UtlBoolean handleNotifyMessage(OsEventMsg& eventMsg) ;
     virtual UtlBoolean handleMiNotificationMessage(MiNotification& notification) ;
     void addTaoListenerToConnection(Connection* connection);
     void addToneListenersToConnection(Connection* connection);
