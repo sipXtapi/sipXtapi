@@ -2044,7 +2044,7 @@ UtlBoolean CpTopologyGraphInterface::isDestinationSet(int connectionId)
     else
     {
        osPrintf("CpTopologyGraphInterface::isDestinationSet invalid connectionId: %d\n",
-          connectionId);
+                connectionId);
     }
     return(isSet);
 }
@@ -2052,7 +2052,7 @@ UtlBoolean CpTopologyGraphInterface::isDestinationSet(int connectionId)
 UtlBoolean CpTopologyGraphInterface::canAddParty() 
 {
    int maxConnections = ((CpTopologyGraphFactoryImpl*)mpFactoryImpl)->getMaxInputConnections();
-   return mMediaConnections.entries() < maxConnections;;
+   return mMediaConnections.entries() < maxConnections;
 }
 
 
