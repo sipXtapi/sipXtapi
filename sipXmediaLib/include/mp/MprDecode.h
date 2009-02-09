@@ -40,7 +40,6 @@ class MprRecorder;
 class MpJitterBuffer;
 class MprDejitter;
 class MpPlcBase;
-class OsNotification;
 
 /// The "Decode" media processing resource
 class MprDecode : public MpAudioResource
@@ -83,18 +82,6 @@ public:
      /// Clear set of codecs this resource is able to decode.
    static OsStatus deselectCodecs(const UtlString& namedResource,
                                   OsMsgQ& fgQ);
-
-     /// Set DTMF notification.
-   OsStatus setDtmfNotify(OsNotification *pNotify);
-     /**<
-     *  DEPRECATED! Listen for the DTMF notification messages instead.
-     */
-     
-     /// Clear DTMF notification.
-   OsStatus clearDtmfNotify();
-     /**<
-     *  DEPRECATED! Listen for the DTMF notification messages instead.
-     */
 
      /// Change PLC algorithm to one with given name. THIS METHOD DOES NOT WORK!
    static OsStatus setPlc(const UtlString& namedResource,
@@ -156,10 +143,6 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   typedef enum
-   {
-      SET_DTMF_NOTIFY = MpFlowGraphMsg::RESOURCE_SPECIFIC_START
-   } AddlMsgTypes;
 
    typedef enum
    {
@@ -170,7 +153,6 @@ private:
 
    MpJitterBuffer* mpJB;            ///< Pointer to JitterBuffer instance
    UtlBoolean mIsJBInitialized;     ///< Is JB initialized or not?
-   OsNotification* mpDtmfNotication;
 
    MprDejitter* mpMyDJ;             ///< Dejitter instance, used by this decoder.
    UtlBoolean   mOwnDJ;             ///< Is dejitter owned by this decoder?
@@ -220,9 +202,6 @@ private:
      /// @copydoc MpResource::setFlowGraph()
    OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
 
-     /// Handle old style messages for this resource.
-   virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-
      /// Handle new style messages for this resource.
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
@@ -244,12 +223,6 @@ private:
 
      /// Change PLC algorithm to one provided.
    UtlBoolean handleSetPlc(const UtlString &plcName);
-
-     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-   UtlBoolean handleSetDtmfNotify(OsNotification* n);
-     /**<
-     *  @returns <b>TRUE</b>
-     */
 
      /// Handle MPRM_RESET message.
    UtlBoolean handleReset();

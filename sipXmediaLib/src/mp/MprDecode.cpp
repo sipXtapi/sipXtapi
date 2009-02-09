@@ -80,7 +80,6 @@ MprDecode::MprDecode(const UtlString& rName,
                      const UtlString &plcName)
 : MpAudioResource(rName, 1, 1, 1, 1)
 , mpJB(new MpJitterBuffer())
-, mpDtmfNotication(NULL)
 , mpMyDJ(NULL)
 , mOwnDJ(FALSE)
 , mIsStreamInitialized(FALSE)
@@ -153,19 +152,6 @@ OsStatus MprDecode::deselectCodecs(const UtlString& namedResource,
 {
    MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_DESELCT_CODECS, namedResource);
    return fgQ.send(msg, sOperationQueueTimeout);
-}
-
-OsStatus MprDecode::setDtmfNotify(OsNotification *pNotify)
-{
-   MpFlowGraphMsg msg(SET_DTMF_NOTIFY, this, pNotify);
-   assert(pNotify != NULL);
-   return postMessage(msg);
-}
-
-OsStatus MprDecode::clearDtmfNotify()
-{
-   MpFlowGraphMsg msg(SET_DTMF_NOTIFY, this, NULL);
-   return postMessage(msg);
 }
 
 OsStatus MprDecode::setPlc(const UtlString& namedResource,
@@ -508,14 +494,6 @@ UtlBoolean MprDecode::tryDecodeAsSignalling(const MpRtpBufPtr &rtp)
          OsSysLog::add(FAC_MP, PRI_INFO,
                        "%s: DTMF KEY_DOWN event received for key %d\n",
                         getName().data(), event);
-
-         // Old way to indicate DTMF event. Will be removed soon, I hope.
-         if (mpDtmfNotication)
-         {
-            mpDtmfNotication->signal( duration
-                                    | (uint32_t)(event) << 16
-                                    | 0<<31);
-         }
       }
 
       if (sigRes == OS_SUCCESS && isStopped)
@@ -528,14 +506,6 @@ UtlBoolean MprDecode::tryDecodeAsSignalling(const MpRtpBufPtr &rtp)
          OsSysLog::add(FAC_MP, PRI_INFO,
                        "%s: DTMF KEY_UP event received for key %d, duration %d\n",
                        getName().data(), event, duration);
-
-         // Old way to indicate DTMF event. Will be removed soon, I hope.
-         if (mpDtmfNotication)
-         {
-            mpDtmfNotication->signal( duration
-                                    | (uint32_t)(event) << 16
-                                    | 1<<31);
-         }
       }
    } while (sigRes == OS_SUCCESS);
 
@@ -560,26 +530,6 @@ OsStatus MprDecode::setFlowGraph(MpFlowGraphBase* pFlowGraph)
       }
    }
    return stat;
-}
-
-// Handle old style messages for this resource.
-UtlBoolean MprDecode::handleMessage(MpFlowGraphMsg& rMsg)
-{
-   UtlBoolean ret = FALSE;
-
-   switch (rMsg.getMsg()) {
-   case SET_DTMF_NOTIFY:
-      {
-         OsNotification* pNotify = (OsNotification*)rMsg.getPtr1();
-         handleSetDtmfNotify(pNotify);
-         ret = TRUE;
-      }
-      break;
-   default:
-      ret = MpAudioResource::handleMessage(rMsg);
-      break;
-   }
-   return ret;
 }
 
 // Handle new style messages for this resource.
@@ -805,12 +755,6 @@ UtlBoolean MprDecode::handleDeselectCodecs(UtlBoolean shouldLock)
    {
        mLock.release();
    }
-   return TRUE;
-}
-
-UtlBoolean MprDecode::handleSetDtmfNotify(OsNotification* pNotify)
-{
-   mpDtmfNotication = pNotify;
    return TRUE;
 }
 
