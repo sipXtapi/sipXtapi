@@ -25,7 +25,6 @@ testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 ## sipXcallLib because they made references to CallManager
 testsuite_SOURCES = \
     CpCryptoTest.cpp \
-    PlayAudioOldNotificationTest.cpp \
     CpPhoneMediaInterfaceTest.cpp
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for

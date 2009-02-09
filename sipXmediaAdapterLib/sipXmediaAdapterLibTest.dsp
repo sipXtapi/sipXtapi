@@ -97,10 +97,6 @@ SOURCE=.\sipXmediaMediaProcessing\src\test\CpPhoneMediaInterfaceTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\sipXmediaMediaProcessing\src\test\PlayAudioOldNotificationTest.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\sipXportLib\src\test\sipxunit\TestMonitor.cpp
 # End Source File
 # Begin Source File
