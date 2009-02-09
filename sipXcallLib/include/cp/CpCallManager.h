@@ -288,13 +288,6 @@ public:
 
     //@}
 
-    //! Register a TAO (telephony application objects) listener for
-    //! call and connection events.
-    virtual OsStatus addTaoListener(OsServerTask* pListener,
-                                                                        char* callId = NULL,
-                                                                        int ConnectId = 0,
-                                                                        int mask = 0) = 0;
-
     /** @name Call Operations
      */
     //@{

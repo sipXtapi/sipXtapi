@@ -161,8 +161,6 @@ public:
 protected:
     virtual UtlBoolean handleCallMessage(OsMsg& eventMessage);
     virtual UtlBoolean handleMiNotificationMessage(MiNotification& notification) ;
-    void addTaoListenerToConnection(Connection* connection);
-
 
     UtlBoolean handleRenegotiateCodecsConnection(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_RENEGOTIATE_CODECS_CONNECTION

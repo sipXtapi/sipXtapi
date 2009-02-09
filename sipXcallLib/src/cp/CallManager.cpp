@@ -266,19 +266,6 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
     stopCallStateLog();
 #endif
 
-    mListenerCnt = 0;
-    mMaxNumListeners = 20;
-    mpListeners = (TaoListenerDb**)malloc(sizeof(TaoListenerDb *)*mMaxNumListeners);
-
-    if (!mpListeners)
-    {
-        OsSysLog::add(FAC_CP, PRI_ERR, "Unable to allocate listeners\n");
-        return;
-    }
-
-    for (int i = 0; i < mMaxNumListeners; i++)
-        mpListeners[i] = 0;
-
     // Pre-allocate all of the history memory to minimze fragmentation
     for(int h = 0; h < CP_CALL_HISTORY_LENGTH ; h++)
         mCallManagerHistory[h].capacity(256);
@@ -308,19 +295,6 @@ CallManager::~CallManager()
 
     waitUntilShutDown();   
 
-    if (mMaxNumListeners > 0)  // check if listener exists.
-    {
-        for (int i = 0; i < mListenerCnt; i++)
-        {
-            if (mpListeners[i])
-            {
-                delete mpListeners[i];
-                mpListeners[i] = 0;
-            }
-        }
-        free(mpListeners);
-    }
-
     // do not delete the codecFactory it is not owned here
 
 }
@@ -331,105 +305,6 @@ void CallManager::setOutboundLine(const char* lineUrl)
 {
     mOutboundLine = lineUrl ? lineUrl : "";
 }
-
-OsStatus CallManager::addTaoListener(OsServerTask* pListener,
-                                     char* callId,
-                                     int ConnectId,
-                                     int mask)
-{
-    OsReadLock lock(mCallListMutex);
-    OsStatus rc = OS_UNSPECIFIED;
-    if (callId)
-    {
-        CpCall* handlingCall = findHandlingCall(callId);
-        if (handlingCall)
-        {
-            handlingCall->addTaoListener(pListener, callId, ConnectId, mask);
-            rc = OS_SUCCESS;
-        }
-    }
-    else
-    {
-        if (infocusCall)
-        {
-            infocusCall->addTaoListener(pListener, callId, ConnectId, mask);
-            rc = OS_SUCCESS;
-        }
-
-        if (!callStack.isEmpty())
-        {
-            // Create an iterator to sequence through callStack.
-            UtlSListIterator iterator(callStack);
-            UtlVoidPtr* callCollectable;
-            CpCall* call;
-            callCollectable = (UtlVoidPtr*)iterator();
-            while (callCollectable)
-            {
-                call = (CpCall*)callCollectable->getValue();
-                if (call)
-                {
-                    // Add the listener to it.
-                    call->addTaoListener(pListener, callId, ConnectId, mask);
-                    rc = OS_SUCCESS;
-                }
-                callCollectable = (UtlVoidPtr*)iterator();
-            }
-        }
-    }
-
-    rc = addThisListener(pListener, callId, mask);
-
-    return rc;
-}
-
-
-OsStatus CallManager::addThisListener(OsServerTask* pListener,
-                                      char* callId,
-                                      int mask)
-{
-    // Check if listener is already added.
-    for (int i = 0; i < mListenerCnt; i++)
-    {
-        // Check whether this listener (defined by PListener and callId) is
-        // already in mpListners[].
-        if (mpListeners[i] &&
-            mpListeners[i]->mpListenerPtr == (intptr_t) pListener &&
-            (!callId || mpListeners[i]->mName.compareTo(callId) == 0))
-        {
-            // If so, increment the count for this listener.
-            mpListeners[i]->mRef++;
-            return OS_SUCCESS;
-        }
-    }
-
-    // If there is no room for more listeners in mpListeners[]:
-    if (mListenerCnt == mMaxNumListeners)
-    {
-        // Reallocate a larger mpListeners[].
-        mMaxNumListeners += 20;
-        mpListeners = (TaoListenerDb **)realloc(mpListeners,sizeof(TaoListenerDb *)*mMaxNumListeners);
-        for (int loop = mListenerCnt; loop < mMaxNumListeners; loop++)
-        {
-            mpListeners[loop] = 0 ;
-        }
-    }
-
-    // Construct a new TaoListenerDb to hold the information about the new
-    // listener.
-    TaoListenerDb *pListenerDb = new TaoListenerDb();
-    // Insert pListener and callId.
-    if (callId)
-    {
-        pListenerDb->mName.append(callId);
-    }
-    pListenerDb->mpListenerPtr = (intptr_t) pListener;
-    pListenerDb->mRef = 1;
-    // Add it to mpListeners[].
-    mpListeners[mListenerCnt++] = pListenerDb;
-
-    return OS_SUCCESS;
-}
-
 
 UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 {
@@ -612,24 +487,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                     if(handlingCall)
                     {
                         handlingCall->start();
-                        addTaoListenerToCall(handlingCall);
-                        // addToneListener(callId.data(), 0);
-
-                        //if(infocusCall == NULL)
-                        //{
-                        //    infocusCall = handlingCall;
-                        //    infocusCall->inFocus();
-                        //}
-                        //else
-                        // {
-                        // Push the new call on the stack
                         pushCall(handlingCall);
-                        // }
-
-                        //handlingCall->startMetaEvent( getNewMetaEventId(),
-                        //                                        PtEvent::META_CALL_STARTING,
-                        //                                        0,
-                        //                                        0);
                     }
                 }
 
@@ -1139,19 +997,6 @@ void CallManager::requestShutdown()
     OsServerTask::requestShutdown();
     yield();
 
-}
-
-void CallManager::addTaoListenerToCall(CpCall* pCall)
-{
-    // Check if listener is already added.
-    for (int i = 0; i < mListenerCnt; i++)
-    {
-        if (mpListeners[i] &&
-            mpListeners[i]->mpListenerPtr)
-        {
-            pCall->addTaoListener((OsServerTask*) mpListeners[i]->mpListenerPtr);
-        }
-    }
 }
 
 
@@ -3893,161 +3738,6 @@ CpMediaInterfaceFactory* CallManager::getMediaInterfaceFactory()
 
 /* ============================ INQUIRY =================================== */
 
-#if 0 // TO_BE_REMOVED
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-void CallManager::postTaoListenerMessage(int eventId,
-                                         int type,
-                                         int cause,
-                                         CpMultiStringMessage* pEventMessage)
-{
-    if (type != CpCall::CALL_STATE)
-        return;
-
-    if (mListenerCnt > 0 && pEventMessage)
-    {
-        char    buf[128];
-        UtlString arg;
-        UtlString callId;
-        UtlString address;
-        UtlString terminal;
-        int data1 = pEventMessage->getInt1Data();
-        int data2 = pEventMessage->getInt2Data();
-        int data3 = pEventMessage->getInt3Data();
-
-        sprintf(buf, "%d", cause);
-        pEventMessage->getString1Data(callId);
-        pEventMessage->getString2Data(address);
-        pEventMessage->getString3Data(terminal);
-
-        arg = callId + TAOMESSAGE_DELIMITER +
-            address + TAOMESSAGE_DELIMITER +
-            terminal + TAOMESSAGE_DELIMITER +
-            buf  + TAOMESSAGE_DELIMITER;
-
-        if (data1 != 0)
-        {
-            sprintf(buf, "%d", data1);
-            arg.append(buf);
-        }
-        else
-        {
-            arg += "0";
-        }
-        arg.append(TAOMESSAGE_DELIMITER);
-        if (data2 != 0)
-        {
-            sprintf(buf, "%d", data2);
-            arg.append(buf);
-        }
-        else
-        {
-            arg += "0";
-        }
-        arg.append(TAOMESSAGE_DELIMITER);
-        if (data3 != 0)
-        {
-            sprintf(buf, "%d", data3);
-            arg.append(buf);
-        }
-        else
-        {
-            arg += "0";
-        }
-
-        int argCnt = 7;
-
-        TaoMessage msg(TaoMessage::EVENT,
-            0,
-            0,
-            eventId,
-            0,
-            argCnt,
-            arg);
-
-        for (int i = 0; i < mListenerCnt; i++)
-        {
-            if (mpListeners[i] && mpListeners[i]->mpListenerPtr)
-                ((OsServerTask*) (mpListeners[i]->mpListenerPtr))->postMessage((OsMsg&)msg);
-#ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "<===\ncall manager listener 0x%08x Message type: %d event id %d args: %s\n\n",
-                mpListeners[i]->mpListenerPtr, TaoMessage::EVENT, eventId, arg.data());
-#endif
-        }
-
-        UtlString eventLog;
-        CpCall::getStateString(eventId, &eventLog);
-        UtlString causeStr;
-
-        switch(cause)
-        {
-        case PtEvent::CAUSE_UNHOLD:
-            causeStr.append("CAUSE_UNHOLD");
-            break;
-        case PtEvent::CAUSE_UNKNOWN:
-            causeStr.append("CAUSE_UNKNOWN");
-            break;
-        case PtEvent::CAUSE_REDIRECTED:
-            causeStr.append("CAUSE_REDIRECTED");
-            break ;
-
-        case PtEvent::CAUSE_NETWORK_CONGESTION:
-            causeStr.append("CAUSE_NETWORK_CONGESTION");
-            break;
-
-        case PtEvent::CAUSE_NETWORK_NOT_OBTAINABLE:
-            causeStr.append("CAUSE_NETWORK_NOT_OBTAINABLE");
-            break;
-
-        case PtEvent::CAUSE_DESTINATION_NOT_OBTAINABLE:
-            causeStr.append("CAUSE_DESTINATION_NOT_OBTAINABLE");
-            break;
-
-        case PtEvent::CAUSE_INCOMPATIBLE_DESTINATION:
-            causeStr.append("CAUSE_INCOMPATIBLE_DESTINATION");
-            break;
-
-        case PtEvent::CAUSE_NOT_ALLOWED:
-            causeStr.append("CAUSE_NOT_ALLOWED");
-            break;
-
-        case PtEvent::CAUSE_NETWORK_NOT_ALLOWED:
-            causeStr.append("CAUSE_NETWORK_NOT_ALLOWED");
-            break;
-
-        case PtEvent::CAUSE_BUSY:
-            causeStr.append("CAUSE_BUSY");
-            break ;
-
-        case PtEvent::CAUSE_CALL_CANCELLED:
-            causeStr.append("CAUSE_CALL_CANCELLED");
-            break ;
-
-        case PtEvent::CAUSE_TRANSFER:
-            causeStr.append("CAUSE_TRANSFER");
-            break;
-
-        case PtEvent::CAUSE_NEW_CALL:
-            causeStr.append("CAUSE_NEW_CALL");
-            break;
-
-        default:
-        case PtEvent::CAUSE_NORMAL:
-            causeStr.append("CAUSE_NORMAL");
-            break;
-        }
-
-        logCallState(arg.data(), eventLog.data(), causeStr.data());
-
-        arg = OsUtil::NULL_OS_STRING;
-        callId = OsUtil::NULL_OS_STRING;
-        address = OsUtil::NULL_OS_STRING;
-        terminal = OsUtil::NULL_OS_STRING;
-        eventLog = OsUtil::NULL_OS_STRING;
-        causeStr = OsUtil::NULL_OS_STRING;
-    }
-}
-#endif
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 void CallManager::doCreateCall(const char* callId,
@@ -4117,8 +3807,6 @@ void CallManager::doCreateCall(const char* callId,
             // implys the phone is off hook
             call->enableDtmf();
             call->start();
-            addTaoListenerToCall(call);
-            //          addToneListener(callId, 0); // add dtmf tone listener to mp
 
             if(metaEventId > 0)
             {

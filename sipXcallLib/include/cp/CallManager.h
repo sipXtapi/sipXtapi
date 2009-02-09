@@ -105,11 +105,6 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-   virtual OsStatus addTaoListener(OsServerTask* pListener,
-                                   char* callId = NULL,
-                                   int ConnectId = 0,
-                                   int mask = 0);
-     //:Register as a listener for call and connection events.
 
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
 
@@ -408,22 +403,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-        TaoListenerDb**                 mpListeners;
-        int                                             mListenerCnt;
-        int                                             mMaxNumListeners;
-
-        void addTaoListenerToCall(CpCall* pCall);
-
-#if 0 // TO_BE_REMOVED
-        void postTaoListenerMessage(int eventId,
-                                    int type,
-                                    int cause,
-                                    CpMultiStringMessage* pEventMessage);
-#endif
-
-        OsStatus addThisListener(OsServerTask* pListener,
-                                 char* callId,
-                                 int mask);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

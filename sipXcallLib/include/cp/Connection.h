@@ -284,11 +284,6 @@ public:
    //:Virtual method signature and default implementation for sendInfo - this should be overridden by
    //:SipConnection.
 
-	OsStatus addTaoListener(OsServerTask* pListener,
-									char* callId = NULL,
-									int ConnectId = 0,
-									int mask = 0);
-
 	void setLocalAddress(const char* address);
 
     void unimplemented(const char* methodName) const;
@@ -457,9 +452,6 @@ protected:
 
 	int mResponseCode;		// response code obtained at processResponse, passed through events to upper layer
 	UtlString mResponseText;	// response text obtained at processResponse
-
-	TaoObjectMap*		mpListeners;		
-	TaoReference*		mpListenerCnt;
 
 	UtlString mLocalAddress;
     UtlString mOriginalCallConnectionAddress;

@@ -108,9 +108,6 @@ Connection::Connection(CpCallManager* callMgr,
     mpMediaInterface = mediaInterface;
     //mpCallUiContext = callUiContext;
 
-    mpListenerCnt = new TaoReference();
-    mpListeners = new TaoObjectMap();
-
     m_eLastMajor = (SIPX_CALLSTATE_EVENT) -1 ;
     m_eLastMinor = (SIPX_CALLSTATE_CAUSE) -1 ;
 
@@ -131,8 +128,6 @@ Connection::Connection(const Connection& rConnection)
     : UtlString(rConnection)
     , callIdMutex(OsMutex::Q_FIFO)
 {
-    mpListenerCnt = rConnection.mpListenerCnt;
-    mpListeners = rConnection.mpListeners;
 }
 
 // Destructor
@@ -146,18 +141,6 @@ Connection::~Connection()
     } else
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection destructed: call is Null\n");
 #endif
-
-   if (mpListenerCnt)
-   {
-       delete mpListenerCnt;
-       mpListenerCnt = 0;
-   }
-
-   if (mpListeners)
-   {
-       delete mpListeners;
-       mpListeners = 0;
-   }
 
 #ifdef TEST_PRINT
     if (!callId.isNull())
@@ -582,25 +565,6 @@ void Connection::setCallerId(const char* callerId)
     connectionCallerId = callerId ;
 }
 
-
-OsStatus Connection::addTaoListener(OsServerTask* pListener,
-                                    char* callId,
-                                    int ConnectId,
-                                    int mask)
-{
-    if (!mpListenerCnt) mpListenerCnt = new TaoReference();
-
-    if (!mpListeners) mpListeners = new TaoObjectMap();
-
-    if (TAO_IN_USE != mpListeners->insert((TaoObjHandle)pListener, (TaoObjHandle)pListener))
-    {
-        mpListenerCnt->add();
-        return OS_SUCCESS;
-    }
-    else
-        return OS_UNSPECIFIED;
-}
-
 void Connection::getResponseText(UtlString& responseText)
 {
     responseText.remove(0);
@@ -676,254 +640,7 @@ UtlBoolean Connection::isLocallyInitiatedRemoteHold() const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 {
-   int eventId = PtEvent::EVENT_INVALID;
-    int termEventId = PtEvent::EVENT_INVALID;
-    UtlString causeStr;
-    causeStr.remove(0);
-
-    switch(state)
-    {
-    case CONNECTION_IDLE:
-        eventId = PtEvent::CONNECTION_CREATED;
-        termEventId = PtEvent::TERMINAL_CONNECTION_IDLE;
-        break;
-
-    case CONNECTION_INITIATED:
-        eventId = PtEvent::CONNECTION_INITIATED;
-        termEventId = PtEvent::TERMINAL_CONNECTION_CREATED;
-        break;
-
-    case CONNECTION_QUEUED:
-        eventId = PtEvent::CONNECTION_QUEUED;
-        termEventId = PtEvent::CONNECTION_CREATED;
-        break;
-
-    case CONNECTION_OFFERING:
-        eventId = PtEvent::CONNECTION_OFFERED;
-        break;
-
-    case CONNECTION_DIALING:
-        eventId = PtEvent::CONNECTION_DIALING ;
-        break;
-
-    case CONNECTION_ALERTING:
-        eventId = PtEvent::CONNECTION_ALERTING;
-//        if (!mRemoteIsCallee)
-            termEventId = PtEvent::TERMINAL_CONNECTION_RINGING;
-
-        break;
-
-    case CONNECTION_ESTABLISHED:
-        eventId = PtEvent::CONNECTION_ESTABLISHED;
-        termEventId = PtEvent::TERMINAL_CONNECTION_TALKING;
-        break;
-
-    case CONNECTION_FAILED:
-        eventId = PtEvent::CONNECTION_FAILED;
-        termEventId = PtEvent::TERMINAL_CONNECTION_DROPPED;
-        break;
-
-    case CONNECTION_DISCONNECTED:
-        eventId = PtEvent::CONNECTION_DISCONNECTED;
-        termEventId = PtEvent::TERMINAL_CONNECTION_DROPPED;
-        break;
-
-    case PtEvent::TERMINAL_CONNECTION_HELD:
-        termEventId = PtEvent::TERMINAL_CONNECTION_HELD;
-        break;
-
-    default:
-        eventId = PtEvent::CONNECTION_UNKNOWN;
-        termEventId = PtEvent::TERMINAL_CONNECTION_UNKNOWN;
-        break;
-
-    }
-
-    int cause;
-    switch(newCause)
-    {
-     case CONNECTION_CAUSE_UNKNOWN:
-        cause = PtEvent::CAUSE_UNKNOWN;
-        causeStr.append("CAUSE_UNKNOWN");
-        break;
-    case CONNECTION_CAUSE_REDIRECTED:
-        cause = PtEvent::CAUSE_REDIRECTED;
-        causeStr.append("CAUSE_REDIRECTED");
-        break ;
-
-     case CONNECTION_CAUSE_NETWORK_CONGESTION:
-        cause = PtEvent::CAUSE_NETWORK_CONGESTION;
-        causeStr.append("CAUSE_NETWORK_CONGESTION");
-        break;
-
-     case CONNECTION_CAUSE_NETWORK_NOT_OBTAINABLE:
-        cause = PtEvent::CAUSE_NETWORK_NOT_OBTAINABLE;
-        causeStr.append("CAUSE_NETWORK_NOT_OBTAINABLE");
-        break;
-
-     case CONNECTION_CAUSE_DEST_NOT_OBTAINABLE:
-        cause = PtEvent::CAUSE_DESTINATION_NOT_OBTAINABLE;
-        causeStr.append("CAUSE_DESTINATION_NOT_OBTAINABLE");
-        break;
-
-     case CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION:
-        cause = PtEvent::CAUSE_INCOMPATIBLE_DESTINATION;
-        causeStr.append("CAUSE_INCOMPATIBLE_DESTINATION");
-        break;
-
-     case CONNECTION_CAUSE_NOT_ALLOWED:
-        cause = PtEvent::CAUSE_NOT_ALLOWED;
-        causeStr.append("CAUSE_NOT_ALLOWED");
-        break;
-
-     case CONNECTION_CAUSE_NETWORK_NOT_ALLOWED:
-        cause = PtEvent::CAUSE_NETWORK_NOT_ALLOWED;
-        causeStr.append("CAUSE_NETWORK_NOT_ALLOWED");
-        break;
-
-    case CONNECTION_CAUSE_BUSY:
-    case CONNECTION_CAUSE_SERVICE_UNAVAILABLE:
-        cause = PtEvent::CAUSE_BUSY;
-        causeStr.append("CAUSE_BUSY");
-        break ;
-
-    case CONNECTION_CAUSE_CANCELLED:
-        cause = PtEvent::CAUSE_CALL_CANCELLED;
-        causeStr.append("CAUSE_CALL_CANCELLED");
-        break ;
-
-    case CONNECTION_CAUSE_TRANSFER:
-        cause = PtEvent::CAUSE_TRANSFER;
-        causeStr.append("CAUSE_TRANSFER");
-        break;
-
-    default:
-     case CONNECTION_CAUSE_NORMAL:
-        cause = PtEvent::CAUSE_NORMAL;
-        causeStr.append("CAUSE_NORMAL");
-        break;
-    }
-
-    int cnt = 0;
-    if (mpListenerCnt)
-        cnt = mpListenerCnt->getRef();
-
-    if (cnt > 0)
-    {
-        TaoObjHandle* pListeners;
-        pListeners = new TaoObjHandle[cnt];
-        mpListeners->getActiveObjects(pListeners, cnt);
-
-        UtlString callId;
-
-        mpCall->getCallId(callId);                          // arg[0], callId
-        if (callId.isNull())
-            getCallId(&callId);
-
-        callId += TAOMESSAGE_DELIMITER + mLocalAddress;        // arg[1], localAddress
-
-        UtlString remoteAddress;
-        getRemoteAddress(&remoteAddress, TRUE);
-
-        if (remoteAddress.isNull())                            // arg[2], remote address
-            callId += TAOMESSAGE_DELIMITER + (UtlString)"UNKNOWN";    // not available yet
-        else
-            callId += TAOMESSAGE_DELIMITER + remoteAddress;
-
-        char buff[128];
-        sprintf(buff, "%d", (int)mRemoteIsCallee);
-        callId += TAOMESSAGE_DELIMITER + UtlString(buff);    // arg[3], remoteIsCallee
-
-        sprintf(buff, "%d", cause);
-        callId += TAOMESSAGE_DELIMITER + UtlString(buff);    // arg[4], cause
-
-        if (mRemoteIsCallee)
-        {
-            remoteAddress.insert(0, "foreign-terminal-");
-            callId += TAOMESSAGE_DELIMITER + remoteAddress;    // arg[5], remote terminal name
-        }
-        else
-        {
-            mpCall->getLocalTerminalId(buff, 127);
-            callId += TAOMESSAGE_DELIMITER + UtlString(buff);    // arg[5], local terminal name
-        }
-
-        if (isLocal)
-            callId += TAOMESSAGE_DELIMITER + "1";            // arg[6], isLocal
-        else
-            callId += TAOMESSAGE_DELIMITER + "0";            // isLocal
-
-        sprintf(buff, "%d", mResponseCode);
-        callId += TAOMESSAGE_DELIMITER + UtlString(buff);    // arg[7], SIP response code
-
-        callId += TAOMESSAGE_DELIMITER + mResponseText;        // arg[8], SIP response text
-
-        int argCnt = 9;
-        if(mpCall)
-        {
-            int metaEventId = 0;
-            int metaEventType = PtEvent::META_EVENT_NONE;
-            int numCalls = 0;
-            const UtlString* metaEventCallIds = NULL;
-            mpCall->getMetaEvent(metaEventId, metaEventType, numCalls,
-                &metaEventCallIds);
-            if (metaEventId != PtEvent::META_EVENT_NONE)
-            {
-                sprintf(buff, "%d", metaEventId);
-                callId += TAOMESSAGE_DELIMITER + UtlString(buff);    // arg[9], meta event id
-                sprintf(buff, "%d", metaEventType);
-                callId += TAOMESSAGE_DELIMITER + UtlString(buff);    // arg[10], meta code
-                argCnt += 2;
-                for (int i = 0; i < numCalls; i++)
-                {
-                    if (metaEventCallIds && metaEventCallIds[i])
-                    {
-                        callId += TAOMESSAGE_DELIMITER + metaEventCallIds[i];    // meta call ids
-                        argCnt++;
-                    }
-                }
-            }
-        }
-
-        TaoMessage msg(TaoMessage::EVENT,
-                        0,
-                        0,
-                        eventId,
-                        0,
-                        argCnt,
-                        callId);
-
-        UtlString eventIdStr;
-        if (eventId != PtEvent::EVENT_INVALID)
-        {
-            for (int i = 0; i < cnt; i++) // post connection events
-            {
-                ((OsServerTask*) pListeners[i])->postMessage((OsMsg&)msg);
-            }
-            mpCall->getStateString(eventId, &eventIdStr);
-            mpCallManager->logCallState(callId.data(), eventIdStr.data(), causeStr);
-        }
-
-        if (termEventId != PtEvent::EVENT_INVALID)    // post terminal connection events
-        {
-            msg.setObjHandle(termEventId);
-            for (int i = 0; i < cnt; i++)
-            {
-                ((OsServerTask*) pListeners[i])->postMessage((OsMsg&)msg);
-            }
-
-            mpCall->getStateString(termEventId, &eventIdStr);
-            mpCallManager->logCallState(callId.data(), eventIdStr.data(), causeStr);
-
-        }
-
-        delete[] pListeners;
-        callId.remove(0);
-        eventIdStr.remove(0);
-        remoteAddress.remove(0);
-    }
-
-    causeStr.remove(0);
+   // To be removed/
 }
 
 void Connection::setOfferingTimer(int milliSeconds)

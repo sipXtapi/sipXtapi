@@ -4195,7 +4195,6 @@ void CpPeerCall::addConnection(Connection* connection)
     
 	OsWriteLock lock(mConnectionMutex);
     mConnections.append(connection);
-    addTaoListenerToConnection(connection);
 }
 
 // Assumed lock is head externally
@@ -4203,14 +4202,6 @@ void CpPeerCall::removeConnection(Connection* connection)
 {
 	// OsWriteLock lock(mConnectionMutex);
 	mConnections.remove(connection);
-}
-
-void CpPeerCall::addTaoListenerToConnection(Connection* connection)
-{
-    for (int i = 0; i < mListenerCnt; i++)
-    {
-        connection->addTaoListener((OsServerTask*) (mpListeners[i]->mpListenerPtr));
-    }
 }
 
 Connection* CpPeerCall::findQueuedConnection()

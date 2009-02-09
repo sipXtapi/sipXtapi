@@ -139,13 +139,6 @@ public:
         int isRemote = 0,
         UtlString targetCallId = OsUtil::NULL_OS_STRING);
 
-    virtual OsStatus addTaoListener(OsServerTask* pListener,
-        char* callId = NULL,
-        int ConnectId = 0,
-        int mask = 0,
-        int pEv = 0);
-    //:Register as a listener for call and connection events.
-
     void setCallState(int responseCode, UtlString responseText, int state, int cause = PtEvent::CAUSE_NORMAL);
 
     virtual void inFocus(int talking = 1);
@@ -247,15 +240,6 @@ protected:
     void addHistoryEvent(const int msgSubType,
         const CpMultiStringMessage* multiStringMessage);
 
-    OsStatus addListener(OsServerTask* pListener,
-                         TaoListenerDb*** pListeners,
-                         int& listenerCnt,
-                         int& maxNumListeners,
-                         char* callId = NULL,
-                         int connectId = 0,
-                         int mask = 0,
-                         intptr_t pEv = 0);
-
     CpCallManager* mpManager;
     UtlString mCallId;
     volatile UtlBoolean mCallInFocus;
@@ -277,14 +261,6 @@ protected:
     int mMetaEventType;
     int mNumMetaEventCalls;
     UtlString* mpMetaEventCallIds;
-
-    TaoListenerDb**                 mpListeners;
-    int                             mListenerCnt;
-    int                             mMaxNumListeners;
-
-    TaoListenerDb**                 mpToneListeners;
-    int                             mToneListenerCnt;
-    int                             nMaxNumToneListeners;
 
     int mMessageEventCount;
     UtlString mCallHistory[CP_CALL_HISTORY_LENGTH];
