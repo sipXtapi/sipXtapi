@@ -611,11 +611,6 @@ void CpCallManager::getLocalAddress(UtlString& address)
 
 
 /* ============================ INQUIRY =================================== */
-UtlBoolean CpCallManager::isCallStateLoggingEnabled()
-{
-    return(mCallStateLogEnabled);
-}
-
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

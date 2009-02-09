@@ -311,29 +311,6 @@ public:
 
     virtual PtStatus validateAddress(UtlString& address);
 
-    virtual void startCallStateLog();
-
-    virtual void stopCallStateLog();
-
-    virtual void setCallStateLogAutoWrite(UtlBoolean);
-
-    virtual void clearCallStateLog();
-
-    virtual void logCallState(const char* message,
-                              const char* eventId,
-                              const char* cause);
-
-
-    // Get the contents of the call state log.
-    virtual void getCallStateLog(UtlString& logData);
-    // Get the contents of the call state log and clear it.
-    // (Avoids the race condition of calling getCallStateLog then
-    // clearCallStateLog.)
-    virtual void getAndClearCallStateLog(UtlString& logData);
-    // Flush the CallStateLog in the same way that auto-writing does
-    // (by writing it to the log file).
-    virtual void flushCallStateLogAutoWrite();
-
     // Soon to be removed:
         virtual OsStatus getFromField(const char* callId, const char* remoteAddress,  UtlString& fromField);
         virtual OsStatus getToField(const char* callId, const char* remoteAddress,  UtlString& toField);

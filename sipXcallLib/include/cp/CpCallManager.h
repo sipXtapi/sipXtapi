@@ -738,22 +738,6 @@ public:
                                                                                         const char* terminal,
                                                                                         int& state) = 0;
 
-    /** @name Diagnostic methods for internal use
-     */
-    //@{
-    virtual void startCallStateLog() = 0;
-
-    virtual void stopCallStateLog() = 0;
-
-    virtual void clearCallStateLog() = 0;
-
-    virtual void logCallState(const char* message,
-                                                                const char* eventId,
-                                                                const char* cause) = 0;
-
-    virtual void getCallStateLog(UtlString& logData) = 0;
-    //@}
-
     virtual PtStatus validateAddress(UtlString& address) = 0;
 
     //! Deprecated, use getSession
@@ -797,9 +781,6 @@ public:
     virtual void getLocalAddress(UtlString& address) ;
 
 /* ============================ INQUIRY =================================== */
-
-    UtlBoolean isCallStateLoggingEnabled();
-
 
     virtual void onCallDestroy(CpCall* pCall) = 0;
     
@@ -847,13 +828,6 @@ protected:
    int mInviteExpireSeconds;  // The PHONESET_CP_RINGING_EXPIRE_SECONDS parameter,
                               // it is used to set the ringing expired timer if there
                               // is no Expires header field from an incoming INVITE
-
-        UtlBoolean mCallStateLogEnabled;
-        // If true, the call state log is written to the log file
-        // automatically whenever it gets too large.
-        UtlBoolean mCallStateLogAutoWrite;
-    UtlString mCallStateLog;
-
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

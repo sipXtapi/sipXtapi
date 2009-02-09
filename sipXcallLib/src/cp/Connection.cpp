@@ -640,7 +640,7 @@ UtlBoolean Connection::isLocallyInitiatedRemoteHold() const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 {
-   // To be removed/
+   // To be removed.
 }
 
 void Connection::setOfferingTimer(int milliSeconds)
