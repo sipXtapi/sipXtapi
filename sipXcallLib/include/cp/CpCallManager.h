@@ -158,8 +158,6 @@ public:
         CP_UNHOLD_ALL_TERM_CONNECTIONS,
         CP_CANCEL_TIMER,
         CP_GET_NEXT_CSEQ,
-        CP_ADD_TONE_LISTENER,
-        CP_REMOVE_TONE_LISTENER,
         CP_PLAY_BUFFER_TERM_CONNECTION,
         CP_CREATE_PLAYER,
         CP_DESTROY_PLAYER,
@@ -792,10 +790,6 @@ public:
      */
     virtual OsStatus getCodecCPULimitCall(const char* callId,
                                           int& cost) = 0;
-
-    //! Deprecated, use getDtmfEvent
-        virtual void addToneListener(const char* callId,
-                                 int pListener) = 0;
 
     virtual UtlBoolean isIceEnabled() const ;
 

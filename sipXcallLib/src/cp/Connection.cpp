@@ -74,7 +74,6 @@ Connection::Connection(CpCallManager* callMgr,
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection constructed: call is Null\n");
 #endif
 
-    mpDtmfQueuedEvent = new OsQueuedEvent(*call->getMessageQueue(), (intptr_t)this) ;
     mOfferingDelay = offeringDelayMilliSeconds;
     mLineAvailableBehavior = availableBehavior;
     if(mLineAvailableBehavior == FORWARD_UNCONDITIONAL &&
@@ -160,12 +159,6 @@ Connection::~Connection()
        mpListeners = 0;
    }
 
-   if (mpDtmfQueuedEvent)
-   {
-       delete mpDtmfQueuedEvent ;
-       mpDtmfQueuedEvent = NULL ;
-   }
-
 #ifdef TEST_PRINT
     if (!callId.isNull())
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection destructed: %s\n", callId.data());
@@ -181,7 +174,6 @@ void Connection::prepareForSplit()
     if ((mpMediaInterface) &&
         mpMediaInterface->isConnectionIdValid(mConnectionId))
     {
-        mpMediaInterface->removeToneListener(mConnectionId);
         mpMediaInterface->deleteConnection(mConnectionId) ;
     }
 

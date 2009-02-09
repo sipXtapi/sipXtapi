@@ -250,10 +250,6 @@ public:
 
     virtual void setTransferType(int type);
 
-    virtual void addToneListener(const char* callId, int pListener);
-
-    virtual void removeToneListener(const char* callId, int pListener);
-
     virtual OsStatus setCodecCPULimitCall(const char* callId, int limit, UtlBoolean bRenegotiate) ;
       //:Sets the CPU codec limit for a call.  Each connection within the call
       //:may only use a codec of the specified CPU intensity (or lesser).

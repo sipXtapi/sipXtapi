@@ -927,8 +927,6 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_GET_SESSION:
         case CP_CANCEL_TIMER:
         case CP_GET_NEXT_CSEQ:
-        case CP_ADD_TONE_LISTENER:
-        case CP_REMOVE_TONE_LISTENER:
         case CP_SET_OUTBOUND_LINE:
         case CP_GET_LOCAL_CONTACTS:
         case CP_GET_MEDIA_CONNECTION_ID:
@@ -2914,20 +2912,6 @@ UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char
     }
     return(isLocal);
 }
-
-void CallManager::addToneListener(const char* callId, int pListener)
-{
-    CpMultiStringMessage toneMessage(CP_ADD_TONE_LISTENER, callId, NULL, NULL, NULL, NULL, (int)pListener);
-    postMessage(toneMessage);
-}
-
-
-void CallManager::removeToneListener(const char* callId, int pListener)
-{
-    CpMultiStringMessage toneMessage(CP_REMOVE_TONE_LISTENER, callId, NULL, NULL, NULL, NULL, (int)pListener);
-    postMessage(toneMessage);
-}
-
 
 // Assignment operator
 CallManager&

@@ -630,34 +630,6 @@ void CpCall::setLocalConnectionState(int newState)
     mLocalConnectionState = newState;
 }
 
-void CpCall::addToneListenerToFlowGraph(intptr_t pListener, Connection* connection)
-{
-    OsQueuedEvent *pEv;
-    pEv = new OsQueuedEvent(mIncomingQ, pListener);
-
-    UtlString remoteAddress;
-    connection->getRemoteAddress(&remoteAddress);
-
-    addListener((OsServerTask*) pListener,
-        &mpToneListeners,
-        mToneListenerCnt,
-        nMaxNumToneListeners,
-        (char*)remoteAddress.data(),
-        connection->getConnectionId(),
-        0,
-        (intptr_t)pEv);
-
-    mpMediaInterface->addToneListener(pEv, connection->getConnectionId());
-}
-
-
-void CpCall::removeToneListenerFromFlowGraph(intptr_t pListener, Connection* connection)
-{
-    mpMediaInterface->removeToneListener(connection->getConnectionId()) ;
-}
-
-
-
 /* ============================ ACCESSORS ================================= */
 
 int CpCall::getCallIndex()

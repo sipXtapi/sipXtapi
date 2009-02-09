@@ -174,9 +174,6 @@ public:
     int getLocalConnectionState() { return mLocalConnectionState; };
     //: Sets the local connection state for this call
 
-    void addToneListenerToFlowGraph(intptr_t pListener, Connection* connection);
-    void removeToneListenerFromFlowGraph(intptr_t pListener, Connection* connection);
-
     /* ============================ ACCESSORS ================================= */
     static int getCallTrackingListCount();
     //returns the number of call tasks currently outstanding.
