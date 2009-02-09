@@ -161,6 +161,9 @@ public:
       /// Build an incremental resource topology for multicast RTP connections.
     MpResourceTopology* buildMulticastConnectionResourceTopology();
 
+      /// Get number of input connections this topology can support.
+    static int getMaxInputConnections();
+
 //@}
 
 /* ============================ INQUIRY =================================== */

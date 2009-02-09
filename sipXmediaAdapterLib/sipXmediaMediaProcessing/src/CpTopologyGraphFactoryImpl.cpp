@@ -705,6 +705,16 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildMulticastConnectionResource
     return(resourceTopology);
 }
 
+int CpTopologyGraphFactoryImpl::getMaxInputConnections()
+{
+#ifdef INSERT_SPEAKER_SELECTOR // [
+   return DEFAULT_SPEAKER_SELECTOR_MAX_INPUTS;
+#else  // INSERT_SPEAKER_SELECTOR ][
+   return DEFAULT_BRIDGE_MAX_IN_OUTPUTS-initialTopologyInputResourcesNum;
+#endif // INSERT_SPEAKER_SELECTOR ]
+   
+}
+
 /* ============================ ACCESSORS ================================= */
 
 void CpTopologyGraphFactoryImpl::setInitialResourceTopology(MpResourceTopology& resourceTopology)
