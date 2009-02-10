@@ -21,6 +21,9 @@
 #include <sys/mman.h>
 #undef _P1003_1B_VISIBLE
 
+// Include to access gettid() syscall for debug purposes
+#include <sys/syscall.h>
+
 // APPLICATION INCLUDES
 #include "os/OsExcept.h"
 #include "os/OsLock.h"
@@ -658,7 +661,7 @@ void * OsTaskLinux::taskEntry(void* arg)
       pthread_kill(pthread_self(), SIGSTOP);
    }
 
-  // construct thread attribute
+   // construct thread attribute
    linuxRes = pthread_attr_init(&attributes);
    if (linuxRes != 0) {
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux::taskEntry: pthread_attr_init failed (%d) ", linuxRes);
@@ -722,6 +725,10 @@ void * OsTaskLinux::taskEntry(void* arg)
 
    // Unlock startup synchronization mutex. Synchronization finished.
    pthread_mutex_unlock(&pTask->mStartupSyncMutex);
+
+   // Log Thread ID for debug purposes
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::taskEntry: Started task %s with lwp=%ld, pid=%d",
+                 pTask->mName.data(), syscall(SYS_gettid), getpid());
 
 
    // Run the code the task is supposed to run, namely the run()
