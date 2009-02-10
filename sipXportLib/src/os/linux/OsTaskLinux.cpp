@@ -666,7 +666,7 @@ void * OsTaskLinux::taskEntry(void* arg)
 
    int linuxPriority = OsUtilLinux::cvtOsPrioToLinuxPrio(pTask->mPriority);
 
-   if((geteuid() == 0) && (linuxPriority != RT_NO))
+   if(linuxPriority != RT_NO)
    {
 #ifndef __MACH__
       // Use FIFO realtime scheduling
@@ -687,7 +687,7 @@ void * OsTaskLinux::taskEntry(void* arg)
 #else
       linuxRes = ~POSIX_OK;
       OsSysLog::add(FAC_KERNEL, PRI_INFO, 
-            "OsTaskLinux not starting at RT priority under MacOs") ;
+                    "OsTaskLinux not starting at RT priority under MacOs") ;
 #endif
 
       // keep all memory locked into physical mem, to guarantee realtime-behaviour
