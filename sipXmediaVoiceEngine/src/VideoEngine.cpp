@@ -99,8 +99,10 @@ void VideoEngine::setGipsVideoEngine(GipsVideoEnginePlatform* pVideoEngine)
     OsLock lock(mLock) ;
     mpVideoEngine = pVideoEngine ;
 
+#ifdef _WIN32
     if (mpVideoEngine != NULL && mhNoCameraBitmap != NULL)
         mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap) ;
+#endif
 
 }
 
