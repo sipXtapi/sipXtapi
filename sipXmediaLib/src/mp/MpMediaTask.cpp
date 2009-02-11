@@ -32,9 +32,11 @@
 #  include "mp/MpMMTimerPosix.h"
 #endif // ] __pingtel_on_posix__
 
-#ifdef RTL_ENABLED
-#   include <rtl_macro.h>
-#endif
+#ifdef RTL_ENABLED // [
+#  include <rtl_macro.h>
+#else // RTL_ENABLED ][
+#  define RTL_EVENT(x,y)
+#endif // RTL_ENABLED ]
 
 // Include sys/time.h if _PROFILE is set.
 // This #include has to be after the #include of mp/MpMediaTask.h, because
@@ -271,7 +273,7 @@ OsStatus MpMediaTask::signalFrameStart(const OsTime &timeout)
          }
          sSignalTicks = now; // record the time
 #endif /* _PROFILE, __pingtel_on_posix__ ] */
-
+         RTL_EVENT("MpMediaTask::signalFrameStart", 1);
          ret = spInstance->postMessage(*pMsg, timeout);
       }
    }
@@ -654,6 +656,7 @@ UtlBoolean MpMediaTask::handleMessage(OsMsg& rMsg)
       start_time = (t.tv_sec * 1000000) + t.tv_usec;
    }
 #endif /* _PROFILE ] */
+   RTL_EVENT("MpMediaTask::handleMessage_start", pMsg->getMsg());
    switch (pMsg->getMsg())
    {
    case MpMediaTaskMsg::MANAGE:
@@ -694,6 +697,7 @@ UtlBoolean MpMediaTask::handleMessage(OsMsg& rMsg)
       mOtherMessages.tally(end_time - start_time);
    }
 #endif /* _PROFILE ] */
+   RTL_EVENT("MpMediaTask::handleMessage_end", pMsg->getMsg());
 
    return handled;
 }
@@ -916,9 +920,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
    // Call processNextFrame() for each of the "started" flow graphs
    for (i=0; i < mManagedCnt; i++)
    {
-#ifdef RTL_ENABLED
-    RTL_EVENT("MpMediaTask.handleWaitForSignal", i+1);
-#endif
+      RTL_EVENT("MpMediaTask::handleWaitForSignal", i+1);
       pFlowGraph = mManagedFGs[i];
       if (pFlowGraph->isStarted())
       {
@@ -926,10 +928,8 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
          assert(res == OS_SUCCESS);
       }
    }
+   RTL_EVENT("MpMediaTask::handleWaitForSignal", 0);
 
-#ifdef RTL_ENABLED
-    RTL_EVENT("MpMediaTask.handleWaitForSignal", 0);
-#endif
 #ifdef _PROFILE /* [ */
    {
       timeval t;
