@@ -260,7 +260,7 @@ OsStatus OsTaskLinux::delay(const int milliSecs)
    {
       ret = clock_nanosleep(clock, TIMER_ABSTIME, &ts, NULL);
 
-      if (ret != 0 && errno != EAGAIN && errno != EINTR && errno != ENOENT)
+      if (ret != 0 && ret != EAGAIN && ret != EINTR && ret != ENOENT)
       {
          return OS_FAILED;
       }
