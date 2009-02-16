@@ -73,6 +73,7 @@ ENABLE_CODEC_SPEEX
 CHECK_ILBC
 CHECK_PCMA_PCMU
 CHECK_TONES
+CHECK_L16
 CHECK_G726
 CHECK_G722
 CHECK_AMR_AMRWB
@@ -136,6 +137,7 @@ AC_CONFIG_FILES([
   src/mp/codecs/plggsm/Makefile
   src/mp/codecs/plgpcmapcmu/Makefile
   src/mp/codecs/plgtones/Makefile
+  src/mp/codecs/plgl16/Makefile
   src/mp/codecs/plgspeex/Makefile
   src/mp/codecs/plgilbc/Makefile
   src/mp/codecs/plgg726/Makefile

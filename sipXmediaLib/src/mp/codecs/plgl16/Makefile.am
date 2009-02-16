@@ -14,11 +14,10 @@ codec_l16_la_SOURCES = \
 	CodecL16Wrapper44100.c \
 	CodecL16Wrapper48000.c \
 	CodecL16Wrapper8000.c \
-	CodecImpl.c \
 	PlgL16.c \
 	CodecL16.h
 
-if l16_STATIC
+if L16_STATIC
 codec_l16_la_CFLAGS  = -DCODEC_STATIC
 codec_l16_la_LDFLAGS = -module -avoid-version -static
 else
