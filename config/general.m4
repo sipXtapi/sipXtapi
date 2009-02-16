@@ -1161,6 +1161,37 @@ AC_DEFUN([CHECK_TONES],
     AM_CONDITIONAL(TONES_STATIC, test "$CODEC_TONES_STATIC" = true)
 ])dnl
 
+# ==============  L 1 6  ==================
+AC_DEFUN([AM_SET_STATIC_L16],
+[
+    CODEC_L16_STATIC=true
+    AM_SET_L16
+    AC_DEFINE(CODEC_L16_STATIC, [1], [Select l16 for static link])
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgl16/codec_l16.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+])dnl
+AC_DEFUN([AM_SET_L16],
+[
+    PLUGINS="${PLUGINS} L16"
+    L16_TARGET="plgl16"
+    AC_SUBST(L16_TARGET)
+])dnl
+AC_DEFUN([CHECK_L16],
+[
+    AC_ARG_ENABLE([codec-l16],
+                  [AS_HELP_STRING([--enable-codec-l16],
+                                  [Enable support for L16 codec @<:@default=no@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_L16 ;;
+                       auto) AC_MSG_RESULT(Codec L16 was disabled) ;;
+                       yes) AM_SET_L16 ;;
+                       no) AC_MSG_RESULT(Codec L16 was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-l16) ;;
+                    esac],
+                  [AM_SET_L16])
+    AM_CONDITIONAL(L16_STATIC, test "$CODEC_L16_STATIC" = true)
+])dnl
+
 # =============== I L B C =====================
 
 AC_DEFUN([AM_SET_ILBC],
