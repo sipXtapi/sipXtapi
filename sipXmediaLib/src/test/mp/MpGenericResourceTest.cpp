@@ -18,8 +18,8 @@ unsigned MpGenericResourceTest::sNumRates = sizeof(MpGenericResourceTest::sSampl
 
 MpGenericResourceTest::MpGenericResourceTest()
    : CppUnit::TestCase()
-   , mSamplesPerFrame(TEST_DEFAULT_SAMPLES_PER_FRAME)
    , mSamplesPerSec(TEST_DEFAULT_SAMPLES_PER_SEC)
+   , mSamplesPerFrame(TEST_DEFAULT_SAMPLES_PER_FRAME)
 {
 }
 
