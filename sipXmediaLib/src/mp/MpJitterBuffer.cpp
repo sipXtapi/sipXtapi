@@ -211,6 +211,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    if (decoder == NULL)
    {
       // Ignore it, if we can't decode it.
+      dprintf(" can't decode");
       return OS_FAILED;
    }
    RTL_EVENT("MpJitterBuffer_loss_pattern", !rtpPacket.isValid());
@@ -255,6 +256,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
          // well, we have nothing else to do here. Actual signaling
          // data processing will be done in MprDecode.
          RTL_EVENT("MpJitterBuffer_packet_vad", -2);
+         dprintf(" signaling");
          return OS_SUCCESS;
       }
       else
