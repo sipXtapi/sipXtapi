@@ -40,7 +40,7 @@ extern "C" {
  */
 
 // In Visual Studio 2008, winsock2.h defines all of these already
-#if defined(_MSC_VER) && (_MSC_VER < 1500)
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
 /*
  * This structure is passed as an array to poll(2).
  */
