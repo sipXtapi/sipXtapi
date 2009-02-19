@@ -146,7 +146,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
 
         if (!symbolAddress)
         {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR, 
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                 "Failed to find symbol: %s in shared lib: %s error: %s",
                 symbolName, libName ? libName : "(null)", dlerror());
 

@@ -165,7 +165,8 @@ OsStatus OsSharedLibMgrWnt::getSharedLibSymbol(const char* libName,
         if (!symbolAddress) 
         {
             int errorCode = GetLastError();
-            osPrintf("Failed to find symbol: %s in shared lib: %s error: %d\n",
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                "Failed to find symbol: %s in shared lib: %s error: %d",
                 symbolName, libName ? libName : "(null)", errorCode);
 
             LPVOID lpMsgBuf;
