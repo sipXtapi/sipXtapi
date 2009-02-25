@@ -352,6 +352,8 @@ private:
                              ///< to the flowgraph queue.
    OsCallback mFlowgraphTicker; ///< OsNotification to call flowgraphTickerCallback()
    UtlBoolean mIsLocalAudioEnabled; ///< Affects setFocus().
+   static UtlBoolean mIsBlockingReported; ///< Is message about MediaTask being blocked
+                             ///< for too long already reported?
 
    //  Static data members used to enforce Singleton behavior
    static MpMediaTask* volatile  spInstance;  ///< @brief pointer to the single instance

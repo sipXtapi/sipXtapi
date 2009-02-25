@@ -59,6 +59,7 @@ const OsTime MpMediaTask::smOperationQueueTimeout = OsTime::OS_INFINITY;
 MpMediaTask* volatile MpMediaTask::spInstance = NULL;
 OsBSem       MpMediaTask::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 int          MpMediaTask::mMaxFlowGraph = NULL;
+UtlBoolean   MpMediaTask::mIsBlockingReported = FALSE;
 
 
 #ifdef _PROFILE /* [ */
@@ -1034,14 +1035,19 @@ void MpMediaTask::flowgraphTickerCallback(const intptr_t userData,
       // OS_LIMIT_REACHED is returned when there are no more free messages
       // in the pool. This means that MediaTask is blocked for too long and
       // does not process messages and return them to pool. This is a normal
-      // situation when you hit breakpoint during debugging, and in this case
-      // you should just comment out this assert. In production this is NOT
-      // normal and should be fixed.
-//      assert(!"Something is blocking MediaTask for too long!");
+      // situation when you hit breakpoint during debugging, but in production
+      // this is NOT normal and should be fixed.
+      if (mIsBlockingReported == FALSE)
+      {
+         OsSysLog::add(FAC_MP, PRI_ERR,
+                       "Something is blocking MediaTask for too long!");
+         MpMediaTask::mIsBlockingReported = TRUE;
+      }
    }
    else
    {
       assert(result == OS_SUCCESS);
+      mIsBlockingReported = FALSE;
    }
 }
 
