@@ -148,7 +148,7 @@ OsStatus OsServerTask::receiveMessage(OsMsg*& rpMsg,
 // is called.
 int OsServerTask::run(void* pArg)
 {
-   UtlBoolean doShutdown;
+   UtlBoolean doShutdown = FALSE;
    OsMsg*    pMsg = NULL;
    OsStatus  res;
 
