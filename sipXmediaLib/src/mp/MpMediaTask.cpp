@@ -590,7 +590,7 @@ MpMediaTask::MpMediaTask(int maxFlowGraph, UtlBoolean enableLocalAudio)
 
 int MpMediaTask::run(void* pArg)
 {
-   UtlBoolean doShutdown;
+   UtlBoolean doShutdown = FALSE;
    OsMsg*    pMsg = NULL;
    OsStatus  res;
 
@@ -1037,7 +1037,7 @@ void MpMediaTask::flowgraphTickerCallback(const intptr_t userData,
       // situation when you hit breakpoint during debugging, and in this case
       // you should just comment out this assert. In production this is NOT
       // normal and should be fixed.
-      assert(!"Something is blocking MediaTask for too long!");
+//      assert(!"Something is blocking MediaTask for too long!");
    }
    else
    {
