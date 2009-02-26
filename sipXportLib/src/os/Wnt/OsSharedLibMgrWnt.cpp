@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES
 #include <os/Wnt/OsSharedLibMgrWnt.h>
+#include <os/OsSysLog.h>
 #include <utl/UtlString.h>
 
 // EXTERNAL FUNCTIONS
