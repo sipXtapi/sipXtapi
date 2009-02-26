@@ -188,6 +188,13 @@ public:
 
         /// Set stream SSRC.
       inline void setSSRC(RtpSRC ssrc);
+        /**<
+        *  setSSRC() not only sets SSRC of the stream, but also resets decoder
+        *  to prepare it for a new stream.
+        *
+        *  Note: activate() should always be called after setSSRC() to eliminate
+        *        excessive decoder reset on startup.
+        */
 
         /// Send notification on stream activation/deactivation.
       OsStatus postStreamNotif(OsMsgDispatcher *pMsgQ,
@@ -298,6 +305,15 @@ RtpSRC MprRtpDispatcher::MpRtpStream::getSSRC() const
 
 void MprRtpDispatcher::MpRtpStream::setSSRC(RtpSRC ssrc)
 {
+   // Reset decoder if this is not the first time setSSRC() is called.
+   // Note, that we deliberately does not check whether SSRC really changed.
+   // We trust caller to perform this check. Furthermore some broken
+   // implementations does not change SSRC on a new stream start.
+   if (mAddress != 0 && mpDecode != NULL)
+   {
+      mpDecode->reset();
+   }
+
    setValue(ssrc);
 }
 
