@@ -88,7 +88,7 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
       OsStatus stat;
       MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START_FILE,
                               namedResource);
-      UtlSerialized &msgData(msg.getData());
+      UtlSerialized &msgData = msg.getData();
 
       stat = msgData.serialize(file);
       assert(stat == OS_SUCCESS);
@@ -123,7 +123,7 @@ OsStatus MprRecorder::startBuffer(const UtlString& namedResource,
    OsStatus stat;
    MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START_BUFFER,
                            namedResource);
-   UtlSerialized &msgData(msg.getData());
+   UtlSerialized &msgData = msg.getData();
 
    stat = msgData.serialize(pBuffer);
    assert(stat == OS_SUCCESS);
@@ -320,7 +320,7 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          int timeMS;
          int silenceLength;
 
-         UtlSerialized &msgData(((MpPackedResourceMsg*)(&rMsg))->getData());
+         UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
          stat = msgData.deserialize(file);
          assert(stat == OS_SUCCESS);
          stat = msgData.deserialize((int&)recFormat);
@@ -341,7 +341,7 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          int time;
          int silenceLength;
 
-         UtlSerialized &msgData(((MpPackedResourceMsg*)(&rMsg))->getData());
+         UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
          stat = msgData.deserialize((void*&)pBuffer);
          assert(stat == OS_SUCCESS);
          stat = msgData.deserialize(bufferSize);
