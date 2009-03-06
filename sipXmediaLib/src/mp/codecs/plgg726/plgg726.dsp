@@ -56,8 +56,8 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib libspandsp.lib /nologo /dll /machine:I386 /out:"..\..\..\..\bin\codec_g726.dll" /libpath:"..\..\..\..\contrib\libspandsp\Release"
 # Begin Custom Build
-TargetDir=\DOCUMENTS AND SETTINGS\SIPEZ-USER\MY DOCUMENTS\SIPXTAPI\SIPXMEDIALIB\bin
-InputPath=\DOCUMENTS AND SETTINGS\SIPEZ-USER\MY DOCUMENTS\SIPXTAPI\SIPXMEDIALIB\bin\codec_g726.dll
+TargetDir=\build\sipXtapi\sipXmediaLib\bin
+InputPath=\build\sipXtapi\sipXmediaLib\bin\codec_g726.dll
 SOURCE="$(InputPath)"
 
 "$(TargetDir)\libspandsp.dll" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -78,8 +78,8 @@ SOURCE="$(InputPath)"
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PLGG726_EXPORTS" /YX /FD /GZ  /c
-# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /I "..\..\..\..\include" /I "..\..\..\..\contrib\libspandsp\src" /I "..\..\..\..\..\sipXportLib\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PLGG726_EXPORTS" /FD /GZ  /c
+# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PLGG726_EXPORTS" /YX /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /I "..\..\..\..\include" /I "..\..\..\..\contrib\libspandsp\src" /I "..\..\..\..\..\sipXportLib\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PLGG726_EXPORTS" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -91,9 +91,9 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib libspandsp.lib /nologo /dll /debug /machine:I386 /out:"..\..\..\..\bin\codec_g726.dll" /pdbtype:sept /libpath:"..\..\..\..\contrib\libspandsp\Debug"
-# Begin Custom Build
-TargetDir=\DOCUMENTS AND SETTINGS\SIPEZ-USER\MY DOCUMENTS\SIPXTAPI\SIPXMEDIALIB\bin
-InputPath=\DOCUMENTS AND SETTINGS\SIPEZ-USER\MY DOCUMENTS\SIPXTAPI\SIPXMEDIALIB\bin\codec_g726.dll
+# Begin Custom Build - Performing Custom Build Step on $(InputPath)
+TargetDir=\build\sipXtapi\sipXmediaLib\bin
+InputPath=\build\sipXtapi\sipXmediaLib\bin\codec_g726.dll
 SOURCE="$(InputPath)"
 
 "$(TargetDir)\libspandsp.dll" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

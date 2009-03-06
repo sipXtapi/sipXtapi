@@ -202,11 +202,11 @@ SOURCE=.\src\test\os\OsLockTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\os\OsMsgQTest.cpp
+SOURCE=.\src\test\os\OsMsgDispatcherTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\os\OsMsgDispatcherTest.cpp
+SOURCE=.\src\test\os\OsMsgQTest.cpp
 # End Source File
 # Begin Source File
 

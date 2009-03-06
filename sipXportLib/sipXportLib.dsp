@@ -40,6 +40,7 @@ RSC=rc.exe
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
+F90=df.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\..\sipXportLib\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /D "HAVE_SSL" /FD /c
 # SUBTRACT CPP /YX
@@ -64,8 +65,9 @@ LIB32=link.exe -lib
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
+F90=df.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\..\sipXportLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\..\sipXportLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -215,15 +217,15 @@ SOURCE=.\src\os\OsMsg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\OsMsgDispatcher.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\OsMsgPool.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\os\OsMsgQ.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\os\OsMsgDispatcher.cpp
 # End Source File
 # Begin Source File
 
@@ -635,6 +637,10 @@ SOURCE=.\include\os\HostAdapterAddress.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\msinttypes\inttypes.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\IStunSocket.h
 # End Source File
 # Begin Source File
@@ -787,15 +793,15 @@ SOURCE=.\include\os\OsMsg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\OsMsgDispatcher.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsMsgPool.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\include\os\OsMsgQ.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\os\OsMsgDispatcher.h
 # End Source File
 # Begin Source File
 
@@ -1051,10 +1057,6 @@ SOURCE=.\include\os\OsWriteLock.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\SipXportLibInit.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\utl\Plugin.h
 # End Source File
 # Begin Source File
@@ -1068,6 +1070,14 @@ SOURCE=.\include\utl\PtTest.h
 # Begin Source File
 
 SOURCE=".\src\hmac-sha1\sha1.h"
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\SipXportLibInit.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\msinttypes\stdint.h
 # End Source File
 # Begin Source File
 
@@ -1272,14 +1282,6 @@ SOURCE=.\include\os\wnt\WIndowsAdapterInfo.h
 # Begin Source File
 
 SOURCE=.\include\utl\XmlContent.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\os\msinttypes\inttypes.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\os\msinttypes\stdint.h
 # End Source File
 # End Group
 # End Target

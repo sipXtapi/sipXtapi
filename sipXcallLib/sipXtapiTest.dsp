@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "..\sipXmediaAdapterLib\interface" /I "..\sipXcallLib\include" /I "..\sipXportLib\include" /I "include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\CPPUnit\include" /D "NDEBUG" /D "SIPXTAPI_STATIC" /D "_CONSOLE" /D "WIN32" /D "_MBCS" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\sipXmediaAdapterLib\interface" /I "..\sipXcallLib\include" /I "..\CPPUnit\include" /D "NDEBUG" /D "SIPXTAPI_STATIC" /D "_CONSOLE" /D "WIN32" /D "_MBCS" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -52,8 +52,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 winmm.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib sipXmediaLib.lib sipXmediaAdapterLib.lib sipXcallLib.lib cppunit_dll.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib pcre.lib wsock32.lib /nologo /subsystem:console /machine:I386 /libpath:"sipXtapi\Release\\" /libpath:"..\sipXsdpLib\Release" /libpath:"..\sipXtackLib\Release" /libpath:"..\sipXportLib\Release" /libpath:"..\sipXcallLib\Release" /libpath:"..\sipXmediaLib\Release" /libpath:"..\sipXmediaAdapterLib\Release" /libpath:"..\sipXmediaLib\contrib\libgsm\lib" /libpath:"..\CPPUnit\lib" /libpath:"..\sipXmediaLib\contrib\libspeex\lib"
+# ADD LINK32 winmm.lib sipXportLib.lib sipXsdpLib.lib sipXtackLib.lib sipXmediaLib.lib sipXmediaAdapterLib.lib sipXcallLib.lib wsock32.lib pcre.lib cppunit_dll.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /libpath:"..\sipXportLib\Release" /libpath:"..\sipXsdpLib\Release" /libpath:"..\sipXtackLib\Release" /libpath:"..\sipXmediaLib\Release" /libpath:"..\sipXmediaAdapterLib\Release" /libpath:"..\sipXcallLib\Release" /libpath:"Release" /libpath:"sipXtapi\Release\\" /libpath:"..\sipXmediaLib\contrib\libgsm\lib" /libpath:"..\sipXmediaLib\contrib\libspeex\lib" /libpath:"..\CPPUnit\lib"
 # SUBTRACT LINK32 /pdb:none
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy sipXtapi\Release\sipXtapi.dll Release
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "sipXtapiTest - Win32 Debug"
 
@@ -69,7 +73,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "..\sipXmediaAdapterLib\interface" /I "..\sipXcallLib\include" /I "..\sipXportLib\include" /I "include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\CPPUnit\include" /D "_DEBUG" /D "SIPXTAPI_STATIC" /D "_CONSOLE" /D "WIN32" /D "_MBCS" /FR /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\sipXmediaAdapterLib\interface" /I "..\sipXcallLib\include" /I "..\CPPUnit\include" /D "_DEBUG" /D "SIPXTAPI_STATIC" /D "_CONSOLE" /D "WIN32" /D "_MBCS" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -78,8 +82,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 winmm.lib sipXportLibd.lib sipXsdpLibd.lib sipXtackLibd.lib sipXmediaAdapterLibd.lib sipXmediaLibd.lib sipXcallLibd.lib wsock32.lib cppunitd_dll.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib pcre.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"..\sipXmediaLib\Debug\\" /libpath:"..\sipXmediaAdapterLib\Debug" /libpath:"..\sipXsdpLib\Debug" /libpath:"..\sipXtackLib\Debug" /libpath:"..\sipXportLib\debug" /libpath:"debug" /libpath:"..\sipXmediaLib\contrib\libgsm\lib" /libpath:"..\CPPUnit\lib" /libpath:"..\sipXmediaLib\contrib\libspeex\lib"
+# ADD LINK32 winmm.lib sipXportLibd.lib sipXsdpLibd.lib sipXtackLibd.lib sipXmediaAdapterLibd.lib sipXmediaLibd.lib sipXcallLibd.lib sipXtapid.lib wsock32.lib pcre.lib cppunitd_dll.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /pdbtype:sept /libpath:"..\sipXportLib\Debug" /libpath:"..\sipXsdpLib\Debug" /libpath:"..\sipXtackLib\Debug" /libpath:"..\sipXmediaLib\Debug\\" /libpath:"..\sipXmediaAdapterLib\Debug" /libpath:"Debug" /libpath:"sipXtapi\Debug" /libpath:"..\sipXmediaLib\contrib\libgsm\lib" /libpath:"..\sipXmediaLib\contrib\libspeex\lib" /libpath:"..\CPPUnit\lib"
 # SUBTRACT LINK32 /nodefaultlib
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy sipXtapi\Debug\sipXtapid.dll Debug
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "sipXtapiTest - Win32 Debug_NoVE"
 
