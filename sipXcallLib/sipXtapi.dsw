@@ -135,6 +135,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "sipXtapi"=.\sipXtapi\sipXtapi.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "sipXcallLibTest"=.\sipXcallLibTest.dsp - Package Owner=<4>
 
 Package=<5>
@@ -145,6 +157,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name libspeex
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sipXtapi
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name sipXcallLib
