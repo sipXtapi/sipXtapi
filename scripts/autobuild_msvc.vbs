@@ -299,6 +299,18 @@ end if
 quitIfError(errCode)
 
 
+' Compile sipXtapi
+if vcVer = "6.0" then
+   staticlibfile = releaseType & "\sipXtapi" & libPrefix & ".lib"
+   objShell.CurrentDirectory = cDir & "\sipXcallLib\sipXtapi"
+   if objFS.FileExists(staticlibfile) then
+      objFS.deleteFile(staticlibfile)
+   end if
+   errCode = runWithOutput("msdev sipXtapi.dsp /MAKE ""sipXtapi - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
 ' Compile sipXtapiTest
 if vcVer = "6.0" then
    exe = releaseType & "\sipXtapiTest.exe"
