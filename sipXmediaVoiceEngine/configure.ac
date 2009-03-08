@@ -27,6 +27,7 @@ AC_PROG_CC
 
 # Checks for libraries.
 CHECK_COREAUDIO
+CHECK_CARBON
 
 # Checks for header files.
 AC_HEADER_DIRENT
@@ -50,6 +51,7 @@ CHECK_GIPS_VEMM
 
 # sipX dependencies
 SFAC_LIB_STACK
+SFAC_LIB_SDP
 SFAC_LIB_MEDIA_PLUGIN_MGR
 
 SFAC_FEATURE_SIP_TLS

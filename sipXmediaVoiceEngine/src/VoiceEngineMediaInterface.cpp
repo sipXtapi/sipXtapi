@@ -707,7 +707,7 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
             checkVoiceEngineReturnCode("GIPSVE_SetSendIP", connectionId, rc, true) ;
 #endif
 
-            if (primaryCodec && getVoiceEngineCodec(*primaryCodec, codecInfo))
+            if (primaryCodec && getVoiceEngineCodec(primaryCodec->getCodecType(), codecInfo))
             {
                 trace(PRI_DEBUG, 
                             "startRtpSend: using GIPS codec %s for id %d, payload %d", 
@@ -835,7 +835,7 @@ OsStatus VoiceEngineMediaInterface::startRtpReceive(int       connectionId,
     bool bHaveRestarted = false;
     int i ;
 
-    traceAPI("VoiceEngineMediaInterface::startRtpReceive") ;
+    traceAPI("VoiceEngineMediaInterface::startRtpReceive BEGIN") ;
 
     if (mbEnableRTCP)
     {
@@ -883,7 +883,7 @@ OsStatus VoiceEngineMediaInterface::startRtpReceive(int       connectionId,
             {
                 primaryCodec = receiveCodecs[i];
                 pMediaConnection->mPrimaryCodecType = primaryCodec->getCodecType() ;
-                if (getVoiceEngineCodec(*primaryCodec, codecInfo))
+                if (getVoiceEngineCodec(pMediaConnection->mPrimaryCodecType, codecInfo))
                 {
                     // Stop playout here just in case we had a previous giveFocus call. That
                     // will make the SetRecPayloadType call fail. Playout will be resumed
@@ -907,7 +907,7 @@ OsStatus VoiceEngineMediaInterface::startRtpReceive(int       connectionId,
                 mPrimaryVideoCodec = primaryVideoCodec;
                 pMediaConnection->mPrimaryVideoCodec = *mPrimaryVideoCodec;
                 pMediaConnection->mbIsPrimaryVideoCodecSet  = true;
-                mpFactoryImpl->getCodecNameByType(primaryVideoCodec->getCodecType(), videoCodecName);
+                mpVEFactoryImpl->getCodecNameByType(primaryVideoCodec->getCodecType(), videoCodecName);
                 limitVideoCodecs(connectionId, videoCodecName);
                 pMediaConnection->mRtpVideoPayloadType = primaryVideoCodec->getCodecPayloadFormat();  
 
@@ -1057,6 +1057,8 @@ OsStatus VoiceEngineMediaInterface::startRtpReceive(int       connectionId,
         }
         pMediaConnection->setSocketsEnabled(true) ;
     }
+
+    traceAPI("VoiceEngineMediaInterface::startRtpReceive END") ;
 
     return OS_SUCCESS ;
 }
@@ -2780,14 +2782,14 @@ void VoiceEngineMediaInterface::finalizeVideoSupport(int connectionId)
 
 
 
-UtlBoolean VoiceEngineMediaInterface::getVoiceEngineCodec(const SdpCodec& pCodec, GIPSVE_CodecInst& codecInfo)
+UtlBoolean VoiceEngineMediaInterface::getVoiceEngineCodec(SdpCodec::SdpCodecTypes type, GIPSVE_CodecInst& codecInfo)
 {
     OsLock lock(*mpMediaGuard) ;
     UtlString codecName;
     UtlBoolean matchFound = FALSE;
     int iCodecs;
-
-    if (mpFactoryImpl->getCodecNameByType(pCodec.getCodecType(), codecName))
+  
+    if (mpFactoryImpl->getCodecNameByType(type, codecName))
     {
         if ((iCodecs=mpVoiceEngine->GIPSVE_GetNofCodecs()) != -1)
         {
@@ -2814,7 +2816,7 @@ UtlBoolean VoiceEngineMediaInterface::getVideoEngineCodec(const SdpCodec& codec,
     UtlBoolean matchFound = FALSE;
     int iCodecs;
 
-    if (mpFactoryImpl->getCodecNameByType(codec.getCodecType(), codecName))
+    if (mpVEFactoryImpl->getCodecNameByType(codec.getCodecType(), codecName))
     {
         if ((iCodecs = mpVideoEngine->getVideoEngine()->GIPSVideo_GetNofCodecs()) != -1)
         {
@@ -2875,6 +2877,7 @@ UtlBoolean VoiceEngineMediaInterface::getVideoEngineCodec(const SdpCodec& codec,
     }
 
     return matchFound;
+    return false ;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3067,7 +3070,6 @@ int VoiceEngineMediaInterface::checkVideoEngineReturnCode(const char* szAPI,
                                                           bool        bAssertOnError) 
 {
     int lastError = 0;
-/*
 
     char cId[16] ;
     sprintf(cId, " cId=%d ", connectionId);
@@ -3116,7 +3118,6 @@ int VoiceEngineMediaInterface::checkVideoEngineReturnCode(const char* szAPI,
         }
 #endif
     }
-*/
     return lastError;
 }
 
@@ -3487,7 +3488,9 @@ UtlBoolean VoiceEngineMediaInterface::isAudioAvailable()
 
     if (getNumConnections() == 0)
     {
+#ifdef _WIN32
         if (mpVoiceEngine && mpVoiceEngine->GIPSVE_CheckIfAudioIsAvailable(1, 1) == 0)
+#endif
         {
             bAvailable = true;
         }

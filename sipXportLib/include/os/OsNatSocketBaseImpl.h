@@ -75,8 +75,6 @@ typedef struct
 
 // FORWARD DECLARATIONS
 class OsNatKeepaliveListener ;
-class OsNatAgentTask ;
-
 
 /**
  * Base-class / default Nat implementation for both datagram and 
@@ -371,10 +369,9 @@ protected:
 protected:
     OsDateTime            mLastDI ;         // Last data indication
     bool                  mbReceivedDI ;
-    bool                  mbDelayedTurnShutdown ;
-        
+    bool                  mbDelayedTurnShutdown ;  
     bool                  mbTransparentStunRead ;
-    OsNatAgentTask*       mpNatAgent;
+    bool                  mbDestroyed ;
 
     /* ICE Settings */
     int miDestPriority ;        /**< Priority of destination address / port. */

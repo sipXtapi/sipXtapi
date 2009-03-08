@@ -559,8 +559,8 @@ private:
     void renderVideoQuadrant(int handle, int connectionId);
 
     UtlBoolean getCodecTypeByName(const UtlString& codecName, SdpCodec::SdpCodecTypes& codecType);
-    UtlBoolean getVoiceEngineCodec(const SdpCodec& pCodec, GIPSVE_CodecInst& cInst);
-    UtlBoolean getVideoEngineCodec(const SdpCodec& pCodec, GIPSVideo_CodecInst& codecInfo);
+    UtlBoolean getVoiceEngineCodec(SdpCodec::SdpCodecTypes type, GIPSVE_CodecInst& cInst);
+    UtlBoolean getVideoEngineCodec(const SdpCodec& codec, GIPSVideo_CodecInst& codecInfo);
 
     int getVideoQuadrantHandle(int connectionId);
     void releaseVideoQuadrantHandle(int handle);

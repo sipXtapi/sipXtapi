@@ -1,0 +1,95 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+	Version="10.0"
+	VendorName="SlickEdit"
+	WorkingDir=".">
+	<Config
+		Name="Release"
+		OutputFile=""
+		CompilerConfigName="Latest Version">
+		<Menu>
+			<Target
+				Name="Compile"
+				MenuCaption="&amp;Compile"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveCurrent"
+				RunFromDir="%rw">
+				<Exec/>
+			</Target>
+			<Target
+				Name="Build"
+				MenuCaption="&amp;Build"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine="make install"/>
+			</Target>
+			<Target
+				Name="Rebuild"
+				MenuCaption="&amp;Rebuild"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine="make clean install"/>
+			</Target>
+			<Target
+				Name="Debug"
+				MenuCaption="&amp;Debug"
+				SaveOption="SaveNone"
+				RunFromDir="%rw">
+				<Exec/>
+			</Target>
+			<Target
+				Name="Execute"
+				MenuCaption="E&amp;xecute"
+				SaveOption="SaveNone"
+				RunFromDir="%rw">
+				<Exec CmdLine='"sipXmediaVoiceEngine.exe"'/>
+			</Target>
+		</Menu>
+	</Config>
+	<Files>
+		<Folder
+			Name="Source Files"
+			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+			<F N="src/ArsVoiceEngineReceiveAdapter.cpp"/>
+			<F N="src/DllMain.cpp"/>
+			<F N="src/VideoEngine.cpp"/>
+			<F N="src/VoiceEngineBufferInStream.cpp"/>
+			<F N="src/VoiceEngineConnectionSocket.cpp"/>
+			<F N="src/VoiceEngineDatagramSocket.cpp"/>
+			<F N="src/VoiceEngineFactoryImpl.cpp"/>
+			<F N="src/VoiceEngineMediaConnection.cpp"/>
+			<F N="src/VoiceEngineMediaInterface.cpp"/>
+			<F N="src/VoiceEngineMediaInterfaceBase.cpp"/>
+			<F N="src/VoiceEnginePacketPusher.cpp"/>
+			<F N="src/VoiceEngineSocketAdapter.cpp"/>
+			<F N="src/VoiceEngineSocketFactory.cpp"/>
+		</Folder>
+		<Folder
+			Name="Header Files"
+			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
+			<F N="include/ArsVoiceEngineReceiveAdapter.h"/>
+			<F N="include/IVoiceEngineMediaSocket.h"/>
+			<F N="include/VideoEngine.h"/>
+			<F N="include/VoiceEngineBufferInStream.h"/>
+			<F N="include/VoiceEngineConnectionSocket.h"/>
+			<F N="include/VoiceEngineDatagramSocket.h"/>
+			<F N="include/VoiceEngineDefs.h"/>
+			<F N="include/VoiceEngineFactoryImpl.h"/>
+			<F N="include/VoiceEngineMediaInterface.h"/>
+			<F N="include/VoiceEnginePacketPusher.h"/>
+			<F N="include/VoiceEngineSocketAdapter.h"/>
+			<F N="include/VoiceEngineSocketFactory.h"/>
+		</Folder>
+		<Folder
+			Name="Resource Files"
+			Filters="*.ico;*.cur;*.dlg"/>
+		<Folder
+			Name="Bitmaps"
+			Filters="*.bmp"/>
+		<Folder
+			Name="Other Files"
+			Filters=""/>
+	</Files>
+</Project>

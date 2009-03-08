@@ -4,6 +4,8 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXcallLib/include
 
 bin_PROGRAMS = siplog2siptrace
 
-siplog2siptrace_LDADD = $(top_builddir)/src/libsipXtack.la
+siplog2siptrace_LDADD = \
+     $(top_builddir)/src/libsipXtack.la \
+     @SIPXPORT_LIBS@
 
 siplog2siptrace_SOURCES =  main.cpp

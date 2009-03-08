@@ -50,6 +50,7 @@
 #include <net/NetBase64Codec.h>
 #include <cp/SipConnection.h>
 #include <mediaInterface/IMediaInterface.h>
+#include <mediaPlugin/MediaPluginFactory.h>
 #include <cp/CallManager.h>
 #include <cp/CpCallManager.h>
 #include <cp/CpPeerCall.h>
@@ -1107,7 +1108,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
             rtpCodecsArray = NULL;
         }
     }
-
+    
     return(dialOk);
 }
 
@@ -2627,6 +2628,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
 {
     int msgType = eventMessage.getMsgType();
     int msgSubType = eventMessage.getMsgSubType();
+
     UtlBoolean processedOk = TRUE;
     const SipMessage* sipMsg = NULL;
     int messageType;
@@ -2896,6 +2898,7 @@ UtlBoolean SipConnection::extendSessionReinvite()
         setState(CONNECTION_FAILED, CONNECTION_REMOTE);
         fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
     }
+
 
     return(messageSent);
 }
@@ -5403,9 +5406,9 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
                 mHoldState = TERMCONNECTION_TALKING ;
 
                     fireAudioStartEvents() ;
-                mpMediaInterface->startRtpReceive(mConnectionId,
+                 mpMediaInterface->startRtpReceive(mConnectionId,
                         mNumMatchingDecoderCodecs,
-                            matchingDecodeCodecs);
+                        matchingDecodeCodecs);
                 mpMediaInterface->enableRtpReadNotification(mConnectionId) ;
                 mpMediaInterface->startRtpSend(mConnectionId,
                         mNumMatchingEncoderCodecs,

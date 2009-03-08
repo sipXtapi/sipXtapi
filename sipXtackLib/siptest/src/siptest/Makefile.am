@@ -8,7 +8,9 @@ bin_PROGRAMS = siptest
 
 bin_SCRIPTS = subscribe-dialog-test
 
-siptest_LDADD = $(top_builddir)/src/libsipXtack.la
+siptest_LDADD = \
+    $(top_builddir)/src/libsipXtack.la \
+    @SIPXPORT_LIBS@
 
 siptest_SOURCES =  \
     AuthCommand.cpp \

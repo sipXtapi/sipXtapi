@@ -36,7 +36,7 @@ nobase_include_HEADERS =  \
     net/ProvisioningAgentXmlRpcAdapter.h \
     net/ProvisioningAttrList.h \
     net/ProvisioningClass.h \
-    net/ProxyDescriptor.h \ 
+    net/ProxyDescriptor.h \
     net/QoS.h \
     net/SdpBody.h \
     net/SdpHelper.h \

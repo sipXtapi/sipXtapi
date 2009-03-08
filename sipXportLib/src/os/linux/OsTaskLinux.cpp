@@ -545,7 +545,7 @@ void OsTaskLinux::doLinuxTerminateTask(UtlBoolean doForce)
 
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "OsTaskLinux::doLinuxTerminateTask, deleting task thread: %x,"
-                 " force = %d", (int)mTaskId, doForce);
+                 " %s force = %d", (int)mTaskId, mName.data(), doForce);
 
    // if there is no low-level task, or entry in the name database, just return
    if ((mState != UNINITIALIZED) && ((int)mTaskId != 0))

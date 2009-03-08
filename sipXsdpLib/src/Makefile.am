@@ -22,7 +22,6 @@ libsipXsdp_la_LDFLAGS = \
 
 libsipXsdp_la_LIBADD = \
 	@SSL_LIBS@ \
-	@SIPXPORT_LIBS@ \
         -lstdc++
 
 # this is helpful if you're debugging something with lots of inlines (like the UtlLink code)

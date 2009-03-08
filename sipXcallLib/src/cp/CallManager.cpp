@@ -436,6 +436,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 {
     int msgType = eventMessage.getMsgType();
     int msgSubType = eventMessage.getMsgSubType();
+
     UtlBoolean messageProcessed = TRUE;
     UtlString holdCallId;
     UtlBoolean messageConsumed = FALSE;
@@ -1081,7 +1082,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             break;
         }
     }
-
+    
     return(messageProcessed);
 }
 

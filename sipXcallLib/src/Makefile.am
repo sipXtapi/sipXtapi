@@ -30,23 +30,26 @@ libsipXtapi_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${
 
 libsipXcall_la_LIBADD = \
 	@SIPXTACK_LIBS@ \
-        @SIPXPORT_LIBS@ \
-        @SIPXMEDIA_PLUGIN_LIBS@ \
-        -lstdc++ 
+	@SIPXPORT_LIBS@ \
+	@SIPXMEDIA_PLUGIN_LIBS@ \
+	-lstdc++ 
+
+#@SIPXPORT_STATIC_LIBS@ 
+#@SIPXTACK_STATIC_LIBS@
 
 libsipXtapi_la_LIBADD = \
 	@SIPXTACK_STATIC_LIBS@ \
-        @SIPXPORT_STATIC_LIBS@ \
-	@SIPXMEDIA_PLUGIN_STATIC_LIBS@ \
-        -lstdc++ -lpthread -lresolv -lpcre \
-        @SIPXPORT_STATIC_LIBS@ \
-        $(SECURITY_LIBADD)
+	@SIPXSDP_STATIC_LIBS@ \
+	@SIPXPORT_STATIC_LIBS@ \
+	-lstdc++ -lpthread -lresolv -lpcre \
+	$(SECURITY_LIBADD)
 
 libsipXcall_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" 
 
 libsipXtapi_la_CXXFLAGS = \
-    -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" 
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+        -Wl,-all_load
 
 libsipXcall_la_SOURCES = \
     ../config/sipxcalllib-buildstamp.h \
@@ -100,6 +103,9 @@ libsipXtapi_la_SOURCES = \
     tapi/sipXtapiEvents.cpp \
     tapi/sipXtapiInternal.cpp \
     tapi/SipXHandleMap.cpp \
-    tapi/SipXMessageObserver.cpp
+    tapi/SipXMessageObserver.cpp \
+    ../../sipXmediaPluginMgr/src/mediaBaseImpl/MediaDeviceInfo.cpp \
+    ../../sipXmediaPluginMgr/src/mediaBaseImpl/MediaConnectivityInfo.cpp \
+    ../../sipXmediaPluginMgr/src/mediaPlugin/MediapluginFactory.cpp
 
 DISTCLEANFILES = Makefile.in

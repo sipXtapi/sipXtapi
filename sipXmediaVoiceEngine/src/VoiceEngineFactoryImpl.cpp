@@ -115,8 +115,6 @@ extern "C" __declspec(dllexport) int getReferenceCount()
 }
 
 
-
-
 // STATIC FUNCTIONS
 static void VoiceEngineLogCallback(void* pObj, char *pData, int nLength)
 {
@@ -353,7 +351,7 @@ VoiceEngineFactoryImpl::~VoiceEngineFactoryImpl()
 {
     OS_PERF_FUNC("VoiceEngineFactoryImpl::~VoiceEngineFactoryImpl") ;
     OsLock lock(sGuard) ;
-
+    
     stopPlay() ;
     destroyLocalAudioConnection() ;
     shutdownCpMediaNetTask() ;
@@ -603,9 +601,12 @@ GipsVoiceEngineLib* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
         assert(rc == 0) ;
 #endif
 
+#ifdef _WIN32
         rc = pVoiceEngine->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice);
         assert(rc == 0) ;
-
+#else
+        rc = 0 ;
+#endif
         // Save the device info last used
         UtlString results ;
         inputDeviceIndexToString(results, mCurrentWaveInDevice) ;
@@ -613,13 +614,14 @@ GipsVoiceEngineLib* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
         outputDeviceIndexToString(results, mCurrentWaveOutDevice) ;
         mAudioDeviceOutput.setSelected(results) ;
         
-
+#ifdef _WIN32
         if (!isSpeakerAdjustSet())
         {
             rc = pVoiceEngine->GIPSVE_EnableExternalMediaProcessing(true, 
                     PLAYBACK_ALL_CHANNELS_MIXED, -1, (GIPS_media_process&) *this) ;
             assert(rc == 0) ;
         }
+ #endif
 
         // Set Other Attributes
         doSetAudioAECMode(pVoiceEngine, mAECMode) ;
@@ -868,7 +870,9 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
 
         if (mpVoiceEngine)        
         {
+#ifdef _WIN32
             if (mpVoiceEngine->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) == 0)
+#endif
             {
                 rc = OS_SUCCESS;
             }
@@ -883,7 +887,9 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
                 pGips = (GipsVoiceEngineLib*)pInterface->getAudioEnginePtr();            
                 if (pGips)
                 {
+#ifdef _WIN32
                     if (0 == pGips->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
+#endif
                     {
                         rc = OS_SUCCESS;
                     }
@@ -945,7 +951,9 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
 
         if (mpVoiceEngine)
         {                     
+#ifdef _WIN32
             if (0 == mpVoiceEngine->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) )
+#endif
                 rc = OS_SUCCESS;
         }
 
@@ -959,7 +967,9 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
                 pGips = (GipsVoiceEngineLib*)pInterface->getAudioEnginePtr();            
                 if (pGips)
                 {
+#ifdef _WIN32
                     if (0 == pGips->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
+#endif
                     {
                         rc = OS_SUCCESS;
                     }

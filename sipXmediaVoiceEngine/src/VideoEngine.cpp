@@ -206,6 +206,7 @@ bool VideoEngine::destroyChannel(int voiceChannel)
     {
         if (mbSending[voiceChannel % MAX_VE_CONNECTIONS])
         {
+            mbSending[voiceChannel % MAX_VE_CONNECTIONS] = false ;
             rc = mpVideoEngine->GIPSVideo_StopSend(voiceChannel) ;
             checkRC("GIPSVideo_StopSend", voiceChannel, rc, true) ;
             if (rc != 0)
@@ -214,6 +215,7 @@ bool VideoEngine::destroyChannel(int voiceChannel)
 
         if (mbRendering[voiceChannel % MAX_VE_CONNECTIONS])
         {
+            mbRendering[voiceChannel % MAX_VE_CONNECTIONS] = false ;
             rc = mpVideoEngine->GIPSVideo_StopRender(voiceChannel) ;
             checkRC("GIPSVideo_StopRender", voiceChannel, rc, true) ;
             if (rc != 0)
@@ -223,6 +225,7 @@ bool VideoEngine::destroyChannel(int voiceChannel)
 
         if (mbChannelCreated[voiceChannel % MAX_VE_CONNECTIONS])
         {
+            mbChannelCreated[voiceChannel % MAX_VE_CONNECTIONS] = false ;
             rc = mpVideoEngine->GIPSVideo_DeleteChannel(voiceChannel) ;
             checkRC("GIPSVideo_Channel", voiceChannel, rc, true) ;
             if (rc != 0)
@@ -660,6 +663,16 @@ bool VideoEngine::setCaptureDevice(VoiceEngineFactoryImpl* pImpl, const char* sz
     mbCaptureDeviceSet = false ;
     if (mpVideoEngine)        
     {
+ #ifdef __MACH__
+    char cDevice[256] ;
+	memset(cDevice, 0, sizeof(cDevice)) ;
+	int rc ;
+
+	rc = mpVideoEngine->GIPSVideo_GetCaptureDevice(0, cDevice, sizeof(cDevice)) ;
+	rc = mpVideoEngine->GIPSVideo_SetCaptureDevice(cDevice, sizeof(cDevice)) ;
+    mbCaptureDeviceSet = true ;
+
+ #else
         // Make sure we can get atleast 1 device
         char cDevice[128] ;
         memset(cDevice, 0, sizeof(cDevice)) ;
@@ -735,6 +748,7 @@ bool VideoEngine::setCaptureDevice(VoiceEngineFactoryImpl* pImpl, const char* sz
                 mMediaDeviceInfo.getRequested().data(),
                 mMediaDeviceInfo.getSelected().data(),
                 mbCaptureDeviceSet) ;
+#endif
     }
     
     return mbCaptureDeviceSet ;
@@ -1111,15 +1125,20 @@ bool VideoEngine::doSetPreviewRenderer(int voiceChannel)
     mbPreviewRendererSet = false ;
     if (isDisplayValid(&mPreviewDisplay))
     {
+#if defined (__MACH__)
+	    rc = mpVideoEngine->GIPSVideo_EnableOpenGLRendering(true) ;
+        checkRC("GIPSVideo_EnableOpenGLRendering", voiceChannel, rc, true) ;
+#endif
+
         if (mPreviewDisplay.type == SIPXVE_WINDOW_HANDLE_TYPE)
         {           
 #if !defined (GIPS_STUB)
 #  if defined (_WIN32)
             rc = mpVideoEngine->GIPSVideo_AddLocalRenderer(
-                    (HWND) mPreviewDisplay.handle, 0, 0, 0, 1, 1);
+                    (HWND) mPreviewDisplay.handle, 99, 0, 0, 1, 1);
 #  elif defined (__MACH__)
             rc = mpVideoEngine->GIPSVideo_AddLocalRenderer(
-                    (WindowRef) mPreviewDisplay.handle, 0, 0, 0, 1, 1);
+                    (WindowRef) mPreviewDisplay.handle, 99, 0.73, 0.73, 0.97, 0.97);
 #  else
             rc = 0 ;            
 #  endif
@@ -1164,12 +1183,12 @@ bool VideoEngine::doSetRemoteRenderer(int voiceChannel)
         {
 #if defined (_WIN32) && !defined(GIPS_STUB)
             rc = mpVideoEngine->GIPSVideo_AddRemoteRenderer(voiceChannel, 
-                    (HWND) mRemoteDisplay[voiceChannel % MAX_VE_CONNECTIONS].handle, 0, 0, 0, 1, 1);                     
+                    (HWND) mRemoteDisplay[voiceChannel % MAX_VE_CONNECTIONS].handle, 100, 0, 0, 1, 1);                     
             checkRC("GIPSVideo_AddRemoteRenderer", voiceChannel, rc, true) ;
             mbRemoteRendererSet[voiceChannel % MAX_VE_CONNECTIONS] = (rc == 0) ;
 #elif defined (__MACH__)
             rc = mpVideoEngine->GIPSVideo_AddRemoteRenderer(voiceChannel, 
-                    (WindowRef) mRemoteDisplay[voiceChannel % MAX_VE_CONNECTIONS].handle, 0, 0, 0, 1, 1);                     
+                    (WindowRef) mRemoteDisplay[voiceChannel % MAX_VE_CONNECTIONS].handle, 100, 0, 0, 1, 1);                     
             checkRC("GIPSVideo_AddRemoteRenderer", voiceChannel, rc, true) ;
             mbRemoteRendererSet[voiceChannel % MAX_VE_CONNECTIONS] = (rc == 0) ;
 #endif

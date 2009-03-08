@@ -74,7 +74,6 @@ OsNatSocketBaseImpl::OsNatSocketBaseImpl()
     mTurnState.port = PORT_NONE ;
 
     // Init other attributes
-    mpNatAgent = OsNatAgentTask::getInstance() ;
     miDestPort = PORT_NONE ;
     miDestPriority = -1 ;
     mbDestViaOurRelay = false ;
@@ -86,6 +85,7 @@ OsNatSocketBaseImpl::OsNatSocketBaseImpl()
     miFallbackPriority = -1 ;
 
     miUpnpMappedPort = PORT_NONE ;
+    mbDestroyed = false ;
 
     mIceState = IS_NOT_STARTED ;
     mIceStartMS = 0; 
@@ -102,17 +102,17 @@ OsNatSocketBaseImpl::~OsNatSocketBaseImpl()
 
 void OsNatSocketBaseImpl::destroy() 
 {
-    if (mpNatAgent)
+    if (!mbDestroyed)
     {
-        mpNatAgent->removeKeepAlives(this) ;
-        mpNatAgent->removeStunProbes(this) ;
+        OsNatAgentTask::getInstance()->removeKeepAlives(this) ;
+        OsNatAgentTask::getInstance()->removeStunProbes(this) ;
     
         disableStun() ;
         disableTurn() ;
 
-        mpNatAgent->synchronize() ;
+        OsNatAgentTask::getInstance()->synchronize() ;
     }
-    mpNatAgent = NULL ;
+    mbDestroyed = true ;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -130,9 +130,9 @@ UtlBoolean OsNatSocketBaseImpl::addCrLfKeepAlive(const char* szRemoteIp,
                                                  OsNatKeepaliveListener* pListener) 
 {
     UtlBoolean bRC = false ;
-    if (mpNatAgent && getSocket())
+    if (!mbDestroyed && getSocket())
     {
-        bRC = mpNatAgent->addCrLfKeepAlive(this, szRemoteIp, remotePort, 
+        bRC = OsNatAgentTask::getInstance()->addCrLfKeepAlive(this, szRemoteIp, remotePort, 
                 keepAliveSecs, pListener) ;
     }
 
@@ -144,9 +144,9 @@ UtlBoolean OsNatSocketBaseImpl::removeCrLfKeepAlive(const char* szRemoteIp,
                                                     const int   remotePort) 
 {
     UtlBoolean bRC = false ;
-    if (mpNatAgent && getSocket())
+    if (!mbDestroyed && getSocket())
     {
-        bRC = mpNatAgent->removeCrLfKeepAlive(this, szRemoteIp, remotePort) ;
+        bRC = OsNatAgentTask::getInstance()->removeCrLfKeepAlive(this, szRemoteIp, remotePort) ;
     }
     return bRC ;
 }
@@ -157,9 +157,9 @@ UtlBoolean OsNatSocketBaseImpl::addStunKeepAlive(const char* szRemoteIp,
                                                  OsNatKeepaliveListener* pListener) 
 {
     UtlBoolean bRC = false ;
-    if (mpNatAgent && getSocket())
+    if (!mbDestroyed && getSocket())
     {
-        bRC = mpNatAgent->addStunKeepAlive(this, szRemoteIp, remotePort, 
+        bRC = OsNatAgentTask::getInstance()->addStunKeepAlive(this, szRemoteIp, remotePort, 
                 keepAliveSecs, pListener) ;
     }
     return bRC ;
@@ -170,9 +170,9 @@ UtlBoolean OsNatSocketBaseImpl::removeStunKeepAlive(const char* szRemoteIp,
                                                     const int   remotePort) 
 {
     UtlBoolean bRC = false ;
-    if (mpNatAgent && getSocket())
+    if (!mbDestroyed && getSocket())
     {
-        bRC = mpNatAgent->removeStunKeepAlive(this, szRemoteIp, remotePort) ;
+        bRC = OsNatAgentTask::getInstance()->removeStunKeepAlive(this, szRemoteIp, remotePort) ;
     }
     return bRC ;
 }
@@ -184,11 +184,11 @@ void OsNatSocketBaseImpl::enableStun(const char* szStunServer,
                                      bool bReadFromSocket,
                                      int iNCPeriod) 
 {    
-    if (!mStunState.bEnabled && mpNatAgent)
+    if (!mStunState.bEnabled && !mbDestroyed)
     {
         mStunState.bEnabled = true ;
 
-        bool bRC = mpNatAgent->enableStun(this, szStunServer, stunPort, iStunOptions, iKeepAlive) ;
+        bool bRC = OsNatAgentTask::getInstance()->enableStun(this, szStunServer, stunPort, iStunOptions, iKeepAlive) ;
         if (bRC)
         {
             if (bReadFromSocket)
@@ -214,7 +214,7 @@ void OsNatSocketBaseImpl::enableStun(const char* szStunServer,
             {
                 if (!bReadFromSocket)
                 {
-                    mpNatAgent->performNatClassification(this, szStunServer, stunPort, iNCPeriod, this) ;
+                    OsNatAgentTask::getInstance()->performNatClassification(this, szStunServer, stunPort, iNCPeriod, this) ;
                 }
                 else
                 {
@@ -233,10 +233,10 @@ void OsNatSocketBaseImpl::enableStun(const char* szStunServer,
 
 void OsNatSocketBaseImpl::disableStun()
 {
-    if (mStunState.bEnabled && mpNatAgent)
+    if (mStunState.bEnabled && !mbDestroyed)
     {
         mStunState.bEnabled = false ;
-        mpNatAgent->disableStun(this) ;
+        OsNatAgentTask::getInstance()->disableStun(this) ;
     }
 }
 
@@ -248,11 +248,11 @@ void OsNatSocketBaseImpl::enableTurn(const char* szTurnSever,
                                      const char* password,
                                      bool bReadFromSocket)
 {
-    if (!mTurnState.bEnabled && mpNatAgent)
+    if (!mTurnState.bEnabled && !mbDestroyed)
     {
         mTurnState.bEnabled = true ;
     
-        bool bRC = mpNatAgent->enableTurn(this, szTurnSever, turnPort, iKeepAlive, username, password) ;
+        bool bRC = OsNatAgentTask::getInstance()->enableTurn(this, szTurnSever, turnPort, iKeepAlive, username, password) ;
         if (bRC)
         { 
             if (bReadFromSocket)
@@ -282,9 +282,9 @@ void OsNatSocketBaseImpl::enableTurn(const char* szTurnSever,
 
 void OsNatSocketBaseImpl::primeTurnDestination(const char* szAddress, int iPort) 
 {
-    if (mTurnState.bEnabled && (mTurnState.status == NAT_STATUS_SUCCESS) && mpNatAgent)
+    if (mTurnState.bEnabled && (mTurnState.status == NAT_STATUS_SUCCESS) && !mbDestroyed)
     {
-        mpNatAgent->primeTurnReception(this, szAddress, iPort);
+        OsNatAgentTask::getInstance()->primeTurnReception(this, szAddress, iPort);
     }
 }
 
@@ -298,7 +298,7 @@ UtlBoolean OsNatSocketBaseImpl::setTurnDestination(const char* szAddress, int iP
     OsSysLog::add(FAC_NET, PRI_INFO, "Setting Turn Destination to %s:%d",
             szAddress, iPort) ;
    
-    if (mpNatAgent && mpNatAgent->setTurnDestination(this, szAddress, iPort))
+    if (!mbDestroyed && OsNatAgentTask::getInstance()->setTurnDestination(this, szAddress, iPort))
     {
         bRC = true ;
     }
@@ -334,10 +334,10 @@ void OsNatSocketBaseImpl::disableTurn(bool bForce)
     if (bForce)
     {
         mbDelayedTurnShutdown = false ;
-        if (mTurnState.bEnabled && mpNatAgent)
+        if (mTurnState.bEnabled && !mbDestroyed)
         {
             mTurnState.bEnabled = false ;   
-            mpNatAgent->disableTurn(this) ;
+            OsNatAgentTask::getInstance()->disableTurn(this) ;
         }
 
         mDestAddress.remove(0) ;
@@ -443,8 +443,8 @@ void OsNatSocketBaseImpl::addAlternateDestination(const char* szAddress, int iPo
         miFallbackPriority = priority ;
     }
 
-    if (mpNatAgent)
-        mpNatAgent->sendStunProbe(this, szAddress, iPort, NULL, 0, priority) ;    
+    if (!mbDestroyed)
+        OsNatAgentTask::getInstance()->sendStunProbe(this, szAddress, iPort, NULL, 0, priority) ;    
 }
 
 void OsNatSocketBaseImpl::setStunNotifier(OsNotification* pStunNotification) 
@@ -494,7 +494,7 @@ bool OsNatSocketBaseImpl::waitForBestDestination(bool       bLongWait,
                                                  int&       priority)
 {
     // Wait for stun request to complete for anything of a higher priority
-    while (mpNatAgent && mpNatAgent->areProbesOutstanding(this, miDestPriority, bLongWait))
+    while (!mbDestroyed && OsNatAgentTask::getInstance()->areProbesOutstanding(this, miDestPriority, bLongWait))
     {
         OsTask::delay(50) ;
     }
@@ -524,8 +524,8 @@ UtlBoolean OsNatSocketBaseImpl::getBestDestinationAddress(UtlString& address,
 
     totalTimeMS = (int) ((mIceEndMS - mIceStartMS) & 0x7FFFFFFF);
    
-    if (mpNatAgent)
-        mpNatAgent->logProbeResults(this) ;
+    if (!mbDestroyed)
+        OsNatAgentTask::getInstance()->logProbeResults(this) ;
 
     // Return success value
     if (mDestAddress.length())
@@ -550,8 +550,8 @@ UtlBoolean OsNatSocketBaseImpl::getBestDestinationAddress(UtlString& address,
         bRC = false ;
     }
 
-    if (mpNatAgent)
-        mpNatAgent->removeStunProbes(this) ;
+    if (!mbDestroyed)
+        OsNatAgentTask::getInstance()->removeStunProbes(this) ;
 
     return bRC ;
 }

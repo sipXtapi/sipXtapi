@@ -27,7 +27,6 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // SYSTEM INCLUDES
 #include <assert.h>
 #ifdef _WIN32
@@ -261,6 +260,7 @@ bool MediaPacketCallback(
 }
 #endif
 
+
 SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
                                         const int   udpPort,
                                         const int   tcpPort,
@@ -394,7 +394,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     {
         szBindToAddr = "0.0.0.0" ;
     }
-    UPnpAgent::getInstance()->setEnabled(true);
+
+    UPnpAgent::getInstance()->setEnabled(false);
+    
     // Bind the SIP user agent to a port and start it up
     pInst->pSipUserAgent = new SipUserAgent(
             tcpPort,                    // sipTcpPort
@@ -8141,7 +8143,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportHandleMessage(const SIPX_TRA
                                                                   const int    iLocalPort,
                                                                   const void*  pData,
                                                                   const size_t nData)
-{
+{ 
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigExternalTransportHandleMessage");
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;

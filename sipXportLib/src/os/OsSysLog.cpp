@@ -958,6 +958,7 @@ void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list 
     }
 }
 
+
 OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
                     const OsSysLogPriority priority,
                     const char* methodName) : 

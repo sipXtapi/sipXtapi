@@ -36,9 +36,7 @@ libsipXtack_la_CXXFLAGS = \
     $(SECURITY_CXXFLAGS)
 
 libsipXtack_la_LIBADD = \
-	@SIPXPORT_LIBS@ \
-    @SIPXSDP_LIBS@ \
-	-lresolv -lstdc++ \
+    -lresolv -lstdc++ \
     $(SECURITY_LIBADD)
 
 libsipXtack_la_SOURCES =  \
@@ -142,4 +140,3 @@ libsipXtack_la_SOURCES =  \
     upnp/UPnpDiscovery.cpp \
     upnp/UPnpService.cpp \
     $(SECURITY_FILES)
-

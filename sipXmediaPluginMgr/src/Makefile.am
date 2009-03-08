@@ -22,8 +22,6 @@ libsipXmediaPluginMgr_la_CXXFLAGS = \
 	$(LOCAL_AUDIO_CXXFLAGS) 
 
 libsipXmediaPluginMgr_la_LIBADD = \
-	@SIPXTACK_LIBS@ \
-	@SIPXPORT_LIBS@ \
 	-lstdc++
 
 libsipXmediaPluginMgr_la_SOURCES =  \

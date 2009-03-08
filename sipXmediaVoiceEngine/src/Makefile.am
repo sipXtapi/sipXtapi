@@ -21,14 +21,17 @@ libsipXvoiceEngine_la_LDFLAGS = -version-info ${version_Current}:${version_Revis
 libsipXvoiceEngine_la_CXXFLAGS = \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
-        -DUSE_GIPS
+	-DUSE_GIPS \
+	-wl,-all_load \
+	-Wl,-no_implicit_dylibs \
+	-Wl,-read_only_relocs,suppress 
 
 libsipXvoiceEngine_la_LIBADD = \
-	@SIPXPORT_STATIC_LIBS@ \
-	@SIPXTACK_STATIC_LIBS@ \
         @SIPXMEDIA_PLUGIN_STATIC_LIBS@ \
 	-lresolv -lpthread -lresolv -lpcre \
-        @GIPS_VEMM_LIBS@
+        @GIPS_VEMM_LIBS@ \
+        @CA_LIBS@ \
+        @CARBON_LIBS@
 
 libsipXvoiceEngine_la_SOURCES =  \
     VideoEngine.cpp \

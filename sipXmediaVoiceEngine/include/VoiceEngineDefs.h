@@ -83,8 +83,12 @@ typedef void* GipsVideoEnginePlatform ;
 #define USE_GLOBAL_VOICE_ENGINE
 #undef USE_GLOBAL_VOICE_ENGINE    // Comment to use USE_GLOBAL_VOICE_ENGINE
 
-#define ENABLE_GIPS_VQMON
-// #undef ENABLE_GIPS_VQMON       // Comment to enable VQMon
+#ifdef _WIN32
+#  define ENABLE_GIPS_VQMON
+//#undef ENABLE_GIPS_VQMON       // Comment to enable VQMon
+#else
+#  undef ENABLE_GIPS_VQMON
+#endif
 
 #define USE_GIPS_DLL
 #undef USE_GIPS_DLL            // Comment to use the DLL version of GIPS

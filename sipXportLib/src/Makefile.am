@@ -35,7 +35,7 @@ endif
 
 
 libsipXport_la_LDFLAGS = \
-	-version-info ${version_Current}:${version_Revision}:${version_Age} \
+	-version-info ${version_Current}:${version_Revision}:${version_Age}  \
 	@PCRE_LDFLAGS@ \
 	$(SECURITY_LDFLAGS)
 

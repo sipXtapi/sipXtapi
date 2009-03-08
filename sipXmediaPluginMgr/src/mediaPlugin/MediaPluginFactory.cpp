@@ -133,6 +133,7 @@ void MediaPluginFactory::releaseMediaDeviceMgr(IMediaDeviceMgr* pDevice, const c
     return;
 }
 
+
  int MediaPluginFactory::getReferenceCount(const char* szLibrary) const
 {
     int count = 0;

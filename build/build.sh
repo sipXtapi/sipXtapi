@@ -225,11 +225,11 @@ if [ $MP_SIPFOUNDRY == 1 ]
 then
   build sipXmediaLib ${PREFIX} --enable-local-audio
 else
-  build sipXmediaVoiceEngine ${PREFIX} --enable-local-audio
+  build sipXmediaVoiceEngine ${PREFIX} --enable-local-audio --with-gips-vemm
 fi
 
-package_source
-package_libs
+# package_source
+# package_libs
 
 revertVersion
 

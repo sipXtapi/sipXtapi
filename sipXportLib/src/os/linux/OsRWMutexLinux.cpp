@@ -38,6 +38,10 @@ OsRWMutexLinux::OsRWMutexLinux(const int queueOptions)
 OsRWMutexLinux::~OsRWMutexLinux()
 {
    int res;
+
+   // Release the lock if we own it, otherwise the lock will leak
+   res = releaseWrite() ;
+
    res = pthread_rwlock_destroy(&mLockImp);
    assert(res == POSIX_OK);
 }

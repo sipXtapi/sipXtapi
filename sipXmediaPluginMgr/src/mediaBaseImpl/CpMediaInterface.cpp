@@ -1698,7 +1698,11 @@ bool CpMediaInterface::hasAudioInputDevice()
 {
     bool bRet = false;
 
+#ifdef _WIN32
     bRet = (mpFactoryImpl->getNumAudioInputDevices() > 0);
+#else
+    bRet = true ;
+#endif
 
     return bRet;
 }
@@ -1707,7 +1711,11 @@ bool CpMediaInterface::hasAudioOutputDevice()
 {
     bool bRet = false;
 
+#ifdef _WIN32
     bRet = (mpFactoryImpl->getNumAudioOutputDevices() > 0);
+#else
+    bRet = true ;
+#endif
 
     return bRet;
 }
@@ -2727,12 +2735,11 @@ void CpMediaInterface::trace(OsSysLogPriority priority, const char* format, ...)
 
 void CpMediaInterface::traceAPI(const char* szAPI) 
 {
-#if defined(_WIN32) && defined(_DEBUG)  
+#if defined(_DEBUG)  
     UtlString consoleOutput ;
     OsDateTime::getLocalTimeString(consoleOutput) ;
     consoleOutput.append(" ") ;
     consoleOutput.append(szAPI) ;
-
     trace(PRI_DEBUG, consoleOutput.data()) ;
 #endif
 }

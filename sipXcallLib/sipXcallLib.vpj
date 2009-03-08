@@ -1,0 +1,156 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+	Version="10.0"
+	VendorName="SlickEdit"
+	WorkingDir="%wp">
+	<Config
+		Name="Release"
+		OutputFile=""
+		CompilerConfigName="Latest Version">
+		<Menu>
+			<Target
+				Name="Compile"
+				MenuCaption="&amp;Compile"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveCurrent"
+				RunFromDir="%rw">
+				<Exec/>
+			</Target>
+			<Target
+				Name="Build"
+				MenuCaption="&amp;Build"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rp">
+				<Exec CmdLine="make install"/>
+			</Target>
+			<Target
+				Name="Rebuild"
+				MenuCaption="&amp;Rebuild"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rp">
+				<Exec CmdLine="make clean install"/>
+			</Target>
+			<Target
+				Name="Debug"
+				MenuCaption="&amp;Debug"
+				SaveOption="SaveNone"
+				RunFromDir="%rw">
+				<Exec/>
+			</Target>
+			<Target
+				Name="Execute"
+				MenuCaption="E&amp;xecute"
+				SaveOption="SaveNone"
+				RunFromDir="%rw">
+				<Exec CmdLine='"sipXcallLib.exe"'/>
+			</Target>
+		</Menu>
+	</Config>
+	<Files>
+		<Folder
+			Name="Source Files"
+			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+			<Folder
+				Name="src_cp"
+				Filters="">
+				<F N="src/cp/CallManager.cpp"/>
+				<F N="src/cp/Connection.cpp"/>
+				<F N="src/cp/CpCall.cpp"/>
+				<F N="src/cp/CpCallManager.cpp"/>
+				<F N="src/cp/CpGatewayManager.cpp"/>
+				<F N="src/cp/CpGhostConnection.cpp"/>
+				<F N="src/cp/CpIntMessage.cpp"/>
+				<F N="src/cp/CpMultiStringMessage.cpp"/>
+				<F N="src/cp/CpPeerCall.cpp"/>
+				<F N="src/cp/CpStringMessage.cpp"/>
+				<F N="src/cp/CSeqManager.cpp"/>
+				<F N="src/cp/DialogEventPublisher.cpp"/>
+				<F N="src/cp/LinePresenceMonitor.cpp"/>
+				<F N="src/cp/SipConnection.cpp"/>
+				<F N="src/cp/SipPresenceMonitor.cpp"/>
+			</Folder>
+			<Folder
+				Name="src_tao"
+				Filters="">
+				<F N="src/tao/TaoEvent.cpp"/>
+				<F N="src/tao/TaoMessage.cpp"/>
+				<F N="src/tao/TaoObjectMap.cpp"/>
+				<F N="src/tao/TaoReference.cpp"/>
+				<F N="src/tao/TaoString.cpp"/>
+			</Folder>
+			<Folder
+				Name="src_tapi"
+				Filters="">
+				<F N="src/tapi/SipXEventDispatcher.cpp"/>
+				<F N="src/tapi/SipXHandleMap.cpp"/>
+				<F N="src/tapi/SipXMessageObserver.cpp"/>
+				<F N="src/tapi/sipXtapi.cpp"/>
+				<F N="src/tapi/sipXtapiEvents.cpp"/>
+				<F N="src/tapi/sipXtapiInternal.cpp"/>
+			</Folder>
+		</Folder>
+		<Folder
+			Name="Header Files"
+			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
+			<Folder
+				Name="incl_cp"
+				Filters="">
+				<F N="include/cp/CallManager.h"/>
+				<F N="include/cp/Connection.h"/>
+				<F N="include/cp/CpCall.h"/>
+				<F N="include/cp/CpCallManager.h"/>
+				<F N="include/cp/CpGatewayManager.h"/>
+				<F N="include/cp/CpGhostConnection.h"/>
+				<F N="include/cp/CpIntMessage.h"/>
+				<F N="include/cp/CpMultiStringMessage.h"/>
+				<F N="include/cp/CpPeerCall.h"/>
+				<F N="include/cp/CpStringMessage.h"/>
+				<F N="include/cp/CSeqManager.h"/>
+				<F N="include/cp/DialogEventPublisher.h"/>
+				<F N="include/cp/LinePresenceBase.h"/>
+				<F N="include/cp/LinePresenceMonitor.h"/>
+				<F N="include/cp/SipConnection.h"/>
+				<F N="include/cp/SipPresenceMonitor.h"/>
+			</Folder>
+			<Folder
+				Name="incl_tao"
+				Filters="">
+				<F N="include/tao/TaoDefs.h"/>
+				<F N="include/tao/TaoEvent.h"/>
+				<F N="include/tao/TaoMessage.h"/>
+				<F N="include/tao/TaoObject.h"/>
+				<F N="include/tao/TaoObjectMap.h"/>
+				<F N="include/tao/TaoReference.h"/>
+				<F N="include/tao/TaoString.h"/>
+			</Folder>
+			<Folder
+				Name="incl_tapi"
+				Filters="">
+				<F N="include/tapi/GipsDefs.h"/>
+				<F N="include/tapi/SipXEventDispatcher.h"/>
+				<F N="include/tapi/SipXHandleMap.h"/>
+				<F N="include/tapi/SipXMessageObserver.h"/>
+				<F N="include/tapi/sipXtapi.h"/>
+				<F N="include/tapi/sipXtapiEvents.h"/>
+				<F N="include/tapi/sipXtapiInternal.h"/>
+			</Folder>
+			<Folder
+				Name="incl_ptapi"
+				Filters="">
+				<F N="include/ptapi/PtDefs.h"/>
+				<F N="include/ptapi/PtEvent.h"/>
+			</Folder>
+		</Folder>
+		<Folder
+			Name="Resource Files"
+			Filters="*.ico;*.cur;*.dlg"/>
+		<Folder
+			Name="Bitmaps"
+			Filters="*.bmp"/>
+		<Folder
+			Name="Other Files"
+			Filters=""/>
+	</Files>
+</Project>

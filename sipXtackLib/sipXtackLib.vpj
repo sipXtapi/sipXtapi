@@ -1,0 +1,256 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+	Version="10.0"
+	VendorName="SlickEdit"
+	WorkingDir=".">
+	<Config
+		Name="Release"
+		OutputFile=""
+		CompilerConfigName="Latest Version">
+		<Menu>
+			<Target
+				Name="Compile"
+				MenuCaption="&amp;Compile"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveCurrent"
+				RunFromDir="%rw">
+				<Exec/>
+			</Target>
+			<Target
+				Name="Build"
+				MenuCaption="&amp;Build"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine="make install"/>
+			</Target>
+			<Target
+				Name="Rebuild"
+				MenuCaption="&amp;Rebuild"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine="make clean install"/>
+			</Target>
+			<Target
+				Name="Debug"
+				MenuCaption="&amp;Debug"
+				SaveOption="SaveNone"
+				RunFromDir="%rw">
+				<Exec/>
+			</Target>
+			<Target
+				Name="Execute"
+				MenuCaption="E&amp;xecute"
+				SaveOption="SaveNone"
+				RunFromDir="%rw">
+				<Exec CmdLine='"sipXtackLib.exe"'/>
+			</Target>
+		</Menu>
+	</Config>
+	<Files>
+		<Folder
+			Name="Source Files"
+			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+			<Folder
+				Name="src_net"
+				Filters="">
+				<F N="src/net/HttpBody.cpp"/>
+				<F N="src/net/HttpConnection.cpp"/>
+				<F N="src/net/HttpConnectionMap.cpp"/>
+				<F N="src/net/HttpMessage.cpp"/>
+				<F N="src/net/HttpRequestContext.cpp"/>
+				<F N="src/net/HttpServer.cpp"/>
+				<F N="src/net/HttpService.cpp"/>
+				<F N="src/net/MailAttachment.cpp"/>
+				<F N="src/net/MailMessage.cpp"/>
+				<F N="src/net/MimeBodyPart.cpp"/>
+				<F N="src/net/NameValuePair.cpp"/>
+				<F N="src/net/NameValuePairInsensitive.cpp"/>
+				<F N="src/net/NetAttributeTokenizer.cpp"/>
+				<F N="src/net/NetBase64Codec.cpp"/>
+				<F N="src/net/NetMd5Codec.cpp"/>
+				<F N="src/net/NetTurnSelector.cpp"/>
+				<F N="src/net/PidfBody.cpp"/>
+				<F N="src/net/pk12wrapper.cpp"/>
+				<F N="src/net/ProvisioningAgent.cpp"/>
+				<F N="src/net/ProvisioningAgentXmlRpcAdapter.cpp"/>
+				<F N="src/net/ProvisioningAttrList.cpp"/>
+				<F N="src/net/ProvisioningClass.cpp"/>
+				<F N="src/net/ProxyDescriptor.cpp"/>
+				<F N="src/net/SdpBody.cpp"/>
+				<F N="src/net/SdpHelper.cpp"/>
+				<F N="src/net/SipClient.cpp"/>
+				<F N="src/net/SipConfigServerAgent.cpp"/>
+				<F N="src/net/SipContactDb.cpp"/>
+				<F N="src/net/SipDialog.cpp"/>
+				<F N="src/net/SipDialogEvent.cpp"/>
+				<F N="src/net/SipDialogMgr.cpp"/>
+				<F N="src/net/SipDialogMonitor.cpp"/>
+				<F N="src/net/SipLine.cpp"/>
+				<F N="src/net/SipLineCredentials.cpp"/>
+				<F N="src/net/SipLineEvent.cpp"/>
+				<F N="src/net/SipLineList.cpp"/>
+				<F N="src/net/SipLineMgr.cpp"/>
+				<F N="src/net/SipMessage.cpp"/>
+				<F N="src/net/SipMessageEvent.cpp"/>
+				<F N="src/net/SipMessageList.cpp"/>
+				<F N="src/net/SipNonceDb.cpp"/>
+				<F N="src/net/SipNotifyStateTask.cpp"/>
+				<F N="src/net/SipObserverCriteria.cpp"/>
+				<F N="src/net/SipPimClient.cpp"/>
+				<F N="src/net/SipPresenceEvent.cpp"/>
+				<F N="src/net/SipProtocolServerBase.cpp"/>
+				<F N="src/net/SipPublishContentMgr.cpp"/>
+				<F N="src/net/SipPublishServer.cpp"/>
+				<F N="src/net/SipPublishServerEventStateCompositor.cpp"/>
+				<F N="src/net/SipPublishServerEventStateMgr.cpp"/>
+				<F N="src/net/SipRefreshManager.cpp"/>
+				<F N="src/net/SipRefreshMgr.cpp"/>
+				<F N="src/net/SipRequestContext.cpp"/>
+				<F N="src/net/SipResourceList.cpp"/>
+				<F N="src/net/SipServerBase.cpp"/>
+				<F N="src/net/SipServerBroker.cpp"/>
+				<F N="src/net/SipSession.cpp"/>
+				<F N="src/net/SipSrvLookup.cpp"/>
+				<F N="src/net/SipSubscribeClient.cpp"/>
+				<F N="src/net/SipSubscribeServer.cpp"/>
+				<F N="src/net/SipSubscribeServerEventHandler.cpp"/>
+				<F N="src/net/SipSubscriptionMgr.cpp"/>
+				<F N="src/net/SipTcpServer.cpp"/>
+				<F N="src/net/SipTlsServer.cpp"/>
+				<F N="src/net/SipTransaction.cpp"/>
+				<F N="src/net/SipTransactionList.cpp"/>
+				<F N="src/net/SipUdpServer.cpp"/>
+				<F N="src/net/SipUserAgent.cpp"/>
+				<F N="src/net/SipUserAgentBase.cpp"/>
+				<F N="src/net/SipUserAgentStateless.cpp"/>
+				<F N="src/net/SmimeBody.cpp"/>
+				<F N="src/net/StateChangeNotifier.cpp"/>
+				<F N="src/net/TapiMgr.cpp"/>
+				<F N="src/net/Url.cpp"/>
+				<F N="src/net/XmlRpcBody.cpp"/>
+				<F N="src/net/XmlRpcDispatch.cpp"/>
+				<F N="src/net/XmlRpcMethod.cpp"/>
+				<F N="src/net/XmlRpcRequest.cpp"/>
+				<F N="src/net/XmlRpcResponse.cpp"/>
+			</Folder>
+			<Folder
+				Name="src_upnp"
+				Filters="">
+				<F N="src/upnp/UPnpAgent.cpp"/>
+				<F N="src/upnp/UPnpControl.cpp"/>
+				<F N="src/upnp/UPnpDevice.cpp"/>
+				<F N="src/upnp/UPnpDiscovery.cpp"/>
+				<F N="src/upnp/UPnpService.cpp"/>
+			</Folder>
+		</Folder>
+		<Folder
+			Name="Header Files"
+			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
+			<Folder
+				Name="incl_net"
+				Filters="">
+				<F N="include/net/HttpBody.h"/>
+				<F N="include/net/HttpConnection.h"/>
+				<F N="include/net/HttpConnectionMap.h"/>
+				<F N="include/net/HttpMessage.h"/>
+				<F N="include/net/HttpRequestContext.h"/>
+				<F N="include/net/HttpServer.h"/>
+				<F N="include/net/HttpService.h"/>
+				<F N="include/net/MailAttachment.h"/>
+				<F N="include/net/MailMessage.h"/>
+				<F N="include/net/MimeBodyPart.h"/>
+				<F N="include/net/NameValuePair.h"/>
+				<F N="include/net/NameValuePairInsensitive.h"/>
+				<F N="include/net/NetAttributeTokenizer.h"/>
+				<F N="include/net/NetBase64Codec.h"/>
+				<F N="include/net/NetMd5Codec.h"/>
+				<F N="include/net/NetTurnSelector.h"/>
+				<F N="include/net/PidfBody.h"/>
+				<F N="include/net/pk12wrapper.h"/>
+				<F N="include/net/ProvisioningAgent.h"/>
+				<F N="include/net/ProvisioningAgentXmlRpcAdapter.h"/>
+				<F N="include/net/ProvisioningAttrList.h"/>
+				<F N="include/net/ProvisioningClass.h"/>
+				<F N="include/net/ProxyDescriptor.h"/>
+				<F N="include/net/QoS.h"/>
+				<F N="include/net/SdpBody.h"/>
+				<F N="include/net/SdpHelper.h"/>
+				<F N="include/net/SipClient.h"/>
+				<F N="include/net/SipConfigServerAgent.h"/>
+				<F N="include/net/SipContactDb.h"/>
+				<F N="include/net/SipDialog.h"/>
+				<F N="include/net/SipDialogEvent.h"/>
+				<F N="include/net/SipDialogMgr.h"/>
+				<F N="include/net/SipDialogMonitor.h"/>
+				<F N="include/net/SipLine.h"/>
+				<F N="include/net/SipLineCredentials.h"/>
+				<F N="include/net/SipLineEvent.h"/>
+				<F N="include/net/SipLineList.h"/>
+				<F N="include/net/SipLineMgr.h"/>
+				<F N="include/net/SipMessage.h"/>
+				<F N="include/net/SipMessageEvent.h"/>
+				<F N="include/net/SipMessageList.h"/>
+				<F N="include/net/SipNonceDb.h"/>
+				<F N="include/net/SipNotifyStateTask.h"/>
+				<F N="include/net/SipObserverCriteria.h"/>
+				<F N="include/net/SipPimClient.h"/>
+				<F N="include/net/SipPresenceEvent.h"/>
+				<F N="include/net/SipProtocolServerBase.h"/>
+				<F N="include/net/SipPublishContentMgr.h"/>
+				<F N="include/net/SipPublishServer.h"/>
+				<F N="include/net/SipPublishServerEventStateCompositor.h"/>
+				<F N="include/net/SipPublishServerEventStateMgr.h"/>
+				<F N="include/net/SipRefreshManager.h"/>
+				<F N="include/net/SipRefreshMgr.h"/>
+				<F N="include/net/SipRequestContext.h"/>
+				<F N="include/net/SipResourceList.h"/>
+				<F N="include/net/SipServerBase.h"/>
+				<F N="include/net/SipServerBroker.h"/>
+				<F N="include/net/SipSession.h"/>
+				<F N="include/net/SipSrvLookup.h"/>
+				<F N="include/net/SipSubscribeClient.h"/>
+				<F N="include/net/SipSubscribeServer.h"/>
+				<F N="include/net/SipSubscribeServerEventHandler.h"/>
+				<F N="include/net/SipSubscriptionMgr.h"/>
+				<F N="include/net/SipTcpServer.h"/>
+				<F N="include/net/SipTlsServer.h"/>
+				<F N="include/net/SipTransaction.h"/>
+				<F N="include/net/SipTransactionList.h"/>
+				<F N="include/net/SipUdpServer.h"/>
+				<F N="include/net/SipUserAgent.h"/>
+				<F N="include/net/SipUserAgentBase.h"/>
+				<F N="include/net/SipUserAgentStateless.h"/>
+				<F N="include/net/SmimeBody.h"/>
+				<F N="include/net/StateChangeNotifier.h"/>
+				<F N="include/net/TapiMgr.h"/>
+				<F N="include/net/Url.h"/>
+				<F N="include/net/version.h"/>
+				<F N="include/net/XmlRpcBody.h"/>
+				<F N="include/net/XmlRpcDispatch.h"/>
+				<F N="include/net/XmlRpcMethod.h"/>
+				<F N="include/net/XmlRpcRequest.h"/>
+				<F N="include/net/XmlRpcResponse.h"/>
+			</Folder>
+			<Folder
+				Name="incl_upnp"
+				Filters="">
+				<F N="include/upnp/UPnpAgent.h"/>
+				<F N="include/upnp/UPnpControl.h"/>
+				<F N="include/upnp/UPnpDevice.h"/>
+				<F N="include/upnp/UPnpDiscovery.h"/>
+				<F N="include/upnp/UPnpService.h"/>
+			</Folder>
+		</Folder>
+		<Folder
+			Name="Resource Files"
+			Filters="*.ico;*.cur;*.dlg"/>
+		<Folder
+			Name="Bitmaps"
+			Filters="*.bmp"/>
+		<Folder
+			Name="Other Files"
+			Filters=""/>
+	</Files>
+</Project>
