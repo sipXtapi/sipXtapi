@@ -2546,7 +2546,55 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
             {
                MiDtmfNotf *pDtmfNotf = (MiDtmfNotf*)&notification;
                UtlBoolean buttonDown = pDtmfNotf->isPressed();
-               SIPX_TONE_ID id = (SIPX_TONE_ID) pDtmfNotf->getKeyCode();
+
+               SIPX_TONE_ID id;
+               // Convert MiDtmfNotf::KeyCode to SIPX_TONE_ID
+               // As media interface uses 0-15 for dtmf
+               // and SIPX_TONE_ID uses '0','1','2', ...
+               switch( pDtmfNotf->getKeyCode() ) {
+                  case MiDtmfNotf::DTMF_0:
+                     id = ID_DTMF_0;
+                     break;
+                  case MiDtmfNotf::DTMF_1:
+                     id = ID_DTMF_1;
+                     break;
+                  case MiDtmfNotf::DTMF_2:
+                     id = ID_DTMF_2;
+                     break;
+                  case MiDtmfNotf::DTMF_3:
+                     id = ID_DTMF_3;
+                     break;
+                  case MiDtmfNotf::DTMF_4:
+                     id = ID_DTMF_4;
+                     break;
+                  case MiDtmfNotf::DTMF_5:
+                     id = ID_DTMF_5;
+                     break;
+                  case MiDtmfNotf::DTMF_6:
+                     id = ID_DTMF_6;
+                     break;
+                  case MiDtmfNotf::DTMF_7:
+                     id = ID_DTMF_7;
+                     break;
+                  case MiDtmfNotf::DTMF_8:
+                     id = ID_DTMF_8;
+                     break;
+                  case MiDtmfNotf::DTMF_9:
+                     id = ID_DTMF_9;
+                     break;
+                  case MiDtmfNotf::DTMF_STAR:
+                     id = ID_DTMF_STAR;
+                     break;
+                  case MiDtmfNotf::DTMF_POUND:
+                     id = ID_DTMF_POUND;
+                     break;
+                  case 16: // Special case -- rfc2833 has flash #16 deprecated
+                     id = ID_DTMF_FLASH;
+                     break;
+                  default:
+                     // If it's something else, just cast it.
+                     id = (SIPX_TONE_ID)pDtmfNotf->getKeyCode();
+               }
 
                pConnection->fireSipXMediaEvent(MEDIA_REMOTE_DTMF,
                                                buttonDown ? MEDIA_CAUSE_DTMF_START : MEDIA_CAUSE_DTMF_STOP,
