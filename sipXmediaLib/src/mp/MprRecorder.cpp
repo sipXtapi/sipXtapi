@@ -481,38 +481,37 @@ int MprRecorder::writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples)
    return toWrite;
 }
 
-UtlBoolean MprRecorder::writeWAVHeader(int handle, unsigned long samplesPerSecond)
+UtlBoolean MprRecorder::writeWAVHeader(int handle, uint32_t samplesPerSecond)
 {
    UtlBoolean retCode = FALSE;
    char tmpbuf[80];
-   short sampleSize = sizeof(MpAudioSample);
-   short bitsPerSample = sampleSize*8;
+   int16_t sampleSize = 2; //sizeof(MpAudioSample);
+   int16_t bitsPerSample = sampleSize*8;
 
-   short compressionCode = 1; //PCM
-   short numChannels = 1;
-   unsigned long averageSamplePerSec = samplesPerSecond*sampleSize;
-   short blockAlign = sampleSize*numChannels;
+   int16_t compressionCode = 1; //PCM
+   int16_t numChannels = 1;
+   uint32_t averageSamplePerSec = samplesPerSecond*sampleSize;
+   int16_t blockAlign = sampleSize*numChannels;
    unsigned long bytesWritten = 0;
 
    //write RIFF & length
    //8 bytes written
    strcpy(tmpbuf,"RIFF");
-   unsigned long length = 0;
+   uint32_t length = 0; // actual value is filled in on close
    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
-   bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
+   bytesWritten += write(handle, (char*)&length, sizeof(length));
 
    //write WAVE & length
    //8 bytes written
    strcpy(tmpbuf,"WAVE");
    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
-   //    bytesWritten += write(handle,&length, sizeof(length)); //filled in on close
 
    //write fmt & length
    //8 bytes written
    strcpy(tmpbuf,"fmt ");
-   length = 16;
+   length = 16; // size of the format header
    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
-   bytesWritten += write(handle, (char*)&length,sizeof(length)); //filled in on close
+   bytesWritten += write(handle, (char*)&length,sizeof(length));
 
    //now write each piece of the format
    //16 bytes written
@@ -526,9 +525,9 @@ UtlBoolean MprRecorder::writeWAVHeader(int handle, unsigned long samplesPerSecon
 
    //write data and length
    strcpy(tmpbuf,"data");
-   length = 0;
+   length = 0;  // actual value is filled in on close
    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
-   bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
+   bytesWritten += write(handle, (char*)&length, sizeof(length));
 
    //total length at this point should be 44 bytes
    if (bytesWritten == 44)
@@ -542,20 +541,20 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
    UtlBoolean retCode = FALSE;
 
    //find out how many bytes were written so far
-   unsigned long length = lseek(handle,0,SEEK_END);
+   uint32_t length = lseek(handle,0,SEEK_END);
 
    //now go back to beginning
    lseek(handle,4,SEEK_SET);
 
    //and update the RIFF length
-   unsigned long rifflength = length-8;
+   uint32_t rifflength = length-8;
    write(handle, (char*)&rifflength,sizeof(length));
 
    //now seek to the data length
    lseek(handle,40,SEEK_SET);
 
    //this should be the length of just the data
-   unsigned long datalength = length-44;
+   uint32_t datalength = length-44;
    write(handle, (char*)&datalength,sizeof(datalength));
 
    return retCode;
