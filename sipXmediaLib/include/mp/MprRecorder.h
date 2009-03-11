@@ -225,7 +225,7 @@ protected:
    inline int writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples);
 
      /// Write out standard 16bit WAV Header
-   static UtlBoolean writeWAVHeader(int handle, unsigned long samplesPerSecond = 8000);
+   static UtlBoolean writeWAVHeader(int handle, uint32_t samplesPerSecond = 8000);
 
      /// Update WAV-file's header with correct recorded length.
    static UtlBoolean updateWaveHeaderLengths(int handle);
