@@ -1373,12 +1373,10 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
     {
        uint32_t fgRate = mpTopologyGraph->getSamplesPerSec();
        // Currently, this ignores "local/remote", "mixWithMic" and "downScaling".
-       // I also don't know what to do with this blasted protected event.. sending NULL now.
-       // If it was an OsNotification -- no problem..
        stat = MprFromFile::playBuffer(DEFAULT_FROM_FILE_RESOURCE_NAME, 
                                       *mpTopologyGraph->getMsgQ(),
                                       buf, bufSize, bufRate, fgRate,
-                                      type, repeat, NULL);
+                                      type, repeat, pEvent);
     }
 
     if(stat != OS_SUCCESS)
