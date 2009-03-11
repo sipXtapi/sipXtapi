@@ -33,7 +33,6 @@
 #include "mp/MpAudioFileOpen.h"
 #include "mp/MpAudioUtils.h"
 #include "mp/MpAudioWaveFileRead.h"
-#include "mp/MpFromFileStartResourceMsg.h"
 #include "mp/mpau.h"
 #include "mp/MpMisc.h"
 #include "mp/MpFlowGraphBase.h"
@@ -41,9 +40,8 @@
 #include "os/OsProtectEventMgr.h"
 #include "os/OsDateTime.h"
 #include "os/OsTime.h"
-#include "mp/MpResNotificationMsg.h"
+#include "mp/MpPackedResourceMsg.h"
 #include "mp/MprnProgressMsg.h"
-#include "mp/MpProgressResourceMsg.h"
 #include "mp/MpResampler.h"
 
 
@@ -65,22 +63,18 @@ extern int      samplesPerFrame;
 
 /* ============================ CREATORS ================================== */
 
-// Constructor
 MprFromFile::MprFromFile(const UtlString& rName)
 : MpAudioResource(rName, 0, 1, 1, 1)
 , mpFileBuffer(NULL)
 , mFileRepeat(FALSE)
-, mpNotify(NULL)
-, mPaused(FALSE)
+, mState(STATE_IDLE)
 , mProgressIntervalMS(0)
 {
 }
 
-// Destructor
 MprFromFile::~MprFromFile()
 {
    if(mpFileBuffer) delete mpFileBuffer;
-   mpFileBuffer = NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -94,20 +88,30 @@ OsStatus MprFromFile::playBuffer(const UtlString& namedResource, OsMsgQ& fgQ,
    OsStatus stat = 
       genericAudioBufToFGAudioBuf(fgAudBuffer, audioBuffer, bufSize, inRate, fgRate, type);
 
+   // Tell CpCall that we've copied the data out of the buffer, so it
+   // can continue processing.
+   if (notify && OS_ALREADY_SIGNALED == notify->signal(0))
+   {
+      OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+      eventMgr->release(notify);
+   }
+
    if(stat == OS_SUCCESS)
    {
-      // Tell CpCall that we've copied the data out of the buffer, so it
-      // can continue processing.
-      if (notify && OS_ALREADY_SIGNALED == notify->signal(0))
-      {
-         OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-         eventMgr->release(notify);
-      }
-
-      // Don't pass the event in the PLAY_FILE message.
-      // That means that the file-play process can't pass signals
-      // back.  But we have already released the OsProtectedEvent.
-      MpFromFileStartResourceMsg msg(namedResource, fgAudBuffer, repeat, NULL);
+      MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_START,
+                              namedResource);
+      UtlSerialized &msgData = msg.getData();
+      stat = msgData.serialize(fgAudBuffer);
+      assert(stat == OS_SUCCESS);
+      stat = msgData.serialize(repeat);
+      assert(stat == OS_SUCCESS);
+      msgData.finishSerialize();
+      stat = fgQ.send(msg, sOperationQueueTimeout);
+   }
+   else
+   {
+      MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_ERROR,
+                        namedResource);
       stat = fgQ.send(msg, sOperationQueueTimeout);
    }
    return stat;
@@ -117,14 +121,26 @@ OsStatus MprFromFile::playFile(const UtlString& namedResource,
                                OsMsgQ& fgQ, 
                                uint32_t fgSampleRate,
                                const UtlString& filename, 
-                               const UtlBoolean& repeat,
-                               OsNotification* notify)
+                               const UtlBoolean& repeat)
 {
    UtlString* audioBuffer = NULL;
-   OsStatus stat = readAudioFile(fgSampleRate, audioBuffer, filename, notify);
+   OsStatus stat = readAudioFile(fgSampleRate, audioBuffer, filename);
    if(stat == OS_SUCCESS)
    {
-      MpFromFileStartResourceMsg msg(namedResource, audioBuffer, repeat, notify);
+      MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_START,
+                              namedResource);
+      UtlSerialized &msgData = msg.getData();
+      stat = msgData.serialize(audioBuffer);
+      assert(stat == OS_SUCCESS);
+      stat = msgData.serialize(repeat);
+      assert(stat == OS_SUCCESS);
+      msgData.finishSerialize();
+      stat = fgQ.send(msg, sOperationQueueTimeout);
+   }
+   else
+   {
+      MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_ERROR,
+                        namedResource);
       stat = fgQ.send(msg, sOperationQueueTimeout);
    }
    return stat;
@@ -133,21 +149,24 @@ OsStatus MprFromFile::playFile(const UtlString& namedResource,
 OsStatus MprFromFile::stopFile(const UtlString& namedResource, 
                                OsMsgQ& fgQ)
 {
-   MpResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_STOP, namedResource);
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_STOP,
+                     namedResource);
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 OsStatus MprFromFile::pauseFile(const UtlString& namedResource, 
                                 OsMsgQ& fgQ)
 {
-   MpResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_PAUSE, namedResource);
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_PAUSE,
+                     namedResource);
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 OsStatus MprFromFile::resumeFile(const UtlString& namedResource,
                                  OsMsgQ& fgQ)
 {
-   MpResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_RESUME, namedResource);
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_RESUME,
+                     namedResource);
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
@@ -155,29 +174,13 @@ OsStatus MprFromFile::sendProgressPeriod(const UtlString& namedResource,
                                          OsMsgQ& fgQ, 
                                          int32_t updatePeriodMS)
 {
-   MpProgressResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_SEND_PROGRESS,
-                             namedResource, updatePeriodMS);
+   MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_START,
+                           namedResource);
+   UtlSerialized &msgData = msg.getData();
+   OsStatus stat = msgData.serialize(updatePeriodMS);
+   assert(stat == OS_SUCCESS);
+   msgData.finishSerialize();
    return fgQ.send(msg, sOperationQueueTimeout);
-}
-
-UtlBoolean MprFromFile::enable()
-{
-   if (mpNotify)
-   {
-      mpNotify->signal(PLAYING);
-   }
-   return MpResource::enable();
-}
-
-UtlBoolean MprFromFile::disable()
-{
-   if (mpNotify)
-   {
-      mpNotify->signal(PLAY_STOPPED);
-      mpNotify->signal(PLAY_FINISHED);
-      mpNotify = NULL;
-   }
-   return MpResource::disable();
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -250,8 +253,7 @@ OsStatus MprFromFile::genericAudioBufToFGAudioBuf(UtlString*& fgAudioBuf,
 //       extremely large length can be used.
 OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                                     UtlString*& audioBuffer,
-                                    const char* audioFileName,
-                                    OsNotification* notify)
+                                    const char* audioFileName)
 {
    char* charBuffer = NULL;
    FILE* audioFilePtr = NULL;
@@ -264,6 +266,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
    long rateMin = 8000, rateMax = 44100, ratePreferred = 22050;
    UtlBoolean bDetectedFormatIsOk = TRUE;
    MpAudioAbstract *audioFile = NULL;
+   OsStatus result = OS_SUCCESS;
 
    // Assume audioBuffer passed in is NULL..
    assert(audioBuffer == NULL);
@@ -381,7 +384,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                if(allocateAndResample(charBuffer, filesize, ratePreferred, 
                      resampledBuf, resampledBufSz, fgSampleRate) == FALSE)
                {
-                  if(notify) notify->signal(INVALID_SETUP);
+                  result = OS_FAILED;
                   break;
                }
                else
@@ -395,7 +398,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
             }
             else
             {
-               if (notify) notify->signal(INVALID_SETUP);
+               result = OS_FAILED;
             }
             break;
 
@@ -417,7 +420,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                if(allocateAndResample(charBuffer, filesize, ratePreferred, 
                      resampledBuf, resampledBufSz, fgSampleRate) == FALSE)
                {
-                  if(notify) notify->signal(INVALID_SETUP);
+                  result = OS_FAILED;
                   break;
                }
                else
@@ -431,12 +434,13 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
             }
             else
             {
-               if (notify) notify->signal(INVALID_SETUP);
+               result = OS_FAILED;
             }
             break;
          }
       }
       else
+      {
          if (bDetectedFormatIsOk && 
             audioFile->getAudioFormat() == AUDIO_FORMAT_AU)
          {
@@ -468,7 +472,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                   if(allocateAndResample(charBuffer, filesize, ratePreferred, 
                         resampledBuf, resampledBufSz, fgSampleRate) == FALSE)
                   {
-                     if(notify) notify->signal(INVALID_SETUP);
+                     result = OS_FAILED;
                      break;
                   }
                   else
@@ -482,7 +486,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                }
                else
                {
-                  if (notify) notify->signal(INVALID_SETUP);
+                  result = OS_FAILED;
                }
                break;
 
@@ -504,7 +508,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                   if(allocateAndResample(charBuffer, filesize, ratePreferred, 
                         resampledBuf, resampledBufSz, fgSampleRate) == FALSE)
                   {
-                     if(notify) notify->signal(INVALID_SETUP);
+                     result = OS_FAILED;
                      break;
                   }
                   else
@@ -518,7 +522,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                }
                else
                {
-                  if (notify) notify->signal(INVALID_SETUP);
+                  result = OS_FAILED;
                }
                break;
             }
@@ -529,10 +533,11 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                "ERROR: Detected audio file is bad.  "
                "Must be MONO, 16bit signed wav or u-law au");
          }
+      }
 
-         //remove object used to determine rate, compression, etc.
-         delete audioFile;
-         audioFile = NULL;
+      //remove object used to determine rate, compression, etc.
+      delete audioFile;
+      audioFile = NULL;
    }
    else
    {
@@ -557,7 +562,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                                                   filesize/sizeof(AudioSample));
             if (!samplesReaded) 
             {
-               if (notify) notify->signal(INVALID_SETUP);
+               result = OS_FAILED;
             }
          }
       }
@@ -602,7 +607,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
       free(charBuffer);
    }
 
-   return OS_SUCCESS;
+   return result;
 }
 
 UtlBoolean MprFromFile::allocateAndResample(const char* audBuf,
@@ -672,8 +677,8 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
    }
 
    // If we're enabled and not paused, then do playback,
-   // otherwise passthrough.
-   if (isEnabled && !mPaused) 
+   // otherwise pass through.
+   if (isEnabled && mState == STATE_PLAYING) 
    {
       if (mpFileBuffer)
       {
@@ -768,31 +773,28 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
    return TRUE;
 }
 
-// Handle messages for this resource.
-
 // This is used in both old and new messaging schemes to initialize everything
 // and start playing a buffer, when a play is requested.
-UtlBoolean MprFromFile::handlePlay(OsNotification* pNotifier, 
-                                   UtlString* pBuffer, UtlBoolean repeat)
+UtlBoolean MprFromFile::handlePlay(UtlString* pBuffer, UtlBoolean repeat)
 {
-   // Enable this resource - as it's disabled automatically when the last file ends.
-   enable();
-
-   if(mpFileBuffer) delete mpFileBuffer;
-   if (mpNotify) 
+   // Start only if not playing already
+   if (mState == STATE_IDLE)
    {
-      mpNotify->signal(PLAY_FINISHED);
-   }
-   mpNotify = pNotifier;
-   mpFileBuffer = pBuffer;
-   if(mpFileBuffer) 
-   {
-      mFileBufferIndex = 0;
-      mFileRepeat = repeat;
-   }
+      if (mpFileBuffer)
+      {
+         delete mpFileBuffer;
+      }
+      mpFileBuffer = pBuffer;
+      if (mpFileBuffer) 
+      {
+         mFileBufferIndex = 0;
+         mFileRepeat = repeat;
+      }
+      mState = STATE_PLAYING;
 
-   // Notify, indicating we're started, if notfs enabled.
-   sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_STARTED);
+      // Notify, indicating we're started, if notfs enabled.
+      sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_STARTED);
+   }
 
    return TRUE;
 }
@@ -801,47 +803,45 @@ UtlBoolean MprFromFile::handlePlay(OsNotification* pNotifier,
 // and send notification when stop is requested.
 UtlBoolean MprFromFile::handleStop(UtlBoolean finished)
 {
-   MpResNotificationMsg::RNMsgType msgType = (finished == TRUE) ?
-      MpResNotificationMsg::MPRNM_FROMFILE_FINISHED :
-      MpResNotificationMsg::MPRNM_FROMFILE_STOPPED;
+   // Stop only if playing or paused
+   if (mState == STATE_PLAYING || mState == STATE_PAUSED)
+   {
+      MpResNotificationMsg::RNMsgType msgType = (finished == TRUE) ?
+         MpResNotificationMsg::MPRNM_FROMFILE_FINISHED :
+         MpResNotificationMsg::MPRNM_FROMFILE_STOPPED;
 
-   // Send a notification -- we don't really care at this level if
-   // it succeeded or not.
-   sendNotification(msgType);
+      // Send a notification -- we don't really care at this level if
+      // it succeeded or not.
+      sendNotification(msgType);
 
-   // Cleanup.
-   delete mpFileBuffer;
-   mpFileBuffer = NULL;
-   mFileBufferIndex = 0;
-   mPaused = FALSE;
-   disable();
+      // Cleanup.
+      delete mpFileBuffer;
+      mpFileBuffer = NULL;
+      mFileBufferIndex = 0;
+      mState = STATE_IDLE;
+   }
+
    return TRUE;
 }
 
 UtlBoolean MprFromFile::handlePause()
 {
-   UtlBoolean retVal = FALSE;
-   if(isEnabled() && mpFileBuffer != NULL)
+   if (mState == STATE_PLAYING)
    {
-      mPaused = TRUE;
+      mState = STATE_PAUSED;
       sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_PAUSED);
-      retVal = TRUE;
    }
-   return retVal;
+   return TRUE;
 }
 
 UtlBoolean MprFromFile::handleResume()
 {
-   UtlBoolean retVal = FALSE;
-   if(isEnabled()
-      && mpFileBuffer != NULL
-      && mPaused == TRUE)
+   if(mState == STATE_PAUSED)
    {
-      mPaused = FALSE;
+      mState = STATE_PLAYING;
       sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_RESUMED);
-      retVal = TRUE;
    }
-   return retVal;
+   return TRUE;
 }
 
 UtlBoolean MprFromFile::handleSetUpdatePeriod(int32_t periodMS)
@@ -859,31 +859,53 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
 {
    UtlBoolean msgHandled = FALSE;
 
-   MpFromFileStartResourceMsg* ffsRMsg = NULL;
    switch (rMsg.getMsg()) 
    {
-   case MpResourceMsg::MPRM_FROMFILE_START:
-      ffsRMsg = (MpFromFileStartResourceMsg*)&rMsg;
-      msgHandled = handlePlay(ffsRMsg->getOsNotification(), 
-                              ffsRMsg->getAudioBuffer(),
-                              ffsRMsg->isRepeating());
+   case MPRM_FROMFILE_START:
+      {
+         OsStatus stat;
+         UtlString *pAudioBuffer;
+         UtlBoolean isRepeating;
+
+         UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
+         stat = msgData.deserialize((void*&)pAudioBuffer);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(isRepeating);
+         assert(stat == OS_SUCCESS);
+
+         msgHandled = handlePlay(pAudioBuffer, isRepeating);
+      }
       break;
 
-   case MpResourceMsg::MPRM_FROMFILE_STOP:
+   case MPRM_FROMFILE_STOP:
       msgHandled = handleStop();
       break;
 
-   case MpResourceMsg::MPRM_FROMFILE_PAUSE:
+   case MPRM_FROMFILE_PAUSE:
       msgHandled = handlePause();
       break;
 
-   case MpResourceMsg::MPRM_FROMFILE_RESUME:
+   case MPRM_FROMFILE_RESUME:
       msgHandled = handleResume();
       break;
 
-   case MpResourceMsg::MPRM_FROMFILE_SEND_PROGRESS:
-      msgHandled = handleSetUpdatePeriod(((MpProgressResourceMsg*)&rMsg)->getUpdatePeriodMS());
+   case MPRM_FROMFILE_SEND_PROGRESS:
+      {
+         OsStatus stat;
+         int32_t updatePeriodMS;
+
+         UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
+         stat = msgData.deserialize(updatePeriodMS);
+         assert(stat == OS_SUCCESS);
+
+         msgHandled = handleSetUpdatePeriod(updatePeriodMS);
+      }
       break;      
+
+   case MPRM_FROMFILE_ERROR:
+      sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_ERROR);
+      msgHandled = TRUE;
+      break;
 
    default:
       // If we don't handle the message here, let our parent try.

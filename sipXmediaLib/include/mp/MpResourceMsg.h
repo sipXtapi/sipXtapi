@@ -42,11 +42,6 @@ public:
 
       MPRM_START_TONE,          ///< MprToneGen: Start a tone.
       MPRM_STOP_TONE,           ///< MprToneGen: Stop a tone.
-      MPRM_FROMFILE_START,      ///< MprFromFile: Start playing a file.
-      MPRM_FROMFILE_PAUSE,      ///< MprFromFile: Pause a playing file.
-      MPRM_FROMFILE_RESUME,     ///< MprFromFile: Resume playing a file that was paused.
-      MPRM_FROMFILE_SEND_PROGRESS,  ///< MprFromFile: Tell FromFile resource to send progress updates.
-      MPRM_FROMFILE_STOP,       ///< MprFromFile: Stop a playing file.
 
       MPRM_BRIDGE_SET_GAINS,    ///< MprBridge: Set row or column in mix matrix.
 

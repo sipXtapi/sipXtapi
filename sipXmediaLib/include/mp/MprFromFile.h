@@ -89,32 +89,12 @@ public:
       *           resource and/or converting the audio buffer data.
       */
 
-     /// Old Play from file w/file name and repeat option
-   OsStatus playFile(const char* fileName, UtlBoolean repeat,
-                     OsNotification* notify = NULL);
-     /**<
-     *  Note: if this resource is deleted before <I>stopFile</I> is called, it
-     *  will close the file.
-     *
-     *  @param[in]  fileName - name of file from which to read raw audio data in
-     *              exact format of the flowgraph (sample size, rate & number of
-     *              channels).
-     *  @param[in]  repeat - TRUE/FALSE after the fromFile reaches the end of
-     *              the file, go back to the beginning and continue to play.  
-     *              Note: This assumes that the file was opened for read.
-     *  @param[in]  notify - an event to signal when state changes.  If NULL,
-     *              nothing will be signaled.
-     *  @retval the result of attempting to queue the message to this resource 
-     *          and/or opening the named file.
-     */
-
      /// @brief Sends an MPRM_FROMFILE_START message to the named MprFromFile resource.
    static OsStatus playFile(const UtlString& namedResource,
                             OsMsgQ& fgQ,
                             uint32_t fgSampleRate,
                             const UtlString& filename,
-                            const UtlBoolean& repeat,
-                            OsNotification* notify = NULL);
+                            const UtlBoolean& repeat);
      /**<
      *  Sends an MPRM_FROMFILE_START message to the named MprFromFile resource
      *  within the flowgraph who's queue is supplied. When the message 
@@ -129,8 +109,6 @@ public:
      *              resampling.
      *  @param[in]  filename - the filename of the file to start playing.
      *  @param[in]  repeat - boolean indicating whether to loop-play the file.
-     *  @param[in]  notify - an event to signal when state changes.  If NULL,
-     *              nothing will be signaled.
      *  @retval The result of attempting to queue the message to this resource.
      */
 
@@ -199,12 +177,6 @@ public:
      *  @returns the result of attempting to queue the message to this resource.
      */
 
-     /// @copydoc MpResource::enable()
-   UtlBoolean enable();
-
-     /// @copydoc MpResource::disable()
-   UtlBoolean disable();
-
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -227,17 +199,28 @@ private:
 
    typedef enum
    {
-       PLAY_ONCE,
-       PLAY_REPEAT
-   } MessageAttributes;
+      MPRM_FROMFILE_START = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+                                ///< Start playing.
+      MPRM_FROMFILE_PAUSE,      ///< Pause playing.
+      MPRM_FROMFILE_RESUME,     ///< Resume playing that was paused.
+      MPRM_FROMFILE_SEND_PROGRESS, ///< Set progress updates period.
+      MPRM_FROMFILE_STOP,       ///< Stop playing.
+      MPRM_FROMFILE_ERROR       ///< Report failed operation
+   } AddlMsgTypes;
+
+   typedef enum
+   {
+      STATE_IDLE,      ///< Playing is stopped
+      STATE_PLAYING,   ///< Playing is in process
+      STATE_PAUSED     ///< Playing is in process, but paused
+   } State;
 
    static const unsigned int sFromFileReadBufferSize;
 
    UtlString* mpFileBuffer;
    int mFileBufferIndex;
    UtlBoolean mFileRepeat;
-   OsNotification* mpNotify;
-   UtlBoolean mPaused;
+   State mState;
 
    OsTime mLastProgressUpdate;
 
@@ -273,8 +256,7 @@ private:
      /// Read in an audio file into a new UtlString audio buffer.
    static OsStatus readAudioFile(uint32_t fgSampleRate,
                                  UtlString*& audioBuffer,
-                                 const char* audioFileName,
-                                 OsNotification* notify);
+                                 const char* audioFileName);
      /**<
      *  @param audioBuffer - a reference to a pointer that will be filled
      *   with a new buffer holding the audio data.  Ownership will then
@@ -297,9 +279,6 @@ private:
      *  @param[in] audioFileName - the name of a file to read flowgraph
      *   audio data from.  (exact format that the FG will accept -
      *   sample size, rate, & number of channels)
-     *
-     *  @param[in] event - an event to signal when state changes.  If NULL,
-     *  nothing will be signaled.
      *
      *  @retval OS_INVALID_ARGUMENT if the filename was null,
      *  the file was unopenable, or the file contained less than one sample.
@@ -337,8 +316,7 @@ private:
                                     int samplesPerSecond);
 
      /// Initialize things to start playing the given buffer, upon receiving request to start.
-   virtual UtlBoolean handlePlay(OsNotification* pNotifier, UtlString* pBuffer,
-                                 UtlBoolean repeat);
+   virtual UtlBoolean handlePlay(UtlString* pBuffer, UtlBoolean repeat);
 
      /// Perform resetting of state, etc. upon receiving request to stop playing.
    virtual UtlBoolean handleStop(UtlBoolean finished = FALSE);
