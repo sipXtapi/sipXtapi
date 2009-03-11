@@ -274,9 +274,6 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    boolRes = mpFromStream->disable();   assert(boolRes);
 #endif
 
-   // disable the from file
-   boolRes = mpFromFile->disable();     assert(boolRes);
-
    // disable mpCallrecMixer and splitters, they are enabled when we want to start recording
    boolRes = mpCallrecMixer->disable();           assert(boolRes);
    boolRes = mpMicCallrecSplitter->disable();     assert(boolRes);
@@ -1773,8 +1770,6 @@ UtlBoolean MpCallFlowGraph::handleStartPlay(MpFlowGraphMsg& rMsg)
 {
    UtlBoolean boolRes;
    int toneOptions = rMsg.getInt1();
-
-   boolRes = mpFromFile->enable();          assert(boolRes);
 
    // Only play locally if requested
    if (toneOptions & TONE_TO_SPKR)

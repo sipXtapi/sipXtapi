@@ -59,7 +59,7 @@ public:
       assert(maxResourcesToCreate >= 1);
       numResourcesCreated = 1;
       resourceArray[0] = new MprFromFile(resourceName);
-      resourceArray[0]->disable();
+      resourceArray[0]->enable();
       return(OS_SUCCESS);
    }
 
