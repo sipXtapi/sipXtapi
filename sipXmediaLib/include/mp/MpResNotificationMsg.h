@@ -45,6 +45,7 @@ public:
       MPRNM_FROMFILE_RESUMED,
       MPRNM_FROMFILE_STOPPED,
       MPRNM_FROMFILE_FINISHED,
+      MPRNM_FROMFILE_ERROR,
       MPRNM_FROMFILE_PROGRESS,  ///< Value for MprnProgressMsg notifications.
       MPRNM_RECORDER_STARTED,   ///< Recording started.
       MPRNM_RECORDER_STOPPED,   ///< Recording stopped by manual command.

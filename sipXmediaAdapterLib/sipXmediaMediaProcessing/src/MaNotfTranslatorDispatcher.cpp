@@ -81,6 +81,7 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
       case MpResNotificationMsg::MPRNM_FROMFILE_RESUMED:
       case MpResNotificationMsg::MPRNM_FROMFILE_STOPPED:
       case MpResNotificationMsg::MPRNM_FROMFILE_FINISHED:
+      case MpResNotificationMsg::MPRNM_FROMFILE_ERROR:
       case MpResNotificationMsg::MPRNM_RECORDER_STARTED:
       case MpResNotificationMsg::MPRNM_RECORDER_STOPPED:
       case MpResNotificationMsg::MPRNM_RECORDER_FINISHED:
@@ -200,6 +201,9 @@ MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgTy
       break;
    case MpResNotificationMsg::MPRNM_FROMFILE_FINISHED:
       miNotfType = MiNotification::MI_NOTF_PLAY_FINISHED;
+      break;
+   case MpResNotificationMsg::MPRNM_FROMFILE_ERROR:
+      miNotfType = MiNotification::MI_NOTF_PLAY_ERROR;
       break;
    case MpResNotificationMsg::MPRNM_RECORDER_STARTED:
       miNotfType = MiNotification::MI_NOTF_RECORD_STARTED;

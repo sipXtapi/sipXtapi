@@ -58,6 +58,7 @@ public:
       MI_NOTF_PLAY_RESUMED,
       MI_NOTF_PLAY_STOPPED,
       MI_NOTF_PLAY_FINISHED,
+      MI_NOTF_PLAY_ERROR,
       MI_NOTF_PROGRESS,           ///< Value for MiProgressNotf notifications.
       MI_NOTF_RECORD_STARTED,     ///< Recording started.
       MI_NOTF_RECORD_STOPPED,     ///< Recording stopped by manual command.

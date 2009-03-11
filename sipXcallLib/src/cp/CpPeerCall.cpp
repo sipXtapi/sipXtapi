@@ -2517,6 +2517,11 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                                             MEDIA_CAUSE_NORMAL,
                                             MEDIA_TYPE_AUDIO) ;
             break;
+         case MiNotification::MI_NOTF_PLAY_ERROR:
+            pConnection->fireSipXMediaEvent(MEDIA_PLAYFILE_STOP,
+                                            MEDIA_CAUSE_FAILED,
+                                            MEDIA_TYPE_AUDIO) ;
+            break;
          case MiNotification::MI_NOTF_RECORD_STARTED:
             pConnection->fireSipXMediaEvent(MEDIA_RECORDFILE_START,
                                             MEDIA_CAUSE_NORMAL,
