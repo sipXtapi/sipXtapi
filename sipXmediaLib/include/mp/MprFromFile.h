@@ -67,29 +67,13 @@ public:
 //@{
 
       /// Play sound from buffer w/repeat option
-    OsStatus playBuffer(const char* audioBuffer, unsigned long bufSize, uint32_t inRate,
-                        int type, UtlBoolean repeat, OsProtectedEvent* notify);
-      /**<
-      *  @param type - can be one of following:  (need a OsSoundType)<br>
-      *  0 = RAW<br>
-      *  1 = muLaw
-      *
-      *  @param repeat - TRUE/FALSE after the fromFile reaches the end of
-      *   the file, go back to the beginning and continue to play.  Note this
-      *   assumes that the file was opened for read.
-      *
-      *  @returns the result of attempting to queue the message to this
-      *  resource and/or opening the named file.
-      */
-
-      /// Play sound from buffer w/repeat option
     static OsStatus playBuffer(const UtlString& namedResource, 
                                OsMsgQ& fgQ, 
                                const char* audioBuffer, 
                                unsigned long bufSize, 
                                uint32_t inRate, uint32_t fgRate, 
                                int type, UtlBoolean repeat, 
-                               OsNotification* notify = NULL);
+                               OsProtectedEvent* notify);
       /**<
       *  @param[in] fgRate - the sample rate that the flowgraph is running at
       *             (this cannot determine that because it is a static method)
@@ -148,16 +132,6 @@ public:
      *  @param[in]  notify - an event to signal when state changes.  If NULL,
      *              nothing will be signaled.
      *  @retval The result of attempting to queue the message to this resource.
-     */
-
-     /// Stop playing from file
-   OsStatus stopFile();
-     /**<
-     *  Sends a STOP_FILE message to this resource to stop playing audio
-     *  from file
-     *
-     *  @returns the result of attempting to queue the message to this
-     *  resource.
      */
 
      /// @brief Sends an MPRM_FROMFILE_STOP message to the named MprFromFile resource.
@@ -250,16 +224,6 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   typedef enum
-   {
-      PLAY_FILE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
-      STOP_FILE
-   } AddlFGMsgTypes;
-
-   typedef enum
-   {
-      MPRM_FROMFILE_FINISH = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START
-   } AddlResMsgTypes;
 
    typedef enum
    {
@@ -364,16 +328,6 @@ private:
      *  @param[in] outRate - the sample rate that audBuf will be resampled to.
      */
 
-     /// @brief Sends a local MPRM_FROMFILE_FINISH message back to this resource.
-   OsStatus finishFile();
-     /**<
-     *  Sends an MPRM_FROMFILE_FINISH message back to this resource. 
-     *  When the message is received, this will then notify that it's finished, 
-     *  and stop playing the file it has been playing.
-     *
-     *  @returns the result of attempting to queue the message to this resource.
-     */
-
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                     MpBufPtr outBufs[],
                                     int inBufsSize,
@@ -397,9 +351,6 @@ private:
 
      /// Set an update period for sending progress updates.
    virtual UtlBoolean handleSetUpdatePeriod(int32_t periodMS);
-
-     /// Handle flowgraph messages for this resource (old messaging model).
-   virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
 
      /// Handle resource messages for this resource (new messaging model - 2007).
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
