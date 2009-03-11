@@ -1082,7 +1082,9 @@ OsStatus MpCallFlowGraph::playBuffer(char* audioBuf,
    // call stuff in the CallFlowGraph -- a big nono in terms of separation)
    MpResource::setNotificationsEnabled(TRUE, mpFromFile->getName(), *getMsgQ());
 
-   res = mpFromFile->playBuffer(audioBuf, bufSize, inRate, type, repeat, event);
+   res = MprFromFile::playBuffer(mpFromFile->getName(), *getMsgQ(),
+                                 audioBuf, bufSize, inRate, getSamplesPerSec(),
+                                 type, repeat, event);
 
    if (res == OS_SUCCESS)
    {
