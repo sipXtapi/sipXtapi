@@ -134,7 +134,7 @@ public:
                                                 (const char*)dtmf5_48khz_16b_signed, 
                                                 dtmf5_48khz_16b_signed_in_bytes,
                                                 48000, mpFlowGraph->getSamplesPerSec(), 
-                                                0, FALSE));
+                                                0, FALSE, NULL));
       }
 
       // pMixer enabled, there are buffers on the input 0
