@@ -1053,7 +1053,8 @@ OsStatus MpCallFlowGraph::playFile(const char* audioFileName, UtlBoolean repeat,
    // call stuff in the CallFlowGraph -- a big nono in terms of separation)
    MpResource::setNotificationsEnabled(TRUE, mpFromFile->getName(), *getMsgQ());
 
-   res = mpFromFile->playFile(audioFileName, repeat);
+   res = MprFromFile::playFile(mpFromFile->getName(), *getMsgQ(),
+                               getSamplesPerSec(), audioFileName, repeat);
 
    if (res == OS_SUCCESS)
    {
@@ -1124,7 +1125,8 @@ void MpCallFlowGraph::stopFile(UtlBoolean closeFile)
 
    // mpFromFile->disable();
 
-   res = mpFromFile->stopFile();       assert(res == OS_SUCCESS);
+   res = MprFromFile::stopFile(mpFromFile->getName(), *getMsgQ());
+   assert(res == OS_SUCCESS);
    res = postMessage(msg);
 
    // Shut off the tone generator/play sound input to the Mixer resource
