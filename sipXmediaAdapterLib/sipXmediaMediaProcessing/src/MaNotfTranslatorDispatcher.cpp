@@ -83,8 +83,6 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
       case MpResNotificationMsg::MPRNM_FROMFILE_FINISHED:
       case MpResNotificationMsg::MPRNM_FROMFILE_ERROR:
       case MpResNotificationMsg::MPRNM_RECORDER_STARTED:
-      case MpResNotificationMsg::MPRNM_RECORDER_STOPPED:
-      case MpResNotificationMsg::MPRNM_RECORDER_FINISHED:
       case MpResNotificationMsg::MPRNM_RECORDER_ERROR:
       case MpResNotificationMsg::MPRNM_DELAY_SPEECH_STARTED:
       case MpResNotificationMsg::MPRNM_DELAY_NO_DELAY:
@@ -122,9 +120,30 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
             stat = mpAbstractedMsgDispatcher->post(miNotf);
          }
          break;
+      case MpResNotificationMsg::MPRNM_RECORDER_STOPPED:
+         {
+            MprnIntMsg& mediaLibNotf = (MprnIntMsg&)resNotf;
+            MiIntNotf miNotf(lookupNotfType(notfType),
+                             mediaLibNotf.getOriginatingResourceName(),
+                             mediaLibNotf.getValue(),
+                             (int)(mediaLibNotf.getConnectionId()),
+                             mediaLibNotf.getStreamId());
+            stat = mpAbstractedMsgDispatcher->post(miNotf);
+         }
+         break;
+      case MpResNotificationMsg::MPRNM_RECORDER_FINISHED:
+         {
+            MprnIntMsg& mediaLibNotf = (MprnIntMsg&)resNotf;
+            MiIntNotf miNotf(lookupNotfType(notfType),
+                             mediaLibNotf.getOriginatingResourceName(),
+                             mediaLibNotf.getValue(),
+                             (int)(mediaLibNotf.getConnectionId()),
+                             mediaLibNotf.getStreamId());
+            stat = mpAbstractedMsgDispatcher->post(miNotf);
+         }
+         break;
       case MpResNotificationMsg::MPRNM_RX_STREAM_ACTIVITY:
          {
-            // In this case we know the message received is a progress notification.
             MprnRtpStreamActivityMsg& mediaLibNotf = (MprnRtpStreamActivityMsg&)resNotf;
             MiRtpStreamActivityNotf miNotf(mediaLibNotf.getOriginatingResourceName(),
                                            (MiRtpStreamActivityNotf::StreamState)mediaLibNotf.getState(),
@@ -138,7 +157,6 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
          break;
       case MpResNotificationMsg::MPRNM_ENERGY_LEVEL:
          {
-            // In this case we know the message received is a progress notification.
             MprnIntMsg& mediaLibNotf = (MprnIntMsg&)resNotf;
             MiIntNotf miNotf(MiNotification::MI_NOTF_ENERGY_LEVEL,
                              mediaLibNotf.getOriginatingResourceName(),

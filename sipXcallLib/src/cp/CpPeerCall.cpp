@@ -28,6 +28,7 @@
 #include <cp/CpGhostConnection.h>
 #include <mi/CpMediaInterface.h>
 #include <mi/MiDtmfNotf.h>
+#include <mi/MiIntNotf.h>
 #include <net/SipUserAgent.h>
 #include <utl/UtlNameValueTokenizer.h>
 #include <net/Url.h>
@@ -2529,9 +2530,13 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
             break;
          case MiNotification::MI_NOTF_RECORD_STOPPED:
          case MiNotification::MI_NOTF_RECORD_FINISHED:
-            pConnection->fireSipXMediaEvent(MEDIA_RECORDFILE_STOP,
-                                            MEDIA_CAUSE_NORMAL,
-                                            MEDIA_TYPE_AUDIO) ;
+            {
+               MiIntNotf *pIntNotif = (MiIntNotf*)&notification;
+               pConnection->fireSipXMediaEvent(MEDIA_RECORDFILE_STOP,
+                                               MEDIA_CAUSE_NORMAL,
+                                               MEDIA_TYPE_AUDIO,
+                                               (void*)pIntNotif->getValue()) ;
+            }
             break;
          case MiNotification::MI_NOTF_RECORD_ERROR:
             pConnection->fireSipXMediaEvent(MEDIA_RECORDFILE_STOP,

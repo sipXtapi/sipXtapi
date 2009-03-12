@@ -1610,6 +1610,8 @@ void sipxFireMediaEvent(const void* pSrc,
                                 }
                                 break ;
                             case MEDIA_REMOTE_SILENT:
+                            case MEDIA_RECORDFILE_STOP:
+                            case MEDIA_RECORDBUFFER_STOP:
                                 mediaInfo.idleTime = (intptr_t) pEventData ;
                                 break ;
                             case MEDIA_REMOTE_DTMF:

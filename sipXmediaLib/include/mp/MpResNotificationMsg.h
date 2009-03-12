@@ -44,12 +44,12 @@ public:
       MPRNM_FROMFILE_PAUSED,
       MPRNM_FROMFILE_RESUMED,
       MPRNM_FROMFILE_STOPPED,
-      MPRNM_FROMFILE_FINISHED,
+      MPRNM_FROMFILE_FINISHED,  ///< Audio energy level (MprnIntMsg)
       MPRNM_FROMFILE_ERROR,
       MPRNM_FROMFILE_PROGRESS,  ///< Value for MprnProgressMsg notifications.
       MPRNM_RECORDER_STARTED,   ///< Recording started.
-      MPRNM_RECORDER_STOPPED,   ///< Recording stopped by manual command.
-      MPRNM_RECORDER_FINISHED,  ///< Recording stopped automatically.
+      MPRNM_RECORDER_STOPPED,   ///< Recording stopped manually (MprnIntMsg bears number of recorded samples). 
+      MPRNM_RECORDER_FINISHED,  ///< Recording stopped automatically (MprnIntMsg bears number of recorded samples).
       MPRNM_RECORDER_ERROR,     ///< Recording stopped because of an error.
       MPRNM_DTMF_RECEIVED,      ///< Value for MprnDTMFMsg notifications.
       MPRNM_DELAY_SPEECH_STARTED,

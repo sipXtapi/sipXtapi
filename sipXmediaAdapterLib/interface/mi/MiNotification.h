@@ -61,8 +61,8 @@ public:
       MI_NOTF_PLAY_ERROR,
       MI_NOTF_PROGRESS,           ///< Value for MiProgressNotf notifications.
       MI_NOTF_RECORD_STARTED,     ///< Recording started.
-      MI_NOTF_RECORD_STOPPED,     ///< Recording stopped by manual command.
-      MI_NOTF_RECORD_FINISHED,    ///< Recording stopped automatically.
+      MI_NOTF_RECORD_STOPPED,     ///< Recording stopped manually (MiIntNotf bears number of recorded samples).
+      MI_NOTF_RECORD_FINISHED,    ///< Recording stopped automatically (MiIntNotf bears number of recorded samples).
       MI_NOTF_RECORD_ERROR,       ///< Recording stopped because of an error.
       MI_NOTF_DTMF_RECEIVED,      ///< Value for MiDtmfNotf notifications.
       MI_NOTF_DELAY_SPEECH_STARTED,

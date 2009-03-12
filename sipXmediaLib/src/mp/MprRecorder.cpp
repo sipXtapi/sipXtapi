@@ -29,9 +29,9 @@
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MpFlowGraphBase.h"
-#include "mp/MpFlowGraphMsg.h" // For notifying CallFlowgraph about enable/disable.
 #include "mp/MprRecorder.h"
 #include "mp/MpPackedResourceMsg.h"
+#include "mp/MprnIntMsg.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -417,10 +417,20 @@ UtlBoolean MprRecorder::finish(FinishCause cause)
    switch (cause)
    {
    case FINISHED_AUTO:
-      sendNotification(MpResNotificationMsg::MPRNM_RECORDER_FINISHED);
+      {
+         MprnIntMsg msg(MpResNotificationMsg::MPRNM_RECORDER_FINISHED,
+                        getName(),
+                        mSamplesRecorded);
+         sendNotification(msg);
+      }
       break;
    case FINISHED_MANUAL:
-      sendNotification(MpResNotificationMsg::MPRNM_RECORDER_STOPPED);
+      {
+         MprnIntMsg msg(MpResNotificationMsg::MPRNM_RECORDER_STOPPED,
+                        getName(),
+                        mSamplesRecorded);
+         sendNotification(msg);
+      }
       break;
    case FINISHED_ERROR:
       sendNotification(MpResNotificationMsg::MPRNM_RECORDER_ERROR);
