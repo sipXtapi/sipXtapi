@@ -159,7 +159,6 @@ libsipXmedia_la_SOURCES =  \
     mp/MpPlcBase.cpp \
     mp/MpPlcSilence.cpp \
     mp/MpPlgStaffV1.cpp \
-    mp/MpProgressResourceMsg.cpp \
     mp/MpTopologyGraph.cpp \
     mp/MpTypes.cpp \
     mp/MpVadBase.cpp \

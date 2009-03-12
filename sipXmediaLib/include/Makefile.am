@@ -49,7 +49,6 @@ nobase_include_HEADERS =  \
     mp/MpEncoderBase.h \
     mp/MpFlowGraphBase.h \
     mp/MpFlowGraphMsg.h \
-    mp/MpFromFileStartResourceMsg.h \
     mp/MpidOss.h \
     mp/MpInputDeviceDriver.h \
     mp/MpInputDeviceManager.h \
@@ -148,7 +147,6 @@ nobase_include_HEADERS =  \
     mp/MpPlcBase.h \
     mp/MpPlcSilence.h \
     mp/MpPlgStaffV1.h \
-    mp/MpProgressResourceMsg.h \
     mp/MpStringResourceMsg.h \
     mp/MpToneResourceMsg.h \
     mp/MpTopologyGraph.h \

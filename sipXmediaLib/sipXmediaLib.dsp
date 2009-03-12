@@ -324,10 +324,6 @@ SOURCE=.\src\mp\MpPlgStaffV1.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpProgressResourceMsg.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MprAudioFrameBuffer.cpp
 # End Source File
 # Begin Source File
@@ -1100,10 +1096,6 @@ SOURCE=.\include\mp\MpFlowGraphMsg.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpFromFileStartResourceMsg.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\MpidWinMM.h
 # End Source File
 # Begin Source File
@@ -1193,10 +1185,6 @@ SOURCE=.\include\mp\MpPlcSilence.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpPlgStaffV1.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpProgressResourceMsg.h
 # End Source File
 # Begin Source File
 

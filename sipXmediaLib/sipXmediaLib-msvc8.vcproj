@@ -1120,10 +1120,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\MpProgressResourceMsg.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\mp\MprAudioFrameBuffer.cpp"
 					>
 				</File>
@@ -1665,10 +1661,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MpFromFileStartResourceMsg.h"
-					>
-				</File>
-				<File
 					RelativePath=".\include\mp\MpidWinMM.h"
 					>
 				</File>
@@ -1758,10 +1750,6 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpPlgStaffV1.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpProgressResourceMsg.h"
 					>
 				</File>
 				<File
