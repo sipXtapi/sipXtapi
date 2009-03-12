@@ -661,9 +661,11 @@ typedef struct SIPX_MEDIA_INFO
     SIPX_CODEC_INFO     codec ;     /**< Negotiated codec; only supplied on 
                                          MEDIA_LOCAL_START and MEDIA_REMOTE_START
                                          events. */
-    int                 idleTime;   /**< Idle time (ms) for SILENT events; only 
-                                         supplied on MEDIA_REMOTE_SILENT 
-                                         events. */
+    int                 idleTime;   /**< For MEDIA_REMOTE_SILENT events contains idle
+                                         time (ms). For MEDIA_RECORDFILE_STOP and
+                                         MEDIA_RECORDBUFFER_STOP events contains number
+                                         of recorded samples. For other events this
+                                         value should be ignored. */
     SIPX_TONE_ID        toneId;	    /**< DTMF tone received from remote party;
                                          only supplied on MEDIA_REMOTE_DTMF event).
                                          Note: Only RFC 2833 DTMF detection is supported
