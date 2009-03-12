@@ -2531,11 +2531,11 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
          case MiNotification::MI_NOTF_RECORD_STOPPED:
          case MiNotification::MI_NOTF_RECORD_FINISHED:
             {
-               MiIntNotf *pIntNotif = (MiIntNotf*)&notification;
+               MiIntNotf &intNotif = (MiIntNotf&)notification;
                pConnection->fireSipXMediaEvent(MEDIA_RECORDFILE_STOP,
                                                MEDIA_CAUSE_NORMAL,
                                                MEDIA_TYPE_AUDIO,
-                                               (void*)pIntNotif->getValue()) ;
+                                               (void*)intNotif.getValue());
             }
             break;
          case MiNotification::MI_NOTF_RECORD_ERROR:
