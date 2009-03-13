@@ -792,7 +792,7 @@ void sipXtapiTestSuite::testCallPlayAudioFile()
             CPPUNIT_ASSERT_EQUAL(sipxCallAudioPlayFileStart(g_hAutoAnswerCallbackCall, "busy.wav",  true, true, false ), SIPX_RESULT_SUCCESS);
             sipxCallAudioPlayFileStop(g_hAutoAnswerCallbackCall);
             bRC = validatorCalled.waitForMediaEvent(MEDIA_PLAYFILE_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
-            bRC = validatorCalled.waitForMediaEvent(MEDIA_PLAYFILE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
+            bRC = validatorCalled.waitForMediaEvent(MEDIA_PLAYFILE_FINISH, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
             sipxCallAudioPlayFileStop(g_hAutoAnswerCallbackCall);
             sipxCallAudioPlayFileStop(g_hAutoAnswerCallbackCall);
             sipxCallAudioPlayFileStop(hCall);
@@ -803,7 +803,7 @@ void sipXtapiTestSuite::testCallPlayAudioFile()
             sipxCallAudioPlayFileStop(g_hAutoAnswerCallbackCall);
             sipxCallAudioPlayFileStop(hCall);
             bRC = validatorCalling.waitForMediaEvent(MEDIA_PLAYFILE_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
-            bRC = validatorCalling.waitForMediaEvent(MEDIA_PLAYFILE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
+            bRC = validatorCalling.waitForMediaEvent(MEDIA_PLAYFILE_FINISH, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
             sipxCallAudioPlayFileStop(g_hAutoAnswerCallbackCall);
             sipxCallAudioPlayFileStop(hCall);
             sipxCallAudioPlayFileStop(hCall);

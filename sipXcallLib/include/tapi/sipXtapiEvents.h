@@ -518,15 +518,20 @@ typedef enum SIPX_MEDIA_EVENT
                                      followed by a MEDIA_PLAYFILE_STOP when
                                      the file is manually stopped or 
                                      finished playing. */
-    MEDIA_PLAYFILE_STOP,        /**< A file has completed playing or was
-                                     aborted.*/
+    MEDIA_PLAYFILE_FINISH,      /**< A file has completed playing. You need to
+                                     call sipxCallAudioPlayFileStop() or
+                                     sipxConferencePlayAudioFileStop() to prepare
+                                     for the next file playback. */
+    MEDIA_PLAYFILE_STOP,        /**< A file playback has been stopped.*/
     MEDIA_PLAYBUFFER_START,     /**< A buffer is being played to local and/or 
                                      remote parties.  This event will be
                                      followed by a MEDIA_PLAYBUFFER_STOP when
                                      the file is manually stopped or 
                                      finished playing. */
-    MEDIA_PLAYBUFFER_STOP,      /**< A buffer has completed playing or was
-                                     aborted.*/
+    MEDIA_PLAYBUFFER_FINISH,    /**< A buffer has completed playing. You need to
+                                     call sipxCallPlayBufferStop() to prepare
+                                     for the next buffer playback. */
+    MEDIA_PLAYBUFFER_STOP,      /**< A buffer playback has been stopped.*/
     MEDIA_RECORDFILE_START,     /**< Recording to a file has started. This event
                                      will be followed by a MEDIA_RECORDFILE_STOP
                                      when the recording is manually stopped or 

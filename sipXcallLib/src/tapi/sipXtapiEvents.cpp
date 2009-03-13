@@ -278,15 +278,21 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
         case MEDIA_PLAYFILE_START:
             str = "PLAYFILE_START" ;
             break ;
-        case MEDIA_PLAYFILE_STOP:
-            str = "PLAYFILE_STOP" ;
+        case MEDIA_PLAYFILE_FINISH:
+            str = "PLAYFILE_FINISH" ;
             break ;
+        case MEDIA_PLAYFILE_STOP:
+           str = "PLAYFILE_STOP" ;
+           break ;
         case MEDIA_PLAYBUFFER_START:
             str = "PLAYBUFFER_START" ;
             break ;
+        case MEDIA_PLAYBUFFER_FINISH:
+           str = "PLAYBUFFER_FINISH" ;
+           break ;
         case MEDIA_PLAYBUFFER_STOP:
-            str = "PLAYBUFFER_STOP" ;
-            break ;
+           str = "PLAYBUFFER_STOP" ;
+           break ;
         case MEDIA_RECORDFILE_START:
             str = "RECORDFILE_START" ;
             break ;
@@ -1963,12 +1969,20 @@ SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
             SNPRINTF(szBuffer, nBuffer, "MEDIA_PLAYFILE_START") ;
             break ;
 
+        case MEDIA_PLAYFILE_FINISH:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_PLAYFILE_FINISH") ;
+            break ;
+
         case MEDIA_PLAYFILE_STOP:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_PLAYFILE_STOP") ;
             break ;
 
         case MEDIA_PLAYBUFFER_START:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_PLAYBUFFER_START") ;
+            break ;
+
+        case MEDIA_PLAYBUFFER_FINISH:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_PLAYBUFFER_FINISH") ;
             break ;
 
         case MEDIA_PLAYBUFFER_STOP:

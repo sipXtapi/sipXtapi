@@ -2315,12 +2315,13 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             {   
                 int connectionId = connection->getConnectionId() ;
                 mpMediaInterface->playChannelAudio(connectionId, url, repeat, 
-                                                   local, remote, mixWithMic, downScaling) ;
+                                                   local, remote, mixWithMic,
+                                                   downScaling, FALSE);
             }     
             else if (mpMediaInterface)
             {
                 mpMediaInterface->playAudio(url, repeat, local, remote, 
-                        mixWithMic, downScaling);
+                        mixWithMic, downScaling, FALSE);
             }
 
         }
@@ -2512,8 +2513,12 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
          case MiNotification::MI_NOTF_PLAY_RESUMED:
             // These are not supported by sipXtapi.
             break;
-         case MiNotification::MI_NOTF_PLAY_STOPPED:
          case MiNotification::MI_NOTF_PLAY_FINISHED:
+            pConnection->fireSipXMediaEvent(MEDIA_PLAYFILE_FINISH,
+                                            MEDIA_CAUSE_NORMAL,
+                                            MEDIA_TYPE_AUDIO) ;
+            break;
+         case MiNotification::MI_NOTF_PLAY_STOPPED:
             pConnection->fireSipXMediaEvent(MEDIA_PLAYFILE_STOP,
                                             MEDIA_CAUSE_NORMAL,
                                             MEDIA_TYPE_AUDIO) ;
