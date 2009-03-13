@@ -68,6 +68,7 @@ MprFromFile::MprFromFile(const UtlString& rName)
 , mpFileBuffer(NULL)
 , mFileRepeat(FALSE)
 , mState(STATE_IDLE)
+, mAutoStopAfterFinish(TRUE)
 , mProgressIntervalMS(0)
 {
 }
@@ -82,7 +83,8 @@ MprFromFile::~MprFromFile()
 OsStatus MprFromFile::playBuffer(const UtlString& namedResource, OsMsgQ& fgQ, 
                                  const char* audioBuffer, unsigned long bufSize, 
                                  uint32_t inRate, uint32_t fgRate, int type, 
-                                 UtlBoolean repeat, OsProtectedEvent* notify)
+                                 UtlBoolean repeat, OsProtectedEvent* notify,
+                                 UtlBoolean autoStopAfterFinish)
 {
    UtlString* fgAudBuffer = NULL;
    OsStatus stat = 
@@ -105,6 +107,8 @@ OsStatus MprFromFile::playBuffer(const UtlString& namedResource, OsMsgQ& fgQ,
       assert(stat == OS_SUCCESS);
       stat = msgData.serialize(repeat);
       assert(stat == OS_SUCCESS);
+      stat = msgData.serialize(autoStopAfterFinish);
+      assert(stat == OS_SUCCESS);
       msgData.finishSerialize();
       stat = fgQ.send(msg, sOperationQueueTimeout);
    }
@@ -121,7 +125,8 @@ OsStatus MprFromFile::playFile(const UtlString& namedResource,
                                OsMsgQ& fgQ, 
                                uint32_t fgSampleRate,
                                const UtlString& filename, 
-                               const UtlBoolean& repeat)
+                               const UtlBoolean& repeat,
+                               UtlBoolean autoStopAfterFinish)
 {
    UtlString* audioBuffer = NULL;
    OsStatus stat = readAudioFile(fgSampleRate, audioBuffer, filename);
@@ -133,6 +138,8 @@ OsStatus MprFromFile::playFile(const UtlString& namedResource,
       stat = msgData.serialize(audioBuffer);
       assert(stat == OS_SUCCESS);
       stat = msgData.serialize(repeat);
+      assert(stat == OS_SUCCESS);
+      stat = msgData.serialize(autoStopAfterFinish);
       assert(stat == OS_SUCCESS);
       msgData.finishSerialize();
       stat = fgQ.send(msg, sOperationQueueTimeout);
@@ -678,7 +685,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
 
    // If we're enabled and not paused, then do playback,
    // otherwise pass through.
-   if (isEnabled && mState == STATE_PLAYING) 
+   if (isEnabled && mState == STATE_PLAYING)
    {
       if (mpFileBuffer)
       {
@@ -730,7 +737,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
                memset(&outbuf[(totalBytesRead/sizeof(MpAudioSample))], 0, bytesLeft);
 
                // Set state and emit signals.
-               handleStop(TRUE);
+               handleFinish();
             }
          }
 
@@ -775,7 +782,8 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
 
 // This is used in both old and new messaging schemes to initialize everything
 // and start playing a buffer, when a play is requested.
-UtlBoolean MprFromFile::handlePlay(UtlString* pBuffer, UtlBoolean repeat)
+UtlBoolean MprFromFile::handlePlay(UtlString* pBuffer, UtlBoolean repeat,
+                                   UtlBoolean autoStopAfterFinish)
 {
    // Start only if not playing already
    if (mState == STATE_IDLE)
@@ -790,6 +798,7 @@ UtlBoolean MprFromFile::handlePlay(UtlString* pBuffer, UtlBoolean repeat)
          mFileBufferIndex = 0;
          mFileRepeat = repeat;
       }
+      mAutoStopAfterFinish = autoStopAfterFinish;
       mState = STATE_PLAYING;
 
       // Notify, indicating we're started, if notfs enabled.
@@ -799,25 +808,51 @@ UtlBoolean MprFromFile::handlePlay(UtlString* pBuffer, UtlBoolean repeat)
    return TRUE;
 }
 
-// this is used in both old and new messaging schemes to do reset state
-// and send notification when stop is requested.
-UtlBoolean MprFromFile::handleStop(UtlBoolean finished)
+UtlBoolean MprFromFile::handleFinish()
 {
-   // Stop only if playing or paused
+   // Finish only if playing or paused
    if (mState == STATE_PLAYING || mState == STATE_PAUSED)
    {
-      MpResNotificationMsg::RNMsgType msgType = (finished == TRUE) ?
-         MpResNotificationMsg::MPRNM_FROMFILE_FINISHED :
-         MpResNotificationMsg::MPRNM_FROMFILE_STOPPED;
-
-      // Send a notification -- we don't really care at this level if
-      // it succeeded or not.
-      sendNotification(msgType);
+      // Send a notification.
+      sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED);
 
       // Cleanup.
-      delete mpFileBuffer;
-      mpFileBuffer = NULL;
-      mFileBufferIndex = 0;
+      if (mpFileBuffer)
+      {
+         delete mpFileBuffer;
+         mpFileBuffer = NULL;
+         mFileBufferIndex = 0;
+      }
+
+      // Set state.
+      mState = STATE_FINISHED;
+   }
+
+   if (mAutoStopAfterFinish)
+   {
+      handleStop();
+   }
+
+   return TRUE;
+}
+
+UtlBoolean MprFromFile::handleStop()
+{
+   // Stop only if not idle.
+   if (mState != STATE_IDLE)
+   {
+      // Send a notification.
+      sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_STOPPED);
+
+      // Cleanup if not done yet.
+      if (mpFileBuffer)
+      {
+         delete mpFileBuffer;
+         mpFileBuffer = NULL;
+         mFileBufferIndex = 0;
+      }
+
+      // Set state.
       mState = STATE_IDLE;
    }
 
@@ -866,14 +901,17 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
          OsStatus stat;
          UtlString *pAudioBuffer;
          UtlBoolean isRepeating;
+         UtlBoolean autoStopAfterFinish;
 
          UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
          stat = msgData.deserialize((void*&)pAudioBuffer);
          assert(stat == OS_SUCCESS);
          stat = msgData.deserialize(isRepeating);
          assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(autoStopAfterFinish);
+         assert(stat == OS_SUCCESS);
 
-         msgHandled = handlePlay(pAudioBuffer, isRepeating);
+         msgHandled = handlePlay(pAudioBuffer, isRepeating, autoStopAfterFinish);
       }
       break;
 

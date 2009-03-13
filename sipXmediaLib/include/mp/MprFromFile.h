@@ -73,17 +73,20 @@ public:
                                unsigned long bufSize, 
                                uint32_t inRate, uint32_t fgRate, 
                                int type, UtlBoolean repeat, 
-                               OsProtectedEvent* notify);
+                               OsProtectedEvent* notify,
+                               UtlBoolean autoStopAfterFinish = TRUE);
       /**<
       *  @param[in] fgRate - the sample rate that the flowgraph is running at
       *             (this cannot determine that because it is a static method)
-      *  
       *  @param[in] type - can be one of following:  (need a OsSoundType)<br>
-      *  0 = RAW<br>
-      *  1 = muLaw
-      *
+      *             0 = RAW<br>
+      *             1 = muLaw
       *  @param[in] repeat - TRUE/FALSE after the fromFile reaches the end of
       *             the buffer, go back to the beginning and continue to play.
+      *  @param[in] autoStopAfterFinish - if set to TRUE, resource will
+      *             automatically transition to IDLE state immediately after
+      *             FINISHED state is reached. Otherwise you need to call
+      *             stopFile() to transition to IDLE state.
       *
       *  @returns the result of attempting to queue the message to this
       *           resource and/or converting the audio buffer data.
@@ -94,7 +97,8 @@ public:
                             OsMsgQ& fgQ,
                             uint32_t fgSampleRate,
                             const UtlString& filename,
-                            const UtlBoolean& repeat);
+                            const UtlBoolean& repeat,
+                            UtlBoolean autoStopAfterFinish = TRUE);
      /**<
      *  Sends an MPRM_FROMFILE_START message to the named MprFromFile resource
      *  within the flowgraph who's queue is supplied. When the message 
@@ -109,6 +113,11 @@ public:
      *              resampling.
      *  @param[in]  filename - the filename of the file to start playing.
      *  @param[in]  repeat - boolean indicating whether to loop-play the file.
+     *  @param[in]  autoStopAfterFinish - if set to TRUE, resource will
+     *              automatically transition to IDLE state immediately after
+     *              FINISHED state is reached. Otherwise you need to call
+     *              stopFile() to transition to IDLE state.
+     *
      *  @retval The result of attempting to queue the message to this resource.
      */
 
@@ -212,7 +221,8 @@ private:
    {
       STATE_IDLE,      ///< Playing is stopped
       STATE_PLAYING,   ///< Playing is in process
-      STATE_PAUSED     ///< Playing is in process, but paused
+      STATE_PAUSED,    ///< Playing is in process, but paused
+      STATE_FINISHED   ///< Playing has finished, but stopFile() hasn't called yet
    } State;
 
    static const unsigned int sFromFileReadBufferSize;
@@ -221,9 +231,12 @@ private:
    int mFileBufferIndex;
    UtlBoolean mFileRepeat;
    State mState;
+   UtlBoolean mAutoStopAfterFinish; ///< If set to TRUE, resource will automatically
+                                ///< transition to IDLE state immediately after
+                                ///< FINISHED state is reached. Otherwise you need
+                                ///< to call stopFile() to transition to IDLE state.
 
    OsTime mLastProgressUpdate;
-
    int32_t mProgressIntervalMS; ///< The progress interval for sending update
                                 ///< notifications. A progress interval of 0
                                 ///< means send no progress updates.
@@ -308,27 +321,31 @@ private:
      */
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame,
+                                     int samplesPerSecond);
 
      /// Initialize things to start playing the given buffer, upon receiving request to start.
-   virtual UtlBoolean handlePlay(UtlString* pBuffer, UtlBoolean repeat);
+   UtlBoolean handlePlay(UtlString* pBuffer, UtlBoolean repeat,
+                         UtlBoolean autoStopAfterFinish);
+
+     /// Handle playback finish when the end of file/buffer is reached.
+   UtlBoolean handleFinish();
 
      /// Perform resetting of state, etc. upon receiving request to stop playing.
-   virtual UtlBoolean handleStop(UtlBoolean finished = FALSE);
+   UtlBoolean handleStop();
 
      /// Pause playback upon receiving request to pause.
-   virtual UtlBoolean handlePause(void);
+   UtlBoolean handlePause();
 
      /// Resume playback upon receiving request to resume.
-   virtual UtlBoolean handleResume(void);
+   UtlBoolean handleResume();
 
      /// Set an update period for sending progress updates.
-   virtual UtlBoolean handleSetUpdatePeriod(int32_t periodMS);
+   UtlBoolean handleSetUpdatePeriod(int32_t periodMS);
 
      /// Handle resource messages for this resource (new messaging model - 2007).
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);

@@ -1333,7 +1333,8 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
                                           UtlBoolean local,
                                           UtlBoolean remote,
                                           UtlBoolean mixWithMic,
-                                          int downScaling)
+                                          int downScaling,
+                                          UtlBoolean autoStopAfterFinish)
 {
     OsStatus stat = OS_NOT_FOUND;
     UtlString filename;
@@ -1346,7 +1347,7 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
        // Currently, this ignores "local", "mixWithMic" and "downScaling".
        stat = MprFromFile::playFile(DEFAULT_FROM_FILE_RESOURCE_NAME, 
           *mpTopologyGraph->getMsgQ(), mpTopologyGraph->getSamplesPerSec(),
-          filename, repeat);
+          filename, repeat, autoStopAfterFinish);
     }
 
     if(stat != OS_SUCCESS)
@@ -1366,7 +1367,8 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
                                               UtlBoolean remote, 
                                               OsProtectedEvent* pEvent,
                                               UtlBoolean mixWithMic,
-                                              int downScaling)
+                                              int downScaling,
+                                              UtlBoolean autoStopOnFinish)
 {
     OsStatus stat = OS_NOT_FOUND;
     if(mpTopologyGraph && buf)
@@ -1376,7 +1378,7 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
        stat = MprFromFile::playBuffer(DEFAULT_FROM_FILE_RESOURCE_NAME, 
                                       *mpTopologyGraph->getMsgQ(),
                                       buf, bufSize, bufRate, fgRate,
-                                      type, repeat, pEvent);
+                                      type, repeat, pEvent, autoStopOnFinish);
     }
 
     if(stat != OS_SUCCESS)
@@ -1440,12 +1442,13 @@ OsStatus CpTopologyGraphInterface::playChannelAudio(int connectionId,
                                                     UtlBoolean local,
                                                     UtlBoolean remote,
                                                     UtlBoolean mixWithMic,
-                                                    int downScaling) 
+                                                    int downScaling,
+                                                    UtlBoolean autoStopOnFinish) 
 {
     // TODO:: This API is designed to record the audio from a single channel.  
     // If the connectionId is -1, record all.
 
-    return playAudio(url, repeat, local, remote, mixWithMic, downScaling) ;
+    return playAudio(url, repeat, local, remote, mixWithMic, downScaling, autoStopOnFinish) ;
 }
 
 

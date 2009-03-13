@@ -159,7 +159,8 @@ public:
                               UtlBoolean local, 
                               UtlBoolean remote,
                               UtlBoolean mixWithMic = false,
-                              int downScaling = 100);
+                              int downScaling = 100,
+                              UtlBoolean autoStopOnFinish = TRUE);
 
 
    virtual OsStatus playBuffer(char* buf, 
@@ -171,7 +172,8 @@ public:
                                UtlBoolean remote,
                                OsProtectedEvent* event = NULL,
                                UtlBoolean mixWithMic = false,
-                               int downScaling = 100);
+                               int downScaling = 100,
+                               UtlBoolean autoStopOnFinish = TRUE);
 
      /// @copydoc CpMediaInterface::pauseAudio()
    virtual OsStatus pauseAudio();
@@ -188,7 +190,8 @@ public:
                                     UtlBoolean local,
                                     UtlBoolean remote,
                                     UtlBoolean mixWithMic = false,
-                                    int downScaling = 100);
+                                    int downScaling = 100,
+                                    UtlBoolean autoStopOnFinish = TRUE);
 
 
    virtual OsStatus stopChannelAudio(int connectionId);

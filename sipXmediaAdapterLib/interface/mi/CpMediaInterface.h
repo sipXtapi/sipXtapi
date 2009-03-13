@@ -415,7 +415,8 @@ public:
                               UtlBoolean local, 
                               UtlBoolean remote,
                               UtlBoolean mixWithMic = false,
-                              int downScaling = 100) = 0 ;
+                              int downScaling = 100,
+                              UtlBoolean autoStopAfterFinish = TRUE) = 0 ;
      /**<
      *
      *  @param[in] url - Audio url to be played -- The sipX implementation is limited 
@@ -427,6 +428,10 @@ public:
      *             remote parties.  
      *  @param[in] mixWithMic - True to mix with microphone or False to replace it.
      *  @param[in] downScaling - 100 for no down scaling (range from 0 to 100) 
+     *  @param[in] autoStopAfterFinish - if set to TRUE you don't need to call
+     *             stopAudio() when playback finishes because of end of the file.
+     *             Otherwise you need to call stopAudio() on receiving of FINISHED
+     *             notification.
      *
      *  @retval    UNKNOWN - << TODO: Add useful return values here - i.e.
      *             failure codes to expect, etc. -- kkyzivat 20070801 >>
@@ -438,7 +443,8 @@ public:
                                      UtlBoolean local, 
                                      UtlBoolean remote,
                                      UtlBoolean mixWithMic = false,
-                                     int downScaling = 100) = 0 ;
+                                     int downScaling = 100,
+                                     UtlBoolean autoStopOnFinish = TRUE) = 0 ;
 
      /// @brief Play the specified audio buffer to the call. 
    virtual OsStatus playBuffer(char* buf, 
@@ -450,7 +456,8 @@ public:
                                UtlBoolean remote,
                                OsProtectedEvent* event = NULL,
                                UtlBoolean mixWithMic = false,
-                               int downScaling = 100) = 0 ;
+                               int downScaling = 100,
+                               UtlBoolean autoStopOnFinish = TRUE) = 0 ;
      /**<
      *  @todo This method should also specify the audio format (e.g. samples/per 
      *        second, etc.).

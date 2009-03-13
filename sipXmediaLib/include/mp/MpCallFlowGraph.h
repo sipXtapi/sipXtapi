@@ -189,7 +189,8 @@ public:
                   int type,
                   UtlBoolean repeat,
                   int toneOptions,
-                  OsProtectedEvent* event = NULL);
+                  OsProtectedEvent* event = NULL,
+                  UtlBoolean autoStopOnFinish = TRUE);
      /**<
      *  The passed in audio /p audioBuf is converted (if necessary) to the 
      *  flowgraph's sample rate, then played through the flowgraph as it is set up.
@@ -211,7 +212,7 @@ public:
                     , int toneOptions   ///< TONE_TO_SPKR/TONE_TO_NET file audio
                                         ///< played locally or both locally and
                                         ///< remotely.
-                    );
+                    , UtlBoolean autoStopOnFinish = TRUE);
      /**<
      *  @returns <b>OS_INVALID_ARGUMENT</b> - if open on the given file name
      *                                        failed.
