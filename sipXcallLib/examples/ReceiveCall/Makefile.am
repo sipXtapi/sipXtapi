@@ -5,9 +5,9 @@ bin_PROGRAMS = ReceiveCall
 INCLUDES = -Iinclude -I../PlaceCall/include
 
 ReceiveCall_LDADD = \
-    $(top_builddir)/src/libsipXcall.la \
+    $(top_builddir)/src/libsipXtapi.la \
+    -ldl \
     @CA_LIBS@ 
-#    @SIPXMEDIA_MP_LIBS@ 
 
 ReceiveCall_SOURCES = \
     src/ReceiveCall.cpp \

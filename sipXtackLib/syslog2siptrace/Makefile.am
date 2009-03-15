@@ -6,6 +6,7 @@ bin_PROGRAMS = syslog2siptrace
 
 syslog2siptrace_LDADD = \
     $(top_builddir)/src/libsipXtack.la \
+    @SIPXSDP_LIBS@ \
     @SIPXPORT_LIBS@
 
 syslog2siptrace_SOURCES = main.cpp

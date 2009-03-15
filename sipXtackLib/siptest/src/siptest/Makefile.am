@@ -10,6 +10,7 @@ bin_SCRIPTS = subscribe-dialog-test
 
 siptest_LDADD = \
     $(top_builddir)/src/libsipXtack.la \
+    @SIPXSDP_LIBS@ \
     @SIPXPORT_LIBS@
 
 siptest_SOURCES =  \

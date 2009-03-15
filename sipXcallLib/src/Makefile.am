@@ -26,7 +26,12 @@ SECURITY_LIBADD=
 endif
 
 libsipXcall_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
-libsipXtapi_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
+libsipXtapi_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age} \
+        --whole-archive \
+	@SIPXTACK_STATIC_LIBS@ \
+	@SIPXSDP_STATIC_LIBS@ \
+	@SIPXPORT_STATIC_LIBS@ \
+        --no-whole-archive
 
 libsipXcall_la_LIBADD = \
 	@SIPXTACK_LIBS@ \
@@ -34,13 +39,7 @@ libsipXcall_la_LIBADD = \
 	@SIPXMEDIA_PLUGIN_LIBS@ \
 	-lstdc++ 
 
-#@SIPXPORT_STATIC_LIBS@ 
-#@SIPXTACK_STATIC_LIBS@
-
 libsipXtapi_la_LIBADD = \
-	@SIPXTACK_STATIC_LIBS@ \
-	@SIPXSDP_STATIC_LIBS@ \
-	@SIPXPORT_STATIC_LIBS@ \
 	-lstdc++ -lpthread -lresolv -lpcre \
 	$(SECURITY_LIBADD)
 
@@ -48,8 +47,7 @@ libsipXcall_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" 
 
 libsipXtapi_la_CXXFLAGS = \
-	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
-        -Wl,-all_load
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" 
 
 libsipXcall_la_SOURCES = \
     ../config/sipxcalllib-buildstamp.h \
@@ -104,8 +102,8 @@ libsipXtapi_la_SOURCES = \
     tapi/sipXtapiInternal.cpp \
     tapi/SipXHandleMap.cpp \
     tapi/SipXMessageObserver.cpp \
-    ../../sipXmediaPluginMgr/src/mediaBaseImpl/MediaDeviceInfo.cpp \
-    ../../sipXmediaPluginMgr/src/mediaBaseImpl/MediaConnectivityInfo.cpp \
-    ../../sipXmediaPluginMgr/src/mediaPlugin/MediapluginFactory.cpp
+    $(abs_srcdir)/../../sipXmediaPluginMgr/src/mediaBaseImpl/MediaDeviceInfo.cpp \
+    $(abs_srcdir)/../../sipXmediaPluginMgr/src/mediaBaseImpl/MediaConnectivityInfo.cpp \
+    $(abs_srcdir)/../../sipXmediaPluginMgr/src/mediaPlugin/MediaPluginFactory.cpp
 
 DISTCLEANFILES = Makefile.in

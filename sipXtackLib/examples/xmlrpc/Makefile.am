@@ -6,6 +6,7 @@ noinst_PROGRAMS = xmlrpcClient
 
 xmlrpcClient_LDADD = \
     $(top_builddir)/src/libsipXtack.la \
+    @SIPXSDP_LIBS@ \
     @SIPXPORT_LIBS@
 
 xmlrpcClient_SOURCES =  xmlrpcClient.cpp
