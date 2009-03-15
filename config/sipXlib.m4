@@ -406,6 +406,16 @@ AC_DEFUN([SFAC_LIB_MEDIA_PLUGIN_MGR],
 ]) # SFAC_LIB_MEDIA_PLUGIN_MGR
 
 
+AC_DEFUN([CHECK_DARWIN_LOAD_ALL_LIBS],
+[
+    if test "`uname`" == "Darwin"; then
+        CXXFLAGS="$CXXFLAGS -Wl,-all_load"
+        CFLAGS="$CFLAGS -Wl,-all_load"
+    fi
+
+]) # CHECK_DARWIN_LOAD_ALL_LIBS
+
+
 AC_DEFUN([CHECK_GIPS_VEMM],
 [
    AC_ARG_WITH(gips-vemm,

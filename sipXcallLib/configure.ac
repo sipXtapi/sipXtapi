@@ -60,6 +60,9 @@ SFAC_LIB_MEDIA_PLUGIN_MGR
 
 SFAC_FEATURE_SIP_TLS
 
+# Add -wl,-all_load to CXXFLAGS on Darwin
+CHECK_DARWIN_LOAD_ALL_LIBS
+
 ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
