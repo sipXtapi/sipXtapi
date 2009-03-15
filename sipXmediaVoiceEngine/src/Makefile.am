@@ -16,18 +16,19 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
-libsipXvoiceEngine_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
+libsipXvoiceEngine_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age} \
+	--whole-archive \
+        @SIPXMEDIA_PLUGIN_STATIC_LIBS@ \
+	--no-whole-archive
 
 libsipXvoiceEngine_la_CXXFLAGS = \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
 	-DUSE_GIPS \
-	-wl,-all_load \
 	-Wl,-no_implicit_dylibs \
 	-Wl,-read_only_relocs,suppress 
 
 libsipXvoiceEngine_la_LIBADD = \
-        @SIPXMEDIA_PLUGIN_STATIC_LIBS@ \
 	-lresolv -lpthread -lresolv -lpcre \
         @GIPS_VEMM_LIBS@ \
         @CA_LIBS@ \
