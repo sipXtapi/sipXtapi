@@ -323,7 +323,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
       pXhdr = (short*) (buf->getDataPtr() + offset);
       xLen = ntohs(pXhdr[1]);
 
-      // Increment offset by extention header plus extension size
+      // Increment offset by extension header plus extension size
       offset += (sizeof(int) * (1 + xLen));
    }
 
