@@ -59,8 +59,7 @@ public:
     {
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
-        resourceArray[0] = new MprHook(resourceName,
-                                       mMaxInputs);
+        resourceArray[0] = new MprHook(resourceName);
         resourceArray[0]->enable();
         return(OS_SUCCESS);
     }
