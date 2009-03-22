@@ -39,7 +39,7 @@ public:
     /** Constructor
      */
     MprHookConstructor(int maxInOutputs = 5)
-    : MpAudioResourceConstructor(DEFAULT_NULL_RESOURCE_TYPE,
+    : MpAudioResourceConstructor(DEFAULT_HOOK_RESOURCE_TYPE,
                                  0, 1, //minInputs, maxInputs,
                                  0, 1) //minOutputs, maxOutputs
     {
