@@ -90,6 +90,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpJbeFixed.cpp \
     mp/MpJitterBuffer.cpp \
     mp/MpJitterBufferEstimation.cpp \
+    mp/MprHook.cpp \
     mp/MpMediaTask.cpp \
     mp/MpMediaTaskMsg.cpp \
     mp/MpMisc.cpp \

@@ -56,6 +56,8 @@ nobase_include_HEADERS =  \
     mp/MpJbeFixed.h \
     mp/MpJitterBuffer.h \
     mp/MpJitterBufferEstimation.h \
+    mp/MprHook.h \
+    mp/MprHookConstructor.h \
     mp/MpMediaTask.h \
     mp/MpMediaTaskMsg.h \
     mp/MpMisc.h \

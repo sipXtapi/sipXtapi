@@ -2065,6 +2065,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprHook.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MprMixer.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -3894,6 +3897,12 @@
 				RelativePath="include\mp\MprFromStream.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MprHook.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprHookConstructor.h">
+			</File>
+			<File
 				RelativePath="include\mp\MprMixer.h">
 			</File>
 			<File
@@ -4086,10 +4095,10 @@
 				RelativePath="include\rtcp\RTCPTimer.h">
 			</File>
 			<File
-				RelativePath="include\rtcp\RTPHeader.h">
+				RelativePath=".\include\mp\RtpHeader.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\RtpHeader.h">
+				RelativePath="include\rtcp\RTPHeader.h">
 			</File>
 			<File
 				RelativePath="include\rtcp\SenderReport.h">

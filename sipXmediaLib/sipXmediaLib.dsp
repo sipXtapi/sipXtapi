@@ -408,6 +408,10 @@ SOURCE=.\src\mp\MprFromStream.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprHook.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprMixer.cpp
 # End Source File
 # Begin Source File
@@ -1309,6 +1313,14 @@ SOURCE=.\include\mp\MprFromNet.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprFromStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprHook.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprHookConstructor.h
 # End Source File
 # Begin Source File
 

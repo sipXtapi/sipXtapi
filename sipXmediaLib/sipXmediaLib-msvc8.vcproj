@@ -1208,6 +1208,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MprHook.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MprMixer.cpp"
 					>
 				</File>
@@ -1858,6 +1862,14 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MprFromStream.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprHook.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprHookConstructor.h"
 					>
 				</File>
 				<File
