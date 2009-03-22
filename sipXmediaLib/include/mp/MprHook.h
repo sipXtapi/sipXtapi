@@ -38,7 +38,7 @@ class MprHook : public MpAudioResource
 public:
 
      /// Pointer to a hook function.
-   typedef void (*HookFunction)(MpBufPtr &pBuf, uint32_t time);
+   typedef void (*HookFunction)(MpBufPtr &pBuf, uint32_t time, void *pUserData);
      /**<
      * @param pBuf - audio data. May be NULL.
      * @param time - timestamp of audio data (in frames).
@@ -61,9 +61,13 @@ public:
 //@{
 
      /// Set hook function to be called for every received frame.
-   OsStatus setHook(const UtlString& namedResource,
-                    OsMsgQ& fgQ,
-                    HookFunction func);
+   static OsStatus setHook(const UtlString& namedResource,
+                           OsMsgQ& fgQ,
+                           HookFunction func,
+                           void *pUserData);
+     /**<
+     * Note, that you have to manage userdata lifetime by yourself.
+     */
 
 //@}
 
@@ -90,8 +94,9 @@ private:
       MPRM_SET_HOOK = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START
    } AddlMsgTypes;
 
-   HookFunction *mpHook;    ///< Hook function to be called.
-   uint32_t      mFrameNum; ///< Number of the current frame.
+   HookFunction *mpHook;     ///< Hook function to be called.
+   void         *mpUserData; ///< User data to pass to hook function.
+   uint32_t      mFrameNum;  ///< Number of the current frame.
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],

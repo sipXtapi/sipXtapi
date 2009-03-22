@@ -43,7 +43,8 @@ MprHook::~MprHook()
 
 OsStatus MprHook::setHook(const UtlString& namedResource,
                           OsMsgQ& fgQ,
-                          HookFunction func)
+                          HookFunction func,
+                          void *pUserData)
 {
    OsStatus stat;
    MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_SET_HOOK,
@@ -51,6 +52,8 @@ OsStatus MprHook::setHook(const UtlString& namedResource,
    UtlSerialized &msgData = msg.getData();
 
    stat = msgData.serialize((void*)func);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize((void*)pUserData);
    assert(stat == OS_SUCCESS);
    msgData.finishSerialize();
 
@@ -86,7 +89,7 @@ UtlBoolean MprHook::doProcessFrame(MpBufPtr inBufs[],
    // Call hook-function.
    if (mpHook != NULL)
    {
-      (*mpHook)(inBufs[0], mFrameNum);
+      (*mpHook)(inBufs[0], mFrameNum, mpUserData);
    }
 
    // Pass processed buffer further
@@ -108,12 +111,16 @@ UtlBoolean MprHook::handleMessage(MpResourceMsg& rMsg)
       {
          OsStatus stat;
          HookFunction *pHook;
+         void *pUserData;
 
          UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
          stat = msgData.deserialize((void*&)pHook);
          assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize((void*&)pUserData);
+         assert(stat == OS_SUCCESS);
 
          mpHook = pHook;
+         mpUserData = pUserData;
          return TRUE;
       }
       break;
