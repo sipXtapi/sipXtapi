@@ -89,7 +89,7 @@ UtlBoolean MprHook::doProcessFrame(MpBufPtr inBufs[],
    // Call hook-function.
    if (mpHook != NULL)
    {
-      (*mpHook)(inBufs[0], mFrameNum, mpUserData);
+      mpHook(inBufs[0], mFrameNum, mpUserData);
    }
 
    // Pass processed buffer further
@@ -110,7 +110,7 @@ UtlBoolean MprHook::handleMessage(MpResourceMsg& rMsg)
    case MPRM_SET_HOOK:
       {
          OsStatus stat;
-         HookFunction *pHook;
+         HookFunction pHook;
          void *pUserData;
 
          UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();

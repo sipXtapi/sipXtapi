@@ -94,7 +94,7 @@ private:
       MPRM_SET_HOOK = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START
    } AddlMsgTypes;
 
-   HookFunction *mpHook;     ///< Hook function to be called.
+   HookFunction  mpHook;     ///< Hook function to be called.
    void         *mpUserData; ///< User data to pass to hook function.
    uint32_t      mFrameNum;  ///< Number of the current frame.
 
