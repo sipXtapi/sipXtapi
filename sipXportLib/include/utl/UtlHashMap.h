@@ -106,6 +106,11 @@ public:
       /// @brief Removes the designated key and its associated value from the map
       /// and frees the key and the value (if not NULL) by calling delete.
     virtual UtlBoolean destroy(UtlContainable* key);    
+      /**<
+      *  @param pointer to a UtlContainable for which key->operator==(the actual key)
+      *
+      *  @return the key or NULL if not found
+      */
 
 
       /// Removes all elements from the hash map and deletes each element.
