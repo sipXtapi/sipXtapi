@@ -933,7 +933,8 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
          int32_t updatePeriodMS;
 
          UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
-         stat = msgData.deserialize(updatePeriodMS);
+         // Explicit cast to char& is hack to fix for broken VS6 compiler.
+         stat = msgData.deserialize((char&)updatePeriodMS);
          assert(stat == OS_SUCCESS);
 
          msgHandled = handleSetUpdatePeriod(updatePeriodMS);
