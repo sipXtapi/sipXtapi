@@ -507,7 +507,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         // Create a buffer to record to.
         // HACK! This assumes recording is done at 8kHz 16bit!
         const int nSecsToRecord = 10;
-        const int audioBufferSize = nSecsToRecord*1000*mediaInterface->getSamplesPerSec();
+        const int audioBufferSize = nSecsToRecord*mediaInterface->getSamplesPerSec()*2;
         int16_t *audioBuffer = new int16_t[audioBufferSize];
 
         mediaInterface->recordMic(nSecsToRecord*1000, audioBuffer, audioBufferSize);
