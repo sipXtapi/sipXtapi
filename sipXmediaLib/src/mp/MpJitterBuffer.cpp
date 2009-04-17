@@ -225,6 +225,10 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    }
    if (rtpPacket.isValid() || decoder->getInfo()->haveInternalPLC())
    {
+      // TODO:: For now we do not support samplerate change in the middle
+      //        of a stream.
+      assert(mStreamSampleRate == decoder->getInfo()->getSampleRate());
+
       // Decode packet to temporary resample and slice buffer.
       decodedSamples = decoder->decode(rtpPacket, DECODED_DATA_MAX_LENGTH,
                                        mDecodedData);
