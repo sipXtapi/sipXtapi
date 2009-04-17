@@ -84,17 +84,6 @@ void MpJitterBuffer::init(unsigned int samplesPerSec, unsigned int samplesPerFra
    assert(mpResampler == NULL);
    mpResampler = MpResamplerBase::createResampler(1, mOutputSampleRate, mOutputSampleRate);
 
-   if (mpVad)
-   {
-      OsStatus status = mpVad->init(mOutputSampleRate);
-      assert(status == OS_SUCCESS);
-   }
-
-   if (mpAgc)
-   {
-      OsStatus status = mpAgc->init(mOutputSampleRate);
-      assert(status == OS_SUCCESS);
-   }
 }
 
 MpJitterBuffer::~MpJitterBuffer()
@@ -222,6 +211,21 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       mIsFirstPacket = FALSE;
       mStreamSampleRate = decoder->getInfo()->getSampleRate();
       mpPlc->init(mStreamSampleRate);
+
+      // Have to wait for the first packet to initialize AGC and VAD
+      // as we need the specific codec sample rate to do so.
+      if (mpVad)
+      {
+         OsStatus status = mpVad->init(mStreamSampleRate);
+         assert(status == OS_SUCCESS);
+      }
+
+      if (mpAgc)
+      {
+         OsStatus status = mpAgc->init(mStreamSampleRate);
+         assert(status == OS_SUCCESS);
+      }
+
    }
    if (rtpPacket.isValid() || decoder->getInfo()->haveInternalPLC())
    {
