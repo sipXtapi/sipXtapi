@@ -358,14 +358,28 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
                 }
                 else
                 {
-                    // Workaround for RFC4733. Refer to RFC4733 section 7.1.1.
-                    // paragraph optional "Optional parameters" and
-                    // section 2.4.1 for details.
-                    if (  (fmtp.isNull() || fmtp == "0-15")
-                       && (foundFmtp.isNull() || foundFmtp == "0-15"))
+                    if (foundMimeSubType.compareTo(MIME_SUBTYPE_DTMF_TONES, UtlString::ignoreCase) == 0)
                     {
-                        // we found a match
+#ifdef SDP_RFC4733_STRICT_FMTP_CHECK // [
+                        // Workaround for RFC4733. Refer to RFC4733 section 7.1.1.
+                        // paragraph optional "Optional parameters" and
+                        // section 2.4.1 for details.
+                        if (  (fmtp.isNull() || fmtp == "0-15")
+                           && (foundFmtp.isNull() || foundFmtp == "0-15"))
+                        {
+                            // we found a match
+                            break;
+                        }
+#else // SDP_RFC4733_STRICT_FMTP_CHECK ][
+                        // Match any fmtp for RFC4733 DTMFs.
+                        // There are quite a few implementation which use
+                        // different fmtp strings in their SDP and we should be
+                        // interoperable with them. Simplest way is to accept
+                        // everything and ignore unknown codes later.
+                        // Examples of fmtp strings seen in the field:
+                        // "0-16" (e.g. Snom phones), "0-11".
                         break;
+#endif // !SDP_RFC4733_STRICT_FMTP_CHECK ]
                     }
                 }
             }
