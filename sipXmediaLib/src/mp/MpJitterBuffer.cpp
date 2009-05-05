@@ -128,6 +128,7 @@ void MpJitterBuffer::reset()
    mIsFirstPacket = TRUE;
    mStreamRtpPayload = -1;
    mSamplesPerPacket = 0;
+   mStreamSampleRate = 0;
 }
 
 OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
