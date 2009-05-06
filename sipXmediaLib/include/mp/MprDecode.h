@@ -164,8 +164,9 @@ private:
       RtpSeq rtpStreamSeq;          ///< Current sequence number of RTP stream.
       RtpTimestamp rtpStreamPosition; ///< Current pulling JB position (in RTP timestamp units).
       int32_t rtpStreamHint;        ///< Recommended playback position (in RTP timestamp units).
-      uint32_t playbackStreamPosition; ///< Current playback position (in samples).
-      unsigned playbackFrameSize;   ///< Stream frame size of this stream (in samples).
+      uint32_t playbackStreamPosition; ///< Current playback position (in RTP timestamp units).
+      unsigned playbackFrameSize;   ///< Stream frame size of this stream (in RTP timestamp units).
+      uint8_t rtpPayloadType;       ///< Current RTP payload type.
    } mStreamState;
 
    MpJitterBufferEstimation *mpJbEstimationState; ///< State of JB delay estimation.
@@ -177,6 +178,16 @@ private:
    */
    MpDecoderBase** mpCurrentCodecs;
    int             mNumCurrentCodecs; ///< Length of mpCurrentCodecs array.
+   UtlBoolean mEnableG722Hack;   ///< Should we cheat with RTP clock rate in case
+                                 ///< G.722 is selected. According to section 4.5.2
+                                 ///< of RFC 3551 we should use 8K RTP clock rate
+                                 ///< instead of 16K for G.722 because of historical
+                                 ///< error in RFC 1890.
+   int mG722HackPayloadType;     ///< RTP payload type to which we should apply
+                                 ///< G.722 RTP clock rate workaround. Set to -1
+                                 ///< if workaround is not enabled.
+                                 ///< See mEnableG722Hack for better description.
+
 
    /// Similar list of all codecs that have ever been listed on mpCurrentCodecs.
    MpDecoderBase** mpPrevCodecs;

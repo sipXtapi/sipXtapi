@@ -79,6 +79,8 @@ MprEncode::MprEncode(const UtlString& rName)
    mConsecutiveUnsentFrames1(0),
    mDoesVad1(FALSE),
    mDisableDTX(TRUE),
+   mEnableG722Hack(TRUE),
+   mDoG722Hack(FALSE),
 
    mNeedResample(FALSE),
    mpResampler(MpResamplerBase::createResampler(1, 8000, 8000)),
@@ -295,6 +297,16 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
          mResampleBufLen = mpFlowGraph->getSamplesPerFrame()
                            * codecSamplesPerSec/flowgraphSamplesPerSec;
          mpResampleBuf = new MpAudioSample[mResampleBufLen];
+      }
+
+      // Check is G.722 workaround needed
+      if (mEnableG722Hack && pPrimary->getCodecType() == SdpCodec::SDP_CODEC_G722)
+      {
+         mDoG722Hack = TRUE;
+      }
+      else
+      {
+         mDoG722Hack = FALSE;
       }
 
       mMaxPacketSamples = mMaxPacketTime*codecSamplesPerSec/1000;
@@ -539,7 +551,15 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
       mSamplesPacked += numSamplesOut;
       pSamplesIn += numSamplesOut;
       numSamplesIn -= numSamplesOut;
-      mCurrentTimestamp += numSamplesOut;
+
+      if (mDoG722Hack)
+      {
+         mCurrentTimestamp += numSamplesOut/2;
+      }
+      else
+      {
+         mCurrentTimestamp += numSamplesOut;
+      }
 
       if (mpPrimaryCodec->getInfo()->getCodecType() == CODEC_TYPE_FRAME_BASED)
       {

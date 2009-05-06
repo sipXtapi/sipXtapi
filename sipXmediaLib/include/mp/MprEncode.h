@@ -168,6 +168,14 @@ private:
    int   mConsecutiveUnsentFrames1;
    UtlBoolean mDoesVad1;    ///< Does codec its own VAD?
    UtlBoolean mDisableDTX;  ///< Disable internal DTX.
+   UtlBoolean mEnableG722Hack;   ///< Should we cheat with RTP clock rate in case
+                                 ///< G.722 is selected. According to section 4.5.2
+                                 ///< of RFC 3551 we should use 8K RTP clock rate
+                                 ///< instead of 16K for G.722 because of historical
+                                 ///< error in RFC 1890.
+   UtlBoolean mDoG722Hack;       ///< Should we apply RTP clock rate halving to
+                                 ///< workaround G.722 spec bug? See mEnableG722Hack
+                                 ///< for better description.
 //@}
 
 ///@name Resampler-related variables.

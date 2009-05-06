@@ -87,6 +87,8 @@ MprDecode::MprDecode(const UtlString& rName,
 , mpJbEstimationState(MpJitterBufferEstimation::createJbe())
 , mpCurrentCodecs(NULL)
 , mNumCurrentCodecs(0)
+, mEnableG722Hack(TRUE)
+, mG722HackPayloadType(-1)
 , mpPrevCodecs(NULL)
 , mNumPrevCodecs(0)
 {
@@ -196,6 +198,8 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
    {
       // No decoder for this packet - just return error.
       dprintf(" No decoder for payload type %d!\n", pt);
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprDecode::pushPacket() dropping RTP packet, no decoder for payload type %d", pt);
       return OS_NOT_FOUND;
    }
    const MpCodecInfo* pDecoderInfo = pDecoder->getInfo();
@@ -207,7 +211,8 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
       mStreamState.isFirstRtpPulled = FALSE;
       mStreamState.rtpStreamPosition = pRtp->getRtpTimestamp();
       mStreamState.rtpStreamHint = 0;
-      mStreamState.sampleRate = pDecoderInfo->getSampleRate();
+      // Apply G.722 clock rate workaround if requested
+      mStreamState.sampleRate = (pt!=mG722HackPayloadType)?pDecoderInfo->getSampleRate():8000;
       mStreamState.playbackFrameSize = getFlowGraph()->getSamplesPerFrame()
                                        * mStreamState.sampleRate
                                        / getFlowGraph()->getSamplesPerSec();
@@ -230,8 +235,16 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
    }
    else
    {
-      // Sample rate mustn't change during the live stream.
-      assert(pDecoderInfo->getSampleRate() == mStreamState.sampleRate);
+      // Sample rate must not change during the active stream.
+      if (mStreamState.sampleRate !=
+          ((pt!=mG722HackPayloadType)?pDecoderInfo->getSampleRate():8000))
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MprDecode::pushPacket() dropping RTP packet, "
+                       "dynamic samplerate change is not supported. pt=%d, rate=%d, stream rate=%d",
+                       pt, pDecoderInfo->getSampleRate(), mStreamState.sampleRate);
+         return OS_SUCCESS;
+      }
 
       // RFC4733 states that timestamp always refers to the beginning of a tone,
       // so it will remain constant among a lot of packets. We don't want to
@@ -382,11 +395,15 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
          else
          {
             // No packets have come out from JB queue yet. We'll wait.
-            /// TODO:: Convert to stream samplerate.
             mStreamState.rtpStreamPosition += mStreamState.playbackFrameSize;
             dprintf("]\n");
             return TRUE;
          }
+      }
+      if (rtp.isValid())
+      {
+         // Update stream payload type
+         mStreamState.rtpPayloadType = rtp->getRtpPayloadType();
       }
       dprintf("]");
 
@@ -395,15 +412,19 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                                      - mStreamState.playbackStreamPosition)
                               + mStreamState.rtpStreamHint;
       int adjustment;
-      int decodedSamples;
+      int decodedLength;
       UtlBoolean isPlayed;
       OsStatus res = mpJB->pushPacket(rtp,
                                       nextPacketAvailable?0:mpFlowGraph->getSamplesPerFrame(),
                                       wantedBufferSamples,
-                                      decodedSamples,
+                                      decodedLength,
                                       adjustment,
                                       isPlayed);
-      dprintf(" decoded=%d", decodedSamples);
+      if (mStreamState.rtpPayloadType == mG722HackPayloadType)
+      {
+         decodedLength /= 2;
+      }
+      dprintf(" decoded=%d", decodedLength);
       dprintf(" adj[h=%"PRId32" ?%d %d p?%d",
               mStreamState.rtpStreamHint, wantedBufferSamples, adjustment,
               int(isPlayed));
@@ -416,15 +437,15 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       // signaling packet. According to RFC4733 its timestamp is set to
       // the beginning of a tone, so we will constantly jump back in time
       // if we set our stream position to its timestamp.
-      if (decodedSamples>0)
+      if (decodedLength>0)
       {
          if (isPlayed)
          {
-            mStreamState.rtpStreamPosition = rtp->getRtpTimestamp() + decodedSamples;
+            mStreamState.rtpStreamPosition = rtp->getRtpTimestamp() + decodedLength;
          } 
          else
          {
-            mStreamState.rtpStreamPosition += decodedSamples;
+            mStreamState.rtpStreamPosition += decodedLength;
          }
       }
       if (res != OS_SUCCESS)
@@ -441,7 +462,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       // If DTMF packet is received before any audio packet, PLC is not ready
       // and does not produce any samples. We need to gracefully handle this
       // situation instead of infinite looping.
-      if (!rtp.isValid() && decodedSamples==0)
+      if (!rtp.isValid() && decodedLength==0)
       {
          break;
       }
@@ -639,6 +660,8 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
    {
       // Delete the current codecs.
       handleDeselectCodecs(FALSE);
+      // Reset G.722 clock rate workaround flag.
+      mG722HackPayloadType = -1;
 
       mNumCurrentCodecs = 0;
       mpCurrentCodecs = new MpDecoderBase*[numCodecs];
@@ -660,6 +683,12 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
             mDecoderMap.addPayloadType(payload, pNewDecoder);
             mpCurrentCodecs[mNumCurrentCodecs] = pNewDecoder;
             mNumCurrentCodecs++;
+
+            // Check should we apply G.722 clock rate workaround to this codec?
+            if (mEnableG722Hack && pCodec->getCodecType() == SdpCodec::SDP_CODEC_G722)
+            {
+               mG722HackPayloadType = payload;
+            }
          }
          else
          {
