@@ -436,7 +436,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                     mStunPort, mStunKeepAlivePeriodSecs, mTurnServer,
                                     mTurnPort, mTurnUsername, mTurnPassword,
                                     mTurnKeepAlivePeriodSecs, isIceEnabled(),
-                                    8000);
+                                    mDefaultSampleRate);
 
 
                                 int inviteExpireSeconds;
@@ -1674,7 +1674,9 @@ void CallManager::bufferPlay(const char* callId, const void* audioBuf, int bufSi
 {
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     OsProtectedEvent* pEvent = eventMgr->alloc();
-    int sTimeout = bufSize / 8000;
+    // TODO: this should use the sample rate of the flowgraph not call manager
+    // default rate
+    int sTimeout = bufSize / mDefaultSampleRate;
     if (sTimeout < CP_MAX_EVENT_WAIT_SECONDS)
       sTimeout = CP_MAX_EVENT_WAIT_SECONDS;
 
@@ -3620,7 +3622,7 @@ void CallManager::doCreateCall(const char* callId,
                 numCodecs, codecArray, mLocale.data(), mExpeditedIpTos,
                 mStunServer, mStunPort, mStunKeepAlivePeriodSecs, 
                 mTurnServer, mTurnPort, mTurnUsername, mTurnPassword, 
-                mTurnKeepAlivePeriodSecs, isIceEnabled(), 8000);
+                mTurnKeepAlivePeriodSecs, isIceEnabled(), mDefaultSampleRate);
 
             OsSysLog::add(FAC_CP, PRI_DEBUG, "Creating new SIP Call, mediaInterface: %p\n", mediaInterface);
             call = new CpPeerCall(mIsEarlyMediaFor180,

@@ -799,17 +799,18 @@ protected:
     UtlString mForwardUnconditional;
 
     int mLineBusyBehavior;
-         UtlString mSipForwardOnBusy;
+    UtlString mSipForwardOnBusy;
 
     int mNoAnswerTimeout;
-     UtlString mForwardOnNoAnswer;
+    UtlString mForwardOnNoAnswer;
 
-        int mDoNotDisturbFlag;
-        int mMsgWaitingFlag;
-        int mOfferedTimeOut;
-   int mInviteExpireSeconds;  // The PHONESET_CP_RINGING_EXPIRE_SECONDS parameter,
+    int mDoNotDisturbFlag;
+    int mMsgWaitingFlag;
+    int mOfferedTimeOut;
+    int mInviteExpireSeconds;  // The PHONESET_CP_RINGING_EXPIRE_SECONDS parameter,
                               // it is used to set the ringing expired timer if there
                               // is no Expires header field from an incoming INVITE
+    int mDefaultSampleRate; ///< for flowgraph creation
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

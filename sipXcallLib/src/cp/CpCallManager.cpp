@@ -55,7 +55,8 @@ CpCallManager::CpCallManager(const char* taskName,
 OsServerTask(taskName, NULL, CALLMANAGER_MAX_REQUEST_MSGS),
 mManagerMutex(OsMutex::Q_FIFO),
 mCallListMutex(OsMutex::Q_FIFO),
-mCallIndices()
+mCallIndices(),
+mDefaultSampleRate(8000)
 {
     mDoNotDisturbFlag = FALSE;
     mMsgWaitingFlag = FALSE;
