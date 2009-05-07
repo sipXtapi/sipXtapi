@@ -146,15 +146,20 @@ OsStatus OsSysLogTask::clear()
 // Flushes the log
 OsStatus OsSysLogTask::flush(const OsTime& rTimeout)
 {
-   OsStatus rc = OS_UNSPECIFIED ; 
-   OsEvent flushSync ;
+   OsStatus rc = OS_UNSPECIFIED;
+   OsEvent *pFlushSync = new OsEvent();
 
-   OsSysLogMsg msg(OsSysLogMsg::FLUSH_LOG, (void*) &flushSync) ;
-   postMessage(msg) ;
+   OsSysLogMsg msg(OsSysLogMsg::FLUSH_LOG, (void*) pFlushSync);
+   postMessage(msg);
 
-   rc = flushSync.wait(rTimeout) ;
+   rc = pFlushSync->wait(rTimeout);
+   if (  rc == OS_SUCCESS
+      || pFlushSync->signal(0) == OS_ALREADY_SIGNALED)
+   {
+      delete pFlushSync;
+   }
 
-   return rc ;
+   return rc;
 }
 
 
@@ -846,7 +851,11 @@ OsStatus OsSysLogTask::processFlushLog(OsEvent* pEvent)
    // Signal passed event
    if (pEvent != NULL)
    {
-      pEvent->signal(0) ;
+      OsStatus rc = pEvent->signal(0);
+      if (rc == OS_ALREADY_SIGNALED)
+      {
+         delete pEvent;
+      }
    }
 
    return status;
