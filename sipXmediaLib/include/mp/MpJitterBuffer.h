@@ -161,9 +161,9 @@ protected:
 private:
 
    enum {
-      FRAMES_TO_STORE = 16,         ///< Number of frames to store in buffer.
+      FRAMES_TO_STORE = 32,         ///< Number of frames to store in buffer.
                                     ///< Should be a power of 2.
-      DECODED_DATA_MAX_LENGTH = 6 * 160 ///< Size of mDecodedData temporary buffer.
+      DECODED_DATA_MAX_LENGTH = 10 * 160 ///< Size of mDecodedData temporary buffer.
    };
 
 ///@name Resampler variables.
