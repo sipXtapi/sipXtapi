@@ -655,9 +655,20 @@ void MprSpeakerSelector::updateMapping(MprSpeakerSelector::RankIndexPair *topRan
 
 int MprSpeakerSelector::getOldestOutput()
 {
-   uint32_t minTime = mChangeMapTime[mOutToInMap[0]];
+   uint32_t minTime;
    int oldestOutput = 0;
-   for (int i=0; i<maxOutputs(); i++)
+
+   if (mOutToInMap[0] == -1)
+   {
+      // If this output hasn't been used yet, just return it.
+      return 0;
+   }
+   else
+   {
+      minTime = mChangeMapTime[mOutToInMap[0]];
+   }
+
+   for (int i=1; i<maxOutputs(); i++)
    {
       if (mOutToInMap[i] == -1)
       {
