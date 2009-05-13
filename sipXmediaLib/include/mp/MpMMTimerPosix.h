@@ -17,6 +17,7 @@
 #include <time.h>
 #include <signal.h>
 #include <semaphore.h>
+#include <pthread.h>
 
 
 // APPLICATION INCLUDES
@@ -27,10 +28,10 @@
 /**
 *  @brief Posix implementation of periodic timer
 *
-*  WARNING: In notification mode only async-signal-safe functions should be
-*  called. To make this real you should use PosixSignalReg to unblock
-*  signals for exactly one thread for a safe period of time. See
-*  MpMediaTask::run() for an example.
+*  WARNING: You MUST be sure that exists only one object of this class.
+*           To support several MpMMTimer objects we need to circumvent
+*           sync sigwait() peculiarities, which will complicate the code
+*           a lot and is not necessary right now.
 */
 class MpMMTimerPosix : public MpMMTimer
 {
@@ -118,7 +119,7 @@ public:
 
 /* ////////////////////////////// PROTECTED /////////////////////////////// */
 protected:
-   OsNotification* mpNotification; ///< Notification object used to signal a tick of the timer.   
+   OsNotification* mpNotification; ///< Notification object used to signal a tick of the timer.
    UtlBoolean mbTimerStarted;      ///< Is timer started.
    timer_t mTimer;                 ///< Timer object.
    sem_t mSyncSemaphore;           ///< Synchronization semaphore for linear operation.
@@ -129,6 +130,10 @@ protected:
 /* /////////////////////////////// PRIVATE //////////////////////////////// */
 private:   
    static PosixSignalReg sPosixTimerReg;
+   pthread_t mThread;              ///< Sync-signal wait thread
+   sem_t mIoSem;                   ///< Startup initialization semaphore
+
+   static void* threadIoWrapper(void* arg);
 };
 
 /* ============================ INLINE METHODS ============================ */

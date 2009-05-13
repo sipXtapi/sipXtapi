@@ -221,6 +221,8 @@ public:
       }
 
 
+      delete pMMTimer;
+
       checkDeltasAgainstThresholds(deltas, absDeltas, TLT_LOOP_CNT-1, 
                                    periodUSecs, 
                                    lowerThresh, upperThresh);
@@ -229,7 +231,6 @@ public:
                                  periodUSecs, 
                                  lowerMeanThresh, upperMeanThresh);
 
-      delete pMMTimer;
    }
 
    void notificationTimerRecordTick()
@@ -308,6 +309,8 @@ public:
          pAbsDeltas[i] = (long)((curUsec_iPlus1 - curUsec_0) - periodUSecs*i);
       }
 
+      delete pMMTimer;
+
       checkDeltasAgainstThresholds(pDeltas, pAbsDeltas, mPerfTimesSz-1,
                                    periodUSecs,
                                    lowerThresh, upperThresh);
@@ -325,7 +328,6 @@ public:
       mpPerfTimes = NULL;
       mCurNPerfTimes = 0;
       mPerfTimesSz = 0;
-      delete pMMTimer;
    }
 
 protected:

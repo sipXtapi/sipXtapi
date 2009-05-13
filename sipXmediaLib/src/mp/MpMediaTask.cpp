@@ -597,24 +597,7 @@ int MpMediaTask::run(void* pArg)
 
    do
    {
-#ifdef __pingtel_on_posix__
-      if (!mIsLocalAudioEnabled)
-      {
-          MpMMTimerPosix::getSignalDescriptor()->unblockThreadSig();
-      }
-#endif
       res = receiveMessage((OsMsg*&) pMsg);          // wait for a message
-#ifdef __pingtel_on_posix__
-      if (!mIsLocalAudioEnabled)
-      {
-          MpMMTimerPosix::getSignalDescriptor()->blockThreadSig();
-
-          // Probably signal may cause to wake up lock
-          if (res == OS_WAIT_TIMEOUT)
-            continue;
-      }
-#endif
-
       assert(res == OS_SUCCESS);
 
       doShutdown = isShuttingDown();

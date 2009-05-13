@@ -14,6 +14,10 @@
 #include <os/OsIntTypes.h>
 #include <os/OsSysLog.h>
 
+#include <sched.h>
+#include <unistd.h>
+#include <sys/types.h>
+
 // APPLICATION INCLUDES
 #include "mp/MpMMTimerPosix.h"
 
@@ -33,6 +37,12 @@ MpMMTimerPosix::MpMMTimerPosix(MpMMTimer::MMTimerType type)
       assert( res == 0);
    }
 
+   sem_init(&mIoSem, 0, 0);
+
+   int res = pthread_create(&mThread, NULL, threadIoWrapper, this);
+   assert(res == 0);
+
+   sem_wait(&mIoSem);
 }
 
 MpMMTimerPosix::~MpMMTimerPosix()
@@ -44,6 +54,11 @@ MpMMTimerPosix::~MpMMTimerPosix()
    {
       sem_destroy(&mSyncSemaphore);
    }
+
+   sem_destroy(&mIoSem);
+
+   pthread_kill(mThread, SIGTERM);
+   pthread_join(mThread, NULL);
 }
 
 OsStatus MpMMTimerPosix::run(unsigned usecPeriodic)
@@ -195,10 +210,43 @@ void MpMMTimerPosix::callback()
    } while (overruns-- > 0);
 }
 
+void* MpMMTimerPosix::threadIoWrapper(void* arg)
+{
+   MpMMTimerPosix* obj = (MpMMTimerPosix*)arg;
+   sigset_t mask, fmask;
+   sigemptyset(&mask);
+   sigaddset (&mask, gPosixTimerReg.getSignalNum());
+   sigaddset (&mask, SIGTERM);
+
+   sigfillset(&fmask);
+   pthread_sigmask (SIG_SETMASK, &fmask, NULL);
+
+   struct sched_param realtime;
+   if (geteuid() == 0)
+   {
+       realtime.sched_priority = sched_get_priority_max(SCHED_FIFO);
+       pthread_setschedparam(pthread_self(), SCHED_FIFO, &realtime);
+   }
+
+   int signum;
+
+   sem_post(&obj->mIoSem);
+
+   for(;;)
+   {
+      sigwait(&mask, &signum);
+      if (signum == SIGTERM)
+         return NULL;
+
+      assert(signum == gPosixTimerReg.getSignalNum());
+
+      obj->callback();
+   }
+}
+
 void MpMMTimerPosix::signalHandler(int signum, siginfo_t *siginfo, void *context)
 {
    assert(siginfo->si_signo == TIMER_SIGNAL);
-   //assert(siginfo->si_code == SI_TIMER);
 
    MpMMTimerPosix* object = (MpMMTimerPosix*)siginfo->si_ptr;
    object->callback();
@@ -222,7 +270,7 @@ MpMMTimerPosix::PosixSignalReg::PosixSignalReg(int sigNum, void (*sa)(int, sigin
    // Block this signal for all the threads by defalut
    // Interested in signal thread should use unblockThreadSig() to allow to catch it
    sigprocmask (SIG_BLOCK, &mBlockSigMask, NULL);   
-
+/*
    struct sigaction act;
    act.sa_sigaction = sa;
    act.sa_flags = SA_SIGINFO | SA_RESTART;
@@ -230,6 +278,7 @@ MpMMTimerPosix::PosixSignalReg::PosixSignalReg(int sigNum, void (*sa)(int, sigin
 
    int res = sigaction(mSigNum, &act, &mOldAction);
    assert (res == 0);
+*/
 }
 
 int MpMMTimerPosix::PosixSignalReg::getSignalNum() const
