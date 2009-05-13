@@ -33,9 +33,9 @@
 // DEFINES
 /// PLUGIN_FILTER is a standard file filter for codec plugins.
 #ifdef __pingtel_on_posix__ // [
-#  define CODEC_PLUGINS_FILTER "codec_.*\\.so"
+#  define CODEC_PLUGINS_FILTER "^codec_.*\\.so$"
 #elif defined(WIN32) // __pingtel_on_posix__ ] [
-#  define CODEC_PLUGINS_FILTER "codec_.*\\.dll"
+#  define CODEC_PLUGINS_FILTER "^codec_.*\\.dll$"
 #elif // WIN32 ] [
 #  error Unknown platform! Please specify correct codec plugins file filter.
 #endif // ]
