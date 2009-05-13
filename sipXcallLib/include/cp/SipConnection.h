@@ -74,7 +74,7 @@ public:
 
     /* ============================ MANIPULATORS ============================== */
 
-    virtual UtlBoolean dequeue(UtlBoolean callInFocus);
+    virtual UtlBoolean dequeue();
 
     virtual UtlBoolean send(SipMessage& message,
                             OsMsgQ* responseListener = NULL,
@@ -144,8 +144,7 @@ public:
     virtual UtlBoolean canSendInfo() ;
     virtual UtlBoolean sendInfo(UtlString contentType, UtlString sContent);
 
-    virtual UtlBoolean processMessage(OsMsg& eventMessage,
-        UtlBoolean callInFocus, UtlBoolean onHook);
+    virtual UtlBoolean processMessage(OsMsg& eventMessage);
 
     void setCallerId();
 
@@ -260,8 +259,7 @@ protected:
     UtlBoolean extendSessionReinvite();
 
     // SIP Request handlers
-    UtlBoolean processRequest(const SipMessage* request,
-        UtlBoolean callInFocus, UtlBoolean onHook);
+    UtlBoolean processRequest(const SipMessage* request);
     void processInviteRequest(const SipMessage* request);
     void processReferRequest(const SipMessage* request);
     void processAckRequest(const SipMessage* request);
@@ -270,8 +268,7 @@ protected:
     void processNotifyRequest(const SipMessage* request);
 
     // SIP Response handlers
-    UtlBoolean processResponse(const SipMessage* response,
-        UtlBoolean callInFocus, UtlBoolean onHook);
+    UtlBoolean processResponse(const SipMessage* response);
     void processInviteResponse(const SipMessage* request);
     void processReferResponse(const SipMessage* request);
     void processOptionsResponse(const SipMessage* request);

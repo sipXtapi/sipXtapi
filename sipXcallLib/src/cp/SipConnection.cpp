@@ -205,7 +205,7 @@ SipConnection::operator=(const SipConnection& rhs)
 }
 
 
-UtlBoolean SipConnection::dequeue(UtlBoolean callInFocus)
+UtlBoolean SipConnection::dequeue()
 {
     UtlBoolean connectionDequeued = FALSE;
 #ifdef TEST_PRINT
@@ -2485,9 +2485,7 @@ void SipConnection::buildFromToAddresses(const char* dialString,
 //    mToUrl = toUrl;
 }
 
-UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
-                                         UtlBoolean callInFocus,
-                                         UtlBoolean onHook)
+UtlBoolean SipConnection::processMessage(OsMsg& eventMessage)
 {
     int msgType = eventMessage.getMsgType();
     int msgSubType = eventMessage.getMsgSubType();
@@ -2672,7 +2670,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
 #ifdef TEST_PRINT
             ((SipMessage*)sipMsg)->logTimeEvent("PROCESSING");
 #endif
-            processedOk = processResponse(sipMsg, callInFocus, onHook);
+            processedOk = processResponse(sipMsg);
             //numCodecs, rtpCodecs);
         }
         else
@@ -2680,7 +2678,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
 #ifdef TEST_PRINT
             ((SipMessage*)sipMsg)->logTimeEvent("PROCESSING");
 #endif
-            processedOk = processRequest(sipMsg, callInFocus, onHook);
+            processedOk = processRequest(sipMsg);
             //numCodecs, rtpCodecs);
         }
 
@@ -2768,9 +2766,7 @@ UtlBoolean SipConnection::extendSessionReinvite()
     return(messageSent);
 }
 
-UtlBoolean SipConnection::processRequest(const SipMessage* request,
-                                         UtlBoolean callInFocus,
-                                         UtlBoolean onHook)
+UtlBoolean SipConnection::processRequest(const SipMessage* request)
 {
     UtlString sipMethod;
     UtlBoolean processedOk = TRUE;
@@ -4291,9 +4287,7 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
    return(sdpBody != NULL);
 }
 
-UtlBoolean SipConnection::processResponse(const SipMessage* response,
-                                          UtlBoolean callInFocus,
-                                          UtlBoolean onHook)
+UtlBoolean SipConnection::processResponse(const SipMessage* response)
 {
     int sequenceNum;
     UtlString sequenceMethod;

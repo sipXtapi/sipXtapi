@@ -54,7 +54,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual UtlBoolean dequeue(UtlBoolean callInFocus);
+   virtual UtlBoolean dequeue();
 
    virtual UtlBoolean dial(const char* dialString,
                            const char* callerId,
@@ -115,8 +115,7 @@ public:
                              const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
                              UtlBoolean sendEarlyMedia = FALSE);
 
-   virtual UtlBoolean processMessage(OsMsg& eventMessage,
-                                    UtlBoolean callInFocus, UtlBoolean onHook);
+   virtual UtlBoolean processMessage(OsMsg& eventMessage);
 
 /* ============================ ACCESSORS ================================= */
 

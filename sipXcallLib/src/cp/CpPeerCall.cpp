@@ -317,7 +317,7 @@ UtlBoolean CpPeerCall::handleDequeueCall(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
         osPrintf("%s-About to dequeue connection: %X\n", mName.data(), connection);
 #endif
-        connection->dequeue(mCallInFocus);
+        connection->dequeue();
     }
 
     return TRUE ;
@@ -688,9 +688,7 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
         //                                    0);
         //                }
 
-        connection->processMessage(*pEventMessage, mCallInFocus, 
-            !mDtmfEnabled); // mDtmfEnabled is the same as offHook state
-        //mNumCodecs, mpaCodecArray);
+        connection->processMessage(*pEventMessage);
 
         int currentConnectionState = connection->getState();    
         if ( ((previousConnectionState != currentConnectionState) || 

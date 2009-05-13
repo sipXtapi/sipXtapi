@@ -65,7 +65,7 @@ CpGhostConnection::operator=(const CpGhostConnection& rhs)
    return *this;
 }
 
-UtlBoolean CpGhostConnection::dequeue(UtlBoolean callInFocus)
+UtlBoolean CpGhostConnection::dequeue()
 {
     unimplemented("CpGhostConnection::dequeue");
     return(FALSE);
@@ -197,8 +197,7 @@ UtlBoolean CpGhostConnection::accept(int forwardOnNoAnswerSeconds,
     return(FALSE);
 }
 
-UtlBoolean CpGhostConnection::processMessage(OsMsg& eventMessage,
-                                    UtlBoolean callInFocus, UtlBoolean onHook)
+UtlBoolean CpGhostConnection::processMessage(OsMsg& eventMessage)
 {
     return(FALSE);
 }

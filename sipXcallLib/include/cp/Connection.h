@@ -208,7 +208,7 @@ public:
       fireSipXCallEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
    }
 
-   virtual UtlBoolean dequeue(UtlBoolean callInFocus) = 0;
+   virtual UtlBoolean dequeue() = 0;
 
    virtual UtlBoolean dial(const char* dialString,
                            const char* callerId,
@@ -274,8 +274,7 @@ public:
 
    virtual UtlBoolean redirect(const char* forwardAddress) = 0;
 
-   virtual UtlBoolean processMessage(OsMsg& eventMessage,
-                                    UtlBoolean callInFocus, UtlBoolean onHook) = 0;
+   virtual UtlBoolean processMessage(OsMsg& eventMessage) = 0;
 
    virtual UtlBoolean canSendInfo() { return false; }
    //:Virtual method signature and default implementation for sendInfo - this should be overridden by
