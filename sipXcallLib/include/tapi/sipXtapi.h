@@ -2057,6 +2057,18 @@ SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecPreferences(const SIPX_CALL hCall,
                                                        const SIPX_VIDEO_BANDWIDTH_ID videoBandwidth,
                                                        const char* szVideoCodecName);
 
+
+#ifdef RTMP_CONNECTION_SUPPORT // [
+class MprDecode;
+SIPXTAPI_API SIPX_RESULT sipxCallGetLocalAudioInput(const SIPX_CALL hCall,
+                                                    MprDecode* &pDecode);
+#include <mp/MpAudioBuf.h>
+typedef void (*AudioHookFunction)(MpBufPtr &pBuf, uint32_t time, void *pUserData);
+SIPXTAPI_API SIPX_RESULT sipxCallSetLocalAudioOutputHook(const SIPX_CALL hCall,
+                                                         AudioHookFunction hook,
+                                                         void *pUserData);
+#endif // RTMP_CONNECTION_SUPPORT ]
+
 //@}
 
 /** @name Publishing Methods */
@@ -3274,13 +3286,14 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                                                             SIPX_AUDIO_BANDWIDTH_ID bandWidth) ;
 
 /**
- * Set the codec by name. The name must match one of the supported codecs
- * otherwise this function will fail.
+ * Set the codec preference order by name. The codec name(s) must match one of 
+ * the supported codecs otherwise this function will fail.
  * This method will return SIPX_RESULT_SUCCESS if able to set the audio codec.
  * SIPX_RESULT_FAILURE is returned if the codec is not set.
  * 
  * @param hInst Instance pointer obtained by sipxInitialize
- * @param szCodecName codec name
+ * @param szCodecName space delimited list of codec names.  
+ * Note: TELEPHONE-EVENT is implicitly included
  *
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst, 
