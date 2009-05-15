@@ -2057,18 +2057,6 @@ SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecPreferences(const SIPX_CALL hCall,
                                                        const SIPX_VIDEO_BANDWIDTH_ID videoBandwidth,
                                                        const char* szVideoCodecName);
 
-
-#ifdef RTMP_CONNECTION_SUPPORT // [
-class MprDecode;
-SIPXTAPI_API SIPX_RESULT sipxCallGetLocalAudioInput(const SIPX_CALL hCall,
-                                                    MprDecode* &pDecode);
-#include <mp/MpAudioBuf.h>
-typedef void (*AudioHookFunction)(MpBufPtr &pBuf, uint32_t time, void *pUserData);
-SIPXTAPI_API SIPX_RESULT sipxCallSetLocalAudioOutputHook(const SIPX_CALL hCall,
-                                                         AudioHookFunction hook,
-                                                         void *pUserData);
-#endif // RTMP_CONNECTION_SUPPORT ]
-
 //@}
 
 /** @name Publishing Methods */
