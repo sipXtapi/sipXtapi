@@ -275,17 +275,17 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
     // Delete the transactions in the array
     if (transactionsToBeDeleted)
     {
-#      ifdef TIME_LOG
-       gcTimes.addEvent("start delete");
-#      endif
+#       ifdef TIME_LOG
+        gcTimes.addEvent("start delete");
+#       endif
 
-    for(int txIndex = 0; txIndex < deleteCount; txIndex++)
-    {
-        delete transactionsToBeDeleted[txIndex];
-#         ifdef TIME_LOG
-          gcTimes.addEvent("transaction deleted");
-#         endif
-    }
+        for(int txIndex = 0; txIndex < deleteCount; txIndex++)
+        {
+            delete transactionsToBeDeleted[txIndex];
+#           ifdef TIME_LOG
+            gcTimes.addEvent("transaction deleted");
+#           endif
+       }
 
 #      ifdef TIME_LOG
        gcTimes.addEvent("finish delete");
@@ -296,6 +296,8 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
             transactionFound->stopTimers();
         }
 */
+       delete[] transactionsToBeDeleted;
+       transactionsToBeDeleted = NULL;
     }
 
 #   ifdef TIME_LOG
