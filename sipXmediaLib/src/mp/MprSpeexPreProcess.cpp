@@ -27,6 +27,7 @@
 #include "mp/MpBuf.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MprSpeexPreProcess.h"
+#include "mp/MprSpeexEchoCancel.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -163,6 +164,35 @@ OsStatus MprSpeexPreprocess::setFlowGraph(MpFlowGraphBase* pFlowGraph)
       }
    }
 
+   return res;
+}
+
+UtlBoolean MprSpeexPreprocess::connectInput(MpResource& rFrom,
+                                            int fromPortIdx,
+                                            int toPortIdx)
+{
+   UtlBoolean res = MpAudioResource::connectInput(rFrom, fromPortIdx, toPortIdx);
+   if (res)
+   {
+      // Enable residual echo removal if we're connected to MprSpeexEchoCancel.
+      if (rFrom.getContainableType() == MprSpeexEchoCancel::TYPE)
+      {
+         MprSpeexEchoCancel *pEchoCancel = (MprSpeexEchoCancel*)&rFrom;
+         speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_ECHO_STATE,
+                              pEchoCancel->getSpeexEchoState());
+      }
+   }
+   return res;
+}
+
+UtlBoolean MprSpeexPreprocess::disconnectInput(int inPortIdx)
+{
+   UtlBoolean res = MpAudioResource::disconnectInput(inPortIdx);
+   if (res)
+   {
+      // Disable residual echo processing.
+      speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_ECHO_STATE, NULL);
+   }
    return res;
 }
 

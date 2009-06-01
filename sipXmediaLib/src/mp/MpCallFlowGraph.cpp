@@ -115,7 +115,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    mpMicSplitter      = new MprSplitter("MicSplitter", 2);
    mpBufferRecorder   = new MprRecorder("BufferRecorder");
 #if defined (SPEEX_ECHO_CANCELATION)
-   mpEchoCancel       = new MprSpeexEchoCancel("SpeexEchoCancel");
+   mpEchoCancel       = new MprSpeexEchoCancel("SpeexEchoCancel", MpMisc.pEchoQ);
 #elif defined (SIPX_ECHO_CANCELATION)
    mpEchoCancel       = new MprEchoSuppress("SipxEchoCancel");
 #endif

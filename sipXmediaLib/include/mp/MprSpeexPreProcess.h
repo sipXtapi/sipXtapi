@@ -29,15 +29,15 @@
 struct SpeexPreprocessState_;
 typedef SpeexPreprocessState_ SpeexPreprocessState;
 
-/// The "Speex Audio Prepocessor" media processing resource
+/// The "Speex Audio Preprocessor" media processing resource
 /**
 *  This resource is a wrapper over Speex's audio preprocessor. It is used
 *  to do Automatic Gain Control, denoising and echo residue removal.
 *  
-*  MprSpeexPreprocess expects audio data on the first input and echo residue
-*  power spectrum on the second input and produces processed audio on its
-*  first output. Echo residue power spectrum could be get from second output
-*  of MprSpeexEchoCancel resource.
+*  MprSpeexPreprocess expects audio data on the first input and and produces
+*  processed audio on its first output. Residual echo removal is activated
+*  if MprSpeexPreprocess input is connected directly to MprSpeexEchoCancel
+*  output.
 */
 class MprSpeexPreprocess : public MpAudioResource
 {
@@ -105,6 +105,12 @@ private:
      *
      *  @retval OS_SUCCESS - for now, this method always returns success
      */
+
+     /// @copydoc MpResource::connectInput()
+   UtlBoolean connectInput(MpResource& rFrom, int fromPortIdx, int toPortIdx);
+
+     /// @copydoc MpResource::disconnectInput()
+   UtlBoolean disconnectInput(int outPortIdx);
 
      /// Copy constructor (not implemented for this class)
    MprSpeexPreprocess(const MprSpeexPreprocess& rMprSpeexPreprocess);

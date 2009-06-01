@@ -19,6 +19,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
+#include "os/OsSysLog.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MpBufPool.h"
@@ -30,6 +31,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType MprSpeexEchoCancel::TYPE = "MprSpeexEchoCancel";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -37,10 +39,11 @@
 
 // Constructor
 MprSpeexEchoCancel::MprSpeexEchoCancel(const UtlString& rName,
-                                       int filterLength,
-                                       int echoResiduePoolSize)
+                                       OsMsgQ* pSpkrQ,
+                                       int filterLength)
 : MpAudioResource(rName, 1, 1, 1, 1)
 , mFilterLength(filterLength)
+, mpSpkrQ(pSpkrQ)
 {
 }
 
@@ -52,6 +55,11 @@ MprSpeexEchoCancel::~MprSpeexEchoCancel()
 /* ============================ MANIPULATORS ============================== */
 
 /* ============================ ACCESSORS ================================= */
+
+UtlContainableType MprSpeexEchoCancel::getContainableType() const
+{
+   return TYPE;
+}
 
 /* ============================ INQUIRY =================================== */
 
@@ -73,10 +81,6 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
    MpBufferMsg*    bufferMsg;
    bool            res = false;
 
-   // We don't need to do anything if we don't have an output.
-   if (!isOutputConnected(0) && !isOutputConnected(1))
-      return FALSE;
-
    // If disabled pass buffer through
    if (!isEnabled) {
       outBufs[0].swap(inBufs[0]);
@@ -95,43 +99,51 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
       res = inputBuffer.requestWrite();
       assert(res);
 
-      // Try to get a reference frame for echo cancelation.  21 = MAX_SPKR_BUFFERS(12) +
-      if (MpMisc.pEchoQ->numMsgs() > MAX_ECHO_QUEUE) {
-
-         // Flush queue
-         while ( (MpMisc.pEchoQ->receive((OsMsg*&) bufferMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
-               && MpMisc.pEchoQ->numMsgs() > MAX_ECHO_QUEUE)
+      // Try to get a reference frame for echo cancellation.  21 = MAX_SPKR_BUFFERS(12) +
+      if (mpSpkrQ->numMsgs() > MAX_ECHO_QUEUE)
+      {
+         // Flush speaker queue
+         while ( (mpSpkrQ->receive((OsMsg*&) bufferMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
+               && mpSpkrQ->numMsgs() > MAX_ECHO_QUEUE)
          {
             bufferMsg->releaseMsg();
+            OsSysLog::add(FAC_MP, PRI_WARNING, "Flushing speaker queue in %s",
+                          getName().data());
          }
 
-         // Get buffer from the message and free message
+         // Get the buffer from the message and free the message
          echoRefBuffer = bufferMsg->getBuffer();
          assert(echoRefBuffer.isValid());
          bufferMsg->releaseMsg();
 
-         if (echoRefBuffer->getSamplesNumber() == samplesPerFrame) {
+         if (echoRefBuffer->getSamplesNumber() == samplesPerFrame)
+         {
             mStartedCanceling = true;
 
             // Get new buffer
             outBuffer = MpMisc.RawAudioPool->getBuffer();
             assert(outBuffer.isValid());
             outBuffer->setSamplesNumber(samplesPerFrame);
+            assert(outBuffer->getSamplesNumber() == samplesPerFrame);
             outBuffer->setSpeechType(inputBuffer->getSpeechType());
 
-            // Do echo cancelation
+            // Do echo cancellation
             speex_echo_cancellation(mpEchoState,
                                     (spx_int16_t*)inputBuffer->getSamplesPtr(),
                                     (spx_int16_t*)echoRefBuffer->getSamplesPtr(),
                                     (spx_int16_t*)outBuffer->getSamplesPtr());
-         } else {
+         }
+         else
+         {
             //The sample count didn't match so we can't echo cancel.  Pass the frame.
-            outBuffer = inputBuffer;
+            outBuffer.swap(inputBuffer);
             assert(!mStartedCanceling);
          }
-      } else {
+      }
+      else
+      {
          //There was no speaker data to match.  Pass the frame.
-         outBuffer = inputBuffer;
+         outBuffer.swap(inputBuffer);
 //         osPrintf("SpeexEchoCancel: No frame to match...\n");
 //         assert (!mStartedCanceling);
       }

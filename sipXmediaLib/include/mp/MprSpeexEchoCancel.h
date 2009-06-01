@@ -26,11 +26,6 @@
 /// on MprSpeexEchoCancel::MprSpeexEchoCancel() for more information.
 #define SPEEX_DEFAULT_AEC_FILTER_LENGTH 100
 
-/// @brief Default number of messages, reserved for echo residue. See
-/// documentation on MprSpeexEchoCancel::MprSpeexEchoCancel() for more
-/// information.
-#define SPEEX_DEFAULT_ECHO_RESIDUE_POOL_SIZE 1
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -41,16 +36,17 @@
 
 /// The "Speex Echo Canceler" media processing resource.
 /**
-*  It takes mic data from the first input, speaker data from the pEchoQ message
-*  queue and produce echo canceled audio data on the first output. On the second
-*  output there are echo residue power spectrum data, which may be used to 
-*  remove echo residue by Speex preprocessor (MprSpeexPreprocess).
-*  MprSpeexPreprocess expect echo reside data on its second input.
+*  It takes mic data from the first input, speaker data from the mpSpkrQ message
+*  queue and produce echo canceled audio data on the first output. To increase
+*  echo cancellation quality you should connect output of the resource directly
+*  to MprSpeexPreprocess input.
 */
 class MprSpeexEchoCancel : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+   static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
 
    enum {
       MAX_ECHO_QUEUE=21
@@ -60,29 +56,19 @@ public:
 
      /// Constructor
    MprSpeexEchoCancel(const UtlString& rName,
-                      int filterLength=SPEEX_DEFAULT_AEC_FILTER_LENGTH,
-                      int echoResiduePoolSize=SPEEX_DEFAULT_ECHO_RESIDUE_POOL_SIZE);
+                      OsMsgQ* pSpkrQ,
+                      int filterLength=SPEEX_DEFAULT_AEC_FILTER_LENGTH);
      /**<
-     *  @param rName - resource name.
-     *  @param samplesPerFrame - number of audio samples per frame. It is
-     *                           recommended to use a frame size in the order of
-     *                           20 ms (or equal to the codec frame size) and
-     *                           make sure it is easy to perform an FFT of that
-     *                           size (powers of two are better than prime sizes).
-     *  @param samplesPerSec - number of audio samples per second.
-     *  @param filterLength  - the amount of data (in samples) you want to
-     *                         process at once and filter_length is the length
-     *                         (in samples) of the echo cancelling filter you
-     *                         want to use (also known as tail length).
-     *                         The recommended tail length is approximately the
-     *                         third of the room reverberation time. For example,
-     *                         in a small room, reverberation time is in the
-     *                         order of 300 ms, so a tail length of 100 ms is a
-     *                         good choice (800 samples at 8000 Hz sampling rate).
-     *  @param echoResiduePoolSize - number of messages, reserved for echo
-     *                               residue. If some sort of caching will appear
-     *                               at the other end, this value should be
-     *                               accordingly increased.
+     *  @param[in] rName - resource name.
+     *  @param[in] pSpkrQ - pointer to a queue with speaker audio data.
+     *  @param[in] filterLength  - the amount of data (in samples) you want to
+     *             process at once and filter_length is the length (in samples) 
+     *             of the echo cancelling filter you want to use (also known as
+     *             tail length). The recommended tail length is approximately
+     *             the third of the room reverberation time. For example,in
+     *             a small room, reverberation time is in the order of 300 ms,
+     *             so a tail length of 100 ms is a good choice (800 samples at
+     *             8000 Hz sampling rate).
      */
 
      /// Destructor
@@ -92,6 +78,16 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
 /* ============================ ACCESSORS ================================= */
+
+     /// @copydoc UtlContainable::getContainableType()
+   UtlContainableType getContainableType() const;
+
+     /// Return Speex internal echo state structure.
+   inline SpeexEchoState *getSpeexEchoState() const;
+     /**<
+     *  Used by MprSpeexPreprocess to access echo state to enable residual
+     *  echo removal.
+     */
 
 /* ============================ INQUIRY =================================== */
 
@@ -103,6 +99,7 @@ private:
    SpeexEchoState *mpEchoState;
    bool            mStartedCanceling;
    int             mFilterLength;
+   OsMsgQ         *mpSpkrQ;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
@@ -130,5 +127,10 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+SpeexEchoState *MprSpeexEchoCancel::getSpeexEchoState() const
+{
+   return mpEchoState;
+}
 
 #endif  // _MprSpeexEchoCancel_h_
