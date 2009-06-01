@@ -164,7 +164,6 @@ UtlBoolean MprSpeakerSelector::connectInput(MpResource& rFrom,
                                             int fromPortIdx,
                                             int toPortIdx)
 {
-   // TODO:: Move this to MprEncode and implement disconnect!
    UtlBoolean res = MpAudioResource::connectInput(rFrom, fromPortIdx, toPortIdx);
    if (res)
    {
