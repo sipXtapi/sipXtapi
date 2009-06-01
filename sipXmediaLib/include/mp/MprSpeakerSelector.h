@@ -127,7 +127,7 @@ protected:
      /// @copydoc MpResource::connectOutput()
    UtlBoolean connectOutput(MpResource& rTo, int toPortIdx, int fromPortIdx);
 
-     /// @copydoc MpResource::disconnectOutput()
+     /// @copydoc MpResource::disconnectInput()
    UtlBoolean disconnectInput(int outPortIdx);
 
      /// @copydoc MpResource::disconnectOutput()
