@@ -109,8 +109,12 @@ public:
      */
 
      /// Add incoming RTP packet to the decoding queue
-   OsStatus pushPacket(const MpRtpBufPtr &pRtp);
+   OsStatus pushPacket(MpRtpBufPtr &pRtp);
      /**<
+     *  @warning This method swaps \p pRtp with some other packet in the dejitter
+     *           buffer. So you should dispose \p pRtp pointer asap after calling
+     *           this method.
+     *
      *  @return OS_SUCCESS on success
      *  @return OS_LIMIT_REACHED if too many codecs used in incoming RTP packets
      */

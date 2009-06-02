@@ -60,7 +60,7 @@ MprRtpDispatcherIpAffinity::~MprRtpDispatcherIpAffinity()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus MprRtpDispatcherIpAffinity::pushPacket(const MpRtpBufPtr &pRtp)
+OsStatus MprRtpDispatcherIpAffinity::pushPacket(MpRtpBufPtr &pRtp)
 {
    OsLock lock(mMutex);
    OsStatus    ret = OS_SUCCESS;
@@ -105,6 +105,7 @@ OsStatus MprRtpDispatcherIpAffinity::pushPacket(const MpRtpBufPtr &pRtp)
       }
 
       mRtpStream.pushPacket(pRtp);
+      // Warning! pRtp may contain some random packet or even NULL from now on.
    }
    // Not from our preferred SSRC
    else

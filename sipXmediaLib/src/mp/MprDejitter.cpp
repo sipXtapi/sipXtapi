@@ -87,7 +87,7 @@ void MprDejitter::reset()
    // mMaxPulledSeqNo will be initialized on first arrived packet
 }
 
-OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
+OsStatus MprDejitter::pushPacket(MpRtpBufPtr &pRtp)
 {
    int index;
 
@@ -95,6 +95,9 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
    index = pRtp->getRtpSequenceNumber() % MAX_RTP_PACKETS;
    RTL_EVENT(mResourceName+"_push_seq", pRtp->getRtpSequenceNumber());
    RTL_EVENT(mResourceName+"_push_index", index);
+#ifdef DEBUG_PRINT
+   debugPrintf("%5u (%2u) -> (", pRtp->getRtpSequenceNumber(), index);
+#endif // DEBUG_PRINT
 
    // Place packet to the buffer
    if (mpPackets[index].isValid())
@@ -116,8 +119,6 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
                         mNumDiscarded, iBufSeqNo, iNewSeqNo,
                         pRtp->getRtpPayloadType());
          }
-         mpPackets[index] = pRtp;
-         mLastPushed = index;  
 
          if (  !mIsFirstPulledPacket
             && MpDspUtils::compareSerials(iBufSeqNo, mMaxPulledSeqNo) < 0
@@ -126,6 +127,9 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
             mNumLatePackets--;
             mNumPackets++;
          }
+
+         mpPackets[index].swap(pRtp);
+         mLastPushed = index;  
       } else {
          // Don't insert the new packet - it is an old delayed packet
          RTL_EVENT(mResourceName+"_push_result", 0);
@@ -133,8 +137,6 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
          return OS_FAILED;
       }
    } else {
-      mLastPushed = index;
-      mpPackets[index] = pRtp;
       if (  !mIsFirstPulledPacket
          && MpDspUtils::compareSerials( pRtp->getRtpSequenceNumber()
                                       , mMaxPulledSeqNo) <= 0)
@@ -147,6 +149,8 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
          RTL_EVENT(mResourceName+"_push_result", 1);
          mNumPackets++;
       }
+      mLastPushed = index;
+      mpPackets[index] = pRtp;
    }
 
    RTL_EVENT(mResourceName+"_numPackets", mNumPackets);
@@ -161,7 +165,6 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
    RTL_EVENT(mResourceName+"_pop_nextFrameAvailable", -1);
 
 #ifdef DEBUG_PRINT
-   debugPrintf("%5u (%2u) -> (", pRtp->getRtpSequenceNumber(), index);
    for (int i=0; i< MAX_RTP_PACKETS; i++)
    {
       if (mpPackets[i].isValid())

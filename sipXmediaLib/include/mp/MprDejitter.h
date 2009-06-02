@@ -66,10 +66,14 @@ public:
    void reset();
 
      /// Add an incoming RTP packet to the dejitter pool
-   OsStatus pushPacket(const MpRtpBufPtr &pRtp);
+   OsStatus pushPacket(MpRtpBufPtr &pRtp);
      /**<
      *  This method places the packet to the pool depending the modulo division
      *  value.
+     *
+     *  @warning This method swaps \p pRtp with some other packet in the dejitter
+     *           buffer. So you should dispose \p pRtp pointer asap after calling
+     *           this method.
      *
      *  @return OS_SUCCESS on success
      *  @return OS_LIMIT_REACHED if too many codecs used in incoming RTP packets

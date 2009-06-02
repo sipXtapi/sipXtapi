@@ -69,7 +69,7 @@ public:
 //@{
 
      /// Dispatch RTP packet.
-   virtual OsStatus pushPacket(const MpRtpBufPtr &pRtp) = 0;
+   virtual OsStatus pushPacket(MpRtpBufPtr &pRtp) = 0;
 
      /// Check activity of the RTP streams and send notifications if needed.
    virtual void checkRtpStreamsActivity() = 0;
@@ -166,7 +166,7 @@ public:
                                            ///< NULL means this stream is not connected.
 
         /// Push packet to the stream for processing.
-      inline void pushPacket(const MpRtpBufPtr &pRtp);
+      inline void pushPacket(MpRtpBufPtr &pRtp);
 
         /// Mark stream as active.
       inline void activate(int fromIp, int fromPort);
@@ -267,7 +267,7 @@ UtlBoolean MprRtpDispatcher::areNotificationsEnabled() const
 }
 
 /// Push packet to the stream for processing.
-void MprRtpDispatcher::MpRtpStream::pushPacket(const MpRtpBufPtr &pRtp)
+void MprRtpDispatcher::MpRtpStream::pushPacket(MpRtpBufPtr &pRtp)
 {
    OsDateTime::getCurTime(mLastPacketTime);
    mpDecode->pushPacket(pRtp);

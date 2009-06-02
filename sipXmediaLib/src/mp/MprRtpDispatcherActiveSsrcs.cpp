@@ -55,7 +55,7 @@ MprRtpDispatcherActiveSsrcs::~MprRtpDispatcherActiveSsrcs()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus MprRtpDispatcherActiveSsrcs::pushPacket(const MpRtpBufPtr &pRtp)
+OsStatus MprRtpDispatcherActiveSsrcs::pushPacket(MpRtpBufPtr &pRtp)
 {
    OsLock lock(mMutex);
    OsStatus ret = OS_SUCCESS;

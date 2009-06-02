@@ -59,7 +59,7 @@ public:
 //@{
 
      /// @copydoc MprRtpDispatcher::pushPacket()
-   OsStatus pushPacket(const MpRtpBufPtr &pRtp);
+   OsStatus pushPacket(MpRtpBufPtr &pRtp);
 
      /// @copydoc MprRtpDispatcher::checkRtpStreams()
    void checkRtpStreamsActivity();

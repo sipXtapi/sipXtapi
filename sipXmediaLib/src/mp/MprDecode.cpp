@@ -175,7 +175,7 @@ void MprDecode::setMyDejitter(MprDejitter* pDJ, UtlBoolean ownDj)
    mpMyDJ->setStreamId(mStreamId);
 }
 
-OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
+OsStatus MprDecode::pushPacket(MpRtpBufPtr &pRtp)
 {
    // Lock access to dejitter and m*Codecs data
    OsLock lock(mLock);
