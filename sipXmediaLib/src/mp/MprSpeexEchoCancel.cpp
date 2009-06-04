@@ -24,14 +24,23 @@
 #include "mp/MpBuf.h"
 #include "mp/MpBufPool.h"
 #include "mp/MpBufferMsg.h"
+#include "mp/MpPackedResourceMsg.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MprSpeexEchoCancel.h"
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+#  ifdef RTL_AUDIO_ENABLED
+#     include <SeScopeAudioBuffer.h>
+#  endif
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType MprSpeexEchoCancel::TYPE = "MprSpeexEchoCancel";
+volatile MprSpeexEchoCancel::GlobalEnableState MprSpeexEchoCancel::smGlobalEnableState
+   = MprSpeexEchoCancel::LOCAL_MODE;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -40,10 +49,13 @@ const UtlContainableType MprSpeexEchoCancel::TYPE = "MprSpeexEchoCancel";
 // Constructor
 MprSpeexEchoCancel::MprSpeexEchoCancel(const UtlString& rName,
                                        OsMsgQ* pSpkrQ,
+                                       int spkrQDelayMs,
                                        int filterLength)
 : MpAudioResource(rName, 1, 1, 1, 1)
 , mFilterLength(filterLength)
 , mpSpkrQ(pSpkrQ)
+, mSpkrQDelayMs(spkrQDelayMs)
+, mSpkrQDelayFrames(0)
 {
 }
 
@@ -53,6 +65,21 @@ MprSpeexEchoCancel::~MprSpeexEchoCancel()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+OsStatus MprSpeexEchoCancel::setSpkrQ(const UtlString& namedResource,
+                                      OsMsgQ& fgQ,
+                                      OsMsgQ *pSpkrQ)
+{
+   OsStatus stat;
+   MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_SET_SPEAKER_QUEUE,
+                           namedResource);
+   UtlSerialized &msgData = msg.getData();
+
+   stat = msgData.serialize((void*)pSpkrQ);
+   assert(stat == OS_SUCCESS);
+   msgData.finishSerialize();
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
 
 /* ============================ ACCESSORS ================================= */
 
@@ -82,7 +109,9 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
    bool            res = false;
 
    // If disabled pass buffer through
-   if (!isEnabled) {
+   if (  smGlobalEnableState == GLOBAL_DISABLE
+      || (smGlobalEnableState == LOCAL_MODE && !isEnabled))
+   {
       outBufs[0].swap(inBufs[0]);
       return TRUE;
    }
@@ -93,30 +122,27 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
    // If the object is not enabled or we don't have valid input,
    // pass input to output
    if (  inputBuffer.isValid()
-      && (inputBuffer->getSamplesNumber() == samplesPerFrame))
+      && (inputBuffer->getSamplesNumber() == samplesPerFrame)
+      && mpSpkrQ->numMsgs() > mSpkrQDelayFrames)
    {
-      // This buffer will be modified in place. Make sure we're the only owner.
-      res = inputBuffer.requestWrite();
-      assert(res);
-
-      // Try to get a reference frame for echo cancellation.  21 = MAX_SPKR_BUFFERS(12) +
-      if (mpSpkrQ->numMsgs() > MAX_ECHO_QUEUE)
+      // Try to get a reference frame for echo cancellation.
+      if (mpSpkrQ->receive((OsMsg*&) bufferMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
       {
          // Flush speaker queue
-         while ( (mpSpkrQ->receive((OsMsg*&) bufferMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
-               && mpSpkrQ->numMsgs() > MAX_ECHO_QUEUE)
+         while (  mpSpkrQ->numMsgs() > MAX_ECHO_QUEUE
+               && (mpSpkrQ->receive((OsMsg*&) bufferMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS))
          {
             bufferMsg->releaseMsg();
             OsSysLog::add(FAC_MP, PRI_WARNING, "Flushing speaker queue in %s",
                           getName().data());
+            assert(!"Flushing speaker queue");
          }
 
          // Get the buffer from the message and free the message
          echoRefBuffer = bufferMsg->getBuffer();
-         assert(echoRefBuffer.isValid());
          bufferMsg->releaseMsg();
-
-         if (echoRefBuffer->getSamplesNumber() == samplesPerFrame)
+         if (  echoRefBuffer.isValid()
+            && echoRefBuffer->getSamplesNumber() == samplesPerFrame)
          {
             mStartedCanceling = true;
 
@@ -129,9 +155,27 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
 
             // Do echo cancellation
             speex_echo_cancellation(mpEchoState,
-                                    (spx_int16_t*)inputBuffer->getSamplesPtr(),
-                                    (spx_int16_t*)echoRefBuffer->getSamplesPtr(),
-                                    (spx_int16_t*)outBuffer->getSamplesPtr());
+                                    inputBuffer->getSamplesPtr(),
+                                    echoRefBuffer->getSamplesPtr(),
+                                    outBuffer->getSamplesWritePtr());
+
+#ifdef RTL_AUDIO_ENABLED
+            UtlString rtlOutputLabel(mpFlowGraph->getFlowgraphName());
+            rtlOutputLabel.append("_");
+            rtlOutputLabel.append(getName());
+            RTL_AUDIO_BUFFER(rtlOutputLabel+"_rec",
+                             mpFlowGraph->getSamplesPerSec(),
+                             inputBuffer,
+                             0);
+            RTL_AUDIO_BUFFER(rtlOutputLabel+"_play",
+                             mpFlowGraph->getSamplesPerSec(),
+                             echoRefBuffer,
+                             0);
+            RTL_AUDIO_BUFFER(rtlOutputLabel+"_out",
+                             mpFlowGraph->getSamplesPerSec(),
+                             outBuffer,
+                             0);
+#endif
          }
          else
          {
@@ -153,6 +197,29 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
    return TRUE;
 }
 
+UtlBoolean MprSpeexEchoCancel::handleMessage(MpResourceMsg& rMsg)
+{
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MprHook::handleMessage(%d)", rMsg.getMsg());
+   switch (rMsg.getMsg())
+   {
+   case MPRM_SET_SPEAKER_QUEUE:
+      {
+         OsStatus stat;
+         OsMsgQ *pSpkrQ;
+
+         UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
+         stat = msgData.deserialize((void*&)pSpkrQ);
+         assert(stat == OS_SUCCESS);
+
+         mpSpkrQ = pSpkrQ;
+         return TRUE;
+      }
+      break;
+   }
+   return MpAudioResource::handleMessage(rMsg);
+}
+
 OsStatus MprSpeexEchoCancel::setFlowGraph(MpFlowGraphBase* pFlowGraph)
 {
    OsStatus res =  MpAudioResource::setFlowGraph(pFlowGraph);
@@ -165,8 +232,8 @@ OsStatus MprSpeexEchoCancel::setFlowGraph(MpFlowGraphBase* pFlowGraph)
          //Initialize Speex Echo state with frame size and number of frames for length of buffer
          mpEchoState = speex_echo_state_init(mpFlowGraph->getSamplesPerFrame(), 
                                              mpFlowGraph->getSamplesPerSec()*mFilterLength/1000);
+         mSpkrQDelayFrames = mSpkrQDelayMs*mpFlowGraph->getSamplesPerSec()/mpFlowGraph->getSamplesPerFrame()/1000;
 
-         //mpEchoResidue = (spx_int32_t*)malloc(sizeof(spx_int32_t) * (samplesPerFrame + 1));
          mStartedCanceling = false; // Debug Use only
       }
       else

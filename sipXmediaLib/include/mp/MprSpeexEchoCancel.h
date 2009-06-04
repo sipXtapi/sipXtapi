@@ -19,12 +19,13 @@
 // APPLICATION INCLUDES
 #include "mp/MpAudioResource.h"
 #include "mp/MpBufPool.h"
+#include "mp/MpResourceMsg.h"
 
 // DEFINES
 
-/// @brief Default filter length (tail length) of AEC filter. See documentation
-/// on MprSpeexEchoCancel::MprSpeexEchoCancel() for more information.
-#define SPEEX_DEFAULT_AEC_FILTER_LENGTH 100
+/// @brief Default filter length (tail length) of AEC filter.
+/// @see documentation on MprSpeexEchoCancel::MprSpeexEchoCancel() for more information.
+#define SPEEX_DEFAULT_AEC_FILTER_LENGTH 200
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -52,15 +53,34 @@ public:
       MAX_ECHO_QUEUE=21
    };
 
+   enum GlobalEnableState {
+      GLOBAL_ENABLE,   ///< All MprSpeexEchoCancel resources are forced to enable
+      GLOBAL_DISABLE,  ///< All MprSpeexEchoCancel resources are forced to disable
+      LOCAL_MODE       ///< Each resource respect its own enable/disable state
+   };
+
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
      /// Constructor
    MprSpeexEchoCancel(const UtlString& rName,
-                      OsMsgQ* pSpkrQ,
+                      OsMsgQ* pSpkrQ=NULL,
+#ifdef WIN32
+                      int spkrQDelayMs=130,
+#else
+                      int spkrQDelayMs=90,
+#endif
                       int filterLength=SPEEX_DEFAULT_AEC_FILTER_LENGTH);
      /**<
      *  @param[in] rName - resource name.
      *  @param[in] pSpkrQ - pointer to a queue with speaker audio data.
+     *  @param[in] spkrQDelayMs - number of milliseconds we should delay
+     *             delay data from speaker queue. Set this value to maximum
+     *             of the delay audio device will *definitely* add while
+     *             playing and recording audio. This value is used to minimize
+     *             delay between far and near end audio in AEC and reduce
+     *             computational cost of AEC.
      *  @param[in] filterLength  - the amount of data (in samples) you want to
      *             process at once and filter_length is the length (in samples) 
      *             of the echo cancelling filter you want to use (also known as
@@ -75,9 +95,35 @@ public:
    virtual
    ~MprSpeexEchoCancel();
 
+//@}
+
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+
+     /// Send message to enable/disable copy queue.
+   OsStatus setSpkrQ(const UtlString& namedResource, 
+                     OsMsgQ& fgQ,
+                     OsMsgQ *pSpkrQ);
+     /**<
+     *  @param[in] namedResource - the name of the resource to send a message to.
+     *  @param[in] fgQ - the queue of the flowgraph containing the resource which
+     *             the message is to be received by.
+     *  @param[in] pSpkrQ - pointer to a queue with speaker data.
+     *  @returns the result of attempting to queue the message to this resource.
+     */
+
+     /// Set global enable/disable state.
+   static inline void setGlobalEnableState(GlobalEnableState state);
+     /**<
+     *  @see smGlobalEnableState for more details.
+     */
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
      /// @copydoc UtlContainable::getContainableType()
    UtlContainableType getContainableType() const;
@@ -89,17 +135,36 @@ public:
      *  echo removal.
      */
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+   typedef enum
+   {
+      MPRM_SET_SPEAKER_QUEUE = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START
+   } AddlResMsgTypes;
+
    SpeexEchoState *mpEchoState;
    bool            mStartedCanceling;
    int             mFilterLength;
    OsMsgQ         *mpSpkrQ;
+   const int       mSpkrQDelayMs;
+   int             mSpkrQDelayFrames;
+
+   static volatile GlobalEnableState smGlobalEnableState;
+     ///< Global enable/disable switch for all Speex AEC resources. We need
+     ///< this switch because sipXmediaAdapterLib exports only a static method
+     ///< to turn AEC on and off.
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
@@ -108,6 +173,9 @@ private:
                                      UtlBoolean isEnabled,
                                      int samplesPerFrame,
                                      int samplesPerSecond);
+
+     /// @copydoc MpResource::handleMessage()
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
      /// @brief Associates this resource with the indicated flow graph.
    OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
@@ -127,6 +195,11 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+void MprSpeexEchoCancel::setGlobalEnableState(GlobalEnableState state)
+{
+   smGlobalEnableState = state;
+}
 
 SpeexEchoState *MprSpeexEchoCancel::getSpeexEchoState() const
 {
