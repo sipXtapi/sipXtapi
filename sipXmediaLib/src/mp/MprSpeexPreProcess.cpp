@@ -33,14 +33,25 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+volatile MprSpeexPreprocess::GlobalEnableState MprSpeexPreprocess::smGlobalAgcEnableState
+   = MprSpeexPreprocess::LOCAL_MODE;
+volatile MprSpeexPreprocess::GlobalEnableState MprSpeexPreprocess::smGlobalNoiseReductionEnableState
+   = MprSpeexPreprocess::LOCAL_MODE;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprSpeexPreprocess::MprSpeexPreprocess(const UtlString& rName)
+MprSpeexPreprocess::MprSpeexPreprocess(const UtlString& rName,
+                                       UtlBoolean isAgcEnabled,
+                                       UtlBoolean isNoiseReductionEnabled)
 :  MpAudioResource(rName, 1, 1, 1, 1)
+, mpPreprocessState(NULL)
+, mIsAgcEnabled(isAgcEnabled)
+, mIsNoiseReductionEnabled(isNoiseReductionEnabled)
+, mIsAgcEnabledReal(getRealAgcState())
+, mIsNoiseReductionEnabledReal(getRealNoiseReductionState())
 {
 }
 
@@ -98,6 +109,18 @@ UtlBoolean MprSpeexPreprocess::doProcessFrame(MpBufPtr inBufs[],
       res = inputBuffer.requestWrite();
       assert(res);
 
+      // Turn on/off AGC and Noise Reduction if global flag has changed.
+      if (mIsAgcEnabledReal != getRealAgcState())
+      {
+         mIsAgcEnabledReal = getRealAgcState();
+         speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_AGC, &mIsAgcEnabledReal);
+      }
+      if (mIsNoiseReductionEnabledReal != getRealNoiseReductionState())
+      {
+         mIsNoiseReductionEnabledReal = getRealNoiseReductionState();
+         speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_DENOISE, &mIsNoiseReductionEnabledReal);
+      }
+
       // Get Echo residue if we have any
       speex_preprocess_run(mpPreprocessState, (spx_int16_t*)inputBuffer->getSamplesPtr());
    }
@@ -130,14 +153,24 @@ UtlBoolean MprSpeexPreprocess::handleMessage(MpFlowGraphMsg& rMsg)
 // Handle the SET_AGC message.
 UtlBoolean MprSpeexPreprocess::handleSetAGC(UtlBoolean enable)
 {
-   speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_AGC, &enable);
+   mIsAgcEnabled = enable;
+   if (mpPreprocessState != NULL)
+   {
+      mIsAgcEnabledReal = getRealAgcState();
+      speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_AGC, &mIsAgcEnabledReal);
+   }
    return true;
 }
 
 // Handle the SET_NOISE_REDUCTION message.
 UtlBoolean MprSpeexPreprocess::handleSetNoiseReduction(UtlBoolean enable)
 {
-   speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_DENOISE, &enable);
+   mIsNoiseReductionEnabled = enable;
+   if (mpPreprocessState != NULL)
+   {
+      mIsNoiseReductionEnabledReal = getRealNoiseReductionState();
+      speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_DENOISE, &mIsNoiseReductionEnabledReal);
+   }
    return true;
 }
 
@@ -153,7 +186,11 @@ OsStatus MprSpeexPreprocess::setFlowGraph(MpFlowGraphBase* pFlowGraph)
          // Initialize Speex preprocessor state
          mpPreprocessState = speex_preprocess_state_init(mpFlowGraph->getSamplesPerFrame(),
                                                          mpFlowGraph->getSamplesPerSec());
-      } 
+         mIsAgcEnabledReal = getRealAgcState();
+         speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_AGC, &mIsAgcEnabledReal);
+         mIsNoiseReductionEnabledReal = getRealNoiseReductionState();
+         speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_DENOISE, &mIsNoiseReductionEnabledReal);
+      }
       else
       {
          if (mpPreprocessState != NULL)

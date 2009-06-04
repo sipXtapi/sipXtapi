@@ -44,10 +44,17 @@ class MprSpeexPreprocess : public MpAudioResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   enum GlobalEnableState {
+      GLOBAL_ENABLE,   ///< All MprSpeexEchoCancel resources are forced to enable
+      GLOBAL_DISABLE,  ///< All MprSpeexEchoCancel resources are forced to disable
+      LOCAL_MODE       ///< Each resource respect its own enable/disable state
+   };
+
 /* ============================ CREATORS ================================== */
 
      /// Constructor
-   MprSpeexPreprocess(const UtlString& rName);
+   MprSpeexPreprocess(const UtlString& rName, UtlBoolean isAgcEnabled=FALSE,
+                      UtlBoolean isNoiseReductionEnabled=FALSE);
 
      /// Destructor
    virtual
@@ -61,6 +68,18 @@ public:
 
      /// Enable or disable noise reduction
    UtlBoolean setNoiseReduction(UtlBoolean enable);
+
+     /// Set global AGC enable/disable state.
+   static inline void setGlobalAgcEnableState(GlobalEnableState state);
+     /**<
+     *  @see smGlobalAgcEnableState for more details.
+     */
+
+     /// Set global Noise Reduction enable/disable state.
+   static inline void setGlobalNoiseReductionEnableState(GlobalEnableState state);
+     /**<
+     *  @see smGlobalNoiseReductionEnableState for more details.
+     */
 
 /* ============================ ACCESSORS ================================= */
 
@@ -79,6 +98,22 @@ private:
 
    SpeexPreprocessState *mpPreprocessState; ///< Structure containing internal
                                             ///<  state of Speex preprocessor.
+   UtlBoolean mIsAgcEnabled;                ///< Should AGC be enabled?
+   UtlBoolean mIsNoiseReductionEnabled;     ///< Should Noise Reduction be enabled?
+
+   static volatile GlobalEnableState smGlobalAgcEnableState;
+     ///< Global enable/disable switch for all Speex AGC resources. We need
+     ///< this switch because sipXmediaAdapterLib exports only a static method
+     ///< to turn AGC on and off.
+   UtlBoolean mIsAgcEnabledReal; ///< Is AGC really enabled?
+   static volatile GlobalEnableState smGlobalNoiseReductionEnableState;
+     ///< Global enable/disable switch for all Speex Noise Reduction resources.
+     ///< We need this switch because sipXmediaAdapterLib exports only a static
+     ///< method to turn Noise Reduction on and off.
+   UtlBoolean mIsNoiseReductionEnabledReal; ///< Is Noise Reduction really enabled?
+
+   inline UtlBoolean getRealAgcState() const;
+   inline UtlBoolean getRealNoiseReductionState() const;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
@@ -119,6 +154,28 @@ private:
    MprSpeexPreprocess& operator=(const MprSpeexPreprocess& rhs);
 
 };
+
+void MprSpeexPreprocess::setGlobalAgcEnableState(GlobalEnableState state)
+{
+   smGlobalAgcEnableState = state;
+}
+
+void MprSpeexPreprocess::setGlobalNoiseReductionEnableState(GlobalEnableState state)
+{
+   smGlobalNoiseReductionEnableState = state;
+}
+
+UtlBoolean MprSpeexPreprocess::getRealAgcState() const
+{
+   return (smGlobalAgcEnableState==LOCAL_MODE) ? mIsAgcEnabled
+          : (smGlobalAgcEnableState==GLOBAL_ENABLE);
+}
+
+UtlBoolean MprSpeexPreprocess::getRealNoiseReductionState() const
+{
+   return (smGlobalNoiseReductionEnableState==LOCAL_MODE) ? mIsNoiseReductionEnabled
+          : (smGlobalAgcEnableState==GLOBAL_ENABLE);
+}
 
 /* ============================ INLINE METHODS ============================ */
 
