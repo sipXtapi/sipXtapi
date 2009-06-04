@@ -60,7 +60,7 @@ public:
                                  int& numResourcesCreated,
                                  MpResource* resourceArray[])
     {
-        assert(maxResourcesToCreate >= 1);
+        assert(maxResourcesToCreate >= 2);
         numResourcesCreated = 2;
 
         UtlString bufferResourceName(resourceName);
