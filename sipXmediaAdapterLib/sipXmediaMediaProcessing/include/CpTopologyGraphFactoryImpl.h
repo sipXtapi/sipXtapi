@@ -91,9 +91,12 @@ public:
                                            uint32_t samplesPerSec,
                                            OsMsgDispatcher* pDispatcher);
 
-    // For now inherit all of the modification methods from parent
-    // Eventually they will all need to be replaced with specific 
-    // implementations
+      /// @copydoc CpMediaInterfaceFactoryImpl::setAudioAECMode()
+    virtual OsStatus setAudioAECMode(const MEDIA_AEC_MODE mode);
+      /// @copydoc CpMediaInterfaceFactoryImpl::enableAGC()
+    virtual OsStatus enableAGC(UtlBoolean bEnable);
+      /// @copydoc CpMediaInterfaceFactoryImpl::setAudioNoiseReductionMode()
+    virtual OsStatus setAudioNoiseReductionMode(const MEDIA_NOISE_REDUCTION_MODE mode);
 
 //@}
 

@@ -41,6 +41,10 @@
 #include "mi/CpMediaInterfaceFactory.h"
 #include "CpTopologyGraphInterface.h"
 #include <os/OsSysLog.h>
+#ifdef HAVE_SPEEX // [
+#  include <mp/MprToOutputDeviceWithAecConstructor.h>
+#  include <mp/MprSpeexPreProcessConstructor.h>
+#endif // HAVE_SPEEX ]
 
 // REMOVE THIS when device enumerator/monitor is implemented
 #define USE_DEVICE_ADD_HACK
@@ -92,6 +96,9 @@
 
 #endif // USE_DEVICE_ADD_HACK ]
 
+#ifdef HAVE_SPEEX // [
+#  define USE_SPEEX_AEC
+#endif // HAVE_SPEEX ]
 
 // EXTERNAL FUNCTIONS
 extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWnt.cpp
@@ -327,6 +334,64 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
     return pIf;
 }
 
+OsStatus CpTopologyGraphFactoryImpl::setAudioAECMode(const MEDIA_AEC_MODE mode)
+{
+#ifdef USE_SPEEX_AEC // [
+   switch (mode) {
+   case MEDIA_AEC_CANCEL_AUTO:
+      MprSpeexEchoCancel::setGlobalEnableState(MprSpeexEchoCancel::LOCAL_MODE);
+      break;
+
+   case MEDIA_AEC_CANCEL:
+   case MEDIA_AEC_SUPPRESS:
+      MprSpeexEchoCancel::setGlobalEnableState(MprSpeexEchoCancel::GLOBAL_ENABLE);
+      break;
+
+   case MEDIA_AEC_DISABLED:
+      MprSpeexEchoCancel::setGlobalEnableState(MprSpeexEchoCancel::GLOBAL_DISABLE);
+      break;
+   }
+
+   return OS_SUCCESS;
+
+#else // USE_SPEEX_AEC ][
+   return OS_NOT_SUPPORTED;
+#endif // !USE_SPEEX_AEC ]
+}
+
+OsStatus CpTopologyGraphFactoryImpl::enableAGC(UtlBoolean bEnable) 
+{
+#ifdef HAVE_SPEEX // [
+   MprSpeexPreprocess::setGlobalAgcEnableState(bEnable?MprSpeexPreprocess::GLOBAL_ENABLE
+                                                      :MprSpeexPreprocess::GLOBAL_DISABLE);
+   return OS_SUCCESS;
+#else // HAVE_SPEEX ][
+   return OS_NOT_SUPPORTED; 
+#endif // !HAVE_SPEEX ]
+}
+
+OsStatus CpTopologyGraphFactoryImpl::setAudioNoiseReductionMode(const MEDIA_NOISE_REDUCTION_MODE mode) 
+{
+#ifdef HAVE_SPEEX // [
+   // TODO:: Implement real noise reduction configuration
+   switch (mode)
+   {
+   case MEDIA_NOISE_REDUCTION_LOW:
+   case MEDIA_NOISE_REDUCTION_MEDIUM:
+   case MEDIA_NOISE_REDUCTION_HIGH:
+      MprSpeexPreprocess::setGlobalNoiseReductionEnableState(MprSpeexPreprocess::GLOBAL_ENABLE);
+      break;
+
+   case MEDIA_NOISE_REDUCTION_DISABLED:
+      MprSpeexPreprocess::setGlobalNoiseReductionEnableState(MprSpeexPreprocess::GLOBAL_DISABLE);
+      break;
+   }
+   return OS_SUCCESS;
+#else // HAVE_SPEEX ][
+   return OS_NOT_SUPPORTED; 
+#endif // !HAVE_SPEEX ]
+}
+
 MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
 {
     MpResourceFactory* resourceFactory = new MpResourceFactory();
@@ -336,6 +401,16 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
 
     // Output device
     resourceFactory->addConstructor(*(new MprToOutputDeviceConstructor(mpOutputDeviceManager)));
+
+#ifdef USE_SPEEX_AEC // [
+    // Output device with AEC
+    resourceFactory->addConstructor(*(new MprToOutputDeviceWithAecConstructor(mpOutputDeviceManager)));
+#endif // USE_SPEEX_AEC ]
+
+#ifdef HAVE_SPEEX // [
+    // Speex preprocessor
+    resourceFactory->addConstructor(*(new MprSpeexPreProcessConstructor(FALSE, FALSE)));
+#endif // HAVE_SPEEX ]
 
     // ToneGen
     resourceFactory->addConstructor(*(new MprToneGenConstructor()));
@@ -436,9 +511,16 @@ static MpResourceTopology::ResourceDef localConnectionResources[] =
 #endif // INSERT_DELAY_RESOURCE ]
    {DEFAULT_VAD_RESOURCE_TYPE, DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+#ifdef USE_SPEEX_AEC // [
+   {DEFAULT_TO_OUTPUT_DEVICE_WITH_AEC_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+#else // USE_SPEEX_AEC ][
    {DEFAULT_SPLITTER_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_NULL_AEC_RESOURCE_TYPE, DEFAULT_AEC_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
+   {DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_NULL_AEC_RESOURCE_TYPE, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME AEC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+#endif // !USE_SPEEX_AEC ]
+#ifdef HAVE_SPEEX // [
+   {DEFAULT_SPEEX_PREPROCESS_RESOURCE_TYPE, DEFAULT_SPEEX_PREPROCESS_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
+#endif // HAVE_SPEEX ]
 };
 static const int localConnectionResourcesNum =
    sizeof(localConnectionResources)/sizeof(MpResourceTopology::ResourceDef);
@@ -450,26 +532,35 @@ static MpResourceTopology::ConnectionDef localConnectionConnections[] =
    {DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_VAD_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
     //     -> Voice Activity Notifier
    {NULL, 0, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
+    //     -> AEC
+   {NULL, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME AEC_NAME_SUFFIX, 0},
+#ifdef HAVE_SPEEX // [
+   //     -> Speex preprocessor
+   {NULL, 0, DEFAULT_SPEEX_PREPROCESS_RESOURCE_NAME, 0},
+#endif // HAVE_SPEEX ]
 #ifdef INSERT_DELAY_RESOURCE // [
     //     -> Delay
    {NULL, 0, DEFAULT_DELAY_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
 #endif // INSERT_DELAY_RESOURCE ]
-    //     -> AEC
-   {NULL, 0, DEFAULT_AEC_RESOURCE_NAME, 0},
     //     -> Connection Port(-1)
    {NULL, 0, VIRTUAL_NAME_CONNECTION_PORTS, -1},
 
+#ifdef USE_SPEEX_AEC // [
+    // Connection Port(-1) -> VAD
+   {VIRTUAL_NAME_CONNECTION_PORTS, -1, DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, 0},
+#else // USE_SPEEX_AEC ][
     // Connection Port(-1) -> Splitter
     // The splitter leaves a tap for AEC to see the output to speaker
    {VIRTUAL_NAME_CONNECTION_PORTS, -1, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0},
+    // Splitter(1) -> Output Buffer (part of AEC)
+   {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME AEC_NAME_SUFFIX AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX, 0}
     // Splitter(0) -> VAD
    {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0, DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, 0},
+#endif // !USE_SPEEX_AEC ]
     //             -> Voice Activity Notifier
    {NULL, 0, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX, 0},
     //             -> Speaker
    {NULL, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0},
-    // Splitter(1) -> Output Buffer (part of AEC)
-   {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1, DEFAULT_AEC_RESOURCE_NAME AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX, 0}
 };
 static const int localConnectionConnectionsNum =
    sizeof(localConnectionConnections)/sizeof(MpResourceTopology::ConnectionDef);
