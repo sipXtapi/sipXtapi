@@ -373,7 +373,6 @@ OsStatus CpTopologyGraphFactoryImpl::enableAGC(UtlBoolean bEnable)
 OsStatus CpTopologyGraphFactoryImpl::setAudioNoiseReductionMode(const MEDIA_NOISE_REDUCTION_MODE mode) 
 {
 #ifdef HAVE_SPEEX // [
-   // TODO:: Implement real noise reduction configuration
    switch (mode)
    {
    case MEDIA_NOISE_REDUCTION_LOW:
