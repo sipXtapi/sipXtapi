@@ -643,6 +643,22 @@ OsStatus MpResource::postMessage(MpFlowGraphMsg& rMsg)
    }
 }
 
+OsStatus MpResource::postMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean res;
+
+   if (mpFlowGraph == NULL)
+   {
+      res = handleMessage(rMsg);
+      assert(res);
+      return OS_SUCCESS;
+   }
+   else
+   {
+      return mpFlowGraph->getMsgQ()->send(rMsg, sOperationQueueTimeout);
+   }
+}
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 // Connects the toPortIdx input port on this resource to the 

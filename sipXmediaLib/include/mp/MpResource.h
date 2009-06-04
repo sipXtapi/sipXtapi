@@ -471,6 +471,12 @@ protected:
      *           flow graph and if it is not.
      */
 
+     /// Post a message for this resource.
+   OsStatus postMessage(MpResourceMsg& rMsg);
+     /**<
+     *  @see postMessage(MpFlowGraphMsg&) for details.
+     */
+
      /// @brief Makes \p pBuf available to resource connected to the
      /// \p outPortIdx output port of this resource.
    UtlBoolean pushBufferDownsream(int outPortIdx, const MpBufPtr &pBuf);
