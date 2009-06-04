@@ -122,12 +122,14 @@ nobase_include_HEADERS =  \
     mp/MprRtpStartReceiveMsg.h \
     mp/MprSpeexEchoCancel.h \
     mp/MprSpeexPreProcess.h \
+    mp/MprSpeexPreProcessConstructor.h \
     mp/MprSplitter.h \
     mp/MprSplitterConstructor.h \
     mp/MprToneGen.h \
     mp/MprToneGenConstructor.h \
     mp/MprToNet.h \
     mp/MprToOutputDeviceConstructor.h \
+    mp/MprToOutputDeviceWithAecConstructor.h \
     mp/MprToOutputDevice.h \
     mp/MprToSpkr.h \
     mp/MprSpeakerSelector.h \

@@ -1412,6 +1412,10 @@ SOURCE=.\include\mp\MprSpeexPreProcess.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprSpeexPreProcessConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprSplitter.h
 # End Source File
 # Begin Source File
@@ -1437,6 +1441,10 @@ SOURCE=.\include\mp\MprToOutputDevice.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprToOutputDeviceConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprToOutputDeviceWithAecConstructor.h
 # End Source File
 # Begin Source File
 

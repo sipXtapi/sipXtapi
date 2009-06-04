@@ -1957,6 +1957,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\mp\MprSpeexPreProcessConstructor.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\mp\MprSplitter.h"
 					>
 				</File>
@@ -1982,6 +1986,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MprToOutputDeviceConstructor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprToOutputDeviceWithAecConstructor.h"
 					>
 				</File>
 				<File
