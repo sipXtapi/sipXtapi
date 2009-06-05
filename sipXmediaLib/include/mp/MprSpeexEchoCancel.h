@@ -160,6 +160,8 @@ private:
    OsMsgQ         *mpSpkrQ;           ///< Queue with echo reference data
    const int       mSpkrQDelayMs;     ///< How much should we delay data from mpSpkrQ (in ms)?
    int             mSpkrQDelayFrames; ///< How much should we delay data from mpSpkrQ (in frames)?
+   MpAudioBufPtr   mpSilenceBuf;      ///< Buffer with silence - used when empty message
+                                      ///< arrives from mpSpkrQ
 
    static volatile GlobalEnableState smGlobalEnableState;
      ///< Global enable/disable switch for all Speex AEC resources. We need

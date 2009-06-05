@@ -141,8 +141,12 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
          // Get the buffer from the message and free the message
          echoRefBuffer = bufferMsg->getBuffer();
          bufferMsg->releaseMsg();
-         if (  echoRefBuffer.isValid()
-            && echoRefBuffer->getSamplesNumber() == samplesPerFrame)
+         // Use silence buffer if we received empty message.
+         if (!echoRefBuffer.isValid())
+         {
+            echoRefBuffer = mpSilenceBuf;
+         }
+         if (echoRefBuffer->getSamplesNumber() == samplesPerFrame)
          {
             mStartedCanceling = true;
 
@@ -233,6 +237,14 @@ OsStatus MprSpeexEchoCancel::setFlowGraph(MpFlowGraphBase* pFlowGraph)
          mpEchoState = speex_echo_state_init(mpFlowGraph->getSamplesPerFrame(), 
                                              mpFlowGraph->getSamplesPerSec()*mFilterLength/1000);
          mSpkrQDelayFrames = mSpkrQDelayMs*mpFlowGraph->getSamplesPerSec()/mpFlowGraph->getSamplesPerFrame()/1000;
+         // Allocate buffer for silence and fill it with 0s
+         if (!mpSilenceBuf.isValid())
+         {
+            mpSilenceBuf = MpMisc.RawAudioPool->getBuffer();
+         }
+         mpSilenceBuf->setSamplesNumber(mpFlowGraph->getSamplesPerFrame());
+         memset(mpSilenceBuf->getSamplesWritePtr(), 0,
+                mpSilenceBuf->getSamplesNumber()*sizeof(MpAudioSample));
 
          mStartedCanceling = false; // Debug Use only
       }
