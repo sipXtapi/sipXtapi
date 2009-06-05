@@ -154,12 +154,12 @@ private:
       MPRM_SET_SPEAKER_QUEUE = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START
    } AddlResMsgTypes;
 
-   SpeexEchoState *mpEchoState;
-   bool            mStartedCanceling;
-   int             mFilterLength;
-   OsMsgQ         *mpSpkrQ;
-   const int       mSpkrQDelayMs;
-   int             mSpkrQDelayFrames;
+   SpeexEchoState *mpEchoState;       ///< Speex internal AEC state
+   bool            mStartedCanceling; ///< Have we started cancelling?
+   int             mFilterLength;     ///< Filter tail length. See constructor docs for details
+   OsMsgQ         *mpSpkrQ;           ///< Queue with echo reference data
+   const int       mSpkrQDelayMs;     ///< How much should we delay data from mpSpkrQ (in ms)?
+   int             mSpkrQDelayFrames; ///< How much should we delay data from mpSpkrQ (in frames)?
 
    static volatile GlobalEnableState smGlobalEnableState;
      ///< Global enable/disable switch for all Speex AEC resources. We need
