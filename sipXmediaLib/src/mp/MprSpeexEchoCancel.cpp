@@ -119,10 +119,17 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
    // Get incoming data
    inputBuffer.swap(inBufs[0]);
 
-   // If the object is not enabled or we don't have valid input,
-   // pass input to output
+   // If we already started cancelling, but received empty buffer from mic
+   // just replace it with silence to keep AEC in sync
+   if (mStartedCanceling && !inputBuffer.isValid())
+   {
+      inputBuffer = mpSilenceBuf;
+   }
+
+         // Check for valid input
    if (  inputBuffer.isValid()
       && (inputBuffer->getSamplesNumber() == samplesPerFrame)
+         // Speaker data should be delayed by mSpkrQDelayFrames frames
       && mpSpkrQ->numMsgs() > mSpkrQDelayFrames)
    {
       // Try to get a reference frame for echo cancellation.
@@ -196,6 +203,11 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
 //         assert (!mStartedCanceling);
       }
    }
+   else
+   {
+      // There was no correct data on the input.  Pass the frame as is.
+      outBuffer.swap(inputBuffer);
+   }
 
    outBufs[0].swap(outBuffer);
    return TRUE;
@@ -246,7 +258,7 @@ OsStatus MprSpeexEchoCancel::setFlowGraph(MpFlowGraphBase* pFlowGraph)
          memset(mpSilenceBuf->getSamplesWritePtr(), 0,
                 mpSilenceBuf->getSamplesNumber()*sizeof(MpAudioSample));
 
-         mStartedCanceling = false; // Debug Use only
+         mStartedCanceling = false;
       }
       else
       {

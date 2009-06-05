@@ -161,7 +161,7 @@ private:
    const int       mSpkrQDelayMs;     ///< How much should we delay data from mpSpkrQ (in ms)?
    int             mSpkrQDelayFrames; ///< How much should we delay data from mpSpkrQ (in frames)?
    MpAudioBufPtr   mpSilenceBuf;      ///< Buffer with silence - used when empty message
-                                      ///< arrives from mpSpkrQ
+                                      ///< arrives from mpSpkrQ or mic input
 
    static volatile GlobalEnableState smGlobalEnableState;
      ///< Global enable/disable switch for all Speex AEC resources. We need
