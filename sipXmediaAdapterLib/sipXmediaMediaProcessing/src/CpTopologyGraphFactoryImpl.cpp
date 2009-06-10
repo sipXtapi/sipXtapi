@@ -564,6 +564,25 @@ static MpResourceTopology::ConnectionDef localConnectionConnections[] =
 static const int localConnectionConnectionsNum =
    sizeof(localConnectionConnections)/sizeof(MpResourceTopology::ConnectionDef);
 
+/// Name of last resource in the local input connection
+static char *sgLocalInputConnectionOutput =
+#ifdef INSERT_DELAY_RESOURCE // [
+                                        DEFAULT_DELAY_RESOURCE_NAME MIC_NAME_SUFFIX;
+#elif defined(HAVE_SPEEX) // [
+                                        DEFAULT_SPEEX_PREPROCESS_RESOURCE_NAME;
+#else // INSERT_DELAY_RESOURCE ][
+                                        DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME AEC_NAME_SUFFIX;
+#endif
+/// Name of first resource in the local output connection
+static char *sgLocalOutputConnectionInput =
+#ifdef USE_SPEEX_AEC // [
+                                        DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX;
+#else // USE_SPEEX_AEC ][
+                                        DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME;
+#endif
+
+
+
 MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopology()
 {
     MpResourceTopology* resourceTopology = new MpResourceTopology();
@@ -905,6 +924,14 @@ void CpTopologyGraphFactoryImpl::addLocalConnectionTopology(MpResourceTopology* 
     // Add connections 
     result = resourceTopology->addConnections(localConnectionConnections,
                                               localConnectionConnectionsNum);
+    assert(result == OS_SUCCESS);
+
+    // Set Local Stream Output and Local Stream Input virtual names.
+    result = resourceTopology->addVirtualOutput(sgLocalInputConnectionOutput, 0,
+                                                VIRTUAL_NAME_LOCAL_STREAM_OUTPUT, 0);
+    assert(result == OS_SUCCESS);
+    result = resourceTopology->addVirtualInput(sgLocalOutputConnectionInput, 0,
+                                               VIRTUAL_NAME_LOCAL_STREAM_INPUT, 0);
     assert(result == OS_SUCCESS);
 }
 

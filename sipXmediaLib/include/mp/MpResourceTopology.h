@@ -48,6 +48,18 @@
 #define AEC_NAME_SUFFIX "-AEC"
 
 /**
+*  VIRTUAL_NAME_LOCAL_STREAM_OUTPUT is mapped to an output of local audio
+*  input stream (i.e. stream from Mic).
+*/
+#define VIRTUAL_NAME_LOCAL_STREAM_OUTPUT "StreamOutput" MIC_NAME_SUFFIX
+
+/**
+*  VIRTUAL_NAME_LOCAL_STREAM_INPUT is mapped to an input of local audio
+*  output stream (i.e. stream to Speaker).
+*/
+#define VIRTUAL_NAME_LOCAL_STREAM_INPUT "StreamInput" SPEAKER_NAME_SUFFIX
+
+/**
 *  VIRTUAL_NAME_RTP_STREAM_OUTPUT is mapped to an outputs of RTP streams. This
 *  way we don't need to know about RTP stream implementation details no more.
 *  E.g. RTP stream might end with Voice Activity Detector resource or with Delay
