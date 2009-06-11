@@ -21,6 +21,7 @@
 #include <utl/UtlString.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlSListIterator.h>
+#include <utl/UtlHashMapIterator.h>
 #include <net/HttpBody.h>
 #include <os/OsSysLog.h>
 
@@ -630,6 +631,32 @@ UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
     unlock();
 
     return contentReturned;
+}
+
+int SipPublishContentMgr::dumpContents(UtlString& dumpString)
+{
+    int contentCount = 0;
+    dumpString="";
+    dumpString.appendFormat("Elements: %d\n", mContentEntries.entries());
+    lock();
+    UtlString* key = NULL;
+    PublishContentContainer* contentPtr = NULL;
+    UtlHashMapIterator iterator(mContentEntries);
+    while((key = (UtlString*) iterator()))
+    {
+        contentCount++;
+        contentPtr = (PublishContentContainer*) mContentEntries.findValue(key);
+        dumpString.append(*key);
+        dumpString.append("=");
+        if(contentPtr)
+        {
+            dumpString.append(*contentPtr);
+        }
+        dumpString.append('\n');
+    }
+    unlock();
+
+    return(contentCount);
 }
 
 /* ============================ INQUIRY =================================== */

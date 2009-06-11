@@ -328,6 +328,9 @@ public:
                                                    void*& applicationData,
                             SipPublisherContentChangeCallback& callbackFunction);
 
+    /** Debug dump list of contents.
+     */
+    int dumpContents(UtlString& dumpString);
 
 /* ============================ ACCESSORS ================================= */
 
