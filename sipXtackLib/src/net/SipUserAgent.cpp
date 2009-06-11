@@ -155,6 +155,9 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                  "SipUserAgent::_ sipTcpPort = %d, sipUdpPort = %d, sipTlsPort = %d",
                  sipTcpPort, sipUdpPort, sipTlsPort);
                  
+    // Make SIP logging off by default
+    mMessageLogEnabled = FALSE;
+
     // Get pointer to line manager
     mpLineMgr = lineMgr;
 
