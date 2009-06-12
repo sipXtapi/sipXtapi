@@ -25,9 +25,11 @@
 
 #ifdef RTL_ENABLED
 #include <rtl_macro.h>
+#include <os/OsDateTime.h>
 #else
 #define RTL_BLOCK(x)
 #define RTL_EVENT(x,y)
+#define RTL_AUDIO_BUFFER(x,y,w,z)
 #endif
 
 // EXTERNAL FUNCTIONS
@@ -115,7 +117,7 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
    int frameTimeInterval;
    OsStatus status = OS_SUCCESS;
    // Create a bufPtr that points to the data we want to push to the device.
-   MpAudioBufPtr inAudioBuffer = inBufs[0];
+   MpAudioBufPtr inAudioBuffer;
    MpBufferMsg *pCopyMsg = NULL;
    UtlBoolean isCopyMsgSet = FALSE;
 
@@ -131,6 +133,9 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
    {
       return FALSE;
    }
+
+   inAudioBuffer.swap(inBufs[0]);
+   RTL_AUDIO_BUFFER("MprToOutputDevice::doProcessFrame", samplesPerSecond, inAudioBuffer, 0);
 
    if (mIsCopyQEnabled)
    {
@@ -193,7 +198,6 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
    // We push buffer to output device even if buffer is NULL. With NULL buffer we
    // notify output device that we will not push more frames during this time
    // interval.
-
    if (!mFrameTimeInitialized)
    {
       status = mpOutputDeviceManager->pushFrameFirst(mDeviceId,
@@ -209,7 +213,9 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       {
          // Frame time should be initialized at this point.
          mFrameTimeInitialized = TRUE;
+         mLastPushedTime = mFrameTime;
          // Advance frame time by one step.
+         RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_mFrameTime", mFrameTime);
          mFrameTime += frameTimeInterval;
       }
    }
@@ -218,6 +224,20 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       status = mpOutputDeviceManager->pushFrame(mDeviceId,
                                                 mFrameTime+mMixerBufferPosition,
                                                 inAudioBuffer);
+      if (status == OS_SUCCESS)
+      {
+         mLastPushedTime = mFrameTime+mMixerBufferPosition;
+      }
+      else
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToOutputDevice::doProcessFrame() returned %d %s\n",
+                       status, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
+      }
+      if ((mFrameTime+mMixerBufferPosition) % 100 == 0)
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToOutputDevice::doProcessFrame(): frameTime=%d %s\n",
+                       mFrameTime, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
+      }
 
       RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_pushFrame_result", status);
       debugPrintf("MprToOutputDevice::doProcessFrame(): frameTime+mixerBufferPosition=%d+%d=%d pushResult=%d %s\n",
@@ -225,29 +245,90 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
                   status, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
       while (status == OS_INVALID_STATE)
       {
-         // Ouch.. Frame is reported to be too late. This means that device
+         // Ouch.. Frame is reported to be too late. Likely this means that device
          // processed several frames in a burst. This rarely happens alone,
          // usually driver burst all the time and we need to move slightly
          // forward in mixer buffer to iron out this bursts. This will increase
          // latency, so we adjust only as small as needed.
+         // This can also happen when we generate data more slowly then it is
+         // consumed. E.g. this happens when we're running out of CPU and can't
+         // keep up with required rate.
          MpFrameTime mixerBufferLength;
-         status = mpOutputDeviceManager->getMixerBufferLength(mDeviceId, mixerBufferLength);
-         if (mMixerBufferPosition + frameTimeInterval > mixerBufferLength - frameTimeInterval)
+         mpOutputDeviceManager->getMixerBufferLength(mDeviceId, mixerBufferLength);
+         if (mMixerBufferPosition + frameTimeInterval <= mixerBufferLength - frameTimeInterval)
          {
-            // We exceeded mixer buffer length, don't go further. Actually
-            // this is bad and means that mixer buffer should be increased,
-            // so assert here.
-            assert(!"Mixer buffer too short, increase it!");
-            break;
+            // Move further in a mixer buffer if we have more room in it.
+            mMixerBufferPosition += frameTimeInterval;
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToOutputDevice::doProcessFrame(): mMixerBufferPosition=%d %s\n",
+                          mMixerBufferPosition, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
+            RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_mixerBufferPosition", mMixerBufferPosition);
          }
-         mMixerBufferPosition += frameTimeInterval;
+         else
+         {
+            // We've run out of mixer buffer space, but still need to advance
+            // some more. Looks like we either can't keep abreast with sound
+            // card rate because of lack of CPU power, or it's a sound card
+            // clock temporary deviation. Anyway, react with increasing mFrameTime
+            // to continue playing.
+            mFrameTime += frameTimeInterval;
+            OsSysLog::add(FAC_MP, PRI_WARNING, "MprToOutputDevice::doProcessFrame(): frameTime=%d %s\n",
+                          mFrameTime, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
+         }
+         // Push data for playback
          status = mpOutputDeviceManager->pushFrame(mDeviceId,
                                                    mFrameTime+mMixerBufferPosition,
                                                    inAudioBuffer);
-         RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_mixerBufferPosition", mMixerBufferPosition);
+         // Save frame time of the last successful push
+         if (status == OS_SUCCESS)
+         {
+            mLastPushedTime = mFrameTime+mMixerBufferPosition;
+         }
+         else
+         {
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToOutputDevice::doProcessFrame() returned %d after retry %s\n",
+                          status, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
+         }
+         RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_pushFrame_result", status);
+      }
+
+      while (status == OS_LIMIT_REACHED)
+      {
+         // And now we're too early to push the frame. So either CPU utilization
+         // have got better or sound card clocks were put on line.
+         // In both cases we ought to react by moving backward in time.
+         mFrameTime -= frameTimeInterval;
+         OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToOutputDevice::doProcessFrame(): frameTime=%d %s\n",
+                        mFrameTime, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
+
+         // But we don't want to push frame over the frame we've already pushed.
+         // We'll get a very well audible click if we did. Click was caused by
+         // that we mix next frame over last frame and it leads to double volume
+         // of that specific frame. It's far less audible to just drop this
+         // frame.
+         if (mFrameTime+mMixerBufferPosition <= mLastPushedTime)
+         {
+            break;
+         }
+
+         // Push data for playback
+         status = mpOutputDeviceManager->pushFrame(mDeviceId,
+                                                   mFrameTime+mMixerBufferPosition,
+                                                   inAudioBuffer);
+         // Save frame time of the last successful push
+         if (status == OS_SUCCESS)
+         {
+            mLastPushedTime = mFrameTime+mMixerBufferPosition;
+         }
+         else
+         {
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToOutputDevice::doProcessFrame() returned %d after retry %s\n",
+                          status, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
+         }
+         RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_pushFrame_result", status);
       }
 
       // Advance frame time by one step.
+      RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_mFrameTime", mFrameTime);
       mFrameTime += frameTimeInterval;
    }
 

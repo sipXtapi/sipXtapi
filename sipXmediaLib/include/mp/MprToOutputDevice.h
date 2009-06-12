@@ -132,6 +132,7 @@ private:
    UtlBoolean mFrameTimeInitialized;
    MpFrameTime mFrameTime;
    MpFrameTime mMixerBufferPosition;
+   MpFrameTime mLastPushedTime;
    MpOutputDeviceHandle mDeviceId;
    MpResamplerBase *mpResampler;
 
