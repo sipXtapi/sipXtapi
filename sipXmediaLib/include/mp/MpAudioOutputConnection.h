@@ -272,6 +272,22 @@ protected:
      *        other (synchronized) functions.
      */
 
+     /// Check whether it's too late to mix this frame in or not (does not check for too early).
+   inline OsStatus isLateToMix(unsigned frameOffset,
+                               unsigned numSamples) const;
+     /**<
+     *  @param[in] frameOffset - Number of samples between the beginning of
+     *             mixer buffer and the start of pushed frame.
+     *  @param[in] numSamples - Number of samples in frame.
+     *
+     *  @retval OS_LIMIT_REACHED if mixer buffer is full and it's too late
+     *          mix this frame in.
+     *  @retval OS_SUCCESS if it's not yet too late.
+     *
+     *  @NOTE Not thread-safe. This function is supposed to be used from
+     *        other (synchronized) functions.
+     */
+
      /// Pull frame from mixer buffer.
    OsStatus advanceMixerBuffer(unsigned numSamples);
      /**<
@@ -354,6 +370,18 @@ unsigned MpAudioOutputConnection::getUseCount() const
 unsigned MpAudioOutputConnection::getSamplesPerFrame() const
 {
    return getDeviceDriver()->getSamplesPerFrame();
+}
+
+OsStatus MpAudioOutputConnection::isLateToMix(unsigned frameOffset,
+                                              unsigned numSamples) const
+{
+
+   // Whole frame should fit into buffer to be accepted.
+   if (frameOffset+numSamples > mMixerBufferLength)
+   {
+      return OS_LIMIT_REACHED;
+   }
+   return OS_SUCCESS;
 }
 
 #endif  // _MpAudioOutputConnection_h_
