@@ -41,7 +41,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="lib;..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib"
-				IgnoreDefaultLibraryNames=""
+				IgnoreDefaultLibraryNames="msvcrt.lib"
 				ModuleDefinitionFile=""
 				DelayLoadDLLs=""
 				GenerateDebugInformation="TRUE"
