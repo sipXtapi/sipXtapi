@@ -71,6 +71,9 @@ SPEACKER_SELECTION_CHECK
 # Look for CPPUnit libraries
 CHECK_CPPUNIT
 
+# Enable use of code that uses speex dsp library
+ENABLE_SPEEX_DSP
+
 # Look for GSM and Speex codecs
 CHECK_GSM
 CHECK_SPEEX

@@ -25,7 +25,8 @@ libsipXmediaProcessing_la_CXXFLAGS = \
 	@INTERFACE_FLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
-	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	@SPEEX_CFLAGS@
 
 libsipXmediaProcessing_la_LIBADD = \
 	../../interface/libmediainterface.la \
