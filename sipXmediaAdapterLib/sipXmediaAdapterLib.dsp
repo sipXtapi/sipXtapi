@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 F90=df.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXsdpLib\include" /I "sipXmediaMediaProcessing" /I "sipXmediaMediaProcessing\include" /I "interface" /I "..\sipXmediaLib\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /D "HAVE_SPEEX" /D "DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY" /D "ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXsdpLib\include" /I "sipXmediaMediaProcessing" /I "sipXmediaMediaProcessing\include" /I "interface" /I "..\sipXmediaLib\include" /I "..\sipXmediaLib\contrib\libspeex\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /D "HAVE_SPEEX" /D "DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY" /D "ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -67,7 +67,7 @@ LIB32=link.exe -lib
 # PROP Target_Dir ""
 F90=df.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXsdpLib\include" /I "sipXmediaMediaProcessing" /I "sipXmediaMediaProcessing\include" /I "interface" /I "..\sipXmediaLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /D "HAVE_SPEEX" /D "DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY" /D "ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY" /FR /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXsdpLib\include" /I "sipXmediaMediaProcessing" /I "sipXmediaMediaProcessing\include" /I "interface" /I "..\sipXmediaLib\include" /I "..\sipXmediaLib\contrib\libspeex\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /D "HAVE_SPEEX" /D "DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY" /D "ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
