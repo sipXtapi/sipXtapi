@@ -552,14 +552,14 @@ static MpResourceTopology::ConnectionDef localConnectionConnections[] =
     // The splitter leaves a tap for AEC to see the output to speaker
    {VIRTUAL_NAME_CONNECTION_PORTS, -1, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0},
     // Splitter(1) -> Output Buffer (part of AEC)
-   {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME AEC_NAME_SUFFIX AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX, 0}
+   {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME AEC_NAME_SUFFIX AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX, 0},
     // Splitter(0) -> VAD
    {DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0, DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, 0},
 #endif // !USE_SPEEX_AEC ]
     //             -> Voice Activity Notifier
    {NULL, 0, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX, 0},
     //             -> Speaker
-   {NULL, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0},
+   {NULL, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0}
 };
 static const int localConnectionConnectionsNum =
    sizeof(localConnectionConnections)/sizeof(MpResourceTopology::ConnectionDef);
