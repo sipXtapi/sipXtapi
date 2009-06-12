@@ -19,6 +19,10 @@
 #include <mp/MpDspUtils.h>
 #include <os/OsLock.h>
 #include <os/OsDefs.h>    // for min macro
+#include <os/OsSysLog.h>
+
+//#define RTL_ENABLED
+//#define RTL_AUDIO_ENABLED
 
 #ifdef RTL_ENABLED
 #include <rtl_macro.h>
@@ -171,14 +175,16 @@ OsStatus MpAudioOutputConnection::pushFrameBeginning(unsigned int numSamples,
                                                      MpFrameTime &frameTime)
 {
    OsStatus result = OS_SUCCESS;
-   RTL_BLOCK("MpAudioOutputConnection::pushFrameBeginning");
+   RTL_BLOCK("MpAudioOutputConnection::pushFrame");
 
    assert(numSamples > 0);
 
    // From now we access internal data. Take lock.
    OsLock lock(mMutex);
 
-   RTL_EVENT("MpAudioOutputConnection::pushFrameBeginning", this->getValue());
+   RTL_EVENT("MpAudioOutputConnection::pushFrame_frameTime", frameTime);
+   RTL_EVENT("MpAudioOutputConnection::pushFrame_currentTime", mCurrentFrameTime);
+   RTL_EVENT("MpAudioOutputConnection::pushFrame", this->getValue());
 
    // Do nothing if no audio was pushed. Mixer buffer will be filled with
    // silence or data from other sources.
@@ -197,13 +203,17 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
                                             const MpAudioSample* samples,
                                             MpFrameTime frameTime)
 {
-   OsStatus result = OS_FAILED;
-   RTL_BLOCK("MpAudioOutputConnection::pushFrame");
+   OsStatus result = OS_SUCCESS;
+   RTL_EVENT("MpAudioOutputConnection::pushFrame", -1);
 
    assert(numSamples > 0);
 
    // From now we access internal data. Take lock.
    OsLock lock(mMutex);
+
+   RTL_EVENT("MpAudioOutputConnection::pushFrame_frameTime", frameTime);
+   RTL_EVENT("MpAudioOutputConnection::pushFrame_currentTime", mCurrentFrameTime);
+   RTL_EVENT("MpAudioOutputConnection::pushFrame", this->getValue());
 
    // Check for late frame. Check for early frame is done inside mixFrame().
    if (MpDspUtils::compareSerials(frameTime, mCurrentFrameTime) < 0)
@@ -212,26 +222,31 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
                   " OS_INVALID_STATE frameTime=%d, currentTime=%d\n",
                   frameTime, mCurrentFrameTime);
       result = OS_INVALID_STATE;
+      RTL_EVENT("MpAudioOutputConnection::pushFrame", result);
       return result;
    }
 
-   RTL_EVENT("MpAudioOutputConnection::pushFrame", this->getValue());
+   // Convert frameTime to offset in mixer buffer.
+   // Note: frameTime >= mCurrentFrameTime.
+   unsigned mixerBufferOffsetFrames =
+            (frameTime-mCurrentFrameTime) / mpDeviceDriver->getFramePeriod();
+   unsigned mixerBufferOffsetSamples = 
+            mixerBufferOffsetFrames * mpDeviceDriver->getSamplesPerFrame();
 
-   // Do nothing if no audio was pushed. Mixer buffer will be filled with
-   // silence or data from other sources.
+   // Don't touch mix buffer if no audio was pushed. Mixer buffer will be filled
+   // with silence or data from other sources.
    if (samples != NULL)
    {
-      // Convert frameTime to offset in mixer buffer.
-      // Note: frameTime >= mCurrentFrameTime.
-      unsigned mixerBufferOffsetFrames =
-               (frameTime-mCurrentFrameTime) / mpDeviceDriver->getFramePeriod();
-      unsigned mixerBufferOffsetSamples = 
-               mixerBufferOffsetFrames * mpDeviceDriver->getSamplesPerFrame();
-
       // Mix this data with other sources.
       result = mixFrame(mixerBufferOffsetSamples, samples, numSamples);
    }
+   else
+   {
+      // Just check for late frame.
+      result = isLateToMix(mixerBufferOffsetSamples, numSamples);
+   }
 
+   RTL_EVENT("MpAudioOutputConnection::pushFrame", result);
    return result;
 };
 
@@ -290,8 +305,8 @@ OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
    assert(numSamples > 0);
    assert(samples != NULL);
 
-   // Check for late frame. Whole frame should fit into buffer to be accepted.
-   if (frameOffset+numSamples > mMixerBufferLength)
+   // Check for late frame.
+   if (isLateToMix(frameOffset, numSamples) == OS_LIMIT_REACHED)
    {
       debugPrintf("MpAudioOutputConnection::mixFrame()"
                   " OS_LIMIT_REACHED offset=%d, samples=%d, bufferLength=%d\n",
@@ -386,6 +401,8 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
       pConnection->mCurrentFrameTime +=
                            pConnection->mpDeviceDriver->getSamplesPerFrame() * 1000
                            / pConnection->mpDeviceDriver->getSamplesPerSec();
+      RTL_EVENT("MpAudioOutputConnection::tickerCallBack_currentFrameTime",
+                pConnection->mCurrentFrameTime);
 
       pConnection->mMutex.release();
    }
