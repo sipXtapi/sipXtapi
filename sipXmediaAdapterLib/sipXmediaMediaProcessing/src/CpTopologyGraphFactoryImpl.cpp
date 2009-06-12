@@ -160,7 +160,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     mpInputDeviceManager = 
         new MpInputDeviceManager(mgrSamplesPerFrame,    // samples per frame
                                  mDefaultSamplesPerSec, // samples per second
-                                 2,    // number of buffered frames
+                                 3,    // number of buffered frames
                                  *MpMisc.RawAudioPool);
 
     mpOutputDeviceManager =
@@ -175,7 +175,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                   // hurt, because by default only minimal part
                                   // of mixer buffer is used which increases
                                   // in case of bursts.
-                                  mFrameSizeMs*16         // mixer buffer length (ms)
+                                  (60 > mFrameSizeMs*3) ? 60 : mFrameSizeMs*3 // mixer buffer length (ms)
                                   );
 
     // Get media task ticker notification
