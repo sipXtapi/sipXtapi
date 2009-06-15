@@ -166,9 +166,9 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
 
             // Do echo cancellation
             speex_echo_cancellation(mpEchoState,
-                                    inputBuffer->getSamplesPtr(),
-                                    echoRefBuffer->getSamplesPtr(),
-                                    outBuffer->getSamplesWritePtr());
+                                    (const spx_int16_t*)inputBuffer->getSamplesPtr(),
+                                    (const spx_int16_t*)echoRefBuffer->getSamplesPtr(),
+                                    (spx_int16_t*)outBuffer->getSamplesWritePtr());
 
 #ifdef RTL_AUDIO_ENABLED
             UtlString rtlOutputLabel(mpFlowGraph->getFlowgraphName());

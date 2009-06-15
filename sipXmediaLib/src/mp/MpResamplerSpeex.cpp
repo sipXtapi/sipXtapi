@@ -79,9 +79,11 @@ OsStatus MpResamplerSpeex::resample(uint32_t channelIndex,
 
    inSamplesProcessed = inBufLength;
    outSamplesWritten = outBufLength;
-   int speexErr = speex_resampler_process_int(mpState, channelIndex, 
-                                              pInBuf, &inSamplesProcessed, 
-                                              pOutBuf, &outSamplesWritten);
+   int speexErr = speex_resampler_process_int(mpState, channelIndex,
+                                              (const spx_int16_t*)pInBuf,
+                                              &inSamplesProcessed,
+                                              (spx_int16_t*)pOutBuf,
+                                              &outSamplesWritten);
    return speexErrToOsStatus(speexErr);
 }
 
@@ -102,10 +104,10 @@ OsStatus MpResamplerSpeex::resampleInterleavedStereo(const MpAudioSample* pInBuf
 
    inSamplesProcessed = inBufLength;
    outSamplesWritten = outBufLength;
-   int speexErr = speex_resampler_process_interleaved_int(mpState, 
-                                                          pInBuf, 
-                                                          &inSamplesProcessed, 
-                                                          pOutBuf, 
+   int speexErr = speex_resampler_process_interleaved_int(mpState,
+                                                          (const spx_int16_t*)pInBuf,
+                                                          &inSamplesProcessed,
+                                                          (spx_int16_t*)pOutBuf,
                                                           &outSamplesWritten);
    return speexErrToOsStatus(speexErr);
 }
