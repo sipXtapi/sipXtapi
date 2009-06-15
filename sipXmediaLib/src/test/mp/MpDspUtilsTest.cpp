@@ -86,9 +86,9 @@ public:
    void testShiftLeft_int32()
    {
       int32_t a[] = {-2147483647-1, -2147483647, 2147483647};
-      CPPUNIT_ASSERT_EQUAL(INT32_C(0), a[0]<<1);
-      CPPUNIT_ASSERT_EQUAL(INT32_C(2), a[1]<<1);
-      CPPUNIT_ASSERT_EQUAL(INT32_C(-2), a[2]<<1);
+      CPPUNIT_ASSERT_EQUAL(INT32_C(0), (int32_t)(a[0]<<1));
+      CPPUNIT_ASSERT_EQUAL(INT32_C(2), (int32_t)(a[1]<<1));
+      CPPUNIT_ASSERT_EQUAL(INT32_C(-2), (int32_t)(a[2]<<1));
    }
 
    void testAdd_int16()
