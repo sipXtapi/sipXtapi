@@ -677,34 +677,6 @@ void MpFlowGraphBase::flowGraphInfo(MpFlowGraphBase* pFlowGraph)
    }
 }
 
-int flowGI(int x) {
-   MpFlowGraphBase::flowGraphInfo((MpFlowGraphBase*) x);
-   return 0;
-}
-
-// Returns the number of samples expected per frame.
-int MpFlowGraphBase::getSamplesPerFrame(void) const
-{
-   return mSamplesPerFrame;
-}
-
-// Returns the number of samples expected per second.
-int MpFlowGraphBase::getSamplesPerSec(void) const
-{
-   return mSamplesPerSec;
-}
-
-// Returns the current state of flow graph.
-int MpFlowGraphBase::getState(void) const
-{
-   return mCurState;
-}
-
-OsMsgDispatcher* MpFlowGraphBase::getNotificationDispatcher(void) const
-{
-   return mNotifyDispatcher;
-}
-
 // Sets rpResource to point to the resource that corresponds to 
 // name  or to NULL if no matching resource is found.
 // Returns OS_SUCCESS if there is a match, otherwise returns OS_NOT_FOUND.
@@ -730,30 +702,6 @@ OsStatus MpFlowGraphBase::lookupResourcePrivate(
       return OS_SUCCESS;
    else
       return OS_NOT_FOUND;
-}
-
-// Returns the number of links in the flow graph.
-int MpFlowGraphBase::numLinks(void) const
-{
-   return mLinkCnt;
-}
-
-// Returns the number of frames this flow graph has processed.
-int MpFlowGraphBase::numFramesProcessed(void) const
-{
-   return mPeriodCnt;
-}
-
-// Returns the number of resources in the flow graph.
-int MpFlowGraphBase::numResources(void) const
-{
-   return mResourceCnt;
-}
-
-// Returns the message queue used by the flow graph. 
-OsMsgQ* MpFlowGraphBase::getMsgQ(void) 
-{
-   return &mMessages ;
 }
 
 /* ============================ INQUIRY =================================== */

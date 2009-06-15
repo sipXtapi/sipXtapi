@@ -368,18 +368,17 @@ public:
      /// Returns the type of this flow graph.
    virtual FlowGraphType getType();
 
-
      /// Returns the number of samples expected per frame.
-   int getSamplesPerFrame(void) const;
+   inline int getSamplesPerFrame(void) const;
 
      /// Returns the number of samples expected per second.
-   int getSamplesPerSec(void) const;
+   inline int getSamplesPerSec(void) const;
 
      /// Returns the current state of flow graph.
-   int getState(void) const;
+   inline int getState(void) const;
 
      /// Returns the current notification dispatcher, if any.  If none, returns NULL.
-   OsMsgDispatcher* getNotificationDispatcher() const;
+   inline OsMsgDispatcher* getNotificationDispatcher() const;
 
      /// @brief Sets \p rpResource to point to the resource that corresponds
      /// to \p name or to NULL if no matching resource is found.
@@ -395,16 +394,16 @@ public:
      */
 
      /// Returns the number of links in the flow graph.
-   int numLinks(void) const;
+   inline int numLinks(void) const;
 
      /// Returns the number of frames this flow graph has processed.
-   int numFramesProcessed(void) const;
+   inline int numFramesProcessed(void) const;
 
      /// Returns the number of resources in the flow graph.
-   int numResources(void) const;
+   inline int numResources(void) const;
 
      /// Returns the message queue used by the flow graph. 
-   OsMsgQ* getMsgQ(void) ;
+   inline OsMsgQ* getMsgQ(void) ;
 
      /// Get flowgraph's sequence number (use for debug purposes only!)
    inline int getFlowgraphNum() const;
@@ -610,6 +609,46 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+int MpFlowGraphBase::getSamplesPerFrame(void) const
+{
+   return mSamplesPerFrame;
+}
+
+int MpFlowGraphBase::getSamplesPerSec(void) const
+{
+   return mSamplesPerSec;
+}
+
+int MpFlowGraphBase::getState(void) const
+{
+   return mCurState;
+}
+
+OsMsgDispatcher* MpFlowGraphBase::getNotificationDispatcher(void) const
+{
+   return mNotifyDispatcher;
+}
+
+int MpFlowGraphBase::numLinks(void) const
+{
+   return mLinkCnt;
+}
+
+int MpFlowGraphBase::numFramesProcessed(void) const
+{
+   return mPeriodCnt;
+}
+
+int MpFlowGraphBase::numResources(void) const
+{
+   return mResourceCnt;
+}
+
+OsMsgQ* MpFlowGraphBase::getMsgQ(void) 
+{
+   return &mMessages ;
+}
 
 int MpFlowGraphBase::getFlowgraphNum() const
 {
