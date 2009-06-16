@@ -595,7 +595,6 @@ protected:
 private:
 
    int mLastConnectionId;
-   MpResourceTopology* mpInitialResourceTopology;
    MpResourceFactory* mpResourceFactory;
    MpTopologyGraph* mpTopologyGraph;
    SdpCodecList mSupportedCodecs;
