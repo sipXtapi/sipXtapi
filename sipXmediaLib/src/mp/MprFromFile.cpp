@@ -647,6 +647,12 @@ UtlBoolean MprFromFile::allocateAndResample(const char* audBuf,
    uint32_t outSamplesWritten = 0;
    OsStatus resampleStat = OS_SUCCESS;
    MpResamplerBase* pResampler = MpResamplerBase::createResampler(1, inRate, outRate);
+   if (!pResampler)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR,
+                    "MprFromFile::allocateAndResample(): Can't create resampler");
+      return FALSE;
+   }
    resampleStat = pResampler->resample(0, (const MpAudioSample*)audBuf, audBufSz/sizeof(MpAudioSample), 
                                        inSamplesProcessed, 
                                        (MpAudioSample*)outAudBuf, outAudBufSz/sizeof(MpAudioSample), 
