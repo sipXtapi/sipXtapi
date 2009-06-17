@@ -29,6 +29,10 @@
 // CONSTANTS
 // TYPEDEFS
 // DEFINES
+/// Size of chunks of data we pass to Speex resampler.
+/// I'd recommend to set it to be equal to Speex's FIXED_STACK_ALLOC (1024 by default).
+#define SPEEX_RESAMPLER_FRAME    1024;
+
 // MACROS
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -66,9 +70,11 @@ OsStatus MpResamplerSpeex::resetStream()
 
 // Single-channel resampling.
 OsStatus MpResamplerSpeex::resample(uint32_t channelIndex,
-                                    const MpAudioSample* pInBuf, uint32_t inBufLength, 
+                                    const MpAudioSample* pInBuf,
+                                    uint32_t inBufLength, 
                                     uint32_t& inSamplesProcessed, 
-                                    MpAudioSample* pOutBuf, uint32_t outBufLength, 
+                                    MpAudioSample* pOutBuf,
+                                    uint32_t outBufLength, 
                                     uint32_t& outSamplesWritten)
 {
    if(channelIndex >= mNumChannels)
@@ -77,14 +83,26 @@ OsStatus MpResamplerSpeex::resample(uint32_t channelIndex,
       return OS_INVALID_ARGUMENT;
    }
 
-   inSamplesProcessed = inBufLength;
-   outSamplesWritten = outBufLength;
-   int speexErr = speex_resampler_process_int(mpState, channelIndex,
-                                              (const spx_int16_t*)pInBuf,
-                                              (spx_uint32_t*)&inSamplesProcessed,
-                                              (spx_int16_t*)pOutBuf,
-                                              (spx_uint32_t*)&outSamplesWritten);
-   return speexErrToOsStatus(speexErr);
+   for (inSamplesProcessed=0, outSamplesWritten=0;
+        inSamplesProcessed<inBufLength && outSamplesWritten<outBufLength;
+        )
+   {
+      spx_uint32_t inSamplesNum = sipx_min(SPEEX_RESAMPLER_FRAME, inBufLength-inSamplesProcessed);
+      spx_uint32_t outSamplesNum = sipx_min(SPEEX_RESAMPLER_FRAME, outBufLength-outSamplesWritten);
+      int speexErr = speex_resampler_process_int(mpState, channelIndex,
+                                                 (const spx_int16_t*)&pInBuf[inSamplesProcessed],
+                                                 &inSamplesNum,
+                                                 (spx_int16_t*)&pOutBuf[outSamplesWritten],
+                                                 &outSamplesNum);
+      if (speexErr != RESAMPLER_ERR_SUCCESS)
+      {
+         return speexErrToOsStatus(speexErr);
+      }
+      inSamplesProcessed += inSamplesNum;
+      outSamplesWritten += outSamplesNum;
+   }
+
+   return OS_SUCCESS;
 }
 
 // Interleaved stereo resampling.
@@ -102,14 +120,27 @@ OsStatus MpResamplerSpeex::resampleInterleavedStereo(const MpAudioSample* pInBuf
       return OS_INVALID_STATE;
    }
 
-   inSamplesProcessed = inBufLength;
-   outSamplesWritten = outBufLength;
-   int speexErr = speex_resampler_process_interleaved_int(mpState,
-                                                          (const spx_int16_t*)pInBuf,
-                                                          (spx_uint32_t*)&inSamplesProcessed,
-                                                          (spx_int16_t*)pOutBuf,
-                                                          (spx_uint32_t*)&outSamplesWritten);
-   return speexErrToOsStatus(speexErr);
+
+   for (inSamplesProcessed=0, outSamplesWritten=0;
+        inSamplesProcessed<inBufLength && outSamplesWritten<outBufLength;
+        )
+   {
+      spx_uint32_t inSamplesNum = sipx_min(SPEEX_RESAMPLER_FRAME, inBufLength-inSamplesProcessed);
+      spx_uint32_t outSamplesNum = sipx_min(SPEEX_RESAMPLER_FRAME, outBufLength-outSamplesWritten);
+      int speexErr = speex_resampler_process_interleaved_int(mpState,
+                                                             (const spx_int16_t*)&pInBuf[inSamplesProcessed],
+                                                             &inSamplesNum,
+                                                             (spx_int16_t*)&pOutBuf[outSamplesWritten],
+                                                             &outSamplesNum);
+      if (speexErr != RESAMPLER_ERR_SUCCESS)
+      {
+         return speexErrToOsStatus(speexErr);
+      }
+      inSamplesProcessed += inSamplesNum;
+      outSamplesWritten += outSamplesNum;
+   }
+
+   return OS_SUCCESS;
 }
 
 OsStatus MpResamplerSpeex::setInputRate(const uint32_t inputRate)
