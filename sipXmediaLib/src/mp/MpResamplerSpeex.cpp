@@ -31,7 +31,7 @@
 // DEFINES
 /// Size of chunks of data we pass to Speex resampler.
 /// I'd recommend to set it to be equal to Speex's FIXED_STACK_ALLOC (1024 by default).
-#define SPEEX_RESAMPLER_FRAME    1024;
+#define SPEEX_RESAMPLER_FRAME    1024
 
 // MACROS
 // STATIC VARIABLE INITIALIZATIONS
