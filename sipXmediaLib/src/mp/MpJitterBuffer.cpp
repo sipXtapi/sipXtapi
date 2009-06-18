@@ -29,7 +29,9 @@
 // MACROS
 //#define RTL_ENABLED
 //#define RTL_AUDIO_ENABLED
-#define ENABLE_NON_PLC_ADJUSTMENT
+#ifndef EXTERNAL_PLC // [ 
+#  define ENABLE_NON_PLC_ADJUSTMENT
+#endif // !EXTERNAL_PLC ] 
 
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
