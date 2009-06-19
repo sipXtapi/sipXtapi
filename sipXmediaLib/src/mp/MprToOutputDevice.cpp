@@ -233,11 +233,6 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
          OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToOutputDevice::doProcessFrame() returned %d %s\n",
                        status, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
       }
-      if ((mFrameTime+mMixerBufferPosition) % 100 == 0)
-      {
-         OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToOutputDevice::doProcessFrame(): frameTime=%d %s\n",
-                       mFrameTime, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
-      }
 
       RTL_EVENT(mpFlowGraph->getFlowgraphName()+"_"+getName()+"_pushFrame_result", status);
       debugPrintf("MprToOutputDevice::doProcessFrame(): frameTime+mixerBufferPosition=%d+%d=%d pushResult=%d %s\n",
