@@ -111,11 +111,12 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
                          int inviteExpireSeconds,
                          int expeditedIpTos,
                          int maxCalls,
-                         CpMediaInterfaceFactory* pMediaFactory) 
-                         : CpCallManager("CallManager-%d", "c",
-                         rtpPortStart, rtpPortEnd, localAddress, publicAddress)
-                         , mIsEarlyMediaFor180(TRUE)
-                         , mpMediaFactory(NULL)
+                         CpMediaInterfaceFactory* pMediaFactory,
+                         int   internalSamplerate) 
+: CpCallManager("CallManager-%d", "c", rtpPortStart, rtpPortEnd, localAddress,
+                publicAddress, internalSamplerate)
+, mIsEarlyMediaFor180(TRUE)
+, mpMediaFactory(NULL)
 {
     OsStackTraceLogger(FAC_CP, PRI_DEBUG, "CallManager");
 

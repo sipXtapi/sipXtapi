@@ -230,7 +230,8 @@ public:
                  int rtpPortStart = 8766,
                  int rtpPortEnd = -1,
                  const char* localAddress = NULL,
-                 const char* publicAddress = NULL);
+                 const char* publicAddress = NULL,
+                 int   internalSamplerate = 8000);
 
     //! Destructor
     virtual

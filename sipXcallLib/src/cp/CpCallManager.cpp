@@ -51,12 +51,13 @@ CpCallManager::CpCallManager(const char* taskName,
                              int rtpPortStart,
                              int rtpPortEnd,
                              const char* localAddress,
-                             const char* publicAddress) :
-OsServerTask(taskName, NULL, CALLMANAGER_MAX_REQUEST_MSGS),
-mManagerMutex(OsMutex::Q_FIFO),
-mCallListMutex(OsMutex::Q_FIFO),
-mCallIndices(),
-mDefaultSampleRate(8000)
+                             const char* publicAddress,
+                             int   internalSamplerate)
+: OsServerTask(taskName, NULL, CALLMANAGER_MAX_REQUEST_MSGS)
+, mManagerMutex(OsMutex::Q_FIFO)
+, mCallListMutex(OsMutex::Q_FIFO)
+, mCallIndices()
+, mDefaultSampleRate(internalSamplerate)
 {
     mDoNotDisturbFlag = FALSE;
     mMsgWaitingFlag = FALSE;

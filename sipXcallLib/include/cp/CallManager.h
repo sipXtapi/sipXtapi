@@ -98,7 +98,8 @@ public:
                int inviteExpireSeconds,                   // Suggested value: CP_MAXIMUM_RINGING_EXPIRE_SECONDS
                int expeditedIpTos,                        // Suggested value: QOS_LAYER3_LOW_DELAY_IP_TOS
                int maxCalls,                              // Suggested value: 10
-               CpMediaInterfaceFactory* pMediaFactory);   // Suggested value: NULL) ;
+               CpMediaInterfaceFactory* pMediaFactory,    // Suggested value: NULL
+               int   internalSamplerate);                 // Suggested value: 8000, 16000 or 32000
 
    virtual
    ~CallManager();

@@ -1025,6 +1025,20 @@ typedef enum SIPX_NOISE_REDUCTION_MODE
  * @param szTLSCertificateNickname Nickname of the certificate to use as an SSL server.
  * @param szTLSCertificatePassword Password for the SSL server certificate.
  * @param szDbLocation Path to the certificate database.
+ * @param bEnableLocalAudio Enable use of local microphone and speaker. Set to
+ *        false if you're running on a server hardware without a sound card.
+ * @param internalSamplerate Samplerate at which all internal processing is
+ *        performed. E.g. if you use G.722 codec which has 16K samplerate, but
+ *        set inernal samplerate to 8000, then you will hear little difference
+ *        from G.711, becase incoming audio will be downsampled to 8000 and
+ *        outgoing audio will be upsampled from 8000. Note however, that working
+ *        with 8000 internal samplerate requires less CPU power, and thus it is
+ *        set by default to 8000.
+ * @param devicesSamplerate Samplerate used by audio input/output drivers.
+ *        It is set to 48000 by default, because it's the native samplerate
+ *        for the most modern soundcards and they produce less jitter and drift
+ *        at this samplerate. We downsample/upsample to internal samplerate
+ *        transparently under the hood.
  */
 SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                         const int udpPort = DEFAULT_UDP_PORT,
@@ -1038,7 +1052,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                         const char* szTLSCertificateNickname = NULL,
                                         const char* szTLSCertificatePassword = NULL,
                                         const char* szDbLocation = NULL,
-                                        bool        bEnableLocalAudio = true) ;
+                                        bool        bEnableLocalAudio = true,
+                                        const int   internalSamplerate = 8000,
+                                        const int   devicesSamplerate = 48000) ;
 
 
 /** 

@@ -228,7 +228,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
                                         const char* szTLSCertificateNickname,
                                         const char* szTLSCertificatePassword,
                                         const char* szDbLocation,
-                                        bool        bEnableLocalAudio)
+                                        bool        bEnableLocalAudio,
+                                        const int   internalSamplerate,
+                                        const int   devicesSamplerate)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxInitialize");
     int iActualTLSPort = tlsPort ;
@@ -461,7 +463,11 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
                             CP_MAXIMUM_RINGING_EXPIRE_SECONDS,
                             QOS_LAYER3_LOW_DELAY_IP_TOS,
                             10,
-                            sipXmediaFactoryFactory(NULL, 10, 48000, 48000, bEnableLocalAudio));
+                            sipXmediaFactoryFactory(NULL, 20,
+                                                    devicesSamplerate,
+                                                    devicesSamplerate,
+                                                    bEnableLocalAudio),
+                            internalSamplerate);
 
 
     // Start up the call processing system
