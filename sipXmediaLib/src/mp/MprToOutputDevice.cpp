@@ -147,7 +147,6 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
 
    uint32_t devSampleRate = 0;
    OsStatus stat = mpOutputDeviceManager->getDeviceSamplesPerSec(mDeviceId, devSampleRate);
-   assert(stat == OS_SUCCESS);
    if(stat != OS_SUCCESS)
    {
       // Get the name of the device we're writing to.
