@@ -23,6 +23,7 @@
 #include <mp/MprToneGenConstructor.h>
 #include <mp/MprFromFileConstructor.h>
 #include <mp/MprNullConstructor.h>
+#include <mp/MprHookConstructor.h>
 #include <mp/MprBridgeConstructor.h>
 #include <mp/MprRtpOutputConnectionConstructor.h>
 #include <mp/MprEncodeConstructor.h>
@@ -468,6 +469,9 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
 
     // Null resource
     resourceFactory->addConstructor(*(new MprNullConstructor()));
+
+    // Hook resource
+    resourceFactory->addConstructor(*(new MprHookConstructor()));
 
     // Bridge
     resourceFactory->addConstructor(*(new MprBridgeConstructor()));
