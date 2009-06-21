@@ -183,6 +183,10 @@ public:
    MpFrameTime getFramePeriod(unsigned samplesPerFrame,
                               unsigned samplesPerSec);
 
+      /// Get device name.
+    inline
+    const UtlString &getDeviceName() const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -235,6 +239,11 @@ unsigned MpOutputDeviceDriver::getSamplesPerFrame() const
 unsigned MpOutputDeviceDriver::getSamplesPerSec() const
 {
    return mSamplesPerSec;
+}
+
+const UtlString &MpOutputDeviceDriver::getDeviceName() const
+{
+   return *this;
 }
 
 #endif  // _MpOutputDeviceDriver_h_

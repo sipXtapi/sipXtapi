@@ -141,6 +141,9 @@ public:
       /// Get timestamp for the next frame to be pushed to input device manager.
     inline MpFrameTime getCurrentFrameTime() const;
 
+      /// Get device name.
+    inline const UtlString &getDeviceName() const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -207,6 +210,11 @@ MpFrameTime MpInputDeviceDriver::getFramePeriod(unsigned int samplesPerFrame,
 MpFrameTime MpInputDeviceDriver::getCurrentFrameTime() const
 {
    return mCurrentFrameTime;
+}
+
+const UtlString &MpInputDeviceDriver::getDeviceName() const
+{
+   return *this;
 }
 
 #endif  // _MpInputDeviceDriver_h_
