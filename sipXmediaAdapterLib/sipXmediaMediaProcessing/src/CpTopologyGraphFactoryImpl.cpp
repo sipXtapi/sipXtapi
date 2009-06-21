@@ -57,17 +57,20 @@
 #ifdef USE_TEST_INPUT_DRIVER // USE_TEST_DRIVER [
 #  include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #  define INPUT_DRIVER MpSineWaveGeneratorDeviceDriver
-#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "SineGenerator", (manager), 32000, 3000, 0
+#  define INPUT_DRIVER_DEFAULT_NAME "SineGenerator"
+#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager), 32000, 3000, 0
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
 #  include <mp/MpidWinMM.h>
 #  define INPUT_DRIVER MpidWinMM
-#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) MpidWinMM::getDefaultDeviceName(), (manager)
+#  define INPUT_DRIVER_DEFAULT_NAME MpidWinMM::getDefaultDeviceName()
+#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
 #  include <mp/MpidOss.h>
 #  define INPUT_DRIVER MpidOss
-#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "/dev/dsp", (manager)
+#  define INPUT_DRIVER_DEFAULT_NAME "/dev/dsp"
+#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
 
 #else // __pingtel_on_possix__ ]
 #  error Unknown platform!
@@ -76,19 +79,22 @@
 #ifdef USE_TEST_OUTPUT_DRIVER // USE_TEST_DRIVER [
 #  include <mp/MpodBufferRecorder.h>
 #  define OUTPUT_DRIVER MpodBufferRecorder
-#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "default", 60*1000*1000
+#  define OUTPUT_DRIVER_DEFAULT_NAME "default"
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name), 60*1000*1000
 
 #  include <os/OsFS.h> // for OpenAndWrite() to write captured data.
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
-#include <mp/MpodWinMM.h>
-#define OUTPUT_DRIVER MpodWinMM
-#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
+#  include <mp/MpodWinMM.h>
+#  define OUTPUT_DRIVER MpodWinMM
+#  define OUTPUT_DRIVER_DEFAULT_NAME MpodWinMM::getDefaultDeviceName()
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
 #  include <mp/MpodOss.h>
 #  define OUTPUT_DRIVER MpodOss
-#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
+#  define OUTPUT_DRIVER_DEFAULT_NAME "/dev/dsp"
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 
 #else // __pingtel_on_posix__ ]
 #  error Unknown platform!
@@ -116,7 +122,9 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
                                                             uint32_t frameSizeMs, 
                                                             uint32_t maxSamplesPerSec,
                                                             uint32_t defaultDeviceSamplesPerSec,
-                                                            UtlBoolean enableLocalAudio)
+                                                            UtlBoolean enableLocalAudio,
+                                                            const UtlString &inputDeviceName,
+                                                            const UtlString &outputDeviceName)
 {
    if(spFactory == NULL)
    {
@@ -125,7 +133,9 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
                                                                          frameSizeMs, 
                                                                          maxSamplesPerSec,
                                                                          defaultDeviceSamplesPerSec,
-                                                                         enableLocalAudio));
+                                                                         enableLocalAudio,
+                                                                         inputDeviceName,
+                                                                         outputDeviceName));
    }    
    siInstanceCount++;
    return spFactory;
@@ -142,9 +152,12 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                                        uint32_t frameSizeMs, 
                                                        uint32_t maxSamplesPerSec,
                                                        uint32_t defaultSamplesPerSec,
-                                                       UtlBoolean enableLocalAudio)
+                                                       UtlBoolean enableLocalAudio,
+                                                       const UtlString &inputDeviceName,
+                                                       const UtlString &outputDeviceName)
 : sipXmediaFactoryImpl(pConfigDb, frameSizeMs, maxSamplesPerSec,
-                       defaultSamplesPerSec, enableLocalAudio)
+                       defaultSamplesPerSec, enableLocalAudio,
+                       inputDeviceName, outputDeviceName)
 , mpInitialResourceTopology(NULL)
 , mpResourceFactory(NULL)
 , mpConnectionResourceTopology(NULL)
@@ -186,14 +199,19 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
        OsSysLog::add(FAC_CP, PRI_INFO, "CpTopologyGraphFactoryImpl: enabling local audio");
 #ifdef USE_DEVICE_ADD_HACK // [
        // Create source (input) device and add it to manager.
+       UtlString tmpInputDeviceName = inputDeviceName.isNull()?INPUT_DRIVER_DEFAULT_NAME:
+                                                               inputDeviceName;
        INPUT_DRIVER *sourceDevice =
-          new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*mpInputDeviceManager));
+          new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*mpInputDeviceManager,
+                                                           tmpInputDeviceName));
        MpInputDeviceHandle sourceDeviceId = mpInputDeviceManager->addDevice(*sourceDevice);
        assert(sourceDeviceId > 0);
 
        // Create sink (output) device and add it to manager.
+       UtlString tmpOutputDeviceName = outputDeviceName.isNull()?OUTPUT_DRIVER_DEFAULT_NAME:
+                                                                 outputDeviceName;
        OUTPUT_DRIVER *sinkDevice =
-          new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+          new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(tmpOutputDeviceName));
        MpOutputDeviceHandle sinkDeviceId = mpOutputDeviceManager->addDevice(sinkDevice);
        assert(sinkDeviceId > 0);
 
@@ -201,14 +219,35 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 
        // Enable devices
        tempRes = mpInputDeviceManager->enableDevice(sourceDeviceId);
-       assert(tempRes == OS_SUCCESS);
+       if (tempRes != OS_SUCCESS)
+       {
+          OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphFactoryImpl(): "
+                        "Can't enable input audio device \"%s\"",
+                        sourceDevice->getDeviceName().data());
+          mpInputDeviceManager->removeDevice(sourceDeviceId);
+          delete sourceDevice;
+       }
        tempRes = mpOutputDeviceManager->enableDevice(sinkDeviceId);
-       assert(tempRes == OS_SUCCESS);
+       if (tempRes == OS_SUCCESS)
+       {
+          // Use our output device as a source of media task ticks.
+          tempRes = mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
+                                                                    pTickerNotf);
+          assert(tempRes == OS_SUCCESS);
+       }
+       else
+       {
+          OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphFactoryImpl(): "
+                        "Can't enable output audio device \"%s\"",
+                        sinkDevice->getDeviceName().data());
+          mpOutputDeviceManager->removeDevice(sinkDeviceId);
+          delete sinkDevice;
 
-       // Use our output device as a source of media task ticks.
-       tempRes = mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
-                                                                 pTickerNotf);
-       assert(tempRes == OS_SUCCESS);
+          // Use multimedia timer as a source of media task ticks.
+          mpMediaTaskTicker = MpMMTimer::create(MpMMTimer::Notification);
+          mpMediaTaskTicker->setNotification(pTickerNotf);
+          mpMediaTaskTicker->run(mFrameSizeMs*1000);
+       }
 #else // USE_DEVICE_ADD_HACK ][
        assert(!"Can't use local audio without USE_DEVICE_ADD_HACK defined!");
 #endif // USE_DEVICE_ADD_HACK ]
@@ -259,19 +298,29 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
 
       // Disable devices
       result = mpInputDeviceManager->disableDevice(1);
-      assert(result == OS_SUCCESS);
+//      assert(result == OS_SUCCESS);
       result = mpOutputDeviceManager->disableDevice(1);
-      assert(result == OS_SUCCESS);
+//      assert(result == OS_SUCCESS);
 
       // Free input device driver
       MpInputDeviceDriver *pInDriver = mpInputDeviceManager->removeDevice(1);
-      assert(pInDriver != NULL);
-      delete pInDriver;
+      if (pInDriver)
+      {
+         delete pInDriver;
+      }
 
       // Free output device driver
       MpOutputDeviceDriver *pOutDriver = mpOutputDeviceManager->removeDevice(1);
-      assert(pOutDriver != NULL);
-      delete pOutDriver;
+      if (pOutDriver)
+      {
+         delete pOutDriver;
+      }
+      else
+      {
+         // Stop our ticker timer
+         mpMediaTaskTicker->stop();
+         delete mpMediaTaskTicker;
+      }
 #else // USE_DEVICE_ADD_HACK ][
       assert(!"Can't use local audio without USE_DEVICE_ADD_HACK defined!");
 #endif // USE_DEVICE_ADD_HACK ]

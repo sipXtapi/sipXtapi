@@ -230,7 +230,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
                                         const char* szDbLocation,
                                         bool        bEnableLocalAudio,
                                         const int   internalSamplerate,
-                                        const int   devicesSamplerate)
+                                        const int   devicesSamplerate,
+                                        const char *callInputDeviceName,
+                                        const char *callOutputDeviceName)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxInitialize");
     int iActualTLSPort = tlsPort ;
@@ -466,7 +468,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
                             sipXmediaFactoryFactory(NULL, 20,
                                                     devicesSamplerate,
                                                     devicesSamplerate,
-                                                    bEnableLocalAudio),
+                                                    bEnableLocalAudio,
+                                                    callInputDeviceName,
+                                                    callOutputDeviceName),
                             internalSamplerate);
 
 

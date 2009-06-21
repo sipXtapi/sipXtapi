@@ -56,7 +56,9 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
                                                             uint32_t frameSizeMs, 
                                                             uint32_t maxSamplesPerSec,
                                                             uint32_t defaultSamplesPerSec,
-                                                            UtlBoolean enableLocalAudio)
+                                                            UtlBoolean enableLocalAudio,
+                                                            const UtlString &inputDeviceName,
+                                                            const UtlString &outputDeviceName)
 {
    // TODO: Add locking
 
@@ -67,7 +69,9 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
                                                                    frameSizeMs, 
                                                                    maxSamplesPerSec,
                                                                    defaultSamplesPerSec,
-                                                                   enableLocalAudio));
+                                                                   enableLocalAudio,
+                                                                   inputDeviceName,
+                                                                   outputDeviceName));
    }
    siInstanceCount++;
 
@@ -105,7 +109,9 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb,
                                            uint32_t frameSizeMs, 
                                            uint32_t maxSamplesPerSec,
                                            uint32_t defaultSamplesPerSec,
-                                           UtlBoolean enableLocalAudio)
+                                           UtlBoolean enableLocalAudio,
+                                           const UtlString &inputDeviceName,
+                                           const UtlString &outputDeviceName)
 {
    // See Doxygen comments for this constructor for information on the impact 
    // of the values of maxSamplesPerFrame and maxSamplesPerSec.

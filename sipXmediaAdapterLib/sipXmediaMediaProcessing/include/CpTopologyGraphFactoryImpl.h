@@ -58,7 +58,9 @@ public:
                                uint32_t frameSizeMs, 
                                uint32_t maxSamplesPerSec,
                                uint32_t defaultDeviceSamplesPerSec,
-                               UtlBoolean enableLocalAudio);
+                               UtlBoolean enableLocalAudio,
+                               const UtlString &inputDeviceName,
+                               const UtlString &outputDeviceName);
 
       /// Destructor.
     virtual

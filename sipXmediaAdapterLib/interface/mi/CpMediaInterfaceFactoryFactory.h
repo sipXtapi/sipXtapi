@@ -24,19 +24,22 @@
 
 class OsConfigDb; // forward declaration
 
-/**
- * Well known function that is called to create a CpMediaInterfaceFactory object,
- * which owns a CpMediaInterfaceFactoryImpl object, which this function also
- * creates.
- * This function must be implemented for all "plug-in" static sipx media processing
- * libraries. 
- */
+/// Create a media interface factory factory.
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb, 
                                                             uint32_t fameSizeMs = 0, 
                                                             uint32_t maxSamplesPerSec = 0,
                                                             uint32_t defaultSamplesPerSec = 0,
-                                                            UtlBoolean enableLocalAudio = TRUE);
+                                                            UtlBoolean enableLocalAudio = TRUE,
+                                                            const UtlString &inputDeviceName = "",
+                                                            const UtlString &outputDeviceName = "");
   /**<
+  *  Well known function that is called to create a CpMediaInterfaceFactory
+  *  object, which owns a CpMediaInterfaceFactoryImpl object, which this
+  *  function also creates.
+  *
+  *  This function must be implemented for all "plug-in" static sipX media
+  *  processing libraries. 
+  *
   *  @param[in] pConfigDb - a configuration database to pass user-settable config
   *             parameters to sipXmediaLib.
   *  @param[in] frameSizeMs - This parameter is used for determining the 
@@ -58,6 +61,12 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
   *  @param[in] enableLocalAudio - Local sound card will be used if TRUE. Else
   *             all local audio capabilities will be disabled and high-res timer
   *             will be used for media processing heartbeat.
+  *  @param[in] inputDeviceName - Name of the audio device to use as input device
+  *             during a call. Use empty string to select default (OS-dependent)
+  *             device.
+  *  @param[in] outputDeviceName - Name of the audio device to use as output
+  *             device during a call. Use empty string to select default
+  *             (OS-dependent) device.
   */
 
 /**

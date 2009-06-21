@@ -49,7 +49,9 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
                         uint32_t frameSizeMs,
                         uint32_t maxSamplesPerSec,
                         uint32_t defaultSamplesPerSec,
-                        UtlBoolean enableLocalAudio);
+                        UtlBoolean enableLocalAudio,
+                        const UtlString &inputDeviceName,
+                        const UtlString &outputDeviceName);
      /**<
      *  @param pConfigDb - a configuration database to pass user-settable config
      *         parameters to sipXmediaLib.  TODO: Someone that knows more, document this better!
@@ -74,6 +76,12 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
      *         sound card will not be used and high-res timer will be used for
      *         media processing heartbeat. Setting to FALSE is useful for server
      *         use case.
+     *  @param inputDeviceName - Name of the audio device to use as input device
+     *         during a call. Use empty string to select default (OS-dependent)
+     *         device.
+     *  @param outputDeviceName - Name of the audio device to use as output device
+     *         during a call. Use empty string to select default (OS-dependent)
+     *         device.
      */
      
 

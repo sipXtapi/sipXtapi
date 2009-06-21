@@ -1039,6 +1039,12 @@ typedef enum SIPX_NOISE_REDUCTION_MODE
  *        for the most modern soundcards and they produce less jitter and drift
  *        at this samplerate. We downsample/upsample to internal samplerate
  *        transparently under the hood.
+ * @param callInputDeviceName Name of the audio device to use as input device
+ *        during a call. Can be changed later with sipxAudioSetCallInputDevice().
+ *        Use empty string to select default (OS-dependent) device.
+ * @param callOutputDeviceName Name of the audio device to use as output device
+ *        during a call. Can be changed later with sipxAudioSetCallOutputDevice().
+ *        Use empty string to select default (OS-dependent) device.
  */
 SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                         const int udpPort = DEFAULT_UDP_PORT,
@@ -1054,7 +1060,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                         const char* szDbLocation = NULL,
                                         bool        bEnableLocalAudio = true,
                                         const int   internalSamplerate = 8000,
-                                        const int   devicesSamplerate = 48000) ;
+                                        const int   devicesSamplerate = 48000,
+                                        const char *callInputDeviceName = "",
+                                        const char *callOutputDeviceName = "") ;
 
 
 /** 
