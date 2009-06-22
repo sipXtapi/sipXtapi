@@ -1009,32 +1009,37 @@ dnl Callers of this macro need to check the contrib_speex_enabled shell variable
 dnl and supply the AC_CONFIG_SUBDIRS line that configures the
 dnl sipXmediaLib/contrib/libspeex package.  
 dnl See CHECK_SPEEX for more information.
-AC_DEFUN([ENABLE_CODEC_SPEEX],
+AC_DEFUN([AM_SET_STATIC_SPEEX],
 [
-    codec_speex_enabled=no;
-    AC_ARG_ENABLE([codec-speex],
-       [AS_HELP_STRING([--enable-codec-speex],
-          [Enable support for SPEEX codec @<:@default=no@:>@])],
-       [ case "${enableval}" in
-            yes) codec_speex_enabled=yes ;;
-            no) ;;
-            *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
-         esac])
-
+    CODEC_SPEEX_STATIC=true
+    AM_SET_SPEEX
+    AC_DEFINE(CODEC_SPEEX_STATIC, [1], [Select SPEEX codecs for static link])
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgspeex/codec_speex.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+])dnl
+AC_DEFUN([AM_SET_SPEEX],
+[
     # Check to see if speex dsp was selected, and speex usage has not been
     # checked and configured
     if test "x$codec_speex_enabled" == "xyes" -a "x$speex_detected" == "x"; then
         CHECK_SPEEX
     fi
-
-    dnl now the important part of this macro...
-    SPEEX_TARGET=
-    if test "x$codec_speex_enabled" == "xyes"; then
-        # Specify to build speex plugin
-        PLUGINS="${PLUGINS} SPEEX"
-        SPEEX_TARGET="plgspeex"
-    fi
-    AC_SUBST(SPEEX_TARGET)    
+    PLUGINS="${PLUGINS} SPEEX"
+    SPEEX_TARGET="plgspeex"
+    AC_SUBST(SPEEX_TARGET)
+])dnl
+AC_DEFUN([ENABLE_CODEC_SPEEX],
+[
+    AC_ARG_ENABLE([codec-speex],
+                  [AS_HELP_STRING([--enable-codec-speex],
+                                  [Enable support for SPEEX codec @<:@default=no@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_SPEEX ;;
+                       yes) AM_SET_SPEEX ;;
+                       no) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
+                    esac])
+    AM_CONDITIONAL(SPEEX_STATIC, test "$CODEC_SPEEX_STATIC" = true)
 ])dnl
 
 dnl
