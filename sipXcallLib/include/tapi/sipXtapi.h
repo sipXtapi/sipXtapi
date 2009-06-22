@@ -1039,6 +1039,11 @@ typedef enum SIPX_NOISE_REDUCTION_MODE
  *        for the most modern soundcards and they produce less jitter and drift
  *        at this samplerate. We downsample/upsample to internal samplerate
  *        transparently under the hood.
+ * @param internalFrameSizeMs Size of an audio frame (in milliseconds), used
+ *        for internal processing. Default value of 10ms is a recommended
+ *        value unless you really know what you're doing. If you want to run
+ *        this on a slow CPU, you may want to set this to 20ms, but it will
+ *        increase latency and thus is not generally recommended.
  * @param callInputDeviceName Name of the audio device to use as input device
  *        during a call. Can be changed later with sipxAudioSetCallInputDevice().
  *        Use empty string to select default (OS-dependent) device.
@@ -1061,6 +1066,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                         bool        bEnableLocalAudio = true,
                                         const int   internalSamplerate = 8000,
                                         const int   devicesSamplerate = 48000,
+                                        const int   internalFrameSizeMs = 10,
                                         const char *callInputDeviceName = "",
                                         const char *callOutputDeviceName = "") ;
 
