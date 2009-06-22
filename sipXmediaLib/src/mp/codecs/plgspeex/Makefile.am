@@ -6,6 +6,10 @@ pkgdata_LTLIBRARIES = codec_speex.la
 
 codec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c frame_num.c
 
+if SPEEX_STATIC
+codec_speex_la_CFLAGS  = -DCODEC_STATIC
+codec_speex_la_LDFLAGS = -module -avoid-version -static
+else
 # Below LIBADD line will pull in a statically built libspeex library.
 # Since this library is a shared library, the static speex library needs
 # to be built with -fPIC -DPIC
@@ -23,3 +27,4 @@ all-local: codec_speex.la
 clean-local:
 	rm -f @DEFAULT_CODECS_PATH@/codec_speex.so
 
+endif
