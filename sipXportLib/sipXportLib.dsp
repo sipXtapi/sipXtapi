@@ -1249,6 +1249,10 @@ SOURCE=.\include\utl\UtlRscTrace.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\utl\UtlSerialized.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\utl\UtlSList.h
 # End Source File
 # Begin Source File

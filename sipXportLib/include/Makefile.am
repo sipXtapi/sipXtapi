@@ -153,6 +153,7 @@ nobase_include_HEADERS = \
     utl/UtlRegex.h \
     utl/UtlRscStore.h \
     utl/UtlRscTrace.h \
+    utl/UtlSerialized.h \
     utl/UtlSList.h \
     utl/UtlCopyableSList.h \
     utl/UtlSListIterator.h \

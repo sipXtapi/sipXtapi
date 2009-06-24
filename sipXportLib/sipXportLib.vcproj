@@ -4638,6 +4638,9 @@
 				RelativePath="include\utl\UtlRscTrace.h">
 			</File>
 			<File
+				RelativePath=".\include\utl\UtlSerialized.h">
+			</File>
+			<File
 				RelativePath="include\utl\UtlSList.h">
 			</File>
 			<File
