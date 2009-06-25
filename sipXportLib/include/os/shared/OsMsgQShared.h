@@ -90,6 +90,10 @@ public:
    virtual OsStatus send(const OsMsg& rMsg,
                          const OsTime& rTimeout=OsTime::OS_INFINITY);
 
+     /// @copydoc OsMsgQBase::sendNoCopy()
+   virtual OsStatus sendNoCopy(OsMsg *pMsg,
+                               const OsTime& rTimeout=OsTime::OS_INFINITY);
+
      /// @copydoc OsMsgQBase::sendUrgent()
    virtual OsStatus sendUrgent(const OsMsg& rMsg,
                                const OsTime& rTimeout=OsTime::OS_INFINITY);
@@ -155,7 +159,7 @@ private:
 
      /// Helper function for sending messages
    OsStatus doSend(const OsMsg& rMsg, const OsTime& rTimeout,
-                   const UtlBoolean isUrgent, const UtlBoolean sendFromISR);
+                   const UtlBoolean isUrgent, const UtlBoolean needCopy);
 
      /// Helper function for removing a message from the head of the queue
    OsStatus doReceive(OsMsg*& rpMsg, const OsTime& rTimeout);

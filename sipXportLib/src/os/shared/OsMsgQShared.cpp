@@ -83,32 +83,31 @@ OsMsgQShared::~OsMsgQShared()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Insert a message at the tail of the queue
-// Wait until there is either room on the queue or the timeout expires.
 OsStatus OsMsgQShared::send(const OsMsg& rMsg,
-                         const OsTime& rTimeout)
+                            const OsTime& rTimeout)
 {
-   return doSend(rMsg, rTimeout, FALSE, FALSE);
+   return doSend(rMsg, rTimeout, FALSE, TRUE);
 }
 
-// Insert a message at the head of the queue
-// Wait until there is either room on the queue or the timeout expires.
+OsStatus OsMsgQShared::sendNoCopy(OsMsg *pMsg,
+                                  const OsTime& rTimeout)
+{
+   return doSend(*pMsg, rTimeout, FALSE, FALSE);
+}
+
 OsStatus OsMsgQShared::sendUrgent(const OsMsg& rMsg,
-                               const OsTime& rTimeout)
+                                  const OsTime& rTimeout)
 {
-   return doSend(rMsg, rTimeout, TRUE, FALSE);
+   return doSend(rMsg, rTimeout, TRUE, TRUE);
 }
 
-// Insert a message at the tail of the queue.
-// Sending from an ISR has a couple of implications.  Since we can't
-// allocate memory within an ISR, we don't create a copy of the message
-// before sending it and the sender and receiver need to agree on a
-// protocol (outside this class) for when the message can be freed.
-// The sentFromISR flag in the OsMsg object will be TRUE for messages
-// sent using this method.
-OsStatus OsMsgQShared::sendFromISR(const OsMsg& rMsg)
+OsStatus OsMsgQShared::sendFromISR(OsMsg& rMsg)
 {
-   return doSend(rMsg, OsTime::NO_WAIT_TIME, FALSE, TRUE);
+   // set a flag in the msg to indicate if the message was sent 
+   // from an ISR
+   rMsg.setSentFromISR(TRUE);
+
+   return doSend(rMsg, OsTime::NO_WAIT_TIME, FALSE, FALSE);
 }
 
 // Remove a message from the head of the queue
@@ -155,8 +154,8 @@ void OsMsgQShared::show(void)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
-                           const UtlBoolean isUrgent,
-                           const UtlBoolean sendFromISR)
+                              const UtlBoolean isUrgent,
+                              const UtlBoolean needCopy)
 {
    OsStatus ret;
    OsMsg*   pMsg;
@@ -208,7 +207,7 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
    }
    else
    {
-      if (sendFromISR || rMsg.isMsgReusable())
+      if (!needCopy || rMsg.isMsgReusable())
       {
          // If the message is sent from an ISR we cannot make a copy 
          // (no allocation allowed), so in that case we just use the message.
@@ -225,10 +224,6 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
          // so that the caller is free to destroy the original
          pMsg = rMsg.createCopy();
       }
-
-      // set a flag in the msg to indicate if the message was sent 
-      // from an ISR
-      pMsg->setSentFromISR(sendFromISR);
 
       // start critical section
       ret = mGuard.acquire();
@@ -259,7 +254,7 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                        "OsMsgQShared::doSend message send failed - insert failed");
 
-         if (!(sendFromISR || rMsg.isMsgReusable()))
+         if (needCopy && !rMsg.isMsgReusable())
          {
             // destroy the msg copy we made earlier
             delete pMsg;

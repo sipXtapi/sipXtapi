@@ -79,6 +79,16 @@ public:
      *  to the queue.
      */
 
+     /// Insert an original of the message at the tail of the queue
+   virtual OsStatus sendNoCopy(OsMsg *pMsg,
+                               const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
+     /**<
+     *  Wait until there is either room on the queue or the timeout expires.
+     *
+     *  This method does not create a copy of the \p pMsg, inserting it
+     *  to the queue as is.
+     */
+
      /// Insert a copy of the message at the head of the queue
    virtual OsStatus sendUrgent(const OsMsg& rMsg,
                                const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
