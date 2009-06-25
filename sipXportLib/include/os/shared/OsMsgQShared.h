@@ -82,59 +82,39 @@ public:
      */
 
      /// Destructor
-   virtual
-   ~OsMsgQShared();
+   virtual  ~OsMsgQShared();
 
 /* ============================ MANIPULATORS ============================== */
 
-     /// Insert a message at the tail of the queue
+     /// @copydoc OsMsgQBase::send()
    virtual OsStatus send(const OsMsg& rMsg,
                          const OsTime& rTimeout=OsTime::OS_INFINITY);
-     /**<
-     *  Wait until there is either room on the queue or the timeout expires.
-     */
 
-     /// Insert a message at the head of the queue
+     /// @copydoc OsMsgQBase::sendUrgent()
    virtual OsStatus sendUrgent(const OsMsg& rMsg,
                                const OsTime& rTimeout=OsTime::OS_INFINITY);
-     /**<
-     *  Wait until there is either room on the queue or the timeout expires.
-     */
 
-     /// Insert a message at the tail of the queue.
-   virtual OsStatus sendFromISR(const OsMsg& rMsg);
-     /**<
-     *  Sending from an ISR has a couple of implications.  Since we can't
-     *  allocate memory within an ISR, we don't create a copy of the message
-     *  before sending it and the sender and receiver need to agree on a
-     *  protocol (outside this class) for when the message can be freed.
-     *  The sentFromISR flag in the OsMsg object will be TRUE for messages
-     *  sent using this method.
-     */
+     /// @copydoc OsMsgQBase::sendFromISR()
+   virtual OsStatus sendFromISR(OsMsg& rMsg);
 
-     /// Remove a message from the head of the queue
+     /// @copydoc OsMsgQBase::receive()
    virtual OsStatus receive(OsMsg*& rpMsg,
                             const OsTime& rTimeout=OsTime::OS_INFINITY);
-     /**<
-     *  Wait until either a message arrives or the timeout expires.
-     *  Other than for messages sent from an ISR, the receiver is responsible
-     *  for freeing the received message.
-     */
 
 /* ============================ ACCESSORS ================================= */
 
 #ifdef OS_MSGQ_DEBUG
-   int getFullCount(void) { return mFull.getValue();}
-   int getEmptyCount(void) { return mEmpty.getValue();}
+   int getFullCount() { return mFull.getValue();}
+   int getEmptyCount() { return mEmpty.getValue();}
    UtlDList& getList() { return mDlist;} 
 #endif
 
-     /// Return the number of messages in the queue
-   virtual int numMsgs(void);
+     /// @copydoc OsMsgQBase::numMsgs()
+   virtual int numMsgs();
 
 #ifdef MSGQ_IS_VALID_CHECK 
      /// Print information on the message queue to the console
-   virtual void show(void);
+   virtual void show();
 #endif
 
 /* ============================ INQUIRY =================================== */
