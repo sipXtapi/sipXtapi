@@ -40,110 +40,126 @@ class OsMsgQBase
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   static const int DEF_MAX_MSGS;     // Default maximum number of messages
-   static const int DEF_MAX_MSG_LEN;  // Default maximum msg length (in bytes)
-   static const UtlString MSGQ_PREFIX; // Prefix for OsMsgQ names stored in
-                                      //  the name database
+   static const int DEF_MAX_MSGS;      ///< Default maximum number of messages
+   static const int DEF_MAX_MSG_LEN;   ///< Default maximum msg length (in bytes)
+   static const UtlString MSGQ_PREFIX; ///< Prefix for OsMsgQ names stored in
+                                       ///<  the name database
 
    enum Options
    {
-      Q_FIFO     = 0x0, // queue blocked tasks on a first-in, first-out basis
-      Q_PRIORITY = 0x1  // queue blocked tasks based on their priority
+      Q_FIFO     = 0x0, ///< queue blocked tasks on a first-in, first-out basis
+      Q_PRIORITY = 0x1  ///< queue blocked tasks based on their priority
    };
-     //!enumcode: Q_FIFO - queues blocked tasks on a first-in, first-out basis
-     //!enumcode: Q_PRIORITY - queues blocked tasks based on their priority
 
 
 /* ============================ CREATORS ================================== */
 
+     /// Constructor
    OsMsgQBase(const UtlString& name);
-     //:Constructor
-     // If the name is specified but is already in use, throw an exception.
+     /**<
+     *  If name is specified but is already in use, throw an exception.
+     */
 
-   virtual
-   ~OsMsgQBase();
-     //:Destructor
+     /// Destructor
+   virtual ~OsMsgQBase();
 
+     /// Return a pointer to the named queue, or NULL if not found.
    static OsMsgQBase* getMsgQByName(const UtlString& name);
-     //:Return a pointer to the named queue, or NULL if not found
 
 /* ============================ MANIPULATORS ============================== */
 
-   
+
+     /// Insert a copy of the message at the tail of the queue
    virtual OsStatus send(const OsMsg& rMsg,
                          const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
-     //:Insert a message at the tail of the queue and wait for a response
-     // Wait until there is either room on the queue or the timeout expires.
+     /**<
+     *  Wait until there is either room on the queue or the timeout expires.
+     *
+     *  This method creates a copy of the \p pMsg, before inserting it
+     *  to the queue.
+     */
 
+     /// Insert a copy of the message at the head of the queue
    virtual OsStatus sendUrgent(const OsMsg& rMsg,
                                const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
-     //:Insert a message at the head of the queue
-     // Wait until there is either room on the queue or the timeout expires.
+     /**<
+     *  Wait until there is either room on the queue or the timeout expires.
+     */
 
-   virtual OsStatus sendFromISR(const OsMsg& rMsg) = 0;
-     //:Insert a message at the tail of the queue
-     // Sending from an ISR has a couple of implications.  Since we can't
-     // allocate memory within an ISR, we don't create a copy of the message
-     // before sending it and the sender and receiver need to agree on a
-     // protocol (outside this class) for when the message can be freed.
-     // The sentFromISR flag in the OsMsg object will be TRUE for messages
-     // sent using this method.
+     /// Insert a copy of the message at the tail of the queue with ISR flag.
+   virtual OsStatus sendFromISR(OsMsg& rMsg) = 0;
+     /**<
+     *  Sending from an ISR has a couple of implications.  Since we can't
+     *  allocate memory within an ISR, we don't create a copy of the message
+     *  before sending it and the sender and receiver need to agree on a
+     *  protocol (outside this class) for when the message can be freed.
+     *  The sentFromISR flag in the OsMsg object will be TRUE for messages
+     *  sent using this method.
+     */
 
+     /// Remove a message from the head of the queue
    virtual OsStatus receive(OsMsg*& rpMsg,
                             const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
-     //:Remove a message from the head of the queue
-     // Wait until either a message arrives or the timeout expires.
-     // Other than for messages sent from an ISR, the receiver is responsible
-     // for freeing the received message.
+     /**<
+     *  Wait until either a message arrives or the timeout expires.
+     *  Other than for messages sent from an ISR, the receiver is responsible
+     *  for freeing the received message.
+     */
 
-   virtual void flush(void);
-     //:Delete all messages currently in the queue
+     /// Delete all messages currently in the queue
+   virtual void flush();
 
+     /// Set the function that is invoked whenever a msg is sent to the queue
    virtual void setSendHook(OsMsgQSendHookPtr func);
-     //:Set the function that is invoked whenever a msg is sent to the queue
-     // The function takes the message to be sent as an argument and returns a
-     // boolean value indicating whether the SendHook method has handled the
-     // message. If TRUE, the message is not inserted into the queue (since it
-     // has already been handled. If FALSE, the (possibly modified) message is
-     // inserted into the queue.
+     /**<
+     *  The function takes the message to be sent as an argument and returns a
+     *  boolean value indicating whether the SendHook method has handled the
+     *  message. If TRUE, the message is not inserted into the queue (since it
+     *  has already been handled. If FALSE, the (possibly modified) message is
+     *  inserted into the queue.
+     */
 
+     /// Set the function that is invoked whenever a msg is flushed from the queue.
    virtual void setFlushHook(OsMsgQFlushHookPtr func);
-     //:Set the function that is invoked whenever a msg is flushed from the 
-     //:queue.  Messages get flushed when the OsMsgQ is deleted while there 
-     //:are messages still queued.
-     // The function takes an OsMsg reference as an argument.
+     /**<
+     *  Messages get flushed when the OsMsgQ is deleted while there are messages
+     *  still queued.
+     *
+     *  The function takes an OsMsg reference as an argument.
+     */
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual int numMsgs(void) = 0;
-     //:Return the number of messages in the queue
+     /// Return the number of messages in the queue
+   virtual int numMsgs() = 0;
 
+     /// Returns the maximum number of messages that can be queued
    int maxMsgs() const;
-     //: Returns the maximum number of messages that can be queued
 
-   virtual OsMsgQSendHookPtr getSendHook(void) const;
-     //:Return a pointer to the current send hook function
+     /// Return a pointer to the current send hook function
+   virtual OsMsgQSendHookPtr getSendHook() const;
 
 /* ============================ INQUIRY =================================== */
 
-   virtual UtlBoolean isEmpty(void);
-     //:Return TRUE if the message queue is empty, FALSE otherwise
+     /// Return TRUE if the message queue is empty, FALSE otherwise
+   virtual UtlBoolean isEmpty();
      
+     /// Get the name associated with the queue.
    const UtlString& getName() const { return mName; }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+     /// Method that is invoked whenever a message is sent to the queue
    OsMsgQSendHookPtr  mSendHookFunc;
-     //:Method that is invoked whenever a message is sent to the queue
 
+     /// Method that is invoked whenever a message is flushed from the queue
    OsMsgQFlushHookPtr mFlushHookFunc;
-     //:Method that is invoked whenever a message is flushed from the queue
 
 /* ---------------------------- DEBUG SCAFFOLDING ------------------------- */
 protected:
 
-   int      mMaxMsgs;// maximum number of messages the queue can hold
+   int      mMaxMsgs; ///< maximum number of messages the queue can hold
 
 #if MSGQ_IS_VALID_CHECK
    virtual void testMessageQ() = 0;
@@ -162,14 +178,13 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   UtlString mName;   // global name associated with the msg queue
+   UtlString mName;   ///< global name associated with the msg queue
 
+     /// Copy constructor (not implemented for this class)
    OsMsgQBase(const OsMsgQBase& rOsMsgQBase);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    OsMsgQBase& operator=(const OsMsgQBase& rhs);
-     //:Assignment operator (not implemented for this class)
- 
 };
 
 /* ============================ INLINE METHODS ============================ */
