@@ -102,7 +102,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   UtlSerialized    mData;     ///< Input or output port (row or column number)
+   UtlSerialized    mData;     ///< Packed data to be passed to the resource,
 };
 
 /* ============================ INLINE METHODS ============================ */
