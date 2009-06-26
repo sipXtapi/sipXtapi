@@ -96,7 +96,8 @@ public:
 
    inline OsStatus serialize(const UtlString &val)
    {
-      size_t length = val.length();
+      // We add 1 to the length to include end-of-string \0 byte.
+      size_t length = val.length() + 1;
       if (sizeof(int) + length > getFreeSize())
       {
          return OS_LIMIT_REACHED;
@@ -122,7 +123,9 @@ public:
          // Something is wrong - length of the string is bigger then available data.
          return OS_FAILED;
       }
-      val.resize(length, FALSE);
+      // Resize reserves space for last \0 internally, so we should exclude
+      // it from the length.
+      val.resize(length-1, FALSE);
       memcpy((void*)val.data(), mpEnd, length);
       mpEnd += length;
       return OS_SUCCESS;
