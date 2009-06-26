@@ -98,7 +98,7 @@ OsStatus OsServerTask::postMessage(const OsMsg& rMsg, const OsTime& rTimeout,
    OsStatus res;
 
    if (sentFromISR)
-      res = mIncomingQ.sendFromISR(rMsg);
+      res = mIncomingQ.sendFromISR((OsMsg&)rMsg);
    else
       res = mIncomingQ.send(rMsg, rTimeout);
    return res;
