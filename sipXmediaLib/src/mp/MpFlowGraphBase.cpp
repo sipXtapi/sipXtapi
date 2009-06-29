@@ -1423,6 +1423,7 @@ OsStatus MpFlowGraphBase::handleGetLatencyForPath(MpResource *pStartResource,
                                                   int &latency)
 {
    int inPort = startResourceInput;
+   MpResource *pCurResource;
 
    if (!pStartResource)
    {
@@ -1432,7 +1433,7 @@ OsStatus MpFlowGraphBase::handleGetLatencyForPath(MpResource *pStartResource,
 
    latency = 0;
 
-   for (MpResource *pCurResource=pStartResource;
+   for (pCurResource=pStartResource;
         pCurResource != NULL && pCurResource->getName() != endResourceName;
         pCurResource->getOutputInfo(0, pCurResource, inPort))
    {
@@ -1474,6 +1475,7 @@ OsStatus MpFlowGraphBase::handleGetLatencyForPathReverse(MpResource *pStartResou
                                                          int &latency)
 {
    int outPort = startResourceOutput;
+   MpResource *pCurResource;
 
    if (!pStartResource)
    {
@@ -1483,7 +1485,7 @@ OsStatus MpFlowGraphBase::handleGetLatencyForPathReverse(MpResource *pStartResou
 
    latency = 0;
 
-   for (MpResource *pCurResource=pStartResource;
+   for (pCurResource=pStartResource;
         pCurResource != NULL && pCurResource->getName() != endResourceName;
         pCurResource->getInputInfo(0, pCurResource, outPort))
    {
