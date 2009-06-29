@@ -479,6 +479,30 @@ public:
                                      const UtlString& propertyName,
                                      UtlString& propertyValue);
 
+   /// Get a latency of the input part of the RTP or local connection
+   virtual OsStatus getConnectionInputLatency(int &latency,
+                                              MpConnectionID connectionId,
+                                              int streamId=0);
+   /**<
+   *  @param[out] latency - returned latency value.
+   *  @param[in]  connectionId - connection ID to get latency for. Use -1 for local mic.
+   *  @param[in]  streamId - stream ID to get latency for. Use 0 for default.
+   *
+   *  @retval OS_SUCCESS if latency has been successfully calculated.
+   *  @retval OS_NOT_FOUND if connection or stream is not found.
+   */
+
+   /// Get a latency of the output part of the RTP or local connection
+   virtual OsStatus getConnectionOutputLatency(int &latency,
+                                               MpConnectionID connectionId=-1);
+   /**<
+   *  @param[out] latency - returned latency value.
+   *  @param[in]  connectionId - connection ID to get latency for. Use -1 for local speaker.
+   *
+   *  @retval OS_SUCCESS if latency has been successfully calculated.
+   *  @retval OS_NOT_FOUND if connection or stream is not found.
+   */
+
    virtual UtlString getType() { return "CpTopologyGraphInterface"; };
 
 /* ============================ INQUIRY =================================== */

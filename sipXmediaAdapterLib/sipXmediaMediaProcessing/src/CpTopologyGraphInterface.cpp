@@ -2700,6 +2700,125 @@ OsStatus CpTopologyGraphInterface::getMediaProperty(int connectionId,
 
     return OS_NOT_YET_IMPLEMENTED;//(returnCode);
 }
+
+OsStatus CpTopologyGraphInterface::getConnectionInputLatency(int &latency,
+                                                             MpConnectionID connectionId,
+                                                             int streamId)
+{
+   OsStatus stat = OS_NOT_YET_IMPLEMENTED;
+   if (connectionId < 0)
+   {
+      // Local input from Mic
+      MpRtpOutputConnection *pStartResource;
+      stat = mpTopologyGraph->lookupResource(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME,
+                                             (MpResource*&)pStartResource);
+      if (stat != OS_SUCCESS)
+      {
+         return OS_NOT_FOUND;
+      }
+      stat = mpTopologyGraph->getLatencyForPath(pStartResource, -1,
+                                                DEFAULT_BRIDGE_RESOURCE_NAME, -1,
+                                                FALSE, latency);
+   }
+   else
+   {
+      // Remote (RTP) input
+      MpRtpOutputConnection *pStartResource;
+      UtlString realStreamName;
+      int streamPort;
+      CpTopologyMediaConnection* pMediaConnection;
+
+      // Get media connection. We need it for resource topology
+      pMediaConnection = getMediaConnection(connectionId);
+      if (pMediaConnection == NULL)
+      {
+         return OS_NOT_FOUND;
+      }
+
+      // Get real stream output resource name from resource topology
+      { // Scope for virtualStreamName
+         UtlString virtualStreamName(VIRTUAL_NAME_RTP_STREAM_OUTPUT);
+         virtualStreamName.appendFormat(STREAM_NAME_SUFFIX, streamId);
+
+         stat = pMediaConnection->mpResourceTopology->getOutputVirtualResource(virtualStreamName, 0,
+                                                                               realStreamName, streamPort);
+         if (stat != OS_SUCCESS)
+         {
+            return OS_NOT_FOUND;
+         }
+         MpResourceTopology::replaceNumInName(realStreamName, connectionId);
+      }
+
+      // Get real resource for stream output
+      stat = mpTopologyGraph->lookupResource(realStreamName,
+                                             (MpResource*&)pStartResource);
+      if (stat != OS_SUCCESS)
+      {
+         return OS_NOT_FOUND;
+      }
+
+      // Now get latency
+      UtlString rtpInputName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(rtpInputName, connectionId);
+      stat = mpTopologyGraph->getLatencyForPathReverse(pStartResource, streamPort,
+                                                       rtpInputName, -1, TRUE,
+                                                       latency);
+   }
+
+   return stat;
+}
+
+OsStatus CpTopologyGraphInterface::getConnectionOutputLatency(int &latency,
+                                                              MpConnectionID connectionId)
+{
+   OsStatus stat = OS_NOT_YET_IMPLEMENTED;
+   if (connectionId < 0)
+   {
+      // Local output to Speaker
+      MpRtpOutputConnection *pStartResource;
+      stat = mpTopologyGraph->lookupResource(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME,
+                                             (MpResource*&)pStartResource);
+      if (stat != OS_SUCCESS)
+      {
+         return OS_NOT_FOUND;
+      }
+      stat = mpTopologyGraph->getLatencyForPathReverse(pStartResource, -1,
+                                                       DEFAULT_BRIDGE_RESOURCE_NAME, -1,
+                                                       FALSE, latency);
+   }
+   else
+   {
+      // Remote (RTP) input
+      MpRtpOutputConnection *pStartResource;
+      CpTopologyMediaConnection* pMediaConnection;
+      UtlString outRtpName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+
+      // Get media connection. We need it for resource topology
+      pMediaConnection = getMediaConnection(connectionId);
+      if (pMediaConnection == NULL)
+      {
+         return OS_NOT_FOUND;
+      }
+
+      // Get resource for stream output
+      MpResourceTopology::replaceNumInName(outRtpName, connectionId);
+      stat = mpTopologyGraph->lookupResource(outRtpName,
+                                             (MpResource*&)pStartResource);
+      if (stat != OS_SUCCESS)
+      {
+         return OS_NOT_FOUND;
+      }
+
+      // Now get latency
+      stat = mpTopologyGraph->getLatencyForPathReverse(pStartResource, -1,
+                                                       DEFAULT_BRIDGE_RESOURCE_NAME, -1,
+                                                       FALSE,
+                                                       latency);
+   }
+
+   return stat;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
