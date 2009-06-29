@@ -1516,6 +1516,10 @@ SOURCE=.\include\mp\MpStringResourceMsg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpSyncFlowgraphMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpToneResourceMsg.h
 # End Source File
 # Begin Source File

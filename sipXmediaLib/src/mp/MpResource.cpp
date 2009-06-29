@@ -401,6 +401,18 @@ UtlContainableType MpResource::getContainableType() const
     return TYPE;
 }
 
+OsStatus MpResource::getCurrentLatency(int &latency, int input, int output) const
+{
+   if (  input >= 0 && input < numInputs()
+      && output >= 0 && output < numOutputs())
+   {
+      latency = 0;
+      return OS_SUCCESS;
+   }
+
+   return OS_NOT_FOUND;
+}
+
 /* ============================ INQUIRY =================================== */
 
 // Returns TRUE is this resource is currently enabled, FALSE otherwise.

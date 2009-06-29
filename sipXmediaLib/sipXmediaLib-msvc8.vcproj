@@ -2061,6 +2061,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\mp\MpSyncFlowgraphMsg.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\mp\MpToneResourceMsg.h"
 					>
 				</File>

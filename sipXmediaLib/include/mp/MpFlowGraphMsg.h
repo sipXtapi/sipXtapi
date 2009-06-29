@@ -63,6 +63,8 @@ public:
       
       FLOWGRAPH_SYNCHRONIZE,
 
+      FLOWGRAPH_GET_LATENCY_FOR_PATH,
+
       RESOURCE_SPECIFIC_START = 100     ///< start of resource-specific messages
    } MpFlowGraphMsgType;
 

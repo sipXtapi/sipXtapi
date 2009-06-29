@@ -25,6 +25,7 @@
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpResourceMsg.h"
+#include "mp/MpSyncFlowgraphMsg.h"
 #include "mp/MpResourceSortAlg.h"
 #include "mp/MpMediaTask.h"
 #include <mp/MpMisc.h>
@@ -704,6 +705,114 @@ OsStatus MpFlowGraphBase::lookupResourcePrivate(
       return OS_NOT_FOUND;
 }
 
+OsStatus MpFlowGraphBase::getLatencyForPath(MpResource *pStartResource,
+                                            int startResourceInput,
+                                            const UtlString &endResourceName,
+                                            int endResourceOutput,
+                                            UtlBoolean includeEndResourceLatency,
+                                            int &latency)
+{
+   OsStatus stat;
+   OsEvent doneEvent;
+   MpSyncFlowgraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_GET_LATENCY_FOR_PATH, &doneEvent);
+   UtlSerialized &msgData = msg.getData();
+
+   // Pack parameters to a message
+   stat = msgData.serialize(TRUE);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(pStartResource);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(startResourceInput);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(endResourceName);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(endResourceOutput);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(includeEndResourceLatency);
+   assert(stat == OS_SUCCESS);
+   msgData.finishSerialize();
+
+   // Send the message
+   stat = postMessage(msg);
+   if (stat != OS_SUCCESS)
+   {
+      return stat;
+   }
+
+   // Wait for result We must do infinite wait, because event is allocated on stack.
+   stat = doneEvent.wait(OsTime::OS_INFINITY);
+   if (stat != OS_SUCCESS)
+   {
+      // This mustn't happen or we'll get a segfault because other side
+      // may still use event which we're going to destroy (it's in our stack).
+      assert(stat == OS_SUCCESS);
+      return stat;
+   }
+
+   // Retrieve result from the event.
+   intptr_t tmp;
+   doneEvent.getUserData(tmp);
+   latency = tmp;
+   doneEvent.getEventData(tmp);
+   stat = (OsStatus)tmp;
+
+   return stat;
+}
+
+OsStatus MpFlowGraphBase::getLatencyForPathReverse(MpResource *pStartResource,
+                                                   int startResourceOutput,
+                                                   const UtlString &endResourceName,
+                                                   int endResourceInput,
+                                                   UtlBoolean includeEndResourceLatency,
+                                                   int &latency)
+{
+   OsStatus stat;
+   OsEvent doneEvent;
+   MpSyncFlowgraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_GET_LATENCY_FOR_PATH, &doneEvent);
+   UtlSerialized &msgData = msg.getData();
+
+   // Pack parameters to a message
+   stat = msgData.serialize(FALSE);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(pStartResource);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(startResourceOutput);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(endResourceName);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(endResourceInput);
+   assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(includeEndResourceLatency);
+   assert(stat == OS_SUCCESS);
+   msgData.finishSerialize();
+
+   // Send the message
+   stat = postMessage(msg);
+   if (stat != OS_SUCCESS)
+   {
+      return stat;
+   }
+
+   // Wait for result
+   stat = doneEvent.wait();
+   if (stat != OS_SUCCESS)
+   {
+      // This mustn't happen or we'll get a segfault because other side
+      // may still use event which we're going to destroy (it's in our stack).
+      assert(stat == OS_SUCCESS);
+      return stat;
+   }
+
+   // Retrieve result from the event.
+   intptr_t tmp;
+   doneEvent.getUserData(tmp);
+   latency = tmp;
+   doneEvent.getEventData(tmp);
+   stat = (OsStatus)tmp;
+
+   return stat;
+}
+
 /* ============================ INQUIRY =================================== */
 
 // Returns TRUE if the flow graph has been started, otherwise FALSE.
@@ -852,6 +961,55 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
       break;
    case MpFlowGraphMsg::FLOWGRAPH_STOP:
       retCode = handleStop();
+      break;
+   case MpFlowGraphMsg::FLOWGRAPH_GET_LATENCY_FOR_PATH:
+      {
+         MpSyncFlowgraphMsg *pMsg = (MpSyncFlowgraphMsg*)&rMsg;
+         OsEvent *pDoneEvent = pMsg->getDoneEvent();
+         OsStatus stat;
+         int isForward;
+         MpResource *pStartResource;
+         int startResourcePort;
+         UtlString endResourceName;
+         int endResourcePort;
+         int includeEndResourceLatency;
+         int latency;
+
+         UtlSerialized &msgData = pMsg->getData();
+         stat = msgData.deserialize(isForward);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize((void*&)pStartResource);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(startResourcePort);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(endResourceName);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(endResourcePort);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(includeEndResourceLatency);
+         assert(stat == OS_SUCCESS);
+
+         if (isForward)
+         {
+            stat = handleGetLatencyForPath(pStartResource, startResourcePort,
+                                           endResourceName, endResourcePort,
+                                           includeEndResourceLatency, latency);
+         }
+         else
+         {
+            stat = handleGetLatencyForPathReverse(pStartResource, startResourcePort,
+                                                  endResourceName, endResourcePort,
+                                                  includeEndResourceLatency, latency);
+         }
+
+         // Return result if event for this is provided.
+         if (pDoneEvent)
+         {
+            pDoneEvent->setUserData(latency);
+            pDoneEvent->signal(stat);
+         }
+      }
+      retCode = TRUE;
       break;
    default:
       break;
@@ -1254,6 +1412,109 @@ UtlBoolean MpFlowGraphBase::handleStop(void)
    mCurState  = STOPPED;
 
    return TRUE;
+}
+
+
+OsStatus MpFlowGraphBase::handleGetLatencyForPath(MpResource *pStartResource,
+                                                  int startResourceInput,
+                                                  const UtlString &endResourceName,
+                                                  int endResourceOutput,
+                                                  UtlBoolean includeEndResourceLatency,
+                                                  int &latency)
+{
+   int inPort = startResourceInput;
+
+   if (!pStartResource)
+   {
+      // No start resource is given.
+      return OS_NOT_FOUND;
+   }
+
+   latency = 0;
+
+   for (MpResource *pCurResource=pStartResource;
+        pCurResource != NULL && pCurResource->getName() != endResourceName;
+        pCurResource->getOutputInfo(0, pCurResource, inPort))
+   {
+      int curLatency;
+      OsStatus res = pCurResource->getCurrentLatency(curLatency, inPort, 0);
+      // Ignore returned latency in case of error.
+      if (res == OS_SUCCESS)
+      {
+         latency += curLatency;
+      }
+   }
+
+   if (!pCurResource)
+   {
+      // End resource was not found.
+      return OS_NOT_FOUND;
+   }
+
+   // Include last resource latency if requested so
+   if (includeEndResourceLatency)
+   {
+      int curLatency;
+      OsStatus res = pCurResource->getCurrentLatency(curLatency, inPort, endResourceOutput);
+      // Ignore returned latency in case of error.
+      if (res == OS_SUCCESS)
+      {
+         latency += curLatency;
+      }
+   }
+
+   return OS_SUCCESS;
+}
+
+OsStatus MpFlowGraphBase::handleGetLatencyForPathReverse(MpResource *pStartResource,
+                                                         int startResourceOutput,
+                                                         const UtlString &endResourceName,
+                                                         int endResourceInput,
+                                                         UtlBoolean includeEndResourceLatency,
+                                                         int &latency)
+{
+   int outPort = startResourceOutput;
+
+   if (!pStartResource)
+   {
+      // No start resource is given.
+      return OS_NOT_FOUND;
+   }
+
+   latency = 0;
+
+   for (MpResource *pCurResource=pStartResource;
+        pCurResource != NULL && pCurResource->getName() != endResourceName;
+        pCurResource->getInputInfo(0, pCurResource, outPort))
+   {
+      int curLatency;
+      OsStatus res = pCurResource->getCurrentLatency(curLatency, 0, outPort);
+      // Ignore returned latency in case of error.
+      if (res == OS_SUCCESS)
+      {
+         latency += curLatency;
+      }
+   }
+
+   if (!pCurResource)
+   {
+      // End resource was not found.
+      return OS_NOT_FOUND;
+   }
+
+   // Include last resource latency if requested so
+   if (includeEndResourceLatency)
+   {
+      int curLatency;
+      OsStatus res = pCurResource->getCurrentLatency(curLatency, endResourceInput, outPort);
+      // Ignore returned latency in case of error.
+      if (res == OS_SUCCESS)
+      {
+         latency += curLatency;
+      }
+   }
+
+   return OS_SUCCESS;
 }
 
 // Posts a message to this flow graph.

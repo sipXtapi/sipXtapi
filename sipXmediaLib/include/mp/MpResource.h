@@ -70,6 +70,12 @@ public:
       FINISHED
    } VisitState;
 
+   enum
+   {
+      ASSOCIATED_LATENCY=-1, ///< Get input or output latency, associated with a resource.
+      INF_LATENCY=-1 ///< Infinite latency, i.e. data from the input is not sent to the output.
+   };
+
 static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
 
 /* ============================ CREATORS ================================== */
@@ -353,6 +359,31 @@ static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
 
      /// Get the ContainableType for a UtlContainable derived class.
    UtlContainableType getContainableType() const;
+
+     /// Get current input to output latency (in samples)
+   virtual OsStatus getCurrentLatency(int &latency, int input=0, int output=0) const;
+     /**<
+     *  Get given input to given output latency in samples.
+     *
+     *  @note Resource may cache latency from the last processed frame interval
+     *        or retrieve/calculate it at every call to this method. I think
+     *        this freedom shouldn't affect precision in a considerable way.
+     *        But it is not recommended to return average latency here.
+     *
+     *  @param[out] latency - value of latency returned. Set to INF_LATENCY if
+     *              this input does not send data to this output currently.
+     *  @param[in] input - input for data to return latency for. If set to
+     *             ASSOCIATED_LATENCY, then input latency, associated with this
+     *             resource to be returned. E.g. driver latency to be returned
+     *             for MprFromInputDevice.
+     *  @param[in] output - output for data to return latency for. If set to
+     *             ASSOCIATED_LATENCY, then output latency, associated with this
+     *             resource to be returned. E.g. driver latency to be returned
+     *             for MprToOutputDevice.
+     *
+     *  @retval OS_SUCCESS if latency has been returned successfully.
+     *  @retval OS_NOT_FOUND if input or output are not connected.
+     */
 
 //@}
 

@@ -411,6 +411,50 @@ public:
      /// Get flowgraph's name based on its sequence number (use for debug purposes only!)
    inline UtlString getFlowgraphName() const;
 
+     /// Get latency for main path from one resource to another in forward direction.
+   OsStatus getLatencyForPath(MpResource *pStartResource,
+                              int startResourceInput,
+                              const UtlString &endResourceName,
+                              int endResourceOutput,
+                              UtlBoolean includeEndResourceLatency,
+                              int &latency);
+     /**<
+     *  This method traverses flowgraph from \p pStartResource following by
+     *  first outputs (i.e. output 0) to next resources until resource with
+     *  the name of \p endResourceName is reached. It sums up latencies of
+     *  all encountered resources including latency of \p pStartResource and
+     *  conditionally including latency of \p endResourceName.
+     *
+     *  @param[in]  pStartResource - pointer to a resource to start traverse from.
+     *  @param[in]  startResourceInput - input number on start resource from
+     *              which to calculate latency.
+     *  @param[in]  endResourceName - name of a resource to end with.
+     *  @param[in]  endResourceOutput - output number on end resource to which
+     *              we should calculate latency. Value is meaningful only if
+     *              \p includeEndResourceLatency is TRUE.
+     *  @param[in]  includeEndResourceLatency - should the latency of
+     *              the \p endResourceName be included in the path latency or not?
+     *  @param[out] latency - calculated latency for the path (in samples).
+     *
+     *  @retval OS_SUCCESS if path was traversed successfully and latency was
+     *          calculated.
+     *  @retval OS_NOT_FOUND if either start or end resource is not found.
+     */
+
+     /// Get latency for main path from one resource to another in reverse direction.
+   OsStatus getLatencyForPathReverse(MpResource *pStartResource,
+                                     int startResourceOutput,
+                                     const UtlString &endResourceName,
+                                     int endResourceInput,
+                                     UtlBoolean includeEndResourceLatency,
+                                     int &latency);
+     /**<
+     *  Works exactly in the same way as getLatencyForPath(), but traverse
+     *  resources from downstream to upstream ones.
+     *
+     *  @see getLatencyForPath()
+     */
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -574,6 +618,22 @@ private:
      * @retval TRUE - if the message was handled.
      * @retval FALSE - otherwise.
      */
+
+     /// Do the real work for getLatencyForPath()
+   OsStatus handleGetLatencyForPath(MpResource *pStartResource,
+                                    int startResourceInput,
+                                    const UtlString &endResourceName,
+                                    int endResourceOutput,
+                                    UtlBoolean includeEndResourceLatency,
+                                    int &latency);
+
+     /// Do the real work for getLatencyForPathReverse()
+   OsStatus handleGetLatencyForPathReverse(MpResource *pStartResource,
+                                           int startResourceOutput,
+                                           const UtlString &endResourceName,
+                                           int endResourceInput,
+                                           UtlBoolean includeEndResourceLatency,
+                                           int &latency);
 
      /// @brief Sets \p rpResource to point to the resource that corresponds
      /// to \p name or to NULL if no matching resource is found.
