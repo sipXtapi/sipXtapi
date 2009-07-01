@@ -12,9 +12,9 @@
 
 #ifdef HAVE_SPEEX
 
-// WIN32: Add libspeex to linker input.
+// WIN32: Add libspeexdsp to linker input.
 #ifdef WIN32 // [
-#   pragma comment(lib, "libspeex.lib")
+#   pragma comment(lib, "libspeexdsp.lib")
 #endif // WIN32 ]
 
 // SYSTEM INCLUDES

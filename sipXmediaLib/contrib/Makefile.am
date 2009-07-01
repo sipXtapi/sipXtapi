@@ -14,18 +14,25 @@ if SPEEX_CONTRIB
 libspeex/libspeex/.libs/libspeex.so libspeex/libspeex/libspeex.la: libspeex/Makefile
 	$(MAKE) -C libspeex
 
-# Copy over the speex shared libtool .la file to the codec dir
+libspeex/libspeex/.libs/libspeexdsp.so libspeex/libspeex/libspeexdsp.la: libspeex/Makefile
+	$(MAKE) -C libspeex
+
+# Copy over the speex shared libtool .la files to the codec dir
 @DEFAULT_CODECS_PATH@/libspeex.la:  libspeex/libspeex/libspeex.la 
 	cp -d libspeex/libspeex/libspeex.la @DEFAULT_CODECS_PATH@/libspeex.la
+@DEFAULT_CODECS_PATH@/libspeexdsp.la:  libspeex/libspeex/libspeexdsp.la 
+	cp -d libspeex/libspeex/libspeexdsp.la @DEFAULT_CODECS_PATH@/libspeexdsp.la
 if CROSS_COMPILING
 	$(MAKE) -C libspeex install
 endif
 
-# Copy over the speex shared lib to the codec dir
+# Copy over the speex shared libs to the codec dir
 @DEFAULT_CODECS_PATH@/libspeex.so: libspeex/libspeex/.libs/libspeex.so
 	cp -d libspeex/libspeex/.libs/libspeex.so* @DEFAULT_CODECS_PATH@/
+@DEFAULT_CODECS_PATH@/libspeexdsp.so: libspeex/libspeex/.libs/libspeexdsp.so
+	cp -d libspeex/libspeex/.libs/libspeexdsp.so* @DEFAULT_CODECS_PATH@/
 
-speex: @DEFAULT_CODECS_PATH@/libspeex.so @DEFAULT_CODECS_PATH@/libspeex.la
+speex: @DEFAULT_CODECS_PATH@/libspeex.so @DEFAULT_CODECS_PATH@/libspeex.la @DEFAULT_CODECS_PATH@/libspeexdsp.so @DEFAULT_CODECS_PATH@/libspeexdsp.la
 
 speex_clean: libspeex/Makefile
 	$(MAKE) -C libspeex clean
