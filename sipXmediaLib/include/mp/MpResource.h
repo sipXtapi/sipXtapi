@@ -365,6 +365,9 @@ static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
      /**<
      *  Get given input to given output latency in samples.
      *
+     *  This method is called from media processing loop and thus should not
+     *  block.
+     *
      *  @note Resource may cache latency from the last processed frame interval
      *        or retrieve/calculate it at every call to this method. I think
      *        this freedom shouldn't affect precision in a considerable way.
