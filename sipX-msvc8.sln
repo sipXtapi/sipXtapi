@@ -21,11 +21,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLibTest-msvc8", "si
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib-msvc8", "sipXmediaLib\sipXmediaLib-msvc8.vcproj", "{0EC8287A-481E-45DC-8F95-BAD940AE1038}"
 	ProjectSection(ProjectDependencies) = postProject
+		{F3BCA14E-F24D-4570-833E-8C20C4C393F7} = {F3BCA14E-F24D-4570-833E-8C20C4C393F7}
+		{E42FDC95-7243-4219-9EA4-ACCE4AB97197} = {E42FDC95-7243-4219-9EA4-ACCE4AB97197}
 		{6442C7DE-E500-4BA2-B821-98092F1EDCAF} = {6442C7DE-E500-4BA2-B821-98092F1EDCAF}
 		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB} = {8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}
 		{A9C94D26-C90D-4860-8195-56929E893757} = {A9C94D26-C90D-4860-8195-56929E893757}
 		{4F7FDA11-42A4-4556-A631-15AA785CD1C1} = {4F7FDA11-42A4-4556-A631-15AA785CD1C1}
-		{F3BCA14E-F24D-4570-833E-8C20C4C393F7} = {F3BCA14E-F24D-4570-833E-8C20C4C393F7}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLibTest-msvc8", "sipXmediaLib\sipXmediaLibTest-msvc8.vcproj", "{41C4FC22-37B1-4792-AB3A-FA2B81BE4B0A}"
@@ -117,6 +118,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgpcmapcmu-msvc8", "sipXme
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgspeex-msvc8", "sipXmediaLib\src\mp\codecs\plgspeex\plgspeex-msvc8.vcproj", "{4F7FDA11-42A4-4556-A631-15AA785CD1C1}"
 	ProjectSection(ProjectDependencies) = postProject
+		{E42FDC95-7243-4219-9EA4-ACCE4AB97197} = {E42FDC95-7243-4219-9EA4-ACCE4AB97197}
 		{E972C52F-9E85-4D65-B19C-031E511E9DB4} = {E972C52F-9E85-4D65-B19C-031E511E9DB4}
 	EndProjectSection
 EndProject
@@ -124,7 +126,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libilbc-msvc8", "sipXmediaL
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgtones-msvc8", "sipXmediaLib\src\mp\codecs\plgtones\plgtones-msvc8.vcproj", "{F3BCA14E-F24D-4570-833E-8C20C4C393F7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libspeex", "sipXmediaLib\contrib\libspeex\win32\VS2003\libspeex\libspeex.vcproj", "{E972C52F-9E85-4D65-B19C-031E511E9DB4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libspeex", "sipXmediaLib\contrib\libspeex\win32\VS2005\libspeex\libspeex.vcproj", "{E972C52F-9E85-4D65-B19C-031E511E9DB4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mstream-msvc8", "sipXmediaAdapterLib\examples\mstream\mstream-msvc8.vcproj", "{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -134,6 +136,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mstream-msvc8", "sipXmediaA
 		{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6} = {E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libspeexdsp", "sipXmediaLib\contrib\libspeex\win32\VS2005\libspeexdsp\libspeexdsp.vcproj", "{E42FDC95-7243-4219-9EA4-ACCE4AB97197}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
