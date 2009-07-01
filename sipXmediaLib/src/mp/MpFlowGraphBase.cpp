@@ -1442,7 +1442,14 @@ OsStatus MpFlowGraphBase::handleGetLatencyForPath(MpResource *pStartResource,
       // Ignore returned latency in case of error.
       if (res == OS_SUCCESS)
       {
-         latency += curLatency;
+         if (curLatency != MpResource::INF_LATENCY)
+         {
+            latency += curLatency;
+         }
+         else
+         {
+            latency = MpResource::INF_LATENCY;
+         }
       }
    }
 
@@ -1460,7 +1467,14 @@ OsStatus MpFlowGraphBase::handleGetLatencyForPath(MpResource *pStartResource,
       // Ignore returned latency in case of error.
       if (res == OS_SUCCESS)
       {
-         latency += curLatency;
+         if (curLatency != MpResource::INF_LATENCY)
+         {
+            latency += curLatency;
+         }
+         else
+         {
+            latency = MpResource::INF_LATENCY;
+         }
       }
    }
 
@@ -1494,7 +1508,14 @@ OsStatus MpFlowGraphBase::handleGetLatencyForPathReverse(MpResource *pStartResou
       // Ignore returned latency in case of error.
       if (res == OS_SUCCESS)
       {
-         latency += curLatency;
+         if (curLatency != MpResource::INF_LATENCY)
+         {
+            latency += curLatency;
+         }
+         else
+         {
+            latency = MpResource::INF_LATENCY;
+         }
       }
    }
 
@@ -1512,7 +1533,14 @@ OsStatus MpFlowGraphBase::handleGetLatencyForPathReverse(MpResource *pStartResou
       // Ignore returned latency in case of error.
       if (res == OS_SUCCESS)
       {
-         latency += curLatency;
+         if (curLatency != MpResource::INF_LATENCY)
+         {
+            latency += curLatency;
+         }
+         else
+         {
+            latency = MpResource::INF_LATENCY;
+         }
       }
    }
 
