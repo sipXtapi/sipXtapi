@@ -2716,8 +2716,8 @@ OsStatus CpTopologyGraphInterface::getConnectionInputLatency(int &latency,
       {
          return OS_NOT_FOUND;
       }
-      stat = mpTopologyGraph->getLatencyForPath(pStartResource, -1,
-                                                DEFAULT_BRIDGE_RESOURCE_NAME, -1,
+      stat = mpTopologyGraph->getLatencyForPath(pStartResource, MpResource::ASSOCIATED_LATENCY,
+                                                DEFAULT_BRIDGE_RESOURCE_NAME, 0,
                                                 FALSE, latency);
    }
    else
@@ -2761,7 +2761,8 @@ OsStatus CpTopologyGraphInterface::getConnectionInputLatency(int &latency,
       UtlString rtpInputName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
       MpResourceTopology::replaceNumInName(rtpInputName, connectionId);
       stat = mpTopologyGraph->getLatencyForPathReverse(pStartResource, streamPort,
-                                                       rtpInputName, -1, TRUE,
+                                                       rtpInputName, MpResource::ASSOCIATED_LATENCY,
+                                                       TRUE,
                                                        latency);
    }
 
@@ -2782,8 +2783,8 @@ OsStatus CpTopologyGraphInterface::getConnectionOutputLatency(int &latency,
       {
          return OS_NOT_FOUND;
       }
-      stat = mpTopologyGraph->getLatencyForPathReverse(pStartResource, -1,
-                                                       DEFAULT_BRIDGE_RESOURCE_NAME, -1,
+      stat = mpTopologyGraph->getLatencyForPathReverse(pStartResource, MpResource::ASSOCIATED_LATENCY,
+                                                       DEFAULT_BRIDGE_RESOURCE_NAME, 0,
                                                        FALSE, latency);
    }
    else
@@ -2810,8 +2811,8 @@ OsStatus CpTopologyGraphInterface::getConnectionOutputLatency(int &latency,
       }
 
       // Now get latency
-      stat = mpTopologyGraph->getLatencyForPathReverse(pStartResource, -1,
-                                                       DEFAULT_BRIDGE_RESOURCE_NAME, -1,
+      stat = mpTopologyGraph->getLatencyForPathReverse(pStartResource, MpResource::ASSOCIATED_LATENCY,
+                                                       DEFAULT_BRIDGE_RESOURCE_NAME, 0,
                                                        FALSE,
                                                        latency);
    }
