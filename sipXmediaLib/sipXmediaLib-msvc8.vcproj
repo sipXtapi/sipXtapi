@@ -1000,10 +1000,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\MpCodecInfo.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\mp\MpDataBuf.cpp"
 					>
 				</File>

@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2009 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -42,14 +42,11 @@ public:
 //@{
 
      /// Full constructor
-   MpCodecInfo(const MppCodecInfoV1_1 &codecInfo,
-               const MppCodecFmtpInfoV1_1 &fmtpInfo);
+   inline MpCodecInfo(const MppCodecInfoV1_1 &codecInfo,
+                      const MppCodecFmtpInfoV1_1 &fmtpInfo);
 
      /// Partial constructor
-   MpCodecInfo(const MppCodecInfoV1_1 &codecInfo);
-
-     /// Destructor
-   ~MpCodecInfo();
+   inline MpCodecInfo(const MppCodecInfoV1_1 &codecInfo);
 
 //@}
 
@@ -64,37 +61,37 @@ public:
 //@{
 
      /// @copydoc MppCodecInfoV1_1::codecManufacturer
-   const char*  getCodecManufacturer() const;
+   inline const char*  getCodecManufacturer() const;
      /// @copydoc MppCodecInfoV1_1::codecName
-   const char*  getCodecName() const;
+   inline const char*  getCodecName() const;
      /// @copydoc MppCodecInfoV1_1::codecVersion
-   const char*  getCodecVersion() const;
+   inline const char*  getCodecVersion() const;
      /// @copydoc MppCodecInfoV1_1::codecType
-   unsigned     getCodecType() const;
+   inline unsigned     getCodecType() const;
 
      /// @copydoc MppCodecInfoV1_1::mimeSubtype
-   const char*  getMimeSubtype() const;
+   inline const char*  getMimeSubtype() const;
      /// @copydoc MppCodecInfoV1_1::fmtpsNum
-   unsigned     getFmtpsNum() const;
+   inline unsigned     getFmtpsNum() const;
      /// @copydoc MppCodecInfoV1_1::fmtps
-   const char** getFmtps() const;
+   inline const char** getFmtps() const;
      /// @copydoc MppCodecInfoV1_1::sampleRate
-   unsigned     getSampleRate() const;
+   inline unsigned     getSampleRate() const;
      /// @copydoc MppCodecInfoV1_1::numChannels
-   unsigned     getNumChannels() const;
+   inline unsigned     getNumChannels() const;
      /// @copydoc MppCodecInfoV1_1::framePacking
-   unsigned     getFramePacking() const;
+   inline unsigned     getFramePacking() const;
 
      /// @copydoc MppCodecFmtpInfoV1_1::minBitrate
-   unsigned     getMinBitrate() const;
+   inline unsigned     getMinBitrate() const;
      /// @copydoc MppCodecFmtpInfoV1_1::maxBitrate
-   unsigned     getMaxBitrate() const;
+   inline unsigned     getMaxBitrate() const;
      /// @copydoc MppCodecFmtpInfoV1_1::numSamplesPerFrame
-   unsigned     getNumSamplesPerFrame() const;
+   inline unsigned     getNumSamplesPerFrame() const;
      /// @copydoc MppCodecFmtpInfoV1_1::minFrameBytes
-   unsigned     getMinFrameBytes() const;
+   inline unsigned     getMinFrameBytes() const;
      /// @copydoc MppCodecFmtpInfoV1_1::maxFrameBytes
-   unsigned     getMaxFrameBytes() const;
+   inline unsigned     getMaxFrameBytes() const;
 
 //@}
 
@@ -103,11 +100,11 @@ public:
 //@{
 
      /// @copydoc MppCodecFmtpInfoV1_1::signalingCodec
-   UtlBoolean isSignalingCodec(void) const;
+   inline UtlBoolean isSignalingCodec(void) const;
      /// @copydoc MppCodecFmtpInfoV1_1::doesVadCng
-   UtlBoolean doesVadCng(void) const;
+   inline UtlBoolean doesVadCng(void) const;
      /// @copydoc MppCodecFmtpInfoV1_1::haveInternalPLC
-   UtlBoolean haveInternalPLC() const;
+   inline UtlBoolean haveInternalPLC() const;
 
 //@}
 
@@ -119,5 +116,113 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+MpCodecInfo::MpCodecInfo(const MppCodecInfoV1_1 &codecInfo,
+                         const MppCodecFmtpInfoV1_1 &fmtpInfo)
+: MppCodecInfoV1_1(codecInfo)
+, MppCodecFmtpInfoV1_1(fmtpInfo)
+{
+}
+
+MpCodecInfo::MpCodecInfo(const MppCodecInfoV1_1 &codecInfo)
+: MppCodecInfoV1_1(codecInfo)
+{
+}
+
+/* ============================ MANIPULATORS ============================== */
+
+/* ============================ ACCESSORS ================================= */
+
+const char* MpCodecInfo::getCodecManufacturer() const
+{
+   return codecManufacturer;
+}
+
+const char* MpCodecInfo::getCodecName() const
+{
+   return codecName;
+}
+
+const char* MpCodecInfo::getCodecVersion() const
+{
+   return codecVersion;
+}
+
+unsigned MpCodecInfo::getCodecType() const
+{
+   return codecType;
+}
+
+
+const char* MpCodecInfo::getMimeSubtype() const
+{
+   return mimeSubtype;
+}
+
+unsigned MpCodecInfo::getFmtpsNum() const
+{
+   return fmtpsNum;
+}
+
+const char** MpCodecInfo::getFmtps() const
+{
+   return fmtps;
+}
+
+unsigned MpCodecInfo::getSampleRate() const
+{
+   return sampleRate;
+}
+
+unsigned MpCodecInfo::getNumChannels() const
+{
+   return numChannels;
+}
+
+unsigned MpCodecInfo::getFramePacking() const
+{
+   return framePacking;
+}
+
+
+unsigned MpCodecInfo::getMinBitrate() const
+{
+   return minBitrate;
+}
+
+unsigned MpCodecInfo::getMaxBitrate() const
+{
+   return maxBitrate;
+}
+
+unsigned MpCodecInfo::getNumSamplesPerFrame() const
+{
+   return numSamplesPerFrame;
+}
+
+unsigned MpCodecInfo::getMinFrameBytes() const
+{
+   return minFrameBytes;
+}
+
+unsigned MpCodecInfo::getMaxFrameBytes() const
+{
+   return maxFrameBytes;
+}
+
+/* ============================ INQUIRY =================================== */
+
+UtlBoolean MpCodecInfo::isSignalingCodec() const
+{
+   return signalingCodec;
+}
+UtlBoolean MpCodecInfo::doesVadCng() const
+{
+   return vadCng == CODEC_CNG_INTERNAL;
+}
+UtlBoolean MpCodecInfo::haveInternalPLC() const
+{
+   return packetLossConcealment == CODEC_PLC_INTERNAL;
+}
 
 #endif  // _MpCodecInfo_h_

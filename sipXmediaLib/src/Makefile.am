@@ -74,7 +74,6 @@ libsipXmedia_la_SOURCES =  \
     mp/MpCallFlowGraph.cpp \
     mp/MpCodec.cpp \
     mp/MpCodecFactory.cpp \
-    mp/MpCodecInfo.cpp \
     mp/MpDataBuf.cpp \
     mp/MpDecoderBase.cpp \
     mp/MpDecoderPayloadMap.cpp \

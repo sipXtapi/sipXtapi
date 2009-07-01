@@ -204,10 +204,6 @@ SOURCE=.\src\mp\MpCodecFactory.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpCodecInfo.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MpDataBuf.cpp
 # End Source File
 # Begin Source File
