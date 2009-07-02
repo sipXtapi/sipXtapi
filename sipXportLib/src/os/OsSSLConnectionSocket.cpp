@@ -361,7 +361,7 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
        {
           OsSysLog::add(FAC_KERNEL, PRI_DEBUG
                         , "OsSSLConnectionSocket bad parameters mSSL=%p,%d, closing socket..."
-                        , mSSL, socketDescriptor);
+                        , mSSL, (int)socketDescriptor);
           mIsConnected = FALSE;
           OsConnectionSocket::close();
           socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
