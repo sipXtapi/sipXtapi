@@ -78,8 +78,8 @@ CODEC_API int PLG_GET_INFO_V1_1(libgsm)(const struct MppCodecInfoV1_1 **codecInf
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1_1(libgsm)(const char* fmtp, int isDecoder,
-                                      struct MppCodecFmtpInfoV1_1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_2(libgsm)(const char* fmtp, int isDecoder,
+                                      struct MppCodecFmtpInfoV1_2* pCodecInfo)
 {
    struct libgsm_codec_data *mpGsm;
    if (pCodecInfo == NULL)
@@ -94,6 +94,7 @@ CODEC_API void *PLG_INIT_V1_1(libgsm)(const char* fmtp, int isDecoder,
    pCodecInfo->maxFrameBytes = GSM_FRAME_BYTES;
    pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
    pCodecInfo->vadCng = CODEC_CNG_NONE;
+   pCodecInfo->algorithmicDelay = 0;
 
    mpGsm = (struct libgsm_codec_data *)malloc(sizeof(struct libgsm_codec_data));
    if (!mpGsm)

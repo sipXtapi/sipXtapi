@@ -175,7 +175,7 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
       UtlBoolean stSignaling;
 
       UtlString strCodecName = codecName;
-      UtlString dlNameInit = strCodecName + MSK_INIT_V1_1;
+      UtlString dlNameInit = strCodecName + MSK_INIT_V1_2;
       UtlString dlNameGetInfo = strCodecName + MSK_GET_INFO_V1_1;
       UtlString dlNameGetPacketSamples = strCodecName + MSK_GET_PACKET_SAMPLES_V1_2;
       UtlString dlNameDecode = strCodecName + MSK_DECODE_V1;
@@ -183,7 +183,7 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
       UtlString dlNameFree = strCodecName + MSK_FREE_V1;
       UtlString dlNameSignaling = strCodecName + MSK_SIGNALING_V1;
       
-      dlPlgInitV1_1 plgInitAddr;
+      dlPlgInitV1_2 plgInitAddr;
       dlPlgGetInfoV1_1 plgGetInfoAddr;
       dlPlgGetPacketSamplesV1_2 plgGetPacketSamples;
       dlPlgDecodeV1 plgDecodeAddr;

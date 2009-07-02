@@ -122,8 +122,8 @@ CODEC_API int PLG_GET_INFO_V1_1(amrwb)(const struct MppCodecInfoV1_1 **codecInfo
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1_1(amrwb)(const char* fmtp, int isDecoder,
-                                     struct MppCodecFmtpInfoV1_1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_2(amrwb)(const char* fmtp, int isDecoder,
+                                     struct MppCodecFmtpInfoV1_2* pCodecInfo)
 {
    if (pCodecInfo != NULL)
    {
@@ -156,6 +156,7 @@ CODEC_API void *PLG_INIT_V1_1(amrwb)(const char* fmtp, int isDecoder,
          pCodecInfo->maxFrameBytes = 1 /*CMR*/ + sgFrameSizesMap[MODE_24k] /* frame + ToC */;
          pCodecInfo->minBitrate = pCodecInfo->minFrameBytes * 8/*bits/byte*/ * 50/*frames/sec*/;
          pCodecInfo->maxBitrate = pCodecInfo->maxFrameBytes * 8/*bits/byte*/ * 50/*frames/sec*/;
+         pCodecInfo->algorithmicDelay = 0;
 
          pCodecData = (struct amrwb_decoder_data *)malloc(sizeof(struct amrwb_decoder_data));
          if (!pCodecData)
@@ -178,6 +179,7 @@ CODEC_API void *PLG_INIT_V1_1(amrwb)(const char* fmtp, int isDecoder,
          pCodecInfo->maxFrameBytes = 1 /*CMR*/ + sgFrameSizesMap[mode] /* frame + ToC */;
          pCodecInfo->minBitrate = pCodecInfo->minFrameBytes * 8/*bits/byte*/ * 50/*frames/sec*/;
          pCodecInfo->maxBitrate = pCodecInfo->maxFrameBytes * 8/*bits/byte*/ * 50/*frames/sec*/;
+         pCodecInfo->algorithmicDelay = 5 /* ms */ * 16 /* samples/ms */;
 
          pCodecData = (struct amrwb_encoder_data *)malloc(sizeof(struct amrwb_encoder_data));
          if (!pCodecData)

@@ -32,7 +32,7 @@
 /**
 *  @brief Static information describing a codec.
 */
-class MpCodecInfo : protected MppCodecInfoV1_1, protected MppCodecFmtpInfoV1_1
+class MpCodecInfo : protected MppCodecInfoV1_1, protected MppCodecFmtpInfoV1_2
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -43,7 +43,7 @@ public:
 
      /// Full constructor
    inline MpCodecInfo(const MppCodecInfoV1_1 &codecInfo,
-                      const MppCodecFmtpInfoV1_1 &fmtpInfo);
+                      const MppCodecFmtpInfoV1_2 &fmtpInfo);
 
      /// Partial constructor
    inline MpCodecInfo(const MppCodecInfoV1_1 &codecInfo);
@@ -82,16 +82,18 @@ public:
      /// @copydoc MppCodecInfoV1_1::framePacking
    inline unsigned     getFramePacking() const;
 
-     /// @copydoc MppCodecFmtpInfoV1_1::minBitrate
+     /// @copydoc MppCodecFmtpInfoV1_2::minBitrate
    inline unsigned     getMinBitrate() const;
-     /// @copydoc MppCodecFmtpInfoV1_1::maxBitrate
+     /// @copydoc MppCodecFmtpInfoV1_2::maxBitrate
    inline unsigned     getMaxBitrate() const;
-     /// @copydoc MppCodecFmtpInfoV1_1::numSamplesPerFrame
+     /// @copydoc MppCodecFmtpInfoV1_2::numSamplesPerFrame
    inline unsigned     getNumSamplesPerFrame() const;
-     /// @copydoc MppCodecFmtpInfoV1_1::minFrameBytes
+     /// @copydoc MppCodecFmtpInfoV1_2::minFrameBytes
    inline unsigned     getMinFrameBytes() const;
-     /// @copydoc MppCodecFmtpInfoV1_1::maxFrameBytes
+     /// @copydoc MppCodecFmtpInfoV1_2::maxFrameBytes
    inline unsigned     getMaxFrameBytes() const;
+     /// @copydoc MppCodecFmtpInfoV1_2::algorithmicDelay
+   inline unsigned     getAlgorithmicDelay() const;
 
 //@}
 
@@ -99,11 +101,11 @@ public:
 ///@name Inquiry
 //@{
 
-     /// @copydoc MppCodecFmtpInfoV1_1::signalingCodec
+     /// @copydoc MppCodecFmtpInfoV1_2::signalingCodec
    inline UtlBoolean isSignalingCodec(void) const;
-     /// @copydoc MppCodecFmtpInfoV1_1::doesVadCng
+     /// @copydoc MppCodecFmtpInfoV1_2::doesVadCng
    inline UtlBoolean doesVadCng(void) const;
-     /// @copydoc MppCodecFmtpInfoV1_1::haveInternalPLC
+     /// @copydoc MppCodecFmtpInfoV1_2::haveInternalPLC
    inline UtlBoolean haveInternalPLC() const;
 
 //@}
@@ -118,9 +120,9 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 MpCodecInfo::MpCodecInfo(const MppCodecInfoV1_1 &codecInfo,
-                         const MppCodecFmtpInfoV1_1 &fmtpInfo)
+                         const MppCodecFmtpInfoV1_2 &fmtpInfo)
 : MppCodecInfoV1_1(codecInfo)
-, MppCodecFmtpInfoV1_1(fmtpInfo)
+, MppCodecFmtpInfoV1_2(fmtpInfo)
 {
 }
 
@@ -208,6 +210,11 @@ unsigned MpCodecInfo::getMinFrameBytes() const
 unsigned MpCodecInfo::getMaxFrameBytes() const
 {
    return maxFrameBytes;
+}
+
+unsigned MpCodecInfo::getAlgorithmicDelay() const
+{
+   return algorithmicDelay;
 }
 
 /* ============================ INQUIRY =================================== */

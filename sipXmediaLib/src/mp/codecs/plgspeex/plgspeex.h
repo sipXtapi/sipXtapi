@@ -16,7 +16,7 @@
 #include <mp/codecs/PlgDefsV1.h>
 
 void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
-                           struct MppCodecFmtpInfoV1_1* pCodecInfo);
+                           struct MppCodecFmtpInfoV1_2* pCodecInfo);
 
 int universal_speex_free(void* handle, int isDecoder);
 

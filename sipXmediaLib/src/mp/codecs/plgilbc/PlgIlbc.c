@@ -139,8 +139,8 @@ CODEC_API int PLG_GET_INFO_V1_1(ilbc)(const struct MppCodecInfoV1_1 **codecInfo)
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1_1(ilbc)(const char* fmtp, int isDecoder,
-                                    struct MppCodecFmtpInfoV1_1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_2(ilbc)(const char* fmtp, int isDecoder,
+                                    struct MppCodecFmtpInfoV1_2* pCodecInfo)
 {
    int mode;
    struct iLBC_codec_data *mpiLBC;
@@ -164,6 +164,11 @@ CODEC_API void *PLG_INIT_V1_1(ilbc)(const char* fmtp, int isDecoder,
       pCodecInfo->minBitrate = NO_OF_BYTES_20MS*8*1000/20;
       pCodecInfo->maxBitrate = NO_OF_BYTES_20MS*8*1000/20;
       pCodecInfo->numSamplesPerFrame = 160;
+      if (isDecoder) {
+         pCodecInfo->algorithmicDelay = 0;
+      } else {
+         pCodecInfo->algorithmicDelay = 5 /* ms */ * 8 /* samples/ms */;
+      }
    } 
    else
    {
@@ -172,6 +177,11 @@ CODEC_API void *PLG_INIT_V1_1(ilbc)(const char* fmtp, int isDecoder,
       pCodecInfo->minBitrate = NO_OF_BYTES_30MS*8*1000/33;
       pCodecInfo->maxBitrate = NO_OF_BYTES_30MS*8*1000/33;
       pCodecInfo->numSamplesPerFrame = 240;
+      if (isDecoder) {
+         pCodecInfo->algorithmicDelay = 0;
+      } else {
+         pCodecInfo->algorithmicDelay = 10 /* ms */ * 8 /* samples/ms */;
+      }
    }
    pCodecInfo->packetLossConcealment = CODEC_PLC_INTERNAL;
    pCodecInfo->vadCng = CODEC_CNG_NONE;

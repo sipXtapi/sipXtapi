@@ -38,7 +38,7 @@ MpEncoderBase::~MpEncoderBase()
 
 OsStatus MpEncoderBase::initEncode(const char* fmt)
 {
-   MppCodecFmtpInfoV1_1 fmtpInfo;
+   MppCodecFmtpInfoV1_2 fmtpInfo;
 
    plgHandle = mCallInfo.mPlgInit(fmt, CODEC_ENCODER, &fmtpInfo);
 

@@ -51,8 +51,8 @@ CODEC_API int PLG_GET_INFO_V1_1(g726_16)(const struct MppCodecInfoV1_1 **codecIn
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1_1(g726_16)(const char* fmtp, int isDecoder,
-                                       struct MppCodecFmtpInfoV1_1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_2(g726_16)(const char* fmtp, int isDecoder,
+                                       struct MppCodecFmtpInfoV1_2* pCodecInfo)
 {
    if (pCodecInfo == NULL)
    {
@@ -66,7 +66,8 @@ CODEC_API void *PLG_INIT_V1_1(g726_16)(const char* fmtp, int isDecoder,
    pCodecInfo->maxFrameBytes = 1;
    pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
    pCodecInfo->vadCng = CODEC_CNG_NONE;
-   
+   pCodecInfo->algorithmicDelay = 0;
+
    return g726_init(NULL, 16000, G726_ENCODING_LINEAR, G726_PACKING_LEFT);
 }
 

@@ -102,7 +102,7 @@ public:
    inline
    MpCodecCallInfoV1(const char* moduleName,
                      const char* codecModuleName,
-                     const dlPlgInitV1_1 plgInit,
+                     const dlPlgInitV1_2 plgInit,
                      const dlPlgGetInfoV1_1 plgGetInfo,
                      const dlPlgGetPacketSamplesV1_2 plgGetPacketSamples,
                      const dlPlgDecodeV1 plgDecode,
@@ -148,7 +148,7 @@ public:
 /// Pointers to actual functions, defined for this codec.
 //@{
 
-   const dlPlgInitV1_1 mPlgInit;
+   const dlPlgInitV1_2 mPlgInit;
    const dlPlgGetInfoV1_1 mPlgGetInfo;
    const dlPlgGetPacketSamplesV1_2 mPlgGetPacketSamples;
    const dlPlgDecodeV1 mPlgDecode;
@@ -191,7 +191,7 @@ MpStaticCodecSimpleList* MpStaticCodecSimpleList::getNext() const
 
 MpCodecCallInfoV1::MpCodecCallInfoV1(const char* moduleName,
                                      const char* codecModuleName,
-                                     const dlPlgInitV1_1 plgInit,
+                                     const dlPlgInitV1_2 plgInit,
                                      const dlPlgGetInfoV1_1 plgGetInfo,
                                      const dlPlgGetPacketSamplesV1_2 plgGetPacketSamples,
                                      const dlPlgDecodeV1 plgDecode,

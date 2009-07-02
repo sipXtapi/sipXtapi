@@ -61,8 +61,8 @@ CODEC_API int PLG_GET_INFO_V1_1(g722)(const struct MppCodecInfoV1_1 **codecInfo)
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1_1(g722)(const char* fmtp, int isDecoder,
-                                    struct MppCodecFmtpInfoV1_1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_2(g722)(const char* fmtp, int isDecoder,
+                                    struct MppCodecFmtpInfoV1_2* pCodecInfo)
 {
    if (pCodecInfo == NULL)
    {
@@ -86,9 +86,15 @@ CODEC_API void *PLG_INIT_V1_1(g722)(const char* fmtp, int isDecoder,
    pCodecInfo->vadCng = CODEC_CNG_NONE;
 
    if (isDecoder)
+   {
+      pCodecInfo->algorithmicDelay = 0;
       return g722_decode_init(NULL, G722_MODE, USE_8K_SAMPLES);
+   }
    else
+   {
+      pCodecInfo->algorithmicDelay = 16 /* samples/ms */ * 3/2 /* ms */;
       return g722_encode_init(NULL, G722_MODE, USE_8K_SAMPLES);
+   }
 }
 
 

@@ -63,8 +63,8 @@ CODEC_API int PLG_GET_INFO_V1_1(speex)(const struct MppCodecInfoV1_1 **codecInfo
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1_1(speex)(const char* fmtp, int isDecoder,
-                                     struct MppCodecFmtpInfoV1_1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_2(speex)(const char* fmtp, int isDecoder,
+                                     struct MppCodecFmtpInfoV1_2* pCodecInfo)
 {
    return universal_speex_init(fmtp, isDecoder, 8000, pCodecInfo);
 }

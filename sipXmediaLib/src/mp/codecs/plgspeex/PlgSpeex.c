@@ -126,7 +126,7 @@ static int analizeDefRange(const char* str, const char* param, int defValue, int
 }
 
 void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
-                           struct MppCodecFmtpInfoV1_1* pCodecInfo)
+                           struct MppCodecFmtpInfoV1_2* pCodecInfo)
 {
    const SpeexMode *pSpeexMode;
 
@@ -182,6 +182,9 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
 
       /* Get number of samples in one frame */
       speex_decoder_ctl(pSpeexDec->mpDecoderState,SPEEX_GET_FRAME_SIZE,&pSpeexDec->mNumSamplesPerFrame);
+
+      /* Get decoder lookahead */
+      speex_decoder_ctl(pSpeexDec->mpDecoderState,SPEEX_GET_LOOKAHEAD,&pCodecInfo->algorithmicDelay);
 
       /* Fill codec information, specific to concrete Speex settings */
       pCodecInfo->numSamplesPerFrame = pSpeexDec->mNumSamplesPerFrame;
@@ -259,7 +262,11 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
                               &pSpeexEnc->mDoAgc);
       }
 
+      /* Get codec frame size */
       speex_encoder_ctl(pSpeexEnc->mpEncoderState, SPEEX_GET_FRAME_SIZE, &pSpeexEnc->mNumSamplesPerFrame);
+
+      /* Get encoder lookahead */
+      speex_encoder_ctl(pSpeexEnc->mpEncoderState,SPEEX_GET_LOOKAHEAD,&pCodecInfo->algorithmicDelay);
 
       /* Fill codec information, specific to concrete Speex settings */
       pCodecInfo->numSamplesPerFrame = pSpeexEnc->mNumSamplesPerFrame;

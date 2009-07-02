@@ -63,8 +63,8 @@ CODEC_API int PLG_GET_INFO_V1_1(va_g729)(const struct MppCodecInfoV1_1 **codecIn
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1_1(va_g729)(const char* fmtp, int isDecoder,
-                                       struct MppCodecFmtpInfoV1_1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_2(va_g729)(const char* fmtp, int isDecoder,
+                                       struct MppCodecFmtpInfoV1_2* pCodecInfo)
 {
    if (pCodecInfo == NULL)
    {
@@ -82,10 +82,12 @@ CODEC_API void *PLG_INIT_V1_1(va_g729)(const char* fmtp, int isDecoder,
 
    if (isDecoder)
    {
+      pCodecInfo->algorithmicDelay = 0;
       va_g729a_init_decoder();
    } 
    else
    {
+      pCodecInfo->algorithmicDelay = 5 /* ms */ * 8 /* samples/ms */;
       va_g729a_init_encoder();
    }
 

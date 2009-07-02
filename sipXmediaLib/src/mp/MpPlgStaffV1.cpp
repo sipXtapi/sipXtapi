@@ -18,7 +18,7 @@ MpCodecCallInfoV1* MpCodecFactory::sStaticCodecsV1 = NULL;
 
 extern "C" void callbackRegisterStaticCodec(const char* moduleName,
                                             const char* codecModuleName,
-                                            dlPlgInitV1_1 plgInit,
+                                            dlPlgInitV1_2 plgInit,
                                             dlPlgGetInfoV1_1 plgGetInfo,
                                             dlPlgDecodeV1 plgDecode,
                                             dlPlgEncodeV1 plgEncode,
