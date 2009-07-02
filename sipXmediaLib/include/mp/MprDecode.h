@@ -134,6 +134,9 @@ public:
      /// @copydoc UtlContainable::getContainableType()
    UtlContainableType getContainableType() const;
 
+     /// @copydoc MpResource::getCurrentLatency()
+   virtual OsStatus getCurrentLatency(int &latency, int input=0, int output=0) const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -171,6 +174,8 @@ private:
       uint32_t playbackStreamPosition; ///< Current playback position (in RTP timestamp units).
       unsigned playbackFrameSize;   ///< Stream frame size of this stream (in RTP timestamp units).
       uint8_t rtpPayloadType;       ///< Current RTP payload type.
+      uint32_t dejitterLength;      ///< Difference between newest received RTP packet's
+                                    ///< timestamp and latest pulled packet's timestamp.
    } mStreamState;
 
    MpJitterBufferEstimation *mpJbEstimationState; ///< State of JB delay estimation.

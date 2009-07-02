@@ -217,6 +217,7 @@ OsStatus MprDecode::pushPacket(MpRtpBufPtr &pRtp)
                                        * mStreamState.sampleRate
                                        / getFlowGraph()->getSamplesPerSec();
       mStreamState.playbackStreamPosition = pRtp->getRtpTimestamp();
+      mStreamState.dejitterLength = 0;
 
 //      RTL_EVENT(str_fg+"_PF_stream_position", mStreamState.playbackStreamPosition);
 
@@ -259,6 +260,8 @@ OsStatus MprDecode::pushPacket(MpRtpBufPtr &pRtp)
                                      mStreamState.rtpStreamPosition,
                                      mStreamState.playbackStreamPosition,
                                      &mStreamState.rtpStreamHint);
+         // Update dejitter virtual length
+         mStreamState.dejitterLength = pRtp->getRtpTimestamp() - mStreamState.rtpStreamPosition;
       }
    }
 
@@ -294,6 +297,32 @@ void MprDecode::setStreamId(int StreamId)
 UtlContainableType MprDecode::getContainableType() const
 {
    return TYPE;
+}
+
+OsStatus MprDecode::getCurrentLatency(int &latency, int input, int output) const
+{
+   if (input == ASSOCIATED_LATENCY && output == 0)
+   {
+      if (mIsStreamInitialized && isEnabled())
+      {
+         // Calculate JB latency
+         latency = mStreamState.dejitterLength*mStreamState.sampleRate/getFlowGraph()->getSamplesPerSec();
+         // Then we should add decoder algorithmic delay, but we don't know
+         // which decoder we're using now - we should store last decoder used
+         // and refer to it here. But most decoders have 0 latency. Notable
+         // exclusion is Speex, which has 5ms latency in decoder, but it's
+         // not too much for us now.
+//         latency += pDecoder->getInfo()->getAlgorithmicDelay();
+         return OS_SUCCESS;
+      }
+      else
+      {
+         latency = INF_LATENCY;
+         return OS_SUCCESS;
+      }
+   }
+
+   return OS_NOT_FOUND;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -352,7 +381,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
    // Update playback stream pointer
    mStreamState.playbackStreamPosition += mStreamState.playbackFrameSize;
 
-   // Pull packets from JB queue, till we won't get enough samples to playback
+   // Pull packets from JB queue, until we get enough samples to playback
    dprintf("# pos:%"PRIu32, mStreamState.playbackStreamPosition);
    RTL_EVENT(str_fg+"_PF_stream_position", mStreamState.playbackStreamPosition);
    dprintf(" buf=%-3d", mpJB->getSamplesNum());
