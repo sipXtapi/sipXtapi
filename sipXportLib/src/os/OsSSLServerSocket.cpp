@@ -14,6 +14,7 @@
 #if defined(HAVE_SSL)
 
 // SYSTEM INCLUDES
+#include "os/OsIntTypes.h"
 #include <stdio.h>
 
 #define OsSS_CONST

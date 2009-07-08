@@ -13,6 +13,7 @@
 
 
 // SYSTEM INCLUDES
+#include "os/OsIntTypes.h"
 #include <stdio.h>
 
 #if defined(_WIN32)
@@ -106,7 +107,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
     setsockopt(socketDescriptor, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
 */
 
-#  if defined(__MACH__)
+#  if defined(__APPLE__)
    // Under OS X, we use SO_NOSIGPIPE here because MSG_NOSIGNAL
    // is not supported for the write() call.
    if(setsockopt(socketDescriptor, SOL_SOCKET, SO_NOSIGPIPE, (char *)&one, sizeof(one)))

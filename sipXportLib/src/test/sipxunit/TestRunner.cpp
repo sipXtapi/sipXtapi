@@ -10,6 +10,7 @@
 
 // The cppunit/TestRunner.h file has to be included twice
 //   once before cppunit/TestResult.h for cppunit 1.11
+#include "os/OsIntTypes.h"
 #include <cppunit/TestRunner.h>
 #include <cppunit/TestResult.h>
 //   once after cppunit/TestResult.h for cppunit 1.10

@@ -11,6 +11,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "os/OsIntTypes.h"
 #include "os/OsSysLog.h"
 #include "os/OsConfigDb.h"
 #include "os/OsSharedLibMgr.h"

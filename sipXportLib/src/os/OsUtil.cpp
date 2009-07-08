@@ -10,6 +10,7 @@
 
 
 // SYSTEM INCLUDES
+#include "os/OsIntTypes.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -422,7 +423,7 @@ int OsUtil::getPlatformType(void)
 
 #if defined(_WIN32) /* ] [ */
    platform = PLATFORM_WIN32;
-#elif defined(__MACH__)
+#elif defined(__APPLE__)
    platform = PLATFORM_MACOSX;
 #elif defined(__linux__) /* ] [ */
    platform = PLATFORM_LINUX;

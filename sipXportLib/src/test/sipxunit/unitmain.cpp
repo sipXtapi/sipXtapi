@@ -8,6 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "os/OsIntTypes.h"
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <sipxunit/TestRunner.h>
 

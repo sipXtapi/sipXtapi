@@ -9,6 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include "os/OsIntTypes.h"
 #include <assert.h>
 #include <stdio.h>
 #ifndef _WIN32

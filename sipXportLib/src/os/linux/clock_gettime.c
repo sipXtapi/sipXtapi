@@ -15,7 +15,7 @@
  * but the RTCP code uses clock_gettime(). Rather than rewrite that code, we
  * just implement clock_gettime() using gettimeofday(). */
 
-#ifdef __MACH__
+#ifdef __APPLE__
 /* we don't even have the typedef on OS X */
 typedef int clockid_t;
 #endif

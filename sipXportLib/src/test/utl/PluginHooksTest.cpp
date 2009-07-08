@@ -20,7 +20,7 @@
 using namespace std ; 
 
 #define PLUGIN_LIB_DIR TEST_DIR "/testplugin/.libs/"
-#ifdef __MACH__
+#ifdef __APPLE__
 #  define PLUGIN_EXT ".dylib"
 #else
 #  define PLUGIN_EXT ".so"

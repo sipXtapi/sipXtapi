@@ -239,6 +239,16 @@ OsStatus OsTaskLinux::varSet(int* pVar, int value)
 // condition that does not have an interrupt associated with it.
 OsStatus OsTaskLinux::delay(const int milliSecs)
 {
+#ifdef __APPLE__
+   struct timespec ts;
+   ts.tv_nsec = (milliSecs % 1000) * 1000000;
+   ts.tv_sec = milliSecs / 1000;
+   
+   // WARNING: This version of delay() is signal-unsafe. 
+   // An unmasked signal during sleep may cause to wake the thread. 
+   nanosleep(&ts, NULL);
+   
+#else
    const clockid_t clock = CLOCK_REALTIME;
    struct timespec ts;
    int ret;
@@ -266,7 +276,7 @@ OsStatus OsTaskLinux::delay(const int milliSecs)
       }
 
    } while (ret != 0);
-
+#endif
    return OS_SUCCESS;
 }
 
@@ -671,7 +681,7 @@ void * OsTaskLinux::taskEntry(void* arg)
 
    if(linuxPriority != RT_NO)
    {
-#ifndef __MACH__
+#ifndef __APPLE__
       // Use FIFO realtime scheduling
       param.sched_priority = linuxPriority;
       linuxRes = sched_setscheduler(0, SCHED_FIFO, &param); 

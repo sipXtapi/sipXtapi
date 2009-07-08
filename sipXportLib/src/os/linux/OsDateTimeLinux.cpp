@@ -9,9 +9,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include "os/OsIntTypes.h"
 #include <assert.h>
 #include <time.h>
 #include <sys/time.h>
+#ifdef __APPLE__
+#include <sys/sysctl.h>
+#endif
 
 // APPLICATION INCLUDES
 #include "os/OsTime.h"
@@ -22,10 +26,12 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 const int MICROSECS_PER_SEC = 1000000;
+#ifndef __APPLE__
 static double sSecondsSinceBoot = -1; // First call to get seconds since boot and store the number here.
 static double sSecondsFirstCall = 0; // Store the seconds since Epoch at first call to get seconds since boot
                                       // and just call time() to calculate the seconds since boot, rather than
                                       // to read the /proc/ everytime.
+#endif
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -205,12 +211,10 @@ unsigned long OsDateTimeLinux::getSecsSinceEpoch(void)
    return time(NULL);
 }
 
-// Get the number of seconds since boot using /proc/uptime
-// This is somewhat of a cheezy hack but there doesn't seem to be a system
-// call to do it. It will work on all Linux systems with the /proc filesystem
-// enabled, which is just about every one of them.
+// Get the number of seconds since boot using /proc/uptime or sysctl()
 double OsDateTimeLinux::secondsSinceBoot(void)
 {
+#ifndef __APPLE__
    double seconds = 0;   // default to 0 if we can't open the file
    OsTime curTime(time(NULL), 0);
 
@@ -218,6 +222,9 @@ double OsDateTimeLinux::secondsSinceBoot(void)
         seconds = curTime.seconds() - sSecondsFirstCall + sSecondsSinceBoot;
    else
    {
+        // This is somewhat of a cheezy hack but there doesn't seem to be a
+        // system call to do it. It will work on all Linux systems with the
+        // /proc filesystem enabled, which is just about every one of them.
         FILE * proc;
         sSecondsFirstCall = curTime.seconds();
         proc = fopen("/proc/uptime","r");
@@ -229,6 +236,22 @@ double OsDateTimeLinux::secondsSinceBoot(void)
         sSecondsSinceBoot = seconds;
    }
    return seconds;
+
+#else /* __APPLE__ */
+   // On OS X, we can use sysctl() to get the uptime
+   struct timeval boot, now;
+   int r, request[2] = {CTL_KERN, KERN_BOOTTIME};
+   size_t result_len = sizeof(boot);
+
+   r = sysctl(request, 2, &boot, &result_len, NULL, 0);
+   /* this should never happen, but make sure anyway */
+   assert(r >= 0);
+   gettimeofday(&now, NULL);
+   now.tv_sec -= boot.tv_sec;
+   if (now.tv_usec < boot.tv_usec)
+      now.tv_sec--;
+   return now.tv_sec;
+#endif
 }
 
 /* ============================ INQUIRY =================================== */

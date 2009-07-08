@@ -21,6 +21,8 @@
 #define LIB_NAME        "kernel32.dll"
 #elif defined __linux__
 #define LIB_NAME        "libm.so.6"
+#elif defined __APPLE__
+#define LIB_NAME        "libm.dylib"
 #else
 #error Please define LIB_NAME for your platform
 #endif

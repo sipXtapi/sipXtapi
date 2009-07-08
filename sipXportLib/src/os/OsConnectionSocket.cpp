@@ -10,6 +10,7 @@
 
 
 // SYSTEM INCLUDES
+#include "os/OsIntTypes.h"
 #include <stdio.h>
 
 #if defined(_WIN32)

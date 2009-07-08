@@ -10,6 +10,7 @@
 
 
 // SYSTEM INCLUDES
+#include "os/OsIntTypes.h"
 #include <assert.h>
 #include <string.h>
 #include <stdarg.h>

@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include "os/OsIntTypes.h"
 #include <arpa/inet.h>
 #include <errno.h>
 #include <sys/socket.h>
@@ -58,10 +59,10 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
    else
    {
       // Perform the SIOCGIFCONF ioctl to get the interface addresses.
-#ifdef __MACH__
-      // Under MacOS, SIOCFIGCONF assumes a variable length structure,
+#ifdef __APPLE__
+      // Under Mac OS X, SIOCFIGCONF assumes a variable length structure;
       // using OSIOCGIFCONF appears to be the popular workaround.
-      int ret = ioctl(sock, OSIOCGIFCONF, (void*) &ifconf_structure);
+      int ret = ioctl(sock, SIOCGIFCONF, (void*) &ifconf_structure);
 #else
       int ret = ioctl(sock, SIOCGIFCONF, (void*) &ifconf_structure);
 #endif
