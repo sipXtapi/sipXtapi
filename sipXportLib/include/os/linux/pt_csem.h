@@ -10,20 +10,23 @@
 
 /* SIPX_USE_NATIVE_PTHREADS define enable use of standard pthread implementation
 *  of synchonization primitives instead of sipX re-implementation of them. This
-*  re-implementation was created to work out the fact that LinuxThreads
-*  implementation of pthread did not have timed versions of semaphore wait
-*  (sem_timedwait()). At modern time NPTL is widely adopted, thus
-*  solving this problem efficiently. So, if you're not forced to use
-*  pthread implementation without sem_timedwait() it is better
-*  to define SIPX_USE_NATIVE_PTHREADS.
-*  See original comment to sipX implementation below #else.
+*  re-implementation was created to work around the fact that the LinuxThreads
+*  implementation of pthreads did not have a timed version of semaphore wait
+*  (sem_timedwait()). These days NPTL is widely adopted, thus solving this
+*  problem more efficiently. So, if you're not forced to use a pthreads
+*  implementation without sem_timedwait() (e.g. on OS X) it is better to
+*  define SIPX_USE_NATIVE_PTHREADS.
+*  See the original comment about the sipX implementation below #else.
 */
 
 #ifndef _PT_CSEM_H
 #define _PT_CSEM_H
 
+#ifndef __APPLE__
+/* Also see pt_mutex.h */
 #define SIPX_USE_NATIVE_PTHREADS
 //#undef SIPX_USE_NATIVE_PTHREADS
+#endif
 
 #ifdef SIPX_USE_NATIVE_PTHREADS // [
 
