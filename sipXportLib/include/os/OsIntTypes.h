@@ -24,10 +24,17 @@
 */
 
 // Define these macros to include support for minimum/maximum constants
-// and constant macros.
+// and constant macros, if they have not already been defined on the compiler
+// command line by the build system.
+#ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
+#endif
+#ifndef __STDC_CONSTANT_MACROS
 #define __STDC_CONSTANT_MACROS
+#endif
+#ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
+#endif
 
 #ifdef _MSC_VER
 // Microsoft Visual Studio C/C++ compiler
@@ -40,6 +47,16 @@
 
 #else
 #  error Unknown compiler. Check does your compiler support C99 "inttypes.h" and edit this file.
+#endif
+
+/* Test to see whether this file got included soon enough - if the __STDC macros
+ * weren't defined on the compiler command line, then we have to include this
+ * file before anything else includes inttypes.h or stdint.h for the __STDC
+ * macros to have any effect. Use INT16_MAX as a simple check for success. */
+#ifndef INT16_MAX
+#warning #include os/OsIntTypes.h before stdint.h/inttypes.h
+#define _STDINT_H help_find_first_include_of_stdint.h
+#define _STDINT_H_ help_find_first_include_of_stdint.h
 #endif
 
 #endif  // _OsIntTypes_h_
