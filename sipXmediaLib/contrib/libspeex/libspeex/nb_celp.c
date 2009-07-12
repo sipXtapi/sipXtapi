@@ -105,6 +105,8 @@ static const float exc_gain_quant_scal1[2]={0.70469f, 1.05127f};
 extern const spx_word16_t lag_window[];
 extern const spx_word16_t lpc_window[];
 
+const int wb_skip_table[8] = {SB_SUBMODE_BITS+1, 36, 112, 192, 352, -1, -1, -1};
+
 #ifndef DISABLE_ENCODER
 void *nb_encoder_init(const SpeexMode *m)
 {
@@ -1329,9 +1331,6 @@ static void nb_decode_lost(DecState *st, spx_word16_t *out, char *stack)
       st->pitch_gain_buf_idx = 0;
 }
 
-/* Just so we don't need to carry the complete wideband mode information */
-static const int wb_skip_table[8] = {0, 36, 112, 192, 352, 0, 0, 0};
-   
 int nb_decode(void *state, SpeexBits *bits, void *vout)
 {
    DecState *st;

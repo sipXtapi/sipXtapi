@@ -166,6 +166,15 @@ int speex_bits_remaining(SpeexBits *bits);
  */
 void speex_bits_insert_terminator(SpeexBits *bits);
 
+/** Returns number of full Speex frames in the stream and advance the position
+ * of the "bit cursor" to the end of the stream.
+ *  
+ * @param bits Bit-stream to operate on
+ * @return Number of full Speex frames in the stream. Returns -2 if stream is
+ * severely corrupted.
+ */
+int speex_bits_get_num_frames(SpeexBits *bits);
+
 #ifdef __cplusplus
 }
 #endif

@@ -171,6 +171,11 @@ typedef struct DecState {
    int    highpass_enabled;        /**< Is the input filter enabled */
 } DecState;
 
+/** Table of wideband subframe sizes.
+ *  Just so we don't need to carry the complete wideband mode information
+ */
+const int wb_skip_table[8];
+
 /** Initializes encoder state*/
 void *nb_encoder_init(const SpeexMode *m);
 
