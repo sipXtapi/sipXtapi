@@ -41,6 +41,7 @@ speex_bits_peek
 speex_bits_advance
 speex_bits_remaining
 speex_bits_insert_terminator
+speex_bits_get_num_frames
 
 ;
 ;	speex_callbacks.h
