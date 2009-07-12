@@ -384,6 +384,16 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
     return pIf;
 }
 
+OsStatus CpTopologyGraphFactoryImpl::setSpeakerDevice(const UtlString& device) 
+{
+   return OS_NOT_YET_IMPLEMENTED;
+}
+
+OsStatus CpTopologyGraphFactoryImpl::setMicrophoneDevice(const UtlString& device) 
+{
+   return OS_NOT_YET_IMPLEMENTED;
+}
+
 OsStatus CpTopologyGraphFactoryImpl::setAudioAECMode(const MEDIA_AEC_MODE mode)
 {
 #ifdef USE_SPEEX_AEC // [
@@ -878,6 +888,16 @@ int CpTopologyGraphFactoryImpl::getMaxInputConnections()
 }
 
 /* ============================ ACCESSORS ================================= */
+
+OsStatus CpTopologyGraphFactoryImpl::getSpeakerDevice(UtlString& device) const
+{
+   return OS_NOT_YET_IMPLEMENTED;
+}
+
+OsStatus CpTopologyGraphFactoryImpl::getMicrophoneDevice(UtlString& device) const
+{
+   return OS_NOT_YET_IMPLEMENTED;
+}
 
 void CpTopologyGraphFactoryImpl::setInitialResourceTopology(MpResourceTopology& resourceTopology)
 {

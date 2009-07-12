@@ -93,6 +93,10 @@ public:
                                            uint32_t samplesPerSec,
                                            OsMsgDispatcher* pDispatcher);
 
+      /// @copydoc CpMediaInterfaceFactoryImpl::setSpeakerDevice()
+    virtual OsStatus setSpeakerDevice(const UtlString& device);
+      /// @copydoc CpMediaInterfaceFactoryImpl::setMicrophoneDevice()
+    virtual OsStatus setMicrophoneDevice(const UtlString& device);
       /// @copydoc CpMediaInterfaceFactoryImpl::setAudioAECMode()
     virtual OsStatus setAudioAECMode(const MEDIA_AEC_MODE mode);
       /// @copydoc CpMediaInterfaceFactoryImpl::enableAGC()
@@ -105,6 +109,11 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
+      /// @copydoc CpMediaInterfaceFactoryImpl::getSpeakerDevice()
+    virtual OsStatus getSpeakerDevice(UtlString& device) const;
+      /// @copydoc CpMediaInterfaceFactoryImpl::getMicrophoneDevice()
+    virtual OsStatus getMicrophoneDevice(UtlString& device) const;
 
       /// Set the resource topology to be used when creating new flowgraph.
     virtual
