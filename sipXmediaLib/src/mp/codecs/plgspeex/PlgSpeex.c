@@ -63,8 +63,6 @@ struct speex_codec_data_encoder
    int mDoAgc;                ///< Automatic Gain Control
 };
 
-int speex_get_num_frames(SpeexBits *bits);
-
 /* Parsing {param}={value} */
 static int analizeParamEqValue(const char *parsingString, const char* paramName, int* value)
 {
@@ -348,10 +346,10 @@ CODEC_API int PLG_GET_PACKET_SAMPLES_V1_2(speex)(void          *handle,
    assert(handle != NULL);
 
    /* Wrap data to speex_bits struct */
-   speex_bits_set_bit_buffer(&bits, pPacketData, packetSize);
+   speex_bits_set_bit_buffer(&bits, (void*)pPacketData, packetSize);
 
    /* Get number of frames */
-   num_frames = speex_get_num_frames(&bits);
+   num_frames = speex_bits_get_num_frames(&bits);
    if (num_frames < 0)
    {
       return RPLG_CORRUPTED_DATA;

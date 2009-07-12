@@ -4,7 +4,7 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @SPEEX
 
 pkgdata_LTLIBRARIES = codec_speex.la
 
-codec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c frame_num.c
+codec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c
 
 if SPEEX_STATIC
 codec_speex_la_CFLAGS  = -DCODEC_STATIC
