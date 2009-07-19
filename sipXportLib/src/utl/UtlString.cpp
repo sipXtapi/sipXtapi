@@ -201,7 +201,9 @@ int UtlString::format(const char* format, ...)
     va_start(args, format);
 
     int n = -1 ;
-    int size = mCapacity;
+    int size = mCapacity ;
+    if (size > 0)
+        size-- ;
     
     while (mpData != NULL)
     {

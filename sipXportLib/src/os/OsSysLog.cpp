@@ -923,7 +923,7 @@ void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list 
     char *p;
 
     results.remove(0) ;
-    p = (char*) malloc(size) ;
+    p = (char*) malloc(size+1) ;
      
     while (p != NULL)
     {
@@ -945,7 +945,7 @@ void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list 
         else           /* glibc 2.0 */
             size *= 2;  /* twice the old size */
 
-        if ((p = (char*) realloc (p, size)) == NULL)
+        if ((p = (char*) realloc (p, size+1)) == NULL)
         {
             break;
         }
