@@ -84,7 +84,7 @@
 #  define PLATFORM_UA_PARAM " (WinNT)"
 #elif defined(_VXWORKS)
 #  define PLATFORM_UA_PARAM " (VxWorks)"
-#elif defined(__MACH__)
+#elif defined(__APPLE__)
 #  define PLATFORM_UA_PARAM " (Darwin)"
 #elif defined(__linux__)
 #  define PLATFORM_UA_PARAM " (Linux)"
