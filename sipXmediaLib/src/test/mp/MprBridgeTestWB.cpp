@@ -59,9 +59,15 @@
 #  define OUTPUT_DRIVER MpodWinMM
 #  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-#  include <mp/MpodOss.h>
-#  define OUTPUT_DRIVER MpodOss
-#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
+#  if __APPLE__
+#     include <mp/MpodCoreAudio.h>
+#     define OUTPUT_DRIVER MpodCoreAudio
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "[default]"
+#  else
+#     include <mp/MpodOss.h>
+#     define OUTPUT_DRIVER MpodOss
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
+# endif
 #else // __pingtel_on_posix__ ]
 #  error Unknown platform!
 #endif

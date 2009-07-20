@@ -18,6 +18,34 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+#ifdef __APPLE__
+#include <assert.h>
+
+#warning PosixTimer is not implimented in MacOS X
+#define timer_create(x,y,z)      (assert(!"timer_create is not implemented"), -1)
+#define timer_settime(x,y,z,u)   (assert(!"timer_settime is not implemented"), -1)
+#define clock_getres(x,y)        (assert(!"clock_getres is not implemented"), -1)
+#define timer_delete(x)          (assert(!"timer_delete is not implemented"), -1)
+#define timer_getoverrun(x)      (assert(!"timer_getoverrun is not implemented"), -1)
+#define SIGRTMIN 0
+#define SIGRTMAX 0
+
+#define si_ptr    si_addr
+
+struct itv
+{
+    int tv_sec;
+    int tv_nsec;
+};
+
+struct itimerspec
+{
+   struct itv it_value;
+   struct itv it_interval;
+};
+
+#endif
+
 // APPLICATION INCLUDES
 #include "mp/MpMMTimerPosix.h"
 

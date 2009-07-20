@@ -23,7 +23,7 @@
 #  elif defined(sun)
 #     include <sys/int_types.h>
       typedef int64_t __int64;
-#  elif defined(__MACH__) /* OS X */
+#  elif defined(__APPLE__) /* OS X */
 #     include <sys/types.h>
       typedef int64_t __int64;
 #  else

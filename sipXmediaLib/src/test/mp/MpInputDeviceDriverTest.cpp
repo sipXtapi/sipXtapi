@@ -10,6 +10,7 @@
 
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
+#include <os/OsIntTypes.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <mp/MpBufPool.h>
@@ -20,6 +21,8 @@
 #include <mp/MpidWinMM.h>
 #elif defined __linux__
 #include <mp/MpidOss.h>
+#elif defined __APPLE__
+#include <mp/MpidCoreAudio.h>
 #else
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #endif
@@ -84,6 +87,8 @@ public:
          new MpidWinMM(MpidWinMM::getDefaultDeviceName(), inDevMgr);
 #elif defined __linux__
          new MpidOss("/dev/dsp", inDevMgr);
+#elif defined __APPLE__
+         new MpidCoreAudio("[default]", inDevMgr);
 #else
          new MpSineWaveGeneratorDeviceDriver("SineWaveDriver", inDevMgr,
                                              3000, 3000, 0);

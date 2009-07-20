@@ -25,6 +25,11 @@
 #include "mp/MpMMTimer.h"
 #include <os/OsMutex.h>
 
+#ifdef __APPLE__
+#warning PosixTimer is not implimented in MacOS X
+#define timer_t     int
+#endif
+
 /**
 *  @brief Posix implementation of periodic timer
 *

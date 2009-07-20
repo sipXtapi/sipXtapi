@@ -661,7 +661,7 @@ static int setupSoundCard(void)
    return fd;
 }
 
-#elif defined(__MACH__) /* ] [ */
+#elif defined(__APPLE__) /* ] [ */
 
 /* On OS X, the media library will need to be linked with the CoreAudio and AudioToolbox frameworks. */
 
@@ -827,7 +827,7 @@ void dmaShutdown(void)
 {
 }
 
-#endif /* __linux__, sun, __MACH__ ] */
+#endif /* __linux__, sun, __APPLE__ ] */
 
 #endif /* _INCLUDE_AUDIO_SUPPORT ] */
 

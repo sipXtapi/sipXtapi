@@ -63,9 +63,15 @@
 #  define INPUT_DRIVER MpidWinMM
 #  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(mgr) MpidWinMM::getDefaultDeviceName(), mgr
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-#  include <mp/MpidOss.h>
-#  define INPUT_DRIVER MpidOss
-#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(mgr) "/dev/dsp", mgr
+#  if __APPLE__
+#     include <mp/MpidCoreAudio.h>
+#     define INPUT_DRIVER MpidCoreAudio
+#     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(mgr) "[default]", mgr
+#  else
+#     include <mp/MpidOss.h>
+#     define INPUT_DRIVER MpidOss
+#     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(mgr) "/dev/dsp", mgr
+#  endif
 #else // __pingtel_on_posix__ ]
 #  error Unknown platform!
 #endif
@@ -79,9 +85,15 @@
 #  define OUTPUT_DRIVER MpodWinMM
 #  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-#  include <mp/MpodOss.h>
-#  define OUTPUT_DRIVER MpodOss
-#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
+#  if __APPLE__
+#     include <mp/MpodCoreAudio.h>
+#     define OUTPUT_DRIVER MpodCoreAudio
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "[default]"
+#  else
+#     include <mp/MpodOss.h>
+#     define OUTPUT_DRIVER MpodOss
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
+#endif
 #else // __pingtel_on_posix__ ]
 #  error Unknown platform!
 #endif
