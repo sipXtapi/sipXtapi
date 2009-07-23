@@ -68,9 +68,15 @@
 #  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
+# ifdef __APPLE__
+#  include <mp/MpidCoreAudio.h>
+#  define INPUT_DRIVER MpidCoreAudio
+#  define INPUT_DRIVER_DEFAULT_NAME "[default]"
+# else
 #  include <mp/MpidOss.h>
 #  define INPUT_DRIVER MpidOss
 #  define INPUT_DRIVER_DEFAULT_NAME "/dev/dsp"
+# endif
 #  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
 
 #else // __pingtel_on_possix__ ]
@@ -92,9 +98,15 @@
 #  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
+# ifdef __APPLE__
+#  include <mp/MpodCoreAudio.h>
+#  define OUTPUT_DRIVER MpodCoreAudio
+#  define OUTPUT_DRIVER_DEFAULT_NAME "[default]"
+# else
 #  include <mp/MpodOss.h>
 #  define OUTPUT_DRIVER MpodOss
 #  define OUTPUT_DRIVER_DEFAULT_NAME "/dev/dsp"
+# endif
 #  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 
 #else // __pingtel_on_posix__ ]
