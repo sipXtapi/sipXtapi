@@ -1078,7 +1078,7 @@ AC_DEFUN([CHECK_SPEEX],
         if test "x$pkg_failed" = "xuntried"; then
             AC_MSG_ERROR(Failed to get the speex library directory from pkg-config!)
         else
-            SPEEX_STATIC_LIB=${SPEEX_LIBDIR}/libspeex.a
+            SPEEX_STATIC_LIB=${SPEEX_LIBDIR}/libspeexdsp.a
         fi
     fi
 
@@ -1088,7 +1088,7 @@ AC_DEFUN([CHECK_SPEEX],
         SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
         SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
         SPEEX_CFLAGS+=' -I${top_builddir}/contrib/libspeex/include'
-        SPEEX_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeex.a'
+        SPEEX_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeexdsp.a'
         SPEEX_LIBS=${SPEEX_STATIC_LIB}
         AC_SUBST(SPEEX_ROOT)
         AC_SUBST(SPEEX_CFLAGS)
