@@ -28,6 +28,7 @@ testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 # ORDER NOTE: the utl/UtlLinkTest and utl/UtlChainTest must be before
 #             any test that uses any UtlContainer.
 testsuite_SOURCES = \
+    os/OsAdapterInfoTest.cpp \
     os/OsCallbackTest.cpp \
     os/OsConfigDbTest.cpp \
     os/OsContactListTest.cpp  \

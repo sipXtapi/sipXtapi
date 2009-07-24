@@ -22,6 +22,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 // APPLICATION INCLUDES
 #include <os/HostAdapterAddress.h>
@@ -48,7 +49,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
    ifconf_structure.ifc_req = ifreq_array;
 
    // Open an arbitrary network socket on which to perform the ioctl.
-   int sock = socket(PF_INET, SOCK_DGRAM, 0);
+   int sock = socket(AF_INET, SOCK_DGRAM, 0);
    if (sock < 0)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
@@ -59,13 +60,9 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
    else
    {
       // Perform the SIOCGIFCONF ioctl to get the interface addresses.
-#ifdef __APPLE__
-      // Under Mac OS X, SIOCFIGCONF assumes a variable length structure;
-      // using OSIOCGIFCONF appears to be the popular workaround.
+
       int ret = ioctl(sock, SIOCGIFCONF, (void*) &ifconf_structure);
-#else
-      int ret = ioctl(sock, SIOCGIFCONF, (void*) &ifconf_structure);
-#endif
+      //printf("RES=%d\n", ret);
 
       if (ret < 0)
       {
@@ -79,7 +76,26 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
          rc = TRUE;
          // Get the number of returned addresses from ifc_len.
          numAddresses = ifconf_structure.ifc_len / sizeof (struct ifreq);
-         int j = 0;
+         
+	 //printf("adrs=%d (%d)\n", numAddresses, MAX_IP_ADDRESSES);
+	 
+	 int j = 0;
+
+#ifdef __APPLE__
+# define max(a,b)  ((a) > (b) ? (a) : (b))
+
+         char *ptr;      
+         for (ptr = (char*)ifreq_array; ptr < (char*)ifreq_array + ifconf_structure.ifc_len; )
+         {
+            struct ifreq* ifr = (struct ifreq*)ptr;
+            int len = max(sizeof(struct sockaddr), ifr->ifr_addr.sa_len);
+	
+	    ptr += sizeof(ifr->ifr_name) + len;
+	    if (ifr->ifr_addr.sa_family != AF_INET)
+	       continue;
+	    
+          
+#else
          // Iterate through the returned addresses.
          for (int i = 0; i < numAddresses; i++)
          {
@@ -87,8 +103,12 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
             if (ifreq_array[i].ifr_addr.sa_family != AF_INET)
                 continue;
 
+	    struct ifreq* ifr = &ifreq_array[i];
+#endif
+
             // Get transient pointer to address in text format.
-            char* s = inet_ntoa(((struct sockaddr_in&) (ifreq_array[i].ifr_addr)).sin_addr);
+            char* s = inet_ntoa(((struct sockaddr_in&) (ifr->ifr_addr)).sin_addr);
+	    //printf("D = %s\n", s);
 
             // Ignore the loopback address, because opening ports on the
             // loopback interface interferes with STUN operation.
@@ -96,12 +116,13 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
             if (address.compareTo("127.0.0.1") != 0 && address.compareTo("0.0.0.0") != 0)
             {
                // Put the interface name and address into a HostAdapterAddress.
-               localHostAddresses[j] = new HostAdapterAddress(ifreq_array[i].ifr_name, s);
+               localHostAddresses[j] = new HostAdapterAddress(ifr->ifr_name, s);
 /*
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                              "getAllLocalHostIps entry %d, interface '%s', address '%s'",
                              j, ifreq_array[i].ifr_name, s);
 */
+	       //printf("lha[%d] = %s\n", j, ifr->ifr_name);
                j++;
             }
          }
@@ -109,6 +130,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
       }
       close(sock);
    }
+   //printf ("rc=%d (%d)\n", rc, numAddresses);
    return rc;
 }
 
