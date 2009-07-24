@@ -383,10 +383,13 @@ AC_DEFUN([CHECK_COREAUDIO],
     if test "`uname`" == "Darwin"; then
         AC_SUBST(CA_LIBS,"-framework CoreAudio -framework AudioToolbox")
         AC_MSG_RESULT([yes])
+        AM_CONDITIONAL([COREAUDIO_DRIVERS], [true])
     else
         AC_SUBST(CA_LIBS,"")
         AC_MSG_RESULT([not needed])
+        AM_CONDITIONAL([COREAUDIO_DRIVERS], [false])
     fi
+    
 ])
 
 # ============ C A R B O N ==================
@@ -1002,6 +1005,21 @@ AC_DEFUN([ENABLE_SPEEX_DSP],
         CFLAGS="${CFLAGS} -DHAVE_SPEEX" ; CXXFLAGS="${CXXFLAGS} -DHAVE_SPEEX"
     fi
 ])dnl
+
+AC_DEFUN([CHECH_DYNEXT],
+[
+    AC_MSG_CHECKING([for default shared object extenetion])
+
+    case ${host} in
+        *-apple-darwin*) DYNEXT=".dylib" ;;
+        *)               DYNEXT=".so"    ;;
+    esac
+    
+    AC_MSG_RESULT( ${DYNEXT} )
+
+    AC_SUBST(DYNEXT)
+])dnl
+
 
 dnl
 dnl Enables the speex codec plugin to be built and linked to in sipXmediaLib.
