@@ -59,7 +59,7 @@ endif
 libsipXmedia_la_SOURCES =  \
     ../config/sipxmedialib-buildstamp.h \
     ../config/sipxmedialib-buildstamp.cpp \
-    $(AUDIODRIVERS_SOUCRE) \
+    $(AUDIODRIVERS_SOURCE) \
     mp/dft.cpp \
     mp/dmaTaskPosix.cpp \
     mp/DSPlib.cpp \
