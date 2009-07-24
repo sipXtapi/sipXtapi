@@ -27,6 +27,9 @@ AC_PROG_CC
 # Check for cross compilation
 AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 
+# Dynamic extenition
+CHECH_DYNEXT
+
 # Checks for libraries.
 CHECK_COREAUDIO
 

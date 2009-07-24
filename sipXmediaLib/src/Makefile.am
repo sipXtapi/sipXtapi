@@ -44,9 +44,22 @@ libsipXmedia_la_LIBADD = \
 	-Lmp/codecs/ \
 	-lstdc++
 
+if COREAUDIO_DRIVERS
+AUDIODRIVERS_SOURCE = \
+        mp/MpodCoreAudio.cpp \
+        mp/MpidCoreAudio.cpp
+else
+AUDIODRIVERS_SOURCE = \
+        mp/MpidOss.cpp \
+        mp/MpodOss.cpp \
+        mp/MpOss.cpp \
+        mp/MpOssContainer.cpp 
+endif
+
 libsipXmedia_la_SOURCES =  \
     ../config/sipxmedialib-buildstamp.h \
     ../config/sipxmedialib-buildstamp.cpp \
+    $(AUDIODRIVERS_SOUCRE) \
     mp/dft.cpp \
     mp/dmaTaskPosix.cpp \
     mp/DSPlib.cpp \
@@ -83,7 +96,6 @@ libsipXmedia_la_SOURCES =  \
     mp/MpFlowGraphBase.cpp \
     mp/MpFlowGraphMsg.cpp \
     mp/mpG711.cpp \
-    mp/MpidOss.cpp \
     mp/MpInputDeviceDriver.cpp \
     mp/MpInputDeviceManager.cpp \
     mp/MpJbeFixed.cpp \
@@ -96,9 +108,6 @@ libsipXmedia_la_SOURCES =  \
     mp/MpMMTimer.cpp \
     mp/MpMMTimerPosix.cpp \
     mp/MpodBufferRecorder.cpp \
-    mp/MpodOss.cpp \
-    mp/MpOss.cpp \
-    mp/MpOssContainer.cpp \
     mp/MpOutputDeviceDriver.cpp \
     mp/MpOutputDeviceManager.cpp \
     mp/MpPlayer.cpp \
