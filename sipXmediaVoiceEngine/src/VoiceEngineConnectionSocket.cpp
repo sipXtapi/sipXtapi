@@ -34,6 +34,7 @@
 #include "include/VoiceEngineConnectionSocket.h"
 #include "mediaBaseImpl/CpMediaServer.h"
 #include "mediaBaseImpl/CpMediaNetTask.h"
+#include "include/VoiceEngine.h"
 #include "os/TurnMessage.h"
 #include "os/StunMessage.h"
 #include "os/OsProtectEvent.h"
@@ -57,15 +58,15 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-VoiceEngineConnectionSocket::VoiceEngineConnectionSocket(GipsVoiceEngineLib* pVoiceEngine,
-                                                     GipsVideoEnginePlatform* pVideoEngine,
-                                                     int type,
-                                                     int remoteHostPortNum,
-                                                     const char* remoteHost, 
-                                                     int localHostPortNum, 
-                                                     const char* localHost,
-                                                     const char* szTurnServer,
-                                                     const RtpTcpRoles role)
+VoiceEngineConnectionSocket::VoiceEngineConnectionSocket(VoiceEngine* pVoiceEngine,
+                                                         GipsVideoEnginePlatform* pVideoEngine,
+                                                         int type,
+                                                         int remoteHostPortNum,
+                                                         const char* remoteHost, 
+                                                         int localHostPortNum, 
+                                                         const char* localHost,
+                                                         const char* szTurnServer,
+                                                         const RtpTcpRoles role)
         : 
           CpMediaConnectionSocket(type, remoteHostPortNum, remoteHost, true, localHost, false, role)
 {    
@@ -259,13 +260,13 @@ void VoiceEngineConnectionSocket::pushPacket(char* rtpPacket, size_t packetSize,
                 case TYPE_AUDIO_RTP:
                     if (mpVoiceEngine && validRtpPacket(miType, cBuf, bytes, address, port))
                     {
-                        rc = mpVoiceEngine->GIPSVE_ReceivedRTPPacket(getAudioChannel(), cBuf, bytes) ;
+                        rc = mpVoiceEngine->getNetwork()->GIPSVE_ReceivedRTPPacket(getAudioChannel(), cBuf, bytes) ;
                     }
                     break ;
                 case TYPE_AUDIO_RTCP:
                     if (mpVoiceEngine)
                     {
-                        rc = mpVoiceEngine->GIPSVE_ReceivedRTCPPacket(getAudioChannel(), cBuf, bytes) ;
+                        rc = mpVoiceEngine->getNetwork()->GIPSVE_ReceivedRTCPPacket(getAudioChannel(), cBuf, bytes) ;
                     }
                     break ;
                 case TYPE_VIDEO_RTP:

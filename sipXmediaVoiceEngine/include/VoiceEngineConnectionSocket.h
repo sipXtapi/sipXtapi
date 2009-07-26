@@ -28,6 +28,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "os/OsNatConnectionSocket.h"
+#include "include/VoiceEngine.h"
 #include "os/OsMsgQ.h"
 #include "os/OsTimer.h"
 #include "os/IOsNatSocket.h"
@@ -55,7 +56,7 @@ class VoiceEngineConnectionSocket : public CpMediaConnectionSocket
 
 public:
 /* ============================ CREATORS ================================== */
-    VoiceEngineConnectionSocket(GipsVoiceEngineLib* pVoiceEngine,
+    VoiceEngineConnectionSocket(VoiceEngine* pVoiceEngine,
                               GipsVideoEnginePlatform* pVideoEngine,
                               int type,
                               int remoteHostPort, 
@@ -104,7 +105,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    GipsVoiceEngineLib* mpVoiceEngine ;
+    VoiceEngine* mpVoiceEngine ;
     GipsVideoEnginePlatform *mpVideoEngine ;
 };
 

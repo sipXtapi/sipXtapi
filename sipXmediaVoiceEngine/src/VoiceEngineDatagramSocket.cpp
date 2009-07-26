@@ -35,6 +35,7 @@
 // APPLICATION INCLUDES
 #include "include/VoiceEngineDatagramSocket.h"
 #include "mediaBaseImpl/CpMediaNetTask.h"
+#include "include/VoiceEngine.h"
 
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
@@ -55,7 +56,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-VoiceEngineDatagramSocket::VoiceEngineDatagramSocket(GipsVoiceEngineLib* pVoiceEngine,
+VoiceEngineDatagramSocket::VoiceEngineDatagramSocket(VoiceEngine* pVoiceEngine,
                                                      GipsVideoEnginePlatform* pVideoEngine,
                                                      int type,
                                                      int remoteHostPortNum,
@@ -282,13 +283,13 @@ void VoiceEngineDatagramSocket::doPushPacket(char* rtpPacket, size_t packetSize,
                 case TYPE_AUDIO_RTP:
                     if (mpVoiceEngine && validRtpPacket(miType, cBuf, bytes, address, port))
                     {
-                        mpVoiceEngine->GIPSVE_ReceivedRTPPacket(getAudioChannel(), cBuf, bytes) ;
+						mpVoiceEngine->getNetwork()->GIPSVE_ReceivedRTPPacket(getAudioChannel(), cBuf, bytes) ;
                     }
                     break ;
                 case TYPE_AUDIO_RTCP:
                     if (mpVoiceEngine)
                     {
-                        mpVoiceEngine->GIPSVE_ReceivedRTCPPacket(getAudioChannel(), cBuf, bytes) ;
+                        mpVoiceEngine->getNetwork()->GIPSVE_ReceivedRTCPPacket(getAudioChannel(), cBuf, bytes) ;
                     }
                     break ;
                 case TYPE_VIDEO_RTP:

@@ -24,12 +24,13 @@
 
 #include "include/ArsVoiceEngineReceiveAdapter.h"
 #include "os/OsLock.h"
+#include "include/VoiceEngine.h"
 #include "include/VoiceEnginePacketPusher.h"
 
 //////////////////////////////////////////////////////////////////////////////
        
 ArsVoiceEngineReceiveAdapter::ArsVoiceEngineReceiveAdapter(SIPX_MEDIA_TYPE mediaType,
-                                                           GipsVoiceEngineLib*      pVoiceEngine,
+                                                           VoiceEngine*      pVoiceEngine,
                                                            GipsVideoEnginePlatform* pVideoEngine,
                                                            OsMutex*                 pGuard) :
     mpVoiceEngine(pVoiceEngine),
@@ -69,16 +70,15 @@ bool ArsVoiceEngineReceiveAdapter::handleData(char* pData, int len, int channel,
             OsLock lock(*mpGuard) ;
             switch (type)
             {
-                case ARS_PACKET_RTP:
-                    mpVoiceEngine->GIPSVE_ReceivedRTPPacket(channel, 
-                            &pData[ARS_FRAME_TYPE_SIZE],
-                            len-ARS_FRAME_TYPE_SIZE) ;
+                    mpVoiceEngine->getNetwork()->GIPSVE_ReceivedRTPPacket(channel, 
+                             &pData[ARS_FRAME_TYPE_SIZE],
+                             len-ARS_FRAME_TYPE_SIZE) ;
                     bMarkReadData = true ;
                     break ;
                 case ARS_PACKET_RTCP:
-                    mpVoiceEngine->GIPSVE_ReceivedRTCPPacket(channel, 
-                        &pData[ARS_FRAME_TYPE_SIZE],
-                        len-ARS_FRAME_TYPE_SIZE) ;
+                    mpVoiceEngine->getNetwork()->GIPSVE_ReceivedRTCPPacket(channel, 
+                         &pData[ARS_FRAME_TYPE_SIZE],
+                         len-ARS_FRAME_TYPE_SIZE) ;
                     break ;
                 default:
                     assert(false) ;

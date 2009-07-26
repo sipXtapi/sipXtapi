@@ -142,6 +142,9 @@
 					RelativePath=".\src\VideoEngine.cpp">
 				</File>
 				<File
+					RelativePath=".\src\VoiceEngine.cpp">
+				</File>
+				<File
 					RelativePath=".\src\VoiceEngineBufferInStream.cpp">
 				</File>
 				<File
@@ -185,6 +188,9 @@
 				</File>
 				<File
 					RelativePath=".\include\VideoEngine.h">
+				</File>
+				<File
+					RelativePath=".\VoiceEngine.h">
 				</File>
 				<File
 					RelativePath=".\include\VoiceEngineBufferInStream.h">

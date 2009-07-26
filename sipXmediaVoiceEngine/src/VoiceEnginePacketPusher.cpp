@@ -23,8 +23,10 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "include/VoiceEnginePacketPusher.h"
+#include "include/VoiceEngine.h"
 
-VoiceEnginePacketPusher::VoiceEnginePacketPusher(GipsVoiceEngineLib*      pVoiceEngine,
+
+VoiceEnginePacketPusher::VoiceEnginePacketPusher(VoiceEngine* pVoiceEngine,
                                                  GipsVideoEnginePlatform* pVideoEngine) :
     mpVoiceEngine(pVoiceEngine),
     mpVideoEngine(pVideoEngine)
@@ -37,7 +39,7 @@ void VoiceEnginePacketPusher::pushRtpPacket(const int channel, SIPX_MEDIA_TYPE m
     {
         if (mpVoiceEngine)
         {
-            mpVoiceEngine->GIPSVE_ReceivedRTPPacket(channel, buffer, len);
+			mpVoiceEngine->getNetwork()->GIPSVE_ReceivedRTPPacket(channel, buffer, len);
         }
     }
     else if (MEDIA_TYPE_VIDEO == mediaType)
@@ -55,7 +57,7 @@ void VoiceEnginePacketPusher::pushRtcpPacket(const int channel, SIPX_MEDIA_TYPE 
     {
         if (mpVoiceEngine)
         {
-            mpVoiceEngine->GIPSVE_ReceivedRTCPPacket(channel, buffer, len);
+            mpVoiceEngine->getNetwork()->GIPSVE_ReceivedRTCPPacket(channel, buffer, len);
         }
     }
     else if (MEDIA_TYPE_VIDEO == mediaType)

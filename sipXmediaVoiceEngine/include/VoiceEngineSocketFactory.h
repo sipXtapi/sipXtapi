@@ -1,4 +1,4 @@
-// Copyright 2007,2008 AOL LLC.
+// Copyright 2007 - 2009 AOL LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // This library is free software; you can redistribute it and/or
@@ -73,7 +73,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
                                          
-    IOsNatSocket* getUdpSocket(GipsVoiceEngineLib* pVoice,
+    IOsNatSocket* getUdpSocket(VoiceEngine* pVoice,
                                GipsVideoEnginePlatform* pVideo,
                                int type,
                                const char* localHost,
@@ -82,7 +82,7 @@ public:
 
     void releaseUdpSocket(IOsNatSocket* pSocket) ;
 
-    IOsNatSocket* getTcpSocket(GipsVoiceEngineLib* pVoice,
+    IOsNatSocket* getTcpSocket(VoiceEngine* pVoice,
                                GipsVideoEnginePlatform* pVideo,
                                int type,
                                int remoteHostPort,

@@ -29,6 +29,7 @@
 // APPLICATION INCLUDES
 #include "mediaBaseImpl/CpMediaDeviceMgr.h"
 #include "include/VoiceEngineDefs.h"
+#include "include/VoiceEngine.h"
 #include "include/VoiceEngineMediaInterface.h"
 #include "os/OsMutex.h"
 
@@ -54,10 +55,22 @@ class VoiceEngineMediaInterface;
 class VoiceEngineBufferInStream;
 class VoiceEngineSocketFactory;
 
+
+class VoiceEngineLogger : public GIPSVoiceEngineObserver
+{
+public:
+    VoiceEngineLogger() ;
+    virtual ~VoiceEngineLogger() ;
+    
+    virtual void CallbackOnError(int errCode, int channel) ;
+    virtual void CallbackOnTrace(char* message, int length) ;
+};
+
+
 /**
  *
  */
-class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPS_media_process
+class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPSVEMediaProcess
 {    
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
@@ -105,14 +118,14 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPS_media_proces
      */
     void releaseInterface(VoiceEngineMediaInterface* pMediaInterface);
 
-    GipsVoiceEngineLib* getNewVoiceEngineInstance() const ;
-    void releaseVoiceEngineInstance(GipsVoiceEngineLib* pInstance) ;
+    VoiceEngine* getNewVoiceEngineInstance() const ;
+    void releaseVoiceEngineInstance(VoiceEngine* pInstance) ;
 
-    GipsVideoEnginePlatform* getNewVideoEngineInstance(GipsVoiceEngineLib* pVoiceEngine) const ;
+    GipsVideoEnginePlatform* getNewVideoEngineInstance(VoiceEngine* pVoiceEngine) const ;
     void releaseVideoEngineInstance(GipsVideoEnginePlatform* pInstance) ;
 
     // Get either the global or one of the instance-versions of VoiceEngine
-    GipsVoiceEngineLib* getAnyVoiceEngine() const ;
+    VoiceEngine* getAnyVoiceEngine() const ;
     GipsVideoEnginePlatform* getAnyVideoEngine() const ;
 
     virtual OsStatus enableSpeakerVolumeAdjustment(bool bEnable) ;
@@ -158,7 +171,7 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPS_media_proces
     OsStatus createLocalAudioConnection();
     OsStatus destroyLocalAudioConnection();
 
-    virtual void process(int channel_no, short* audio_10ms_16kHz, int len, int sampfreq) ;    
+    virtual void Process(int channel_no, short* audio_10ms_16kHz, int len, int sampfreq) ;    
 
     virtual OsStatus translateToneId(const SIPX_TONE_ID toneId,
                                  SIPX_TONE_ID&      xlateId ) const;
@@ -233,11 +246,11 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPS_media_proces
   protected:
     mutable OsMutex mRtpPortLock;
 
-    bool doSetAudioAECMode(GipsVoiceEngineLib* pVoiceEngine, 
+    bool doSetAudioAECMode(VoiceEngine* pVoiceEngine, 
                            const MEDIA_AEC_MODE mode) const ;
-    bool doSetAudioNoiseReductionMode(GipsVoiceEngineLib*  pVoiceEngine, 
+    bool doSetAudioNoiseReductionMode(VoiceEngine*  pVoiceEngine, 
                                       const MEDIA_NOISE_REDUCTION_MODE mode) const ;
-    bool doEnableAGC(GipsVoiceEngineLib* pVoiceEngine, bool bEnable) const ;
+    bool doEnableAGC(VoiceEngine* pVoiceEngine, bool bEnable) const ;
 
     void constructGlobalInstance(bool bNoLocalChannel = false, bool bStartVideo = false) const ;
 
@@ -279,7 +292,7 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPS_media_proces
      */
     OsStatus inputDeviceIndexToString(UtlString& device, const int deviceIndex) const;    
 
-    mutable GipsVoiceEngineLib* mpVoiceEngine;
+    mutable VoiceEngine* mpVoiceEngine;
     mutable GipsVideoEnginePlatform* mpVideoEngine;
     mutable GipsVideoEnginePlatform* mpStaticVideoEngine;
     mutable int  mLocalConnectionId ;
@@ -312,6 +325,7 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPS_media_proces
     CpMediaNetTask* mpMediaNetTask;
 
     VoiceEngineSocketFactory* mpFactory ;
+	VoiceEngineLogger* mpLogger;
     mutable MediaDeviceInfo mAudioDeviceInput ;
     mutable MediaDeviceInfo mAudioDeviceOutput ;
 

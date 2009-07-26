@@ -1806,7 +1806,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
 SIPXTAPI_API void* sipxCallGetVoiceEnginePtr(const SIPX_CALL hCall)
 {
     IMediaInterface* pMediaInterface = NULL;
-    GipsVoiceEngineLib* pLib = NULL;
+	VoiceEngine* pLib = NULL;
 
     if (hCall)
     {
@@ -1821,9 +1821,9 @@ SIPXTAPI_API void* sipxCallGetVoiceEnginePtr(const SIPX_CALL hCall)
 }
 
 
-SIPXTAPI_API GipsVoiceEngineLib* sipxConfigGetVoiceEnginePtr(const SIPX_INST hInst)
+SIPXTAPI_API VoiceEngine* sipxConfigGetVoiceEnginePtr(const SIPX_INST hInst)
 {
-    GipsVoiceEngineLib* ptr = NULL;
+    VoiceEngine* ptr = NULL;
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
     if (pInst)
@@ -1831,7 +1831,7 @@ SIPXTAPI_API GipsVoiceEngineLib* sipxConfigGetVoiceEnginePtr(const SIPX_INST hIn
         if (pInst->pVoiceEngine != NULL)
         {
             // Return cached pointer if initialized
-            ptr = (GipsVoiceEngineLib*)pInst->pVoiceEngine;
+            ptr = (VoiceEngine*)pInst->pVoiceEngine;
         }
         else
         {
@@ -1902,7 +1902,7 @@ SIPXTAPI_API SIPX_RESULT sipxDestroyLocalAudioConnection(const SIPX_INST hInst)
 
 SIPXTAPI_API GIPSAECTuningWizard* sipxConfigGetVoiceEngineAudioWizard()
 {
-    return NULL;
+	return NULL;
 }
 
 SIPXTAPI_API GipsVideoEnginePlatform* sipxConfigGetVideoEnginePtr(const SIPX_INST hInst)

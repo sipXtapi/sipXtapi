@@ -60,6 +60,7 @@ public:
 /* ============================ CREATORS ================================== */
 
     MediaDeviceInfo() ;
+    virtual ~MediaDeviceInfo() ;
     MediaDeviceInfo(MediaDeviceInfo::MediaDeviceInfoType aType) ;
     MediaDeviceInfo(const MediaDeviceInfo& rMediaDeviceInfo) ;
 

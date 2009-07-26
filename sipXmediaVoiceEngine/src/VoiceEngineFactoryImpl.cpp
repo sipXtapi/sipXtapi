@@ -116,23 +116,6 @@ extern "C" __declspec(dllexport) int getReferenceCount()
 
 
 // STATIC FUNCTIONS
-static void VoiceEngineLogCallback(void* pObj, char *pData, int nLength)
-{
-    if (pData != NULL)
-    {
-#ifdef ENCODE_GIPS_LOGS
-        UtlString encodedData ;        
-        NetBase64Codec::encode(nLength, pData, encodedData) ;
-        OsSysLog::add(FAC_VOICEENGINE, PRI_DEBUG, encodedData.data()) ;
-#else
-        OsSysLog::add(FAC_VOICEENGINE, PRI_DEBUG, pData) ;
-#endif                      
-
-#ifdef GIPS_LOG_FLUSH
-        OsSysLog::flush() ;
-#endif
-    }
-}
 
 static void VideoEngineLogCallback(GIPSTraceCallbackObject obj, char *pData, int nLength)
 {
@@ -212,6 +195,8 @@ void VoiceEngineFactoryImpl::initialize(OsConfigDb* pConfigDb,
     mpVoiceEngine = NULL ;
     mpVideoEngine = NULL ;
     mpStaticVideoEngine = NULL ;
+
+	mpLogger = new VoiceEngineLogger() ;
 
     mpMediaNetTask = CpMediaNetTask::createCpMediaNetTask() ;
     mpFactory = new VoiceEngineSocketFactory(this) ;
@@ -369,6 +354,9 @@ VoiceEngineFactoryImpl::~VoiceEngineFactoryImpl()
         mpVoiceEngine = NULL;
     }
 
+	delete mpLogger;
+	mpLogger = NULL;
+
     if (mpPreviewWindowDisplay)
     {
         delete (SIPXVE_VIDEO_DISPLAY*) mpPreviewWindowDisplay;
@@ -445,8 +433,8 @@ void VoiceEngineFactoryImpl::doEnableLocalChannel(bool bEnable) const
             constructGlobalInstance() ;
             assert(mbLocalConnectionInUse == false) ;
             assert(mpVoiceEngine != NULL) ;
-            mLocalConnectionId = mpVoiceEngine->GIPSVE_CreateChannel() ;    
-            rc = mpVoiceEngine->GIPSVE_StartPlayout(mLocalConnectionId) ;
+            mLocalConnectionId = mpVoiceEngine->getBase()->GIPSVE_CreateChannel() ;    
+            rc = mpVoiceEngine->getBase()->GIPSVE_StartPlayout(mLocalConnectionId) ;
             assert(rc == 0);
         }
     }
@@ -455,7 +443,7 @@ void VoiceEngineFactoryImpl::doEnableLocalChannel(bool bEnable) const
         if (mLocalConnectionId != -1)
         {
             assert(mpVoiceEngine != NULL) ;
-            rc = mpVoiceEngine->GIPSVE_DeleteChannel(mLocalConnectionId) ;
+            rc = mpVoiceEngine->getBase()->GIPSVE_DeleteChannel(mLocalConnectionId) ;
             assert(rc == 0);
             mLocalConnectionId = -1 ;
             mbLocalConnectionInUse = false ;
@@ -506,7 +494,7 @@ IMediaInterface* VoiceEngineFactoryImpl::createMediaInterface( const char* publi
     OS_PERF_FUNC("VoiceEngineFactoryImpl::createMediaInterface") ;
 
     OsLock lock(sGuard) ;
-    GipsVoiceEngineLib* pVoiceEngine = NULL ;
+    VoiceEngine* pVoiceEngine = NULL ;
     GipsVideoEnginePlatform* pVideoEngine = NULL ;
     
     if (mbLocalConnectionInUse)
@@ -566,7 +554,7 @@ void VoiceEngineFactoryImpl::releaseInterface(VoiceEngineMediaInterface* pMediaI
         }
         if (pMediaInterface->getAudioEnginePtr())
         {
-            GipsVoiceEngineLib* pVoiceEngine = (GipsVoiceEngineLib*)pMediaInterface->getAudioEnginePtr() ;
+            VoiceEngine* pVoiceEngine = (VoiceEngine*)pMediaInterface->getAudioEnginePtr() ;
             if (pVoiceEngine)
             {
                 releaseVoiceEngineInstance(pVoiceEngine) ;
@@ -576,17 +564,18 @@ void VoiceEngineFactoryImpl::releaseInterface(VoiceEngineMediaInterface* pMediaI
 }
 
 // WARNING:: Assumes someone is externally holding a lock!!
-GipsVoiceEngineLib* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
+VoiceEngine* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
 {
     OS_PERF_FUNC("VoiceEngineFactoryImpl::getNewVoiceEngineInstance") ;
     int rc ;
-    GipsVoiceEngineLib* pVoiceEngine = GetNewVoiceEngineLib() ;
+    VoiceEngine* pVoiceEngine = new VoiceEngine(GIPSVoiceEngine::Create()) ;
+
     if (pVoiceEngine)
     {
         // Initialize GIPS Debug Tracing
         if (getGipsTracing())
         {
-            rc = pVoiceEngine->GIPSVE_SetTraceCallback(VoiceEngineLogCallback) ;
+            rc = pVoiceEngine->getBase()->GIPSVE_SetObserver(*mpLogger, false) ;
             assert(rc == 0) ;
         }
 
@@ -597,12 +586,12 @@ GipsVoiceEngineLib* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
 #endif
 
 #ifdef USE_GIPS
-        rc = pVoiceEngine->GIPSVE_Init(false, false, GIPS_EXPIRE_MONTH, GIPS_EXPIRE_DAY, GIPS_EXPIRE_YEAR) ;
+        rc = pVoiceEngine->getBase()->GIPSVE_Init(GIPS_EXPIRE_MONTH, GIPS_EXPIRE_DAY, GIPS_EXPIRE_YEAR, false) ;
         assert(rc == 0) ;
 #endif
 
 #ifdef _WIN32
-        rc = pVoiceEngine->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice);
+        rc = pVoiceEngine->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice);
         assert(rc == 0) ;
 #else
         rc = 0 ;
@@ -617,8 +606,11 @@ GipsVoiceEngineLib* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
 #ifdef _WIN32
         if (!isSpeakerAdjustSet())
         {
-            rc = pVoiceEngine->GIPSVE_EnableExternalMediaProcessing(true, 
-                    PLAYBACK_ALL_CHANNELS_MIXED, -1, (GIPS_media_process&) *this) ;
+            rc = pVoiceEngine->getExternalMedia()->GIPSVE_SetExternalMediaProcessing(
+				PLAYBACK_ALL_CHANNELS_MIXED,
+				-1,
+				true,
+				(GIPSVEMediaProcess&) *this) ;
             assert(rc == 0) ;
         }
  #endif
@@ -633,7 +625,7 @@ GipsVoiceEngineLib* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
 }
 
 // WARNING:: Assumes someone is externally holding a lock!!
-void VoiceEngineFactoryImpl::releaseVoiceEngineInstance(GipsVoiceEngineLib* pVoiceEngine)
+void VoiceEngineFactoryImpl::releaseVoiceEngineInstance(VoiceEngine* pVoiceEngine)
 {
     OS_PERF_FUNC("VoiceEngineFactoryImpl::releaseVoiceEngineInstance") ;
     int rc ;
@@ -641,26 +633,22 @@ void VoiceEngineFactoryImpl::releaseVoiceEngineInstance(GipsVoiceEngineLib* pVoi
     assert(pVoiceEngine != NULL) ;
     if (pVoiceEngine)
     {
-        rc = pVoiceEngine->GIPSVE_SetTrace(0) ;
+        pVoiceEngine->getBase()->GIPSVE_SetTraceFilter(TR_NONE) ;
+        pVoiceEngine->getBase()->GIPSVE_SetObserver(*mpLogger, false) ;
+        rc = pVoiceEngine->getExternalMedia()->GIPSVE_SetExternalMediaProcessing(PLAYBACK_ALL_CHANNELS_MIXED, -1, false, *this) ;            
         assert(rc == 0) ;
-        rc = pVoiceEngine->GIPSVE_EnableExternalMediaProcessing(false, PLAYBACK_ALL_CHANNELS_MIXED, -1, *this) ;
-        assert(rc == 0) ;
-        rc = pVoiceEngine->GIPSVE_Terminate();
+        rc = pVoiceEngine->getBase()->GIPSVE_Terminate();
         assert(rc == 0) ;
 
-#ifdef USE_GIPS
-        DeleteVoiceEngineLib(pVoiceEngine); 
-#else
         delete pVoiceEngine;
-#endif
     }
 }
 
 
 // WARNING:: Assumes someone is externally holding a lock!!
-GipsVoiceEngineLib* VoiceEngineFactoryImpl::getAnyVoiceEngine() const
+VoiceEngine* VoiceEngineFactoryImpl::getAnyVoiceEngine() const
 {       
-    GipsVoiceEngineLib* pRC = NULL ;
+    VoiceEngine* pRC = NULL ;
 
     // First: Try global instance
     if (mpVoiceEngine)
@@ -679,7 +667,7 @@ GipsVoiceEngineLib* VoiceEngineFactoryImpl::getAnyVoiceEngine() const
             {
                 if (pInterface->getAudioEnginePtr())
                 {
-                    pRC = (GipsVoiceEngineLib*)pInterface->getAudioEnginePtr();
+                    pRC = (VoiceEngine*)pInterface->getAudioEnginePtr();
                 }
                 break ;
             }
@@ -733,7 +721,7 @@ GipsVideoEnginePlatform* VoiceEngineFactoryImpl::getAnyVideoEngine() const
 }
 
 // WARNING:: Assumes someone is externally holding a lock!!
-GipsVideoEnginePlatform* VoiceEngineFactoryImpl::getNewVideoEngineInstance(GipsVoiceEngineLib* pVoiceEngine) const
+GipsVideoEnginePlatform* VoiceEngineFactoryImpl::getNewVideoEngineInstance(VoiceEngine* pVoiceEngine) const
 {    
     OS_PERF_FUNC("VoiceEngineFactoryImpl::getNewVideoEngineInstance") ;
     GipsVideoEnginePlatform* pVideoEngine = NULL ;
@@ -746,8 +734,8 @@ GipsVideoEnginePlatform* VoiceEngineFactoryImpl::getNewVideoEngineInstance(GipsV
 
         if (getGipsTracing())
         {
-            rc = pVideoEngine->GIPSVideo_SetTraceCallback(VideoEngineLogCallback) ;
-            assert(rc == 0) ;
+            //rc = pVideoEngine->GIPSVideo_SetTraceCallback(VideoEngineLogCallback) ;
+            //assert(rc == 0) ;
         }
 
 #ifdef USE_GIPS_DLL
@@ -757,7 +745,7 @@ GipsVideoEnginePlatform* VoiceEngineFactoryImpl::getNewVideoEngineInstance(GipsV
 #endif
 
 #ifdef USE_GIPS
-        rc = pVideoEngine->GIPSVideo_Init(pVoiceEngine, GIPS_EXPIRE_MONTH, GIPS_EXPIRE_DAY, GIPS_EXPIRE_YEAR) ;
+        rc = pVideoEngine->GIPSVideo_Init(pVoiceEngine->getVE(), GIPS_EXPIRE_MONTH, GIPS_EXPIRE_DAY, GIPS_EXPIRE_YEAR) ;
         assert(rc == 0) ;
 #endif 
     }
@@ -775,7 +763,7 @@ void VoiceEngineFactoryImpl::releaseVideoEngineInstance(GipsVideoEnginePlatform*
     assert(pVideoEngine != NULL) ;
     if (pVideoEngine)
     {
-        rc = pVideoEngine->GIPSVideo_SetTrace(0) ;
+        rc = pVideoEngine->GIPSVideo_SetTraceFilter(TR_NONE) ;
         assert(rc == 0) ;
         OS_PERF_ADD("GIPSVideo_SetTrace") ;
         rc = pVideoEngine->GIPSVideo_Terminate() ;
@@ -807,11 +795,11 @@ OsStatus VoiceEngineFactoryImpl::enableSpeakerVolumeAdjustment(bool bEnable)
 
         if (mpVoiceEngine)
         {
-            mpVoiceEngine->GIPSVE_EnableExternalMediaProcessing(
+			mpVoiceEngine->getExternalMedia()->GIPSVE_SetExternalMediaProcessing(
+                     PLAYBACK_ALL_CHANNELS_MIXED, 
+                     -1, 
                     !mbSpeakerAdjust, 
-                    PLAYBACK_ALL_CHANNELS_MIXED, 
-                    -1, 
-                    *this) ;
+                     *this) ;
         }
     }
     return OS_SUCCESS ;
@@ -833,11 +821,11 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerVolume(int iVolume)
     {
         if (mbSpeakerAdjust)
         {            
-            GipsVoiceEngineLib* pVoiceEngine = getAnyVoiceEngine() ;
+            VoiceEngine* pVoiceEngine = getAnyVoiceEngine() ;
             if (pVoiceEngine)
             {            
                 int gipsVolume = (int) (((float)iVolume / 100.0) * 255.0 );
-                if (0 == pVoiceEngine->GIPSVE_SetSpeakerVolume(gipsVolume))
+                if (0 == pVoiceEngine->getVolumeControl()->GIPSVE_SetSpeakerVolume(gipsVolume))
                     rc = OS_SUCCESS ;
             }
         }
@@ -871,7 +859,7 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
         if (mpVoiceEngine)        
         {
 #ifdef _WIN32
-            if (mpVoiceEngine->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) == 0)
+			if (0 == mpVoiceEngine->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
 #endif
             {
                 rc = OS_SUCCESS;
@@ -880,15 +868,15 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
         while (pInterfaceInt = (UtlInt*)iterator())
         {
             pInterface = (VoiceEngineMediaInterface*)pInterfaceInt->getValue();
-            GipsVoiceEngineLib* pGips = NULL;
+            VoiceEngine* pGips = NULL;
             
             if (pInterface && pInterface->getAudioEnginePtr())
             {
-                pGips = (GipsVoiceEngineLib*)pInterface->getAudioEnginePtr();            
+                pGips = (VoiceEngine*)pInterface->getAudioEnginePtr();            
                 if (pGips)
                 {
 #ifdef _WIN32
-                    if (0 == pGips->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
+                    if (0 == pGips->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
 #endif
                     {
                         rc = OS_SUCCESS;
@@ -914,7 +902,7 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneGain(int iGain)
     }
     else
     {    
-        GipsVoiceEngineLib* pVoiceEngine = getAnyVoiceEngine() ;
+        VoiceEngine* pVoiceEngine = getAnyVoiceEngine() ;
         if (pVoiceEngine)
         {            
             int gipsGain = (int)((float)((float)iGain / 100.0) * 255.0);                
@@ -922,7 +910,7 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneGain(int iGain)
             {
                 rc = OS_FAILED;
             }
-            else if (0 == pVoiceEngine->GIPSVE_SetMicVolume(gipsGain))
+			else if (0 == pVoiceEngine->getVolumeControl()->GIPSVE_SetMicVolume(gipsGain))
             {
                 miGain = gipsGain;
                 rc = OS_SUCCESS;
@@ -952,7 +940,7 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
         if (mpVoiceEngine)
         {                     
 #ifdef _WIN32
-            if (0 == mpVoiceEngine->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) )
+			if (0 == mpVoiceEngine->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) )
 #endif
                 rc = OS_SUCCESS;
         }
@@ -960,15 +948,15 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
         while (pInterfaceInt = (UtlInt*)iterator())
         {
             pInterface = (VoiceEngineMediaInterface*)pInterfaceInt->getValue();
-            GipsVoiceEngineLib* pGips = NULL;
+            VoiceEngine* pGips = NULL;
             
             if (pInterface && pInterface->getAudioEnginePtr())
             {
-                pGips = (GipsVoiceEngineLib*)pInterface->getAudioEnginePtr();            
+                pGips = (VoiceEngine*)pInterface->getAudioEnginePtr();            
                 if (pGips)
                 {
 #ifdef _WIN32
-                    if (0 == pGips->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
+					if (0 == pGips->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
 #endif
                     {
                         rc = OS_SUCCESS;
@@ -1029,7 +1017,7 @@ OsStatus VoiceEngineFactoryImpl::setAudioAECMode(const MEDIA_AEC_MODE mode)
             pInterface = (VoiceEngineMediaInterface*)pInterfaceInt->getValue();            
             if (pInterface && pInterface->getAudioEnginePtr())
             {
-                doSetAudioAECMode((GipsVoiceEngineLib*)pInterface->getAudioEnginePtr(), mode) ;
+                doSetAudioAECMode((VoiceEngine*)pInterface->getAudioEnginePtr(), mode) ;
             }
         }
     }
@@ -1060,7 +1048,7 @@ OsStatus VoiceEngineFactoryImpl::setAudioNoiseReductionMode(const MEDIA_NOISE_RE
         pInterface = (VoiceEngineMediaInterface*)pInterfaceInt->getValue();            
         if (pInterface && pInterface->getAudioEnginePtr())
         {
-            doSetAudioNoiseReductionMode((GipsVoiceEngineLib*)pInterface->getAudioEnginePtr(), mode) ;           
+            doSetAudioNoiseReductionMode((VoiceEngine*)pInterface->getAudioEnginePtr(), mode) ;           
         }
     }
 
@@ -1092,7 +1080,7 @@ OsStatus VoiceEngineFactoryImpl::enableAGC(UtlBoolean bEnable)
             pInterface = (VoiceEngineMediaInterface*)pInterfaceInt->getValue();            
             if (pInterface && pInterface->getAudioEnginePtr())
             {
-                doEnableAGC((GipsVoiceEngineLib*)pInterface->getAudioEnginePtr(), bEnable) ;
+                doEnableAGC((VoiceEngine*)pInterface->getAudioEnginePtr(), bEnable) ;
             }
         }
     }
@@ -1110,7 +1098,7 @@ void VoiceEngineFactoryImpl::constructGlobalInstance(bool bNoLocalChannel, bool 
         char szVersion[4096];
 
         mpVoiceEngine = getNewVoiceEngineInstance() ;
-        mpVoiceEngine->GIPSVE_GetVersion(szVersion, 4096) ;
+		mpVoiceEngine->getBase()->GIPSVE_GetVersion(szVersion, 4096) ;
         OsSysLog::add(FAC_MP, PRI_INFO, szVersion) ;
 
         if (mbCreateLocalConnection && !bNoLocalChannel)
@@ -1422,7 +1410,7 @@ OsStatus VoiceEngineFactoryImpl::startPlayAudio(VoiceEngineBufferInStream* pStre
     constructGlobalInstance() ;
     mbLocalConnectionInUse = true ;
     mpInStream = pStream ;
-    int iRC = mpVoiceEngine->GIPSVE_PlayPCM(mLocalConnectionId, mpInStream, formatType, ((float) downScaling) / 100) ;
+	int iRC = mpVoiceEngine->getFile()->GIPSVE_StartPlayingFileLocally(mLocalConnectionId, mpInStream, formatType, ((float) downScaling) / 100) ;
     if (iRC == 0)
     {
         rc = OS_SUCCESS ;
@@ -1450,9 +1438,9 @@ OsStatus VoiceEngineFactoryImpl::stopPlay(const void* pSource)
 
         if (bStopAudio)
         {
-            if (mpVoiceEngine->GIPSVE_IsPlayingFile(mLocalConnectionId))
+			if (mpVoiceEngine->getFile()->GIPSVE_IsPlayingFileLocally(mLocalConnectionId))
             {
-                mpVoiceEngine->GIPSVE_StopPlayingFile(mLocalConnectionId) ;
+                 mpVoiceEngine->getFile()->GIPSVE_StopPlayingFileLocally(mLocalConnectionId) ;
             }
 
             if (mpInStream != NULL)
@@ -1475,9 +1463,9 @@ OsStatus VoiceEngineFactoryImpl::playTone(int toneId)
     OsLock lock(sGuard) ;
 
     constructGlobalInstance() ;
-    int check = mpVoiceEngine->GIPSVE_PlayDTMFTone(toneId);
+	int check = mpVoiceEngine->getDTMF()->GIPSVE_PlayDTMFTone(toneId);
     assert(check == 0) ;
-    check = mpVoiceEngine->GIPSVE_GetLastError();
+    check = mpVoiceEngine->getBase()->GIPSVE_LastError();
 
     return OS_SUCCESS ; 
 }
@@ -1595,7 +1583,7 @@ OsStatus VoiceEngineFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes code
 }
 
 
-void VoiceEngineFactoryImpl::process(int    channel_no, 
+void VoiceEngineFactoryImpl::Process(int    channel_no, 
                                      short* audio_10ms_16kHz, 
                                      int    len, 
                                      int    sampfreq) 
@@ -1622,11 +1610,12 @@ OsStatus VoiceEngineFactoryImpl::getSpeakerVolume(int& iVolume) const
 
     if (mbSpeakerAdjust)
     {
-        GipsVoiceEngineLib* pVoiceEngine = getAnyVoiceEngine() ;
+        VoiceEngine* pVoiceEngine = getAnyVoiceEngine() ;
         if (pVoiceEngine)
         {            
-            int gipsVolume = pVoiceEngine->GIPSVE_GetSpeakerVolume();        
-            iVolume = (int) ((double) ((((double)gipsVolume ) / 255.0) * 100.0) + 0.5) ;
+            unsigned int volume ;
+            pVoiceEngine->getVolumeControl()->GIPSVE_GetSpeakerVolume(volume) ;
+            iVolume = (int) ((double) ((((double)volume ) / 255.0) * 100.0) + 0.5) ;
         }
         else
         {
@@ -1657,11 +1646,13 @@ OsStatus VoiceEngineFactoryImpl::getMicrophoneGain(int& iGain) const
     OsLock lock(sGuard) ;
     OsStatus rc = OS_SUCCESS ;
 
-    GipsVoiceEngineLib* pVoiceEngine = getAnyVoiceEngine() ;
+    VoiceEngine* pVoiceEngine = getAnyVoiceEngine() ;
     if (pVoiceEngine)
-    {            
-        double gipsGain = (double) pVoiceEngine->GIPSVE_GetMicVolume();    
-        iGain = (int) ((double)((double)((gipsGain) / 255.0) * 100.0) + 0.5);
+    {
+        unsigned int gain ;
+        pVoiceEngine->getVolumeControl()->GIPSVE_GetMicVolume(gain) ;
+        double gipsGain = (double) gain;
+		iGain = (int) ((double)((double)((gipsGain) / 255.0) * 100.0) + 0.5);
     }
     else
     {
@@ -1697,16 +1688,21 @@ void VoiceEngineFactoryImpl::setGipsTracing(bool bEnable)
     if (mTrace)
     {
         if (mpVoiceEngine)
-            mpVoiceEngine->GIPSVE_SetTraceCallback(VoiceEngineLogCallback) ;
+            mpVoiceEngine->getBase()->GIPSVE_SetTraceFilter(TR_WARNING) ;
         if (mpVideoEngine)
-            mpVideoEngine->GIPSVideo_SetTraceCallback(VideoEngineLogCallback) ;
+        {
+            mpVideoEngine->GIPSVideo_SetTraceFilter(TR_WARNING) ;
+//            mpVideoEngine->GIPSVideo_SetTraceCallback(VideoEngineLogCallback) ;
+        }
     }
     else
     {
         if (mpVoiceEngine)
-            mpVoiceEngine->GIPSVE_SetTrace(0) ;
+            mpVoiceEngine->getBase()->GIPSVE_SetTraceFilter(TR_NONE) ;
         if (mpVideoEngine)
-            mpVideoEngine->GIPSVideo_SetTrace(0) ;
+        {
+            mpVideoEngine->GIPSVideo_SetTraceFilter(TR_NONE) ;
+        }
     }
 }
 
@@ -1919,7 +1915,7 @@ OsStatus VoiceEngineFactoryImpl::isInBandDTMFEnabled(UtlBoolean& bEnabled) const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-bool VoiceEngineFactoryImpl::doSetAudioAECMode(GipsVoiceEngineLib*  pVoiceEngine, 
+bool VoiceEngineFactoryImpl::doSetAudioAECMode(VoiceEngine*  pVoiceEngine, 
                                                const MEDIA_AEC_MODE mode) const
 {
     bool bRC = true ;
@@ -1929,20 +1925,14 @@ bool VoiceEngineFactoryImpl::doSetAudioAECMode(GipsVoiceEngineLib*  pVoiceEngine
         switch (mode)
         {
             case MEDIA_AEC_DISABLED:
-                pVoiceEngine->GIPSVE_SetECType(0) ;
-                pVoiceEngine->GIPSVE_SetECStatus(0) ;
+				pVoiceEngine->getVQE()->GIPSVE_SetECStatus(false) ;
                 break ;
             case MEDIA_AEC_SUPPRESS:
-                pVoiceEngine->GIPSVE_SetECType(1) ;
-                pVoiceEngine->GIPSVE_SetECStatus(1) ;
-                break ;
-            case MEDIA_AEC_CANCEL:
-                pVoiceEngine->GIPSVE_SetECType(0) ;
-                pVoiceEngine->GIPSVE_SetECStatus(1) ;
-                break ;
+				pVoiceEngine->getVQE()->GIPSVE_SetECStatus(true, EC_AES) ;
+				break ;
             case MEDIA_AEC_CANCEL_AUTO:
-                pVoiceEngine->GIPSVE_SetECType(0) ;
-                pVoiceEngine->GIPSVE_SetECStatus(2) ;
+            case MEDIA_AEC_CANCEL:
+				pVoiceEngine->getVQE()->GIPSVE_SetECStatus(true, EC_AEC) ;
                 break ;
             default:
                 bRC = false ;
@@ -1959,7 +1949,7 @@ bool VoiceEngineFactoryImpl::doSetAudioAECMode(GipsVoiceEngineLib*  pVoiceEngine
 }
 
 
-bool VoiceEngineFactoryImpl::doSetAudioNoiseReductionMode(GipsVoiceEngineLib*  pVoiceEngine, 
+bool VoiceEngineFactoryImpl::doSetAudioNoiseReductionMode(VoiceEngine*  pVoiceEngine, 
                                                           const MEDIA_NOISE_REDUCTION_MODE mode) const
 {
     bool bRC = true ;
@@ -1969,20 +1959,16 @@ bool VoiceEngineFactoryImpl::doSetAudioNoiseReductionMode(GipsVoiceEngineLib*  p
         switch (mode)
         {
             case MEDIA_NOISE_REDUCTION_DISABLED:
-                pVoiceEngine->GIPSVE_SetNRStatus(0) ;
-                pVoiceEngine->GIPSVE_SetNRpolicy(0) ;
+				pVoiceEngine->getVQE()->GIPSVE_SetNSStatus(false) ;
                 break ;
             case MEDIA_NOISE_REDUCTION_LOW:
-                pVoiceEngine->GIPSVE_SetNRStatus(1) ;
-                pVoiceEngine->GIPSVE_SetNRpolicy(0) ;
+                pVoiceEngine->getVQE()->GIPSVE_SetNSStatus(true, NS_LOW_SUPPRESSION) ;
                 break ;
             case MEDIA_NOISE_REDUCTION_MEDIUM:
-                pVoiceEngine->GIPSVE_SetNRStatus(1) ;
-                pVoiceEngine->GIPSVE_SetNRpolicy(1) ;
+                pVoiceEngine->getVQE()->GIPSVE_SetNSStatus(true, NS_MODERATE_SUPPRESSION) ;
                 break ;
             case MEDIA_NOISE_REDUCTION_HIGH:
-                pVoiceEngine->GIPSVE_SetNRStatus(1) ;
-                pVoiceEngine->GIPSVE_SetNRpolicy(2) ;
+                pVoiceEngine->getVQE()->GIPSVE_SetNSStatus(true, NS_HIGH_SUPPRESSION) ;
                 break ;
             default:
                 bRC = false ;
@@ -1999,18 +1985,20 @@ bool VoiceEngineFactoryImpl::doSetAudioNoiseReductionMode(GipsVoiceEngineLib*  p
 }
 
 
-bool VoiceEngineFactoryImpl::doEnableAGC(GipsVoiceEngineLib* pVoiceEngine, 
+bool VoiceEngineFactoryImpl::doEnableAGC(VoiceEngine* pVoiceEngine, 
                                          bool bEnable) const
 {
     bool bRC = true ;
     int iRC ;
-    int mode = bEnable ? 1 : 0 ; 
+	bool isEnabled = false ;
 
-    if (pVoiceEngine)
+	if (pVoiceEngine)
     {
-        if (pVoiceEngine->GIPSVE_GetAGCStatus() != mode)
+        GIPS_AGCmodes mode;
+        pVoiceEngine->getVQE()->GIPSVE_GetAGCStatus(isEnabled, mode) ;
+        if (isEnabled != bEnable)
         {
-            iRC = pVoiceEngine->GIPSVE_SetAGCStatus(mode) ;
+            iRC = pVoiceEngine->getVQE()->GIPSVE_SetAGCStatus(bEnable, mode) ;
             if (iRC != 0)
             {
                 assert(false) ;
@@ -2155,3 +2143,41 @@ bool VoiceEngineFactoryImpl::isVideoSessionActive() const
 #ifdef USE_GIPS_DLL
 GipsVideoEngine::~GipsVideoEngine() {} ;
 #endif
+
+
+
+VoiceEngineLogger::VoiceEngineLogger() 
+{
+
+}
+
+VoiceEngineLogger::~VoiceEngineLogger() 
+{
+
+}
+
+    
+void VoiceEngineLogger::CallbackOnError(int errCode, int channel) 
+{   
+    OsSysLog::add(FAC_VOICEENGINE, PRI_ERR,"Channel: %d, error code: %d\n", channel, errCode) ;
+}
+
+void VoiceEngineLogger::CallbackOnTrace(char* message, int length) 
+{
+    if (message != NULL)
+    {
+#ifdef ENCODE_GIPS_LOGS
+        UtlString encodedData ;        
+        NetBase64Codec::encode(nLength, pData, encodedData) ;
+        OsSysLog::add(FAC_VOICEENGINE, PRI_DEBUG, encodedData.data()) ;
+#else
+        UtlString data(message, length) ;
+        OsSysLog::add(FAC_VOICEENGINE, PRI_DEBUG, data.data()) ;
+#endif                      
+
+#ifdef GIPS_LOG_FLUSH
+        OsSysLog::flush() ;
+#endif
+
+    }
+}

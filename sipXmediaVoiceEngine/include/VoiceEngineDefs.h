@@ -23,13 +23,26 @@
 #ifndef _VoiceEngineDefs_h
 #define _VoiceEngineDefs_h
 
-// SYSTEM INCLUDES
-// APPLICATION INCLUDES
-
 #ifdef USE_GIPS
 # if defined(_WIN32)
-#   include "GIPS_common_types.h"
-#   include "GipsVoiceEngineLib.h"
+#include "GIPSVEBase.h"
+#include "GIPSVECallReport.h"
+#include "GIPSVECodec.h"
+#include "GIPSVECommon.h"
+#include "GIPSVEDTMF.h"
+#include "GIPSVEEncryption.h"
+#include "GIPSVEErrors.h"
+#include "GIPSVEExternalMedia.h"
+#include "GIPSVEFile.h"
+#include "GIPSVEHardware.h"
+#include "GIPSVENetEqStats.h"
+#include "GIPSVENetwork.h"
+#include "GIPSVEPTT.h"
+#include "GIPSVERTP_RTCP.h"
+#include "GIPSVEVideoSync.h"
+#include "GIPSVEVolumeControl.h"
+#include "GIPSVEVQE.h"
+#include "GIPS_common_types.h"
 # elif defined (__MACH__)
 #   include "mac/GipsVoiceEngineLib.h"
 # else
@@ -42,23 +55,20 @@
 
 #define GIPSVE_CodecInst GIPS_CodecInst
 
-# if defined (USE_GIPS)
 #  if defined(_WIN32)
 #    include "GipsVideoEngine.h"
 #    include <windows.h>
 #    include "GipsVideoEngineWindows.h"
+#    include "GIPS_common_video_types.h"
 #  elif defined(__MACH__)
 #    include "mac/GipsVideoEngine.h"
 #    include <carbon/Carbon.h>
 #    include "mac/GipsVideoEngineMac.h"
+#    include "mac/GIPS_common_video_types.h"
 #  else
 #    error("Unknown platform") ;
 #  endif
-# else
-#  include "include/StubbedVideoEngine.h"
-# endif
 
-#if defined (USE_GIPS)
 #  if defined(_WIN32)
 typedef GipsVideoEngineWindows GipsVideoEnginePlatform ;
 #  elif defined(__MACH__)
@@ -66,11 +76,6 @@ typedef GipsVideoEngineMac GipsVideoEnginePlatform;
 #  else
 #    error("Unknown platform") ;
 #  endif
-#elif 
-typedef GipsVideoEngineStub GipsVideoEnginePlatform ;
-#else
-typedef void* GipsVideoEnginePlatform ;
-#endif
 
 /** Optional Settings/tweaks/modes **/
 
@@ -83,16 +88,11 @@ typedef void* GipsVideoEnginePlatform ;
 #define USE_GLOBAL_VOICE_ENGINE
 #undef USE_GLOBAL_VOICE_ENGINE    // Comment to use USE_GLOBAL_VOICE_ENGINE
 
-#ifdef _WIN32
-#  define ENABLE_GIPS_VQMON
-//#undef ENABLE_GIPS_VQMON       // Comment to enable VQMon
-#else
-#  undef ENABLE_GIPS_VQMON
-#endif
+#define ENABLE_GIPS_VQMON
+#undef ENABLE_GIPS_VQMON       // Comment to disable VQMon
 
 #define USE_GIPS_DLL
 #undef USE_GIPS_DLL            // Comment to use the DLL version of GIPS
-
 
 // Support resolutions
 #define INCLUDE_SQCIF_RESOLUTION
@@ -102,28 +102,9 @@ typedef void* GipsVideoEnginePlatform ;
 #define INCLUDE_VGA_RESOLUTION
 //#define INCLUDE_4CIF_RESOLUTION
 //#define INCLUDE_16CIF_RESOLUTION
-
-#if defined(USE_GIPS) && defined(_WIN32)
-# ifdef USE_GIPS_DLL
-#  define GIPS_KEY            "--INSERTKEYHERE--"
 #  define GIPS_EXPIRE_MONTH   0
 #  define GIPS_EXPIRE_DAY     0
 #  define GIPS_EXPIRE_YEAR    0
-#  pragma comment( lib, "GipsVideoEngineWindowsDLL_MT.lib" )
-#  pragma comment( lib, "GIPSVoiceEngineDLL.lib" )
-# else
-#  undef GIPS_KEY
-#  define GIPS_EXPIRE_MONTH   0
-#  define GIPS_EXPIRE_DAY     0
-#  define GIPS_EXPIRE_YEAR    0
-#  pragma comment( lib, "GIPSVoiceEngineMultimediaWindows_MT.lib" )
-# endif
-#else
-#  undef GIPS_KEY
-#  define GIPS_EXPIRE_MONTH   0
-#  define GIPS_EXPIRE_DAY     0
-#  define GIPS_EXPIRE_YEAR    0
-#endif // USE_GIPS && _WIN32
-
+#  pragma comment( lib, "GIPSVideoEngineWindows_MT.lib" )
 
 #endif // _VoiceEngineDefs_h

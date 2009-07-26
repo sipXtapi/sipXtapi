@@ -1,4 +1,4 @@
-// Copyright 2008 AOL LLC.
+// Copyright 2008,2009 AOL LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // This library is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 
 #include "include/VoiceEngineSocketFactory.h"
 #include "mediaBaseImpl/CpMediaNetTask.h"
+#include "include/VoiceEngine.h"
 #include "mediaInterface/IMediaDeviceMgr.h"
 #include "utl/UtlInt.h"
 #include "utl/UtlHashMapIterator.h"
@@ -59,7 +60,7 @@ VoiceEngineSocketFactory::~VoiceEngineSocketFactory()
 /* ============================ MANIPULATORS ============================== */
 
 IOsNatSocket*
-VoiceEngineSocketFactory::getUdpSocket(GipsVoiceEngineLib* pVoice,
+VoiceEngineSocketFactory::getUdpSocket(VoiceEngine* pVoice,
                                        GipsVideoEnginePlatform* pVideo,
                                        int type,
                                        const char* localHost,
@@ -159,7 +160,7 @@ printf("VoiceEngineSocketFactory::releaseUdpSocket 0x%08X\n", pSocket) ;
 
 
 IOsNatSocket* 
-VoiceEngineSocketFactory::getTcpSocket(GipsVoiceEngineLib* pVoice,
+VoiceEngineSocketFactory::getTcpSocket(VoiceEngine* pVoice,
                                        GipsVideoEnginePlatform* pVideo,
                                        int type,
                                        int remoteHostPort,

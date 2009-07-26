@@ -773,7 +773,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
 SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalAudioConnectionId(const SIPX_INST hInst, int& connectionId);
                                                            
 typedef void GIPSAECTuningWizard ;
-typedef void GipsVoiceEngineLib ;
+typedef void VoiceEngine ;
 
     /**
      * For Gips VoiceEngine versions of sipXtapi, this method will
@@ -784,7 +784,7 @@ typedef void GipsVoiceEngineLib ;
      *        invoking sipxCallCreate or passed to your application through
      *        a listener interface.
      */
-    SIPXTAPI_API GipsVoiceEngineLib* sipxCallGetVoiceEnginePtr(const SIPX_CALL hCall);
+    SIPXTAPI_API VoiceEngine* sipxCallGetVoiceEnginePtr(const SIPX_CALL hCall);
 
 
     /**
@@ -794,7 +794,7 @@ typedef void GipsVoiceEngineLib ;
      *
      * @param hInst Instance pointer obtained by sipxInitialize
      */
-    SIPXTAPI_API GipsVoiceEngineLib* sipxConfigGetVoiceEnginePtr(const SIPX_INST hInst);
+    SIPXTAPI_API VoiceEngine* sipxConfigGetVoiceEnginePtr(const SIPX_INST hInst);
 
 typedef void GIPSAECTuningWizard ;
 typedef void GipsVideoEnginePlatform ;

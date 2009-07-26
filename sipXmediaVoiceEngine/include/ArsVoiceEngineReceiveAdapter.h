@@ -30,19 +30,21 @@
 #include "os/OsMutex.h"
 
 
+class VoiceEngine;
+
 //////////////////////////////////////////////////////////////////////////////
 
 class ArsVoiceEngineReceiveAdapter 
     : public ArsReceiveAdapter
 {
 protected:
-    GipsVoiceEngineLib*      mpVoiceEngine ;
+    VoiceEngine*      mpVoiceEngine ;
     GipsVideoEnginePlatform* mpVideoEngine ;
     OsMutex*                 mpGuard ;
        
 public:
     ArsVoiceEngineReceiveAdapter(SIPX_MEDIA_TYPE mediaType,
-                                 GipsVoiceEngineLib*      pVoiceEngine,
+                                 VoiceEngine*      pVoiceEngine,
                                  GipsVideoEnginePlatform* pVideoEngine,
                                  OsMutex*                 pGuard) ;
     virtual ~ArsVoiceEngineReceiveAdapter() ;

@@ -26,6 +26,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mediaInterface/IMediaPacketPusher.h"
+#include "include/VoiceEngine.h"
 #include "VoiceEngineDefs.h"
 
 // FORWARD DECLARATIONS
@@ -35,7 +36,7 @@ class VoiceEnginePacketPusher : public IMediaPacketPusher
     /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
     /* ============================ CREATORS ================================== */
-    VoiceEnginePacketPusher(GipsVoiceEngineLib*      pVoiceEngine,
+    VoiceEnginePacketPusher(VoiceEngine* pVoiceEngine,
                             GipsVideoEnginePlatform* pVideoEngine);
     virtual void pushRtpPacket(const int channel, SIPX_MEDIA_TYPE mediaType, const char* buffer, size_t len);
     virtual void pushRtcpPacket(const int channel, SIPX_MEDIA_TYPE mediaType, const char* buffer, size_t len);
@@ -50,7 +51,7 @@ public:
 protected:
     /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    GipsVoiceEngineLib*      mpVoiceEngine;
+    VoiceEngine* mpVoiceEngine;
     GipsVideoEnginePlatform* mpVideoEngine ;
 };
 #endif 

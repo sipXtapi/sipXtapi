@@ -43,6 +43,7 @@
 #include <net/QoS.h>
 #include <sdp/SdpCodecList.h>
 #include "net/ProxyDescriptor.h"
+#include "include/VoiceEngine.h"
 #include "include/VoiceEngineDefs.h"
 #include "include/VoiceEngineFactoryImpl.h"
 #include "mediaBaseImpl/CpMediaInterface.h"
@@ -192,7 +193,6 @@ class SdpCodec;
 class OsDatagramSocket;
 class VoiceEngineFactoryImpl;
 class CpMediaConnection;
-class GipsVoiceEngineLib ;
 class gipsve_error_callback;
 class VoiceEngineNetTask ;
 class VideoEngine;
@@ -207,7 +207,7 @@ public:
     /* ============================ CREATORS ================================== */
 
     VoiceEngineMediaInterface(IMediaDeviceMgr* pFactoryImpl,
-            GipsVoiceEngineLib* pVoiceEngine,
+            VoiceEngine* pVoiceEngine,
             GipsVideoEnginePlatform* pVideoEngine,
             const char* publicAddress = NULL, 
             const char* localAddress = NULL,
@@ -577,7 +577,7 @@ private:
     UtlBoolean mbDTMFInBand;
     UtlBoolean mbDTMFOutOfBand;
     UtlString  mRtcpName;
-    GipsVoiceEngineLib* mpVoiceEngine ;
+    VoiceEngine* mpVoiceEngine ;
     GipsVideoEnginePlatform* mpGipsVideoEngine ;
     VideoEngine* mpVideoEngine ;
     SIPXVE_VIDEO_DISPLAY* mpDisplay;

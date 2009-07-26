@@ -35,7 +35,7 @@
 #include "mediaInterface/IMediaSocket.h"
 
 // FORWARD DECLARATIONS
-class GipsVoiceEngineLib ;
+class VoiceEngine;
 
 //: VoiceEngineDatagramSocket creates a OsDatagramSocket and automatically initiates
 //: stun lookups and keep-alives.  
@@ -44,7 +44,7 @@ class VoiceEngineDatagramSocket : public IMediaSocket, public OsNatDatagramSocke
 private:
 /* ============================ CREATORS ================================== */
 
-    VoiceEngineDatagramSocket(GipsVoiceEngineLib* pVoiceEngine,
+    VoiceEngineDatagramSocket(VoiceEngine* pVoiceEngine,
                               GipsVideoEnginePlatform* pVideoEngine,
                               int type,
                               int remoteHostPort, 
@@ -99,7 +99,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-    GipsVoiceEngineLib* mpVoiceEngine ;
+    VoiceEngine* mpVoiceEngine ;
     GipsVideoEnginePlatform *mpVideoEngine ;
     int miType ;
     OsMutex mEnabledMutex;
