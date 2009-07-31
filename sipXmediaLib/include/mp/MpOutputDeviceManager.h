@@ -54,8 +54,7 @@ class OsNotification;
 *  
 *  The MpOutputDeviceManager uses MpAudioOutputConnection internally to
 *  map the association between MpOutputDeviceDriver and device ID.  The
-*  MpAudioInputConnection also maintains the mixer buffer when used in
-*  mixer mode.
+*  MpAudioInputConnection also maintains the mixer buffer.
 *
 *  @NOTE This class is intensionally NOT a singleton so that multiple
 *        instances can be created in support of multiple instances of the media
