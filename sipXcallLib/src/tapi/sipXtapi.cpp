@@ -5052,8 +5052,10 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
         {
             strcpy(pInst->micSetting.device, "NONE") ;
             status = pInterface->setMicrophoneDevice(pInst->micSetting.device) ;            
-            assert(status == OS_SUCCESS) ;
-            rc = SIPX_RESULT_SUCCESS ;
+            assert(status == OS_SUCCESS || status == OS_NOT_YET_IMPLEMENTED) ;
+            rc = (status==OS_SUCCESS) ? SIPX_RESULT_SUCCESS :
+                 (status==OS_NOT_YET_IMPLEMENTED) ? SIPX_RESULT_NOT_IMPLEMENTED :
+                 SIPX_RESULT_FAILURE;
         }
         else
         {
@@ -5071,7 +5073,9 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
                             // GIPS returns -1 on the call to set audio input device, no matter what
                             //assert(status == OS_SUCCESS) ;
                         }
-                        rc = SIPX_RESULT_SUCCESS ;
+                        rc = (status==OS_SUCCESS) ? SIPX_RESULT_SUCCESS :
+                             (status==OS_NOT_YET_IMPLEMENTED) ? SIPX_RESULT_NOT_IMPLEMENTED :
+                             SIPX_RESULT_FAILURE;
                         break ;
                     }
                 }
@@ -5208,12 +5212,12 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
 
         // Set the device if it changed and this is the active device group
         if ((pInst->enabledSpeaker == SPEAKER) && 
-                (oldDevice.compareTo(pInst->speakerSettings[SPEAKER].device) != 0))
+            (oldDevice.compareTo(pInst->speakerSettings[SPEAKER].device) != 0))
         {
-            if (pInterface->setSpeakerDevice(pInst->speakerSettings[SPEAKER].device) == OS_FAILED)
-            {
-                rc = SIPX_RESULT_FAILURE;
-            }
+            OsStatus status = pInterface->setSpeakerDevice(pInst->speakerSettings[SPEAKER].device);
+            rc = (status==OS_SUCCESS) ? SIPX_RESULT_SUCCESS :
+                 (status==OS_NOT_YET_IMPLEMENTED) ? SIPX_RESULT_NOT_IMPLEMENTED :
+                 SIPX_RESULT_FAILURE;
 
         }
     }
