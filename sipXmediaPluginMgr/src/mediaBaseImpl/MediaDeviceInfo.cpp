@@ -37,6 +37,10 @@
 MediaDeviceInfo::MediaDeviceInfo()
 {
     mType = MediaDeviceInfo::MDIT_UNKNOWN ;
+    mRequested.capacity(512) ;
+    mSelected.capacity(512) ; 
+    mParameters.capacity(512) ;
+    mErrors.capacity(512) ;    
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -95,8 +99,8 @@ void MediaDeviceInfo::reset()
 void MediaDeviceInfo::setRequested(const char* szRequested) 
 {
     if (szRequested)
-        mRequested = szRequested ;
-    else
+		mRequested = szRequested ;
+	else
         mRequested.remove(0) ;
 }
 
@@ -105,9 +109,9 @@ void MediaDeviceInfo::setRequested(const char* szRequested)
 void MediaDeviceInfo::setSelected(const char* szSelected) 
 {
     if (szSelected)
-        mSelected = szSelected ;
+		mSelected = szSelected ;
     else
-        mSelected.remove(0) ;
+		mSelected.remove(0) ;
 }
 
 //////////////////////////////////////////////////////////////////////////////
