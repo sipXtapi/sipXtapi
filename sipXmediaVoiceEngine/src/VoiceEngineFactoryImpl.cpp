@@ -197,6 +197,7 @@ void VoiceEngineFactoryImpl::initialize(OsConfigDb* pConfigDb,
     mpStaticVideoEngine = NULL ;
 
 	mpLogger = new VoiceEngineLogger() ;
+    mpVideoLogger = new VideoEngineLogger() ;
 
     mpMediaNetTask = CpMediaNetTask::createCpMediaNetTask() ;
     mpFactory = new VoiceEngineSocketFactory(this) ;
@@ -356,6 +357,8 @@ VoiceEngineFactoryImpl::~VoiceEngineFactoryImpl()
 
 	delete mpLogger;
 	mpLogger = NULL;
+    delete mpVideoLogger ;
+    mpLogger = NULL ;
 
     if (mpPreviewWindowDisplay)
     {
@@ -575,7 +578,7 @@ VoiceEngine* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
         // Initialize GIPS Debug Tracing
         if (getGipsTracing())
         {
-            rc = pVoiceEngine->getBase()->GIPSVE_SetObserver(*mpLogger, false) ;
+            rc = pVoiceEngine->getBase()->GIPSVE_SetObserver(*mpLogger, true) ;
             assert(rc == 0) ;
         }
 
@@ -734,8 +737,9 @@ GipsVideoEnginePlatform* VoiceEngineFactoryImpl::getNewVideoEngineInstance(Voice
 
         if (getGipsTracing())
         {
-            //rc = pVideoEngine->GIPSVideo_SetTraceCallback(VideoEngineLogCallback) ;
-            //assert(rc == 0) ;
+            pVideoEngine->GIPSVideo_SetTraceFilter(TR_WARNING) ;
+            rc = pVideoEngine->GIPSVideo_SetTraceCallback(mpVideoLogger) ;
+            assert(rc == 0) ;
         }
 
 #ifdef USE_GIPS_DLL
@@ -1689,10 +1693,11 @@ void VoiceEngineFactoryImpl::setGipsTracing(bool bEnable)
     {
         if (mpVoiceEngine)
             mpVoiceEngine->getBase()->GIPSVE_SetTraceFilter(TR_WARNING) ;
+
         if (mpVideoEngine)
         {
             mpVideoEngine->GIPSVideo_SetTraceFilter(TR_WARNING) ;
-//            mpVideoEngine->GIPSVideo_SetTraceCallback(VideoEngineLogCallback) ;
+            mpVideoEngine->GIPSVideo_SetTraceCallback(mpVideoLogger) ;
         }
     }
     else
@@ -2178,6 +2183,35 @@ void VoiceEngineLogger::CallbackOnTrace(char* message, int length)
 #ifdef GIPS_LOG_FLUSH
         OsSysLog::flush() ;
 #endif
+    }
+}
 
+
+VideoEngineLogger::VideoEngineLogger() 
+{
+
+}
+
+VideoEngineLogger::~VideoEngineLogger() 
+{
+
+}
+
+void VideoEngineLogger::Print(char *message, int length) 
+{
+    if (message != NULL)
+    {
+#ifdef ENCODE_GIPS_LOGS
+        UtlString encodedData ;        
+        NetBase64Codec::encode(nLength, pData, encodedData) ;
+        OsSysLog::add(FAC_VIDEOENGINE, PRI_DEBUG, encodedData.data()) ;
+#else
+        UtlString data(message, length) ;
+        OsSysLog::add(FAC_VIDEOENGINE, PRI_DEBUG, data.data()) ;
+#endif                      
+
+#ifdef GIPS_LOG_FLUSH
+        OsSysLog::flush() ;
+#endif
     }
 }

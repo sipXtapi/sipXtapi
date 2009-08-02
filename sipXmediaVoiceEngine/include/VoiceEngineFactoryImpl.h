@@ -66,6 +66,15 @@ public:
     virtual void CallbackOnTrace(char* message, int length) ;
 };
 
+class VideoEngineLogger : public GIPS_TraceCallback
+{
+public: 
+    VideoEngineLogger() ;
+    virtual ~VideoEngineLogger() ;
+
+    virtual void Print(char *traceString, int length) ;
+} ;
+
 
 /**
  *
@@ -326,6 +335,7 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPSVEMediaProces
 
     VoiceEngineSocketFactory* mpFactory ;
 	VoiceEngineLogger* mpLogger;
+    VideoEngineLogger* mpVideoLogger;
     mutable MediaDeviceInfo mAudioDeviceInput ;
     mutable MediaDeviceInfo mAudioDeviceOutput ;
 
