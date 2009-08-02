@@ -33,9 +33,9 @@ call stage_sipxtapi.bat
 call build_msvc71.bat sipx-mediaprocessing-msvc71
 call stage_sipxmedia.bat
 call build_bin_zip.bat 3_0_0_
-call build_src_zip.bat http://scm.sipfoundry.org/rep/sipX/branches/bandreasen-sipXtapi-AOL-merge/ 3_0_0_
+call build_src_zip.bat http://scm.sipfoundry.org/rep/sipX/branches/sipXtapi-AOL/ 3_0_0_
 
-IF NOT EXIST ..\..\..\contrib\gips\VoiceEngine\libraries\GIPSVoiceEngineMultimediaWindows_MT.lib GOTO DONE
+IF NOT EXIST ..\..\..\contrib\gips\VoiceEngine\libraries\GIPSVideoEngineWindows_MT.lib GOTO DONE
 call stage_gips_init.bat
 call build_msvc71.bat gips-mediaprocessing-msvc71
 call stage_gips.bat
