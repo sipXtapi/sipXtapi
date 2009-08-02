@@ -40,7 +40,6 @@ class ArsVoiceEngineReceiveAdapter
 protected:
     VoiceEngine*      mpVoiceEngine ;
     GipsVideoEnginePlatform* mpVideoEngine ;
-    OsMutex*                 mpGuard ;
        
 public:
     ArsVoiceEngineReceiveAdapter(SIPX_MEDIA_TYPE mediaType,

@@ -70,6 +70,7 @@ bool ArsVoiceEngineReceiveAdapter::handleData(char* pData, int len, int channel,
             OsLock lock(*mpGuard) ;
             switch (type)
             {
+                case ARS_PACKET_RTP:
                     mpVoiceEngine->getNetwork()->GIPSVE_ReceivedRTPPacket(channel, 
                              &pData[ARS_FRAME_TYPE_SIZE],
                              len-ARS_FRAME_TYPE_SIZE) ;
