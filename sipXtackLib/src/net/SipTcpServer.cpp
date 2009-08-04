@@ -13,6 +13,7 @@
 
 
 // SYSTEM INCLUDES
+#include <os/OsIntTypes.h>
 #include <assert.h>
 
 // APPLICATION INCLUDES

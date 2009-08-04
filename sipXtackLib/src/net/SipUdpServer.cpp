@@ -15,6 +15,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsIntTypes.h>
 #include <net/SipUdpServer.h>
 #include <net/SipUserAgent.h>
 #include <net/Url.h>
