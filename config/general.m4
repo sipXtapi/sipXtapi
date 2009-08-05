@@ -1321,10 +1321,14 @@ AC_DEFUN([CHECK_SPANDSP],
         ac_spandsp_g726valid=false
         
         if test -f "$includeval/spandsp/g722.h" -o -f "$includeval/spandsp/g726.h"; then
+
+            OLD_CFLAGS=$CFLAGS
+            OLD_LDFLAGS=$LDFLAGS
+            CFLAGS+=" -I$includeval"
+            LDFLAGS+=" -L$libval  -lspandsp"
+
             AC_TRY_COMPILE([
-                    #if HAVE_STDINT_H
                     #include <stdint.h>
-                    #endif
                     #include <spandsp/bitstream.h>
                     #include <spandsp/g722.h>
                     #include <spandsp/g726.h>
@@ -1336,11 +1340,18 @@ AC_DEFUN([CHECK_SPANDSP],
                 ac_libspandsp_newstyle=true,
                 ac_libspandsp_newstyle=false)
             
+                CFLAGS=$OLD_CFLAGS
+                LDFLAGS=$OLD_LDFLAGS
+
             if test "$ac_libspandsp_newstyle" = false; then
+
+                OLD_CFLAGS=$CFLAGS
+                OLD_LDFLAGS=$LDFLAGS
+                CFLAGS+=" -I$includeval"
+                LDFLAGS+=" -L$libval  -lspandsp"
+
                     AC_TRY_COMPILE([
-                        #if HAVE_STDINT_H
                         #include <stdint.h>
-                        #endif
                         #include <spandsp/g722.h>
                         #include <spandsp/g726.h>
                     ],[
@@ -1351,6 +1362,9 @@ AC_DEFUN([CHECK_SPANDSP],
                     ac_libspandsp_oldstyle=true,
                     ac_libspandsp_oldstyle=false)
                 
+                CFLAGS=$OLD_CFLAGS
+                LDFLAGS=$OLD_LDFLAGS
+
                 if test "$ac_libspandsp_oldstyle" = true; then
                     AC_DEFINE(HAVE_OLD_LIBSPANDSP, [1], [Have old version of libspandsp])
                     ac_spandsp_ok=true
@@ -1376,7 +1390,7 @@ AC_DEFUN([CHECK_SPANDSP],
             SPANDSP_LIBS="-lspandsp"
             SPANDSP_LDFLAGS="-L$libval"
         else
-            AC_MSG_RESULT(invalid version of spandsplib)
+            AC_MSG_ERROR(invalid version of spandsplib)
         fi
 
 
@@ -1399,9 +1413,7 @@ AC_DEFUN([CHECK_SPANDSP],
                 LDFLAGS+=" $SPANDSP_LDFLAGS $SPANDSP_LIBS"
                 
                 AC_TRY_RUN([
-                        #if HAVE_STDINT_H
                         #include <stdint.h>
-                        #endif
                         #include <spandsp/g722.h>
                         #include <spandsp/g726.h>
                         
