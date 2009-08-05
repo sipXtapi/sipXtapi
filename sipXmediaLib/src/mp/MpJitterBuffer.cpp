@@ -28,7 +28,7 @@
 
 // MACROS
 //#define RTL_ENABLED
-//#define RTL_AUDIO_ENABLED
+#undef RTL_AUDIO_ENABLED
 #ifndef EXTERNAL_PLC // [ 
 #  define ENABLE_NON_PLC_ADJUSTMENT
 #endif // !EXTERNAL_PLC ] 
@@ -232,15 +232,15 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    }
    if (rtpPacket.isValid() || decoder->getInfo()->haveInternalPLC())
    {
-      // TODO:: For now we do not support samplerate change in the middle
-      //        of a stream.
-      assert(mStreamSampleRate == decoder->getInfo()->getSampleRate());
-
       // Decode packet to temporary resample and slice buffer.
       decodedSamples = decoder->decode(rtpPacket, DECODED_DATA_MAX_LENGTH,
                                        mDecodedData);
       if (decodedSamples > 0)
       {
+         // TODO:: For now we do not support samplerate change in the middle
+         //        of a stream.
+         assert(mStreamSampleRate == decoder->getInfo()->getSampleRate());
+
          // Usual audio packet have been decoded, life is fine
          mSamplesPerPacket = decodedSamples;
 #ifdef RTL_AUDIO_ENABLED
