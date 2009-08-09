@@ -387,6 +387,9 @@ SdpCodec::SdpCodec(int payloadFormat,
          case SDP_VIDEO_FORMAT_QVGA:
             setValue(SDP_CODEC_VP71_QVGA);
             break;
+         case SDP_VIDEO_FORMAT_VGA:
+            setValue(SDP_CODEC_VP71_VGA);
+            break;
          default:
             setValue(SDP_CODEC_VP71_CIF);
             break;
@@ -570,6 +573,9 @@ void SdpCodec::setVideoFmtpString(int videoFmtp)
       break;
    case SDP_VIDEO_FORMAT_QVGA:
       mVideoFmtpString.append("QVGA/");
+      break;
+   case SDP_VIDEO_FORMAT_VGA:
+      mVideoFmtpString.append("VGA/");
       break;
    default:
       break;

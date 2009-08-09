@@ -138,6 +138,7 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_VP71_QCIF,       "VP71-QCIF" },
    { SdpCodec::SDP_CODEC_VP71_SQCIF,      "VP71-SQCIF" },
    { SdpCodec::SDP_CODEC_VP71_QVGA,       "VP71-QVGA" },
+   { SdpCodec::SDP_CODEC_VP71_VGA,        "VP71-VGA" },
    { SdpCodec::SDP_CODEC_IYUV_CIF,        "IYUV-CIF" },
    { SdpCodec::SDP_CODEC_IYUV_QCIF,       "IYUV-QCIF" },
    { SdpCodec::SDP_CODEC_IYUV_SQCIF,      "IYUV-SQCIF" },
@@ -754,6 +755,22 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          SdpCodec::SDP_CODEC_CPU_LOW,
                          SDP_CODEC_BANDWIDTH_NORMAL,
                          SDP_VIDEO_FORMAT_QVGA);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_VP71_VGA:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_VP71_VGA,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_VP71,
+                         90000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_NORMAL,
+                         SDP_VIDEO_FORMAT_VGA);
       }
       break;
 
