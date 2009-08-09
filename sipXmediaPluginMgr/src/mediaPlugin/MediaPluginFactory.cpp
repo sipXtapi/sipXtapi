@@ -105,6 +105,8 @@ IMediaDeviceMgr* const MediaPluginFactory::createMediaDeviceMgr(const char* szLi
         if (pFactoryFunc)
         {
             pDeviceMgr = pFactoryFunc();
+            if (pDeviceMgr)
+                pDeviceMgr->setSysLogHandler(OsSysLog::pluginSysLogHandler) ;
         }
     }
     return pDeviceMgr;

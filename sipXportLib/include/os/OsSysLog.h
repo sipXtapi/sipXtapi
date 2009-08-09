@@ -113,6 +113,17 @@ typedef void (*OsSysLogCallback)(const char* szPriority,
                                  const char* szSource,
                                  const char* szMsg);
 
+// Signature for a callback function that pushed logging off to another
+// entity.  This differs from the callback in a few ways:
+//   - Assumes the handler makes the decision of whether to log or not 
+//     (priority/facility)
+//   - Is send to teh handler on the invoking thread context (isn't 
+//     queued and dispatched on another thread context)
+typedef void (*OsSysLogHandler)(const char*            taskName,
+                                const int              taskId,
+                                const OsSysLogFacility facility,
+                                const OsSysLogPriority priority,
+                                const char*            szMsg);
 
 // FORWARD DECLARATIONS
 class OsSysLogTask;
@@ -200,6 +211,9 @@ public:
    static const char* sFacilityNames[] ;
      //:List of Facility Names orders in the same order as OsSysLogFacility.
 
+   static OsSysLogHandler spSysLogHandler ;
+     //:External log handler
+
    enum OsSysLogOptions
    {
         OPT_NONE           = 0x00000000,     // No Options
@@ -244,6 +258,9 @@ public:
      //!param options - This parameter defines instance specific options.  See
      //       the OsSysLogOptions enum defined above for valid settings.
 
+   static OsStatus initialize(OsSysLogHandler pHandler) ;
+     //:Initialize the sys log facility with an external handler
+
    static OsStatus shutdown() ;
      //:Shutdown the OsSysLog task
 
@@ -266,6 +283,9 @@ public:
      //!param pCallback - Pointer to a callback function that takes three
      //                   strings as parameters: Logging priority, source
      //                   of log entry, and the entry itself
+
+   static OsStatus setLogHandler(OsSysLogHandler pHandler);
+     //: Set a callback handler for SysLog
 
    static OsStatus addOutputSocket(const char* remoteHost);
      //:Add an output socket to the list of output targets.
@@ -383,6 +403,12 @@ public:
            const char* logname,
            const char* loglevel);
    // Initialize the OsSysLog priority
+
+   static void pluginSysLogHandler(const char*            taskName,
+                                   const int              taskId,
+                                   const OsSysLogFacility facility,
+                                   const OsSysLogPriority priority,
+                                   const char*            szMsg);
 
 /* ============================ ACCESSORS ================================= */
 

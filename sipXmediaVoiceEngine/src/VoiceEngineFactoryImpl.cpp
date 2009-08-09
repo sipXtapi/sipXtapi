@@ -182,7 +182,7 @@ void VoiceEngineFactoryImpl::initialize(OsConfigDb* pConfigDb,
                          uint32_t maxSamplesPerSec,
                          uint32_t defaultSamplesPerSec)
 {
-        UtlString strOOBBandDTMF ;
+    UtlString strOOBBandDTMF ;
     mbCreateLocalConnection = true ;
     mVideoFormat = 0 ;
     mbDTMFOutOfBand = TRUE;
@@ -326,6 +326,11 @@ void VoiceEngineFactoryImpl::initialize(OsConfigDb* pConfigDb,
 
     }
 #endif
+}
+
+void VoiceEngineFactoryImpl::setSysLogHandler(OsSysLogHandler sysLogHandler) 
+{
+    OsSysLog::initialize(sysLogHandler) ;
 }
 
 void VoiceEngineFactoryImpl::destroy()
@@ -578,7 +583,9 @@ VoiceEngine* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
         // Initialize GIPS Debug Tracing
         if (getGipsTracing())
         {
-            rc = pVoiceEngine->getBase()->GIPSVE_SetObserver(*mpLogger, true) ;
+            rc = pVoiceEngine->getBase()->GIPSVE_SetObserver(*mpLogger, false) ;
+            assert(rc == 0) ;
+            rc = pVoiceEngine->getBase()->GIPSVE_SetTraceFilter(0x00FF) ;   // All non-encrypted info
             assert(rc == 0) ;
         }
 
@@ -737,7 +744,7 @@ GipsVideoEnginePlatform* VoiceEngineFactoryImpl::getNewVideoEngineInstance(Voice
 
         if (getGipsTracing())
         {
-            pVideoEngine->GIPSVideo_SetTraceFilter(TR_WARNING) ;
+            pVideoEngine->GIPSVideo_SetTraceFilter(0x00FF) ;   // All non-encrypted info
             rc = pVideoEngine->GIPSVideo_SetTraceCallback(mpVideoLogger) ;
             assert(rc == 0) ;
         }
@@ -1692,12 +1699,15 @@ void VoiceEngineFactoryImpl::setGipsTracing(bool bEnable)
     if (mTrace)
     {
         if (mpVoiceEngine)
-            mpVoiceEngine->getBase()->GIPSVE_SetTraceFilter(TR_WARNING) ;
+        {
+            mpVoiceEngine->getBase()->GIPSVE_SetObserver(*mpLogger, true) ;
+            mpVoiceEngine->getBase()->GIPSVE_SetTraceFilter(0x00FF) ;   // All non-encrypted info
+        }
 
         if (mpVideoEngine)
         {
-            mpVideoEngine->GIPSVideo_SetTraceFilter(TR_WARNING) ;
             mpVideoEngine->GIPSVideo_SetTraceCallback(mpVideoLogger) ;
+            mpVideoEngine->GIPSVideo_SetTraceFilter(0x00FF) ;   // All non-encrypted info
         }
     }
     else

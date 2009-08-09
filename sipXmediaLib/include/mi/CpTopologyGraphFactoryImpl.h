@@ -85,6 +85,8 @@ public:
                                uint32_t defaultDeviceSamplesPerSec);
       /// @brief Factory method to construct new flowgraph and media interface
       /// using CpTopologyFlowgraph.
+
+    virtual void setSysLogHandler(OsSysLogHandler sysLogHandler) ;
     virtual void destroy();
     OsMutex* getLock();
     virtual

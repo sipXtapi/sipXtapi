@@ -80,6 +80,7 @@ OsSysLogPriority OsSysLog::spPriorities[FAC_MAX_FACILITY] ;
 // Initial logging level is PRI_ERR.
 OsSysLogPriority OsSysLog::sLoggingPriority = PRI_ERR ;
 UtlBoolean OsSysLog::bPrioritiesInitialized = FALSE ;
+OsSysLogHandler OsSysLog::spSysLogHandler = NULL ;
 
 // A static array of priority names uses for displaying log entries
 const char* OsSysLog::sPriorityNames[] =
@@ -126,6 +127,20 @@ OsStatus OsSysLog::initialize(const int   maxInMemoryLogEntries,
 
    return rc ;   
 }
+
+OsStatus OsSysLog::initialize(OsSysLogHandler pHandler)
+{
+    OsStatus rc = OS_SUCCESS ;
+
+    if (spOsSysLogTask == NULL)
+    {
+        rc = shutdown() ;
+    }
+
+    setLogHandler(pHandler) ;
+
+    return rc ;
+}
      
 // Shutdown log
 OsStatus OsSysLog::shutdown()
@@ -146,7 +161,10 @@ OsStatus OsSysLog::shutdown()
      
 OsTimer* OsSysLog::getTimer()
 {
-    return spOsSysLogTask->getTimer();
+    if (spOsSysLogTask)
+        return spOsSysLogTask->getTimer();
+    else
+        return NULL ;
 }
 
 // Set the output file target
@@ -193,6 +211,14 @@ OsStatus OsSysLog::setCallbackFunction(OsSysLogCallback pCallback)
    }
 
    return rc;
+}
+
+
+OsStatus OsSysLog::setLogHandler(OsSysLogHandler pHandler)
+{
+    spSysLogHandler = pHandler ;
+
+    return OS_SUCCESS ;
 }
 
 
@@ -285,7 +311,7 @@ OsStatus OsSysLog::add(const char*            taskName,
                        const char*            format,
                                               ...)
 {
-   OsStatus rc = OS_UNSPECIFIED;
+   OsStatus rc = OS_SUCCESS;
 
    // If the log has not been initialized, print everything
    if (spOsSysLogTask == NULL)
@@ -298,15 +324,22 @@ OsStatus OsSysLog::add(const char*            taskName,
       data = escape(data) ;
       va_end(ap);
 
-      // Display all of the data
-      osPrintf("%s %s %s 0x%08X %s\n", 
-            OsSysLog::sFacilityNames[facility], 
-            OsSysLog::sPriorityNames[priority],
-            (taskName == NULL) ? "" : taskName, 
-            taskId,
-            data.data()) ;
+      // Forward to handle if appropriate
+      if (spSysLogHandler != NULL)
+      {
+          spSysLogHandler(taskName, taskId, facility, priority, data.data()) ;
 
-      rc = OS_SUCCESS ;
+      }
+      else
+      {
+        // Display all of the data
+        osPrintf("%s %s %s 0x%08X %s\n", 
+                OsSysLog::sFacilityNames[facility], 
+                OsSysLog::sPriorityNames[priority],
+                (taskName == NULL) ? "" : taskName, 
+                taskId,
+                data.data()) ;        
+      }      
    }
    // Otherwise make sure we want to handle the log entry before we process
    // the variable arguments.
@@ -330,7 +363,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
                        const char*            format,
                                               ...)
 {
-   OsStatus rc = OS_UNSPECIFIED;
+   OsStatus rc = OS_SUCCESS ;
 
    // If the log has not been initialized, print everything
    if (spOsSysLogTask != NULL)
@@ -354,8 +387,29 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
          va_end(ap);
       }  
    }
+   else if (spSysLogHandler != NULL)
+   {
+      UtlString taskName ;
+      int      taskId = 0 ;
+
+      // Convert the variable arguments into a single string
+      UtlString data ;
+      va_list ap;
+      va_start(ap, format); 
+      myvsprintf(data, format, ap) ;
+      data = escape(data) ;
+      va_end(ap);
+
+      OsTaskBase* pBase = OsTask::getCurrentTask() ;
+      if (pBase != NULL)
+      {
+         taskName = pBase->getName() ;
+         pBase->id(taskId) ;
+      }
+      spSysLogHandler(taskName, taskId, facility, priority, data.data()) ;
+   }
    else
-      rc = OS_SUCCESS ;
+      rc = OS_UNSPECIFIED ;
 
    return rc;
 }
@@ -423,6 +477,14 @@ OsStatus OsSysLog::vadd(const char*            taskName,
               }
           }
        }
+   }
+   else if (spSysLogHandler != NULL)
+   {
+      // Convert the variable arguments into a single string
+      UtlString data ;
+      myvsprintf(data, format, ap) ;
+      data = escape(data) ;
+      spSysLogHandler(taskName, taskId, facility, priority, data.data()) ;
    }
 
    return OS_SUCCESS ;
@@ -503,6 +565,16 @@ OsSysLog::initSysLog(const OsSysLogFacility facility,
       }
    }
 
+}
+
+
+void OsSysLog::pluginSysLogHandler(const char*            taskName,
+                                   const int              taskId,
+                                   const OsSysLogFacility facility,
+                                   const OsSysLogPriority priority,
+                                   const char*            szMsg)
+{
+  add(taskName, taskId, facility, priority, szMsg) ;
 }
 
 /* ============================ ACCESSORS ================================= */

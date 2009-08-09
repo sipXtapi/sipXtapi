@@ -238,6 +238,13 @@ void CpTopologyGraphFactoryImpl::initialize(
     mpConnectionResourceTopology = buildDefaultIncrementalResourceTopology();
 }
 
+
+void CpTopologyGraphFactoryImpl::setSysLogHandler(OsSysLogHandler sysLogHandler) 
+{
+    OsSysLog::initialize(sysLogHandler) ;
+}
+
+
 OsMutex* CpTopologyGraphFactoryImpl::getLock()
 {
     return &sLock;

@@ -84,6 +84,8 @@ public:
                          uint32_t maxSamplesPerSec = 0,
                          uint32_t defaultSamplesPerSec = 0) = 0;
 
+    virtual void setSysLogHandler(OsSysLogHandler sysLogHandler) = 0 ;
+
     virtual void destroy() = 0;
     virtual OsMutex* getLock() = 0;
     virtual void freeDeviceList(char* deviceList[]) = 0;

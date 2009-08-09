@@ -103,6 +103,8 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPSVEMediaProces
                          uint32_t maxSamplesPerSec = 0,
                          uint32_t defaultSamplesPerSec = 0);
 
+    virtual void setSysLogHandler(OsSysLogHandler sysLogHandler) ;
+
     virtual void destroy();
 
 /* ============================ MANIPULATORS ============================== */
@@ -135,7 +137,7 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPSVEMediaProces
 
     // Get either the global or one of the instance-versions of VoiceEngine
     VoiceEngine* getAnyVoiceEngine() const ;
-    GipsVideoEnginePlatform* getAnyVideoEngine() const ;
+    GipsVideoEnginePlatform* getAnyVideoEngine() const ;    
 
     virtual OsStatus enableSpeakerVolumeAdjustment(bool bEnable) ;
 
