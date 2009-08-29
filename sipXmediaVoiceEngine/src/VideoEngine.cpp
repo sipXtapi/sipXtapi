@@ -101,7 +101,7 @@ void VideoEngine::setGipsVideoEngine(GipsVideoEnginePlatform* pVideoEngine)
 
 #ifdef _WIN32
     if (mpVideoEngine != NULL && mhNoCameraBitmap != NULL)
-        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap) ;
+        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap, 1000) ;
 #endif
 
 }
@@ -611,7 +611,7 @@ void VideoEngine::setBitmaps(HBITMAP hNoCamera, HBITMAP hConnecting)
     }
     mhConnectingBitmap = hConnecting ;
     if (mpVideoEngine != NULL)
-        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap) ;
+        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap, 1000) ;
 
 }
 #endif
