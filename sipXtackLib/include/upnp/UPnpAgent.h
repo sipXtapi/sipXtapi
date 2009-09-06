@@ -31,6 +31,7 @@
 #include "upnp/UPnpService.h"
 #include "upnp/UPnpControl.h"
 #include "os/OsRWMutex.h"
+#include "os/OsTask.h"
 #include "utl/UtlString.h"
 #include "tapi/sipXtapi.h"
 
@@ -45,6 +46,46 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class UPnpBindingTask;
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Interface class defining a UPnp status callback method.
+ */
+class IUPnpNotifier
+{
+public: 
+    virtual void notifyUpnpStatus(bool bSuccess) = 0;
+};
+
+/**
+ * The UPnpBindingTask performs a port binding via Udp, in the background.
+ * A mehtod on the IUPnpNotifier object is invoked indicate success / failure of the binding.  
+ */
+class UPnpBindingTask : public OsTask
+{
+public:
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+/* ============================ CREATORS ================================== */
+   UPnpBindingTask(UtlString sBoundIp,
+                   const int port,
+                   IUPnpNotifier* const pNotifier);
+    virtual ~UPnpBindingTask();
+/* ============================ MANIPULATORS ============================== */
+/* ============================ ACCESSORS ================================= */
+/* ============================ INQUIRY =================================== */
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+    virtual int run(void* pArg);
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+    UtlString m_sBoundIp;
+    const int m_iPort;
+    IUPnpNotifier* m_pNotifier;
+};
+
 
 //////////////////////////////////////////////////////////////////////////////
 class UPnpAgent
@@ -66,8 +107,13 @@ public:
         const int internalPort);
     void setEnabled(const bool enabled);
     bool isEnabled();
+    void setAvailable(const bool available);
+    bool isAvailable();
+    
     void setTimeoutSeconds(const int timeoutSeconds);
     int getTimeoutSeconds();
+    void setRetries(const int numRetries);
+    int getRetries();
     SIPX_RESULT getLastResults(char* szInternalAddress,
                                const size_t internalAddressSize,
                                int& internalPort,
@@ -80,12 +126,13 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     UPnpAgent();
-    void initialize();
+    bool initialize();
     int loadPortSetting(const char* szClientAddress, const int internalPort) const;
     void savePortSetting(const char* szClientAddress, const int internalPort, const int externalPort) const;
     void setLastStatus(const char* szInternalAddress,
                        const int nInternalPort,
                        const int nExternalPort) const;
+    const UtlString getAdapterStateDigest() const;                       
     static UPnpAgent* mpInstance;
     static OsRWMutex* spMutex;
     UPnpDiscovery* mpDiscovery;

@@ -34,6 +34,8 @@
 #include <net/ProxyDescriptor.h>
 #include <utl/UtlSList.h>
 #include <os/OsRWMutex.h>
+#include <upnp/UPnpAgent.h>
+
 
 // DEFINES
 // MACROS
@@ -66,7 +68,7 @@ class OsTimer;
  * the SipUserAgent itself pays attention to rport results and notifies 
  * the OsNatAgentTask of local ip -> remote IP NAT bindings.
  */
-class SipUdpServer : public SipProtocolServerBase
+class SipUdpServer : public SipProtocolServerBase, public IUPnpNotifier
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -188,6 +190,7 @@ private:
     ProxyDescriptor mStunServer ;
     UtlSList mSipKeepAliveBindings ;
     OsRWMutex mKeepAliveMutex ;
+    UPnpBindingTask* m_pBackgroundUPnpBindingTask;
 
     OsStatus createServerSocket(const char* localIp,
                                  int& localPort,

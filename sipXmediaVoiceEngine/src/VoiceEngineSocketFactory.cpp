@@ -85,12 +85,24 @@ VoiceEngineSocketFactory::getUdpSocket(VoiceEngine* pVoice,
     // Add to NetInTask
     if (pSocket)
     {
-        int iUpnpPort = UPnpAgent::getInstance()->bindToAvailablePort(localHost, port, UPnpAgent::getInstance()->getTimeoutSeconds());
-        if (iUpnpPort > 0)
-        {
-            pSocket->setUpnpMappedPort(iUpnpPort) ;
-        }
 
+        if (UPnpAgent::getInstance()->isEnabled())
+        {
+            if (!UPnpAgent::getInstance()->isAvailable())
+            {
+                // if Upnp has been marked as not available,
+                // i.e. - it previously (with the current network configuration)
+                // failed, so do not try
+            }
+            else
+            {
+                int iUpnpPort = UPnpAgent::getInstance()->bindToAvailablePort(localHost, port, UPnpAgent::getInstance()->getTimeoutSeconds());
+                if (iUpnpPort > 0)
+                {
+                    pSocket->setUpnpMappedPort(iUpnpPort) ;
+                }
+            }            
+        }
         pSocket->setTransparentStunRead(false);
         if (mpNetTask)
             mpNetTask->addInputSource(getMediaSocketPtr(pSocket)) ;
@@ -257,4 +269,5 @@ printf("VoiceEngineSocketFactory::releaseArsSocket 0x%08X\n", pSocket) ;
         delete pSocket ;
     }
 }
+
 

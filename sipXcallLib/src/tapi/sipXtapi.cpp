@@ -395,8 +395,6 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
         szBindToAddr = "0.0.0.0" ;
     }
 
-    UPnpAgent::getInstance()->setEnabled(false);
-    
     // Bind the SIP user agent to a port and start it up
     pInst->pSipUserAgent = new SipUserAgent(
             tcpPort,                    // sipTcpPort

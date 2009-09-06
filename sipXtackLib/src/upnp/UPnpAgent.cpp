@@ -32,6 +32,8 @@
 #include "tapi/sipXtapiEvents.h"
 #include "os/OsWriteLock.h"
 #include "net/TapiMgr.h"
+#include "utl/UtlCrc32.h"
+#include "os/OsRegistry.h"
 
 
 // EXTERNAL FUNCTIONS
@@ -42,6 +44,7 @@ UPnpAgent* UPnpAgent::mpInstance = NULL;
 OsRWMutex* UPnpAgent::spMutex = new OsRWMutex(OsRWMutex::Q_PRIORITY);
 #ifndef _WIN32
 bool s_bEnabled = true ;
+bool s_bAvailable = true ;
 int s_iTimeoutSecs = 10 ;
 #endif
 // MACROS
@@ -79,7 +82,6 @@ UPnpAgent* UPnpAgent::getInstance()
 
 void UPnpAgent::release()
 {
-    mpInstance->setEnabled(true);
     OsWriteLock lock(*spMutex);
     delete mpInstance;
     mpInstance = NULL;
@@ -190,7 +192,7 @@ int UPnpAgent::bindToAvailablePort(const char* szClientAddress,
                                    const int internalPort,
                                    const int maxRetries)
 {
-    OsSysLog::add(FAC_SIP, PRI_INFO, "UPnpAgent::bindToAvailablePort begin - %s:%d (internal)\n", 
+    OsSysLog::add(FAC_NAT, PRI_DEBUG, "UPnpAgent::bindToAvailablePort begin - %s:%d (internal)\n", 
                   szClientAddress, internalPort);
     OsTime now;
     OsTime start;
@@ -200,15 +202,23 @@ int UPnpAgent::bindToAvailablePort(const char* szClientAddress,
     int previouslyUsedPort = -1;
     if (isEnabled() == false)
     {
+        OsSysLog::add(FAC_NAT, PRI_INFO,
+            "UPnpAgent::bindToAvailablePort - aborting because uPNP is disabled");
         return -1;
     }
     previouslyUsedPort = loadPortSetting(szClientAddress, internalPort);
+    
+    bool bInitialized = false;
     if (NULL == mpDiscovery)
     {
-        initialize();
+        bInitialized = initialize();
+    }
+    else
+    {
+       bInitialized = true;
     }
 
-    if (mpControl && previouslyUsedPort != -1)
+    if (bInitialized && mpControl && previouslyUsedPort != -1)
     {
         mpControl->deletePortMapping(previouslyUsedPort, 
             getTimeoutSeconds());
@@ -222,8 +232,8 @@ int UPnpAgent::bindToAvailablePort(const char* szClientAddress,
 
             OsDateTime::getCurTime(now);
             OsTime diff = now - start;
-            OsSysLog::add(FAC_SIP, PRI_INFO,
-                "UPnpAgent::bindToAvailablePort end - %s:%d (internal), external port = %d, total time(msecs) = %d\n", 
+            OsSysLog::add(FAC_NAT, PRI_INFO,
+                "UPnpAgent::bindToAvailablePort success - %s:%d (internal), external port = %d, total time(msecs) = %d\n", 
                         szClientAddress,
                         internalPort,
                         boundPort,
@@ -231,10 +241,14 @@ int UPnpAgent::bindToAvailablePort(const char* szClientAddress,
             setLastStatus(szClientAddress, internalPort, boundPort);
             return boundPort;
         }
+        else
+        {
+        
+        }
     }
 
     int i = 0;
-    while (mpControl && boundPort == -1 && i < maxRetries)
+    while (bInitialized && mpControl && boundPort == -1 && i < maxRetries)
     {
         mpControl->addRandomPortMapping(boundPort,
             internalPort,
@@ -242,25 +256,34 @@ int UPnpAgent::bindToAvailablePort(const char* szClientAddress,
             getTimeoutSeconds());
         i++;
     }
+    OsDateTime::getCurTime(now);
+    OsTime diff = now - start;
     if (boundPort != -1)
     {
         savePortSetting(szClientAddress, internalPort, boundPort);
+        setLastStatus(szClientAddress, internalPort, boundPort);
+
+        OsDateTime::getCurTime(now);
+        OsTime diff = now - start;
+        OsSysLog::add(FAC_NAT, PRI_INFO,
+            "UPnpAgent::bindToAvailablePort success - %s:%d (internal), external port = %d, total time(msecs) = %d\n", 
+                    szClientAddress,
+                    internalPort,
+                    boundPort,
+                    diff.cvtToMsecs());
+        return boundPort;
     }
     else
     {
+        OsSysLog::add(FAC_NAT, PRI_INFO,
+            "UPnpAgent::bindToAvailablePort failed - %s:%d (internal), external port = %d, total time(msecs) = %d\n", 
+                    szClientAddress,
+                    internalPort,
+                    boundPort,
+                    diff.cvtToMsecs());
+        setLastStatus(szClientAddress, internalPort, boundPort);
+        return boundPort;
     }
-
-    setLastStatus(szClientAddress, internalPort, boundPort);
-
-    OsDateTime::getCurTime(now);
-    OsTime diff = now - start;
-    OsSysLog::add(FAC_SIP, PRI_INFO,
-        "UPnpAgent::bindToAvailablePort end - %s:%d (internal), external port = %d, total time(msecs) = %d\n", 
-                szClientAddress,
-                internalPort,
-                boundPort,
-                diff.cvtToMsecs());
-    return boundPort;
 }
 
 void UPnpAgent::removeBinding(const char* szClientIp,
@@ -279,8 +302,9 @@ void UPnpAgent::removeBinding(const char* szClientIp,
     }
 }
 
-void UPnpAgent::initialize()
+bool UPnpAgent::initialize()
 {
+    bool bSuccess = false;
     if (!mpDiscovery)
     {
         mpDiscovery = new UPnpDiscovery(getTimeoutSeconds() * 1000);
@@ -288,26 +312,46 @@ void UPnpAgent::initialize()
         if (mpLocation->length() > 0)
         {
             mpService = new UPnpService(Url(mpLocation->data(), true), UPnpService::WANIPConnection);
+            
+            if (mpService->initialize())
+            {
+                // create control url based on the WANIPConnection location
+                Url controlUrl(mpService->getControlUrl(), true);
 
-            // create control url based on the WANIPConnection location
-            Url controlUrl(mpService->getControlUrl(), true);
-
-            // create a UPnpControl for the controlURL
-            mpControl = new UPnpControl(controlUrl);
+                // create a UPnpControl for the controlURL
+                mpControl = new UPnpControl(controlUrl);
+                bSuccess = true;
+            }
+            else
+            {
+                delete mpService;
+                mpService = NULL;
+                delete mpDiscovery;
+                mpDiscovery = NULL;
+                OsSysLog::add(FAC_NAT, PRI_INFO,
+                    "UPnpAgent::initialize - Failed to initialize - service could not initialize.\n");
+                setAvailable(false);
+            }
         }
         else
         {
-            setEnabled(false);
+            delete mpDiscovery;
+            mpDiscovery = false;
+            OsSysLog::add(FAC_NAT, PRI_INFO,
+                "UPnpAgent::initialize - Failed to initialize - no WANIPConnection location found.\n");
+            setAvailable(false);
         }
     }
+    return bSuccess;
 }
 
-void UPnpAgent::setEnabled(const bool enabled)
+void UPnpAgent::setEnabled(const bool bEnabled)
 {
 #ifdef _WIN32
    HKEY hKey;
-   const char *strKey = "Enabled";
-
+   
+   UtlString key = "Enabled";
+      
    DWORD err = RegOpenKeyEx(
               HKEY_LOCAL_MACHINE,   // handle to open key
               WIN32_UPNP_REG_PATH,  // subkey name
@@ -329,11 +373,11 @@ void UPnpAgent::setEnabled(const bool enabled)
             &hKey,
             &dwDisposition);
     }
-    DWORD dwValue = enabled ? 1 : 0;
+    DWORD dwValue = bEnabled ? 1 : 0;
     if (err == ERROR_SUCCESS)
     {
         RegSetValueEx(hKey,
-            strKey,
+            key,
             0,
             REG_DWORD,
             (const BYTE*)&dwValue,
@@ -341,146 +385,94 @@ void UPnpAgent::setEnabled(const bool enabled)
     }
    RegCloseKey(hKey);
 #else
-    s_bEnabled = enabled ;
+    s_bEnabled = bEnabled ;
 #endif
 }
 
 bool UPnpAgent::isEnabled()
 {
-   bool enabled = true;
-#ifdef _WIN32
-   const char* strKey = "Enabled";
-   HKEY hKey;
-   DWORD    cbData;
-   DWORD    dataType;
-   DWORD    dwValue;
+   bool bEnabled = true;
    
-   DWORD err = RegOpenKeyEx(
-              HKEY_LOCAL_MACHINE,   // handle to open key
-              WIN32_UPNP_REG_PATH,  // subkey name
-              0,                    // reserved
-              KEY_READ,             // security access mask
-              &hKey                 // handle to open key
-              );
-
-   if (err == ERROR_SUCCESS)
+   OsRegistry reg;
+   int value = 0;
+   if (reg.readInteger(WIN32_UPNP_REG_PATH, "Enabled", value))
    {
-      cbData = sizeof(DWORD);
-      dataType = REG_DWORD;
-      
-      err = RegQueryValueEx(
-                  hKey,                      // handle to key
-                  strKey,                    // value name
-                  0,                         // reserved
-                  &dataType,                 // type buffer
-                  (LPBYTE)&dwValue,          // data buffer
-                  &cbData);                  // size of data buffer
-
-      if (err == ERROR_SUCCESS)
-      {
-          if (dwValue == 1)
-            enabled = true;
-          else
-            enabled = false;
-      }
-
-      RegCloseKey(hKey);
+      bEnabled = (value > 0);
    }
-#else
-    enabled = s_bEnabled ;
-#endif
-   return enabled;
+   return bEnabled;
+}
+
+void UPnpAgent::setAvailable(const bool bAvailable)
+{
+   
+   // the registry entry will be keyed by a digest of a string
+   // representing the current adapter info (ip, apdapter name, gateway ip, dns list -
+   //                                             for all of the adapters)
+   UtlString keyDigest = getAdapterStateDigest();
+      
+   OsRegistry reg;
+   reg.writeInteger(WIN32_UPNP_REG_PATH, keyDigest, (int) bAvailable);
+}
+
+bool UPnpAgent::isAvailable()
+{
+   bool bAvailable = true;  // if we don't know, assume it is available -
+                            // so that we will try to bind a port
+   
+   UtlString keyDigest = getAdapterStateDigest();
+   int value = 0;
+   OsRegistry reg;
+   if (reg.readInteger(WIN32_UPNP_REG_PATH, keyDigest, value))
+   {
+      bAvailable = (value > 0);
+   }
+   else
+   {
+      // do nothing
+      // bAvailable is true
+   }
+      
+   return bAvailable;
 }
 
 
 void UPnpAgent::setTimeoutSeconds(const int timeoutSeconds)
 {
-#ifdef WIN32
-   HKEY hKey;
-   const char *strKey = "Timeout";
-
-   DWORD err = RegOpenKeyEx(
-              HKEY_LOCAL_MACHINE,   // handle to open key
-              WIN32_UPNP_REG_PATH,  // subkey name
-              0,                    // reserved
-              KEY_WRITE,            // security access mask
-              &hKey                 // handle to open key
-              );
-
-    DWORD dwDisposition = NULL;
-    if (err != ERROR_SUCCESS)
-    {
-        err = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
-            WIN32_UPNP_REG_PATH, 
-            0,
-            NULL, 
-            REG_OPTION_NON_VOLATILE, 
-            KEY_ALL_ACCESS,
-            NULL,
-            &hKey,
-            &dwDisposition);
-    }
-    DWORD dwValue = timeoutSeconds;
-    if (err == ERROR_SUCCESS)
-    {
-        RegSetValueEx(hKey,
-            strKey,
-            0,
-            REG_DWORD,
-            (const BYTE*)&dwValue,
-            sizeof(&dwValue));
-    }
-   RegCloseKey(hKey);
-#else
-    s_iTimeoutSecs = timeoutSeconds ;
-#endif
+   const char* strKey = "Timeout";
+   
+   OsRegistry reg;
+   reg.writeInteger(WIN32_UPNP_REG_PATH, strKey, timeoutSeconds);
 }
 
 
 int UPnpAgent::getTimeoutSeconds()
 {
-   int timeoutSeconds = 10 ;
+   int timeoutSeconds = 10;
 
-#ifdef _WIN32
    const char* strKey = "Timeout";
-   HKEY hKey;
-   DWORD    cbData;
-   DWORD    dataType;
-   DWORD    dwValue;
-
+   OsRegistry reg;
+   reg.readInteger(WIN32_UPNP_REG_PATH, strKey, timeoutSeconds);
    
-   DWORD err = RegOpenKeyEx(
-              HKEY_LOCAL_MACHINE,   // handle to open key
-              WIN32_UPNP_REG_PATH,  // subkey name
-              0,                    // reserved
-              KEY_READ,             // security access mask
-              &hKey                 // handle to open key
-              );
-
-   if (err == ERROR_SUCCESS)
-   {
-      cbData = sizeof(DWORD);
-      dataType = REG_DWORD;
-      
-      err = RegQueryValueEx(
-                  hKey,                      // handle to key
-                  strKey,                    // value name
-                  0,                         // reserved
-                  &dataType,                 // type buffer
-                  (LPBYTE)&dwValue,          // data buffer
-                  &cbData);                  // size of data buffer
-
-      if (err == ERROR_SUCCESS)
-      {
-          timeoutSeconds = dwValue;
-      }
-
-      RegCloseKey(hKey);
-   }
-#else
-    timeoutSeconds = s_iTimeoutSecs ;
-#endif
    return timeoutSeconds;
+}
+
+void UPnpAgent::setRetries(const int numRetries)
+{
+   const char *strKey = "Retries";
+
+   OsRegistry reg;
+   reg.writeInteger(WIN32_UPNP_REG_PATH, strKey, numRetries);
+}
+
+int UPnpAgent::getRetries() 
+{
+   int retries = 2;
+   const char* strKey = "Retries";
+   
+   OsRegistry reg;
+   reg.readInteger(WIN32_UPNP_REG_PATH, strKey, retries);
+   
+      return retries;
 }
 
 
@@ -495,7 +487,7 @@ void UPnpAgent::setLastStatus(const char* szInternalAddress,
         nInternalPort);
     if (nExternalPort == -1)
     {
-        UPnpAgent::getInstance()->setEnabled(false);
+        UPnpAgent::getInstance()->setAvailable(false);
         mLastResult = false;
     }
     else
@@ -509,7 +501,6 @@ void UPnpAgent::setLastStatus(const char* szInternalAddress,
     mLastExternalPort = nExternalPort;
     mLastInternalPort = nInternalPort;
     mLastInternalAddress = szInternalAddress;
-
 }
 
 
@@ -524,5 +515,81 @@ SIPX_RESULT UPnpAgent::getLastResults(char* szInternalAddress,
     externalPort = mLastExternalPort;
     return res;
 }
+
+const UtlString UPnpAgent::getAdapterStateDigest() const
+{
+   char strKeyPart[4096];
+   UtlString sKey;
+   
+   int numAdapters = 0;
+   AdapterInfoRec* pRec = ::getAdaptersInfo(numAdapters, true);
+   for (int index = 0; index < numAdapters; index++)
+   {
+       snprintf(strKeyPart,
+           sizeof(strKeyPart),
+           "%s,%s,%s,%s+",
+           pRec[index].IpAddress,
+           pRec[index].AdapterName,
+           pRec[index].GatewayList,
+           pRec[index].DnsList);
+            
+       sKey += strKeyPart;
+   }
+   
+   UtlCrc32 crc;
+   crc.calc(sKey);
+   
+   char szDigest[256];
+   snprintf(szDigest, sizeof(szDigest), "%d", crc.getValue());
+   return UtlString(szDigest);
+}
 //////////////////////////////////////////////////////////////////////////////
+
+UPnpBindingTask::UPnpBindingTask(UtlString sBoundIp,
+                   const int port,
+                   IUPnpNotifier* const pNotifier) :
+    m_sBoundIp(sBoundIp),
+    m_iPort(port),
+    m_pNotifier(pNotifier),
+    OsTask("UPnpBinding %d")
+{
+}
+
+UPnpBindingTask::~UPnpBindingTask()
+{
+}
+
+int UPnpBindingTask::run(void* pArg)
+{
+    int ret = 0;
+    OsSysLog::add(FAC_NAT, PRI_DEBUG, "UPnpBindingTask::run Attempting bind.\n");
+    if (UPnpAgent::getInstance()->bindToAvailablePort(m_sBoundIp,
+            m_iPort,
+            UPnpAgent::getInstance()->getTimeoutSeconds()) == -1)
+    {
+        // mark as unavailable
+        UPnpAgent::getInstance()->setAvailable(false);
+        assert (m_pNotifier);
+        if (m_pNotifier)
+        {
+            requestShutdown();
+            ackShutdown();
+            m_pNotifier->notifyUpnpStatus(false) ;
+        }
+    }
+    else
+    {
+        UPnpAgent::getInstance()->setAvailable(true);
+        assert (m_pNotifier);
+        if (m_pNotifier)
+        {
+            requestShutdown();
+            ackShutdown();
+            m_pNotifier->notifyUpnpStatus(true) ;
+        }
+    }
+    OsSysLog::add(FAC_NAT, PRI_DEBUG, "UPnpBindingTask::run Exiting.\n");
+    return ret;
+}
+
 

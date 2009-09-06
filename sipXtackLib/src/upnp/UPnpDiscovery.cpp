@@ -106,16 +106,13 @@ UtlString UPnpDiscovery::discoverGatewayLocation() const
 //////////////////////////////////////////////////////////////////////////////
 UtlString UPnpDiscovery::discoverWANIPConnectionLocation() const
 {
-    OsSysLog::add(FAC_SIP, PRI_INFO,
-        "UPnpDiscovery::discoverWANIPConnectionLocation() begin");
-
     UtlString serviceType(UPnpService::WANIPConnection);
     UtlString location("");
 
     HttpMessage response = sendDiscoveryRequest(createDiscoveryRequest(serviceType), mTimeout);
     location = getLocation(response);
 
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+    OsSysLog::add(FAC_NAT, PRI_INFO,
         "UPnpDiscovery::discoverWANIPConnectionLocation() location = %s", location.data() );
 
     return location;
@@ -128,6 +125,7 @@ const HttpMessage UPnpDiscovery::sendDiscoveryRequest(const HttpMessage& message
     HttpMessage response;
     Url url("http://239.255.255.250:1900/*", true);
     int status_code = response.get(url, (HttpMessage&)message, timeout, true);
+    
     return response;
 }
 

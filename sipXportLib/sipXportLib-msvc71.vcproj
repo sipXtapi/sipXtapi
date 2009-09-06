@@ -288,6 +288,9 @@
 					RelativePath=".\src\os\OsQueuedEvent.cpp">
 				</File>
 				<File
+					RelativePath=".\src\os\OsRegistry.cpp">
+				</File>
+				<File
 					RelativePath=".\src\os\OsRpcMsg.cpp">
 				</File>
 				<File
@@ -766,6 +769,9 @@
 				</File>
 				<File
 					RelativePath=".\include\os\OsReadLock.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsRegistry.h">
 				</File>
 				<File
 					RelativePath=".\include\os\OsRpcMsg.h">

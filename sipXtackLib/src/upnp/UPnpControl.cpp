@@ -32,6 +32,8 @@
 #include "net/HttpMessage.h"
 #include <xmlparser/tinyxml.h>
 #include "upnp/UPnpService.h" // for UPnpXmlNavigator
+#include "os/OsSysLog.h"
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -180,7 +182,15 @@ bool UPnpControl::addPortMapping(const int externalPort,
     if (200 == nErrorCode)
     {
         bRet = true;
+        OsSysLog::add(FAC_NAT, PRI_INFO,
+            "UPnpControl::addPortMapping - success.\n");
     }
+    else
+    {
+        OsSysLog::add(FAC_NAT, PRI_INFO,
+            "UPnpControl::addPortMapping - failure.\n");
+    }
+    
     return bRet;
 }
 
@@ -197,6 +207,13 @@ bool UPnpControl::getExternalIp(UtlString& externalIp,
     if (200 == nErrorCode)
     {
         externalIp = parseGetExternalIp(response);
+        OsSysLog::add(FAC_NAT, PRI_INFO,
+            "UPnpControl::getExternalIp - success: %s.\n", externalIp);
+    }
+    else
+    {
+        OsSysLog::add(FAC_NAT, PRI_INFO,
+            "UPnpControl::getExternalIp - failure.\n");
     }
     return (200 == nErrorCode);
 }
@@ -219,6 +236,13 @@ bool UPnpControl::deletePortMapping(const int externalPort,
     if (200 == nErrorCode)
     {
         bRet = true;
+        OsSysLog::add(FAC_NAT, PRI_INFO,
+            "UPnpControl::deletePortMapping - %d : success.\n", externalPort);
+    }
+    else
+    {
+        OsSysLog::add(FAC_NAT, PRI_INFO,
+            "UPnpControl::deletePortMapping - %d : failure.\n", externalPort);
     }
     return bRet;
 }
@@ -248,6 +272,11 @@ bool UPnpControl::getPortMappingEntry(const int externalPort,
             bExists = true;
         }
     }
+    else
+    {
+        OsSysLog::add(FAC_NAT, PRI_INFO,
+            "UPnpControl::getPortMappingEntry - failure.\n");
+    }    
     return bExists;
 }
 

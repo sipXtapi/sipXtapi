@@ -833,7 +833,8 @@ unsigned long OsSocket::initDefaultAdapterID(UtlString &interface_id)
     // or if the configuration parameter  PHONESET_BIND_MAC_ADDRESS is defined
     // we will look up the mac address against the windows adapters
     // and then return the correct ip address for that adapter
-    int numAdapters = getAdaptersInfo();  //fills in the structure with the adapter info
+    int numAdapters;
+    getAdaptersInfo(numAdapters, false);  //fills in the structure with the adapter info
     if (numAdapters < 2)
     {
         retip = htonl(INADDR_ANY);

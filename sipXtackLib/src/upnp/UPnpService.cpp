@@ -27,6 +27,7 @@
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
 #include "upnp/UPnpService.h"
+#include "upnp/UPnpAgent.h"
 #include "net/HttpMessage.h"
 
 // EXTERNAL FUNCTIONS
@@ -51,25 +52,9 @@ UPnpService::UPnpService(const UtlString xml,
 
 UPnpService::UPnpService(const Url rootXmlUrl,
                          const UtlString serviceType) :
-    mServiceType(serviceType)
+    mServiceType(serviceType),
+    m_rootXmlUrl(rootXmlUrl)
 {
-    HttpMessage document;
-    Url nonConstUrl_butWhy(rootXmlUrl);
-
-    int status_code = document.get(nonConstUrl_butWhy, 10000, false, false);
-
-    const HttpBody* pBody = document.getBody();
-    UtlString actualBytes;
-    int len = 0;
-    pBody->getBytes(&actualBytes, &len);
-    if (pBody == NULL)
-    {
-        // TODO: error reporting
-    }
-    else
-    {
-        parseXml(actualBytes);
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -102,6 +87,28 @@ UPnpService& UPnpService::operator= (const UPnpService& src)
     return *this;
 }
 
+bool UPnpService::initialize()
+{
+    bool bRet = false;
+    HttpMessage document;
+    Url nonConstUrl_butWhy(m_rootXmlUrl);
+
+    int status_code = document.get(nonConstUrl_butWhy, UPnpAgent::getInstance()->getTimeoutSeconds() * 1000, false, false);
+
+    const HttpBody* pBody = document.getBody();
+    UtlString actualBytes;
+    int len = 0;
+    if (pBody == NULL)
+    {
+        // TODO: error reporting
+    }
+    else
+    {
+        pBody->getBytes(&actualBytes, &len);
+        bRet = parseXml(actualBytes);
+    }
+    return bRet;
+}
 //////////////////////////////////////////////////////////////////////////////
 const UtlString UPnpService::makeUrl(const char* path, const char* base) const
 {
@@ -134,7 +141,7 @@ const UtlString UPnpService::makeUrl(const char* path, const char* base) const
 //////////////////////////////////////////////////////////////////////////////
 bool UPnpService::parseXml(const UtlString& xml)
 {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "UPnpService::parseXml begin parse%s\n", 
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "UPnpService::parseXml begin parse%s\n", 
                     xml.data());
 
       TiXmlDocument doc;
@@ -194,8 +201,9 @@ bool UPnpService::parseXml(const UtlString& xml)
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogEvent::parseBody xml parsing error");
+         OsSysLog::add(FAC_NAT, PRI_ERR, "SipDialogEvent::parseBody xml parsing error");
       }
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "UPnpService::parseXml end parse\n");
 
       return true;
 }

@@ -98,6 +98,8 @@ public:
 
     void releaseArsSocket(ArsConnectionSocket* pSocket) ;
 
+    // IUpnpNotifier implementation
+    void notifyUpnpStatus(bool bSuccess);
                                              
 /* ============================ ACCESSORS ================================= */
 

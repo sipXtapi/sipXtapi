@@ -66,6 +66,7 @@ public:
 
     static const char* WANIPConnection;
 
+    bool initialize();
     UtlString getControlUrl() { return mControlUrl; }
 
 /* ============================ MANIPULATORS ============================== */
@@ -78,6 +79,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+    const Url m_rootXmlUrl;
     UtlString mServiceType;
     UtlString mServiceId;
     UtlString mControlUrl;

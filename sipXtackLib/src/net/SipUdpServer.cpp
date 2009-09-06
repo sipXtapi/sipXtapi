@@ -48,7 +48,6 @@
 #include <os/OsTask.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/UtlSListIterator.h>
-#include <upnp/UPnpAgent.h>
 #include <net/TapiMgr.h>
 
 #if defined(_VXWORKS)
@@ -204,7 +203,8 @@ SipUdpServer::SipUdpServer(int port,
                            const char* szBoundIp) :
    SipProtocolServerBase(userAgent, "UDP", "SipUdpServer-%d"),
         mKeepAliveMutex(OsRWMutex::Q_FIFO),
-   mMapLock(OsMutex::Q_FIFO)   
+   mMapLock(OsMutex::Q_FIFO),
+   m_pBackgroundUPnpBindingTask(NULL)   
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipUdpServer::_ port = %d, bUseNextAvailablePort = %d, szBoundIp = '%s'",
@@ -249,6 +249,7 @@ SipUdpServer::SipUdpServer(int port,
 // Destructor
 SipUdpServer::~SipUdpServer()
 {
+    delete m_pBackgroundUPnpBindingTask;
     waitUntilShutDown();
     
     SipClient* pServer = NULL;
@@ -308,19 +309,35 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
         {
             if (UPnpAgent::getInstance()->isEnabled())
             {
-                if (UPnpAgent::getInstance()->bindToAvailablePort(szBoundIp,
-                        actualPort,
-                        UPnpAgent::getInstance()->getTimeoutSeconds()) == -1)
+                if (!UPnpAgent::getInstance()->isAvailable())
                 {
-                    // Disable uPNP until restarted
-                    UPnpAgent::getInstance()->setEnabled(false);
-                    notifyUpnpStatus(false) ;
+                    // if Upnp has been marked as not available,
+                    // i.e. - it previously (with the current network configuration)
+                    //  failed to bind to a port via upnp,
+                    // then just try to do the bind in the background
+                    OsSysLog::add(FAC_NAT, PRI_INFO, 
+                        "SipUdpServer::createServerSocket - starting UPnpBindingTask in the background, \
+because according to the registry, a UPNP binding for this network configuration failed previously.");
+                   m_pBackgroundUPnpBindingTask = new UPnpBindingTask(szBoundIp, actualPort, this);
+                   m_pBackgroundUPnpBindingTask->start();
                 }
                 else
                 {
-                    notifyUpnpStatus(true) ;
+                    if (UPnpAgent::getInstance()->bindToAvailablePort(szBoundIp,
+                            actualPort,
+                            UPnpAgent::getInstance()->getRetries()) == -1)
+                    {
+                        // Disable uPNP until restarted
+                        UPnpAgent::getInstance()->setAvailable(false);
+                        notifyUpnpStatus(false) ;
+                    }
+                    else
+                    {
+                        notifyUpnpStatus(true) ;
+                    }
                 }
             }
+            
         }
     }
     

@@ -33,12 +33,26 @@
 /**
 * Unit test for SdpBody
 */
-class UpnpTest : public CppUnit::TestCase
+
+class UpnpTest : public CppUnit::TestCase, public IUPnpNotifier
 {
     CPPUNIT_TEST_SUITE(UpnpTest);
     CPPUNIT_TEST(testDiscovery);
     CPPUNIT_TEST_SUITE_END();
 public:
+
+    // UPnp notification callback
+    void notifyUpnpStatus(bool bSuccess, UPnpBindingTask* const pNotifyingTask)
+    {
+        if (bSuccess)
+            UPnpAgent::getInstance()->setAvailable(true);
+        else 
+            UPnpAgent::getInstance()->setAvailable(false);
+            
+        printf("UPnP Status:  %d\n", bSuccess);
+        // we are done with the background upnp task
+        delete pNotifyingTask;
+    }
     void testDiscovery()
     {
         /*
@@ -115,7 +129,18 @@ public:
         int internalPort = 5061;
         UtlString hostIp;
         OsSocket::getHostIp(&hostIp);
+        
         UPnpAgent::getInstance()->setEnabled(true);
+        
+        if (!UPnpAgent::getInstance()->isAvailable())
+        {
+            // if it failed last time, with the same network configuration
+            // try in the background
+                        
+            UPnpBindingTask* pBindingTask = new UPnpBindingTask(hostIp.data(), internalPort, this);
+            pBindingTask->start();
+            OsTask::delay(30000);      
+        }
         externalPort = UPnpAgent::getInstance()->bindToAvailablePort(hostIp.data(), internalPort);
         CPPUNIT_ASSERT(externalPort > 1023 && externalPort < 65536);
 

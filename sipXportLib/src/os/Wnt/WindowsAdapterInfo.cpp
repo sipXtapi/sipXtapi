@@ -20,9 +20,10 @@
 #include <os/wnt/getWindowsDNSServers.h>
 
         DWORD (WINAPI *GetAdaptersInfo)(PIP_ADAPTER_INFO, PULONG);
+        DWORD (WINAPI *GetPerAdapterInfo)(ULONG, PIP_PER_ADAPTER_INFO, PULONG);
         DWORD (WINAPI *GetNetworkParams)(PFIXED_INFO, PULONG);
 
-        AdapterInfoRec adapters[MAX_ADAPTERS];                          //used to store all the adapters it finds
+        AdapterInfoRec adapters[MAX_ADAPTERS+1];                          //used to store all the adapters it finds
         int AdapterCount = 0;
 
 ///////////////////////////////////////////
@@ -138,6 +139,13 @@ BOOL isIPHLPAvail()
                                 osPrintf("Could not get the proc address to GetAdaptersInfo!\n");
                                 return FALSE;
                         }
+                        
+                        *(FARPROC*)&GetPerAdapterInfo = GetProcAddress(hModule,"GetPerAdapterInfo");
+                        if (GetPerAdapterInfo == NULL)
+                        {
+                                osPrintf("Could not get the proc address to GetPerAdapterInfo!\n");
+                                return FALSE;
+                        }                        
 
                         //now find that function!
                         *(FARPROC*)&GetNetworkParams = GetProcAddress(hModule,"GetNetworkParams");
@@ -250,30 +258,63 @@ int lookupIpAddressByMacAddress(char *mac_address, char *ipaddress)
 
 ///////////////////////////////////////////
 //
-// getAdaptersInfo
+// lookupAdapterInfoRecord
 //
 //
-// iInterface: the interface for which you want the ipaddress for
-// pIpAddress: ip address returned.
+// ipAddress: the ip adress of the record to be looked up
 //
-//
-// returns 0 on failure or number of adapters available
-// 0 is returned if there are no adapters available.
+//returns:
+//  An adapter info record for the ip address, or NULL,
+//  if record could not be found
 //
 //////////////////////////////////////////
 
-int getAdaptersInfo()
+AdapterInfoRec* lookupAdapterInfoRecord(char *ipaddress)
+{
+        AdapterInfoRec* pRecord = NULL;
+        for (int loop = 0; loop < AdapterCount; loop++)
+        {
+                if (stricmp(adapters[loop].IpAddress,ipaddress) == 0)
+                {
+                    pRecord = &adapters[loop];
+                }
+        }
+        return pRecord;
+}
+
+///////////////////////////////////////////
+//
+// getAdaptersInfo
+//
+//
+// numAdapters - is set to the number of adapters found
+//               or is set to 0 for a failure
+// 
+// bForceLookup - if false, will used cached adapters info
+//
+// returns adapterInfoArray
+//
+//////////////////////////////////////////
+AdapterInfoRec* getAdaptersInfo(int& numAdapters,
+                                 bool bForceLookup)
 {
         char MacAddressStr[256]; //mac address converted to a string
         char MacOneByteStr[10]; //used to hold one byte of mac address
-        int retval = 0; //return -1 if no adapters found
 
         if (isIPHLPAvail())  //inits iphlpapi and returns true if dll loaded
         {
                 //just return count if we already did this before
-                if (AdapterCount)
-                        return AdapterCount;
+                if (!bForceLookup && AdapterCount)
+                {
+                    numAdapters = AdapterCount;
+                    return adapters;
+                }
 
+                numAdapters = 0;
+                AdapterCount = 0;
+                // clear the adapters struct
+                memset(adapters, 0, sizeof(adapters));
+                
                 IP_ADAPTER_INFO  *pAdapterInfo; //points to buffer hold linked list adapter info
 
                 DWORD dwSize = (sizeof(IP_ADAPTER_INFO) * MAX_ADAPTERS) + sizeof(DWORD); //size for lots of adapters
@@ -289,7 +330,57 @@ int getAdaptersInfo()
                                 {
                                         strcpy(adapters[AdapterCount].AdapterName, pAdapterInfo->Description);
                                         strcpy(adapters[AdapterCount].IpAddress, (const char *)pAdapterInfo->IpAddressList.IpAddress.String);
+                                        
+                                        // get a list of gateways (comma separated) for the adapter
+                                        _IP_ADDR_STRING* pGateway = &pAdapterInfo->GatewayList;
+                                        memset(adapters[AdapterCount].GatewayList, 0, sizeof(adapters[AdapterCount].GatewayList));
+                                        int gatewayCount = 0;
+                                        while (pGateway)
+                                        {
+                                            if (gatewayCount)
+                                            {
+                                                strncat(adapters[AdapterCount].GatewayList,
+                                                    ",",
+                                                    sizeof(adapters[AdapterCount].GatewayList));
+                                            }
+                                            gatewayCount++;
+                                            strncat(adapters[AdapterCount].GatewayList,
+                                                (const char *)pGateway->IpAddress.String,
+                                                 sizeof(adapters[AdapterCount].GatewayList));
+                                            pGateway = pAdapterInfo->GatewayList.Next;
+                                        }
 
+                                        // get a current Dns Server
+                                        // now that we have the index, we
+                                        // can call GetPerAdapterInfo
+                                        unsigned long outBufLen = 0;
+                                        GetPerAdapterInfo(pAdapterInfo->Index, NULL, &outBufLen);
+                                        if (outBufLen)
+                                        {
+                                            IP_PER_ADAPTER_INFO* pPerAdapterInfo = (IP_PER_ADAPTER_INFO*) malloc(outBufLen);
+                                            DWORD dwResult = GetPerAdapterInfo(pAdapterInfo->Index, pPerAdapterInfo, &outBufLen);  
+                                            if (ERROR_SUCCESS == dwResult)
+                                            {
+                                                IP_ADDR_STRING* pDns = &pPerAdapterInfo->DnsServerList;
+                                                int dnsCount = 0;
+                                                while (pDns)
+                                                {
+                                                    if (dnsCount)
+                                                    {
+                                                        strncat(adapters[AdapterCount].DnsList,
+                                                            ",",
+                                                            sizeof(adapters[AdapterCount].DnsList));
+                                                    }
+                                                    dnsCount++;
+                                                    strncat(adapters[AdapterCount].DnsList,
+                                                        pDns->IpAddress.String, 
+                                                        sizeof(adapters[AdapterCount].DnsList));
+                                                    pDns = pDns->Next;
+                                                }
+                                            }              
+                                            free(pPerAdapterInfo);
+                                        }
+                                        
                                         //build mac address as a string
                                         *MacAddressStr = '\0';
                                         for (unsigned int loop = 0; loop < pAdapterInfo->AddressLength; loop++)
@@ -304,15 +395,14 @@ int getAdaptersInfo()
                                         AdapterCount++;
                                         pAdapterInfo = pAdapterInfo->Next;
                                 }
-
-                                retval = AdapterCount;
+                                numAdapters = AdapterCount;
                         }
 
                         delete [] buffer;
                 }
         }
 
-        return retval;
+        return adapters;
 }
 
 /*
