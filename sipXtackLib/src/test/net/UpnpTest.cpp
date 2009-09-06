@@ -42,7 +42,7 @@ class UpnpTest : public CppUnit::TestCase, public IUPnpNotifier
 public:
 
     // UPnp notification callback
-    void notifyUpnpStatus(bool bSuccess, UPnpBindingTask* const pNotifyingTask)
+    void notifyUpnpStatus(bool bSuccess)
     {
         if (bSuccess)
             UPnpAgent::getInstance()->setAvailable(true);
@@ -51,7 +51,6 @@ public:
             
         printf("UPnP Status:  %d\n", bSuccess);
         // we are done with the background upnp task
-        delete pNotifyingTask;
     }
     void testDiscovery()
     {
