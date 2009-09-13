@@ -6622,7 +6622,7 @@ void SipConnection::storeMatchingCodecs(int numEncoderCodecs,
 
     if (mMatchingDecoderCodecs)
     {
-        for(int codecIndex = 0; codecIndex < numDecoderCodecs; codecIndex++)
+        for(int codecIndex = 0; codecIndex < mNumMatchingDecoderCodecs; codecIndex++)
         {
             delete mMatchingDecoderCodecs[codecIndex];
         }
