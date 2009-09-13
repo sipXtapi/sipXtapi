@@ -6602,7 +6602,7 @@ void SipConnection::storeMatchingCodecs(int numEncoderCodecs,
         matchingDecoderCodecs = new SdpCodec*[numEncoderCodecs];
         for (int i = 0; i < numEncoderCodecs; i++)
         {
-            matchingDecoderCodecs[i] = new SdpCodec(*matchingEncoderCodecs[numEncoderCodecs]);
+            matchingDecoderCodecs[i] = new SdpCodec(*matchingEncoderCodecs[i]);
         }
     }
 
