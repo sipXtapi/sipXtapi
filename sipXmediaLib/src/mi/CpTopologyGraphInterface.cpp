@@ -1774,9 +1774,28 @@ OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
        return OS_NETWORK_UNAVAILABLE;
    }
 
-   UPnpAgent::getInstance()->bindToAvailablePort(localAddress.data(), localPort, UPnpAgent::getInstance()->getTimeoutSeconds());
-   UPnpAgent::getInstance()->bindToAvailablePort(localAddress.data(), localPort+1, UPnpAgent::getInstance()->getTimeoutSeconds());
-
+   if (UPnpAgent::getInstance()->isEnabled())
+   {
+       if (!UPnpAgent::getInstance()->isAvailable())
+       {
+            // if Upnp has been marked as not available,
+            // i.e. - it previously (with the current network configuration)
+            // failed, so do not try       
+       }
+       else
+       {
+           int iUpnpPort = UPnpAgent::getInstance()->bindToAvailablePort(localAddress.data(), localPort, UPnpAgent::getInstance()->getTimeoutSeconds());
+           if (iUpnpPort > 0)
+           {
+               rtpSocket->setUpnpMappedPort(iUpnpPort) ;
+           }       
+           iUpnpPort = UPnpAgent::getInstance()->bindToAvailablePort(localAddress.data(), localPort+1, UPnpAgent::getInstance()->getTimeoutSeconds());
+           if (iUpnpPort > 0)
+           {
+               rtcpSocket->setUpnpMappedPort(iUpnpPort) ;
+           }       
+       }
+   }
    if (isMulticast)
    {
        // Set multicast options
