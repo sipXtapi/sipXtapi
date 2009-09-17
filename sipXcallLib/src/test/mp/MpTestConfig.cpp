@@ -21,6 +21,7 @@ typedef int MpConnectionID;
 #include "os/OsConfigDb.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
 
+#define SAMLE_RATE 8000
 
 // Setup codec paths..
 UtlString sgCodecPaths[] = {
@@ -100,7 +101,7 @@ void MpTestConfig::initializeMediaSystem()
 
    mpStartUp(8000, 80, 64, &configDb, sgNumCodecPaths, sgCodecPaths);
 
-   mMediaTask = MpMediaTask::getMediaTask(16); OsTask::delay(150) ;
+   mMediaTask = MpMediaTask::getMediaTask(); OsTask::delay(150) ;
 //   mPhoneTask = PsPhoneTask::getPhoneTask();   OsTask::delay(150) ;
 
    mpStartTasks() ;      OsTask::delay(150) ;
@@ -178,7 +179,8 @@ void MpTestConfig::initializeCallManager()
             CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
             QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
             10,                                // maxCalls
-            sipXmediaFactoryFactory(NULL));    // CpMediaInterfaceFactory
+            sipXmediaFactoryFactory(NULL),
+            SAMLE_RATE);    // CpMediaInterfaceFactory
 
    mCallManager->start() ;
 }

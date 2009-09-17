@@ -35,6 +35,8 @@ _CrtMemState MemStateDiff;
 
 #define BROKEN_INITTEST
 
+#define SAMPLE_RATE    8000
+
 #define NUM_OF_RUNS 10
 /**
  * Unittest for CallManager
@@ -161,7 +163,8 @@ public:
                                CP_MAXIMUM_RINGING_EXPIRE_SECONDS, //inviteExpireSeconds
                                QOS_LAYER3_LOW_DELAY_IP_TOS, // expeditedIpTos
                                10, //maxCalls
-                               sipXmediaFactoryFactory(NULL)); //pMediaFactory
+                               sipXmediaFactoryFactory(NULL),
+                               SAMPLE_RATE); //pMediaFactory
 #if 0
             printf("Starting CallManager\n");
 #endif
@@ -241,7 +244,8 @@ public:
                                CP_MAXIMUM_RINGING_EXPIRE_SECONDS, //inviteExpireSeconds
                                QOS_LAYER3_LOW_DELAY_IP_TOS, // expeditedIpTos
                                10, //maxCalls
-                               sipXmediaFactoryFactory(NULL)); //pMediaFactory
+                               sipXmediaFactoryFactory(NULL),
+                               SAMPLE_RATE); //pMediaFactory
 #if 0
             printf("Starting CallManager\n");
 #endif
@@ -316,7 +320,8 @@ public:
                                CP_MAXIMUM_RINGING_EXPIRE_SECONDS, //inviteExpireSeconds
                                QOS_LAYER3_LOW_DELAY_IP_TOS, // expeditedIpTos
                                10, //maxCalls
-                               sipXmediaFactoryFactory(NULL)); //pMediaFactory
+                               sipXmediaFactoryFactory(NULL),
+                               SAMPLE_RATE); //pMediaFactory
 #if 0
             printf("Starting CallManager\n");
 #endif
@@ -402,7 +407,8 @@ public:
                                CP_MAXIMUM_RINGING_EXPIRE_SECONDS, //inviteExpireSeconds
                                QOS_LAYER3_LOW_DELAY_IP_TOS, // expeditedIpTos
                                10, //maxCalls
-                               sipXmediaFactoryFactory(NULL)); //pMediaFactory
+                               sipXmediaFactoryFactory(NULL),
+                               SAMPLE_RATE); //pMediaFactory
 #if 0
             printf("Starting CallManager\n");
 #endif

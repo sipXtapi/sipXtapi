@@ -18,7 +18,7 @@
 #if defined(_WIN32)
 #   include "GipsVoiceEngineLib.h"
 #   include "GIPSAECTuningWizardAPI.h"             
-#elif defined (__MACH__)
+#elif defined (__APPLE__)
 #   include "mac/GipsVoiceEngineLib.h"
 #else
 #   include "GipsVoiceEngineLibLinux.h"
@@ -29,7 +29,7 @@
 #    include "GipsVideoEngine.h"
 #    include <windows.h>
 #    include "GipsVideoEngineWindows.h"
-#  elif defined(__MACH__)
+#  elif defined(__APPLE__)
 #    include "mac/GipsVideoEngine.h"
 #    include <carbon/Carbon.h>
 #    include "mac/GipsVideoEngineMac.h"
@@ -41,7 +41,7 @@
 #ifdef VIDEO
 #  if defined(_WIN32)
 typedef GipsVideoEngineWindows GipsVideoEnginePlatform ;
-#  elif defined(__MACH__)
+#  elif defined(__APPLE__)
 typedef GipsVideoEngineMac GipsVideoEnginePlatform;
 #  else
 #    error("Unknown platform") ;

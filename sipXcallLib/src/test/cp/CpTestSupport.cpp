@@ -87,7 +87,8 @@ CallManager *CpTestSupport::newCallManager(SipUserAgent* sua)
           CP_MAXIMUM_RINGING_EXPIRE_SECONDS, //inviteExpireSeconds
           QOS_LAYER3_LOW_DELAY_IP_TOS, // expeditedIpTos
           10, //maxCalls
-          sipXmediaFactoryFactory(NULL)); //pMediaFactory
+          sipXmediaFactoryFactory(NULL),
+          8000); //pMediaFactory
 
     return callManager;
 }
