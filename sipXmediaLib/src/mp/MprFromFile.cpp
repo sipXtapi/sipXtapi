@@ -792,7 +792,7 @@ UtlBoolean MprFromFile::handlePlay(UtlString* pBuffer, UtlBoolean repeat,
                                    UtlBoolean autoStopAfterFinish)
 {
    // Start only if not playing already
-   if (mState == STATE_IDLE)
+   if (mState == STATE_IDLE || mState == STATE_FINISHED)
    {
       if (mpFileBuffer)
       {
