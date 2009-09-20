@@ -45,6 +45,9 @@
 #include <os/HostAdapterAddress.h>
 #include <os/OsSysLog.h>
 
+static int AdapterCount = 0;
+AdapterInfoRec adapters[MAX_ADAPTERS+1];                          //used to store all the adapters it finds
+
 /**
 *  Get the addresses associated with all of the IP interfaces.
 *
@@ -192,4 +195,124 @@ bool getContactAdapterName(UtlString &adapterName, const UtlString &ipAddress, b
    }
    
    return found;
+}
+
+
+///////////////////////////////////////////
+//
+// getAdaptersInfo
+//
+//
+// numAdapters - is set to the number of adapters found
+//               or is set to 0 for a failure
+// 
+// bForceLookup - if false, will used cached adapters info
+//
+// returns adapterInfoArray
+//
+//////////////////////////////////////////
+AdapterInfoRec* getAdaptersInfo(int& numAdapters,
+                                 bool bForceLookup)
+{
+        char MacAddressStr[256]; //mac address converted to a string
+        char MacOneByteStr[10]; //used to hold one byte of mac address
+
+	//just return count if we already did this before
+	if (!bForceLookup && AdapterCount)
+	{
+		numAdapters = AdapterCount;
+		return adapters;
+	}
+
+	numAdapters = 0;
+	AdapterCount = 0;
+	// clear the adapters struct
+	memset(adapters, 0, sizeof(adapters));
+
+/*	
+	IP_ADAPTER_INFO  *pAdapterInfo; //points to buffer hold linked list adapter info
+
+	DWORD dwSize = (sizeof(IP_ADAPTER_INFO) * MAX_ADAPTERS) + sizeof(DWORD); //size for lots of adapters
+	char *buffer = new char[dwSize];  //allocate space for lots of adapters
+	if (buffer)
+	{
+		pAdapterInfo = (IP_ADAPTER_INFO *)buffer;  //point to buffer
+		if (GetAdaptersInfo(
+			pAdapterInfo,  // buffer for mapping table
+			&dwSize) == NO_ERROR)                     // sort the table
+		{
+			while (pAdapterInfo)
+			{
+				strcpy(adapters[AdapterCount].AdapterName, pAdapterInfo->Description);
+				strcpy(adapters[AdapterCount].IpAddress, (const char *)pAdapterInfo->IpAddressList.IpAddress.String);
+				// get a list of gateways (comma separated) for the adapter
+				_IP_ADDR_STRING* pGateway = &pAdapterInfo->GatewayList;
+				memset(adapters[AdapterCount].GatewayList, 0, sizeof(adapters[AdapterCount].GatewayList));
+				int gatewayCount = 0;
+				while (pGateway)
+				{
+					if (gatewayCount)
+					{
+					strncat(adapters[AdapterCount].GatewayList,
+						",",
+						sizeof(adapters[AdapterCount].GatewayList));
+					}
+					gatewayCount++;
+					strncat(adapters[AdapterCount].GatewayList,
+					(const char *)pGateway->IpAddress.String,
+						sizeof(adapters[AdapterCount].GatewayList));
+					pGateway = pAdapterInfo->GatewayList.Next;
+				}
+
+				// get a current Dns Server
+				// now that we have the index, we
+				// can call GetPerAdapterInfo
+				unsigned long outBufLen = 0;
+				GetPerAdapterInfo(pAdapterInfo->Index, NULL, &outBufLen);
+				if (outBufLen)
+				{
+					IP_PER_ADAPTER_INFO* pPerAdapterInfo = (IP_PER_ADAPTER_INFO*) malloc(outBufLen);
+					DWORD dwResult = GetPerAdapterInfo(pAdapterInfo->Index, pPerAdapterInfo, &outBufLen);  
+					if (ERROR_SUCCESS == dwResult)
+					{
+					IP_ADDR_STRING* pDns = &pPerAdapterInfo->DnsServerList;
+					int dnsCount = 0;
+					while (pDns)
+					{
+						if (dnsCount)
+						{
+						strncat(adapters[AdapterCount].DnsList,
+							",",
+							sizeof(adapters[AdapterCount].DnsList));
+						}
+						dnsCount++;
+						strncat(adapters[AdapterCount].DnsList,
+						pDns->IpAddress.String, 
+						sizeof(adapters[AdapterCount].DnsList));
+						pDns = pDns->Next;
+					}
+					}              
+					free(pPerAdapterInfo);
+				}
+				
+				//build mac address as a string
+				*MacAddressStr = '\0';
+				for (unsigned int loop = 0; loop < pAdapterInfo->AddressLength; loop++)
+				{
+					if (strlen(MacAddressStr))
+						strcat(MacAddressStr,"-");
+					sprintf(MacOneByteStr,"%02X",pAdapterInfo->Address[loop]);
+					strcat(MacAddressStr,MacOneByteStr);
+				}
+				strcpy((char *)adapters[AdapterCount].MacAddress, MacAddressStr);
+				AdapterCount++;
+				pAdapterInfo = pAdapterInfo->Next;
+			}
+			numAdapters = AdapterCount;
+		}
+		delete [] buffer;
+	}
+*/
+
+        return adapters;
 }

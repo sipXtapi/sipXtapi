@@ -27,6 +27,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
+#include "os/OsSocket.h"
 #include "upnp/UPnpAgent.h"
 #include "tapi/sipXtapiInternal.h"
 #include "tapi/sipXtapiEvents.h"
@@ -85,107 +86,6 @@ void UPnpAgent::release()
     OsWriteLock lock(*spMutex);
     delete mpInstance;
     mpInstance = NULL;
-}
-
-int UPnpAgent::loadPortSetting(const char* szClientIp, 
-                               const int   internalPort) const
-{
-   int externalPort = -1;
-   char szInternalPort[16];
-   snprintf(szInternalPort, sizeof(szInternalPort), "%d", internalPort);
-   UtlString hostPort(szClientIp);
-   hostPort += ":";
-   hostPort += szInternalPort;
-   // first, check static map
-   // TODO - check a hashmap for stored port values before
-   //        performing a costly registry read
-  
-#ifdef _WIN32 
-   HKEY hKey;
-   DWORD    cbData;
-   DWORD    dataType;
-   DWORD    dwValue;
-
-   
-   DWORD err = RegOpenKeyEx(
-              HKEY_LOCAL_MACHINE,   // handle to open key
-              WIN32_UPNP_REG_PATH,  // subkey name
-              0,                    // reserved
-              KEY_READ,             // security access mask
-              &hKey                 // handle to open key
-              );
-
-   if (err == ERROR_SUCCESS)
-   {
-      cbData = sizeof(DWORD);
-      dataType = REG_DWORD;
-      
-      err = RegQueryValueEx(
-                  hKey,                      // handle to key
-                  hostPort.data(),           // value name
-                  0,                         // reserved
-                  &dataType,                 // type buffer
-                  (LPBYTE)&dwValue,          // data buffer
-                  &cbData);                  // size of data buffer
-
-      if (err == ERROR_SUCCESS)
-      {
-          externalPort = dwValue;
-      }
-
-      RegCloseKey(hKey);
-   }
-#endif
-   if (-1 != externalPort)
-   {
-      // TODO - add it to a hashmap of stored port values
-   }
-   return externalPort;
-}
-
-void UPnpAgent::savePortSetting(const char* szClientAddress, const int internalPort, const int externalPort) const
-{
-#ifdef _WIN32
-   HKEY hKey;
-   char szInternalPort[16];
-   UtlString hostPort(szClientAddress);
-   snprintf(szInternalPort, sizeof(szInternalPort), "%d", internalPort);
-   hostPort += ":";
-   hostPort += szInternalPort;
-
-   DWORD err = RegOpenKeyEx(
-              HKEY_LOCAL_MACHINE,   // handle to open key
-              WIN32_UPNP_REG_PATH,  // subkey name
-              0,                    // reserved
-              KEY_WRITE,            // security access mask
-              &hKey                 // handle to open key
-              );
-
-    DWORD dwDisposition = NULL;
-    if (err != ERROR_SUCCESS)
-    {
-        err = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
-            WIN32_UPNP_REG_PATH, 
-            0,
-            NULL, 
-            REG_OPTION_NON_VOLATILE, 
-            KEY_ALL_ACCESS,
-            NULL,
-            &hKey,
-            &dwDisposition);
-    }
-    DWORD dwValue = externalPort;
-    if (err == ERROR_SUCCESS)
-    {
-        RegSetValueEx(hKey,
-            hostPort.data(),
-            0,
-            REG_DWORD,
-            (const BYTE*)&dwValue,
-            sizeof(&dwValue));
-    }
-   RegCloseKey(hKey);
-#endif
 }
 
 int UPnpAgent::bindToAvailablePort(const char* szClientAddress,
@@ -345,48 +245,41 @@ bool UPnpAgent::initialize()
     return bSuccess;
 }
 
+int UPnpAgent::loadPortSetting(const char* szClientIp, 
+                               const int   internalPort) const
+{
+   int externalPort = -1;
+   char szInternalPort[16];
+   snprintf(szInternalPort, sizeof(szInternalPort), "%d", internalPort);
+   UtlString hostPort(szClientIp);
+   hostPort += ":";
+   hostPort += szInternalPort;
+
+   OsRegistry reg;
+   reg.readInteger(UPNP_REG_PATH, hostPort, externalPort);
+   return externalPort;
+}
+
+void UPnpAgent::savePortSetting(const char* szClientAddress, const int internalPort, const int externalPort) const
+{
+   char szInternalPort[16];
+   UtlString hostPort(szClientAddress);
+   snprintf(szInternalPort, sizeof(szInternalPort), "%d", internalPort);
+   hostPort += ":";
+   hostPort += szInternalPort;
+   
+   OsRegistry reg;
+   reg.writeInteger(UPNP_REG_PATH, hostPort, externalPort);
+}
+
 void UPnpAgent::setEnabled(const bool bEnabled)
 {
-#ifdef _WIN32
-   HKEY hKey;
-   
-   UtlString key = "Enabled";
-      
-   DWORD err = RegOpenKeyEx(
-              HKEY_LOCAL_MACHINE,   // handle to open key
-              WIN32_UPNP_REG_PATH,  // subkey name
-              0,                    // reserved
-              KEY_WRITE,            // security access mask
-              &hKey                 // handle to open key
-              );
 
-    DWORD dwDisposition = NULL;
-    if (err != ERROR_SUCCESS)
-    {
-        err = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
-            WIN32_UPNP_REG_PATH, 
-            0,
-            NULL, 
-            REG_OPTION_NON_VOLATILE, 
-            KEY_ALL_ACCESS,
-            NULL,
-            &hKey,
-            &dwDisposition);
-    }
-    DWORD dwValue = bEnabled ? 1 : 0;
-    if (err == ERROR_SUCCESS)
-    {
-        RegSetValueEx(hKey,
-            key,
-            0,
-            REG_DWORD,
-            (const BYTE*)&dwValue,
-            sizeof(&dwValue));
-    }
-   RegCloseKey(hKey);
-#else
-    s_bEnabled = bEnabled ;
-#endif
+   const char* strKey = "Enabled";
+   
+   OsRegistry reg;
+   long dwValue = bEnabled ? 1 : 0;
+   reg.writeInteger(UPNP_REG_PATH, strKey, dwValue);
 }
 
 bool UPnpAgent::isEnabled()
@@ -395,7 +288,7 @@ bool UPnpAgent::isEnabled()
    
    OsRegistry reg;
    int value = 0;
-   if (reg.readInteger(WIN32_UPNP_REG_PATH, "Enabled", value))
+   if (reg.readInteger(UPNP_REG_PATH, "Enabled", value))
    {
       bEnabled = (value > 0);
    }
@@ -411,7 +304,7 @@ void UPnpAgent::setAvailable(const bool bAvailable)
    UtlString keyDigest = getAdapterStateDigest();
       
    OsRegistry reg;
-   reg.writeInteger(WIN32_UPNP_REG_PATH, keyDigest, (int) bAvailable);
+   reg.writeInteger(UPNP_REG_PATH, keyDigest, (int) bAvailable);
 }
 
 bool UPnpAgent::isAvailable()
@@ -422,7 +315,7 @@ bool UPnpAgent::isAvailable()
    UtlString keyDigest = getAdapterStateDigest();
    int value = 0;
    OsRegistry reg;
-   if (reg.readInteger(WIN32_UPNP_REG_PATH, keyDigest, value))
+   if (reg.readInteger(UPNP_REG_PATH, keyDigest, value))
    {
       bAvailable = (value > 0);
    }
@@ -441,7 +334,7 @@ void UPnpAgent::setTimeoutSeconds(const int timeoutSeconds)
    const char* strKey = "Timeout";
    
    OsRegistry reg;
-   reg.writeInteger(WIN32_UPNP_REG_PATH, strKey, timeoutSeconds);
+   reg.writeInteger(UPNP_REG_PATH, strKey, timeoutSeconds);
 }
 
 
@@ -451,7 +344,7 @@ int UPnpAgent::getTimeoutSeconds()
 
    const char* strKey = "Timeout";
    OsRegistry reg;
-   reg.readInteger(WIN32_UPNP_REG_PATH, strKey, timeoutSeconds);
+   reg.readInteger(UPNP_REG_PATH, strKey, timeoutSeconds);
    
    return timeoutSeconds;
 }
@@ -461,7 +354,7 @@ void UPnpAgent::setRetries(const int numRetries)
    const char *strKey = "Retries";
 
    OsRegistry reg;
-   reg.writeInteger(WIN32_UPNP_REG_PATH, strKey, numRetries);
+   reg.writeInteger(UPNP_REG_PATH, strKey, numRetries);
 }
 
 int UPnpAgent::getRetries() 
@@ -470,7 +363,7 @@ int UPnpAgent::getRetries()
    const char* strKey = "Retries";
    
    OsRegistry reg;
-   reg.readInteger(WIN32_UPNP_REG_PATH, strKey, retries);
+   reg.readInteger(UPNP_REG_PATH, strKey, retries);
    
       return retries;
 }

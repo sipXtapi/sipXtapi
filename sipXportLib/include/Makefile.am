@@ -85,6 +85,7 @@ nobase_include_HEADERS = \
     os/OsQueuedEvent.h \
     os/OsReadLock.h \
     os/OsRpcMsg.h \
+    os/OsRegistry.h \
     os/OsRWMutex.h \
     os/OsServerSocket.h \
     os/OsServerTask.h \

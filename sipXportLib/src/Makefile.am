@@ -142,6 +142,7 @@ libsipXport_la_SOURCES =  \
     os/OsPtrMsg.cpp \
     os/OsQueuedEvent.cpp \
     os/OsRpcMsg.cpp \
+    os/OsRegistry.cpp \
     os/OsServerSocket.cpp \
     os/OsServerTask.cpp \
     os/OsSharedLibMgr.cpp \
