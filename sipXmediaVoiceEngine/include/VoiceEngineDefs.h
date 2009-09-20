@@ -24,7 +24,6 @@
 #define _VoiceEngineDefs_h
 
 #ifdef USE_GIPS
-# if defined(_WIN32)
 #include "GIPSVEBase.h"
 #include "GIPSVECallReport.h"
 #include "GIPSVECodec.h"
@@ -43,11 +42,6 @@
 #include "GIPSVEVolumeControl.h"
 #include "GIPSVEVQE.h"
 #include "GIPS_common_types.h"
-# elif defined (__MACH__)
-#   include "mac/GipsVoiceEngineLib.h"
-# else
-#   include "GipsVoiceEngineLibLinux.h"
-# endif
 #else
 # include "include/stubbed_types.h"
 # include "include/StubbedVoiceEngineLib.h"

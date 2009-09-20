@@ -19,6 +19,9 @@ version_Age=0
 libsipXvoiceEngine_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age} \
 	--whole-archive \
         @SIPXMEDIA_PLUGIN_STATIC_LIBS@ \
+        @SIPXSDP_STATIC_LIBS@ \
+        @SIPXTACK_STATIC_LIBS@ \
+        @SIPXPORT_STATIC_LIBS@ \
 	--no-whole-archive
 
 libsipXvoiceEngine_la_CXXFLAGS = \
@@ -35,6 +38,7 @@ libsipXvoiceEngine_la_LIBADD = \
         @CARBON_LIBS@
 
 libsipXvoiceEngine_la_SOURCES =  \
+    VoiceEngine.cpp \
     VideoEngine.cpp \
     VoiceEngineBufferInStream.cpp \
     VoiceEngineConnectionSocket.cpp \
