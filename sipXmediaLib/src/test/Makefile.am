@@ -8,7 +8,7 @@ testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     $(CPPUNIT_LIBS) \
     @SIPXPORT_LIBS@ \
-    @SPEEX_LIBS@ \
+    @SPEEXDSP_LIBS@ \
     ../libsipXmedia.la \
     $(GIPS_OBJS)
 

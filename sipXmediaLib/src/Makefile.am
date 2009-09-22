@@ -39,7 +39,7 @@ libsipXmedia_la_LIBADD = \
 	@SIPXSDP_LIBS@ \
 	@CA_LIBS@ \
 	@GSM_LIBS@ \
-	@SPEEX_LIBS@ \
+	@SPEEXDSP_LIBS@ \
 	@STATIC_CODEC_LIBS@ \
 	-Lmp/codecs/ \
 	-lstdc++
