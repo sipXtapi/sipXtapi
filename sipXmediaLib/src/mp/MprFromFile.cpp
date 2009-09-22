@@ -791,25 +791,29 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
 UtlBoolean MprFromFile::handlePlay(UtlString* pBuffer, UtlBoolean repeat,
                                    UtlBoolean autoStopAfterFinish)
 {
-   // Start only if not playing already
-   if (mState == STATE_IDLE || mState == STATE_FINISHED)
+   // Stop previous playback if still playing it.
+   if (mState != STATE_IDLE)
    {
-      if (mpFileBuffer)
-      {
-         delete mpFileBuffer;
-      }
-      mpFileBuffer = pBuffer;
-      if (mpFileBuffer) 
-      {
-         mFileBufferIndex = 0;
-         mFileRepeat = repeat;
-      }
-      mAutoStopAfterFinish = autoStopAfterFinish;
-      mState = STATE_PLAYING;
-
-      // Notify, indicating we're started, if notfs enabled.
-      sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_STARTED);
+      handleStop();
    }
+   // We must be in STATE_IDLE at this point.
+   assert(mState == STATE_IDLE);
+
+   if (mpFileBuffer)
+   {
+      delete mpFileBuffer;
+   }
+   mpFileBuffer = pBuffer;
+   if (mpFileBuffer) 
+   {
+      mFileBufferIndex = 0;
+      mFileRepeat = repeat;
+   }
+   mAutoStopAfterFinish = autoStopAfterFinish;
+   mState = STATE_PLAYING;
+
+   // Notify about our startup.
+   sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_STARTED);
 
    return TRUE;
 }
@@ -832,11 +836,16 @@ UtlBoolean MprFromFile::handleFinish()
 
       // Set state.
       mState = STATE_FINISHED;
-   }
 
-   if (mAutoStopAfterFinish)
+      // Perform auto-stop if requested
+      if (mAutoStopAfterFinish)
+      {
+         handleStop();
+      }
+   }
+   else
    {
-      handleStop();
+      assert(!"MprFromFile::handleFinish() called when FromFile is in wrong state");
    }
 
    return TRUE;
@@ -847,9 +856,6 @@ UtlBoolean MprFromFile::handleStop()
    // Stop only if not idle.
    if (mState != STATE_IDLE)
    {
-      // Send a notification.
-      sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_STOPPED);
-
       // Cleanup if not done yet.
       if (mpFileBuffer)
       {
@@ -862,25 +868,41 @@ UtlBoolean MprFromFile::handleStop()
       mState = STATE_IDLE;
    }
 
+   // Send notification even if playback is already stopped to notify caller
+   // that request has been processed.
+   sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_STOPPED);
+
    return TRUE;
 }
 
 UtlBoolean MprFromFile::handlePause()
 {
-   if (mState == STATE_PLAYING)
+   if (mState == STATE_PLAYING || mState == STATE_PAUSED)
    {
+      // Success if playing or already paused
       mState = STATE_PAUSED;
       sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_PAUSED);
+   }
+   else // (STATE_IDLE or STATE_FINISHED)
+   {
+      // Failure if stopped.
+      sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_ERROR);
    }
    return TRUE;
 }
 
 UtlBoolean MprFromFile::handleResume()
 {
-   if(mState == STATE_PAUSED)
+   if(mState == STATE_PAUSED || mState == STATE_PLAYING)
    {
+      // Success if paused or already playing
       mState = STATE_PLAYING;
       sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_RESUMED);
+   }
+   else // (STATE_IDLE or STATE_FINISHED)
+   {
+      // Failure if nothing to resume.
+      sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_ERROR);
    }
    return TRUE;
 }
