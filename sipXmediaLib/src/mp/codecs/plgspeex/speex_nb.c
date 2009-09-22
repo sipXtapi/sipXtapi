@@ -75,6 +75,15 @@ CODEC_API int PLG_FREE_V1(speex)(void* handle, int isDecoder)
    return universal_speex_free(handle, isDecoder);
 }
 
+CODEC_API int PLG_GET_PACKET_SAMPLES_V1_2(speex)(void          *handle,
+                                                 const uint8_t *pPacketData,
+                                                 unsigned       packetSize,
+                                                 unsigned      *pNumSamples,
+                                                 const struct RtpHeader* pRtpHeader)
+{
+   return universal_speex_get_packet_samples(handle, pPacketData, packetSize,
+      pNumSamples, pRtpHeader);
+}
 
 CODEC_API  int PLG_DECODE_V1(speex)(void* handle, const void* pCodedData, 
                                     unsigned cbCodedPacketSize, void* pAudioBuffer, 

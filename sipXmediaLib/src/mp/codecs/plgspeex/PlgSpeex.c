@@ -332,12 +332,11 @@ int universal_speex_free(void* handle, int isDecoder)
    return 0;
 }
 
-
-CODEC_API int PLG_GET_PACKET_SAMPLES_V1_2(speex)(void          *handle,
-                                                 const uint8_t *pPacketData,
-                                                 unsigned       packetSize,
-                                                 unsigned      *pNumSamples,
-                                                 const struct RtpHeader* pRtpHeader)
+int universal_speex_get_packet_samples(void          *handle,
+                                       const uint8_t *pPacketData,
+                                       unsigned       packetSize,
+                                       unsigned      *pNumSamples,
+                                       const struct RtpHeader* pRtpHeader)
 {
    SpeexBits bits;
    int num_frames;
