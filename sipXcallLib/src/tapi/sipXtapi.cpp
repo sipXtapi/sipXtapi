@@ -1572,17 +1572,16 @@ SIPXTAPI_API SIPX_RESULT sipxCallDestroy(SIPX_CALL& hCall)
     }
     else if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteUrl, NULL, &ghostCallId))
     {
-        int nFilesPlaying = 0;
-        bool bTonePlaying = false;
         UtlBoolean bRemoveInsteadOfDrop = sipxCallIsRemoveInsteadOfDropSet(hCall);
         SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger);
 
         if (pData && pData->state != SIPX_INTERNAL_CALLSTATE_DESTROYING)
         {
-            nFilesPlaying = pData->nFilesPlaying;
-            bTonePlaying = pData->bTonePlaying;
-
-            if (false == bTonePlaying && nFilesPlaying <= 0)
+            // I'm not sure why this check was here - likely it was because
+            // of some GIPS VE quirks. But with sipXmediaLib we don't need
+            // this, so I remove it. This check makes it much more likely to
+            // have non-cleaned up calls if something goes wrong.
+//            if (false == pData->bTonePlaying && pData->nFilesPlaying <= 0)
             {
                 pData->state = SIPX_INTERNAL_CALLSTATE_DESTROYING;
                 sipxCallReleaseLock(pData, SIPX_LOCK_WRITE, stackLogger);
@@ -4150,7 +4149,16 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
             sipxConfReleaseLock(pData, SIPX_LOCK_READ, stackLogger);
         }    
         
-        if (nNumFilesPlaying <= 0)
+        // I'm not sure why this check was here - likely it was because
+        // of some GIPS VE quirks. But with sipXmediaLib we don't need
+        // this, so I remove it. This check makes it much more likely to
+        // have non-cleaned up calls if something goes wrong.
+/*        if (nNumFilesPlaying > 0)
+        {
+           rc = SIPX_RESULT_BUSY;
+        }
+        else
+*/
         {
             // Get a snapshot of the calls, drop the connections, remove the conf handle,
             // and THEN whack the call -- otherwise whacking the calls will force updates
@@ -4164,10 +4172,6 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
             sipxConfFree(hConf) ;
 
             rc = SIPX_RESULT_SUCCESS ;
-        }
-        else
-        {
-            rc = SIPX_RESULT_BUSY;
         }
     }
 
