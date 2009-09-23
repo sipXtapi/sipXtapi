@@ -118,3 +118,5 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/utl/*
 %{_includedir}/xmlparser/*
 %{_includedir}/sipxunit/*
+%{_includedir}/SipXportLibInit.h
+

@@ -182,7 +182,8 @@ libsipXport_la_SOURCES =  \
     xmlparser/TiXmlIterator.cpp \
     xmlparser/ExtractContent.cpp \
     hmac-sha1/hmac-sha1.c \
-    hmac-sha1/sha1.c 
+    hmac-sha1/sha1.c \
+    hmac-sha1/sha1.h
 
 EXTRA_DIST= \
     os/Wnt/getWindowsDNSServers.cpp \

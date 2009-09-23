@@ -116,12 +116,14 @@ nobase_include_HEADERS = \
     os/StunMessage.h \
     os/StunUtils.h \
     os/TurnMessage.h \
+    xmlparser/ExtractContent.h \
     xmlparser/tinystr.h \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \
     utl/UtlLongLongInt.h \
     utl/UtlNameValueTokenizer.h \
     utl/UtlBool.h \
+    utl/UtlChainPool.h \
     utl/UtlCrc32.h \
     utl/UtlCryptoData.h \
     utl/UtlCryptoKey.h \
