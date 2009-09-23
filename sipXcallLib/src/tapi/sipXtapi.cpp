@@ -145,6 +145,13 @@ void destroyCallData(SIPX_CALL_DATA* pData)
       pData->sessionCallId = NULL;
       delete pData->contactAddress;
       pData->contactAddress = NULL;
+#ifdef __APPLE__ // [
+      // Under Mac OS X pthread_rwlock_destroy() function will fail if
+      // the system has detected an attempt to destroy the object referenced by
+      // rwlock while it is locked.
+      pData->pMutex->releaseRead();
+      pData->pMutex->releaseWrite();
+#endif // __APPLE__ ]
       // no need to release mutex, nobody should be waiting on it or its a bug
       delete pData->pMutex;
       pData->pMutex = NULL;
