@@ -1192,7 +1192,13 @@ SIPXTAPI_API SIPX_RESULT sipxCallCreate(const SIPX_INST hInst,
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallCreate hInst=%p hLine=%d phCall=%p",
         hInst, hLine, phCall);
-        
+
+    if (hLine == SIPX_LINE_NULL)
+    {
+       OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxCallCreate is called with NULL hLine!");
+       return SIPX_RESULT_INVALID_ARGS;
+    }
+
     SIPX_RESULT rc = sipxCallCreateHelper(hInst, hLine, SIPX_CONF_NULL, phCall) ;
     if (rc == SIPX_RESULT_SUCCESS)
     {
@@ -3557,6 +3563,12 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
         "sipxConferenceAdd hConf=%ld hLine=%d szAddress=%s contactId=%d, pDisplay=%p "
         "bEnableLocationHeader=%d bandWidth=%d",
         hConf, hLine, szAddress, contactId, pDisplay, bEnableLocationHeader, bandWidth);
+
+    if (hLine == SIPX_LINE_NULL)
+    {
+       OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxConferenceAdd is called with NULL hLine!");
+       return SIPX_RESULT_INVALID_ARGS;
+    }
 
     // check for and load security runtime .dlls
     if (pSecurity)

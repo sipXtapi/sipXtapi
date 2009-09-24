@@ -1237,7 +1237,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallAnswer(const SIPX_CALL hCall,
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param hLine Line Identity for the outbound call.  The line identity 
- *        helps defines the "From" caller-id.
+ *        helps defines the "From" caller-id.  The line identity can't be
+ *        SIPX_LIINE_NULL for an outbound call.
  * @param phCall Pointer to a call handle.  Upon success, this value is
  *        replaced with a valid call handle.  Success is determined by
  *        the SIPX_RESULT result code.
@@ -2221,7 +2222,8 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceSplit(const SIPX_CONF hConf,
  * @param hConf Handle to a conference.  Conference handles are obtained 
  *        by invoking sipxConferenceCreate.
  * @param hLine Line Identity for the outbound call.  The line identity 
- *        helps defines the "From" caller-id.
+ *        helps defines the "From" caller-id.  The line identity can't be
+ *        SIPX_LIINE_NULL, as it's an outbound call.
  * @param szAddress SIP URL of the conference participant to add
  * @param phNewCall Pointer to a call handle to store new call.
  * @param contactId Id of the desired contact record to use for this call.
