@@ -105,8 +105,11 @@ public:
      */
     virtual UtlBoolean endSubscription(const UtlString& dialogHandle);
 
+    //! Dump to syslog states considered old
+    int dumpOldSubscriptions(long oldEpochTimeSeconds);
+
     //! Remove old subscriptions that expired before given date
-    void removeOldSubscriptions(long oldEpochTimeSeconds);
+    int removeOldSubscriptions(long oldEpochTimeSeconds);
 
     //! Set maximum subscription period in seconds
     void setMaxExpiration(int expiresSeconds);
@@ -121,6 +124,9 @@ public:
      *  knowing when the dialog manager will go way.
      */
     SipDialogMgr* getDialogMgr();
+
+    //! Get count of subscription states/dialogs being managed
+    int getStateCount();
 
 /* ============================ INQUIRY =================================== */
 

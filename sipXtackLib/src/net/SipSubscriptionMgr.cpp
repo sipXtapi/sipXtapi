@@ -658,29 +658,85 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle)
     return(subscriptionFound);
 }
 
-void SipSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSeconds)
+int SipSubscriptionMgr::dumpOldSubscriptions(long oldEpochTimeSeconds)
 {
+    int totalStates = 0;
+    int oldStates = 0;
+    int stateIndicesWithNoState = 0;
     lock();
     UtlHashBagIterator iterator(mSubscriptionStateResourceIndex);
     SubscriptionServerStateIndex* stateIndex = NULL;
     while((stateIndex = (SubscriptionServerStateIndex*) iterator()))
     {
+        totalStates++;
+        if(stateIndex->mpState)
+        {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "substate: %s expires: %d old date: %d",
+                    stateIndex->mpState->data(), 
+                    stateIndex->mpState->mExpirationDate,
+                    oldEpochTimeSeconds);
+            if(stateIndex->mpState->mExpirationDate < oldEpochTimeSeconds)
+            {
+                if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+	            {
+		            UtlString requestContact;
+		            stateIndex->mpState->mpLastSubscribeRequest->
+		            getContactField(0, requestContact);
+		            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+				        "SipSubscriptionMgr::removeOldSubscriptions old subscription for key '%s', contact '%s', mExpirationDate %ld",
+				    stateIndex->data(), requestContact.data(),
+				    stateIndex->mpState->mExpirationDate);
+                }
+                oldStates++;
+            }
+        }
+        else
+        {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                "SipSubscriptionMgr::removeOldSubscriptions SubscriptionServerStateIndex with NULL mpState, should be removed");
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipSubscriptionMgr::removeOldSubscriptions should remove subscription for key '%s'",
+                          stateIndex->data());
+            stateIndicesWithNoState++;
+        }
+    }
+
+    unlock();
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            "SipSubscriptionMgr::removeOldSubscriptions states removed: %d indices w/o state: %d total states: %d",
+            oldStates, stateIndicesWithNoState, totalStates);
+    return(oldStates);
+}
+    
+int SipSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSeconds)
+{
+    int totalStates = 0;
+    int removedStates = 0;
+    int stateIndicesWithNoState = 0;
+    lock();
+    UtlHashBagIterator iterator(mSubscriptionStateResourceIndex);
+    SubscriptionServerStateIndex* stateIndex = NULL;
+    while((stateIndex = (SubscriptionServerStateIndex*) iterator()))
+    {
+        totalStates++;
         if(stateIndex->mpState)
         {
             if(stateIndex->mpState->mExpirationDate < oldEpochTimeSeconds)
             {
                 if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-	        {
-		   UtlString requestContact;
-		   stateIndex->mpState->mpLastSubscribeRequest->
-		      getContactField(0, requestContact);
-		   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-				 "SipSubscriptionMgr::removeOldSubscriptions delete subscription for key '%s', contact '%s', mExpirationDate %ld",
-				 stateIndex->data(), requestContact.data(),
-				 stateIndex->mpState->mExpirationDate);
+                {
+                    UtlString requestContact;
+                    stateIndex->mpState->mpLastSubscribeRequest->
+                    getContactField(0, requestContact);
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipSubscriptionMgr::removeOldSubscriptions delete subscription for key '%s', contact '%s', mExpirationDate %ld",
+                        stateIndex->data(), requestContact.data(),
+                        stateIndex->mpState->mExpirationDate);
                 }
                 mDialogMgr.deleteDialog(*(stateIndex->mpState));
                 mSubscriptionStatesByDialogHandle.removeReference(stateIndex->mpState);
+                removedStates++;
                 delete stateIndex->mpState;
                 stateIndex->mpState = NULL;
                 mSubscriptionStateResourceIndex.removeReference(stateIndex);
@@ -695,11 +751,16 @@ void SipSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSeconds)
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipSubscriptionMgr::removeOldSubscriptions delete subscription for key '%s'",
                           stateIndex->data());
+            stateIndicesWithNoState++;
             delete stateIndex;
         }
     }
 
     unlock();
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            "SipSubscriptionMgr::removeOldSubscriptions states removed: %d indices w/o state: %d total states: %d",
+            removedStates, stateIndicesWithNoState, totalStates);
+    return(removedStates);
 }
 
 void SipSubscriptionMgr::setMaxExpiration(int maxExpiration)
@@ -715,6 +776,15 @@ void SipSubscriptionMgr::setMaxExpiration(int maxExpiration)
 SipDialogMgr* SipSubscriptionMgr::getDialogMgr()
 {
     return &mDialogMgr;
+}
+
+int SipSubscriptionMgr::getStateCount()
+{
+    int count = 0;
+    lock();
+    count = mSubscriptionStatesByDialogHandle.entries();
+    unlock();
+    return(count);
 }
 
 /* ============================ INQUIRY =================================== */
