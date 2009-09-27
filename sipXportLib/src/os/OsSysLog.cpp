@@ -145,6 +145,7 @@ OsStatus OsSysLog::initialize(OsSysLogHandler pHandler)
 // Shutdown log
 OsStatus OsSysLog::shutdown()
 {
+   setLogHandler(NULL);
    OsSysLogTask* pTask = spOsSysLogTask ;
    spOsSysLogTask = NULL ;
    if (pTask != NULL)
