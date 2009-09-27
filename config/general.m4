@@ -387,7 +387,7 @@ AC_DEFUN([CHECK_CARBON],
     AC_MSG_CHECKING([for Carbon])
 
     if test "`uname`" == "Darwin"; then
-        AC_SUBST(CARBON_LIBS,"-framework Carbon")
+        AC_SUBST(CARBON_LIBS,"-framework Carbon -framework OpenGL -framework QuickTime -framework AGL")
         AC_MSG_RESULT([yes])
     else
         AC_SUBST(CARBON_LIBS,"")

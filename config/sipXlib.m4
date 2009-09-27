@@ -432,11 +432,11 @@ AC_DEFUN([CHECK_GIPS_VEMM],
 
       AC_MSG_CHECKING(for gips voice engine includes)
 
-      if test -e $abs_srcdir/../../contrib/gips/VoiceEngine/interface/mac/GipsVoiceEngineLib.h
+      if test -e $abs_srcdir/../../contrib/gips/VoiceEngine/interface/mac/GIPSVEBase.h
       then
          gips_dir=$abs_srcdir/../../contrib/gips
       else
-         AC_MSG_ERROR($abs_srcdir/../../contrib/gips/VoiceEngine/interface/mac/GipsVoiceEngineLib.h)
+         AC_MSG_ERROR($abs_srcdir/../../contrib/gips/VoiceEngine/interface/mac/GIPSVEBase.h)
       fi
 
       AC_MSG_RESULT($gips_dir)
@@ -446,7 +446,7 @@ AC_DEFUN([CHECK_GIPS_VEMM],
       CPPFLAGS="$CPPFLAGS -I$GIPSINC"
       # Add GIPS objects to be linked in
       if test "`uname`" == "Darwin"; then
-         GIPS_VEMM_LIBS="$gips_dir/VoiceEngine/libraries/VoiceEngine_mac_intel_gcc.a $gips_dir/VoiceEngine/libraries/VideoEngineMac_mac_intel_gcc.a"
+         GIPS_VEMM_LIBS="$gips_dir/VoiceEngine/libraries/VideoEngine_mac_intel_gcc.a"
 # $gips_dir/VoiceEngine/libaries/on2vpplugin6_7.lib
       else
          GIPS_VEMM_LIBS="$gips_dir/VoiceEngine/libraries/VoiceEngine_Linux_Alsa_gcc.a"
