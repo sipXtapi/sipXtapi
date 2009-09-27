@@ -164,7 +164,14 @@ bool UPnpControl::addPortMapping(const int externalPort,
                         const bool enabled) const
 {
     bool bRet = false;
+
     
+    OsSysLog::add(FAC_NAT, PRI_DEBUG,
+        "UPnpControl::addPortMapping - attempting to map:  %s:%d  to port .\n",
+        szClientAddress,
+        internalPort, 
+        externalPort);
+
     UtlString envelope = createAddPortMappingSoapEnvelope(externalPort,
                                                        internalPort,
                                                        szClientAddress,
@@ -188,7 +195,7 @@ bool UPnpControl::addPortMapping(const int externalPort,
     else
     {
         OsSysLog::add(FAC_NAT, PRI_INFO,
-            "UPnpControl::addPortMapping - failure.\n");
+            "UPnpControl::addPortMapping - failure. - error Code = %d\n", nErrorCode);
     }
     
     return bRet;

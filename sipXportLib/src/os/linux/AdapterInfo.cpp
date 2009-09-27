@@ -214,105 +214,83 @@ bool getContactAdapterName(UtlString &adapterName, const UtlString &ipAddress, b
 AdapterInfoRec* getAdaptersInfo(int& numAdapters,
                                  bool bForceLookup)
 {
-        char MacAddressStr[256]; //mac address converted to a string
-        char MacOneByteStr[10]; //used to hold one byte of mac address
-
-	//just return count if we already did this before
-	if (!bForceLookup && AdapterCount)
-	{
-		numAdapters = AdapterCount;
-		return adapters;
-	}
-
-	numAdapters = 0;
-	AdapterCount = 0;
-	// clear the adapters struct
-	memset(adapters, 0, sizeof(adapters));
-
-/*	
-	IP_ADAPTER_INFO  *pAdapterInfo; //points to buffer hold linked list adapter info
-
-	DWORD dwSize = (sizeof(IP_ADAPTER_INFO) * MAX_ADAPTERS) + sizeof(DWORD); //size for lots of adapters
-	char *buffer = new char[dwSize];  //allocate space for lots of adapters
-	if (buffer)
-	{
-		pAdapterInfo = (IP_ADAPTER_INFO *)buffer;  //point to buffer
-		if (GetAdaptersInfo(
-			pAdapterInfo,  // buffer for mapping table
-			&dwSize) == NO_ERROR)                     // sort the table
-		{
-			while (pAdapterInfo)
-			{
-				strcpy(adapters[AdapterCount].AdapterName, pAdapterInfo->Description);
-				strcpy(adapters[AdapterCount].IpAddress, (const char *)pAdapterInfo->IpAddressList.IpAddress.String);
-				// get a list of gateways (comma separated) for the adapter
-				_IP_ADDR_STRING* pGateway = &pAdapterInfo->GatewayList;
-				memset(adapters[AdapterCount].GatewayList, 0, sizeof(adapters[AdapterCount].GatewayList));
-				int gatewayCount = 0;
-				while (pGateway)
-				{
-					if (gatewayCount)
-					{
-					strncat(adapters[AdapterCount].GatewayList,
-						",",
-						sizeof(adapters[AdapterCount].GatewayList));
-					}
-					gatewayCount++;
-					strncat(adapters[AdapterCount].GatewayList,
-					(const char *)pGateway->IpAddress.String,
-						sizeof(adapters[AdapterCount].GatewayList));
-					pGateway = pAdapterInfo->GatewayList.Next;
-				}
-
-				// get a current Dns Server
-				// now that we have the index, we
-				// can call GetPerAdapterInfo
-				unsigned long outBufLen = 0;
-				GetPerAdapterInfo(pAdapterInfo->Index, NULL, &outBufLen);
-				if (outBufLen)
-				{
-					IP_PER_ADAPTER_INFO* pPerAdapterInfo = (IP_PER_ADAPTER_INFO*) malloc(outBufLen);
-					DWORD dwResult = GetPerAdapterInfo(pAdapterInfo->Index, pPerAdapterInfo, &outBufLen);  
-					if (ERROR_SUCCESS == dwResult)
-					{
-					IP_ADDR_STRING* pDns = &pPerAdapterInfo->DnsServerList;
-					int dnsCount = 0;
-					while (pDns)
-					{
-						if (dnsCount)
-						{
-						strncat(adapters[AdapterCount].DnsList,
-							",",
-							sizeof(adapters[AdapterCount].DnsList));
-						}
-						dnsCount++;
-						strncat(adapters[AdapterCount].DnsList,
-						pDns->IpAddress.String, 
-						sizeof(adapters[AdapterCount].DnsList));
-						pDns = pDns->Next;
-					}
-					}              
-					free(pPerAdapterInfo);
-				}
-				
-				//build mac address as a string
-				*MacAddressStr = '\0';
-				for (unsigned int loop = 0; loop < pAdapterInfo->AddressLength; loop++)
-				{
-					if (strlen(MacAddressStr))
-						strcat(MacAddressStr,"-");
-					sprintf(MacOneByteStr,"%02X",pAdapterInfo->Address[loop]);
-					strcat(MacAddressStr,MacOneByteStr);
-				}
-				strcpy((char *)adapters[AdapterCount].MacAddress, MacAddressStr);
-				AdapterCount++;
-				pAdapterInfo = pAdapterInfo->Next;
-			}
-			numAdapters = AdapterCount;
-		}
-		delete [] buffer;
-	}
-*/
-
+    UtlBoolean rc;
+    char MacAddressStr[256]; //mac address converted to a string
+    char MacOneByteStr[10]; //used to hold one byte of mac address
+    //just return count if we already did this before
+    if (!bForceLookup && AdapterCount)
+    {
+        numAdapters = AdapterCount;
         return adapters;
+    }
+
+    numAdapters = 0;
+    AdapterCount = 0;
+    // clear the adapters struct
+    memset(adapters, 0, sizeof(adapters));
+
+    // Allocate array of struct ifreq's.
+    struct ifreq ifreq_array[MAX_IP_ADDRESSES];
+    // Allocate struct ifconf.
+    struct ifconf ifconf_structure;
+    // Point ifconf to ifreq's.
+    ifconf_structure.ifc_len = sizeof (ifreq_array);
+    ifconf_structure.ifc_req = ifreq_array;
+
+    // Open an arbitrary network socket on which to perform the ioctl.
+    int sock = socket(PF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+    {
+        OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                "getAdaptersInfo unable to open socket, errno = %d",
+                errno);
+        rc = FALSE;
+    }
+    else
+    {
+        // Perform the SIOCGIFCONF ioctl to get the interface addresses.
+        int ret = ioctl(sock, SIOCGIFCONF, (void*) &ifconf_structure);
+        if (ret < 0)
+        {
+                OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                        "getAdaptersInfo error performing SIOCGIFCONF, errno = %d",
+                        errno);
+                rc = FALSE;
+        }
+        else
+        {
+            rc = TRUE;
+            // Get the number of returned addresses from ifc_len.
+            int numAddresses = ifconf_structure.ifc_len / sizeof (struct ifreq);
+            // Iterate through the returned addresses.
+            for (int i = 0; i < numAddresses; i++)
+            {
+                if (ifreq_array[i].ifr_addr.sa_family != AF_INET)
+                        continue;
+                // Get transient pointer to address in text format.
+                char* s = inet_ntoa(((struct sockaddr_in&) (ifreq_array[i].ifr_addr)).sin_addr);
+                // Ignore the loopback address, because opening ports on the
+                // loopback interface interferes with STUN operation.
+                UtlString address(s);
+                if (address.compareTo("127.0.0.1") != 0 && address.compareTo("0.0.0.0") != 0)
+                {
+                        // Put the interface name and address into the adapters structure
+                        strcpy(adapters[AdapterCount].AdapterName, ifreq_array[i].ifr_name);
+                        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                                "getAdaptersInfo adapter name: %s",
+                                ifreq_array[i].ifr_name);
+                        strcpy(adapters[AdapterCount].IpAddress, s);
+                        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                                "getAdaptersInfo adapter ipaddress: %s",
+                                s);
+
+                        // TODO -  get the dns server list and add it to the structure
+                        AdapterCount++;
+                }
+            }
+            numAdapters = AdapterCount;
+        }
+        close(sock);
+    }
+    return adapters;
 }

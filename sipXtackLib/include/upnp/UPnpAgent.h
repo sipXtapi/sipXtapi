@@ -39,7 +39,7 @@
 #ifdef WIN32
 	#define UPNP_REG_PATH "SOFTWARE\\sipxUA\\uPnpPorts"
 #else
-	#define UPNP_REG_PATH "./.sipxUA"
+	#define UPNP_REG_PATH "/.sipxUA/"
 #endif
 // MACROS
 // EXTERNAL FUNCTIONS

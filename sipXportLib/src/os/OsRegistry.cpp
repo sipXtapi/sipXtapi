@@ -11,10 +11,15 @@
 // SYSTEM INCLUDES
 #include "os/OsSysLog.h"
 #include "os/OsRegistry.h"
+#include "os/OsConfigDb.h"
 
 #ifdef WIN32
 #include <windows.h>
+#else
+#include <sys/stat.h>
 #endif
+
+#define REG_FILENAME ".sipxtapi"
 
 // APPLICATION INCLUDES
 // EXTERNAL FUNCTIONS
@@ -45,7 +50,8 @@ bool OsRegistry::writeInteger(UtlString keyPath, UtlString key, int value)
 {
    bool bRet = false;
 
-#ifdef WIN32   
+
+#if defined(_WIN32)
    HKEY hKey;
 
    DWORD err = RegOpenKeyEx(
@@ -84,7 +90,21 @@ bool OsRegistry::writeInteger(UtlString keyPath, UtlString key, int value)
         }
     }
    RegCloseKey(hKey);
+#elif defined(__pingtel_on_posix__) || defined (__MACH__)
+    const char* szHomeDir = getenv("HOME");
+ 
+    UtlString sFullPath = UtlString(szHomeDir) + UtlString("/") + UtlString(REG_FILENAME);
+    OsConfigDb configDb;
+    configDb.loadFromFile(sFullPath);
+    char szBuff[256];
+
+    snprintf(szBuff, sizeof(szBuff)-1, "%d", value);
+    configDb.set(key, UtlString(szBuff));
+    configDb.storeToFile(sFullPath);
+#else
+#  error Unsupported target platform.
 #endif
+
    return bRet;
 }
 
@@ -92,8 +112,8 @@ bool OsRegistry::writeInteger(UtlString keyPath, UtlString key, int value)
 bool OsRegistry::readInteger(UtlString keyPath, UtlString key, int& value)
 {
    bool bRet = false;
-    
-#ifdef _WIN32
+
+#if defined(_WIN32)
    HKEY hKey;
    DWORD    cbData;
    DWORD    dataType;
@@ -128,8 +148,20 @@ bool OsRegistry::readInteger(UtlString keyPath, UtlString key, int& value)
 
       RegCloseKey(hKey);
    }
+#elif defined(__pingtel_on_posix__) || defined (__MACH__)
+    const char* szHomeDir = getenv("HOME");
+    UtlString sFullPath = UtlString(szHomeDir) + UtlString("/") + UtlString(REG_FILENAME);
+    OsConfigDb configDb;
+    configDb.loadFromFile(sFullPath);
+    int tempVal = 0;
+    if (configDb.get(key, tempVal) == OS_SUCCESS)
+    {
+        value = tempVal;
+    }
+#else
+#  error Unsupported target platform.
 #endif
-   
+
    return bRet;
 }
 

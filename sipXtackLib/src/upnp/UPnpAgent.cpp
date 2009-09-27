@@ -221,6 +221,8 @@ bool UPnpAgent::initialize()
                 // create a UPnpControl for the controlURL
                 mpControl = new UPnpControl(controlUrl);
                 bSuccess = true;
+                OsSysLog::add(FAC_NAT, PRI_INFO,
+                    "UPnpAgent::initialize - initialized uPNP service: %s\n", mpLocation->data());
             }
             else
             {
