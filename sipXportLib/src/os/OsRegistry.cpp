@@ -157,6 +157,7 @@ bool OsRegistry::readInteger(UtlString keyPath, UtlString key, int& value)
     if (configDb.get(key, tempVal) == OS_SUCCESS)
     {
         value = tempVal;
+        bRet = true;
     }
 #else
 #  error Unsupported target platform.

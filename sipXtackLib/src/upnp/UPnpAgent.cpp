@@ -40,9 +40,12 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define  AVAILABILITY_KEY_SUFFIX "net_interface_available_"
 // STATIC VARIABLE INITIALIZATIONS
 UPnpAgent* UPnpAgent::mpInstance = NULL;
 OsRWMutex* UPnpAgent::spMutex = new OsRWMutex(OsRWMutex::Q_PRIORITY);
+
+
 #ifndef _WIN32
 bool s_bEnabled = true ;
 bool s_bAvailable = true ;
@@ -303,7 +306,7 @@ void UPnpAgent::setAvailable(const bool bAvailable)
    // the registry entry will be keyed by a digest of a string
    // representing the current adapter info (ip, apdapter name, gateway ip, dns list -
    //                                             for all of the adapters)
-   UtlString keyDigest = getAdapterStateDigest();
+   UtlString keyDigest = UtlString(AVAILABILITY_KEY_SUFFIX) + getAdapterStateDigest();
       
    OsRegistry reg;
    reg.writeInteger(UPNP_REG_PATH, keyDigest, (int) bAvailable);
@@ -314,7 +317,7 @@ bool UPnpAgent::isAvailable()
    bool bAvailable = true;  // if we don't know, assume it is available -
                             // so that we will try to bind a port
    
-   UtlString keyDigest = getAdapterStateDigest();
+   UtlString keyDigest =  UtlString(AVAILABILITY_KEY_SUFFIX) + getAdapterStateDigest();
    int value = 0;
    OsRegistry reg;
    if (reg.readInteger(UPNP_REG_PATH, keyDigest, value))
