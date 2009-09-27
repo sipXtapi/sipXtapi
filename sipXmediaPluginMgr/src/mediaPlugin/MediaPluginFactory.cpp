@@ -129,6 +129,9 @@ void MediaPluginFactory::releaseMediaDeviceMgr(IMediaDeviceMgr* pDevice, const c
         pShrMgr->getSharedLibSymbol(szLibrary, "releaseMediaDeviceMgr", (void*&)pDestroyFunc);
         if (pDestroyFunc)
         {
+            if (pDevice)
+                pDevice->setSysLogHandler(NULL) ;
+
             pDestroyFunc(pDevice);
         }
     }
