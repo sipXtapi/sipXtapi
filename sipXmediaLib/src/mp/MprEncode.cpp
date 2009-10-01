@@ -497,6 +497,16 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
    UtlBoolean isPacketSilent;
    unsigned int codecFrameSamples;
 
+   // TODO:: Here we have a bug, which will be visible when DTX is enabled.
+   //        Consider codec with packet size bigger then our internal frame size.
+   //        And consider we've just sent a packet to the net and pushed next
+   //        frame of data to encoder. So we have some data in encoder and it's
+   //        waiting for more data to complete the packet. And suddenly stream
+   //        stops. This part of old data retains in the encoder's buffer until
+   //        stream resumes and then it's gotten encoded into the packet with
+   //        the new frame of data. Then on decoder side we have a piece of old
+   //        data at the beginning of new data which may produce an audible click.
+
    if (mpPrimaryCodec == NULL || !in.isValid())
    {
       if (mMarkNext1 == FALSE)
@@ -504,6 +514,20 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
          // This is the first empty frame after active stream.
          notifyStopTx();
          mMarkNext1 = TRUE;
+      }
+
+      if (mpPrimaryCodec != NULL)
+      {
+         // Update current timestamp to maintain RTP clock.
+         if (mNeedResample)
+         {
+            mCurrentTimestamp += inSamplesNum*mpPrimaryCodec->getInfo()->getSampleRate()
+                                             /mpFlowGraph->getSamplesPerSec();
+         }
+         else
+         {
+            mCurrentTimestamp += inSamplesNum;
+         }
       }
       return;
    }
