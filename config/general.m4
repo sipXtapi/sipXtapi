@@ -793,7 +793,7 @@ AC_DEFUN([CHECK_PCRE],
 
     # Check for pcre.h in the specified include directory if any, and a number
     # of other likely places.
-    for dir in $includeval /usr/local/include /usr/local/pcre/include /usr/include /usr/include/pcre /sw/include; do
+    for dir in $includeval /usr/local/include /usr/local/pcre/include /usr/include /usr/include/pcre /sw/include /opt/local/include; do
         if test -f "$dir/pcre.h"; then
             found_pcre_include="yes";
             includeval=$dir
@@ -803,7 +803,7 @@ AC_DEFUN([CHECK_PCRE],
 
     # Check for libpcre.{so,a} in the specified lib directory if any, and a
     # number of other likely places.
-    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib /sw/lib; do
+    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib /sw/lib /opt/local/lib; do
         if test -f "$dir/libpcre.so" -o -f "$dir/libpcre.a"; then
             found_pcre_lib="yes";
             libval=$dir
