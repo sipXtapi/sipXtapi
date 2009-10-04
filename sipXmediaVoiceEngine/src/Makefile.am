@@ -22,7 +22,8 @@ libsipXvoiceEngine_la_LDFLAGS = -version-info ${version_Current}:${version_Revis
         @SIPXSDP_STATIC_LIBS@ \
         @SIPXTACK_STATIC_LIBS@ \
         @SIPXPORT_STATIC_LIBS@ \
-	--no-whole-archive
+	--no-whole-archive \
+        $(PCRE_LDFLAGS)
 
 libsipXvoiceEngine_la_CXXFLAGS = \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \

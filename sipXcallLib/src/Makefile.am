@@ -31,7 +31,8 @@ libsipXtapi_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${
 	@SIPXTACK_STATIC_LIBS@ \
 	@SIPXSDP_STATIC_LIBS@ \
 	@SIPXPORT_STATIC_LIBS@ \
-        --no-whole-archive
+        --no-whole-archive \
+        $(PCRE_LDFLAGS)
 
 libsipXcall_la_LIBADD = \
 	@SIPXTACK_LIBS@ \
