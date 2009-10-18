@@ -26,7 +26,6 @@ nobase_include_HEADERS =  \
     tao/TaoString.h \
     tapi/SipXHandleMap.h \
     tapi/SipXMessageObserver.h \
-    tapi/SipXEventDispatcher.h \
     tapi/sipXtapi.h \
     tapi/sipXtapiEvents.h \
     tapi/sipXtapiInternal.h \
