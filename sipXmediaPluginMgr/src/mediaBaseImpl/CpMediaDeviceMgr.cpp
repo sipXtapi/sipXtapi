@@ -24,6 +24,7 @@
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
+#include "os/OsSysLog.h"
 
 #ifdef WIN32
 #   define WIN32_LEAN_AND_MEAN
@@ -32,6 +33,11 @@
 #else
 #   define DEFAULT_AUDIO_CODEC_LIST ""
 #   define DEFAULT_VIDEO_CODEC_LIST ""
+#endif
+
+#ifdef __MACH__
+#   include <CoreAudio/CoreAudio.h>
+#   include <CoreAudio/CoreAudioTypes.h>
 #endif
 
 // APPLICATION INCLUDES
@@ -80,7 +86,7 @@ void CpMediaDeviceMgr::getAudioInputDevices(char* deviceNameArray[], const int a
             deviceNameArray[i] = strdup(incaps.szPname) ;
         }
 #elif defined (__MACH__)
-        // mac os code goes here
+        getAudioDevices(true, deviceNameArray, arraySize);
 #else
         // linux code goes here
 #endif
@@ -94,11 +100,200 @@ void CpMediaDeviceMgr::getAudioInputDevices(char* deviceNameArray[], const int a
 int CpMediaDeviceMgr::getNumAudioOutputDevices()
 {
     int num = 0;
-#ifdef WIN32
+#if defined (_WIN32)
     num = waveOutGetNumDevs();
-#endif 
+#elif defined (__MACH__)
+    num = getNumAudioDevices(false);
+#endif
     return num;
 }
+
+#ifdef __MACH__
+void CpMediaDeviceMgr::getAudioDevices(bool bIsInput, char* deviceNameArray[], const int arraySize)
+{
+	UInt32 nDevices = 0;
+//		CFStringRef	devUID;
+	AudioDeviceID* pDeviceList;
+	char szName[1024];
+	OSStatus rc;
+	UInt32 nSize;
+
+	// get the property info and size for kAudioHardwarePropertyDevices
+	rc = AudioHardwareGetPropertyInfo (kAudioHardwarePropertyDevices,
+										  &nSize,
+										  NULL);
+	if (rc)
+	{
+        OsSysLog::add(FAC_MP,
+        		PRI_ERR,
+        		"Failed to retrieve property info for kAudioHardwarePropertyDevices, errno=%d",
+                rc) ;
+        return;
+	}
+
+	// determine number of hardware devices from nSize
+	nDevices = nSize / sizeof(AudioDeviceID);
+	// allocate device list
+	pDeviceList = (AudioDeviceID*) malloc(nDevices * sizeof(AudioDeviceID));
+	nSize = nDevices * sizeof(AudioDeviceID);
+
+    // get the device list
+	rc = AudioHardwareGetProperty(kAudioHardwarePropertyDevices, &nSize, pDeviceList );
+	if (rc)
+	{
+        OsSysLog::add(FAC_MP,
+        		PRI_ERR,
+        		"Failed to retrieve property:  kAudioHardwarePropertyDevices, errno=%d",
+                rc) ;
+        return;
+	}
+
+	int nDeviceCount = 0;  // count of devices that have the indicated channel type (input or output)
+	for (unsigned int i = 0; i < nDevices; i++)
+	{
+		int nChannelCount = 0;
+		rc = AudioDeviceGetPropertyInfo(
+			pDeviceList[i],
+			0,
+			bIsInput,
+			kAudioDevicePropertyStreamConfiguration,
+			&nSize,
+			NULL);
+		if (rc)
+		{
+	        OsSysLog::add(FAC_MP,
+	        		PRI_ERR,
+	        		"Failed to retrieve property info for:  kAudioDevicePropertyStreamConfiguration, errno=%d",
+	                rc) ;
+	        return;
+		}
+
+		AudioBufferList* pBufferList = (AudioBufferList *) malloc(nSize);
+
+		rc = AudioDeviceGetProperty(
+			pDeviceList[i],
+			0,
+			bIsInput,
+			kAudioDevicePropertyStreamConfiguration,
+			&nSize,
+			pBufferList);
+
+		if (rc)
+		{
+	        OsSysLog::add(FAC_MP,
+	        		PRI_ERR,
+	        		"Failed to retrieve property:  kAudioDevicePropertyStreamConfiguration, errno=%d",
+	                rc) ;
+	        return;
+		}
+		nChannelCount = pBufferList->mNumberBuffers;
+
+		// skip devices without any of the desired (input/output) channels
+		if(nChannelCount==0)
+		{
+			free(pBufferList);
+			continue;
+		}
+		// output some device info
+		nSize=sizeof(szName)-1;
+
+
+		// get the device name
+		rc = AudioDeviceGetProperty(
+	        pDeviceList[i],
+			0,
+			bIsInput,
+			kAudioDevicePropertyDeviceName,
+			&nSize,
+			szName);
+
+		if (rc)
+		{
+	        OsSysLog::add(FAC_MP,
+	        		PRI_ERR,
+	        		"Failed to retrieve property:  kAudioDevicePropertyDeviceName, errno=%d",
+	                rc) ;
+	        return;
+		}
+
+		deviceNameArray[nDeviceCount++] = strdup(szName);
+	}
+}
+
+int CpMediaDeviceMgr::getNumAudioDevices(bool bIsInput)
+{
+	UInt32 nSize;
+	OSStatus rc;
+	int nDeviceCount = 0;
+	rc = AudioHardwareGetPropertyInfo (kAudioHardwarePropertyDevices,
+										  &nSize,
+										  NULL);
+	if (rc)
+	{
+        OsSysLog::add(FAC_MP,
+        		PRI_ERR,
+        		"Failed to retrieve property info:  kAudioHardwarePropertyDevices, errno=%d",
+                rc) ;
+        return -1;
+	}
+
+	UInt32 nDevices;
+	AudioDeviceID* pDeviceList;
+	nDevices = nSize / sizeof(AudioDeviceID);
+	pDeviceList = (AudioDeviceID*) malloc(nDevices * sizeof(AudioDeviceID));
+	nSize = nDevices * sizeof(AudioDeviceID);
+
+	for (unsigned int i = 0; i < nDevices; i++)
+	{
+		rc = AudioDeviceGetPropertyInfo(
+			pDeviceList[i],
+			0,
+			bIsInput,
+			kAudioDevicePropertyStreamConfiguration,
+			&nSize,
+			NULL);
+
+		if (rc)
+		{
+	        OsSysLog::add(FAC_MP,
+	        		PRI_ERR,
+	        		"Failed to retrieve property info:  kAudioDevicePropertyStreamConfiguration, errno=%d",
+	                rc) ;
+	        return -1;
+		}
+
+		AudioBufferList *pBufferList = (AudioBufferList *) malloc(nSize);
+		rc = AudioDeviceGetProperty(
+			pDeviceList[i],
+			0,
+			bIsInput,
+			kAudioDevicePropertyStreamConfiguration,
+			&nSize,
+			&pBufferList
+			);
+
+		if (rc)
+		{
+	        OsSysLog::add(FAC_MP,
+	        		PRI_ERR,
+	        		"Failed to retrieve property:  kAudioDevicePropertyStreamConfiguration, errno=%d",
+	                rc) ;
+	        return -1;
+		}
+
+		if (!pBufferList->mNumberBuffers)
+		{
+			free(pBufferList);
+			continue;
+		}
+
+		nDeviceCount++;
+		free(pBufferList);
+	}
+	return nDeviceCount;
+}
+#endif
+
 
 void CpMediaDeviceMgr::getAudioOutputDevices(char* deviceNameArray[], const int arraySize)
 {
@@ -113,7 +308,7 @@ void CpMediaDeviceMgr::getAudioOutputDevices(char* deviceNameArray[], const int 
             deviceNameArray[i] = strdup(outcaps.szPname) ;
         }
 #elif defined (__MACH__)
-        // mac os code goes here
+        getAudioDevices(false, deviceNameArray, arraySize);
 #else
     // linux code goes here
 #endif
@@ -536,6 +731,7 @@ void CpMediaDeviceMgr::getConsoleTraceOverride(bool& bEnable) const
     }
 #endif
 }
+
 
 
 

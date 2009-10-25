@@ -231,7 +231,7 @@ static void initAudioDevices(SIPX_INSTANCE_DATA* pInst)
         pInst->outputAudioDevices[i] = NULL ;
     }
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(__MACH__)
     int numDevices = 0;
     MediaPluginFactory factory;
 

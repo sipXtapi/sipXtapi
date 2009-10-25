@@ -405,6 +405,10 @@ protected:
     void applyIgnoreCameraCapsOverride(bool& bIgnoreCameraCaps) const ;
     void applyEnableRTCPOverride(UtlBoolean& bEnableRtcp) const ;
     void getConsoleTraceOverride(bool& bEnable) const ;
+#ifdef __MACH__
+    virtual int getNumAudioDevices(bool bIsInput);
+    virtual void getAudioDevices(bool bIsInput, char* deviceNameArray[], const int arraySize);
+#endif
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
