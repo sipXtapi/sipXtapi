@@ -22,7 +22,13 @@ typedef atomic_long OsAtomicLong;
 typedef atomic_ulong OsAtomicULong;
 typedef atomic_address OsAtomicVoidPtr;
 
+#define OsAtomicLight OsAtomic
+
 #else // HAVE_C_ATOMICS ][
+
+#ifdef __arm__
+#warning ARM version of OsAtomics need to be fixed to support ARM features.
+#endif
 
 #  include <os/OsLock.h>
 #  include <os/OsMutex.h>
@@ -256,7 +262,7 @@ private:
 };
 
 
-#if defined(_M_IX86) || defined(_M_X64) || defined(__i386__) || defined(__amd64__) // [
+#if defined(_M_IX86) || defined(_M_X64) || defined(__i386__) || defined(__amd64__) || defined (__arm__)// [
 template<class T>
 class OsAtomicLight
 {
@@ -332,18 +338,19 @@ private:
    OsAtomicLightPtr& operator=(const OsAtomicLightPtr&);
 };
 
-#else // X86/X86_64 ][
+#else // X86/X86_64/ARM ][
 
 #define OsAtomicLight OsAtomic
+#define OsAtomicLightPtr OsAtomicPtr
 
-#endif // !X86/X86_64
+#endif // !X86/X86_64/ARM
+
+#endif // HAVE_C_ATOMICS ]
 
 typedef OsAtomicLight<int> OsAtomicLightInt;
 typedef OsAtomicLight<unsigned int> OsAtomicLightUInt;
 typedef OsAtomicLight<long> OsAtomicLightLong;
 typedef OsAtomicLight<unsigned long> OsAtomicLightULong;
 typedef OsAtomicLight<bool> OsAtomicLightBool;
-
-#endif
 
 #endif // _OsAtomics_H_ ]
