@@ -26,6 +26,22 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
+#ifdef ANDROID // [
+// Bionic's pthreads implementation does not provide support for RW-locks.
+// As a first attempt we simply replaced RW-locks with usual mutexes.
+// I think this way is good way to go, because RW-locks for ARM-based device
+// is an overkill. But if we discover any problems with this solution, we can
+// switch to our own RW-locks implementation in sipXportLib/src/shared/OsRWMutexShared.cpp.
+   typedef pthread_mutex_t pthread_rwlock_t;
+#  define pthread_rwlock_init      pthread_mutex_init
+#  define pthread_rwlock_destroy   pthread_mutex_destroy
+#  define pthread_rwlock_rdlock    pthread_mutex_lock
+#  define pthread_rwlock_wrlock    pthread_mutex_lock
+#  define pthread_rwlock_tryrdlock pthread_mutex_trylock
+#  define pthread_rwlock_trywrlock pthread_mutex_trylock
+#  define pthread_rwlock_unlock    pthread_mutex_unlock
+#endif // ANDROID ]
+
 // FORWARD DECLARATIONS
 
 //:Mutual exclusion semaphore handling multiple readers and writers
