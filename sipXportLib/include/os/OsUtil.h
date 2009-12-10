@@ -49,7 +49,8 @@ public:
       PLATFORM_MACOSX=97,
       PLATFORM_SOLARIS=98,
       PLATFORM_LINUX=99,
-      PLATFORM_WIN32=100
+      PLATFORM_WIN32=100,
+      PLATFORM_ANDROID=101
    };
 
    enum OsProductType

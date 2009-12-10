@@ -429,6 +429,8 @@ int OsUtil::getPlatformType(void)
    platform = PLATFORM_LINUX;
 #elif defined(sun) /* ] [ */
    platform = PLATFORM_SOLARIS;
+#elif defined(ANDROID) /* ] [ */
+   platform = PLATFORM_ANDROID;
 #else /* ] [ */
 #error Unexpected Platform/CPU type
 #endif /* ] ]*/

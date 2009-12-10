@@ -441,7 +441,7 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
     char ampm[] = "AM";
     time_t ltime;
     struct tm *today;
-#if !defined(_VXWORKS) && !defined(WINCE)
+#if !defined(_VXWORKS) && !defined(WINCE) && !defined(ANDROID)
     /* Set time zone from TZ environment variable. If TZ is not set,
      * the operating system is queried to obtain the default value 
      * for the variable. 

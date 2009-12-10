@@ -33,12 +33,20 @@
 #include "os/linux/OsTaskLinux.h"
 #include "os/linux/OsUtilLinux.h"
 
+// DEFINES
+#ifdef ANDROID // [
+// Bionic does not provide some functions, which we don't really need.
+#  define pthread_cancel(x)           assert("There's no pthread_cancel T_T\n")
+#  define pthread_setcanceltype(a,b)
+#endif // ANDROID ]
+
 // EXTERNAL FUNCTIONS
+#ifndef ANDROID // [
+static inline int gettid() {return syscall(SYS_gettid);}
+#endif // !ANDROID ]
 
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -239,7 +247,7 @@ OsStatus OsTaskLinux::varSet(int* pVar, int value)
 // condition that does not have an interrupt associated with it.
 OsStatus OsTaskLinux::delay(const int milliSecs)
 {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(ANDROID)
    struct timespec ts;
    ts.tv_nsec = (milliSecs % 1000) * 1000000;
    ts.tv_sec = milliSecs / 1000;
@@ -738,7 +746,7 @@ void * OsTaskLinux::taskEntry(void* arg)
 
    // Log Thread ID for debug purposes
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::taskEntry: Started task %s with lwp=%ld, pid=%d",
-                 pTask->mName.data(), syscall(SYS_gettid), getpid());
+                 pTask->mName.data(), gettid(), getpid());
 
 
    // Run the code the task is supposed to run, namely the run()
