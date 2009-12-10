@@ -1,5 +1,6 @@
-# This Makefile is for building sipXportLib as a part of Android NDK.
-# To build sipXportLib as a part of Android core, use Android-core.mk.
+# This Makefile is for building sipXportLib as a part of Android core.
+# It fails when you try to build with it for NDK, so we provide a separate
+# Makefile for NDK.
 
 LOCAL_PATH := $(call my-dir)
 
@@ -155,10 +156,8 @@ LOCAL_SRC_FILES := \
     src/hmac-sha1/hmac-sha1.c \
     src/hmac-sha1/sha1.c 
 
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+LOCAL_CFLAGS += -D__pingtel_on_posix__ \
+                -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
 
 #ifeq ($(TARGET_ARCH),arm)
 #	LOCAL_CFLAGS += -DARMv5_ASM
@@ -167,19 +166,23 @@ LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
 #ifeq ($(TARGET_BUILD_TYPE),debug)
 #	LOCAL_CFLAGS += -DDEBUG
 #endif
-
+    
 LOCAL_C_INCLUDES += \
     $(LOCAL_PATH)/include
 
-# Hack for NDK
-LOCAL_C_INCLUDES += \
-    apps/libpcre
+#LOCAL_SHARED_LIBRARIES := \
 
-LOCAL_SHARED_LIBRARIES := libpcre
+LOCAL_STATIC_LIBRARIES := \
+	libpcre
 
-#LOCAL_STATIC_LIBRARIES := \
-#	libpcre
+LOCAL_LDLIBS += -lpthread -lrt -lstdc++
 
-LOCAL_LDLIBS += -lstdc++ -ldl
+ifeq ($(TARGET_OS),linux)
+LOCAL_LDLIBS += -ldl
+endif
+
+ifneq ($(TARGET_SIMULATOR),true)
+LOCAL_SHARED_LIBRARIES += libdl
+endif
 
 include $(BUILD_SHARED_LIBRARY)
