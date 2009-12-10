@@ -89,9 +89,6 @@ testsuite_SOURCES = \
     utl/UtlVoidPtr.cpp \
     utl/XmlContentTest.cpp
 
-# :TODO: Removed because they depend on direct access to glib
-#    os/OsTimerTest.cpp
-
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
 # debugging or when developing a new unittest. As courtesy remove all
 # unittests before checking in, although forgetting to has no ill
