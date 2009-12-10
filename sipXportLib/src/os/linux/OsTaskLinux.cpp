@@ -38,6 +38,7 @@
 // Bionic does not provide some functions, which we don't really need.
 #  define pthread_cancel(x)           assert("There's no pthread_cancel T_T\n")
 #  define pthread_setcanceltype(a,b)
+#  define mlockall(a)                 POSIX_OK
 #endif // ANDROID ]
 
 // EXTERNAL FUNCTIONS
