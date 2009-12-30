@@ -260,10 +260,10 @@ public:
      /// @brief Return status of in band DTMF
    virtual OsStatus isInBandDTMFEnabled(UtlBoolean& enabled) const = 0;
 
-    virtual int getNumAudioInputDevices() = 0;
-    virtual void getAudioInputDevices(char* deviceNameArray[], const int arraySize) = 0;
-    virtual int getNumAudioOutputDevices() = 0;
-    virtual void getAudioOutputDevices(char* deviceNameArray[], const int arraySize) = 0;
+    virtual int getNumAudioInputDevices() const = 0;
+    virtual void getAudioInputDevices(char* deviceNameArray[], const int arraySize) const = 0;
+    virtual int getNumAudioOutputDevices() const = 0;
+    virtual void getAudioOutputDevices(char* deviceNameArray[], const int arraySize) const = 0;
 
     virtual void applyMediaContactTypeOverride(SIPX_CONTACT_TYPE& eType) const = 0;
     virtual void* const getAudioEnginePtr() const = 0;

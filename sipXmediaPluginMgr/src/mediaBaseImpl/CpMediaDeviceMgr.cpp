@@ -1,4 +1,4 @@
-// Copyright 2008 AOL LLC.
+// Copyright 2008-2009 AOL LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
-// Copyright (C) 2008 SIPfoundry Inc.
+// Copyright (C) 2008-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -64,16 +64,18 @@ void CpMediaDeviceMgr::freeDeviceList(char* deviceList[])
     }
 }
 
-int CpMediaDeviceMgr::getNumAudioInputDevices()
+int CpMediaDeviceMgr::getNumAudioInputDevices() const
 {
     int num = 0;
-#ifdef _WIN32
-    num = waveInGetNumDevs();
-#endif 
+#if defined (_WIN32)
+    num = waveOutGetNumDevs();
+#elif defined (__MACH__)
+    num = getNumAudioDevices(true);
+#endif
     return num;
 }
 
-void CpMediaDeviceMgr::getAudioInputDevices(char* deviceNameArray[], const int arraySize)
+void CpMediaDeviceMgr::getAudioInputDevices(char* deviceNameArray[], const int arraySize) const
 {
     if (deviceNameArray)
     {
@@ -97,7 +99,7 @@ void CpMediaDeviceMgr::getAudioInputDevices(char* deviceNameArray[], const int a
     }
 }
 
-int CpMediaDeviceMgr::getNumAudioOutputDevices()
+int CpMediaDeviceMgr::getNumAudioOutputDevices() const
 {
     int num = 0;
 #if defined (_WIN32)
@@ -109,7 +111,7 @@ int CpMediaDeviceMgr::getNumAudioOutputDevices()
 }
 
 #ifdef __MACH__
-void CpMediaDeviceMgr::getAudioDevices(bool bIsInput, char* deviceNameArray[], const int arraySize)
+void CpMediaDeviceMgr::getAudioDevices(bool bIsInput, char* deviceNameArray[], const int arraySize) const
 {
 	UInt32 nDevices = 0;
 //		CFStringRef	devUID;
@@ -135,6 +137,7 @@ void CpMediaDeviceMgr::getAudioDevices(bool bIsInput, char* deviceNameArray[], c
 	nDevices = nSize / sizeof(AudioDeviceID);
 	// allocate device list
 	pDeviceList = (AudioDeviceID*) malloc(nDevices * sizeof(AudioDeviceID));
+	memset(pDeviceList, 0, nDevices * sizeof(AudioDeviceID));
 	nSize = nDevices * sizeof(AudioDeviceID);
 
     // get the device list
@@ -165,11 +168,11 @@ void CpMediaDeviceMgr::getAudioDevices(bool bIsInput, char* deviceNameArray[], c
 	        		PRI_ERR,
 	        		"Failed to retrieve property info for:  kAudioDevicePropertyStreamConfiguration, errno=%d",
 	                rc) ;
-	        return;
+	        continue;
 		}
 
 		AudioBufferList* pBufferList = (AudioBufferList *) malloc(nSize);
-
+        memset(pBufferList, 0, nSize);
 		rc = AudioDeviceGetProperty(
 			pDeviceList[i],
 			0,
@@ -184,12 +187,11 @@ void CpMediaDeviceMgr::getAudioDevices(bool bIsInput, char* deviceNameArray[], c
 	        		PRI_ERR,
 	        		"Failed to retrieve property:  kAudioDevicePropertyStreamConfiguration, errno=%d",
 	                rc) ;
-	        return;
 		}
 		nChannelCount = pBufferList->mNumberBuffers;
 
 		// skip devices without any of the desired (input/output) channels
-		if(nChannelCount==0)
+		if(rc || nChannelCount==0)
 		{
 			free(pBufferList);
 			continue;
@@ -220,7 +222,7 @@ void CpMediaDeviceMgr::getAudioDevices(bool bIsInput, char* deviceNameArray[], c
 	}
 }
 
-int CpMediaDeviceMgr::getNumAudioDevices(bool bIsInput)
+int CpMediaDeviceMgr::getNumAudioDevices(bool bIsInput) const
 {
 	UInt32 nSize;
 	OSStatus rc;
@@ -241,7 +243,19 @@ int CpMediaDeviceMgr::getNumAudioDevices(bool bIsInput)
 	AudioDeviceID* pDeviceList;
 	nDevices = nSize / sizeof(AudioDeviceID);
 	pDeviceList = (AudioDeviceID*) malloc(nDevices * sizeof(AudioDeviceID));
+	memset(pDeviceList, 0, sizeof(AudioDeviceID));
 	nSize = nDevices * sizeof(AudioDeviceID);
+
+    // get the device list
+    rc = AudioHardwareGetProperty(kAudioHardwarePropertyDevices, &nSize, pDeviceList );
+    if (rc)
+    {
+        OsSysLog::add(FAC_MP,
+            PRI_ERR,
+            "Failed to retrieve property:  kAudioHardwarePropertyDevices, errno=%d",
+            rc) ;
+        return -1;
+    }
 
 	for (unsigned int i = 0; i < nDevices; i++)
 	{
@@ -259,17 +273,18 @@ int CpMediaDeviceMgr::getNumAudioDevices(bool bIsInput)
 	        		PRI_ERR,
 	        		"Failed to retrieve property info:  kAudioDevicePropertyStreamConfiguration, errno=%d",
 	                rc) ;
-	        return -1;
+	        continue;
 		}
 
 		AudioBufferList *pBufferList = (AudioBufferList *) malloc(nSize);
+		memset(pBufferList, 0, nSize);
 		rc = AudioDeviceGetProperty(
 			pDeviceList[i],
 			0,
 			bIsInput,
 			kAudioDevicePropertyStreamConfiguration,
 			&nSize,
-			&pBufferList
+			pBufferList
 			);
 
 		if (rc)
@@ -278,7 +293,8 @@ int CpMediaDeviceMgr::getNumAudioDevices(bool bIsInput)
 	        		PRI_ERR,
 	        		"Failed to retrieve property:  kAudioDevicePropertyStreamConfiguration, errno=%d",
 	                rc) ;
-	        return -1;
+	        free(pBufferList);
+	        continue;
 		}
 
 		if (!pBufferList->mNumberBuffers)
@@ -295,7 +311,7 @@ int CpMediaDeviceMgr::getNumAudioDevices(bool bIsInput)
 #endif
 
 
-void CpMediaDeviceMgr::getAudioOutputDevices(char* deviceNameArray[], const int arraySize)
+void CpMediaDeviceMgr::getAudioOutputDevices(char* deviceNameArray[], const int arraySize) const
 {
     if (deviceNameArray)
     {

@@ -347,10 +347,10 @@ public:
     virtual OsStatus destroyLocalAudioConnection() { return OS_NOT_SUPPORTED; }
 
 
-    virtual int getNumAudioInputDevices();
-    virtual void getAudioInputDevices(char* deviceNameArray[], const int arraySize);
-    virtual int getNumAudioOutputDevices();
-    virtual void getAudioOutputDevices(char* deviceNameArray[], const int arraySize);
+    virtual int getNumAudioInputDevices() const;
+    virtual void getAudioInputDevices(char* deviceNameArray[], const int arraySize) const;
+    virtual int getNumAudioOutputDevices() const;
+    virtual void getAudioOutputDevices(char* deviceNameArray[], const int arraySize) const;
     virtual void applyMediaContactTypeOverride(SIPX_CONTACT_TYPE& eType) const ;
 
 
@@ -406,8 +406,8 @@ protected:
     void applyEnableRTCPOverride(UtlBoolean& bEnableRtcp) const ;
     void getConsoleTraceOverride(bool& bEnable) const ;
 #ifdef __MACH__
-    virtual int getNumAudioDevices(bool bIsInput);
-    virtual void getAudioDevices(bool bIsInput, char* deviceNameArray[], const int arraySize);
+    virtual int getNumAudioDevices(bool bIsInput) const;
+    virtual void getAudioDevices(bool bIsInput, char* deviceNameArray[], const int arraySize) const;
 #endif
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
