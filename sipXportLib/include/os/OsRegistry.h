@@ -38,10 +38,12 @@ public:
    virtual ~OsRegistry();
 
 /* ============================ MANIPULATORS ============================== */
-   bool writeInteger(UtlString keyPath, UtlString key, int value);
+   bool writeInteger(const UtlString keyPath, const UtlString key, const int value) const;
+   bool writeString(const UtlString keyPath, const UtlString key, const UtlString value) const;
 
 /* ============================ ACCESSORS ================================= */
-   bool readInteger(UtlString keyPath, UtlString key, int& value);
+   bool readInteger(const UtlString keyPath, const UtlString key, int& value) const;
+   bool readString(const UtlString keyPath, const UtlString key, UtlString& value) const;
    
 /* ============================ INQUIRY =================================== */
     

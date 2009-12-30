@@ -133,6 +133,7 @@
 				<F N="src/os/OsProtectEventMgrInit.cpp"/>
 				<F N="src/os/OsPtrMsg.cpp"/>
 				<F N="src/os/OsQueuedEvent.cpp"/>
+				<F N="src/os/OsRegistry.cpp"/>
 				<F N="src/os/OsRpcMsg.cpp"/>
 				<F N="src/os/linux/OsRWMutexLinux.cpp"/>
 				<F N="src/os/shared/OsRWMutexShared.cpp"/>

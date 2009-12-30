@@ -997,7 +997,8 @@ UtlBoolean OsNatAgentTask::primeTurnReception(IOsNatSocket* pSocket,
     }
     else
     {
-        assert(false) ;
+        //OsSysLog::flush() ;
+        //assert(false) ;
     }
 
     return bRC ;
