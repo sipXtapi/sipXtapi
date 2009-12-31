@@ -23,6 +23,8 @@ include $(SIPX_HOME)/sipXportLib/Android.mk
 
 include $(SIPX_HOME)/sipXsdpLib/Android.mk
 
+include $(SIPX_HOME)/sipXtackLib/Android.mk
+
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := libsipXtapi
