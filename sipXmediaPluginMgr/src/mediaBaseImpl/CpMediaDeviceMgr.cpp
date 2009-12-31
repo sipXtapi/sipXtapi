@@ -75,7 +75,7 @@ int CpMediaDeviceMgr::getNumAudioInputDevices() const
     return num;
 }
 
-void CpMediaDeviceMgr::getAudioInputDevices(char* deviceNameArray[], const int arraySize) const
+void CpMediaDeviceMgr::getAudioInputDevices(char* deviceNameArray[], void* deviceHandleArray[], const int arraySize) const
 {
     if (deviceNameArray)
     {
@@ -85,10 +85,17 @@ void CpMediaDeviceMgr::getAudioInputDevices(char* deviceNameArray[], const int a
         for (int i=0; i < num && i < arraySize; i++)
         {
             waveInGetDevCaps(i, &incaps, sizeof(WAVEINCAPS)) ;
-            deviceNameArray[i] = strdup(incaps.szPname) ;
+            if (deviceNameArray)
+            {
+                deviceNameArray[i] = strdup(incaps.szPname) ;
+            }
+            if (deviceHandleArray)
+            {
+                deviceHandleArray[i] = i ;
+            }
         }
 #elif defined (__MACH__)
-        getAudioDevices(true, deviceNameArray, arraySize);
+        getAudioDevices(true, deviceNameArray, deviceHandleArray, arraySize);
 #else
         // linux code goes here
 #endif
@@ -111,7 +118,7 @@ int CpMediaDeviceMgr::getNumAudioOutputDevices() const
 }
 
 #ifdef __MACH__
-void CpMediaDeviceMgr::getAudioDevices(bool bIsInput, char* deviceNameArray[], const int arraySize) const
+void CpMediaDeviceMgr::getAudioDevices(bool bIsInput, char* deviceNameArray[], void* deviceHandleArray[], const int arraySize) const
 {
 	UInt32 nDevices = 0;
 //		CFStringRef	devUID;
@@ -218,7 +225,19 @@ void CpMediaDeviceMgr::getAudioDevices(bool bIsInput, char* deviceNameArray[], c
 	        return;
 		}
 
-		deviceNameArray[nDeviceCount++] = strdup(szName);
+        if (deviceNameArray)
+        {
+    
+            UtlString cleanedName(szName) ;
+            cleanedName.strip(UtlString::trailing) ;
+            deviceNameArray[nDeviceCount] = strdup(cleanedName);
+        }
+
+        if (deviceHandleArray)
+        {
+            deviceHandleArray[nDeviceCount] = (void*) (pDeviceList[i]) ;
+        }
+        nDeviceCount++ ;
 	}
 }
 
@@ -311,7 +330,7 @@ int CpMediaDeviceMgr::getNumAudioDevices(bool bIsInput) const
 #endif
 
 
-void CpMediaDeviceMgr::getAudioOutputDevices(char* deviceNameArray[], const int arraySize) const
+void CpMediaDeviceMgr::getAudioOutputDevices(char* deviceNameArray[], void* deviceHandleArray[], const int arraySize) const
 {
     if (deviceNameArray)
     {
@@ -321,10 +340,18 @@ void CpMediaDeviceMgr::getAudioOutputDevices(char* deviceNameArray[], const int 
         for (int i=0; i < num && i < arraySize; i++)
         {
             waveOutGetDevCaps(i, &outcaps, sizeof(WAVEOUTCAPS)) ;
-            deviceNameArray[i] = strdup(outcaps.szPname) ;
+            if (deviceNameArray)
+            {
+                deviceNameArray[i] = strdup(outcaps.szPname) ;
+            }
+
+            if (deviceHandleArray)
+            {
+                deviceHandleArray[i] = i ;
+            }
         }
 #elif defined (__MACH__)
-        getAudioDevices(false, deviceNameArray, arraySize);
+        getAudioDevices(false, deviceNameArray, deviceHandleArray, arraySize);
 #else
     // linux code goes here
 #endif

@@ -348,9 +348,9 @@ public:
 
 
     virtual int getNumAudioInputDevices() const;
-    virtual void getAudioInputDevices(char* deviceNameArray[], const int arraySize) const;
+    virtual void getAudioInputDevices(char* deviceNameArray[], void* deviceHandleArray[], const int arraySize) const;
     virtual int getNumAudioOutputDevices() const;
-    virtual void getAudioOutputDevices(char* deviceNameArray[], const int arraySize) const;
+    virtual void getAudioOutputDevices(char* deviceNameArray[], void* deviceHandleArray[], const int arraySize) const;
     virtual void applyMediaContactTypeOverride(SIPX_CONTACT_TYPE& eType) const ;
 
 
@@ -407,7 +407,7 @@ protected:
     void getConsoleTraceOverride(bool& bEnable) const ;
 #ifdef __MACH__
     virtual int getNumAudioDevices(bool bIsInput) const;
-    virtual void getAudioDevices(bool bIsInput, char* deviceNameArray[], const int arraySize) const;
+    virtual void getAudioDevices(bool bIsInput, char* deviceNameArray[], void* deviceHandleArray[], const int arraySize) const;
 #endif
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

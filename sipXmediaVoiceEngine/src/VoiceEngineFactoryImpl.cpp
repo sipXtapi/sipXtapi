@@ -33,11 +33,13 @@
 #include "include/VoiceEngineBufferInStream.h"
 #include "mediaBaseImpl/CpMediaNetTask.h"
 #include "mediaBaseImpl/CpMediaSocketMonitorTask.h"
+#include "mediaBaseImpl/CpMediaDeviceMgr.h"
 #include "include/VoiceEngineSocketFactory.h"
 //#include "mi/CpMediaInterfaceFactoryFactory.h"
 
 #include "os/OsPerfLog.h"
 #include "os/OsConfigDb.h"
+#include "os/OsRegistry.h"
 #include "os/OsSysLog.h"
 #include "os/OsTimerTask.h"
 #include "os/OsProtectEventMgr.h"
@@ -50,6 +52,10 @@
 
 #ifdef WIN32
 #include <mmsystem.h>
+#endif
+
+#ifdef __MACH__
+#include <CoreAudio/AudioHardware.h>
 #endif
 
 // EXTERNAL FUNCTIONS
@@ -196,136 +202,94 @@ void VoiceEngineFactoryImpl::initialize(OsConfigDb* pConfigDb,
     mpVideoEngine = NULL ;
     mpStaticVideoEngine = NULL ;
 
-	mpLogger = new VoiceEngineLogger() ;
+    mpLogger = new VoiceEngineLogger() ;
     mpVideoLogger = new VideoEngineLogger() ;
 
     mpMediaNetTask = CpMediaNetTask::createCpMediaNetTask() ;
     mpFactory = new VoiceEngineSocketFactory(this) ;
 
-#ifdef _WIN32
-    UtlString overrideSettings ;
-    UtlString temp ;
-    HKEY hKey ;
-    DWORD dwValue ;
-    DWORD dwSize ;
-    char cTemp[256] ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
+    OsRegistry reg;
+    UtlString overrideSettings;
+    UtlString temp;
+    UtlString sValue;
+    int value;
+
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("audioTimeout"), value))
     {
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "audioTimeout", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("audioTimeout=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoFormat", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("videoFormat=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoFramerate", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("videoFramerate=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoBitrate", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("videoBitrate=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoQuality", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("videoQuality=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoCPU", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("videoCPU=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(cTemp)-1 ;
-        memset(cTemp, 0, sizeof(cTemp)) ;
-        if (RegQueryValueEx(hKey, "videoCodecs", 0, NULL, (LPBYTE) cTemp, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("videoCodecs=%s\n", cTemp) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(cTemp)-1 ;
-        memset(cTemp, 0, sizeof(cTemp)) ;
-        if (RegQueryValueEx(hKey, "videoCodecOrder", 0, NULL, (LPBYTE) cTemp, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("videoCodecOrder=%s\n", cTemp) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(cTemp)-1 ;
-        memset(cTemp, 0, sizeof(cTemp)) ;
-        if (RegQueryValueEx(hKey, "audioCodecs", 0, NULL, (LPBYTE) cTemp, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("audioCodecs=%s\n", cTemp) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(cTemp)-1 ;
-        memset(cTemp, 0, sizeof(cTemp)) ;
-        if (RegQueryValueEx(hKey, "audioCodecOrder", 0, NULL, (LPBYTE) cTemp, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("audioCodecOrder=%s\n", cTemp) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoQuality", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("videoQuality=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "consoleTrace", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("consoleTrace=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "enableRtcp", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("enableRtcp=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "ignoreCameraCaps", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("ignoreCameraCaps=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "mediaContactType", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            temp.format("mediaContactType=%d\n", dwValue) ;
-            overrideSettings.append(temp) ;
-        }
-
-        RegCloseKey(hKey) ;
-
-        OsSysLog::add(FAC_MP, PRI_NOTICE, "Overrides:\n%s", overrideSettings.data()) ;
-
+        temp.format("audioTimeout=%d\n", value) ;
+    	overrideSettings.append(temp);
     }
-#endif
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("videoFormat"), value))
+    {
+        temp.format("videoFormat=%d\n", value) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("videoFramerate"), value))
+    {
+        temp.format("videoFramerate=%d\n", value) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("videoBitrate"), value))
+    {
+        temp.format("videoBitrate=%d\n", value) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("videoQuality"), value))
+    {
+        temp.format("videoQuality=%d\n", value) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("videoCPU"), value))
+    {
+        temp.format("videoCPU=%d\n", value) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("videoQuality"), value))
+    {
+        temp.format("videoQuality=%d\n", value) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("consoleTrace"), value))
+    {
+        temp.format("consoleTrace=%d\n", value) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("enableRtcp"), value))
+    {
+        temp.format("enableRtcp=%d\n", value) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("ignoreCameraCaps"), value))
+    {
+        temp.format("ignoreCameraCaps=%d\n", value) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readInteger(SIPXTAPI_OVERRIDE_KEY, UtlString("mediaContactType"), value))
+    {
+        temp.format("mediaContactType=%d\n", value) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readString(SIPXTAPI_OVERRIDE_KEY, UtlString("videoCodecs"), sValue))
+    {
+        temp.format("videoCodecs=%s\n", sValue.data()) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readString(SIPXTAPI_OVERRIDE_KEY, UtlString("videoCodecOrder"), sValue))
+    {
+        temp.format("videoCodecOrder=%s\n", sValue.data()) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readString(SIPXTAPI_OVERRIDE_KEY, UtlString("audioCodecs"), sValue))
+    {
+        temp.format("audioCodecs=%s\n", sValue.data()) ;
+    	overrideSettings.append(temp);
+    }
+    if (reg.readString(SIPXTAPI_OVERRIDE_KEY, UtlString("audioCodecOrder"), sValue))
+    {
+        temp.format("audioCodecOrder=%s\n", sValue.data()) ;
+    	overrideSettings.append(temp);
+    }
+    OsSysLog::add(FAC_MP, PRI_NOTICE, "Overrides:\n%s", overrideSettings.data()) ;
 }
 
 void VoiceEngineFactoryImpl::setSysLogHandler(OsSysLogHandler sysLogHandler) 
@@ -600,12 +564,14 @@ VoiceEngine* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
         assert(rc == 0) ;
 #endif
 
-#ifdef _WIN32
         rc = pVoiceEngine->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice);
+        OsSysLog::add(FAC_MP, PRI_INFO, 
+                      "VoiceEngineFactoryImpl:: getNewVoiceEngineInstance GIPSVE_SetSoundDevices  input: %d, output: %d, rc: %d", 
+                      mCurrentWaveInDevice, mCurrentWaveOutDevice, rc); 
+
         assert(rc == 0) ;
-#else
         rc = 0 ;
-#endif
+
         // Save the device info last used
         UtlString results ;
         inputDeviceIndexToString(results, mCurrentWaveInDevice) ;
@@ -613,7 +579,7 @@ VoiceEngine* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
         outputDeviceIndexToString(results, mCurrentWaveOutDevice) ;
         mAudioDeviceOutput.setSelected(results) ;
         
-#ifdef _WIN32
+#  if defined (_WIN32)
         if (!isSpeakerAdjustSet())
         {
             rc = pVoiceEngine->getExternalMedia()->GIPSVE_SetExternalMediaProcessing(
@@ -869,13 +835,16 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
 
         if (mpVoiceEngine)        
         {
-#ifdef _WIN32
-			if (0 == mpVoiceEngine->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
-#endif
+            int iRC = mpVoiceEngine->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) ;
+            OsSysLog::add(FAC_MP, PRI_INFO,
+                    "VoiceEngineFactoryImpl::setSpeakerDevice GIPSVE_SetSoundDevices [GLOBAL] device: %s, input: %d, output: %d, rc: %d", 
+		            (const char*) device, mCurrentWaveInDevice, mCurrentWaveOutDevice, iRC);
+            if (iRC == 0)
             {
                 rc = OS_SUCCESS;
             }
         }
+
         while (pInterfaceInt = (UtlInt*)iterator())
         {
             pInterface = (VoiceEngineMediaInterface*)pInterfaceInt->getValue();
@@ -886,9 +855,11 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
                 pGips = (VoiceEngine*)pInterface->getAudioEnginePtr();            
                 if (pGips)
                 {
-#ifdef _WIN32
-                    if (0 == pGips->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
-#endif
+                    int iRC = mpVoiceEngine->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) ;
+                    OsSysLog::add(FAC_MP, PRI_INFO,
+                            "VoiceEngineFactoryImpl::setSpeakerDevice GIPSVE_SetSoundDevices [CONN] device: %s, input: %d, output: %d, rc: %d", 
+		                    (const char*) device, mCurrentWaveInDevice, mCurrentWaveOutDevice, iRC);
+                    if (iRC == 0)
                     {
                         rc = OS_SUCCESS;
                     }
@@ -921,7 +892,7 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneGain(int iGain)
             {
                 rc = OS_FAILED;
             }
-			else if (0 == pVoiceEngine->getVolumeControl()->GIPSVE_SetMicVolume(gipsGain))
+            else if (0 == pVoiceEngine->getVolumeControl()->GIPSVE_SetMicVolume(gipsGain))
             {
                 miGain = gipsGain;
                 rc = OS_SUCCESS;
@@ -949,11 +920,17 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
         mAudioDeviceInput.setRequested(device) ;
 
         if (mpVoiceEngine)
-        {                     
-#ifdef _WIN32
-			if (0 == mpVoiceEngine->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) )
-#endif
-                rc = OS_SUCCESS;
+        {
+            int iRC = mpVoiceEngine->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) ;                      
+            OsSysLog::add(FAC_MP, PRI_INFO, 
+                          "VoiceEngineFactoryImpl::setMicrophoneDevice GIPSVE_SetSoundDevices [GLOBAL] device: %s, input: %d, output: %d, rc:  %d", 
+		                  (const char*) device, mCurrentWaveInDevice, mCurrentWaveOutDevice, iRC); 
+
+            if (iRC == 0)
+            {
+                rc = OS_SUCCESS ;
+            }
+            
         }
 
         while (pInterfaceInt = (UtlInt*)iterator())
@@ -966,9 +943,11 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
                 pGips = (VoiceEngine*)pInterface->getAudioEnginePtr();            
                 if (pGips)
                 {
-#ifdef _WIN32
-					if (0 == pGips->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
-#endif
+                    int iRC = pGips->getHardware()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) ;
+                    OsSysLog::add(FAC_MP, PRI_INFO, 
+		                    "VoiceEngineFactoryImpl::setMicrophoneDevice GIPSVE_SetSoundDevices [CONN] device: %s, input: %d, output: %d, rc=%d", 
+		                    (const char*) device, mCurrentWaveInDevice, mCurrentWaveOutDevice, iRC); 
+                    if (iRC == 0)
                     {
                         rc = OS_SUCCESS;
                     }
@@ -1449,7 +1428,7 @@ OsStatus VoiceEngineFactoryImpl::stopPlay(const void* pSource)
 
         if (bStopAudio)
         {
-			if (mpVoiceEngine->getFile()->GIPSVE_IsPlayingFileLocally(mLocalConnectionId))
+            if (mpVoiceEngine->getFile()->GIPSVE_IsPlayingFileLocally(mLocalConnectionId))
             {
                  mpVoiceEngine->getFile()->GIPSVE_StopPlayingFileLocally(mLocalConnectionId) ;
             }
@@ -2035,7 +2014,7 @@ bool VoiceEngineFactoryImpl::doEnableAGC(VoiceEngine* pVoiceEngine,
 OsStatus VoiceEngineFactoryImpl::outputDeviceStringToIndex(int& deviceIndex, const UtlString& device) const
 {
     OsStatus rc = OS_FAILED;
-#ifdef _WIN32
+#if defined (_WIN32)
     WAVEOUTCAPS outcaps ;
     int numDevices ;
     int i ;
@@ -2044,13 +2023,35 @@ OsStatus VoiceEngineFactoryImpl::outputDeviceStringToIndex(int& deviceIndex, con
     for (i=0; i<numDevices && i<MAX_AUDIO_DEVICES; i++)
     {
         waveOutGetDevCaps(i, &outcaps, sizeof(WAVEOUTCAPS)) ;
-        if (device.length() == 0 || device == UtlString(outcaps.szPname))
+        if (device.length() == 0 || device.compareTo(outcaps.szPname, UtlString::ignoreCase) == 0)
         {
             deviceIndex = i;
             rc = OS_SUCCESS;
             break;
         }
     }
+#elif defined (__MACH__)
+    deviceIndex = 0 ;
+    char*            outputAudioDevices[MAX_AUDIO_DEVICES] ;
+    void*            deviceHandle[MAX_AUDIO_DEVICES] ;
+    int numDevices = getNumAudioOutputDevices();
+    if (numDevices > MAX_AUDIO_DEVICES)
+    {
+        numDevices = MAX_AUDIO_DEVICES ;
+    }
+
+    getAudioOutputDevices(outputAudioDevices, deviceHandle, numDevices) ;
+    for (int i = 0; i < numDevices; i++)
+    {
+    	if (device.compareTo((const char*) outputAudioDevices[i], UtlString::ignoreCase) == 0)
+    	{
+    	    deviceIndex = (int) deviceHandle[i];
+    	    rc = OS_SUCCESS;
+    	}
+
+        free(outputAudioDevices[i]) ;
+    }
+    rc = OS_SUCCESS;
 #else
     deviceIndex = 0 ;
     rc = OS_SUCCESS;
@@ -2061,7 +2062,7 @@ OsStatus VoiceEngineFactoryImpl::outputDeviceStringToIndex(int& deviceIndex, con
 OsStatus VoiceEngineFactoryImpl::outputDeviceIndexToString(UtlString& device, const int deviceIndex) const
 {
     OsStatus rc = OS_FAILED;
-#ifdef _WIN32
+#if defined (_WIN32)
     WAVEOUTCAPS outcaps ;
     int numDevices ;
 
@@ -2072,6 +2073,49 @@ OsStatus VoiceEngineFactoryImpl::outputDeviceIndexToString(UtlString& device, co
         device = outcaps.szPname;
         rc = OS_SUCCESS;
     }
+#elif defined (__MACH__)
+    char*            outputAudioDevices[MAX_AUDIO_DEVICES] ;
+    void*            deviceHandle[MAX_AUDIO_DEVICES] ;
+    int numDevices = getNumAudioOutputDevices() ;
+    if (numDevices > MAX_AUDIO_DEVICES)
+    {
+        numDevices = MAX_AUDIO_DEVICES ;
+    }
+
+    getAudioOutputDevices(outputAudioDevices, deviceHandle, numDevices) ;
+    if (deviceIndex < 0)
+    {
+    	AudioDeviceID currentDevice;
+    	UInt32 propsize = sizeof(AudioDeviceID);
+    	OSStatus err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultOutputDevice,
+    	   &propsize,
+    	   &currentDevice);
+ 
+        char szName[1024];
+        UInt32 nSize = sizeof(szName) - 1;
+        AudioDeviceGetProperty(
+	                currentDevice,
+			0,
+			false,
+			kAudioDevicePropertyDeviceName,
+			&nSize,
+			szName);
+    	device = szName;
+    	rc = OS_SUCCESS;
+    }
+    else
+    {
+        for (int i=0;i<numDevices; i++)
+        {
+            if (deviceIndex == (int) deviceHandle[i])
+            {
+                device = outputAudioDevices[i];
+                rc = OS_SUCCESS;
+            }
+            free(outputAudioDevices[i]) ;
+        }
+    }
+
 #else
     device = "dev/dsp" ;
     rc = OS_SUCCESS;
@@ -2083,7 +2127,7 @@ OsStatus VoiceEngineFactoryImpl::outputDeviceIndexToString(UtlString& device, co
 OsStatus VoiceEngineFactoryImpl::inputDeviceStringToIndex(int& deviceIndex, const UtlString& device) const
 {
     OsStatus rc = OS_FAILED;
-#ifdef _WIN32
+#if defined (_WIN32)
     WAVEINCAPS incaps ;
     int numDevices ;
     int i ;
@@ -2098,8 +2142,31 @@ OsStatus VoiceEngineFactoryImpl::inputDeviceStringToIndex(int& deviceIndex, cons
             rc = OS_SUCCESS;
         }
     }
-#else
+#elif defined (__MACH__)
     deviceIndex = 0 ;
+    char*            inputAudioDevices[MAX_AUDIO_DEVICES] ;
+    void*            deviceHandle[MAX_AUDIO_DEVICES] ;
+    int numDevices = getNumAudioInputDevices();
+    if (numDevices > MAX_AUDIO_DEVICES)
+    {
+        numDevices = MAX_AUDIO_DEVICES ;
+    }    
+
+    getAudioInputDevices(inputAudioDevices, deviceHandle, numDevices) ;
+    for (int i = 0; i < numDevices; i++)
+    {
+    	if (device.compareTo((const char*) inputAudioDevices[i], UtlString::ignoreCase) == 0)
+        {
+            deviceIndex = (int) (deviceHandle[i]) ;
+    	    rc = OS_SUCCESS;
+    	}
+ 
+        free(inputAudioDevices[i]) ;
+    }
+
+    rc = OS_SUCCESS ;
+#else
+    device = "dev/dsp" ;
     rc = OS_SUCCESS;
 #endif
     return rc;    
@@ -2108,7 +2175,7 @@ OsStatus VoiceEngineFactoryImpl::inputDeviceStringToIndex(int& deviceIndex, cons
 OsStatus VoiceEngineFactoryImpl::inputDeviceIndexToString(UtlString& device, const int deviceIndex) const
 {
     OsStatus rc = OS_FAILED;
-#ifdef _WIN32
+#  if defined (_WIN32)
     WAVEINCAPS incaps ;
     int numDevices ;
 
@@ -2119,6 +2186,52 @@ OsStatus VoiceEngineFactoryImpl::inputDeviceIndexToString(UtlString& device, con
         device = incaps.szPname;
         rc = OS_SUCCESS;
     }
+#elif defined (__MACH__)
+    char*            inputAudioDevices[MAX_AUDIO_DEVICES] ;
+    void*            deviceHandle[MAX_AUDIO_DEVICES] ;
+    int numDevices = getNumAudioInputDevices();
+    if (numDevices > MAX_AUDIO_DEVICES)
+    {
+        numDevices = MAX_AUDIO_DEVICES ;
+    }
+
+    getAudioInputDevices(inputAudioDevices, deviceHandle, numDevices) ;
+    if (deviceIndex < 0)
+    {
+    	AudioDeviceID currentDevice;
+    	UInt32 propsize = sizeof(AudioDeviceID);
+    	OSStatus err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultInputDevice,
+    	        &propsize,
+    	        &currentDevice);
+
+        char szName[1024];
+        UInt32 nSize = sizeof(szName) - 1;
+        AudioDeviceGetProperty(
+	                currentDevice,
+			0,
+			true,
+			kAudioDevicePropertyDeviceName,
+			&nSize,
+			szName);
+
+    	device = szName;
+        
+    	rc = OS_SUCCESS;
+    }
+    else 
+    {
+        for (int i=0;i<numDevices; i++)
+        {
+            if (deviceIndex == (int) deviceHandle[i])
+            {
+                device = inputAudioDevices[i];
+                rc = OS_SUCCESS;
+            }
+            free(inputAudioDevices[i]) ;
+        }
+    }
+
+    rc = OS_SUCCESS ;
 #else
     device = "/dev/dsp" ;
     rc = OS_SUCCESS ;
@@ -2225,3 +2338,4 @@ void VideoEngineLogger::Print(char *message, int length)
 #endif
     }
 }
+

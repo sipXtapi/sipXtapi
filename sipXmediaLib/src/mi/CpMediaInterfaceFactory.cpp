@@ -122,7 +122,7 @@ int CpMediaInterfaceFactory::getNumAudioInputDevices()
     return num;
 }
 
-void CpMediaInterfaceFactory::getAudioInputDevices(char* deviceNameArray[], const int arraySize)
+void CpMediaInterfaceFactory::getAudioInputDevices(char* deviceNameArray[], void* deviceHandleArray[], const int arraySize)
 {
     if (deviceNameArray)
     {
@@ -155,7 +155,7 @@ int CpMediaInterfaceFactory::getNumAudioOutputDevices()
     return num;
 }
 
-void CpMediaInterfaceFactory::getAudioOutputDevices(char* deviceNameArray[], const int arraySize)
+void CpMediaInterfaceFactory::getAudioOutputDevices(char* deviceNameArray[], void* deviceHandleArray[], const int arraySize)
 {
     if (deviceNameArray)
     {

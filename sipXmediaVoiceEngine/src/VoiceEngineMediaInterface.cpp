@@ -3499,14 +3499,15 @@ UtlBoolean VoiceEngineMediaInterface::isAudioAvailable()
 
     if (getNumConnections() == 0)
     {
-#ifdef _WIN32
         if (mpVoiceEngine)
-#endif
         {
             bool bPlayoutAvail = false ;
             bool bRecordingAVail = false ;
-            mpVoiceEngine->getHardware()->GIPSVE_GetPlayoutDeviceStatus(bPlayoutAvail) ;
-            mpVoiceEngine->getHardware()->GIPSVE_GetRecordingDeviceStatus(bRecordingAVail) ;
+            
+            int rc = mpVoiceEngine->getHardware()->GIPSVE_GetPlayoutDeviceStatus(bPlayoutAvail) ;
+            checkVoiceEngineReturnCode("GIPSVE_GetPlayoutDeviceStatus", -1, rc, true) ;  
+            rc = mpVoiceEngine->getHardware()->GIPSVE_GetRecordingDeviceStatus(bRecordingAVail) ;
+            checkVoiceEngineReturnCode("GIPSVE_GetRecordingDeviceStatus", -1, rc, true) ;  
 
             if (bPlayoutAvail && bRecordingAVail)
             {

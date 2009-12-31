@@ -125,9 +125,9 @@ public:
 
 /* ============================ INQUIRY =================================== */
     int getNumAudioInputDevices();
-    void getAudioInputDevices(char* deviceNameArray[], const int arraySize);
+    void getAudioInputDevices(char* deviceNameArray[], void* deviceHandleArray[], const int arraySize);
     int getNumAudioOutputDevices();
-    void getAudioOutputDevices(char* deviceNameArray[], const int arraySize);
+    void getAudioOutputDevices(char* deviceNameArray[], void* deviceHandleArray[], const int arraySize);
 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

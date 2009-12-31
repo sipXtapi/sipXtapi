@@ -27,6 +27,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// #define LOG_TO_FILE
+
 // SYSTEM INCLUDES
 #include <assert.h>
 #ifdef _WIN32
@@ -237,10 +239,23 @@ static void initAudioDevices(SIPX_INSTANCE_DATA* pInst)
 
     IMediaDeviceMgr* pDevice = pInst->pCallManager->getMediaInterfaceFactory();
     numDevices = pDevice->getNumAudioInputDevices();
-    pDevice->getAudioInputDevices(pInst->inputAudioDevices, numDevices);
+    void* deviceHandles[MAX_AUDIO_DEVICES] ;
+    pDevice->getAudioInputDevices(pInst->inputAudioDevices, deviceHandles, numDevices);
+
+    for (int i=0; i<numDevices; i++)
+    {
+        OsSysLog::add(FAC_MP, PRI_INFO, "Input Device[%d]: name=%s, handle=%d",
+                      i, pInst->inputAudioDevices[i], deviceHandles[i]) ;
+    }
 
     numDevices = pDevice->getNumAudioOutputDevices();
-    pDevice->getAudioOutputDevices(pInst->outputAudioDevices, numDevices);
+    pDevice->getAudioOutputDevices(pInst->outputAudioDevices, deviceHandles, numDevices);
+    for (int i=0; i<numDevices; i++)
+    {
+        OsSysLog::add(FAC_MP, PRI_INFO, "Output Device[%d]: name=%s, handle=%d",
+                      i, pInst->outputAudioDevices[i], deviceHandles[i]) ;
+    }
+
 #else
     pInst->inputAudioDevices[0] = strdup("Default") ;
     pInst->outputAudioDevices[0] = strdup("Default") ;
@@ -5286,6 +5301,11 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
             assert(status == OS_SUCCESS) ;
             rc = SIPX_RESULT_SUCCESS ;
         }
+        else if (szDevice[0] == '\0')
+        {
+            // if zero length string, just return success
+            rc = SIPX_RESULT_SUCCESS ;
+        }
         else
         {
             for (int i=0; i<MAX_AUDIO_DEVICES; i++)
@@ -5295,12 +5315,11 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
                     if (strcmp(szDevice, pInst->inputAudioDevices[i]) == 0)
                     {
                         // Match
-                        if (strcmp(szDevice, oldDevice) != 0)
+                        if (oldDevice.compareTo((const char*) szDevice) != 0)
                         {
                             strncpy(pInst->micSetting.device, szDevice, sizeof(pInst->micSetting.device)-1) ;
                             status = pInterface->setMicrophoneDevice(pInst->micSetting.device) ;
-                            // GIPS returns -1 on the call to set audio input device, no matter what
-                            //assert(status == OS_SUCCESS) ;
+                            assert(status == OS_SUCCESS) ;
                         }
                         rc = SIPX_RESULT_SUCCESS ;
                         break ;
@@ -5345,6 +5364,11 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
         if (strcasecmp(szDevice, "NONE") == 0)
         {
             strcpy(pInst->speakerSettings[RINGER].device, "NONE") ;
+            rc = SIPX_RESULT_SUCCESS ;
+        }
+        else if (szDevice[0] == '\0')
+        {
+            // if zero length string, just return success
             rc = SIPX_RESULT_SUCCESS ;
         }
         else
@@ -5412,6 +5436,11 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
         if (strcasecmp(szDevice, "NONE") == 0)
         {
             strcpy(pInst->speakerSettings[SPEAKER].device, "NONE") ;
+            rc = SIPX_RESULT_SUCCESS ;
+        }
+        else if (szDevice[0] == '\0')
+        {
+            // if zero length string, just return success
             rc = SIPX_RESULT_SUCCESS ;
         }
         else
