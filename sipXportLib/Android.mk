@@ -169,16 +169,15 @@ LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
 #endif
 
 LOCAL_C_INCLUDES += \
-    $(LOCAL_PATH)/include
+    $(SIPX_HOME)/sipXportLib/include
 
 # Hack for NDK
 LOCAL_C_INCLUDES += \
-    apps/libpcre
+    $(SIPX_HOME)/libpcre
 
 LOCAL_SHARED_LIBRARIES := libpcre
 
-#LOCAL_STATIC_LIBRARIES := \
-#	libpcre
+#LOCAL_STATIC_LIBRARIES := libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 

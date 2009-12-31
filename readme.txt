@@ -1,6 +1,11 @@
 Documentation for the sipXtapi API can be found in:
   sipXcallLib\doc\sipXtapi\html\index.html
 
+Android Build Instructions
+=========================
+see http://sipxtapi.sipfoundry.org/wiki/SipX_Android_Build_Environment
+
+
 Windows Build Hints
 ===================
 
