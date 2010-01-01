@@ -91,7 +91,7 @@ void CpMediaDeviceMgr::getAudioInputDevices(char* deviceNameArray[], void* devic
             }
             if (deviceHandleArray)
             {
-                deviceHandleArray[i] = i ;
+                deviceHandleArray[i] = (void*) i ;
             }
         }
 #elif defined (__MACH__)
@@ -347,7 +347,7 @@ void CpMediaDeviceMgr::getAudioOutputDevices(char* deviceNameArray[], void* devi
 
             if (deviceHandleArray)
             {
-                deviceHandleArray[i] = i ;
+                deviceHandleArray[i] = (void*) i ;
             }
         }
 #elif defined (__MACH__)
