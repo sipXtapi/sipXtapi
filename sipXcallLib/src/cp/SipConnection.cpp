@@ -76,6 +76,8 @@
 #   define CALL_CONTROL_TONES
 #endif
 
+#define AUTO_SEND_OPTIONS		0
+
 // STATIC VARIABLE INITIALIZATIONS
 bool s_bRequireAudioCodec = false ;
 bool s_bRequireVideoCodec = false ;
@@ -4168,47 +4170,49 @@ void SipConnection::processAckRequest(const SipMessage* request)
                         fireSipXCallEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL);
                     }
                 }
+			}
+		}
 
 #ifdef TEST_PRINT
-                osPrintf("ACK reinviteState: %d\n", reinviteState);
+        osPrintf("ACK reinviteState: %d\n", reinviteState);
 #endif
 
-                if(reinviteState == ACCEPT_INVITE)
-                {
-                    inviteFromThisSide = FALSE;
-                    setCallerId();
+        if(reinviteState == ACCEPT_INVITE)
+        {
+            inviteFromThisSide = FALSE;
+            setCallerId();
 
 
-                    // If the other side did not send an Allowed field in
-                    // the INVITE, send an OPTIONS method to see if the
-                    // otherside supports methods such as REFER
-                    if(mAllowedRemote.isNull())
-                    {
-                        int iCSeq ;
-                        mCSeqMgr.startTransaction(CSEQ_ID_OPTIONS, iCSeq) ;
-                        SipMessage optionsRequest;
-                        optionsRequest.setOptionsData(inviteMsg, mRemoteContact, inviteFromThisSide,
-                            iCSeq, mRouteField.data(), mLocalContact);
-                        send(optionsRequest);
-                    }
-                }
-                // Reset to allow sub sequent re-INVITE
-                else if(reinviteState == REINVITED)
-                {
-        #ifdef TEST_PRINT
-                    osPrintf("ReINVITE ACK - ReINVITE allowed again\n");
-        #endif
-                    reinviteState = ACCEPT_INVITE;
-                }
-
-                // If we are in the middle of a transfer meta event
-                // on the target phone and target call it ends here
-                if(mpCall->getCallType() ==
-                    CpCall::CP_TRANSFER_TARGET_TARGET_CALL)
-                {
-                    mpCall->setCallType(CpCall::CP_NORMAL_CALL);
-                }
+#if AUTO_SEND_OPTIONS
+            // If the other side did not send an Allowed field in
+            // the INVITE, send an OPTIONS method to see if the
+            // otherside supports methods such as REFER
+            if(mAllowedRemote.isNull())
+            {
+                int iCSeq ;
+                mCSeqMgr.startTransaction(CSEQ_ID_OPTIONS, iCSeq) ;
+                SipMessage optionsRequest;
+                optionsRequest.setOptionsData(inviteMsg, mRemoteContact, inviteFromThisSide,
+                    iCSeq, mRouteField.data(), mLocalContact);
+                send(optionsRequest);
             }
+#endif
+        }
+        // Reset to allow sub sequent re-INVITE
+        else if(reinviteState == REINVITED)
+        {
+        #ifdef TEST_PRINT
+			osPrintf("ReINVITE ACK - ReINVITE allowed again\n");
+        #endif
+            reinviteState = ACCEPT_INVITE;
+		}
+
+        // If we are in the middle of a transfer meta event
+        // on the target phone and target call it ends here
+        if(mpCall->getCallType() ==
+            CpCall::CP_TRANSFER_TARGET_TARGET_CALL)
+        {
+            mpCall->setCallType(CpCall::CP_NORMAL_CALL);
         }
     }
     // Else error response to the ACK
@@ -5437,13 +5441,14 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
         }
 
         /*
-             * If no allow header -- send options to determine remote capabilties
-        */
+	     * If no allow header -- send options to determine remote capabilties
+         */
         if(mAllowedRemote.isNull())
         {
             // Get the methods the other side supports
             response->getAllowField(mAllowedRemote);
 
+#if AUTO_SEND_OPTIONS
             // If the other side did not set the allowed field
             // send an OPTIONS request to see what it supports
             if(mAllowedRemote.isNull())
@@ -5459,6 +5464,7 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
 
                 send(optionsRequest);
             }
+#endif
         }
         }
     }
