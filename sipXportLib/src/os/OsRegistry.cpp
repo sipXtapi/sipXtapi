@@ -267,6 +267,7 @@ bool OsRegistry::readString(const UtlString keyPath, const UtlString key, UtlStr
       if (err == ERROR_SUCCESS)
       {
          bRet = true;
+         value = szTemp;
       }
 
       RegCloseKey(hKey);
