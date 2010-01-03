@@ -45,7 +45,7 @@
 
 
 // DEFINES
-#define SIPXTAPI_OVERRIDE_KEY             "SOFTWARE\\sipXtapi\\Override"
+#define SIPXTAPI_OVERRIDE_KEY             "Software\\sipXtapi\\Override"
 
 // MACROS
 // EXTERNAL FUNCTIONS

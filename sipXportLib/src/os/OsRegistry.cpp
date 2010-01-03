@@ -54,7 +54,7 @@ bool OsRegistry::writeInteger(const UtlString keyPath, const UtlString key, cons
    HKEY hKey;
 
    DWORD err = RegOpenKeyEx(
-              HKEY_LOCAL_MACHINE,   // handle to open key
+              HKEY_CURRENT_USER,   // handle to open key
               keyPath,              // subkey name
               0,                    // reserved
               KEY_WRITE,            // security access mask
@@ -64,7 +64,7 @@ bool OsRegistry::writeInteger(const UtlString keyPath, const UtlString key, cons
     DWORD dwDisposition = NULL;
     if (err != ERROR_SUCCESS)
     {
-        err = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
+        err = RegCreateKeyEx(HKEY_CURRENT_USER,
             keyPath, 
             0,
             NULL, 
@@ -119,7 +119,7 @@ bool OsRegistry::writeString(const UtlString keyPath, const UtlString key, const
    HKEY hKey;
 
    DWORD err = RegOpenKeyEx(
-              HKEY_LOCAL_MACHINE,   // handle to open key
+              HKEY_CURRENT_USER,   // handle to open key
               keyPath,              // subkey name
               0,                    // reserved
               KEY_WRITE,            // security access mask
@@ -129,7 +129,7 @@ bool OsRegistry::writeString(const UtlString keyPath, const UtlString key, const
     DWORD dwDisposition = NULL;
     if (err != ERROR_SUCCESS)
     {
-        err = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
+        err = RegCreateKeyEx(HKEY_CURRENT_USER,
             keyPath,
             0,
             NULL,
@@ -186,7 +186,7 @@ bool OsRegistry::readInteger(const UtlString keyPath, const UtlString key, int& 
    DWORD    dwValue;
       
    DWORD err = RegOpenKeyEx(
-              HKEY_LOCAL_MACHINE,   // handle to open key
+              HKEY_CURRENT_USER,   // handle to open key
               keyPath,              // subkey name
               0,                    // reserved
               KEY_READ,             // security access mask
@@ -247,7 +247,7 @@ bool OsRegistry::readString(const UtlString keyPath, const UtlString key, UtlStr
    memset(szTemp, 0, sizeof(szTemp)) ;
 
    DWORD err = RegOpenKeyEx(
-              HKEY_LOCAL_MACHINE,   // handle to open key
+              HKEY_CURRENT_USER,   // handle to open key
               keyPath,              // subkey name
               0,                    // reserved
               KEY_READ,             // security access mask

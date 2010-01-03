@@ -45,6 +45,7 @@
 #include "os/OsServerSocket.h"
 #include "os/OsDatagramSocket.h"
 #include "os/OsLock.h"
+#include "os/OsRegistry.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -515,111 +516,42 @@ OsStatus CpMediaDeviceMgr::translateToneId(const SIPX_TONE_ID toneId,
 
 void CpMediaDeviceMgr::applyVideoQualityOverride(int& quality) const
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        DWORD dwValue ;
-        DWORD dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoQuality", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            quality = (int) dwValue ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#endif
+    OsRegistry reg;
+    reg.readInteger(SIPXTAPI_OVERRIDE_KEY, "videoQuality", quality);
 }
 
 
 void CpMediaDeviceMgr::applyVideoBitRateOverride(int& bitRate) const
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        DWORD dwValue ;
-        DWORD dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoBitrate", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            bitRate = (int) dwValue ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#endif
+    OsRegistry reg;
+    reg.readInteger(SIPXTAPI_OVERRIDE_KEY, "videoBitrate", bitRate);
 }
 
 
 void CpMediaDeviceMgr::applyVideoFrameRateOverride(int& frameRate) const
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        DWORD dwValue ;
-        DWORD dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoFramerate", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            frameRate = (int) dwValue ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#endif
+    OsRegistry reg;
+    reg.readInteger(SIPXTAPI_OVERRIDE_KEY, "videoFramerate", frameRate);
 }
 
 
 void CpMediaDeviceMgr::applyVideoCpuValueOverride(int& cpuValue) const
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        DWORD dwValue ;
-        DWORD dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoCPU", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            cpuValue = (int) dwValue ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#endif
+    OsRegistry reg;
+    reg.readInteger(SIPXTAPI_OVERRIDE_KEY, "videoCPU", cpuValue);
 }
-
 
 void CpMediaDeviceMgr::applyIdleTimeoutOverride(int& idleTimeout) const 
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        DWORD dwValue ;
-        DWORD dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "audioTimeout", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            idleTimeout = (int) dwValue ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#endif
+    OsRegistry reg;
+    reg.readInteger(SIPXTAPI_OVERRIDE_KEY, "audioTimeout", idleTimeout);
 }
 
 
 void CpMediaDeviceMgr::applyAudioCodecListOverride(UtlString& codecs) const 
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        char cTemp[256] ;
-        DWORD dwSize = sizeof(cTemp) ;
-        if (RegQueryValueEx(hKey, "audioCodecs", 0, NULL, (LPBYTE) &cTemp, &dwSize) == ERROR_SUCCESS)
-        {
-            codecs = cTemp ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#else
-    codecs = DEFAULT_AUDIO_CODEC_LIST ;
-#endif
+    OsRegistry reg;
+    reg.readString(SIPXTAPI_OVERRIDE_KEY, "audioCodecs", codecs);
 
     // Adjust order
     UtlString codecOrder ;
@@ -630,21 +562,8 @@ void CpMediaDeviceMgr::applyAudioCodecListOverride(UtlString& codecs) const
 
 void CpMediaDeviceMgr::applyVideoCodecListOverride(UtlString& codecs) const 
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        char cTemp[256] ;
-        DWORD dwSize = sizeof(cTemp) ;
-        if (RegQueryValueEx(hKey, "videoCodecs", 0, NULL, (LPBYTE) &cTemp, &dwSize) == ERROR_SUCCESS)
-        {
-            codecs = cTemp ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#else
-    codecs = DEFAULT_VIDEO_CODEC_LIST ;
-#endif
+    OsRegistry reg;
+    reg.readString(SIPXTAPI_OVERRIDE_KEY, "videoCodecs", codecs);
 
     // Adjust order
     UtlString codecOrder ;
@@ -655,124 +574,57 @@ void CpMediaDeviceMgr::applyVideoCodecListOverride(UtlString& codecs) const
 
 void CpMediaDeviceMgr::applyVideoFormatOverride(int& videoFormat) const 
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        DWORD dwValue ;
-        DWORD dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "videoFormat", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            videoFormat = (int) dwValue ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#endif
+    OsRegistry reg;
+    reg.readInteger(SIPXTAPI_OVERRIDE_KEY, "videoFormat", videoFormat);
 }
 
 
 void CpMediaDeviceMgr::applyAudioCodecOrderOverride(UtlString& codecOrder) const 
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        char cTemp[256] ;
-        DWORD dwSize = sizeof(cTemp) ;
-        if (RegQueryValueEx(hKey, "audioCodecOrder", 0, NULL, (LPBYTE) &cTemp, &dwSize) == ERROR_SUCCESS)
-        {
-            codecOrder = cTemp ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#endif
+    OsRegistry reg;
+    reg.readString(SIPXTAPI_OVERRIDE_KEY, "audioCodecOrder", codecOrder);
 }
 
 void CpMediaDeviceMgr::applyVideoCodecOrderOverride(UtlString& codecOrder) const 
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        char cTemp[256] ;
-        DWORD dwSize = sizeof(cTemp) ;
-        if (RegQueryValueEx(hKey, "videoCodecOrder", 0, NULL, (LPBYTE) &cTemp, &dwSize) == ERROR_SUCCESS)
-        {
-            codecOrder = cTemp ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#endif
+    OsRegistry reg;
+    reg.readString(SIPXTAPI_OVERRIDE_KEY, "videoCodecOrder", codecOrder);
 }
 
 void CpMediaDeviceMgr::applyEnableRTCPOverride(UtlBoolean& bEnableRtcp) const 
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        DWORD dwValue ;
-        DWORD dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "enableRtcp", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            bEnableRtcp = (dwValue != 0) ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#endif
+    OsRegistry reg;
+    reg.readInteger(SIPXTAPI_OVERRIDE_KEY, "enableRtcp", bEnableRtcp);
 }
 
 void CpMediaDeviceMgr::applyMediaContactTypeOverride(SIPX_CONTACT_TYPE& eType) const
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
-    {
-        DWORD dwValue ;
-        DWORD dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "mediaContactType", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            eType = (SIPX_CONTACT_TYPE) dwValue ;
-        }
-        RegCloseKey(hKey) ;
-    }
-#endif
+    OsRegistry reg;
+    reg.readInteger(SIPXTAPI_OVERRIDE_KEY, "mediaContactType", (int&)eType);
 }
 
 void CpMediaDeviceMgr::applyIgnoreCameraCapsOverride(bool& bIgnoreCameraCaps) const 
 {
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
+    OsRegistry reg;
+    UtlBoolean temp = 0;
+    reg.readInteger(SIPXTAPI_OVERRIDE_KEY, "ignoreCameraCaps", temp);
+    if (temp)
     {
-        DWORD dwValue ;
-        DWORD dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "ignoreCameraCaps", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            bIgnoreCameraCaps = (dwValue != 0) ;
-        }
-        RegCloseKey(hKey) ;
+        bIgnoreCameraCaps = true;
     }
-#endif
 }
 
 
 void CpMediaDeviceMgr::getConsoleTraceOverride(bool& bEnable) const 
 {
     bEnable = false ;
-#ifdef _WIN32
-    HKEY hKey ;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SIPXTAPI_OVERRIDE_KEY, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
+    OsRegistry reg;
+    UtlBoolean temp = 0;
+    reg.readInteger(SIPXTAPI_OVERRIDE_KEY, "consoleTrace", temp);
+    if (temp)
     {
-        DWORD dwValue ;
-        DWORD dwSize = sizeof(DWORD) ;
-        if (RegQueryValueEx(hKey, "consoleTrace", 0, NULL, (LPBYTE) &dwValue, &dwSize) == ERROR_SUCCESS)
-        {
-            bEnable = (dwValue != 0) ;
-        }
-        RegCloseKey(hKey) ;
+        bEnable = true;
     }
-#endif
 }
 
 

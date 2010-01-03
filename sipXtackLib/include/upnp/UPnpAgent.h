@@ -36,11 +36,8 @@
 #include "tapi/sipXtapi.h"
 
 // DEFINES
-#ifdef WIN32
-	#define UPNP_REG_PATH "SOFTWARE\\sipxUA\\uPnpPorts"
-#else
-	#define UPNP_REG_PATH "/.sipxUA/"
-#endif
+#define UPNP_REG_PATH "Software\\sipXtapi\\uPnp"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
