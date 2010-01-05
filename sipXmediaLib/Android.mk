@@ -24,6 +24,15 @@ LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 #intermediates := $(call local-intermediates-dir)
 
 fail_to_compile := \
+    src/mp/mpau.cpp \
+    src/mp/MpAudioAbstract.cpp \
+    src/mp/MpAudioFileOpen.cpp \
+    src/mp/MpAudioFileUtils.cpp \
+    src/mp/MpAudioUtils.cpp \
+    src/mp/MpAudioWaveFileRead.cpp \
+    src/mp/MprFromFile.cpp \
+    src/mp/MprFromStream.cpp \
+    src/mp/MprToSpkr.cpp \
 
 
 LOCAL_SRC_FILES := \
@@ -33,19 +42,13 @@ LOCAL_SRC_FILES := \
     src/mp/dtmflib.cpp \
     src/mp/FilterBank.cpp \
     src/mp/HandsetFilterBank.cpp \
-    src/mp/mpau.cpp \
     src/mp/MpAgcBase.cpp \
     src/mp/MpAgcSimple.cpp \
     src/mp/MpArrayBuf.cpp \
-    src/mp/MpAudioAbstract.cpp \
     src/mp/MpAudioBuf.cpp \
     src/mp/MpAudioFileDecompress.cpp \
-    src/mp/MpAudioFileOpen.cpp \
-    src/mp/MpAudioFileUtils.cpp \
     src/mp/MpAudioOutputConnection.cpp \
     src/mp/MpAudioResource.cpp \
-    src/mp/MpAudioUtils.cpp \
-    src/mp/MpAudioWaveFileRead.cpp \
     src/mp/MpBridgeAlgLinear.cpp \
     src/mp/MpBridgeAlgSimple.cpp \
     src/mp/MpBuf.cpp \
@@ -96,11 +99,9 @@ LOCAL_SRC_FILES := \
     src/mp/MpRtpBuf.cpp \
     src/mp/MpUdpBuf.cpp \
     src/mp/MprAudioFrameBuffer.cpp \
-    src/mp/MprFromFile.cpp \
     src/mp/MprFromInputDevice.cpp \
     src/mp/MprFromMic.cpp \
     src/mp/MprFromNet.cpp \
-    src/mp/MprFromStream.cpp \
     src/mp/MprMixer.cpp \
     src/mp/MprnDTMFMsg.cpp \
     src/mp/MprnIntMsg.cpp \
@@ -121,7 +122,6 @@ LOCAL_SRC_FILES := \
     src/mp/MprToneGen.cpp \
     src/mp/MprToNet.cpp \
     src/mp/MprToOutputDevice.cpp \
-    src/mp/MprToSpkr.cpp \
     src/mp/MpRtpInputConnection.cpp \
     src/mp/MpRtpOutputConnection.cpp \
     src/mp/MprVad.cpp \
@@ -192,10 +192,11 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXtackLib/include \
     $(SIPX_HOME)/sipXmediaLib/include
 
-LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack
+#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack
 
-#LOCAL_STATIC_LIBRARIES := 
+LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
-include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)

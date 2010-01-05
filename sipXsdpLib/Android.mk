@@ -51,10 +51,11 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
     $(SIPX_HOME)/sipXsdpLib/include
 
-LOCAL_SHARED_LIBRARIES := libpcre libsipXport
+#LOCAL_SHARED_LIBRARIES := libpcre libsipXport
 
-#LOCAL_STATIC_LIBRARIES := libpcre
+LOCAL_STATIC_LIBRARIES := libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
-include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)

@@ -24,12 +24,12 @@ LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 #intermediates := $(call local-intermediates-dir)
 
 fail_to_compile := \
+    sipXmediaMediaProcessing/src/CpTopologyGraphFactoryImpl.cpp \
 
 
 LOCAL_SRC_FILES := \
     sipXmediaMediaProcessing/src/sipXmediaFactoryImpl.cpp \
     sipXmediaMediaProcessing/src/CpPhoneMediaInterface.cpp \
-    sipXmediaMediaProcessing/src/CpTopologyGraphFactoryImpl.cpp \
     sipXmediaMediaProcessing/src/CpTopologyGraphInterface.cpp \
     sipXmediaMediaProcessing/src/MaNotfTranslatorDispatcher.cpp
 
@@ -59,10 +59,11 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaAdapterLib/interface \
     $(SIPX_HOME)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include
 
-LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia
+#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia
 
-#LOCAL_STATIC_LIBRARIES := 
+LOCAL_STATIC_LIBRARIES := libsipXmedia libsipXtack libsipXsdp libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
-include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)

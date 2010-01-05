@@ -80,10 +80,43 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaAdapterLib/interface \
     $(SIPX_HOME)/sipXcallLib/include
 
-LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter
+#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter
 
-#LOCAL_STATIC_LIBRARIES := 
+LOCAL_STATIC_LIBRARIES := libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport libpcre
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
+
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+# LOCAL_MODULE/_CLASS are required for local-intermediates-dir to work.
+LOCAL_MODULE := libsipXtapi
+
+LOCAL_SRC_FILES := \
+    src/jni/testJni.cpp \
+
+LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include \
+    $(SIPX_HOME)/sipXmediaAdapterLib/interface \
+    $(SIPX_HOME)/sipXcallLib/include
+
+LOCAL_STATIC_LIBRARIES := libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
 include $(BUILD_SHARED_LIBRARY)
+

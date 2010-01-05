@@ -17,6 +17,9 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
+# For a few includes we need to hack into the path
+ANDROID_CORE_PATH := /Users/dpetrie/dev/android_1.6
+
 # Set up the target identity.
 # LOCAL_MODULE/_CLASS are required for local-intermediates-dir to work.
 LOCAL_MODULE := libsipXtack
@@ -24,21 +27,21 @@ LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 #intermediates := $(call local-intermediates-dir)
 
 fail_to_compile := \
-  src/resparse/ns_name.c \
+  src/net/SipSrvLookup.cpp \
+
+
+LOCAL_SRC_FILES := \
   src/resparse/res_copy.c \
+  src/resparse/ns_name.c \
   src/resparse/res_free.c \
-  src/resparse/res_info.c \
   src/resparse/res_init.c \
+  src/resparse/res_info.c \
   src/resparse/res_mkquery.c \
   src/resparse/res_naptr.c \
   src/resparse/res_parse.c \
   src/resparse/res_print.c \
   src/resparse/res_query.c \
   src/resparse/res_send.c \
-  src/net/SipSrvLookup.cpp \
-
-
-LOCAL_SRC_FILES := \
   src/resparse/bzero.c \
   src/resparse/memset.c \
   src/resparse/ns_netint.c \
@@ -144,10 +147,16 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXsdpLib/include \
     $(SIPX_HOME)/sipXtackLib/include
 
-LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp
+# Need to hack things a bit as resolv code is packaged in Bionic (Android clib)
+LOCAL_C_INCLUDES += \
+    $(ANDROID_CORE_PATH)/bionic/libc/private
 
-#LOCAL_STATIC_LIBRARIES := 
+#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp
+
+LOCAL_STATIC_LIBRARIES := libsipXsdp libsipXport libpcre 
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
-include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
+
