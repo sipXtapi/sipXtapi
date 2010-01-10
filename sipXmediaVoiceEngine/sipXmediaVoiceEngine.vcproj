@@ -95,6 +95,7 @@
 				ProgramDatabaseFile="$(OutDir)/sipXmediaLib.pdb"
 				GenerateMapFile="TRUE"
 				MapFileName="$(OutDir)/sipXmediaLib.map"
+				MapLines="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
