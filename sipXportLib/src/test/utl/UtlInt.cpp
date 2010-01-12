@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007-2008 SIPez LLC  All rights reserved.
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2010 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -11,16 +11,15 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <string.h>
 #include <stdlib.h>
 #include <cstdarg>
 
 #include <utl/UtlInt.h>
 #include <utl/UtlString.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
+#include <string>
 
 using namespace std ; 
 
@@ -55,7 +54,7 @@ const char* UtlIntTests::commonTestDataSetMessages[] = { \
 *    without reading this file, the following class (and all unit tests)
 *    may not make a lot of sense and might be difficult to comprehend. 
 */
-class UtlIntTests : public CppUnit::TestCase
+class UtlIntTests : public SIPX_UNIT_BASE_CLASS
 {
 
     CPPUNIT_TEST_SUITE(UtlIntTests);

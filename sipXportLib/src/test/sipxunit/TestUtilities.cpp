@@ -1,6 +1,9 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2010 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2010 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -8,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#if !defined(NO_CPPUNIT)
 #include <cppunit/TestCase.h>
 #include <cppunit/SourceLine.h>
 #include <cppunit/Asserter.h>
@@ -26,6 +30,11 @@
 bool TestUtilities::m_testingKnownBug = false;
 
 char TestUtilities::m_bugMessage[MAX_BUG_MESSAGE_LEN];
+#else
+#include <stdarg.h>
+#include <string.h>
+#include <sipxunit/TestUtilities.h>
+#endif
 
 /* ========================= UTILITY METHODS ================================= */
 
@@ -40,6 +49,8 @@ void TestUtilities::createMessage(int count, std::string* createdMessage, ...)
         createdMessage -> append(strTemp) ;
     }
 }
+
+#if !defined(NO_CPPUNIT)
 
 std::string TestUtilities::printString(const char* sz)
 {
@@ -125,3 +136,5 @@ void TestUtilities::resetKnownBugTesting()
     m_testingKnownBug = false;
     m_bugMessage[0] = 0;
 }
+
+#endif /* !NO_CPPUNIT */

@@ -1,6 +1,9 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2010 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2010 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -11,6 +14,9 @@
 #ifndef _TestUtilities_h_
 #define _TestUtilities_h_
 
+#include <string>
+
+#if !defined(NO_CPPUNIT)
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 
@@ -73,7 +79,7 @@
     ( TestUtilities::knownEfenceBug((message), (bugNo), \
       CPPUNIT_SOURCELINE()))
 
-
+#endif /* NO_CPPUNIT */
 
 // FORWARD DECLARATIONS
 
@@ -100,6 +106,8 @@ class TestUtilities
                              ...                  /**< variable list arguments of char* which represents the fragments
                                                    *   of the message  */
                              ) ;
+
+#if !defined(NO_CPPUNIT)
 
     /** Use macro, do not this call directly. */
     static void assertEquals(const char* expected, const char* actual, 
@@ -140,6 +148,8 @@ class TestUtilities
     static bool m_testingKnownBug;
 
     static char m_bugMessage[MAX_BUG_MESSAGE_LEN];
+
+#endif /* NO_CPPUNIT */
 
 };
 
