@@ -12,16 +12,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
 
 #include <utl/UtlInt.h>
 #include <utl/UtlString.h>
 #include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
-#include <string>
-
-using namespace std ; 
 
 /* PLEASE VERIFY WITH SCOTT */
 /*

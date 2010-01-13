@@ -1,4 +1,5 @@
-# This Makefile is for building sipXportLib as a part of Android NDK.
+# This Makefile is for building sipXportLib, unit test framwork and unit test
+# executables as a part of Android NDK.
 # To build sipXportLib as a part of Android core, use Android-core.mk.
 
 LOCAL_PATH := $(call my-dir)
@@ -183,3 +184,103 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
+
+# =======================
+
+# Unit test framework library
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := libsipxUnit
+
+LOCAL_SRC_FILES := \
+  src/test/sipxportunit/SipxPortUnitTestClass.cpp \
+  src/test/sipxportunit/SipxPortUnitTestConstructor.cpp \
+  src/test/sipxportunit/SipxPortUnitTestEnvironment.cpp \
+  src/test/sipxportunit/SipxPortUnitTestPointFailure.cpp \
+  src/test/sipxunit/TestUtilities.cpp \
+  src/test/sipxportunit/main.cpp
+
+LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+
+
+#LOCAL_SHARED_LIBRARIES :=
+
+LOCAL_STATIC_LIBRARIES := 
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
+
+# =======================
+
+# Executable for testing the unit test framework
+# this can also be used as a sandbox test.  Just delete the
+# foo and bar tests from the LOCAL_SRC_FILES and add your test(s)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := sipxsandbox
+
+LOCAL_SRC_FILES := \
+  src/test/sipxportunit/bar.cpp \
+  src/test/sipxportunit/foo.cpp
+
+LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+
+
+#LOCAL_SHARED_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := libsipxUnit libpcre libsipXport
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+include $(BUILD_EXECUTABLE)
+
+
+# =======================
+
+# Executable for testing the sipXportLib utilities
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := sipxportunit
+
+LOCAL_SRC_FILES := \
+  src/test/utl/UtlInt.cpp
+
+LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+
+
+#LOCAL_SHARED_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := libsipxUnit libpcre libsipXport
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+include $(BUILD_EXECUTABLE)
+

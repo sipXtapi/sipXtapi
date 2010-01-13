@@ -79,7 +79,8 @@ LOCAL_GENERATED_SOURCES += $(GEN)
 # Hack for NDK which does not take into account LOCAL_GENERATED_SOURCES variable
 $(LOCAL_PATH)/pcre_compile.c: $(SIPX_HOME)/libpcre/pcre.h $(SIPX_HOME)/libpcre/config.h
 
-include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
 
 ###
 ### Build pcregrep

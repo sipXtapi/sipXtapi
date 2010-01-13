@@ -11,6 +11,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <os/OsIntTypes.h>
+#include <sipxunittests.h>
+
 #if !defined(NO_CPPUNIT)
 #include <cppunit/TestCase.h>
 #include <cppunit/SourceLine.h>
@@ -34,8 +37,26 @@ char TestUtilities::m_bugMessage[MAX_BUG_MESSAGE_LEN];
 #include <stdarg.h>
 #include <string.h>
 #include <sipxunit/TestUtilities.h>
+#include <utl/UtlString.h>
+
 #endif
 
+#if defined(NO_CPPUNIT)
+
+/* ========================= UTILITY METHODS ================================= */
+void TestUtilities::createMessage(int count, UtlString* createdMessage, ...)
+{
+    createdMessage -> remove(0) ;
+    va_list arguments ;
+    va_start(arguments, createdMessage) ;
+    for(int i = 0 ; i < count ; i++)
+    {
+        const char* strTemp = va_arg(arguments, const char*) ;
+        createdMessage -> append(strTemp) ;
+    }
+}
+
+#else /* CPPUNIT */
 /* ========================= UTILITY METHODS ================================= */
 
 void TestUtilities::createMessage(int count, std::string* createdMessage, ...)
@@ -49,8 +70,6 @@ void TestUtilities::createMessage(int count, std::string* createdMessage, ...)
         createdMessage -> append(strTemp) ;
     }
 }
-
-#if !defined(NO_CPPUNIT)
 
 std::string TestUtilities::printString(const char* sz)
 {

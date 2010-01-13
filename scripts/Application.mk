@@ -15,8 +15,12 @@
 #
 #
 
-#APP_MODULES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall
-APP_MODULES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall libsipXtapi
+UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit
+SIPX_LIBS := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall
+# libsipXtapi
+
+APP_MODULES := $(SIPX_LIBS) \
+   $(UNIT_TESTS)
 
 APP_PROJECT_PATH := $(call my-dir)/project
 #APP_BUILD_SCRIPT := $(call my-dir)/Android.mk

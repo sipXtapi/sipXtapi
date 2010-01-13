@@ -14,11 +14,18 @@
 #ifndef _TestUtilities_h_
 #define _TestUtilities_h_
 
-#include <string>
+#if defined(NO_CPPUNIT)
+#include <utl/UtlString.h>
+typedef UtlString string;
 
-#if !defined(NO_CPPUNIT)
+#else
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
+
+#include <string>
+
+
+using namespace std ;
 
 // MACROS
 #define MAX_BUG_MESSAGE_LEN 1024
@@ -100,14 +107,22 @@ class TestUtilities
     *   this would cause the variable msg to have the following string:-
     *       Composite of one and two as strings
     */
+#if defined(NO_CPPUNIT)
    static void createMessage(int num,             /**< Number of char* messages that have been passed as arguments */
-                             std::string* outMsg, /**< string instance into which the generated message is written. 
+                             UtlString* outMsg, /**< string instance into which the generated message is written. 
                                                    *   It is the responsibility of the caller to create the string */
                              ...                  /**< variable list arguments of char* which represents the fragments
                                                    *   of the message  */
                              ) ;
 
-#if !defined(NO_CPPUNIT)
+#else
+   static void createMessage(int num,             /**< Number of char* messages that have been passed as arguments */
+                             std::string* outMsg, /**< string instance into which the generated message is written.
+                                                   *   It is the responsibility of the caller to create the string */
+                             ...                  /**< variable list arguments of char* which represents the fragments
+                                                   *   of the message  */
+                             ) ;
+
 
     /** Use macro, do not this call directly. */
     static void assertEquals(const char* expected, const char* actual, 

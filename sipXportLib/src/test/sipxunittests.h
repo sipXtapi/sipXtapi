@@ -25,6 +25,9 @@
 #define SIPX_UNIT_BASE_CLASS SipxPortUnitTestClass
 
 #include <sipxportunit/SipxPortUnitTest.h>
+#include <utl/UtlString.h>
+
+typedef UtlString string;
 
 #else
 
@@ -32,6 +35,9 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
+
+using namespace std;
+
 #endif
 
 
