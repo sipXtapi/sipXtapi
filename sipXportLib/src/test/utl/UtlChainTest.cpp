@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,15 +11,13 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
+#include <os/OsIntTypes.h>
+#include <sipxunittests.h>
 #include "utl/UtlLink.h"
-#include <sipxunit/TestUtilities.h>
 
 /// Unit test of the UtlChain
 class UtlChainTest :
-   public CppUnit::TestCase,
+   public SIPX_UNIT_BASE_CLASS,
    public UtlChain
 {
    CPPUNIT_TEST_SUITE(UtlChainTest);

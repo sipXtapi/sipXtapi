@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,23 +11,16 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
 
 #include <os/OsDefs.h>
-
 #include <utl/UtlDefs.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlContainableTestStub.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
-
-using namespace std ; 
 
 
 /**  This class is used to test the UtlSList utility class. 
@@ -34,7 +30,7 @@ using namespace std ;
 *    without reading this file, the following class (and all unit tests)
 *    may not make a lot of sense and might be difficult to comprehend. 
 */
-class UtlSListTest : public  CppUnit::TestCase
+class UtlSListTest : public SIPX_UNIT_BASE_CLASS
 {
 
     CPPUNIT_TEST_SUITE(UtlSListTest);
@@ -476,6 +472,10 @@ public:
     */
     void testIndex()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
         utlTestIndex_Find_And_Contains(TEST_INDEX) ; 
     }
 
@@ -607,6 +607,10 @@ public:
     */
     void testOccurancesOf()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
         const int testCount = 6 ; 
         const char* prefix = "Test the occurancesOf(UtlContainable* cl); where cl " ; 
         const char* Msgs[] = { \
@@ -649,6 +653,11 @@ public:
     */
     void testRemove()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         utlTestRemove(TEST_REMOVE) ; 
 
     }
@@ -668,6 +677,10 @@ public:
     */ 
     void testRemoveAndDestroy()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
         const char* prefix  = "test the destroy() method " ; 
         
         UtlContainableTestStub uStub(0) ;

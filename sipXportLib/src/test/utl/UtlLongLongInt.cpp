@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2008 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -12,19 +12,14 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "os/OsIntTypes.h"
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
 
 #include <limits.h>
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
 
 #include <utl/UtlLongLongInt.h>
 #include <utl/UtlString.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
-
-using namespace std ;
 
 /**  This class is used to test the UtlLongLongInt utility class. 
 *
@@ -33,7 +28,7 @@ using namespace std ;
 *    without reading this file, the following class (and all unit tests)
 *    may not make a lot of sense and might be difficult to comprehend. 
 */
-class UtlLongLongIntTests : public CppUnit::TestCase
+class UtlLongLongIntTests : public SIPX_UNIT_BASE_CLASS
 {
 
     CPPUNIT_TEST_SUITE(UtlLongLongIntTests);

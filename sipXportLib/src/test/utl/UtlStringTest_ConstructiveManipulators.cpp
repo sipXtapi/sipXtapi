@@ -16,6 +16,12 @@
 #include <utl/UtlString.h>
 #include <sipxunit/TestUtilities.h>
 
+#if defined(NO_CPPUNIT)
+#  define ERASE_ALL remove(0)
+#else
+#  define ERASE_ALL erase()
+#endif
+
 #ifdef WIN32
 #   define MEMBER_CONST
 #else
@@ -699,7 +705,7 @@ public:
                 size_t len_stringToAppend = strlen(commonTestSet[j].input) ;
                 UtlString baseString(commonTestSet[i].input) ;
 
-                strExp.erase() ;
+                strExp.ERASE_ALL;
                 strExp.append(commonTestSet[i].input) ;
                 strExp.append(commonTestSet[j].input) ;
 
@@ -931,7 +937,7 @@ public:
 
                 // To calculate what the expected type of string is going
                 // to be, use the standard string class
-                strExp.erase() ;
+                strExp.ERASE_ALL;
                 strExp.append(commonTestSet[i].input) ;
                 strExp.append(commonTestSet[j].input) ;
 
@@ -1157,7 +1163,7 @@ public:
                 // construct an expected string using the append operations on a
                 // std::string instance. We are assuming here that we can trust the
                 // std::string class.
-                expectedString.erase() ;
+                expectedString.ERASE_ALL;
                 expectedString.append(commonTestSet[i].input) ;
                 expectedString.append(testData[j].expectedValue) ;
 
@@ -1390,7 +1396,7 @@ public:
                 UtlString stringToPrepend(commonTestSet[j].input) ;
                 const char* returnValue = "";
 
-                strExp.erase() ;
+                strExp.ERASE_ALL;
                 strExp.append(commonTestSet[j].input) ;
                 strExp.append(commonTestSet[i].input) ;
 

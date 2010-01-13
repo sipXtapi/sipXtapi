@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,10 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 /**
  * Unit test for RegEx
@@ -23,9 +23,9 @@
  * of PCRE, you must use its unit tests to confirm the correctness of
  * the modifications before this test will be useful.
  */
-#include "utl/UtlRegex.h"
+#include <utl/UtlRegex.h>
 
-class UtlRegExTest : public CppUnit::TestCase
+class UtlRegExTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(UtlRegExTest);
    CPPUNIT_TEST(testInput1);

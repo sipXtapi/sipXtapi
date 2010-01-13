@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,12 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
 
 #include <os/OsDefs.h>
 
@@ -21,9 +19,8 @@
 #include <utl/UtlString.h>
 #include <utl/UtlHashBag.h>
 #include <utl/UtlHashBagIterator.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
-
-using namespace std ; 
 
 bool checkMask( int& foundMask, int maskBit )
 {
@@ -38,7 +35,7 @@ bool checkMask( int& foundMask, int maskBit )
 #define CHECK_FOUND(previouslyFound,thisBit) \
         CPPUNIT_ASSERT_MESSAGE("Same key returned twice",checkMask(previouslyFound,thisBit))
 
-class UtlHashBagIteratorTests : public CppUnit::TestCase
+class UtlHashBagIteratorTests : public SIPX_UNIT_BASE_CLASS
 {
 
     CPPUNIT_TEST_SUITE(UtlHashBagIteratorTests);

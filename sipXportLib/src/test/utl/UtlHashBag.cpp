@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,12 +11,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
-#include <time.h>
+//#include <time.h>
 #include <os/OsDefs.h>
 
 #include <utl/UtlVoidPtr.h>
@@ -21,11 +20,10 @@
 #include <utl/UtlInt.h>
 #include <utl/UtlHashBag.h>
 #include <utl/UtlContainableTestStub.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
 
-using namespace std ; 
-
-class UtlHashBagTest : public  CppUnit::TestCase
+class UtlHashBagTest : public SIPX_UNIT_BASE_CLASS
 {
 
     CPPUNIT_TEST_SUITE(UtlHashBagTest);

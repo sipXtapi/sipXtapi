@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -9,19 +12,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
-#include <time.h>
 
 #include <utl/UtlString.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/UtlContainableTestStub.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
-
-using namespace std ; 
-
 
 
 static const char* longAlphaNumString = \
@@ -49,7 +47,7 @@ static const int INDEX_NOT_EXIST = -1;
 *    without reading this file, the following class (and all unit tests)
 *    may not make a lot of sense and might be difficult to comprehend. 
 */
-class UtlHashMapIteratorTests : public CppUnit::TestCase
+class UtlHashMapIteratorTests : public SIPX_UNIT_BASE_CLASS
 {
 
     CPPUNIT_TEST_SUITE(UtlHashMapIteratorTests);

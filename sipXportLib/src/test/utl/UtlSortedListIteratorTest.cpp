@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,21 +11,14 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
 #include <os/OsDefs.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSortedList.h>
 #include <utl/UtlSortedListIterator.h>
 #include <utl/UtlContainableTestStub.h>
-#include <sipxunit/TestUtilities.h>
-
-using namespace std ; 
+#include <sipxunittests.h>
 
 
 /**  This class is used to test the UtlInt utility class. 
@@ -31,7 +27,7 @@ using namespace std ;
 *    THIS FILE. The Readme describes the organization / flow of tests and
 *    without reading this file, the following class (and all unit tests)
 *    may not make a lot of sense and might be difficult to comprehend. */
-class UtlSortedListIteratorTest : public  CppUnit::TestCase
+class UtlSortedListIteratorTest : public  SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(UtlSortedListIteratorTest);
     CPPUNIT_TEST(check_Advancing_Operator_StringList) ; 

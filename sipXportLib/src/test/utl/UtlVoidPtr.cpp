@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,19 +11,12 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
 
 #include <utl/UtlInt.h>
 #include <utl/UtlString.h>
 #include <utl/UtlVoidPtr.h>
-#include <sipxunit/TestUtilities.h>
-
-using namespace std ; 
+#include <sipxunittests.h>
 
 /* PLEASE VERIFY WITH SCOTT */
 
@@ -31,7 +27,7 @@ using namespace std ;
 *    without reading this file, the following class (and all unit tests)
 *    may not make a lot of sense and might be difficult to comprehend. 
 */
-class UtlVoidPtrTests : public CppUnit::TestCase
+class UtlVoidPtrTests : public SIPX_UNIT_BASE_CLASS
 {
 
     CPPUNIT_TEST_SUITE(UtlVoidPtrTests);
@@ -171,9 +167,11 @@ public:
         returnValue = testVoidObj.setValue(newValue) ; 
         prefix = "For a VoidPtr object which is not NULL, test setValue(void* value) " \
             "where val is non NULL " ; 
-        TestUtilities::createMessage(2, &Message, prefix, suffix1) ; 
+        Message = prefix;
+        Message.append(suffix1); 
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)oldValue, (void*)returnValue) ; 
-        TestUtilities::createMessage(2, &Message, prefix, suffix2) ; 
+        Message = prefix;
+        Message.append(suffix2);
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)newValue, \
             (void*)testVoidObj.getValue()) ; 
 
@@ -182,9 +180,11 @@ public:
            "existing object is not NULL" ; 
         newValue = (void*)"Hello again world" ; 
         returnValue = (void*)testVoidObj.setValue(newValue) ; 
-        TestUtilities::createMessage(2, &Message, prefix, suffix1) ;
+        Message = prefix;
+        Message.append(suffix1);
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)oldValue, (void*)returnValue) ;  
-        TestUtilities::createMessage(2, &Message, prefix, suffix2) ; 
+        Message = prefix;
+        Message.append(suffix2);
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)newValue, \
             (void*)testVoidObj.getValue()) ; 
 
@@ -192,9 +192,11 @@ public:
         prefix = "Test setValue(void* value) where value = NULL and existing object is not" ; 
         newValue = 0 ; 
         returnValue = (void*)testVoidObj.setValue(newValue) ; 
-        TestUtilities::createMessage(2, &Message, prefix, suffix1) ; 
+        Message = prefix;
+        Message.append(suffix1);
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)oldValue, (void*)returnValue); 
-        TestUtilities::createMessage(2, &Message, prefix, suffix1) ; 
+        Message = prefix;
+        Message.append(suffix1);
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)newValue, \
             (void*)testVoidObj.getValue()) ; 
 

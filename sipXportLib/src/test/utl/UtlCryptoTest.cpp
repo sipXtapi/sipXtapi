@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
+// Copyright (C) 2008-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2008 SIPfoundry Inc.
@@ -12,18 +12,15 @@
 #ifdef HAVE_SSL
 
 #include <os/OsIntTypes.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
+#include <utl/UtlCryptoKey.h>
+#include <utl/UtlCryptoKeyRsa.h>
+#include <utl/UtlCryptoKeySym.h>
 
-#include "utl/UtlCryptoKey.h"
-#include "utl/UtlCryptoKeyRsa.h"
-#include "utl/UtlCryptoKeySym.h"
+#include <os/OsSocketCrypto.h>
+#include <os/OsSocket.h>
 
-#include "os/OsSocketCrypto.h"
-#include "os/OsSocket.h"
-
-#include "os/OsTask.h"
+#include <os/OsTask.h>
 
 // NOTE Test packet set to PCMU payload
 
@@ -48,7 +45,7 @@ static const unsigned char test_frame[] =
 
 
 
-class UtlCryptoTest : public CppUnit::TestCase
+class UtlCryptoTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(UtlCryptoTest);
    CPPUNIT_TEST(testCreate);

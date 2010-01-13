@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -9,17 +12,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
-#include <time.h>
 
 #include <utl/UtlString.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlContainableTestStub.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
-
-using namespace std ; 
 
 #define commonHashMapEntriesCount 4 
 
@@ -37,7 +36,7 @@ static const char* longAlphaNumString = \
 "abcdefghijklmnopqrstuvwzyz"
 "abcdefghijklmnopqrstuvw" ;
 
-class UtlHashMapTests : public CppUnit::TestCase
+class UtlHashMapTests : public SIPX_UNIT_BASE_CLASS
 {
 
     CPPUNIT_TEST_SUITE(UtlHashMapTests);

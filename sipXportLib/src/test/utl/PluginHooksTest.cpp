@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,16 +11,11 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include "utl/UtlString.h"
 #include "os/OsConfigDb.h"
 #include "utl/TestPlugin.h"
 #include "utl/PluginHooks.h"
-#include <sipxunit/TestUtilities.h>
-
-using namespace std ; 
+#include <sipxunittests.h>
 
 #define PLUGIN_LIB_DIR TEST_DIR "/testplugin/.libs/"
 #ifdef __APPLE__
@@ -26,7 +24,7 @@ using namespace std ;
 #  define PLUGIN_EXT ".so"
 #endif
 
-class PluginHooksTest : public CppUnit::TestCase
+class PluginHooksTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(PluginHooksTest);
    CPPUNIT_TEST(testNoHooks);

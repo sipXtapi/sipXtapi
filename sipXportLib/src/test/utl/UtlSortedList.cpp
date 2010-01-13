@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,21 +11,15 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
 #include <os/OsDefs.h>
 #include <utl/UtlVoidPtr.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSortedList.h>
 #include <utl/UtlContainableTestStub.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
-
-using namespace std ; 
 
 /**  This class is used to test the UtlInt utility class. 
 *
@@ -31,7 +28,7 @@ using namespace std ;
 *    without reading this file, the following class (and all unit tests)
 *    may not make a lot of sense and might be difficult to comprehend. 
 */
-class UtlSortedListTest : public  CppUnit::TestCase
+class UtlSortedListTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(UtlSortedListTest);
     CPPUNIT_TEST(checkSanity_Insert_Entries_And_At) ; 
@@ -210,6 +207,11 @@ public:
     */
     void testInsert_StringList()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         const char* prefix = "For sortedlist consisting of UtlStrings, " \
                              "test the insert(Containable cont) method, where cont = " ; 
         const char* suffix1 = " :- check return value" ; 
@@ -287,6 +289,11 @@ public:
     */
     void testInsert_IntList()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         const char* prefix = "For sortedlist consisting of UtlInts, " \
                              "test the insert(Containable cont) method, where cont = " ; 
         const char* suffix1 = " :- check return value" ; 
@@ -375,6 +382,11 @@ public:
     */
     void testInsert_LikeExistingItem()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         const char* prefix = "Test the insert(UtlContainable cont) method when cont is " \
                     "equal to an existing item in the list" ; 
         const char* suffix1 = " Verify the position of the old element" ;
@@ -431,6 +443,11 @@ public:
     */
     void testIndex()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         const char* prefix = "Test the index(UtlContainable* cont) method when cont = " ; 
         string Message ; 
         UtlString noExistString("CannotExist") ; 
@@ -656,6 +673,11 @@ public:
     */
     void testDestroy()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         const char* prefix = "test the destroy() method " ; 
         const char* suffix1 = " :- verify the return value" ; 
         const char* suffix2 = " :- verify that the entry is removed" ; 
@@ -702,6 +724,11 @@ public:
     */
     void testRemoveAll()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         const char* prefix = "Test the removeAll() method when " ; 
         const char* suffix = " :- Verify number of entries after removeAll()"  ;
         string Message ; 
@@ -744,6 +771,11 @@ public:
     */
     void testDestroyAll()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         const char* prefix = "test the destroyAll() method " ; 
         const char* suffix1 = " :- Verify that all entries are removed" ; 
         const char* suffix2 = " :- Verify that all objects are deleted" ; 

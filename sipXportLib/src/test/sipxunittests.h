@@ -24,6 +24,7 @@
 
 #define SIPX_UNIT_BASE_CLASS SipxPortUnitTestClass
 
+#include <os/OsIntTypes.h>
 #include <sipxportunit/SipxPortUnitTest.h>
 #include <utl/UtlString.h>
 

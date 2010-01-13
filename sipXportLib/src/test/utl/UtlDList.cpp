@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,12 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
 
 #include <os/OsDefs.h>
 
@@ -22,9 +20,8 @@
 #include <utl/UtlString.h>
 #include <utl/UtlDList.h>
 #include <utl/UtlContainableTestStub.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
-
-using namespace std ; 
 
 
 /**  This class is used to test the UtlDList utility class. 
@@ -34,9 +31,8 @@ using namespace std ;
 *    without reading this file, the following class (and all unit tests)
 *    may not make a lot of sense and might be difficult to comprehend. 
 */
-class UtlDListTest : public  CppUnit::TestCase
+class UtlDListTest : public  SIPX_UNIT_BASE_CLASS
 {
-
     CPPUNIT_TEST_SUITE(UtlDListTest);
     CPPUNIT_TEST(checkSanity_Append_Entries_And_At) ; 
     CPPUNIT_TEST(testAppend) ; 
@@ -476,6 +472,10 @@ public:
     */
     void testIndex()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
         utlTestIndex_Find_And_Contains(TEST_INDEX) ; 
     }
 
@@ -565,17 +565,21 @@ public:
 
        for (int i = 0 ; i < testCount ; i++)
        {
+           //printf("line: %d file: %s i: %d testCount: %d\n",
+           //        __LINE__, __FILE__, i, testCount);
            string msg ; 
            if (type == TEST_INDEX) 
            {
                size_t actual = commonList.index(searchValues[i]) ; 
-               TestUtilities::createMessage(2, &msg, prefixIndex, Msgs[i]) ; 
+               msg = prefixIndex;
+               msg.append(Msgs[i]);
                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedValues_Index[i], actual) ; 
            } 
            else if (type == TEST_FIND) 
            {
                UtlContainable* actual = commonList.find(searchValuesForFind[i]) ; 
-               TestUtilities::createMessage(2, &msg, prefixFind, Msgs[i]) ; 
+               msg = prefixFind;
+               msg.append(Msgs[i]);
                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedValuesForFind[i], actual) ;
            }
            else if (type == TEST_CONTAINS) 
@@ -607,6 +611,10 @@ public:
     */
     void testOccurancesOf()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
         const int testCount = 6 ; 
         const char* prefix = "Test the occurancesOf(UtlContainable* cl); where cl " ; 
         const char* Msgs[] = { \
@@ -649,6 +657,10 @@ public:
     */
     void testRemove()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
         utlTestRemove(TEST_REMOVE) ; 
 
     }
@@ -668,6 +680,10 @@ public:
     */ 
     void testRemoveAndDestroy()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
         const char* prefix  = "test the destroy() method " ; 
         
         UtlContainableTestStub uStub(0) ;

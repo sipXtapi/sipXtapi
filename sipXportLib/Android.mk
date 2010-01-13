@@ -205,7 +205,7 @@ LOCAL_SRC_FILES := \
 LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\" \
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
@@ -239,16 +239,18 @@ LOCAL_SRC_FILES := \
 LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\" \
+                  -DTEST_DIR=\"/tmp\"
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/libpcre \
     $(SIPX_HOME)/sipXportLib/src/test \
     $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
 
 
 #LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libpcre libsipXport
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
@@ -263,22 +265,55 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := sipxportunit
 
+#TODO:
+# UtlHashMapPerformance.cpp & UtlListPerformance.cpp needs executables
+hangs_unittest := \
+  src/test/utl/PluginHooksTest.cpp \
+
+
 LOCAL_SRC_FILES := \
-  src/test/utl/UtlInt.cpp
+  src/test/utl/UtlChainTest.cpp \
+  src/test/utl/UtlContainableTestStub.cpp \
+  src/test/utl/UtlCrc32Test.cpp \
+  src/test/utl/UtlCryptoTest.cpp \
+  src/test/utl/UtlDList.cpp \
+  src/test/utl/UtlDListIterator.cpp \
+  src/test/utl/UtlHashBag.cpp \
+  src/test/utl/UtlHashBagIterator.cpp \
+  src/test/utl/UtlHashMap.cpp \
+  src/test/utl/UtlHashMapIterator.cpp \
+  src/test/utl/UtlInt.cpp \
+  src/test/utl/UtlLinkTest.cpp \
+  src/test/utl/UtlLongLongInt.cpp \
+  src/test/utl/UtlRegex.cpp \
+  src/test/utl/UtlSList.cpp \
+  src/test/utl/UtlSListIteratorTest.cpp \
+  src/test/utl/UtlSortedList.cpp \
+  src/test/utl/UtlSortedListIteratorTest.cpp \
+  src/test/utl/UtlStringTest.cpp \
+  src/test/utl/UtlStringTest_ConstructiveManipulators.cpp \
+  src/test/utl/UtlStringTest_DestructiveManipulators.cpp \
+  src/test/utl/UtlStringTest_NonMutating.cpp \
+  src/test/utl/UtlTokenizerTest.cpp \
+  src/test/utl/UtlVoidPtr.cpp \
+  src/test/utl/XmlContentTest.cpp \
+
 
 LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\" \
+                  -DTEST_DIR=\"/tmp\"
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/libpcre \
     $(SIPX_HOME)/sipXportLib/src/test \
     $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
 
 
 #LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libpcre libsipXport
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,12 +11,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include "utl/UtlLink.h"
 #include "utl/UtlInt.h"
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 /// Unit test of the UtlLink and UtlLinkPool classes.
 
@@ -24,7 +24,7 @@ static UtlInt data3(3);
 
 /// Unit test of the UtlLink, UtlLinkPool, and UtlChain classes.
 class UtlLinkTest :
-   public CppUnit::TestCase,
+   public SIPX_UNIT_BASE_CLASS,
    public UtlLink
 {
    CPPUNIT_TEST_SUITE(UtlLinkTest);
