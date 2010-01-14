@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,14 +11,11 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <os/OsProcess.h>
 #include <os/OsStatus.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
-class OsProcessIteratorTest : public CppUnit::TestCase
+class OsProcessIteratorTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(OsProcessIteratorTest);
     CPPUNIT_TEST(testIterator);

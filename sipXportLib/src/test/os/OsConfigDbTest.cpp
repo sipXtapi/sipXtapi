@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,17 +11,14 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <os/OsConfigDb.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 
 /**
  * Test OsConfigDb API
  */
-class OsConfigDbTest : public CppUnit::TestCase
+class OsConfigDbTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(OsConfigDbTest);
     CPPUNIT_TEST(testCreators);
@@ -120,6 +120,11 @@ public:
 
     void testAccessors()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         OsConfigDb *pDb = new OsConfigDb();
                                                                                 
         // the get() method is tested by testManipulators()

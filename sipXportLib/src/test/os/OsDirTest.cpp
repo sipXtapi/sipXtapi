@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,9 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 #include <os/OsFS.h>
 #include <os/OsTestUtilities.h>
@@ -22,7 +23,7 @@
  * file related operations. Longterm we select 1 API and 1 set of
  * tests to maintain.
  */
-class OsDirTest : public CppUnit::TestCase
+class OsDirTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(OsDirTest);
     CPPUNIT_TEST(testCreateDir);

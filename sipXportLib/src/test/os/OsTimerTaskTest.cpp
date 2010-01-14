@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,13 +11,10 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 #include <os/OsTimerTask.h>
 
-class OsTimerTaskTest : public CppUnit::TestCase
+class OsTimerTaskTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(OsTimerTaskTest);
     CPPUNIT_TEST(testTimerTask);
@@ -23,6 +23,11 @@ class OsTimerTaskTest : public CppUnit::TestCase
 public:
     void testTimerTask()
     {
+#ifdef ANDROID
+      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+      return;
+#endif
+
         OsTimerTask* pTimerTask;
         pTimerTask = OsTimerTask::getTimerTask();
         CPPUNIT_ASSERT_MESSAGE("Timer task created 1", pTimerTask != NULL);

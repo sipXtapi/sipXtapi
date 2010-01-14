@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,10 +11,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "os/OsServerTask.h"
+#include <os/OsServerTask.h>
+#include <sipxunittests.h>
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
 
 /// How many times to start/stop threads
 #define TEST_START_STOP_ITERATIONS 5
@@ -43,7 +45,7 @@ protected:
 };
 
 
-class OsServerTaskTest : public CppUnit::TestCase
+class OsServerTaskTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(OsServerTaskTest);
    CPPUNIT_TEST(testFastStartStop);
@@ -53,6 +55,11 @@ public:
 
    void testFastStartStop()
    {
+#ifdef ANDROID
+      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+      return;
+#endif
+
       UtlBoolean boolRes;
 
       for (int i=0; i<TEST_START_STOP_ITERATIONS; i++)

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,14 +11,12 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <os/OsTime.h>
 #include <os/OsEvent.h>
 #include <os/OsServerTask.h>
 #include <os/OsRpcMsg.h>
 #include <os/OsDateTime.h>
+#include <sipxunittests.h>
 
 
 class RightEventThread : public OsServerTask
@@ -106,7 +107,7 @@ protected:
 
 };
 
-class OsEventTest : public CppUnit::TestCase
+class OsEventTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(OsEventTest);
     CPPUNIT_TEST(testTimedEvent);
@@ -118,6 +119,11 @@ class OsEventTest : public CppUnit::TestCase
 public:
     void testTimedEvent()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         OsTime   eventTimeout(2,0);
         OsEvent* pEvent;
 
@@ -138,6 +144,11 @@ public:
 
     void testThreadedEvent()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         // Seed the random number generator
         srand(OsDateTime::getSecsSinceEpoch());
 
@@ -215,6 +226,11 @@ public:
 
     void testThreadedMultipleFire()
     {
+#ifdef ANDROID
+        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+        return;
+#endif
+
         OsEvent event;
         MultipleFireThread fireThread(-1, &event);
 

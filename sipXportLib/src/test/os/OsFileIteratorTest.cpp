@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,12 +11,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
-
 #include <os/OsFS.h>
 #include <os/OsFS.h>
+#include <sipxunittests.h>
 #include <os/OsTestUtilities.h>
 
 // This prints the filter expressions and what they find
@@ -60,7 +60,7 @@ static const struct trial
 };
 static const int NumTrials = sizeof(Trials)/sizeof(struct trial);
 
-class OsFileIteratorTest : public CppUnit::TestCase
+class OsFileIteratorTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(OsFileIteratorTest);
     CPPUNIT_TEST(testCreation);
@@ -79,6 +79,8 @@ public:
     {
         OsTestUtilities::createTestDir(mRootPath);
         int i;
+        CPPUNIT_ASSERT_MESSAGE("wrong number of files", NumTestFiles == 10);
+        printf("num temp files: %d\n", NumTestFiles);
         for ( i= 0; i < NumTestFiles; i++ )
         {
             OsTestUtilities::createDummyFile(mRootPath+OsPath::separator+TestFiles[i], 100);

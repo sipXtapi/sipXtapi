@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -11,12 +14,10 @@
 #include <utl/UtlDefs.h>
 #include <os/linux/AdapterInfo.h>
 #include <os/HostAdapterAddress.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <stdlib.h>
+#include <sipxunittests.h>
 
 #define MAX_A	64
-class OsAdapterInfoTest : public CppUnit::TestCase
+class OsAdapterInfoTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(OsAdapterInfoTest);
     CPPUNIT_TEST(testCount);

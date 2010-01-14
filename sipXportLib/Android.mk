@@ -35,6 +35,7 @@ LOCAL_SRC_FILES := \
     src/utl/UtlContainable.cpp \
     src/utl/UtlContainer.cpp \
     src/utl/UtlContainableAtomic.cpp \
+    src/utl/UtlContainablePair.cpp \
     src/utl/UtlIterator.cpp \
     src/utl/UtlList.cpp \
     src/utl/UtlListIterator.cpp \
@@ -269,9 +270,38 @@ LOCAL_MODULE := sipxportunit
 # UtlHashMapPerformance.cpp & UtlListPerformance.cpp needs executables
 hangs_unittest := \
   src/test/utl/PluginHooksTest.cpp \
+  src/test/os/StunMessageTest.cpp \
+  src/test/os/TurnMessageTest.cpp \
 
 
 LOCAL_SRC_FILES := \
+  src/test/os/OsMutexTest.cpp \
+  src/test/os/OsLockTest.cpp \
+  src/test/os/OsAdapterInfoTest.cpp \
+  src/test/os/OsCallbackTest.cpp \
+  src/test/os/OsConfigDbTest.cpp \
+  src/test/os/OsContactListTest.cpp \
+  src/test/os/OsContactTest.cpp \
+  src/test/os/OsDirTest.cpp \
+  src/test/os/OsEventTest.cpp \
+  src/test/os/OsFileIteratorTest.cpp \
+  src/test/os/OsFileSystemTest.cpp \
+  src/test/os/OsFileTest.cpp \
+  src/test/os/OsMsgDispatcherTest.cpp \
+  src/test/os/OsMsgQTest.cpp \
+  src/test/os/OsNameDbTest.cpp \
+  src/test/os/OsPathTest.cpp \
+  src/test/os/OsProcessIteratorTest.cpp \
+  src/test/os/OsProcessMgrTest.cpp \
+  src/test/os/OsProcessTest.cpp \
+  src/test/os/OsSemTest.cpp \
+  src/test/os/OsServerTaskTest.cpp \
+  src/test/os/OsSharedLibMgrTest.cpp \
+  src/test/os/OsSocketTest.cpp \
+  src/test/os/OsTestUtilities.cpp \
+  src/test/os/OsTimeTest.cpp \
+  src/test/os/OsTimerTaskTest.cpp \
+  src/test/os/OsTimerTest.cpp \
   src/test/utl/UtlChainTest.cpp \
   src/test/utl/UtlContainableTestStub.cpp \
   src/test/utl/UtlCrc32Test.cpp \

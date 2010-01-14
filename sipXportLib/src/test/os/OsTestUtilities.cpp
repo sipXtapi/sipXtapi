@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,22 +11,24 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/TestCase.h>
-#include <cppunit/SourceLine.h>
-#include <cppunit/Asserter.h>
 #include <string>
 
 //Application Includes
 #include <os/OsDefs.h>
 #include <os/OsFileSystem.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 #include <os/OsTestUtilities.h>
 
 void OsTestUtilities::createTestDir(OsPath& root)
 {
     OsStatus stat;
 
+#ifdef ANDROID
+    root = "/data/data";
+#else
     OsFileSystem::getWorkingDirectory(root);
+#endif
+    printf("Test dir root: %s\n", root.data());
     root.append(OsPath::separator).append("OsFileSystemTest");
 
     if (OsFileSystem::exists(root))
@@ -51,10 +56,12 @@ void OsTestUtilities::removeTestDir(OsPath &root)
 
 void OsTestUtilities::initDummyBuffer(char *buff, int size)
 {
+    printf("OsTestUtilities::initDummyBuffer(%p, %d)\n", buff, size);
     for (int i = 0; i < size; i++)
     {
         buff[i] = (char)(i % 256);
     }
+    printf("exit OsTestUtilities::initDummyBuffer\n");
 }
 
 UtlBoolean OsTestUtilities::testDummyBuffer(char *buff, unsigned long size, unsigned long position)
@@ -75,28 +82,39 @@ UtlBoolean OsTestUtilities::testDummyBuffer(char *buff, unsigned long size, unsi
 
 OsStatus OsTestUtilities::createDummyFile(OsPath testFile, unsigned long size)
 {
+    printf("OsTestUtilities::createDummyFile(%s, %d)\n", testFile.data(), size);
     OsStatus stat;
     char wbuff[10000];
     unsigned long wbuffsize = (unsigned long)sizeof(wbuff);
 
     OsTestUtilities::initDummyBuffer(wbuff, sizeof(wbuff));
-
+    printf("construct OsFile\n");
     OsFile wfile(testFile);
+    printf("opening %s\n", testFile.data());
     stat = wfile.open(OsFile::CREATE);
+    printf("created\n");
+    UtlString msg("failed to create file: ");
+    msg.append(testFile);
+    msg.appendFormat(" error: %d", stat);
+    CPPUNIT_ASSERT_MESSAGE(msg.data(), stat == OS_SUCCESS);
     if (stat == OS_SUCCESS)
     {
+        printf("stat ok\n");
         unsigned long wposition = 0;
         for (int i = 0; stat == OS_SUCCESS && wposition < wbuffsize; i++)
         {
+            printf("about to write\n");
             unsigned long remaining = wbuffsize - wposition;
             unsigned long byteswritten = 0;
             stat = wfile.write(wbuff + wposition, remaining, byteswritten);
+            printf("write %d bytes return: %d\n", byteswritten, stat);
             wposition += byteswritten;
         }
 
         wfile.close();
     }
 
+    printf("exit OsTestUtilities::createDummyFile\n");
     return stat;
 }
 
@@ -108,6 +126,9 @@ UtlBoolean OsTestUtilities::verifyDummyFile(OsPath testFile, unsigned long size)
     unsigned long rbuffsize = (unsigned long)sizeof(rbuff);
     OsFile rfile(testFile);
     stat = rfile.open();
+    UtlString msg("Failed to create file: ");
+    msg.append(testFile);
+    CPPUNIT_ASSERT_MESSAGE(testFile.data(), stat == OS_SUCCESS);
     if (stat == OS_SUCCESS)
     {
         unsigned long rposition = 0;
@@ -118,6 +139,7 @@ UtlBoolean OsTestUtilities::verifyDummyFile(OsPath testFile, unsigned long size)
             unsigned long readsize = remaining < rbuffsize ? remaining : rbuffsize;
             unsigned long bytesread = 0;
             stat = rfile.read(rbuff, readsize, bytesread);
+            CPPUNIT_ASSERT_MESSAGE("Failed to read", stat != 0);
             if (stat != OS_SUCCESS)
             {
                 ok = false;

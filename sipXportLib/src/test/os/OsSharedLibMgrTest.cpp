@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -11,9 +14,7 @@
 #include <utl/UtlDefs.h>
 #include <os/OsStatus.h>
 #include <os/OsSharedLibMgr.h>
-
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 
 #if defined WIN32 && defined WINCE
 #define LIB_NAME        "coredll.dll"
@@ -23,11 +24,13 @@
 #define LIB_NAME        "libm.so.6"
 #elif defined __APPLE__
 #define LIB_NAME        "libm.dylib"
+#elif defined ANDROID
+#define LIB_NAME        "libm.so"
 #else
 #error Please define LIB_NAME for your platform
 #endif
 
-class OsSharedLibMgrTest : public CppUnit::TestCase
+class OsSharedLibMgrTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(OsSharedLibMgrTest);
     CPPUNIT_TEST(testLoadUnload);

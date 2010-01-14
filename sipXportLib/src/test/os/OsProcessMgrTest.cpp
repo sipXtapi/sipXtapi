@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -11,26 +11,22 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <os/OsTask.h>
 #include <os/OsProcess.h>
 #include <os/OsProcessMgr.h>
-
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 // Short circuit the autotools config as the path will most likely not work
 // for cross compile test runs off the machine the unit tests were built on.
-//#ifndef TEST_DIR
+#ifndef TEST_DIR
 #ifdef WIN32
 #define TEST_DIR "C:\\windows\\temp\\"
 #else
 #define TEST_DIR "/tmp/"
 #endif
-//#endif
+#endif
 
-class OsProcessMgrTest : public CppUnit::TestCase
+class OsProcessMgrTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(OsProcessMgrTest);
     CPPUNIT_TEST(testManager);
@@ -41,6 +37,11 @@ public:
 
     void testManager()
     {
+#ifdef ANDROID
+      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+      return;
+#endif
+
         OsStatus stat;
         printf("Creating process lock file in dir: %s\n", TEST_DIR);
         OsProcessMgr processManager(TEST_DIR);

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2004-2010 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,17 +11,10 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <string.h>
-#include <stdlib.h>
-#include <cstdarg>
 
 #include <os/OsContactList.h>
-#include <sipxunit/TestUtilities.h>
-
-using namespace std ; 
+#include <sipxunittests.h>
 
 /**  This class is used to test the OsContact class. 
 *
@@ -27,7 +23,7 @@ using namespace std ;
 *    without reading this file, the following class (and all unit tests)
 *    may not make a lot of sense and might be difficult to comprehend. 
 */
-class OsContactListTests : public CppUnit::TestCase
+class OsContactListTests : public SIPX_UNIT_BASE_CLASS
 {
 
     CPPUNIT_TEST_SUITE(OsContactListTests);

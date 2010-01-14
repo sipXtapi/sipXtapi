@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,13 +11,10 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
-#include <sipxunit/TestUtilities.h>
 #include <os/OsExcept.h>
 #include <os/OsMsg.h>
 #include <os/OsMsgQ.h>
+#include <sipxunittests.h>
 
 UtlBoolean gMsgReceived;
 
@@ -25,7 +25,7 @@ UtlBoolean msgSendHook(const OsMsg& rOsMsg)
     return FALSE;
 }
 
-class OsMsgQTest : public CppUnit::TestCase
+class OsMsgQTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(OsMsgQTest);
     CPPUNIT_TEST(testMessageQueue);
@@ -35,6 +35,11 @@ public:
 
     void testMessageQueue()
     {
+#ifdef ANDROID
+      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+      return;
+#endif
+
         OsMsgQ* pMsgQ1;
         OsMsg* pMsg1;
         OsMsg* pMsg2;

@@ -1,4 +1,7 @@
 //  
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
@@ -8,19 +11,16 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
-
 #include "utl/UtlRandom.h"
 #include "os/OsDateTime.h"
 #include "os/OsMsgDispatcher.h"
 #include "os/OsSysLog.h"
+#include <sipxunittests.h>
 
 /**
  * Unittest for OsMsgDispatcher
  */
-class OsMsgDispatcherTest : public CppUnit::TestCase
+class OsMsgDispatcherTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(OsMsgDispatcherTest);
    CPPUNIT_TEST(testSingleMessage);
@@ -43,6 +43,10 @@ public:
 
    void testSingleMessage()
    {
+#ifdef ANDROID
+      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+      return;
+#endif
       OsMsg msg(1, (char)mpRandGenerator->rand());
       OsMsg* pReceivedMsg = NULL;
 
@@ -58,6 +62,10 @@ public:
 
    void testFullDispatcher()
    {
+#ifdef ANDROID
+      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+      return;
+#endif
       OsMsgDispatcher dispatcher;
       OsMsg** pMsgArray = new OsMsg*[dispatcher.maxMsgs()+1];
       int i;

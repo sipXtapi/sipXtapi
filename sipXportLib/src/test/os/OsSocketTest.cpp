@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -11,12 +11,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
 #include <os/OsFS.h>
 #include <os/OsTask.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 #include <os/OsTestUtilities.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsMulticastSocket.h>
@@ -24,7 +21,7 @@
 #include <os/OsServerSocket.h>
 #include <string.h>
 
-class SocketsTest : public CppUnit::TestCase
+class SocketsTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(SocketsTest);
     CPPUNIT_TEST(testSocketUtils);
