@@ -37,6 +37,7 @@
 
 // FORWARD DECLARATIONS
 class SipxPortUnitTestConstructor;
+class SipxPortUnitTestClass;
 
 //
 //! Top level unit test class and envrionment container
@@ -119,6 +120,10 @@ public:
 
     static void dumpCurrentTestState();
 
+    static SipxPortUnitTestClass* getCurrentTestClass();
+    static void setCurrentTestClass(SipxPortUnitTestClass* currentClass);
+
+
 /* ============================ I N Q U I R Y ============================= */
 
 //__________________________________________________________________________//
@@ -152,6 +157,7 @@ private:
     static int sCurrentTestClassIndex;
     static int sCurrentTestMethodIndex;
     static int sCurrentTestPointIndex;
+    static SipxPortUnitTestClass* spCurrentTestClass;
 
     static int sTotalTestMethodCount;
     static int sTestMethodsRun;

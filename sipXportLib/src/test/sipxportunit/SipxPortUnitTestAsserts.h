@@ -51,31 +51,38 @@
     CPPUNIT_ASSERT_MESSAGE(FAIL_MSG, 0)
 
 #define CPPUNIT_ASSERT_MESSAGE(ERROR_MESSAGE, TRUE_VALUE) \
-        incrementTestPointIndex(); \
-        setTestPointLine(__LINE__); \
-        setTestPointFilename(__FILE__); \
-        if(TRUE_VALUE) \
         { \
-            incrementTestPointsPassed(); \
-        } \
-        else \
-        { \
-            incrementTestPointsFailed(); \
-            char message[SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE]; \
-            const char* className = getClassName(); \
-            const char* methodName = spMethodNames[getCurrentMethodIndex()]; \
-            int testPoint = getTestPointIndex(); \
-            snprintf(message, SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE - 1, \
-                    "%s, \"%s\" is not true, file: %s %s::%s test point: %d line: %d\n", \
-                    ERROR_MESSAGE, #TRUE_VALUE, \
-                    __FILE__, className, methodName, testPoint, __LINE__); \
-            SipxPortUnitTestEnvironment::printOut(message); \
-            addFailedTestPoint( __FILE__, \
-                               className, \
-                               methodName, \
-                               testPoint, \
-                               __LINE__, \
-                               message); \
+            SipxPortUnitTestClass* currentTestClass = 0; \
+            if((currentTestClass = SipxPortUnitTestEnvironment::getCurrentTestClass())) \
+            { \
+                currentTestClass->incrementTestPointIndex(); \
+                currentTestClass->setTestPointLine(__LINE__); \
+                currentTestClass->setTestPointFilename(__FILE__); \
+                if(TRUE_VALUE) \
+                { \
+                    currentTestClass->incrementTestPointsPassed(); \
+                } \
+                else \
+                { \
+                    currentTestClass->incrementTestPointsFailed(); \
+                    char message[SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE]; \
+                    const char* className = currentTestClass->getClassName(); \
+                    const char* methodName = currentTestClass->getCurrentMethodName(); /* spMethodNames[getCurrentMethodIndex()]; */ \
+                    int testPoint = currentTestClass->getTestPointIndex(); \
+                    snprintf(message, SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE - 1, \
+                            "%s, \"%s\" is not true, file: %s %s::%s test point: %d line: %d\n", \
+                            ERROR_MESSAGE, #TRUE_VALUE, \
+                            __FILE__, className, methodName, testPoint, __LINE__); \
+                    SipxPortUnitTestEnvironment::printOut(message); \
+                    currentTestClass->addFailedTestPoint(__FILE__, \
+                                                         className, \
+                                                         methodName, \
+                                                         testPoint, \
+                                                         __LINE__, \
+                                                         message); \
+                } \
+            } \
+            assert(currentTestClass); \
         }
 
 

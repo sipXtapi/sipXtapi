@@ -60,6 +60,7 @@ void SipxPortUnitTestConstructor::runAllMethodsFrom(int methodIndex)
         assert(mpTestClass);
     }
 
+    SipxPortUnitTestEnvironment::setCurrentTestClass(mpTestClass);
     mpTestClass->runAllMethodsFrom(methodIndex);
 }
 

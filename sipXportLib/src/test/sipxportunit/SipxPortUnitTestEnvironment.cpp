@@ -37,6 +37,7 @@ int SipxPortUnitTestEnvironment::sInitializing = 0;
 int SipxPortUnitTestEnvironment::sCurrentTestClassIndex = -1;
 int SipxPortUnitTestEnvironment::sCurrentTestMethodIndex = -1;
 int SipxPortUnitTestEnvironment::sCurrentTestPointIndex = -1;
+SipxPortUnitTestClass* SipxPortUnitTestEnvironment::spCurrentTestClass = 0;
 
 int SipxPortUnitTestEnvironment::sTotalTestMethodCount = 0;
 int SipxPortUnitTestEnvironment::sTestMethodsRun = 0;
@@ -84,6 +85,7 @@ void SipxPortUnitTestEnvironment::initializeEnvironment()
             sCurrentTestClassIndex = -1;
             sCurrentTestMethodIndex = -1;
             sCurrentTestPointIndex = -1;
+            spCurrentTestClass = 0;
 
             sTotalTestMethodCount = 0;
             sTestMethodsRun = 0;
@@ -373,6 +375,16 @@ int SipxPortUnitTestEnvironment::getTestPointFailureCount()
 int SipxPortUnitTestEnvironment::getTestAbortCount()
 {
     return(sNumExceptionsCaught);
+}
+
+SipxPortUnitTestClass* SipxPortUnitTestEnvironment::getCurrentTestClass()
+{
+    return(spCurrentTestClass);
+}
+
+void SipxPortUnitTestEnvironment::setCurrentTestClass(SipxPortUnitTestClass* currentClass)
+{
+    spCurrentTestClass = currentClass;
 }
 
 /* ============================ I N Q U I R Y ============================= */
