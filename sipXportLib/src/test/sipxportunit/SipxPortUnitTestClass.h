@@ -65,6 +65,11 @@
         return(sTestPointsPassed); \
     } \
  \
+    static int getFailedTestPointCount() \
+    { \
+        return(sTestPointsFailed); \
+    } \
+ \
     virtual void incrementTestPointsFailed() \
     { \
         sTestPointsFailed++; \
@@ -300,6 +305,11 @@ class CLASS_NAME##Constructor : public SipxPortUnitTestConstructor \
     int getPassedTestPointCount() const \
     { \
         return(CLASS_NAME::getPassedTestPointCount()); \
+    } \
+ \
+    int getFailedTestPointCount() const \
+    { \
+        return(CLASS_NAME::getFailedTestPointCount()); \
     } \
  \
     int getFailureCount() const\

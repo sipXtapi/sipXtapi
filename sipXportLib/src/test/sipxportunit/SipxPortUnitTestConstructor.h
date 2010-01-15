@@ -82,6 +82,9 @@ public:
     virtual int getPassedTestPointCount() const = 0;
 
     /// Return test point failure count
+    virtual int getFailedTestPointCount() const = 0;
+
+    /// Return test point failure count
     virtual int getFailureCount() const = 0;
 
     /// Returns a test point failure object

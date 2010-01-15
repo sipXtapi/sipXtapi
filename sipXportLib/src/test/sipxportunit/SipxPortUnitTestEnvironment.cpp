@@ -282,11 +282,13 @@ void SipxPortUnitTestEnvironment::reportResults()
     {
         SipxPortUnitTestConstructor* classConstr = sTestClassesToRun[classIndex];
         assert(classConstr);
+        int passed = classConstr->getPassedTestPointCount();
         sprintf(buffer,
-                "%s: %d test methods, %d test points succeeded\n",
+                "%s: %d test methods, %d/%d test points succeeded\n",
                 classConstr->getClassName(),
                 classConstr->getTestMethodCount(),
-                classConstr->getPassedTestPointCount());
+                passed,
+                (passed + classConstr->getFailedTestPointCount()));
         printOut(buffer);
     }
 
