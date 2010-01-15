@@ -65,21 +65,21 @@
                 else \
                 { \
                     currentTestClass->incrementTestPointsFailed(); \
-                    char message[SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE]; \
+                    char _sipxportunit_message[SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE]; \
                     const char* className = currentTestClass->getClassName(); \
                     const char* methodName = currentTestClass->getCurrentMethodName(); /* spMethodNames[getCurrentMethodIndex()]; */ \
                     int testPoint = currentTestClass->getTestPointIndex(); \
-                    snprintf(message, SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE - 1, \
+                    snprintf(_sipxportunit_message, SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE - 1, \
                             "%s, \"%s\" is not true, file: %s %s::%s test point: %d line: %d\n", \
-                            ERROR_MESSAGE, #TRUE_VALUE, \
+                            ((char*)ERROR_MESSAGE), #TRUE_VALUE, \
                             __FILE__, className, methodName, testPoint, __LINE__); \
-                    SipxPortUnitTestEnvironment::printOut(message); \
+                    SipxPortUnitTestEnvironment::printOut(_sipxportunit_message); \
                     currentTestClass->addFailedTestPoint(__FILE__, \
                                                          className, \
                                                          methodName, \
                                                          testPoint, \
                                                          __LINE__, \
-                                                         message); \
+                                                         _sipxportunit_message); \
                 } \
             } \
             assert(currentTestClass); \

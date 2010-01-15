@@ -54,6 +54,28 @@
                0); \
     } \
  \
+    virtual void incrementTestPointsPassed() \
+    { \
+        sTestPointsPassed++; \
+        SipxPortUnitTestEnvironment::incrementTestPointsPassed(); \
+    } \
+ \
+    static int getPassedTestPointCount() \
+    { \
+        return(sTestPointsPassed); \
+    } \
+ \
+    virtual void incrementTestPointsFailed() \
+    { \
+        sTestPointsFailed++; \
+        SipxPortUnitTestEnvironment::incrementTestPointsFailed(); \
+    } \
+ \
+    static int getFailureCount() \
+    { \
+        return(sTestPointFailureCount); \
+    } \
+ \
     static SipxPortUnitTestPointFailure* getFailure(int failureIndex) \
     { \
         assert(failureIndex >= 0); \
@@ -87,6 +109,8 @@
     static int sMethodCount; \
     static char** spMethodNames; \
     static SipxPortTestMethodState* spMethodStates; \
+    static int sTestPointsPassed; \
+    static int sTestPointsFailed; \
     static int sTestPointFailureCount; \
     static SipxPortUnitTestPointFailure* sTestPointFailures[SIPX_PORT_UNIT_MAX_TEST_ERRORS_PER_CLASS]; \
  \
@@ -126,6 +150,8 @@
             sMethodCount = -1; \
             spMethodNames = 0; \
             spMethodStates = 0; \
+            sTestPointsPassed = 0; \
+            sTestPointsFailed = 0; \
             sTestPointFailureCount = 0; \
             for(int failureIndex = 0; failureIndex < SIPX_PORT_UNIT_MAX_TEST_ERRORS_PER_CLASS; failureIndex++)  \
             { \
@@ -220,7 +246,9 @@ int CLASS_NAME::sInitializedSignature = 0; \
 int CLASS_NAME::sMethodCount = -1; \
 char** CLASS_NAME::spMethodNames = 0; \
 SipxPortUnitTestClass::SipxPortTestMethodState* CLASS_NAME::spMethodStates = 0; \
-int CLASS_NAME::sTestPointFailureCount; \
+int CLASS_NAME::sTestPointsPassed = 0; \
+int CLASS_NAME::sTestPointsFailed = 0; \
+int CLASS_NAME::sTestPointFailureCount = 0; /* num pointers in following array */ \
 SipxPortUnitTestPointFailure* CLASS_NAME::sTestPointFailures[SIPX_PORT_UNIT_MAX_TEST_ERRORS_PER_CLASS]; \
  \
 class CLASS_NAME##Constructor : public SipxPortUnitTestConstructor \
@@ -267,6 +295,16 @@ class CLASS_NAME##Constructor : public SipxPortUnitTestConstructor \
             delete failure; \
             failure = 0; \
         } \
+    } \
+ \
+    int getPassedTestPointCount() const \
+    { \
+        return(CLASS_NAME::getPassedTestPointCount()); \
+    } \
+ \
+    int getFailureCount() const\
+    { \
+       return(CLASS_NAME::getFailureCount()); \
     } \
  \
     SipxPortUnitTestPointFailure* getFailure(int failureIndex) \
@@ -352,14 +390,14 @@ public:
     void incrementTestPointIndex();
     int getTestPointIndex() const;
 
+    virtual void incrementTestPointsPassed() = 0;
+    virtual void incrementTestPointsFailed() = 0;
+
     void setTestPointLine(int lineNumber);
     int getTestPointLine() const;
 
     void setTestPointFilename(const char* testFilename);
     const char* getTestPointFilename() const;
-
-    void incrementTestPointsPassed();
-    void incrementTestPointsFailed();
 
 /* ============================ I N Q U I R Y ============================= */
 
@@ -371,8 +409,6 @@ protected:
     int mCurrentMethodIndex;
     int mPriorTestPointIndex;
     int mPriorTestPointLine;
-    int mTestPointsPassed;
-    int mTestPointsFailed;
     char mPriorTestPointFileName[SIPX_PORT_UNIT_MAX_TEST_FILENAME_LENGTH];
 
 //__________________________________________________________________________//

@@ -104,18 +104,6 @@ int SipxPortUnitTestClass::getTestPointIndex() const
     return(mPriorTestPointIndex);
 }
 
-void SipxPortUnitTestClass::incrementTestPointsPassed()
-{
-    mTestPointsPassed++;
-    SipxPortUnitTestEnvironment::incrementTestPointsPassed();
-}
-
-void SipxPortUnitTestClass::incrementTestPointsFailed()
-{
-    mTestPointsFailed++;
-    SipxPortUnitTestEnvironment::incrementTestPointsFailed();
-}
-
 void SipxPortUnitTestClass::setTestPointLine(int lineNumber)
 {
     mPriorTestPointLine = lineNumber;

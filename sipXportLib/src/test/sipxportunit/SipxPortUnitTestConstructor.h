@@ -78,6 +78,12 @@ public:
     /// Returns the number of test methods for the test class
     virtual int getTestMethodCount() = 0;
 
+    /// Return test point success count
+    virtual int getPassedTestPointCount() const = 0;
+
+    /// Return test point failure count
+    virtual int getFailureCount() const = 0;
+
     /// Returns a test point failure object
     virtual SipxPortUnitTestPointFailure* getFailure(int failureIndex) = 0;
 

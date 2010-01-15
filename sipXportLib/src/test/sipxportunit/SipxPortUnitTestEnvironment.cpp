@@ -275,6 +275,21 @@ void SipxPortUnitTestEnvironment::reportResults()
             sTestPointsPassed, sTestPointsFailed, sNumExceptionsCaught);
     printOut(buffer);
 
+    // Detail successes
+    printOut("\n=============================================\nSuccess tallies:\n");
+
+    for(int classIndex = 0; classIndex < sTotalTestClassCount; classIndex++)
+    {
+        SipxPortUnitTestConstructor* classConstr = sTestClassesToRun[classIndex];
+        assert(classConstr);
+        sprintf(buffer,
+                "%s: %d test methods, %d test points succeeded\n",
+                classConstr->getClassName(),
+                classConstr->getTestMethodCount(),
+                classConstr->getPassedTestPointCount());
+        printOut(buffer);
+    }
+
     // Dig out all the failure messages for all of the classes
     if(sTestPointsFailed || sNumExceptionsCaught)
     {
@@ -297,7 +312,7 @@ void SipxPortUnitTestEnvironment::reportResults()
              // If first failure for this test class label it
              if(failureIndex == 0)
              {
-                 sprintf(buffer, "\n%s failure(s):\n", classConstr->getClassName());
+                 sprintf(buffer, "\n%s %d failure(s):\n", classConstr->getClassName(), classConstr->getFailureCount());
                  printOut(buffer);
              }
 
