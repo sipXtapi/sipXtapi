@@ -26,6 +26,9 @@
 #  elif defined(__APPLE__) /* OS X */
 #     include <sys/types.h>
       typedef int64_t __int64;
+#  elif defined(ANDROID)
+#     include <os/OsDefs.h>
+      typedef int64_t __int64;
 #  else
 #     error Unsupported POSIX OS.
 #  endif
