@@ -100,6 +100,9 @@ public:
 
     void setUp()
     {
+        // remove junk from prior tests
+        commonList.removeAll();
+
         UtlContainableTestStub::clearCount() ; 
         commonString1 = UtlString(regularString) ; 
         commonString1_clone = UtlString(regularString) ; 
@@ -137,6 +140,8 @@ public:
     
     void tearDown()
     {
+        // remove junk from this test
+        commonList.removeAll();
     }
 
 
@@ -472,10 +477,6 @@ public:
     */
     void testIndex()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
         utlTestIndex_Find_And_Contains(TEST_INDEX) ; 
     }
 
@@ -611,10 +612,6 @@ public:
     */
     void testOccurancesOf()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
         const int testCount = 6 ; 
         const char* prefix = "Test the occurancesOf(UtlContainable* cl); where cl " ; 
         const char* Msgs[] = { \
@@ -657,10 +654,6 @@ public:
     */
     void testRemove()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
         utlTestRemove(TEST_REMOVE) ; 
 
     }
@@ -680,10 +673,6 @@ public:
     */ 
     void testRemoveAndDestroy()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
         const char* prefix  = "test the destroy() method " ; 
         
         UtlContainableTestStub uStub(0) ;

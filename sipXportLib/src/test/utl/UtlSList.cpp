@@ -108,35 +108,46 @@ public:
         commonString3 = UtlString(longAlphaNumString) ; 
         commonString3_clone = UtlString(longAlphaNumString) ; 
 
+        // If a prior test fails and we bail, the list may have junk in it
+        commonList.removeAll();
+
         commonInt1 = UtlInt(0) ; 
         commonInt1_clone = UtlInt(0) ; 
         commonInt2 = UtlInt(INT_MAX) ; 
         commonInt2_clone = UtlInt(INT_MAX) ; 
         commonInt3 = UtlInt(INT_MIN) ; 
         commonInt3_clone = UtlInt(INT_MIN) ;
-        
+       
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 0, commonList.entries()); 
         commonList.append(&commonString1) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 1, commonList.entries()); 
         commonContainables[0] = &commonString1 ;
         commonContainables_Clone[0] = &commonString1_clone ; 
         commonList.append(&commonInt1) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 2, commonList.entries()); 
         commonContainables[1] = &commonInt1 ;
         commonContainables_Clone[1] = &commonInt1_clone ; 
         commonList.append(&commonInt2) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 3, commonList.entries()); 
         commonContainables[2] = &commonInt2 ; 
         commonContainables_Clone[2] = &commonInt2_clone; 
         commonList.append(&commonString2) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 4, commonList.entries()); 
         commonContainables[3] = &commonString2 ; 
         commonContainables_Clone[3] = &commonString2_clone ; 
         commonList.append(&commonInt3) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 5, commonList.entries()); 
         commonContainables[4] = &commonInt3 ; 
         commonContainables_Clone[4] = &commonInt3_clone ; 
         commonList.append(&commonString3) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 6, commonList.entries()); 
         commonContainables[5] = &commonString3 ; 
         commonContainables_Clone[5] = &commonString3_clone ; 
     }
     
     void tearDown()
     {
+        commonList.removeAll();
     }
 
 
@@ -157,15 +168,13 @@ public:
     */
     void checkSanity_Append_Entries_And_At()
     {
+        UtlString msg;
         for (int i = 0 ; i < commonEntriesCount; i++)
         {
             UtlContainable* ucExpected = commonContainables[i] ; 
             UtlContainable* ucActual = commonList.at(i) ; 
-            string msg ; 
-            char strItr[33] ; 
-            sprintf(strItr, "%d", i);
-            TestUtilities::createMessage(3, &msg, "Verify that the at(n) method, where n = ", \
-                strItr, " ;") ; 
+            msg = "Verify that the at(n) method, where n = ";
+            msg.appendFormat("%d ;", i);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), ucExpected, ucActual) ; 
         }
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify that the entries() for an empty list returns 0", \
@@ -472,10 +481,6 @@ public:
     */
     void testIndex()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
         utlTestIndex_Find_And_Contains(TEST_INDEX) ; 
     }
 
@@ -607,10 +612,6 @@ public:
     */
     void testOccurancesOf()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
         const int testCount = 6 ; 
         const char* prefix = "Test the occurancesOf(UtlContainable* cl); where cl " ; 
         const char* Msgs[] = { \
@@ -653,11 +654,6 @@ public:
     */
     void testRemove()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
-
         utlTestRemove(TEST_REMOVE) ; 
 
     }
@@ -677,10 +673,6 @@ public:
     */ 
     void testRemoveAndDestroy()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
         const char* prefix  = "test the destroy() method " ; 
         
         UtlContainableTestStub uStub(0) ;
