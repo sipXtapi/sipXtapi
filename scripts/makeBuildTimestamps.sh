@@ -3,7 +3,7 @@
 SIPX_REV="3.3"
 SVN_REV=`svn info | grep Revision | awk '{print $2}'`
 
-LIB_NAMES="sipXportLib sipxSdpLib sipXtackLib sipXmediaLib sipXmediaAdapterLib sipXcallLib"
+LIB_NAMES="sipXportLib sipXsdpLib sipXtackLib sipXmediaLib sipXmediaAdapterLib sipXcallLib"
 
 for LIB_NAME in ${LIB_NAMES}
 do
