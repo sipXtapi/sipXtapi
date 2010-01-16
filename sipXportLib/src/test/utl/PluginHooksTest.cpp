@@ -16,6 +16,7 @@
 #include "utl/TestPlugin.h"
 #include "utl/PluginHooks.h"
 #include <sipxunittests.h>
+#include <sipxunit/TestUtilities.h>
 
 #define PLUGIN_LIB_DIR TEST_DIR "/testplugin/.libs/"
 #ifdef __APPLE__

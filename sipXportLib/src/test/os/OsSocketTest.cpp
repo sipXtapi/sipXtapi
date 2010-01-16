@@ -14,6 +14,7 @@
 #include <os/OsFS.h>
 #include <os/OsTask.h>
 #include <sipxunittests.h>
+#include <sipxunit/TestUtilities.h>
 #include <os/OsTestUtilities.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsMulticastSocket.h>

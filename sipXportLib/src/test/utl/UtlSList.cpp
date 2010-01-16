@@ -118,29 +118,29 @@ public:
         commonInt3 = UtlInt(INT_MIN) ; 
         commonInt3_clone = UtlInt(INT_MIN) ;
        
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 0, commonList.entries()); 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 0, (int)commonList.entries()); 
         commonList.append(&commonString1) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 1, commonList.entries()); 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 1, (int)commonList.entries()); 
         commonContainables[0] = &commonString1 ;
         commonContainables_Clone[0] = &commonString1_clone ; 
         commonList.append(&commonInt1) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 2, commonList.entries()); 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 2, (int)commonList.entries()); 
         commonContainables[1] = &commonInt1 ;
         commonContainables_Clone[1] = &commonInt1_clone ; 
         commonList.append(&commonInt2) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 3, commonList.entries()); 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 3, (int)commonList.entries()); 
         commonContainables[2] = &commonInt2 ; 
         commonContainables_Clone[2] = &commonInt2_clone; 
         commonList.append(&commonString2) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 4, commonList.entries()); 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 4, (int)commonList.entries()); 
         commonContainables[3] = &commonString2 ; 
         commonContainables_Clone[3] = &commonString2_clone ; 
         commonList.append(&commonInt3) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 5, commonList.entries()); 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 5, (int)commonList.entries()); 
         commonContainables[4] = &commonInt3 ; 
         commonContainables_Clone[4] = &commonInt3_clone ; 
         commonList.append(&commonString3) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 6, commonList.entries()); 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("setUp: ", 6, (int)commonList.entries()); 
         commonContainables[5] = &commonString3 ; 
         commonContainables_Clone[5] = &commonString3_clone ; 
     }

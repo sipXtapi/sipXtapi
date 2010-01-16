@@ -14,6 +14,7 @@
 #include <os/OsFS.h>
 #include <sipxunittests.h>
 #include <os/OsTestUtilities.h>
+#include <sipxunit/TestUtilities.h>
 
 class OsPathTest : public SIPX_UNIT_BASE_CLASS
 {

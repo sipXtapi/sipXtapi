@@ -16,6 +16,7 @@
 #include <os/OsTimerTask.h>
 #include <os/OsTime.h>
 #include <sipxunittests.h>
+#include <sipxunit/TestUtilities.h>
 #include <os/OsDateTime.h>
 #include <os/OsLock.h>
 #include <os/OsEvent.h>

@@ -17,6 +17,7 @@
 #include <os/OsDefs.h>
 #include <os/OsFileSystem.h>
 #include <sipxunittests.h>
+#include <sipxunit/TestUtilities.h>
 #include <os/OsTestUtilities.h>
 
 void OsTestUtilities::createTestDir(OsPath& root)
@@ -82,7 +83,7 @@ UtlBoolean OsTestUtilities::testDummyBuffer(char *buff, unsigned long size, unsi
 
 OsStatus OsTestUtilities::createDummyFile(OsPath testFile, unsigned long size)
 {
-    printf("OsTestUtilities::createDummyFile(%s, %d)\n", testFile.data(), size);
+    printf("OsTestUtilities::createDummyFile(%s, %l)\n", testFile.data(), size);
     OsStatus stat;
     char wbuff[10000];
     unsigned long wbuffsize = (unsigned long)sizeof(wbuff);
