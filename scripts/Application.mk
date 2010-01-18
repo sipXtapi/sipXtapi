@@ -15,7 +15,7 @@
 #
 #
 
-UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit
+UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit sipxsdpunit
 SIPX_LIBS := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall
 # libsipXtapi
 
