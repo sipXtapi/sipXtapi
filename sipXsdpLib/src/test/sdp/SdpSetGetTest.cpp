@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -12,7 +12,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <os/OsIntTypes.h>
-#include <iostream>
 #include <utl/UtlSListIterator.h>
 
 #include <sdp/SdpCodec.h>
@@ -20,13 +19,12 @@
 #include <sdp/SdpMediaLine.h>
 #include <sdp/SdpHelperResip.h>
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 
 /**
 * Unittest for Sdp object setters and getters.
 */
-class SdpSetGetTest : public CppUnit::TestCase
+class SdpSetGetTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(SdpSetGetTest);
     CPPUNIT_TEST(testOriginatorInfo);

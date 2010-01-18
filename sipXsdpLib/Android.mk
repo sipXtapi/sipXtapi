@@ -59,3 +59,41 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
+
+# =======================
+
+# Unit test framework library
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := sipxsdpunit
+
+fails_to_compile := \
+
+
+LOCAL_SRC_FILES := \
+    src/test/sdp/SdpSetGetTest.cpp \
+    src/test/sdp/sdpTest.cpp
+
+LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\" \
+                  -DTEST_DIR=\"/tmp\"
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+    $(SIPX_HOME)/sipXsdpLib/include
+
+
+#LOCAL_SHARED_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libsipXsdp libpcre
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+include $(BUILD_EXECUTABLE)
+
