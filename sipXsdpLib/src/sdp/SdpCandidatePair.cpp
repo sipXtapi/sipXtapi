@@ -153,7 +153,7 @@ int SdpCandidatePair::compareTo(UtlContainable const *rhs) const
 { 
    int result ; 
 
-   const SdpCandidatePair* pCandidatePair = dynamic_cast<const SdpCandidatePair*>(rhs);
+   const SdpCandidatePair* pCandidatePair = static_cast<const SdpCandidatePair*>(rhs);
    if (rhs->isInstanceOf(SdpCandidatePair::TYPE) && pCandidatePair)
    {
       // We want to order a list of these from highest priority to lowest

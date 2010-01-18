@@ -126,7 +126,7 @@ int SdpCandidate::compareTo(UtlContainable const *rhs) const
 { 
    int result ; 
 
-   const SdpCandidate* pCandidate = dynamic_cast<const SdpCandidate*>(rhs);
+   const SdpCandidate* pCandidate = static_cast<const SdpCandidate*>(rhs);
    if (rhs->isInstanceOf(SdpCandidate::TYPE) && pCandidate)
    {
       result = compareNumber(mPriority, pCandidate->mPriority, true /* reverse */); // We want to order a list of these from highest priority to lowest
