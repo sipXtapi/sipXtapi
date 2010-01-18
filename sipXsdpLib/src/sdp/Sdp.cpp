@@ -133,7 +133,7 @@ Sdp& Sdp::operator=(const Sdp& rhs)
    UtlHashMapIterator it(rhs.mFoundationIds);
    SdpFoundation* item;
    UtlString* value;
-   while((item = static_cast<SdpFoundation*>(it())) && (value = dynamic_cast<UtlString*>(it.value())))
+   while((item = static_cast<SdpFoundation*>(it())) && (value = static_cast<UtlString*>(it.value())))
    {
       mFoundationIds.insertKeyAndValue(item->clone(), value->clone() );
    }
