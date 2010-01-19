@@ -37,6 +37,20 @@ class UtlString;
 // #define OS_MSGQ_DEBUG
 // #define OS_MSGQ_REPORTING
 
+// debug class
+class DebugMutex
+{
+   public:
+   DebugMutex(OsMutex& mutex, const char* label)
+   {
+      printf("DebugMutex %s:\n", label);
+      mutex.OsMutexShow();
+   };
+
+   private:
+   DebugMutex();
+};
+
 /**
 *  Message queue implementation for OS's with no native message queue support
 *

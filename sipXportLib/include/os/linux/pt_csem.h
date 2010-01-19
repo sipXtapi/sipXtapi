@@ -22,7 +22,7 @@
 #ifndef _PT_CSEM_H
 #define _PT_CSEM_H
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(ANDROID)
 /* Also see pt_mutex.h */
 #define SIPX_USE_NATIVE_PTHREADS
 //#undef SIPX_USE_NATIVE_PTHREADS

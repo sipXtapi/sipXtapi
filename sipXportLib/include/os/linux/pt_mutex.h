@@ -74,6 +74,8 @@ typedef struct pt_mutex {
         pthread_cond_t cond;
 } pt_mutex_t;
 
+void dumpPtMutex(pt_mutex_t* mutex);
+
 int pt_mutex_init(pt_mutex_t *mutex);
 
 int pt_mutex_lock(pt_mutex_t *mutex);

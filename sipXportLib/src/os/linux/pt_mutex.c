@@ -23,11 +23,34 @@
 #include "os/linux/pt_mutex.h"
 
 #ifndef SIPX_USE_NATIVE_PTHREADS // [
+void dumpPtMutex(pt_mutex_t* mutex)
+{
+    int* chunk = (int*) &mutex->mutex;
+    int i = 0;
+    for(i = 0; i < sizeof(pthread_mutex_t) / 4; i++)
+    {
+        printf("mutex[%d]: %d\n", i, chunk[i]);
+    }
+}
 
 int pt_mutex_init(pt_mutex_t *mutex)
 {
         mutex->count=0;
-        assert(0 == (pthread_mutex_init(&mutex->mutex,NULL) | pthread_cond_init(&mutex->cond,NULL)));
+        int ret = 0;
+        ret = pthread_mutex_init(&mutex->mutex,NULL);
+        assert(ret == 0);
+        if(ret)
+        {
+            printf("pt_mutex_init pthread_mutex_init returned: %d\n", ret);
+        }
+
+        ret = pthread_cond_init(&mutex->cond,NULL);
+        assert(ret ==0);
+        if(ret)
+        {
+            printf("pt_mutex_init pthread_cond_init returned: %d\n", ret);
+        }
+        
         return 0;
 }
 
@@ -109,7 +132,11 @@ int pt_mutex_timedlock(pt_mutex_t *mutex,const struct timespec *timeout)
 int pt_mutex_trylock(pt_mutex_t *mutex)
 {
         int retval = 0;
-        pthread_mutex_lock(&mutex->mutex);
+        int pthreadRet = pthread_mutex_lock(&mutex->mutex);
+        if(pthreadRet)
+        {
+            printf("pt_mutex_trylock pthread_mutex_lock returned: %d\n", pthreadRet);
+        }
         if(!mutex->count)
         {
                 mutex->count=1;
