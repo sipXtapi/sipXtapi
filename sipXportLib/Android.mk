@@ -12,6 +12,7 @@ LOCAL_MODULE := libsipXport
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 #intermediates := $(call local-intermediates-dir)
 
+
 LOCAL_SRC_FILES := \
     config/sipxportlib-buildstamp.h \
     config/sipxportlib-buildstamp.cpp \
@@ -157,10 +158,21 @@ LOCAL_SRC_FILES := \
     src/hmac-sha1/hmac-sha1.c \
     src/hmac-sha1/sha1.c 
 
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+# Would like to use native threads instead of sipX mutex and sem, but pthread_mutex_timedlock is not
+# in the bionic lib for 1.6 though it is in the header file
+#                  -DSIPX_USE_NATIVE_PTHREADS \
+
+LOCAL_CFLAGS += \
+                  -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
                   -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+
+LOCAL_CXXFLAGS += \
+
+
+sipXportLib/config/sipxportlib-buildstamp.cpp:
+	( cd $SIPX_HOME; scripts/makeBuildTimestamps.sh )
 
 #ifeq ($(TARGET_ARCH),arm)
 #	LOCAL_CFLAGS += -DARMv5_ASM
@@ -234,8 +246,12 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := sipxsandbox
 
 LOCAL_SRC_FILES := \
-  src/test/sipxportunit/bar.cpp \
-  src/test/sipxportunit/foo.cpp
+  src/test/os/OsLockTest.cpp \
+  src/test/os/OsMsgQTest.cpp \
+  src/test/utl/UtlContainableTestStub.cpp
+
+#  src/test/sipxportunit/bar.cpp \
+#  src/test/sipxportunit/foo.cpp
 
 LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DANDROID \
