@@ -119,11 +119,6 @@ class OsEventTest : public SIPX_UNIT_BASE_CLASS
 public:
     void testTimedEvent()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
-
         OsTime   eventTimeout(2,0);
         OsEvent* pEvent;
 
@@ -144,11 +139,6 @@ public:
 
     void testThreadedEvent()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
-
         // Seed the random number generator
         srand(OsDateTime::getSecsSinceEpoch());
 
@@ -226,11 +216,6 @@ public:
 
     void testThreadedMultipleFire()
     {
-#ifdef ANDROID
-        CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-        return;
-#endif
-
         OsEvent event;
         MultipleFireThread fireThread(-1, &event);
 

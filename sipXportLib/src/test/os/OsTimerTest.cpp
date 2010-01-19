@@ -224,11 +224,6 @@ public:
 
     void testImmediateTimer()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         OsCallback* pNotifier ;
         OsTimer* pTimer ;
         OsStatus returnValue;
@@ -259,11 +254,6 @@ public:
 
     void testOneShotAfter()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         struct TestOneShotStruct 
         {
             const char* testDescription ;
@@ -345,11 +335,6 @@ public:
 
     void testTimerAccuracy()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         OsCallback* pNotifier;
         OsTimer* pTimer;
         long expectedWaitUSecs;
@@ -386,11 +371,6 @@ public:
 
     void testOneShotAt()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         OsCallback* pNotifier ;
         OsTimer* pTimer ;
         UtlBoolean returnValue ;  
@@ -442,11 +422,6 @@ public:
 
     void testStopTimerAfterOneShot()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         OsCallback* pNotifier; 
         OsTimer* pTimer ;
         pNotifier = new OsCallback((intptr_t)this, TVCallback);
@@ -469,11 +444,6 @@ public:
 
     void testPeriodicTimer()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         OsCallback* pNotifier ;
         OsTimer* pTimer ; 
         UtlBoolean returnValue ; 
@@ -499,11 +469,6 @@ public:
 
     void testPeriodicTimer_FractionalTime()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         OsCallback* pNotifier ;
         OsTimer* pTimer ; 
         pNotifier = new OsCallback((intptr_t)this, TVCallback);
@@ -525,11 +490,6 @@ public:
 
     void testOneshotPeriodicComboTimer()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         UtlBoolean returnValue ; 
         OsCallback* pNotifier ;
         OsTimer* pTimer ; 
@@ -562,11 +522,6 @@ public:
 
     void testStopPeriodicTimer()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         OsCallback* pNotifier ;
         OsTimer* pTimer ; 
         OsTimer* pTimer2 ; 
@@ -617,11 +572,6 @@ public:
 
     void testDeleteTimerBeforeExpires()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         OsCallback* pNotifier ;
         OsTimer* pTimer ; 
         pNotifier = new OsCallback((intptr_t)this, TVCallback);
@@ -642,11 +592,6 @@ public:
 
     void testStartFire()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
        OsStatus returnValue;
        OsCallback notifier((intptr_t) this, TVCallback);
        OsTimer timer(notifier);
@@ -661,11 +606,6 @@ public:
 
     void testStartStop()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
        OsStatus returnValue;
        OsCallback notifier((intptr_t) this, TVCallback);
        OsTimer timer(notifier);
@@ -683,11 +623,6 @@ public:
 
     void testStartPeriodicStop()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
        OsStatus returnValue;
        OsCallback notifier((intptr_t) this, TVCallback);
        OsTimer timer(notifier);
@@ -709,11 +644,6 @@ public:
 
     void testStartDelete()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
        OsStatus returnValue;
        OsCallback notifier((intptr_t) this, TVCallback);
        OsTimer* pTimer = new OsTimer(notifier);
@@ -732,11 +662,6 @@ public:
 
     void testStartStopStartFire()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
        OsStatus returnValue;
        OsCallback notifier((intptr_t) this, TVCallback);
        OsTimer timer(notifier);
@@ -757,11 +682,6 @@ public:
 
     void testStartStart()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
        OsStatus returnValue;
        OsCallback notifier((intptr_t) this, TVCallback);
        OsTimer timer(notifier);
@@ -777,11 +697,6 @@ public:
 
     void testStartStopStop()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
        OsStatus returnValue;
        OsCallback notifier((intptr_t) this, TVCallback);
        OsTimer timer(notifier);
@@ -800,11 +715,6 @@ public:
 
     void testStartFireStop()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
        OsStatus returnValue;
        OsCallback notifier((intptr_t) this, TVCallback);
        OsTimer timer(notifier);
@@ -869,11 +779,6 @@ public:
 
     void testDelayedStopMessage()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
        // Test a race condition where a periodic timer fires after
        // the application has stopped it, but before OsTimerTask has
        // processed the update message for the stop.

@@ -43,10 +43,6 @@ public:
 
    void testSingleMessage()
    {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
       OsMsg msg(1, (char)mpRandGenerator->rand());
       OsMsg* pReceivedMsg = NULL;
 
@@ -62,10 +58,6 @@ public:
 
    void testFullDispatcher()
    {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
       OsMsgDispatcher dispatcher;
       OsMsg** pMsgArray = new OsMsg*[dispatcher.maxMsgs()+1];
       int i;

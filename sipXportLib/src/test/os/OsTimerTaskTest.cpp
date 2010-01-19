@@ -23,11 +23,6 @@ class OsTimerTaskTest : public SIPX_UNIT_BASE_CLASS
 public:
     void testTimerTask()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         OsTimerTask* pTimerTask;
         pTimerTask = OsTimerTask::getTimerTask();
         CPPUNIT_ASSERT_MESSAGE("Timer task created 1", pTimerTask != NULL);

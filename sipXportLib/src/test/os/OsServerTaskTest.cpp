@@ -55,11 +55,6 @@ public:
 
    void testFastStartStop()
    {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
       UtlBoolean boolRes;
 
       for (int i=0; i<TEST_START_STOP_ITERATIONS; i++)

@@ -35,11 +35,6 @@ public:
 
     void testMessageQueue()
     {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
         OsMsgQ* pMsgQ1;
         OsMsg* pMsg1;
         OsMsg* pMsg2;
