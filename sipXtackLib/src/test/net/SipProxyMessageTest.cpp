@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -12,9 +12,7 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 #include <utl/UtlHashMap.h>
 
 #include <os/OsDefs.h>
@@ -24,7 +22,7 @@
 /**
  * Unittest for SipMessage::normalizeProxyRoutes
  */
-class SipProxyMessageTest : public CppUnit::TestCase
+class SipProxyMessageTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(SipProxyMessageTest);
    CPPUNIT_TEST(testNoRouteLocal);
@@ -164,7 +162,7 @@ public:
          ASSERT_STR_EQUAL("sip:user@example.com", requestUriResult.data());
 
          UtlString* removedRoute;
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:example.com;lr>", removedRoute->data());
          delete removedRoute;
 
@@ -250,7 +248,7 @@ public:
          ASSERT_STR_EQUAL("sip:user@other.example.edu", requestUriResult.data());
 
          UtlString* removedRoute;
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:internal.example.com;lr>", removedRoute->data());
          delete removedRoute;
 
@@ -290,7 +288,7 @@ public:
 
          UtlString* removedRoute;
 
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:example.com;lr>", removedRoute->data());
          delete removedRoute;
 
@@ -397,7 +395,7 @@ public:
          ASSERT_STR_EQUAL("sip:user@other.example.edu", requestUriResult.data());
 
          UtlString* removedRoute;
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:example.com;lr>", removedRoute->data());
          delete removedRoute;
 
@@ -450,11 +448,11 @@ public:
 
          UtlString* removedRoute;
 
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:user@internal.example.com;lr>", removedRoute->data());
          delete removedRoute;
 
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:user@external.example.net;lr>", removedRoute->data());
          delete removedRoute;
 
@@ -508,11 +506,11 @@ public:
 
          UtlString* removedRoute;
 
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:user@external.example.net;lr>", removedRoute->data());
          delete removedRoute;
 
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:user@internal.example.com;lr>", removedRoute->data());
          delete removedRoute;
 
@@ -559,15 +557,15 @@ public:
 
          UtlString* removedRoute;
 
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:example.com;lr>", removedRoute->data());
          delete removedRoute;
 
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:internal.example.com;lr>", removedRoute->data());
          delete removedRoute;
 
-         CPPUNIT_ASSERT( removedRoute = dynamic_cast<UtlString*>(removedRoutes.get()));
+         CPPUNIT_ASSERT( removedRoute = static_cast<UtlString*>(removedRoutes.get()));
          ASSERT_STR_EQUAL("<sip:external.example.net;lr>", removedRoute->data());
          delete removedRoute;
 

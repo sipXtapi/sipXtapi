@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -11,11 +11,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
-#include <utl/UtlHashMap.h>
+#include <sipxunittests.h>
 
+#include <utl/UtlHashMap.h>
 #include <os/OsDefs.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
@@ -27,7 +25,7 @@
 /**
  * Unittest for SipMessage
  */
-class SipMessageTest : public CppUnit::TestCase
+class SipMessageTest : public SIPX_UNIT_BASE_CLASS
 {
       CPPUNIT_TEST_SUITE(SipMessageTest);
       CPPUNIT_TEST(testGetVia);
@@ -586,11 +584,11 @@ class SipMessageTest : public CppUnit::TestCase
          CPPUNIT_ASSERT(params.entries()==2);
 
          UtlString paramName1("p1");
-         CPPUNIT_ASSERT(NULL != (paramValue = dynamic_cast<UtlString*>(params.findValue(&paramName1))));
+         CPPUNIT_ASSERT(NULL != (paramValue = static_cast<UtlString*>(params.findValue(&paramName1))));
          ASSERT_STR_EQUAL("one",paramValue->data());
 
          UtlString paramName2("p2");
-         CPPUNIT_ASSERT(NULL != (paramValue = dynamic_cast<UtlString*>(params.findValue(&paramName2))));
+         CPPUNIT_ASSERT(NULL != (paramValue = static_cast<UtlString*>(params.findValue(&paramName2))));
          ASSERT_STR_EQUAL("two",paramValue->data());
       }
 

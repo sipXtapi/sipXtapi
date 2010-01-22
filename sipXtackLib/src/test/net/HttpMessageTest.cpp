@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2008 SIPez LLC  All rights reserved.
+// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -11,9 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 #include <os/OsDefs.h>
 #include <utl/UtlHashMapIterator.h>
@@ -25,7 +23,7 @@
 /**
  * Unittest for HttpMessage
  */
-class HttpMessageTest : public CppUnit::TestCase
+class HttpMessageTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(HttpMessageTest);
     CPPUNIT_TEST(testCreator);

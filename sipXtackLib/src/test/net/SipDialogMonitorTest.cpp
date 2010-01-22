@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2006-2010 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -9,9 +12,7 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 #include <os/OsSysLog.h>
 #include <net/SipDialogMonitor.h>
@@ -57,7 +58,7 @@ bool TestStateChangeNotifier::setStatus(const Url& aor, const Status value)
  * Unit test for SipDialogMonitor
  */
 
-class SipDialogMonitorTest : public CppUnit::TestCase
+class SipDialogMonitorTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(SipDialogMonitorTest);
    CPPUNIT_TEST(simpleTest);

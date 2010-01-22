@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2010 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -9,10 +12,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
+#include <sipxunittests.h>
+
 #include <os/OsMsgQ.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlString.h>
 #include <os/OsDefs.h>
@@ -31,7 +33,7 @@
  * Unittest for SipRefreshManager
  */
 
-class SipRefreshManagerTest : public CppUnit::TestCase
+class SipRefreshManagerTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(SipRefreshManagerTest);
     CPPUNIT_TEST(refreshTest);
@@ -144,6 +146,11 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
     void refreshTest()
     {
+#ifdef ANDROID
+       CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+       return;
+#endif
+
         UtlString hostPort;
         OsSocket::getHostIp(&hostPort);
         hostPort.append(':');

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -11,9 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
+#include <sipxunittests.h>
 
 #if !defined(_WIN32) && !defined(WINCE)
 #include <sys/types.h>
@@ -59,7 +57,7 @@ const char* printable_proto(OsSocket::IpProtocolSocketType type);
 /**
  * Unit test for SipSrvLookup
  */
-class SipSrvLookupTest : public CppUnit::TestCase
+class SipSrvLookupTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(SipSrvLookupTest);
 #ifndef WIN32

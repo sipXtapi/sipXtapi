@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2010 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,15 +11,14 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 
 #include <net/NetAttributeTokenizer.h>
 
 /**
  * Unittest for NetAttributeTokenizer
  */
-class NetAttributeTokenizerTest : public CppUnit::TestCase
+class NetAttributeTokenizerTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(NetAttributeTokenizerTest);
     CPPUNIT_TEST(testManipulators);

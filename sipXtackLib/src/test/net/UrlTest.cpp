@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2010 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,8 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
 
 #include <string.h>
@@ -22,11 +24,25 @@
 
 #define MISSING_PARAM  "---missing---"
 
+#if defined(NO_CPPUNIT)
+#define ASSERT_ARRAY_MESSAGE(message, expectedTokens, actual) \
+    { \
+        UtlString expected; \
+        UtlTokenizer toks(expectedTokens); \
+        for (int i = 0; toks.next(expected, " "); i++) \
+        { \
+            ASSERT_STR_EQUAL_MESSAGE(message, expected, actual[i]); \
+            expected.remove(0); \
+        } \
+    }
+
+#else
 #define ASSERT_ARRAY_MESSAGE(message, expected, actual) \
   UrlTest::assertArrayMessage((expected),(actual), \
       CPPUNIT_SOURCELINE(), (message))
+#endif
 
-class UrlTest : public CppUnit::TestCase
+class UrlTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(UrlTest);
     CPPUNIT_TEST(testFileBasic);
@@ -1825,6 +1841,7 @@ public:
         return assertValue->data();
     }
 
+#if !defined(NO_CPPUNIT)
     void assertArrayMessage(const char *expectedTokens, UtlString *actual, 
         CppUnit::SourceLine sourceLine, std::string msg)
     {
@@ -1837,6 +1854,7 @@ public:
             expected.remove(0);
         }
     }
+#endif
 }; 
 
 const size_t UrlTest::BIG_SIZE=8200;

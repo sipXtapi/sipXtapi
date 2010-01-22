@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2010 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,8 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 
 #include <os/OsDefs.h>
 #include <net/NetMd5Codec.h>
@@ -17,7 +19,7 @@
 /**
  * Unittest for NetMd5Codec
  */
-class NetMd5CodecTest : public CppUnit::TestCase
+class NetMd5CodecTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(NetMd5CodecTest);
     CPPUNIT_TEST(testManipulators);

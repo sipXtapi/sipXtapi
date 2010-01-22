@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
@@ -11,9 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 #include <os/OsDefs.h>
 #include <net/HttpMessage.h>
@@ -25,7 +23,7 @@
 /**
 * Unit test for SdpBody
 */
-class SdpBodyTest : public CppUnit::TestCase
+class SdpBodyTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(SdpBodyTest);
     CPPUNIT_TEST(testParser);

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC.
+// Copyright (C) 2007-2010 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -12,9 +12,8 @@
 //////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
+
 #include <utl/UtlHashMap.h>
 #include <utl/UtlString.h>
 #include <os/OsDefs.h>
@@ -34,7 +33,7 @@
  * Unittest for SipSubscribeClientMgr
  */
 
-class SipSubscribeClientMgr : public CppUnit::TestCase
+class SipSubscribeClientMgr : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(SipSubscribeClientMgr);
     CPPUNIT_TEST(subscribeMwiClientTest);
@@ -140,6 +139,11 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 
     void subscribeMwiClientTest()
     {
+#ifdef ANDROID
+       CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+       return;
+#endif
+
         smClientExpiration = -1;
         smNumClientNotifiesReceived = 0;
         smLastClientNotifyReceived = NULL;

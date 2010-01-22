@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2010 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -9,8 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
 #include <utl/UtlHashMap.h>
 
@@ -26,7 +28,7 @@
 /**
  * Unittest for SipMessage
  */
-class SipDialogTest : public CppUnit::TestCase
+class SipDialogTest : public SIPX_UNIT_BASE_CLASS
 {
       CPPUNIT_TEST_SUITE(SipDialogTest);
       CPPUNIT_TEST(createSubDialog);

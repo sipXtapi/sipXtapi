@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC.
+// Copyright (C) 2007-2010 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -12,11 +12,9 @@
 //////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
-#include <utl/UtlHashMap.h>
+#include <sipxunittests.h>
 
+#include <utl/UtlHashMap.h>
 #include <os/OsDefs.h>
 #include <os/OsDateTime.h>
 #include <net/SipDialog.h>
@@ -33,7 +31,7 @@
 /**
  * Unittest for SipSubscriptionMgr
  */
-class SipSubscribeServerTest : public CppUnit::TestCase
+class SipSubscribeServerTest : public SIPX_UNIT_BASE_CLASS
 {
       CPPUNIT_TEST_SUITE(SipSubscribeServerTest);
       CPPUNIT_TEST(subscriptionTest);

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2010 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,9 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 #include <os/OsDefs.h>
 #include <os/OsTimerTask.h>
@@ -26,7 +27,7 @@
 /**
  * Unittest for server shutdown testing
  */
-class SipServerShutdownTest : public CppUnit::TestCase
+class SipServerShutdownTest : public SIPX_UNIT_BASE_CLASS
 {
       CPPUNIT_TEST_SUITE(SipServerShutdownTest);
       CPPUNIT_TEST(testTcpShutdown);
