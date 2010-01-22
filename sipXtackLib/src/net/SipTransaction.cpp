@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -3935,7 +3938,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
 
 void SipTransaction::removeTimer(OsTimer* timer)
 {
-    OsTimer* pt = dynamic_cast<OsTimer*>(mTimers.find(timer));
+    OsTimer* pt = static_cast<OsTimer*>(mTimers.find(timer));
 
     if(pt == NULL)
     {
@@ -3945,7 +3948,7 @@ void SipTransaction::removeTimer(OsTimer* timer)
     }
     else
     {
-       OsTimer* removedTimer = dynamic_cast<OsTimer*>(mTimers.remove(pt));
+       OsTimer* removedTimer = static_cast<OsTimer*>(mTimers.remove(pt));
 
 #ifdef TEST_PRINT
        if(removedTimer == NULL)

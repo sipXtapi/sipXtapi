@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -246,7 +249,7 @@ int HttpServer::run(void* runArg)
                     
                     UtlSListIterator iterator(*mpHttpConnectionList);
                     HttpConnection* connection;
-                    while ((connection = dynamic_cast<HttpConnection*>(iterator())))
+                    while ((connection = static_cast<HttpConnection*>(iterator())))
                     {
                         if (connection->toBeDeleted())
                         {

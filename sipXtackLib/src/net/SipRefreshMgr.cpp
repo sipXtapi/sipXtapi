@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -2202,7 +2205,7 @@ SIPX_LINESTATE_EVENT SipRefreshMgr::getLastLineEvent(const UtlString& lineId)
     {
         mpLastLineEventMap = new UtlHashMap();
     }
-    lastEvent = dynamic_cast<UtlInt*>(mpLastLineEventMap->find(&lineId));   
+    lastEvent = static_cast<UtlInt*>(mpLastLineEventMap->find(&lineId));   
     if (lastEvent)
     {
         lastLineEvent = (SIPX_LINESTATE_EVENT)lastEvent->getValue();
@@ -2220,7 +2223,7 @@ void SipRefreshMgr::setLastLineEvent(const UtlString& lineId, const SIPX_LINESTA
     UtlString* newId = new UtlString(lineId);
     UtlString* exisitingId;
     
-    if((exisitingId = dynamic_cast<UtlString*>(mpLastLineEventMap->find(newId))))
+    if((exisitingId = static_cast<UtlString*>(mpLastLineEventMap->find(newId))))
     {
        OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG,
                      "SipRefreshMgr::setLastLineEvent: LineId found, being destroyed ??"

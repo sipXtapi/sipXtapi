@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -293,7 +293,7 @@ UtlBoolean SipServerBrokerListener::handleMessage(OsMsg& eventMessage)
         if (msgSubType == SIP_SERVER_BROKER_NOTIFY)
         {
             // unpackage the client socket
-            pPtrMsg = dynamic_cast<OsPtrMsg*>(&eventMessage);
+            pPtrMsg = static_cast<OsPtrMsg*>(&eventMessage);
             
             assert(pPtrMsg);
             

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2005 SIPfoundry Inc.
@@ -156,7 +156,7 @@ void SipPublishContentMgr::publish(const char* resourceId,
 
     // Look up the key in the specific or default entries, as appropriate.
     PublishContentContainer* container =
-       dynamic_cast <PublishContentContainer*> ((resourceIdProvided ?
+       static_cast <PublishContentContainer*> ((resourceIdProvided ?
                                                  mContentEntries :
                                                  mDefaultContentEntries).find(&key));
 
@@ -199,7 +199,7 @@ void SipPublishContentMgr::publish(const char* resourceId,
        // Call the observer for the content change, if any.
        UtlString eventTypeString(eventType);
        PublishCallbackContainer* callbackContainer =
-          dynamic_cast <PublishCallbackContainer*>
+          static_cast <PublishCallbackContainer*>
           (mEventContentCallbacks.find(&eventTypeString));
        if(callbackContainer && callbackContainer->mpCallback)
         {
@@ -257,7 +257,7 @@ void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
     // Call the observer for the content change, if any.
     UtlString eventTypeString(eventType);
     PublishCallbackContainer* callbackContainer =
-       dynamic_cast <PublishCallbackContainer*>
+       static_cast <PublishCallbackContainer*>
        (mEventContentCallbacks.find(&eventTypeString));
     if(callbackContainer && callbackContainer->mpCallback)
                 {
@@ -296,7 +296,7 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
 
     // Look up the key in the specific or default entries, as appropriate.
     PublishContentContainer* container =
-            dynamic_cast <PublishContentContainer*> ((resourceIdProvided ?
+            static_cast <PublishContentContainer*> ((resourceIdProvided ?
                                                       mContentEntries :
                                                       mDefaultContentEntries).find(&key));
 
@@ -318,7 +318,7 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
     // Call the observer for the content change, if any.
         UtlString eventTypeString(eventType);
     PublishCallbackContainer* callbackContainer =
-       dynamic_cast <PublishCallbackContainer*>
+       static_cast <PublishCallbackContainer*>
        (mEventContentCallbacks.find(&eventTypeString));
         if(callbackContainer && callbackContainer->mpCallback)
         {
@@ -459,7 +459,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
     lock();
     // See if resource specific content exists
     container = 
-        dynamic_cast <PublishContentContainer*> (mContentEntries.find(&key));
+        static_cast <PublishContentContainer*> (mContentEntries.find(&key));
 
     // There is no resource specific content.  Check if the default
     // constructor exists.
@@ -471,7 +471,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
        // Look up the constructor.
 
        SipPublishContentMgrDefaultConstructor* constructor =
-          dynamic_cast <SipPublishContentMgrDefaultConstructor*>
+          static_cast <SipPublishContentMgrDefaultConstructor*>
           (mDefaultContentConstructors.findValue(&default_key));
        // If it exists, call it to publish content for this resource/event.
        if (constructor)
@@ -482,7 +482,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
 
        // See if resource specific content exists now.
         container = 
-          dynamic_cast <PublishContentContainer*> (mContentEntries.find(&key));
+          static_cast <PublishContentContainer*> (mContentEntries.find(&key));
 
        // If content was found, still mark it as default content.
         if(container)
@@ -493,7 +493,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
        else
        {
            container = 
-              dynamic_cast <PublishContentContainer*>
+              static_cast <PublishContentContainer*>
               (mDefaultContentEntries.find(&default_key));
            if(container)
            {
@@ -583,7 +583,7 @@ UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
 
     // Look up the key in the specific or default entries, as appropriate.
     PublishContentContainer* container =
-       dynamic_cast <PublishContentContainer*> ((resourceIdProvided ?
+       static_cast <PublishContentContainer*> ((resourceIdProvided ?
                                                  mContentEntries :
                                                  mDefaultContentEntries).find(&key));
 
@@ -607,7 +607,7 @@ UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
            for (int index = 0; index < num; index++)
            {
               eventContent[index] =
-                 new HttpBody(*dynamic_cast <HttpBody*>
+                 new HttpBody(*static_cast <HttpBody*>
                                (container->mEventContent.at(index)));
            }
         }
@@ -622,7 +622,7 @@ UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
           // Is there a default constructor?
           defaultConstructor ?
           // If so, make a copy of the constructor and return pointer to it.
-          (dynamic_cast <SipPublishContentMgrDefaultConstructor*>
+          (static_cast <SipPublishContentMgrDefaultConstructor*>
            (defaultConstructor))->copy() :
           // Otherwise, return NULL.
           NULL;

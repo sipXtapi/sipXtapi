@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2007 SIPez LLC.
+// Copyright (C) 2006-2010 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2006-2007 SIPfoundry Inc.
@@ -92,7 +92,7 @@ HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& ur
     { // table lock scope
        OsLock lock(mLock);
     
-       pEntry = dynamic_cast<HttpConnectionMapEntry*>(findValue(&keyString));
+       pEntry = static_cast<HttpConnectionMapEntry*>(findValue(&keyString));
        if (!pEntry)
        {
           // Now create a new one

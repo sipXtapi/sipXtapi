@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -88,6 +88,8 @@
 #  define PLATFORM_UA_PARAM " (Darwin)"
 #elif defined(__linux__)
 #  define PLATFORM_UA_PARAM " (Linux)"
+#elif defined(ANDROID)
+#  define PLATFORM_UA_PARAM " (Android)"
 #elif defined(sun)
 #  define PLATFORM_UA_PARAM " (Solaris)"
 #endif

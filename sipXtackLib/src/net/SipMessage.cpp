@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 SIPez LLC.
+// Copyright (C) 2007-2010 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -199,7 +199,7 @@ void SipMessage::replaceShortFieldNames()
    size_t position;
 
    for ( position= 0;
-         (nvPair = dynamic_cast<NameValuePair*>(mNameValues.at(position)));
+         (nvPair = static_cast<NameValuePair*>(mNameValues.at(position)));
          position++
         )
    {
@@ -215,7 +215,7 @@ void SipMessage::replaceShortFieldNames()
           *       modified version; you are not allowed to modify key values while
           *       an object is in a container.
           */
-         modified = dynamic_cast<NameValuePair*>(mNameValues.removeAt(position));
+         modified = static_cast<NameValuePair*>(mNameValues.removeAt(position));
          nvPair->remove(0);
          nvPair->append(longName);
          mNameValues.insertAt(position, modified);
@@ -511,19 +511,20 @@ const SdpBody* SipMessage::getSdpBody(SIPXTACK_SECURITY_ATTRIBUTES* const pSecur
     smimeType.toLower();
 
     // If the body is of SDP type, return it
-    if(dynamic_cast<const SdpBody*>(getBody()))
+    const HttpBody* genericBody = getBody();
+    if(genericBody && genericBody->getClassType() == HttpBody::SDP_BODY_CLASS)
     {
-        body = (const SdpBody*) getBody();
+        body = static_cast<const SdpBody*> (getBody());
     }
 #if __SMIME
     // If we have a private key and this is a S/MIME body
     else if(pSecurity &&
-            dynamic_cast<const SmimeBody*>(getBody()) )
+            genericBody &&
+            genericBody->getClassType() == HttpBody::SMIME_BODY_CLASS )
     {
-        if (getBody())
+        if (genericBody)
         {
-            HttpBody* pBody = (HttpBody*)getBody();
-            SmimeBody* smimeBody = dynamic_cast<SmimeBody*>(pBody);
+            SmimeBody* smimeBody = static_cast<SmimeBody*>(genericBody);
             assert(smimeBody);
 
             // Try to decrypt if it has not already been decrypted
@@ -565,7 +566,7 @@ const SdpBody* SipMessage::getSdpBody(SIPXTACK_SECURITY_ATTRIBUTES* const pSecur
     // if there is an SDP part
     else
     {
-        const HttpBody* multipartBody = getBody();
+        const HttpBody* multipartBody = genericBody;
         if(multipartBody  && multipartBody->isMultipart())
         {
             int partIndex = 0;

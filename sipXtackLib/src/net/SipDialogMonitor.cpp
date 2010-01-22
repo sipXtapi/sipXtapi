@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2006-2010 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -120,7 +123,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
    
    // Check whether the group already exists. If not, create one.
    SipResourceList* list =
-      dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
+      static_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
    if (list == NULL)
    {
       UtlString* listName = new UtlString(groupName);
@@ -211,7 +214,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    mLock.acquire();
    // Check whether the group exists or not. If not, return false.
    SipResourceList* list =
-      dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
+      static_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
    if (list == NULL)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -229,7 +232,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
          // If it exists, get the early dialog handle for the SUBSCRIBE,
          // which specifies all of its subscriptions.
          UtlString* earlyDialogHandle =
-            dynamic_cast <UtlString *> (mDialogHandleList.findValue(&resourceId));
+            static_cast <UtlString *> (mDialogHandleList.findValue(&resourceId));
          if (earlyDialogHandle)
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -298,7 +301,7 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact,
       UtlContainable* foundValue;
       oldKey = mDialogEventList.removeKeyAndValue(&contact, foundValue);
       delete oldKey;
-      SipDialogEvent* oldDialogEvent = dynamic_cast <SipDialogEvent *> (foundValue);
+      SipDialogEvent* oldDialogEvent = static_cast <SipDialogEvent *> (foundValue);
 
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent removing the dialogEvent %p for contact '%s'",
                     oldDialogEvent, contact.data()); 
@@ -348,11 +351,11 @@ void SipDialogMonitor::publishContent(UtlString& contact,
    SipResourceList* list;
    Resource* resource;
    UtlString id, state;
-   while ((listUri = dynamic_cast <UtlString *> (iterator())))
+   while ((listUri = static_cast <UtlString *> (iterator())))
    {
       contentChanged = false;
       
-      list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
+      list = static_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipDialogMonitor::publishContent listUri %s list %p",
                     listUri->data(), list); 
@@ -494,9 +497,9 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact,
    UtlString* listUri;
    UtlVoidPtr* container;
    StateChangeNotifier* notifier;
-   while ((listUri = dynamic_cast <UtlString *> (iterator())))
+   while ((listUri = static_cast <UtlString *> (iterator())))
    {
-      container = dynamic_cast <UtlVoidPtr *> (mStateChangeNotifiers.findValue(listUri));
+      container = static_cast <UtlVoidPtr *> (mStateChangeNotifiers.findValue(listUri));
       notifier = (StateChangeNotifier *) container->getValue();
       // Report the status to the notifier.
       notifier->setStatus(contactUrl, status);
@@ -523,7 +526,7 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
    // by this SUBSCRIBE.
    UtlString earlyDialogHandleString(earlyDialogHandle);
    UtlHashBag* active_dialog_list =
-      dynamic_cast <UtlHashBag*> (mDialogState.findValue(&earlyDialogHandleString));
+      static_cast <UtlHashBag*> (mDialogState.findValue(&earlyDialogHandleString));
    // Ignore the event if there is no entry in mDialogState -- this is a
    // NOTIFY that arrived after and un-SUBSCRIBE terminated its subscription.
    if (active_dialog_list)
@@ -542,7 +545,7 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
          // for this dialog handle.
          UtlHashBagIterator dialog_id_itor(*active_dialog_list);
          UtlString* dialog_id;
-         while ((dialog_id = dynamic_cast <UtlString*> (dialog_id_itor())))
+         while ((dialog_id = static_cast <UtlString*> (dialog_id_itor())))
          {
             // Extract the dialog handle part of the dialog identifier string
             // and compare it to the dialog handle of this event notice.
@@ -560,7 +563,7 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
       UtlSListIterator* dialog_itor = dialogEvent->getDialogIterator();
       Dialog* dialog;
       UtlString state, event, code, dialogId;
-      while ((dialog = dynamic_cast <Dialog*> ((*dialog_itor)())))
+      while ((dialog = static_cast <Dialog*> ((*dialog_itor)())))
       {
          // Construct the dialog identifier string,
          // <dialog id><ctrl-A><dialog handle>
@@ -604,7 +607,7 @@ SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
       {
          UtlHashBagIterator dialog_list_itor(*active_dialog_list);
          UtlString* dialog;
-         while ((dialog = dynamic_cast <UtlString*> (dialog_list_itor())))
+         while ((dialog = static_cast <UtlString*> (dialog_list_itor())))
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipDialogMonitor::mergeEventInformation "
@@ -644,7 +647,7 @@ void SipDialogMonitor::destroyDialogState(UtlString* earlyDialogHandle)
    // Remove the remembered state for the subscriptions with this
    // early dialog handle.
    UtlHashBag* active_dialog_list =
-      dynamic_cast <UtlHashBag*> (mDialogState.findValue(earlyDialogHandle));
+      static_cast <UtlHashBag*> (mDialogState.findValue(earlyDialogHandle));
    // Remove the contents of the UtlHashBag which is the value.
    active_dialog_list->destroyAll();
    // Now remove the entry in mDialogState and the UtlHashBag itself.

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC.   All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -634,7 +634,7 @@ void Url::setUrlParameter(const char* name, const char* value)
        mpUrlParameters = new UtlDList;
     }
     
-    NameValuePair* existingParam = dynamic_cast<NameValuePair*>(mpUrlParameters->find(nv));
+    NameValuePair* existingParam = static_cast<NameValuePair*>(mpUrlParameters->find(nv));
 
     if (existingParam)
     {
@@ -839,7 +839,7 @@ void Url::getUri(UtlString& urlString)
         UtlString headerParamValue;
         UtlBoolean firstHeader = TRUE;
 
-        while ((headerParam = dynamic_cast<NameValuePairInsensitive*>(headerParamIterator())))
+        while ((headerParam = static_cast<NameValuePairInsensitive*>(headerParamIterator())))
         {
             // Add separator for first header parameter
             if(firstHeader)
@@ -899,7 +899,7 @@ UtlBoolean Url::getHeaderParameter(int headerIndex, UtlString& name, UtlString& 
         && (((int)(mpHeaderOrQueryParameters->entries())) > headerIndex)
         )
     {
-       header = dynamic_cast<NameValuePairInsensitive*>(mpHeaderOrQueryParameters->at(headerIndex));
+       header = static_cast<NameValuePairInsensitive*>(mpHeaderOrQueryParameters->at(headerIndex));
     }
     
     if(header)
@@ -1030,7 +1030,7 @@ void Url::setFieldParameter(const char* name, const char* value)
        mpFieldParameters = new UtlDList;
     }
     
-    NameValuePair* existingParam = dynamic_cast<NameValuePair*>(mpFieldParameters->find(nv));
+    NameValuePair* existingParam = static_cast<NameValuePair*>(mpFieldParameters->find(nv));
 
     if (existingParam)
     {

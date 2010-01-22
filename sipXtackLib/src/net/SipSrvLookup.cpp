@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -405,23 +405,29 @@ void SipSrvLookup::setOption(OptionCode option, int value)
 //! Sets the DNS SRV times.  Defaults: timeout=5, retries=4
 void SipSrvLookup::setDnsSrvTimeouts(int initialTimeoutInSecs, int retries)
 {
+#if defined(ANDROID)
+   // Could not put code in here for Android due to header file errors/conflicts in C++ code
+   android_res_setDnsSrvTimeouts(initialTimeoutInSecs, retries);
+
+#else
    if (initialTimeoutInSecs > 0)
    {
-#if defined(__pingtel_on_posix__)
+#  if defined(__pingtel_on_posix__)
       _res.retrans = initialTimeoutInSecs;
-#else
+#  else
       _sip_res.retrans = initialTimeoutInSecs;
-#endif
+#  endif
    }
 
    if (retries > 0)
    {
-#if defined(__pingtel_on_posix__)
+#  if defined(__pingtel_on_posix__)
       _res.retry = retries;
-#else
+#  else
       _sip_res.retry = retries;
-#endif
+#  endif
    }
+#endif /* non ANDROID */
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

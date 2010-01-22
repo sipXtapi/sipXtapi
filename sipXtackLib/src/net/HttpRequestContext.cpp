@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -145,7 +148,7 @@ HttpRequestContext::HttpRequestContext(const HttpRequestContext& rHttpRequestCon
    {
       UtlSListIterator rPeerNames(rHttpRequestContext.mPeerIdentities);
       UtlString* peerName;
-      while ( (peerName = dynamic_cast<UtlString*>(rPeerNames())) )
+      while ( (peerName = static_cast<UtlString*>(rPeerNames())) )
       {
          mPeerIdentities.append(new UtlString(*peerName));
       }
@@ -221,7 +224,7 @@ HttpRequestContext::operator=(const HttpRequestContext& rhs)
    {
       UtlSListIterator rPeerNames(rhs.mPeerIdentities);
       UtlString* peerName;
-      while ( (peerName = dynamic_cast<UtlString*>(rPeerNames())) )
+      while ( (peerName = static_cast<UtlString*>(rPeerNames())) )
       {
          mPeerIdentities.append(new UtlString(*peerName));
       }
@@ -496,7 +499,7 @@ bool HttpRequestContext::isTrustedPeer( const UtlString& peername ) const
    UtlSListIterator peers(mPeerIdentities);
    UtlString peerNames("Peers: ");
    UtlString* peer;
-   while((peer = dynamic_cast<UtlString*>(peers())))
+   while((peer = static_cast<UtlString*>(peers())))
    {
       peerNames.append(" '");
       peerNames.append(*peer);
