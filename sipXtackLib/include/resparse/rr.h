@@ -1,4 +1,12 @@
 /*
+ * Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
+ * Licensed to SIPfoundry under a Contributor Agreement.
+ *
+ * Copyright (C) 2010 SIPfoundry Inc.
+ * Licensed by SIPfoundry under the LGPL license.
+ *
+ **********************************************************
+ *
  *  DNS Resource record manipulation routines
  *
  *      Data structures
@@ -30,6 +38,7 @@
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/inet.h>
 #       include <resparse/wnt/arpa/nameser.h>
+
 #elif defined(_VXWORKS)
 #       include <inetLib.h>
 #       include <netdb.h>
@@ -42,28 +51,44 @@
 #       include <resolv/nameser.h>
 #       include <resparse/vxw/arpa/lnameser.h>
 #       include <stdlib.h>
+
 #elif defined(__pingtel_on_posix__)
-#       include <netinet/in.h>
 #       include <sys/socket.h>
+#       include <netinet/in.h>
 #       include <arpa/inet.h>
-#       include <arpa/nameser.h>
-#       include <arpa/nameser_compat.h> /* T_SRV, etc., on recent BIND */
-#       include <resolv.h>
+#       if defined(ANDROID)
+#          include <arpa_nameser.h>
+#       else
+#          include <arpa/nameser_compat.h> /* T_SRV, etc., on recent BIND */
+#          include <arpa/nameser.h>
+#          include <resolv.h>
+#       endif
 #       include <string.h>
-#       include <stdlib.h>
-#define T_NULL_RR T_NULL
+
+#       define T_NULL_RR T_NULL
 /* These are from include/resparse/wnt/arpa/nameser.h */
-#define T_UINFO         100
-#define T_UID           101
-#define T_GID           102
-#define T_UNSPEC        103
+#       define T_UINFO         100
+#       define T_UID           101
+#       define T_GID           102
+#       define T_UNSPEC        103
+
 #else
 #       error Unsupported target platform.
 #endif
+
 #       include <ctype.h>
 
 #ifdef  __cplusplus
 extern "C" {
+#endif
+
+#if defined(ANDROID)
+void android_res_setDnsSrvTimeouts(int initialTimeoutInSecs, int retries);
+
+// Had to pull this stuff out of bionic/libc/private/resolv_private.h
+// as there were C++ compiler errors when trying to include it
+int res_init(void);
+int res_query(const char *, int, int, u_char *, int);
 #endif
 
         /* Some systems don't define this */
