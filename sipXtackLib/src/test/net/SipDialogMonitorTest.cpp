@@ -13,6 +13,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <sipxunittests.h>
+#include <sipxunit/TestUtilities.h>
 
 #include <os/OsSysLog.h>
 #include <net/SipDialogMonitor.h>

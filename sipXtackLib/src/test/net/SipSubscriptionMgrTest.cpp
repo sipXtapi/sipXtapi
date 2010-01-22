@@ -13,6 +13,7 @@
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #include <sipxunittests.h>
+#include <sipxunit/TestUtilities.h>
 
 #include <utl/UtlHashMap.h>
 #include <os/OsDefs.h>

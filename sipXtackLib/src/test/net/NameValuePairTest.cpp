@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sipxunittests.h>
+#include <sipxunit/TestUtilities.h>
 
 #include <net/NameValuePair.h>
 

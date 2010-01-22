@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <sipxunittests.h>
+#include <sipxunit/TestUtilities.h>
 
 #include <utl/UtlHashMap.h>
 #include <os/OsDefs.h>

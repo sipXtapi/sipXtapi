@@ -14,6 +14,7 @@
 
 
 #include <sipxunittests.h>
+#include <sipxunit/TestUtilities.h>
 
 #include <os/OsDefs.h>
 #include <net/HttpMessage.h>

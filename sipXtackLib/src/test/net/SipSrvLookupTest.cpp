@@ -37,7 +37,7 @@
 #include "os/OsSocket.h"
 
 // Defines
-//#define TEST_PRINT
+#define TEST_PRINT
 
 // Expects g++ to have defined TESTDIR as the name of the directory
 // containing sipXtackLib/src/test, so SipSrvLookupTest.cpp can find
@@ -117,7 +117,7 @@ public:
       // different from named_pid.
       #define EXECL_ARGS \
 		NAMED_PROGRAM, NAMED_PROGRAM, "-c", config_file, "-p", b, "-f"
-      #define EXECL_ARGS_FORMAT "%s %s %s %s %s %s"
+      #define EXECL_ARGS_FORMAT "%s %s %s %s %s %s %s"
       pid_t named_pid = fork();
       CPPUNIT_ASSERT(named_pid >= 0);
       if (named_pid == 0) {
@@ -575,6 +575,23 @@ public:
       for (unsigned int test_no = 0;
            test_no < sizeof (tests) / sizeof (tests[0]); test_no++)
       {
+          // For some reason we have to set everytime through as it sometimes
+          // gets reset
+          // Force the resolver to initialize.
+          //res_init();
+          _res.nscount = 1;
+          inet_aton("127.0.0.1", &_res.nsaddr_list[0].sin_addr);
+          _res.nsaddr_list[0].sin_port = htons(NAMED_PORT);
+#     ifdef TEST_PRINT
+          printf("_res.nscount = %d\n", _res.nscount);
+          for (int i = 0; i < _res.nscount; i++)
+          {
+             printf("_res.nsaddr_list[%d] = %s:%d\n",
+                    i, inet_ntoa(_res.nsaddr_list[i].sin_addr),
+                    ntohs(_res.nsaddr_list[i].sin_port));
+          }
+#     endif /* TEST_PRINT */
+
          // Reset the random number generator before every test to ensure
          // the results are reproducible even if they are rearranged.
          srand(1);              // 1 is the default seed.
@@ -684,7 +701,7 @@ public:
       CPPUNIT_ASSERT(kill_return == 0);
 
       // Delete the named configuration file.
-      unlink(config_file);
+      //unlink(config_file);
 
       // Report error if any test has failed.
       CPPUNIT_ASSERT(!failure_seen);
