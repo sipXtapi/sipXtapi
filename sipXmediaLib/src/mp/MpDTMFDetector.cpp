@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPfoundry Inc. 
+// Copyright (C) 2007-2010 SIPfoundry Inc.  All rights reserved.
 // Licensed by SIPfoundry under the LGPL license. 
 //  
 // Copyright (C) 2007 SIPez LLC. 
@@ -11,6 +11,7 @@
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
 // SYSTEM INCLUDES
+#include <mp/MpTypes.h>
 #include <math.h>
 
 // APPLICATION INCLUDES

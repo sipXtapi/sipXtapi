@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -34,7 +34,8 @@
 #endif /* WIN32 ] */
 
 #ifdef __pingtel_on_posix__ /* [ */
-#include "os/OsIntTypes.h"
+#include <os/OsIntTypes.h>
+#include <sys/select.h>
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <sys/time.h>

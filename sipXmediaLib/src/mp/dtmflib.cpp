@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -12,15 +12,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
+#include <mp/MpTypes.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "mp/MpTypes.h"
-#include "mp/MpMisc.h"
-#include "os/OsMutex.h"
-#include "os/OsDefs.h"
+#include <mp/MpMisc.h>
+#include <os/OsMutex.h>
+#include <os/OsDefs.h>
 
 #define PI  3.1415926
 #define PIt2 (2.0 * PI)

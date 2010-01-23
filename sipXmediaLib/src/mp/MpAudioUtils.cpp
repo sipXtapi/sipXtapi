@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -13,6 +13,7 @@
 
 
 // SYSTEM INCLUDES
+#include <os/OsIntTypes.h>
 #include <stdlib.h>
 
 #ifdef WIN32 /* [ */
@@ -34,7 +35,6 @@
 #include "mp/MpTypes.h"
 #include "mp/MpAudioUtils.h"
 #include "mp/StreamHttpDataSource.h"
-#include "mp/MpAudioWaveFileRead.h"
 
 #ifndef DISABLE_STREAM_PLAYER // [
 #  include <os/fstream>

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -1638,7 +1638,7 @@ OsStatus MpFlowGraphBase::processMessages(void)
       else if (pMsg->getMsgType() == OsMsg::MP_RESOURCE_MSG)
       {
          MpResourceMsg* pResourceMsg = 
-            dynamic_cast<MpResourceMsg*>(pMsg);
+            static_cast<MpResourceMsg*>(pMsg);
          assert(pResourceMsg != NULL);
          if (pResourceMsg != NULL)
          {

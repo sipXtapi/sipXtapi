@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -296,6 +296,7 @@ int MpCodec_isSpeakerOn() { return 0;}
 
 #elif defined(__pingtel_on_posix__) /* WIN32 ] [ */
 
+#include <mp/MpTypes.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>

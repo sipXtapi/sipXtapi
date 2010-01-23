@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -11,6 +11,7 @@
 // Author: Dan Petrie <dpetrie AT SIPez DOT com>
 
 // SYSTEM INCLUDES
+#include <mp/MpTypes.h>
 #include <assert.h>
 #include <math.h>
 

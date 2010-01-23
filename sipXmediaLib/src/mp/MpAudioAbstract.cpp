@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2010 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -11,7 +11,6 @@
 
 #include "os/OsDefs.h"
 #include "mp/MpAudioAbstract.h"
-#include "mp/MpAudioFileUtils.h"
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 

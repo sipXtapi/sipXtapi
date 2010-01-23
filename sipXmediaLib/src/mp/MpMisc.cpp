@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2008 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -14,6 +14,7 @@
 
 // SYSTEM INCLUDES
 
+#include <mp/MpTypes.h>
 #include <stdio.h> 
 #include <assert.h> 
 #include <string.h>

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2009 SIPez LLC.
+// Copyright (C) 2006-2010 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -14,6 +14,7 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #ifdef __pingtel_on_posix__
+#include <mp/MpTypes.h>
 #  include <unistd.h>
 #  include <fcntl.h>
 #elif defined(WIN32) && !defined(WINCE) /* [ */
