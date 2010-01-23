@@ -29,12 +29,6 @@ notNeededOnAndroid := \
   ./sipXmediaMediaProcessing/src/CpPhoneMediaInterface.cpp \
 
 
-unit_tests := \
-  ./sipXmediaMediaProcessing/src/test/CpCryptoTest.cpp \
-  ./sipXmediaMediaProcessing/src/test/CpPhoneMediaInterfaceTest.cpp \
-
-
-
 LOCAL_SRC_FILES := \
     interface/CpMediaInterface.cpp \
     interface/CpMediaInterfaceFactory.cpp \
@@ -50,26 +44,14 @@ LOCAL_SRC_FILES := \
     sipXmediaMediaProcessing/src/sipXmediaFactoryImpl.cpp \
 
 
-
-# Not immediately needed on Android
-FOO_DONT_BUILD := \
-
-
 LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
                   -DDISABLE_STREAM_PLAYER \
                   -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY \
                   -DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
-
-#ifeq ($(TARGET_ARCH),arm)
-#	LOCAL_CFLAGS += -DARMv5_ASM
-#endif
-
-#ifeq ($(TARGET_BUILD_TYPE),debug)
-#	LOCAL_CFLAGS += -DDEBUG
-#endif
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\"
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -88,3 +70,54 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
+
+
+# =======================
+
+# Unit test framework library
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := sipxmediaadapterunit
+
+LOCAL_SRC_FILES := \
+    sipXmediaMediaProcessing/src/test/CpCryptoTest.cpp \
+    sipXmediaMediaProcessing/src/test/CpPhoneMediaInterfaceTest.cpp \
+
+
+LOCAL_CFLAGS += \
+                  -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+
+
+LOCAL_CXXFLAGS += \
+                  -DDISABLE_STREAM_PLAYER \
+                  -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY \
+                  -DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/tmp\"
+
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaLib/src/test \
+    $(SIPX_HOME)/sipXmediaAdapterLib/interface \
+    $(SIPX_HOME)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include \
+
+
+#LOCAL_SHARED_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmediaAdapter libsipXmedia libsipXport libpcre
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+include $(BUILD_EXECUTABLE)
+

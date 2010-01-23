@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2009 SIPez LLC
+// Copyright (C) 2005-2010 SIPez LLC
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2005-2009 SIPfoundry Inc.
@@ -11,8 +11,7 @@
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #include <os/OsIntTypes.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include "mi/CpMediaInterfaceFactory.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
 #include "CpTopologyGraphInterface.h"
@@ -85,7 +84,7 @@ private:
 
 // Unittest for CpPhoneMediaInterface
 
-class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
+class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(CpPhoneMediaInterfaceTest);
     CPPUNIT_TEST(printMediaInterfaceType); // Just prints the media interface type.
@@ -328,7 +327,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         // Test that we can get the bridge mixer port on which this new connection
         // is connected to
         int portOnBridge;
+        int streamNum = 0;
         ((CpTopologyGraphInterface*)mediaInterface)->getConnectionPortOnBridge(connectionId, 
+                                                                               streamNum,
                                                                                portOnBridge);
         CPPUNIT_ASSERT_EQUAL(3, portOnBridge);
 #endif
