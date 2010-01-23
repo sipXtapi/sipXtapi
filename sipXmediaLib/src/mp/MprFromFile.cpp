@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2005-2008 SIPez LLC. 
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -10,7 +10,6 @@
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
-
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -30,10 +29,12 @@
 #include "mp/MpBuf.h"
 #include "mp/MprFromFile.h"
 #include "mp/MpAudioAbstract.h"
-#include "mp/MpAudioFileOpen.h"
+#if !defined(ANDROID)
+#  include "mp/MpAudioFileOpen.h"
+#  include "mp/mpau.h"
+#  include "mp/MpAudioWaveFileRead.h"
+#endif
 #include "mp/MpAudioUtils.h"
-#include "mp/MpAudioWaveFileRead.h"
-#include "mp/mpau.h"
 #include "mp/MpMisc.h"
 #include "mp/MpFlowGraphBase.h"
 #include "os/OsSysLog.h"
@@ -286,6 +287,11 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
 
    if (!audioFileName)
       return OS_INVALID_ARGUMENT;
+
+// Stub out on Android temporarily as it does not support ifstream
+#ifdef ANDROID
+   return OS_FILE_NOT_FOUND;
+#else
 
    ifstream inputFile(audioFileName,ios::in|ios::binary);
 
@@ -615,6 +621,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
    }
 
    return result;
+#endif /* non-ANDROID */
 }
 
 UtlBoolean MprFromFile::allocateAndResample(const char* audBuf,
