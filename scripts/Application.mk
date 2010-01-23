@@ -15,9 +15,8 @@
 #
 #
 
-UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit sipxsdpunit
-SIPX_LIBS := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall
-# libsipXtapi
+UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit sipxsdpunit sipxtackunit mediasandbox sipxmediaunit
+SIPX_LIBS := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall libsipXtapi
 
 APP_MODULES := $(SIPX_LIBS) \
    $(UNIT_TESTS)

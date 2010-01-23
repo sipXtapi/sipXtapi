@@ -23,16 +23,15 @@ LOCAL_MODULE := libsipXmedia
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 #intermediates := $(call local-intermediates-dir)
 
+# Not immediately needed on Android
+FOO_DONT_BUILD := \
+
 fail_to_compile := \
     src/mp/mpau.cpp \
-    src/mp/MpAudioAbstract.cpp \
     src/mp/MpAudioFileOpen.cpp \
     src/mp/MpAudioFileUtils.cpp \
-    src/mp/MpAudioUtils.cpp \
     src/mp/MpAudioWaveFileRead.cpp \
-    src/mp/MprFromFile.cpp \
     src/mp/MprFromStream.cpp \
-    src/mp/MprToSpkr.cpp \
 
 
 LOCAL_SRC_FILES := \
@@ -45,10 +44,12 @@ LOCAL_SRC_FILES := \
     src/mp/MpAgcBase.cpp \
     src/mp/MpAgcSimple.cpp \
     src/mp/MpArrayBuf.cpp \
+    src/mp/MpAudioAbstract.cpp \
     src/mp/MpAudioBuf.cpp \
     src/mp/MpAudioFileDecompress.cpp \
     src/mp/MpAudioOutputConnection.cpp \
     src/mp/MpAudioResource.cpp \
+    src/mp/MpAudioUtils.cpp \
     src/mp/MpBridgeAlgLinear.cpp \
     src/mp/MpBridgeAlgSimple.cpp \
     src/mp/MpBuf.cpp \
@@ -100,6 +101,7 @@ LOCAL_SRC_FILES := \
     src/mp/MpUdpBuf.cpp \
     src/mp/MprAudioFrameBuffer.cpp \
     src/mp/MprFromInputDevice.cpp \
+    src/mp/MprFromFile.cpp \
     src/mp/MprFromMic.cpp \
     src/mp/MprFromNet.cpp \
     src/mp/MprMixer.cpp \
@@ -114,6 +116,7 @@ LOCAL_SRC_FILES := \
     src/mp/MprRtpDispatcherActiveSsrcs.cpp \
     src/mp/MprRtpDispatcherIpAffinity.cpp \
     src/mp/MprSpeakerSelector.cpp \
+    src/mp/MprToSpkr.cpp \
     src/mp/MpSineWaveGeneratorDeviceDriver.cpp \
     src/mp/MpStaticCodecInit.cpp \
     src/mp/MprSpeexEchoCancel.cpp \
@@ -168,29 +171,27 @@ LOCAL_SRC_FILES := \
     src/rtcp/SenderReport.cpp \
     src/rtcp/SourceDescription.cpp
 
-# Not immediately needed on Android
-FOO_DONT_BUILD := \
 
-
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+LOCAL_CFLAGS += \
+                  -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
 
-#ifeq ($(TARGET_ARCH),arm)
-#	LOCAL_CFLAGS += -DARMv5_ASM
-#endif
 
-#ifeq ($(TARGET_BUILD_TYPE),debug)
-#	LOCAL_CFLAGS += -DDEBUG
-#endif
+LOCAL_CXXFLAGS += \
+                  -DDISABLE_STREAM_PLAYER \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/tmp\"
+
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
     $(SIPX_HOME)/sipXportLib/include \
     $(SIPX_HOME)/sipXsdpLib/include \
     $(SIPX_HOME)/sipXtackLib/include \
-    $(SIPX_HOME)/sipXmediaLib/include
+    $(SIPX_HOME)/sipXmediaLib/include \
+
 
 #LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack
 
@@ -200,3 +201,129 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
+
+# =======================
+
+# Unit test framework library
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := sipxmediaunit
+
+# Need to be re-written to NOT use exceptions
+fails_to_compile_use_exceptions := \
+    src/test/mp/MpInputDeviceManagerTest.cpp \
+    src/test/mp/MpInputOutputFrameworkTest.cpp \
+    src/test/mp/MprDelayTest.cpp \
+
+# Has Oss sys/soundcard.h dependencies
+fails_to_compile_uses_oss := \
+    src/test/mp/MpOutputDriverTest.cpp \
+    src/test/mp/MpOutputFrameworkTest.cpp \
+    src/test/mp/MpWBInputOutputDeviceTest.cpp \
+
+# MprFromFIle does not compile yet, so we cannot run this test yet
+fails_to_compile_istream := \
+    src/test/mp/MprFromFileTest.cpp \
+
+# Not immediately needed
+notNeededSource := \
+
+
+LOCAL_SRC_FILES := \
+    src/test/mp/MpAudioBufTest.cpp \
+    src/test/mp/MpBufTest.cpp \
+    src/test/mp/MpCodecsPerformanceTest.cpp \
+    src/test/mp/MpDspUtilsTest.cpp \
+    src/test/mp/MpFlowGraphTest.cpp \
+    src/test/mp/MpGenericResourceTest.cpp \
+    src/test/mp/MpInputDeviceDriverTest.cpp \
+    src/test/mp/MpMMTimerTest.cpp \
+    src/test/mp/MpMediaTaskTest.cpp \
+    src/test/mp/MpOutputManagerTest.cpp \
+    src/test/mp/MpResourceTest.cpp \
+    src/test/mp/MpResourceTopologyTest.cpp \
+    src/test/mp/MpTestResource.cpp \
+    src/test/mp/MprBridgeTest.cpp \
+    src/test/mp/MprBridgeTestWB.cpp \
+    src/test/mp/MprFromMicTest.cpp \
+    src/test/mp/MprMixerTest.cpp \
+    src/test/mp/MprSpeakerSelectorTest.cpp \
+    src/test/mp/MprSplitterTest.cpp \
+    src/test/mp/MprToSpkrTest.cpp \
+    src/test/mp/MprToneGenTest.cpp \
+
+
+LOCAL_CFLAGS += \
+                  -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+
+
+LOCAL_CXXFLAGS += \
+                  -DDISABLE_STREAM_PLAYER \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/tmp\"
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaLib/src/test \
+
+#LOCAL_SHARED_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmedia libsipXport libpcre
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+include $(BUILD_EXECUTABLE)
+
+
+# =======================
+
+# Unit sandbox to test a single test in the test framework library
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := mediasandbox
+
+LOCAL_SRC_FILES := \
+    src/test/mp/MpMMTimerTest.cpp \
+
+
+LOCAL_CFLAGS += \
+                  -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+
+
+LOCAL_CXXFLAGS += \
+                  -DDISABLE_STREAM_PLAYER \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/tmp\"
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaLib/src/test \
+
+#LOCAL_SHARED_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmedia libsipXport libpcre
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+include $(BUILD_EXECUTABLE)
+
