@@ -122,6 +122,11 @@ public:
 
    void testEnabledNoData()
    {
+#ifdef ANDROID
+       CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+       return;
+#endif
+
       MprMixer* pMixer = NULL;
       OsStatus res;
 
@@ -234,6 +239,11 @@ public:
 
    void testWideband()
    {
+#ifdef ANDROID
+       CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+       return;
+#endif
+
       MprMixer* pMixer = NULL;
       MpBufPtr pBuf;
       OsStatus res;

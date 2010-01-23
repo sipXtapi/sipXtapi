@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
@@ -8,9 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 #include <mp/MpOutputDeviceManager.h>
 #include <mp/MpAudioBuf.h>
@@ -84,7 +82,7 @@ void calculateSampleData()
 /**
  * Unittest for MpOutputDeviceManager
  */
-class MpOutputFrameworkTest : public CppUnit::TestCase
+class MpOutputFrameworkTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(MpOutputFrameworkTest);
    CPPUNIT_TEST(testCreate);

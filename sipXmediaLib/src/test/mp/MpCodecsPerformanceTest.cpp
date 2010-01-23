@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPfoundry Inc. 
+// Copyright (C) 2006-2010 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
 // Copyright (C) 2006-2007 SIPez LLC. 
@@ -8,6 +8,7 @@
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
 
+#include <os/OsIntTypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -16,9 +17,7 @@
 #include <os/OsTime.h>
 #include <os/OsDateTime.h>
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 /// Duration of one frame in milliseconds
 #define FRAME_MS                 20
@@ -48,7 +47,7 @@ static size_t sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);
 
 
 ///  Unit test for testing performance of supported codecs.
-class MpCodecsPerformanceTest : public CppUnit::TestCase
+class MpCodecsPerformanceTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(MpCodecsPerformanceTest);
    CPPUNIT_TEST(testCodecsPreformance);

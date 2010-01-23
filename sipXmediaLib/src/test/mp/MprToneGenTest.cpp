@@ -11,6 +11,7 @@
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
 // SYSTEM INCLUDES
+#include <os/OsIntTypes.h>
 #include <math.h>
 
 // APPLICATION INCLUDES
@@ -19,7 +20,6 @@
 #include <mp/MpTestResource.h>
 #include <mp/MprToneGen.h>
 #include <mp/MpDTMFDetector.h>
-#include <os/OsIntTypes.h>
 #include "mp/MpGenericResourceTest.h"
 
 ///  Unit test for MprToneGen
@@ -107,9 +107,13 @@ public:
                // If we are at the last sample we will process, then, based on how
                // we configured the dtmf detector, a tone should have been detected.
                if( k == paBuf->getSamplesNumber()-1 && j == framesToProcess-1)
+               {
                   CPPUNIT_ASSERT_EQUAL(TRUE, dtmfDetected);
+               }
                else
+               {
                   CPPUNIT_ASSERT_EQUAL(FALSE, dtmfDetected);
+               }
             }
 
             // Free up buffers..

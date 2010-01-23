@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -13,8 +13,7 @@
 
 #include <os/OsIntTypes.h>
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
 
 #include <mp/MpMediaTask.h>
@@ -41,7 +40,7 @@ static int sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);
 /**
  * Unittest for MpMediaTask
  */
-class MpMediaTaskTest : public CppUnit::TestCase
+class MpMediaTaskTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(MpMediaTaskTest);
     CPPUNIT_TEST(testCreators);

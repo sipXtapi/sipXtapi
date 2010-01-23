@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPfoundry Inc. 
+// Copyright (C) 2006-2010 SIPfoundry Inc.  All rights reserved.
 // Licensed by SIPfoundry under the LGPL license. 
 //  
 // Copyright (C) 2006-2007 SIPez LLC. 
@@ -10,16 +10,14 @@
 
 #include <os/OsIntTypes.h>
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 #include <mp/MpResourceTopology.h>
 #include <mp/MpResourceFactory.h>
 #include <mp/MprNullConstructor.h>
 
 ///  Unit test for MprSplitter
-class MpResourceTopologyTest : public CppUnit::TestCase
+class MpResourceTopologyTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(MpResourceTopologyTest);
     CPPUNIT_TEST(testValidators);

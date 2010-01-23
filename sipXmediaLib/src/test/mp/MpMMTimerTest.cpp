@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2009 SIPez LLC. 
+// Copyright (C) 2007-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
@@ -10,8 +10,7 @@
 
 #include <os/OsIntTypes.h>
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
 
 #include <mp/MpMMTimer.h>
@@ -39,7 +38,7 @@ private:
 /**
  * Unittest for MpMMTimer and its successors
  */
-class MpMMTimerTest : public CppUnit::TestCase
+class MpMMTimerTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(MpMMTimerTest);
    CPPUNIT_TEST(testGetResolution);
@@ -136,6 +135,11 @@ public:
 
    void testGetResolution()
    {
+#ifdef ANDROID
+      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+      return;
+#endif
+
       // Test getting the resolution, and get it..
       unsigned resolution;
       MpMMTimer* pMMTimer = MpMMTimer::create(MpMMTimer::Notification);
@@ -152,6 +156,11 @@ public:
 
    void testPeriodRange()
    {
+#ifdef ANDROID
+      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+      return;
+#endif
+
       // Test the period range static method..
       unsigned unusedMin = 0;
       unsigned unusedMax = 0;
@@ -169,6 +178,11 @@ public:
 
    void testLinearTimer()
    {
+#ifdef ANDROID
+      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+      return;
+#endif
+
       // Set the below variables and preprocessor defines to tweak this test.
       // TLT_LOOP_COUNT defines the number of timer fire repetitions to do 
       // (set this to an even value),
@@ -250,6 +264,11 @@ public:
 
    void testNotificationTimer()
    {
+#ifdef ANDROID
+      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+      return;
+#endif
+
       // Set the below variables and preprocessor defines to tweak this test.
       // mPerfCountsSz defines the number of timer fire repetitions to do 
       // (set this to an even value),

@@ -16,9 +16,7 @@
 #include <mp/MpTestResource.h>
 #include <mp/MpMisc.h>
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 /// Number of frames in one frame
 #define TEST_DEFAULT_SAMPLES_PER_FRAME 80
@@ -30,11 +28,12 @@
 * 
 *  For each testing resource create subclass of this class.
 */
-class MpGenericResourceTest : public CppUnit::TestCase
+class MpGenericResourceTest : public SIPX_UNIT_BASE_CLASS
 {
+#if !defined(NO_CPPUNIT)
    CPPUNIT_TEST_SUITE(MpGenericResourceTest);
    CPPUNIT_TEST_SUITE_END();
-
+#endif
 public:
 
    MpGenericResourceTest();

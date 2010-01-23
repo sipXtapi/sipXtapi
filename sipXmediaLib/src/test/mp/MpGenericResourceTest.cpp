@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPfoundry Inc. 
+// Copyright (C) 2006-2010 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
 // Copyright (C) 2006-2007 SIPez LLC. 
@@ -17,7 +17,7 @@ unsigned MpGenericResourceTest::sSampleRates[] = {8000, 16000, 32000, 48000};
 unsigned MpGenericResourceTest::sNumRates = sizeof(MpGenericResourceTest::sSampleRates)/sizeof(unsigned);
 
 MpGenericResourceTest::MpGenericResourceTest()
-   : CppUnit::TestCase()
+   : SIPX_UNIT_BASE_CLASS ()
    , mSamplesPerSec(TEST_DEFAULT_SAMPLES_PER_SEC)
    , mSamplesPerFrame(TEST_DEFAULT_SAMPLES_PER_FRAME)
 {

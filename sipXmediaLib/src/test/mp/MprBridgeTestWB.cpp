@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
+// Copyright (C) 2008-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2008 SIPfoundry Inc.
@@ -48,10 +48,13 @@
 #define TEST_MAX_SAMPLE_RATE     48000
 #define FREQ_TO_PERIODUS(X)      1000000/X
 
-#undef USE_TEST_OUTPUT_DRIVER
+//#undef USE_TEST_OUTPUT_DRIVER
+#define USE_TEST_OUTPUT_DRIVER
 
 #ifdef USE_TEST_OUTPUT_DRIVER // USE_TEST_OUTPUT_DRIVER [
 #  include <mp/MpodBufferRecorder.h>
+#define TEST_SAMPLE_DATA_SIZE sizeof (MpAudioSample)
+#define TEST_SAMPLES_PER_SECOND TEST_MAX_SAMPLE_RATE
 #  define OUTPUT_DRIVER MpodBufferRecorder
 #  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "default", TEST_SAMPLE_DATA_SIZE*1000/TEST_SAMPLES_PER_SECOND
 #elif defined(WIN32) // USE_TEST_OUTPUT_DRIVER ][ WIN32

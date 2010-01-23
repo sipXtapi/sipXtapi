@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC.   All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2006-2008 SIPfoundry Inc.
@@ -16,6 +16,7 @@
 #include <mp/MpBufferMsg.h>
 #include <os/OsDateTime.h>
 
+#include <sipxunittests.h>
 #include "mp/MpGenericResourceTest.h"
 
 #ifdef RTL_ENABLED // [

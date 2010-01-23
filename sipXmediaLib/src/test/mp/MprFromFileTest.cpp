@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
+// Copyright (C) 2008-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2008 SIPfoundry Inc.
@@ -10,8 +10,7 @@
 
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 #include <os/OsIntTypes.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
 
 #include <mp/MprFromFile.h>
@@ -171,9 +170,13 @@ public:
             // If we are at the last sample we will process, then, based on how
             // we configured the dtmf detector, a tone should have been detected.
             if( k == paBuf->getSamplesNumber()-1 && j == framesToProcess-1)
+            {
                CPPUNIT_ASSERT_EQUAL(TRUE, dtmfDetected);
+            }
             else
+            {
                CPPUNIT_ASSERT_EQUAL(FALSE, dtmfDetected);
+            }
          }
 
          // Free up buffers..

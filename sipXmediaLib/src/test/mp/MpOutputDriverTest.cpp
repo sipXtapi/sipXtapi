@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
@@ -12,8 +12,7 @@
 
 #include <os/OsIntTypes.h>
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
 
 #include <mp/MpAudioBuf.h>
@@ -91,7 +90,7 @@ static void calculateSampleData(int frequency,
 /**
  * Unittest for MpOutputDeviceDriver
  */
-class MpOutputDeviceDriverTest : public CppUnit::TestCase
+class MpOutputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(MpOutputDeviceDriverTest);
    CPPUNIT_TEST(testCreate);

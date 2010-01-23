@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
@@ -11,8 +11,7 @@
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
 #include <os/OsIntTypes.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include <mp/MpBufPool.h>
 #include <mp/MpArrayBuf.h>
 #include <mp/MpAudioBuf.h>
@@ -32,7 +31,7 @@
 #define MIDDT_SAMPLES_PER_FRAME 80
 #define MIDDT_NBUFS 20
 
-class MpInputDeviceDriverTest : public CppUnit::TestCase
+class MpInputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(MpInputDeviceDriverTest);
    CPPUNIT_TEST(testSetup);

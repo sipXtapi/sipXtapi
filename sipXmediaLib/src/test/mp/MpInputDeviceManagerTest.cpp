@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
+// Copyright (C) 2008-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
@@ -8,8 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
 
 #include <os/OsTask.h>
@@ -174,7 +173,7 @@ private:
 /**
  * Unittest for MpAudioBuf
  */
-class MpInputDeviceManagerTest : public CppUnit::TestCase
+class MpInputDeviceManagerTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(MpInputDeviceManagerTest);
    CPPUNIT_TEST(testSineInput);

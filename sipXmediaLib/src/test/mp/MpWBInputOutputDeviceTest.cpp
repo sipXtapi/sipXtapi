@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2010 SIPez LLC.   All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -11,9 +11,7 @@
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
 #include <os/OsIntTypes.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 #include <mp/MpAudioBuf.h>
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
@@ -101,7 +99,7 @@
 /**
  * Unittest for Wide band support in input and output device driver
  */
-class WBInputOutputDeviceTest : public CppUnit::TestCase
+class WBInputOutputDeviceTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(WBInputOutputDeviceTest);
    CPPUNIT_TEST(testMixerWB);

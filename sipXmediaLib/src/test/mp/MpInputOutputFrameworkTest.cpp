@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
+// Copyright (C) 2006-2010 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
 // Copyright (C) 2006 SIPez LLC. 
@@ -8,9 +8,7 @@
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 #include "MpTestResource.h"
 #include "mp/MpInputDeviceManager.h"
@@ -119,7 +117,7 @@ static UtlString* outputDriverNames = NULL;
 
 
 ///  Unit test for MprSplitter
-class MpInputOutputFrameworkTest : public CppUnit::TestCase
+class MpInputOutputFrameworkTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(MpInputOutputFrameworkTest);
    CPPUNIT_TEST(testShortCircuit);

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
+// Copyright (C) 20062010 SIPfoundry Inc.   All rights reserved.
 // Licensed by SIPfoundry under the LGPL license. 
 //  
 // Copyright (C) 2006 SIPez LLC. 
@@ -177,6 +177,11 @@ public:
 
    void testEnabledWithData()
    {
+#ifdef ANDROID
+       CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
+       return;
+#endif
+
        MprFromMic*       pFromMic   = NULL;
        OsMsgQ*           pMsgQ      = NULL;
        MpBufferMsg*      pMsg       = NULL;

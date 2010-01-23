@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
+// Copyright (C) 20082010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2008 SIPfoundry Inc.
@@ -11,9 +11,7 @@
 // Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #include <os/OsIntTypes.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
+#include <sipxunittests.h>
 
 #include "MpTestResource.h"
 #include "mp/MprToneGen.h"
@@ -40,7 +38,7 @@
 #define TEST_SAMPLES_PER_SECOND       48000  ///< in samples/sec (Hz)
 #define TEST_DELAY_FRAMES             10     ///< Length of test delay buffer.
 
-class MprDelayTest : public CppUnit::TestCase
+class MprDelayTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(MprDelayTest);
    CPPUNIT_TEST(testMprDelay);
