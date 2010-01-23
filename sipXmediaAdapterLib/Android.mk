@@ -1,8 +1,8 @@
 #
-# Copyright (C) 2009 SIPfoundry Inc.
+# Copyright (C) 2009-2010 SIPfoundry Inc.  All rights reserved
 # Licensed by SIPfoundry under the LGPL license.
 #
-# Copyright (C) 2009 SIPez LLC.
+# Copyright (C) 2009-2010 SIPez LLC.
 # Licensed to SIPfoundry under a Contributor Agreement.
 #
 #
@@ -24,14 +24,32 @@ LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 #intermediates := $(call local-intermediates-dir)
 
 fail_to_compile := \
-    sipXmediaMediaProcessing/src/CpTopologyGraphFactoryImpl.cpp \
+
+notNeededOnAndroid := \
+  ./sipXmediaMediaProcessing/src/CpPhoneMediaInterface.cpp \
+
+
+unit_tests := \
+  ./sipXmediaMediaProcessing/src/test/CpCryptoTest.cpp \
+  ./sipXmediaMediaProcessing/src/test/CpPhoneMediaInterfaceTest.cpp \
+
 
 
 LOCAL_SRC_FILES := \
-    sipXmediaMediaProcessing/src/sipXmediaFactoryImpl.cpp \
-    sipXmediaMediaProcessing/src/CpPhoneMediaInterface.cpp \
+    interface/CpMediaInterface.cpp \
+    interface/CpMediaInterfaceFactory.cpp \
+    interface/CpMediaInterfaceFactoryImpl.cpp \
+    interface/MiDtmfNotf.cpp \
+    interface/MiIntNotf.cpp \
+    interface/MiNotification.cpp \
+    interface/MiProgressNotf.cpp \
+    interface/MiRtpStreamActivityNotf.cpp \
+    sipXmediaMediaProcessing/src/CpTopologyGraphFactoryImpl.cpp \
     sipXmediaMediaProcessing/src/CpTopologyGraphInterface.cpp \
-    sipXmediaMediaProcessing/src/MaNotfTranslatorDispatcher.cpp
+    sipXmediaMediaProcessing/src/MaNotfTranslatorDispatcher.cpp \
+    sipXmediaMediaProcessing/src/sipXmediaFactoryImpl.cpp \
+
+
 
 # Not immediately needed on Android
 FOO_DONT_BUILD := \
@@ -40,6 +58,9 @@ FOO_DONT_BUILD := \
 LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
+                  -DDISABLE_STREAM_PLAYER \
+                  -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY \
+                  -DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY \
                   -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
 
 #ifeq ($(TARGET_ARCH),arm)

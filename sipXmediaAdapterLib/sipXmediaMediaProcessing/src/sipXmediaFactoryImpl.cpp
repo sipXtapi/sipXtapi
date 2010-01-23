@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2009 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -212,7 +212,7 @@ sipXmediaFactoryImpl::~sipXmediaFactoryImpl()
 }
 
 /* ============================ MANIPULATORS ============================== */
-
+#ifndef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
 CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface(const char* publicAddress,
                                                              const char* localAddress,
                                                              int numCodecs,
@@ -244,7 +244,7 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface(const char* publicA
    miInterfaceId++;
    return pIf;
 }
-
+#endif
 
 OsStatus sipXmediaFactoryImpl::setSpeakerVolume(int iVolume) 
 {

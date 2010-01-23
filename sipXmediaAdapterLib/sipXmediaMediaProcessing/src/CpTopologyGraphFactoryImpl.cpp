@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2009 SIPfoundry Inc.
+// Copyright (C) 2007-2010 SIPfoundry Inc. All rights reserved.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2007-2009 SIPez LLC. 
@@ -52,8 +52,10 @@
 
 #ifdef USE_DEVICE_ADD_HACK // [
 
-//#define USE_TEST_INPUT_DRIVER
-//#define USE_TEST_OUTPUT_DRIVER
+#ifdef ANDROID
+#  define USE_TEST_INPUT_DRIVER
+#  define USE_TEST_OUTPUT_DRIVER
+#endif
 
 #ifdef USE_TEST_INPUT_DRIVER // USE_TEST_DRIVER [
 #  include <mp/MpSineWaveGeneratorDeviceDriver.h>

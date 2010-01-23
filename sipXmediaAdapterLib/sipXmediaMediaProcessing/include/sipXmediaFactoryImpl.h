@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2008 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -107,7 +107,11 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
                                                     int iTurnKeepAlivePeriodSecs,
                                                     UtlBoolean bEnableICE, 
                                                     uint32_t samplesPerSec,
-                                                    OsMsgDispatcher* pDispatcher);
+                                                    OsMsgDispatcher* pDispatcher)
+#ifdef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
+   = 0
+#endif
+      ;
 
     virtual OsStatus setSpeakerVolume(int iVolume) ;
     virtual OsStatus setSpeakerDevice(const UtlString& device) ;
