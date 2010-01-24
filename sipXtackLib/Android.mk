@@ -161,6 +161,12 @@ LOCAL_C_INCLUDES += \
 LOCAL_C_INCLUDES += \
     $(ANDROID_CORE_PATH)/bionic/libc/private
 
+$(SIPX_HOME)/sipXtackLib/include/net/version.h:
+	echo '#ifndef SIP_STACK_VERSION' > $(SIPX_HOME)/sipXtackLib/include/net/version.h
+	echo '#define SIP_STACK_VERSION "3.3"' >> $(SIPX_HOME)/sipXtackLib/include/net/version.h
+	echo '#endif' >> $(SIPX_HOME)/sipXtackLib/include/net/version.h
+
+
 #LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp
 
 LOCAL_STATIC_LIBRARIES := libsipXsdp libsipXport libpcre 
