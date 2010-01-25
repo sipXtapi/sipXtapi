@@ -22,6 +22,9 @@
 // DEFINES
 
 // MACROS
+#define CPPUNIT_TEST_SUB_SUITE(CHILD_CLASS_NAME, PARENT_CLASS_NAME) \
+    CPPUNIT_TEST_SUITE(CHILD_CLASS_NAME)
+
 #define CPPUNIT_TEST_SUITE(CLASS_NAME) \
     public: \
     /* Not implemented here so actual tests can code constructor 
