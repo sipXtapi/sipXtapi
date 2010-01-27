@@ -29,6 +29,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+//#define DONT_CATCH_SIGNALS
+
 // STATIC VARIABLE INITIALIZATIONS
 bool SipxPortUnitTestEnvironment::sInitialized = 0;
 int SipxPortUnitTestEnvironment::sInitializedSignature = 0;
@@ -189,8 +191,10 @@ void SipxPortUnitTestEnvironment::runTests()
 
 
     // Prepare to run tests and catch signals if something bad happends
+#ifndef DONT_CATCH_SIGNALS
     signal(SIGFPE, SipxPortUnitTestEnvironment::signalHandler);
     signal(SIGSEGV, SipxPortUnitTestEnvironment::signalHandler);
+#endif
 
     // Render test inforation for each test class first time this gets run
     // This will be run more than once if we catch a signal and are able
@@ -250,8 +254,11 @@ void SipxPortUnitTestEnvironment::runTests()
 
     // Now that we are done with the tests, we do not want the signal
     // handler to catch stuff any more
+
+#ifndef DONT_CATCH_SIGNALS
     signal(SIGFPE, SIG_DFL);
     signal(SIGSEGV, SIG_DFL);
+#endif
 
 }
 
