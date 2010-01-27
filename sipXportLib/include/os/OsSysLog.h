@@ -442,6 +442,9 @@ public:
      //:Return the number of available facilities.
 
    static OsTimer* getTimer();
+
+   static UtlBoolean isTaskPtrNull() { return(spOsSysLogTask == NULL); };
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    static OsAtomicLightPtr<OsSysLogTask> spOsSysLogTask;
