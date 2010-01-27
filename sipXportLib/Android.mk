@@ -166,7 +166,8 @@ LOCAL_CFLAGS += \
                   -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\"
 
 LOCAL_CXXFLAGS += \
 
@@ -218,7 +219,9 @@ LOCAL_SRC_FILES := \
 LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\" \
+                  -DSIPX_TMPDIR=\"/sdcard\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/sdcard\"
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
@@ -246,9 +249,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := sipxsandbox
 
 LOCAL_SRC_FILES := \
-  src/test/os/OsLockTest.cpp \
-  src/test/os/OsMsgQTest.cpp \
-  src/test/utl/UtlContainableTestStub.cpp
+  src/test/os/OsSysLogTest.cpp
 
 #  src/test/sipxportunit/bar.cpp \
 #  src/test/sipxportunit/foo.cpp
@@ -256,8 +257,9 @@ LOCAL_SRC_FILES := \
 LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\" \
-                  -DTEST_DIR=\"/tmp\"
+                  -DSIPX_TMPDIR=\"/sdcard\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/sdcard\"
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
@@ -348,8 +350,10 @@ LOCAL_SRC_FILES := \
 LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\" \
-                  -DTEST_DIR=\"/tmp\"
+                  -DSIPX_TMPDIR=\"/sdcard\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/sdcard\" \
+
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \

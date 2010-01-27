@@ -25,7 +25,7 @@ void OsTestUtilities::createTestDir(OsPath& root)
     OsStatus stat;
 
 #ifdef ANDROID
-    root = "/data/data";
+    root = "/sdcard";
 #else
     OsFileSystem::getWorkingDirectory(root);
 #endif
