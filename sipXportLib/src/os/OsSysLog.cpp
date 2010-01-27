@@ -93,6 +93,10 @@ OsStatus OsSysLog::initialize(const int   maxInMemoryLogEntries,
    if (spOsSysLogTask == NULL)
    {
       spOsSysLogTask = new OsSysLogTask(maxInMemoryLogEntries, options) ;
+      if(spOsSysLogTask == NULL)
+      {
+         rc = OS_FAILED;
+      }
       sProcessId = processId ;
       OsSocket::getHostName(&sHostname) ;  
    }
