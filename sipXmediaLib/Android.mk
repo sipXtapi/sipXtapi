@@ -177,6 +177,8 @@ LOCAL_CFLAGS += \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
                   -DCODEC_PCMA_PCMU_STATIC=1 \
+                  -DCODEC_TONES_STATIC=1 \
+                  -DCODEC_G722_STATIC=1 \
 
 
 LOCAL_CXXFLAGS += \
@@ -406,6 +408,47 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXsdpLib/include \
     $(SIPX_HOME)/sipXtackLib/include \
     $(SIPX_HOME)/sipXmediaLib/include \
+
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
+
+# =======================
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := libcodec_g722
+
+
+LOCAL_SRC_FILES := \
+    src/mp/codecs/plgg722/plgg722.c \
+    contrib/libspandsp/src/g722_encode.c \
+    contrib/libspandsp/src/g722_decode.c \
+
+
+LOCAL_CFLAGS += \
+                  -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DCODEC_STATIC \
+
+LOCAL_CXXFLAGS += \
+                  -DDISABLE_STREAM_PLAYER \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/tmp\"
+
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libspandsp/src \
 
 
 LOCAL_LDLIBS += -lstdc++ -ldl
