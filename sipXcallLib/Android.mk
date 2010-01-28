@@ -114,7 +114,7 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaAdapterLib/interface \
     $(SIPX_HOME)/sipXcallLib/include
 
-LOCAL_STATIC_LIBRARIES := libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport libpcre
+LOCAL_STATIC_LIBRARIES := libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport libpcre $(SIPX_CODEC_LIBS)
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 

@@ -115,7 +115,7 @@ LOCAL_C_INCLUDES += \
 
 
 #LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmediaAdapter libsipXmedia libsipXport libpcre
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmediaAdapter libsipXmedia libsipXport libpcre $(SIPX_CODEC_LIBS)
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 

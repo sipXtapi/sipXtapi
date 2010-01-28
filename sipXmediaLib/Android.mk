@@ -176,6 +176,7 @@ LOCAL_CFLAGS += \
                   -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
+                  -DCODEC_PCMA_PCMU_STATIC=1 \
 
 
 LOCAL_CXXFLAGS += \
@@ -278,7 +279,7 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaLib/src/test \
 
 #LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmedia libsipXport libpcre
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmedia libsipXport libpcre $(SIPX_CODEC_LIBS)
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
@@ -327,3 +328,89 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 
 include $(BUILD_EXECUTABLE)
 
+########################################################
+
+#codecs
+
+# =======================
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := libcodec_pcmapcmu
+
+
+LOCAL_SRC_FILES := \
+    src/mp/codecs/plgpcmapcmu/CodecPcmaWrapper.c \
+    src/mp/codecs/plgpcmapcmu/CodecPcmuWrapper.c \
+    src/mp/codecs/plgpcmapcmu/G711.c \
+    src/mp/codecs/plgpcmapcmu/PlgPcmaPcmu.c \
+    contrib/libspandsp/src/g711.c
+
+
+LOCAL_CFLAGS += \
+                  -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DCODEC_STATIC \
+
+LOCAL_CXXFLAGS += \
+                  -DDISABLE_STREAM_PLAYER \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/tmp\"
+
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libspandsp/src \
+
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
+
+# =======================
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := libcodec_tones
+
+
+LOCAL_SRC_FILES := \
+    src/mp/codecs/plgtones/PlgTones.c \
+
+
+LOCAL_CFLAGS += \
+                  -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DCODEC_STATIC \
+
+LOCAL_CXXFLAGS += \
+                  -DDISABLE_STREAM_PLAYER \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/tmp\"
+
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
+
+# =======================
