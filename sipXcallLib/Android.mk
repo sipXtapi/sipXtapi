@@ -2,7 +2,7 @@
 # Copyright (C) 2009 SIPfoundry Inc.
 # Licensed by SIPfoundry under the LGPL license.
 #
-# Copyright (C) 2009 SIPez LLC.
+# Copyright (C) 2009-2010 SIPez LLC.
 # Licensed to SIPfoundry under a Contributor Agreement.
 #
 #
@@ -60,15 +60,9 @@ FOO_DONT_BUILD := \
 LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DANDROID \
                   -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\"
 
-#ifeq ($(TARGET_ARCH),arm)
-#	LOCAL_CFLAGS += -DARMv5_ASM
-#endif
-
-#ifeq ($(TARGET_BUILD_TYPE),debug)
-#	LOCAL_CFLAGS += -DDEBUG
-#endif
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -119,4 +113,49 @@ LOCAL_STATIC_LIBRARIES := libsipXcall libsipXmediaAdapter libsipXmedia libsipXta
 LOCAL_LDLIBS += -lstdc++ -ldl
 
 include $(BUILD_SHARED_LIBRARY)
+
+#####################################################
+
+# cp unit tests
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+# LOCAL_MODULE/_CLASS are required for local-intermediates-dir to work.
+LOCAL_MODULE := sipxcallunit
+
+
+LOCAL_SRC_FILES := \
+    src/test/cp/CallManagerTest.cpp \
+    src/test/cp/CpTestSupport.cpp \
+
+
+LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\"
+
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include \
+    $(SIPX_HOME)/sipXmediaAdapterLib/interface \
+    $(SIPX_HOME)/sipXcallLib/include \
+    $(SIPX_HOME)/sipXcallLib/src/test \
+
+#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter
+
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport libpcre $(SIPX_CODEC_LIBS)
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+
+include $(BUILD_EXECUTABLE)
 
