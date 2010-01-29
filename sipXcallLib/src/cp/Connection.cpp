@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -45,6 +45,7 @@
                                       // call and deleted.
 
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType Connection::TYPE = "Connection";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -531,6 +532,13 @@ void Connection::setTransferHeld(UtlBoolean bHeld)
 }
 
 /* ============================ ACCESSORS ================================= */
+
+// Get the ContainableType for a UtlContainable derived class.
+UtlContainableType Connection::getContainableType() const
+{
+    return Connection::TYPE;
+}
+
 void Connection::getLocalAddress(UtlString* address)
 {
     *address = mLocalAddress;
@@ -597,6 +605,14 @@ const UtlString& Connection::getRemoteRtpAddress() const
 }
 
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean Connection::isInstanceOf(const UtlContainableType type) const
+{
+    return((type != NULL)
+            && (getContainableType() != NULL)
+            && ((type == getContainableType())  ||
+                 UtlString::isInstanceOf(type)));
+}
 
 UtlBoolean Connection::isRemoteCallee()
 {

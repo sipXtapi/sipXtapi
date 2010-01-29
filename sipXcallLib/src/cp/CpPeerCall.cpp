@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -738,9 +738,7 @@ UtlBoolean CpPeerCall::handleDropConnection(OsMsg* pEventMessage)
         if(connection)
         {
             // do not fire the tapi event if it is a ghost connection
-            CpGhostConnection* pGhost = NULL;
-            pGhost = dynamic_cast<CpGhostConnection*>(connection);
-            if (!pGhost)
+            if (!connection->isInstanceOf(CpGhostConnection::TYPE))
             {
                 connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
             }
@@ -3501,9 +3499,7 @@ void CpPeerCall::onHook()
             connection->setMediaInterface(NULL) ;
             
             // do not fire the tapi event if it is a ghost connection
-            CpGhostConnection* pGhost = NULL;
-            pGhost = dynamic_cast<CpGhostConnection*>(connection);
-            if (!pGhost)
+            if (!connection->isInstanceOf(CpGhostConnection::TYPE))
             {
                 connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
             }
@@ -3597,9 +3593,7 @@ void CpPeerCall::dropIfDead()
                     while ((connection = (Connection*) iterator()))
                     {              
                         // do not fire the tapi event if it is a ghost connection
-                        CpGhostConnection* pGhost = NULL;
-                        pGhost = dynamic_cast<CpGhostConnection*>(connection);
-                        if (!pGhost)
+                        if (!connection->isInstanceOf(CpGhostConnection::TYPE))
                         {
                             connection->fireSipXCallEvent(CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL) ;
                         }
@@ -3670,9 +3664,7 @@ void CpPeerCall::dropDeadConnections()
                     postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_DISCONNECTED, CONNECTION_STATE);
 
                     // do not fire the tapi event if it is a ghost connection
-                    CpGhostConnection* pGhost = NULL;
-                    pGhost = dynamic_cast<CpGhostConnection*>(connection);
-                    if (!pGhost)
+                    if (!connection->isInstanceOf(CpGhostConnection::TYPE))
                     {
                         connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
                     }
@@ -3686,11 +3678,8 @@ void CpPeerCall::dropDeadConnections()
                     postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_FAILED, CONNECTION_STATE);               
                     postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
 
-                    CpGhostConnection* pGhost = NULL;
-                    pGhost = dynamic_cast<CpGhostConnection*>(connection);
-
                     // do not fire the tapi event if it is a ghost connection
-                    if (!pGhost)
+                    if (!connection->isInstanceOf(CpGhostConnection::TYPE))
                     {
                         connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;    
                     }

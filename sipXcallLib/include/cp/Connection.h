@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -179,6 +179,8 @@ public:
     //!enumcode: QUEUE_SILENT - indicate to the caller that the call is being queued, do not alert the callee
     //!enumcode: QUEUE_ALERT - indicate to the caller that the call is being queued, alert the callee
 
+   static const UtlContainableType TYPE;
+
 /* ============================ CREATORS ================================== */
 
    Connection(CpCallManager* callMgr = NULL,
@@ -306,10 +308,12 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-	void getLocalAddress(UtlString* address);
-	int getState(int isLocal = 0) const;
-	int getState(int isLocal, int& cause) const;
-	int getTerminalState(int isLocal) const;
+   virtual UtlContainableType getContainableType() const;
+
+   void getLocalAddress(UtlString* address);
+   int getState(int isLocal = 0) const;
+   int getState(int isLocal, int& cause) const;
+   int getTerminalState(int isLocal) const;
 
    int getLocalState() const ;
      // Get the local state for this connection
@@ -353,6 +357,8 @@ public:
    virtual void getRemoteUserAgent(UtlString* pUserAgent) = 0;
 
 /* ============================ INQUIRY =================================== */
+
+    virtual UtlBoolean isInstanceOf(const UtlContainableType type) const;
 
     UtlBoolean isRemoteCallee();
 

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2008 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -57,6 +57,7 @@
 #endif
 
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType SipConnection::TYPE = "SipConnection";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -6180,6 +6181,11 @@ void SipConnection::sendVoiceQualityReport(const char* szTargetSipUrl)
 
 /* ============================ ACCESSORS ================================= */
 
+UtlContainableType SipConnection::getContainableType() const
+{
+    return SipConnection::TYPE;
+}
+
 UtlBoolean SipConnection::getRemoteAddress(UtlString* remoteAddress) const
 {
     return(getRemoteAddress(remoteAddress, FALSE));
@@ -6327,6 +6333,14 @@ OsStatus SipConnection::getToField(UtlString* toField)
 
 
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean SipConnection::isInstanceOf(const UtlContainableType type) const
+{
+    return ((type != NULL)
+            && (getContainableType() != NULL)
+            && ((type == getContainableType()) ||
+                Connection::isInstanceOf(type)));
+}
 
 UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
 {

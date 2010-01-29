@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -51,6 +51,8 @@ public:
         REINVITED,
         REINVITING
     };
+
+    static const UtlContainableType TYPE;
 
     /* ============================ CREATORS ================================== */
 
@@ -165,6 +167,8 @@ public:
 
     /* ============================ ACCESSORS ================================= */
 
+    virtual UtlContainableType getContainableType() const;
+
     virtual UtlBoolean getSession(SipSession& session);
 
     virtual OsStatus getFromField(UtlString* fromField);
@@ -174,6 +178,8 @@ public:
     int getNextCseq();
 
     /* ============================ INQUIRY =================================== */
+
+    virtual UtlBoolean isInstanceOf(const UtlContainableType type) const;
 
     static UtlBoolean shouldCreateConnection(SipUserAgent& sipUa,
         OsMsg& eventMessage,

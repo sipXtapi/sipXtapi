@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -26,6 +26,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType CpGhostConnection::TYPE = "CpGhostConnection";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -204,6 +205,11 @@ UtlBoolean CpGhostConnection::processMessage(OsMsg& eventMessage)
 
 /* ============================ ACCESSORS ================================= */
 
+UtlContainableType CpGhostConnection::getContainableType() const
+{
+    return CpGhostConnection::TYPE;
+}
+
 UtlBoolean CpGhostConnection::getRemoteAddress(UtlString* remoteAddress) const
 {
     *remoteAddress = mRemoteAddress;
@@ -238,6 +244,14 @@ void CpGhostConnection::getRemoteUserAgent(UtlString* pUserAgent)
 
 
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean CpGhostConnection::isInstanceOf(const UtlContainableType type) const
+{
+    return ((type != NULL)
+            && (getContainableType() != NULL)
+            && ((type == getContainableType()) ||
+                Connection::isInstanceOf(type)));
+}
 
 UtlBoolean CpGhostConnection::willHandleMessage(OsMsg& eventMessage) const
 {

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -40,6 +40,8 @@ class CpGhostConnection: public Connection
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+   static const UtlContainableType TYPE;
 
 /* ============================ CREATORS ================================== */
 
@@ -119,6 +121,8 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
+   virtual UtlContainableType getContainableType() const;
+
    virtual UtlBoolean getRemoteAddress(UtlString* remoteAddress) const;
    //: get Connection address
    //! returns: TRUE/FALSE if the connection has an address.  The connection may not have an address assigned yet (i.e. if it is not fully setup).
@@ -140,6 +144,8 @@ public:
 
 
 /* ============================ INQUIRY =================================== */
+
+   virtual UtlBoolean isInstanceOf(const UtlContainableType type) const;
 
    virtual UtlBoolean willHandleMessage(OsMsg& eventMessage) const;
 
