@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC.   All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -255,9 +255,9 @@ SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void *pSrc)
       UtlInt* pIndex = NULL;
       UtlVoidPtr* pObj = NULL;
 
-      while ((pIndex = dynamic_cast<UtlInt*>(iter())))       
+      while ((pIndex = static_cast<UtlInt*>(iter())))       
       {
-         pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
+         pObj = static_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
 
          assert(pObj); // if it's NULL, then it's a bug
          if (pObj)
@@ -1188,9 +1188,9 @@ SIPX_LINE sipxLineLookupHandleByURI(const char* szURI)
     SIPX_LINE hLine = SIPX_LINE_NULL ;
 
     // First pass: strict matching
-    while ((pIndex = dynamic_cast<UtlInt*>(iter())))
+    while ((pIndex = static_cast<UtlInt*>(iter())))
     {
-        pObj = dynamic_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
+        pObj = static_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
         SIPX_LINE_DATA* pData = NULL ;
         if (pObj)
         {
@@ -1230,9 +1230,9 @@ SIPX_LINE sipxLineLookupHandleByURI(const char* szURI)
     if (hLine == SIPX_LINE_NULL)
     {
         iter.reset() ;    
-        while ((pIndex = dynamic_cast<UtlInt*>(iter())))
+        while ((pIndex = static_cast<UtlInt*>(iter())))
         {
-            pObj = dynamic_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
+            pObj = static_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
             SIPX_LINE_DATA* pData = NULL ;
             if (pObj)
             {
@@ -1273,9 +1273,9 @@ SIPX_LINE sipxLineLookupHandleByURI(const char* szURI)
     if (hLine == SIPX_LINE_NULL)
     {
         iter.reset() ;    
-        while ((pIndex = dynamic_cast<UtlInt*>(iter())))
+        while ((pIndex = static_cast<UtlInt*>(iter())))
         {
-            pObj = dynamic_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
+            pObj = static_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
             SIPX_LINE_DATA* pData = NULL ;
             if (pObj)
             {
@@ -1512,7 +1512,7 @@ static
 
     UtlVoidPtr* pObj = NULL;
 
-    while ((pObj = dynamic_cast<UtlVoidPtr*>(iter())))
+    while ((pObj = static_cast<UtlVoidPtr*>(iter())))
     {
         SIPX_INSTANCE_DATA* pTest = (SIPX_INSTANCE_DATA*) pObj->getValue() ;
         if ((pTest) && (pTest->pCallManager == pCallManager))
@@ -1647,9 +1647,9 @@ UtlBoolean sipxIsCallInFocus()
         UtlInt* pIndex = NULL;
         UtlVoidPtr* pObj = NULL;
 
-        while ((pIndex = dynamic_cast<UtlInt*>(iter())))
+        while ((pIndex = static_cast<UtlInt*>(iter())))
         {
-            pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
+            pObj = static_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
             SIPX_CALL_DATA* pData = NULL ;
             if (pObj)
             {
@@ -1859,8 +1859,9 @@ SIPXTAPI_API SIPX_RESULT sipxCreateLocalAudioConnection(const SIPX_INST hInst)
 
     if (pInst)
     {
+        // TODO need type checking here to replace RTTI/dynamic_cast
         VoiceEngineFactoryImpl* pInterface =
-            dynamic_cast<VoiceEngineFactoryImpl*>(pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation());
+            static_cast<VoiceEngineFactoryImpl*>(pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation());
         if (pInterface)
         {
             if (pInterface->createLocalAudioConnection() == OS_SUCCESS)
@@ -1883,7 +1884,7 @@ SIPXTAPI_API SIPX_RESULT sipxDestroyLocalAudioConnection(const SIPX_INST hInst)
     if (pInst)
     {
         VoiceEngineFactoryImpl* pInterface =
-            dynamic_cast<VoiceEngineFactoryImpl*>(pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation());
+            static_cast<VoiceEngineFactoryImpl*>(pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation());
         if (pInterface)
         {
             if (pInterface->destroyLocalAudioConnection() == OS_SUCCESS)
