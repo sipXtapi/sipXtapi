@@ -71,7 +71,8 @@ public:
      /// @copydoc MpOutputDeviceDriver::enableDevice()
    OsStatus enableDevice(unsigned samplesPerFrame,
                          unsigned samplesPerSec,
-                         MpFrameTime currentFrameTime);
+                         MpFrameTime currentFrameTime,
+                         OsCallback &frameTicker);
 
      /// @copydoc MpOutputDeviceDriver::disableDevice()
    OsStatus disableDevice();
@@ -80,9 +81,6 @@ public:
    OsStatus pushFrame(unsigned int numSamples,
                       const MpAudioSample* samples,
                       MpFrameTime frameTime);
-
-     /// @copydoc MpOutputDeviceDriver::setTickerNotification()
-   OsStatus setTickerNotification(OsNotification *pFrameTicker);
 
    OsStatus setNotificationMode(UtlBoolean bThreadNotification);
 
@@ -106,7 +104,6 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    MpAudioSample* mAudioFrame;  ///< Wave buffer.
-   OsNotification *pNotificator; ///< Notificator used for signaling next frame
    MpFrameTime mCurrentFrameTime; ///< The current frame time for this device.
    UtlBoolean mNotificationThreadEn;
 

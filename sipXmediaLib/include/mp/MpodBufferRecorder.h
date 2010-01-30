@@ -67,7 +67,8 @@ public:
      /// @copydoc MpOutputDeviceDriver::enableDevice()
    virtual OsStatus enableDevice(unsigned samplesPerFrame, 
                                  unsigned samplesPerSec,
-                                 MpFrameTime currentFrameTime);
+                                 MpFrameTime currentFrameTime,
+                                 OsCallback &frameTicker);
 
      /// @copydoc MpOutputDeviceDriver::disableDevice()
    virtual OsStatus disableDevice();
@@ -77,10 +78,6 @@ public:
    OsStatus pushFrame(unsigned int numSamples,
                       const MpAudioSample* samples,
                       MpFrameTime frameTime);
-
-     /// @copydoc MpOutputDeviceDriver::setTickerNotification()
-   virtual
-   OsStatus setTickerNotification(OsNotification *pFrameTicker);
 
 //@}
 
@@ -114,7 +111,6 @@ protected:
    unsigned       mBufferEnd;
 
    OsTimer       *mpTickerTimer;
-   OsNotification *mpTickerNotification;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

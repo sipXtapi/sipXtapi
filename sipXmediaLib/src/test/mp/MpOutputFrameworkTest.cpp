@@ -15,6 +15,7 @@
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
+#include <os/OsCallback.h>
 
 #ifdef RTL_ENABLED // [
 #  include "rtl_macro.h"
@@ -55,10 +56,10 @@
 #error Unknown platform!
 #endif
 
-
-
-MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
-UtlBoolean sampleDataInitialized=FALSE;
+static MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
+static UtlBoolean sampleDataInitialized=FALSE;
+static MpFrameTime frameTime;
+static int frame;
 
 void calculateSampleData()
 {
@@ -89,9 +90,6 @@ class MpOutputFrameworkTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testAddRemoveToManager);
    CPPUNIT_TEST(testEnableDisable);
    CPPUNIT_TEST(testEnableDisableFast);
-   // This is disabled, as it gives very bad sound quality
-   // and may be used only for very first driver testing.
-   //CPPUNIT_TEST(testDirectWrite);
    CPPUNIT_TEST(testTickerNotification);
    CPPUNIT_TEST_SUITE_END();
 
@@ -149,7 +147,12 @@ public:
    void testEnableDisable()
    {
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
+      CallbackUserData userData;
+      userData.mDriver = &driver;
+      userData.mEvent = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
+                          0, notificationCallback);
       OsTask::delay(50);
       driver.disableDevice();
    }
@@ -157,29 +160,18 @@ public:
    void testEnableDisableFast()
    {
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
-      driver.disableDevice();
-   }
-
-   void testDirectWrite()
-   {
-      calculateSampleData();
-
-      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
-
-      // Write some data to device.
-      for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
-      {
-         OsTask::delay(1000*TEST_SAMPLES_PER_FRAME_SIZE/TEST_SAMPLES_PER_SECOND);
-         driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame, -1);
-      }
-
+      CallbackUserData userData;
+      userData.mDriver = &driver;
+      userData.mEvent = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
+                          0, notificationCallback);
       driver.disableDevice();
    }
 
    void testTickerNotification()
    {
+      CallbackUserData userData;
       OsEvent notificationEvent;
      
       RTL_START(1000000);
@@ -187,16 +179,21 @@ public:
       calculateSampleData();
 
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
-      driver.setTickerNotification(&notificationEvent);
+
+      userData.mDriver = &driver;
+      userData.mEvent = &notificationEvent;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+
+      frameTime = 0;
+      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
+                          0, notificationCallback);
 
       // Write some data to device.
-      for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
+      for (frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
       {
          notificationEvent.wait(OsTime(500));
          notificationEvent.reset();
          RTL_BLOCK("test ticker loop");
-         driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame, -1);
       }
 
       driver.disableDevice();
@@ -206,9 +203,30 @@ public:
    }
 
 protected:
+
+   struct CallbackUserData
+   {
+      OsEvent *mEvent;
+      MpOutputDeviceDriver *mDriver;
+   };
+
+   static void driverCallback(const intptr_t userData, const intptr_t eventData)
+   {
+      CallbackUserData *pData = (CallbackUserData*)userData;
+
+      // Push data to the driver first.
+      pData->mDriver->pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame, -1);
+      frameTime += TEST_SAMPLES_PER_FRAME_SIZE*1000/TEST_SAMPLES_PER_SECOND;
+
+      // Signal the callback.
+      if (pData->mEvent != NULL)
+      {
+         pData->mEvent->signal(eventData);
+      }
+   }
+
    MpBufPool *mpPool;         ///< Pool for data buffers
    MpBufPool *mpHeadersPool;  ///< Pool for buffers headers
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MpOutputFrameworkTest);

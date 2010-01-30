@@ -30,7 +30,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class OsNotification;
+class OsCallback;
 
 /**
 *  @brief Container for device specific output driver.
@@ -43,7 +43,7 @@ class OsNotification;
 *
 *  Each audio output driver should notify its MpAudioOutputConnection when
 *  the device is ready to accept the next frame of data with provided
-*  OsNotification. See setTickerNotification() for more information.
+*  OsNotification. See enableDevice() for more information.
 *
 *  MpOutputDeviceDriver has a text name which is defined upon construction.
 *  This name will typically be the same as the OS defined name for the
@@ -83,7 +83,8 @@ public:
      /// Initialize device driver and state.
    virtual OsStatus enableDevice(unsigned samplesPerFrame, 
                                  unsigned samplesPerSec,
-                                 MpFrameTime currentFrameTime) = 0;
+                                 MpFrameTime currentFrameTime,
+                                 OsCallback &frameTicker) = 0;
      /**<
      *  This method enables the device driver.
      *
@@ -94,6 +95,14 @@ public:
      *  @param[in] samplesPerSec - sample rate for media frame in samples per second
      *  @param[in] currentFrameTime - time in milliseconds for beginning of frame
      *         relative to the MpOutputDeviceManager reference time
+     *  @param[in] frameTicker - notification to signal when device become ready. 
+     *         Device driver MUST signal this notification as soon as it become
+     *         ready to receive next portion of data to play back. Note, it is
+     *         a callback which in turn calls pushFrame() method of this device
+     *         driver. Also notification may be used to signal begin of  frame
+     *         interval for one or several flowgraphs, so it should be as uniform
+     *         as possible, i.e. it should not burst or hold over, driver should
+     *         signal this notification after equal intervals of time.
      *
      *  @returns OS_INVALID_STATE if device already enabled.
      *
@@ -122,7 +131,8 @@ public:
                       const MpAudioSample* samples,
                       MpFrameTime frameTime) = 0;
      /**<
-     *  This method is usually called from MpAudioOutputConnection::pushFrame().
+     *  This method is called from a callback which is called when we fire
+     *  ticker notification. See enableDevice() for details.
      *
      *  @param[in] numSamples - Number of samples in \p samples array.
      *  @param[in] samples - Array of samples to push to device.
@@ -138,26 +148,7 @@ public:
      *           early.
      *  @returns OS_FAILED for other errors.
      *  @returns OS_SUCCESS if frame sent correctly.
-     */
-
-     /// Set frame ticker notification which this device should signal.
-   virtual
-   OsStatus setTickerNotification(OsNotification *pFrameTicker) = 0;
-     /**<
-     *  Device driver MUST signal this notification as soon as it become ready
-     *  to receive next portion of data to play back.
-     *  Note, that signaling this notification may block for some time, as it
-     *  would normally be a callback which in turn calls pushFrame() method of
-     *  this device driver. Also notification may be used to signal begin of
-     *  frame interval for one or several flowgraphs, so it should be as
-     *  uniform as possible, i.e. it should not burst or hold over, driver
-     *  should signal this notification after equal intervals of time.
-     *
-     *  @param[in] pFrameTicker - notification to signal when device become ready. 
-     *
-     *  @returns OS_SUCCESS if frame ticker notification set successfully.
-     *  @returns OS_NOT_SUPPORTED if this driver implementation does not support
-     *           frame ticker notification.
+     *  @see enableDevice() for documentation when this is being called.
      */
 
 //@}
@@ -206,6 +197,8 @@ protected:
                    ///< number of samples.
    OsAtomicLightUInt mSamplesPerSec;     ///< Device produce audio with this number
                    ///< of samples per second.
+   OsCallback       *mpTickerNotification; ///< Callback to be called when device
+                   ///< is ready to accept more data. See enableDevice() for details.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

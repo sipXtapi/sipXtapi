@@ -15,7 +15,7 @@
 #include <os/OsSysLog.h>
 #include <os/OsLock.h>
 #include <utl/UtlVoidPtr.h>
-#include <os/OsNotification.h>
+#include <os/OsCallback.h>
 
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
@@ -72,7 +72,6 @@ MpodWinMM::MpodWinMM(const UtlString& name,
                      unsigned nOutputBuffers)
 : MpOutputDeviceDriver(name)
 , mEmptyHdrVPtrListsMutex(OsMutex::Q_FIFO)
-, mpNotifier(NULL)
 , mWinMMDeviceId(-1)
 , mDevHandle(NULL)
 , mCurFrameTime(0)
@@ -240,7 +239,8 @@ MpodWinMM::~MpodWinMM()
 /* ============================ MANIPULATORS ================================ */
 OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame, 
                                  unsigned samplesPerSec, 
-                                 MpFrameTime currentFrameTime)
+                                 MpFrameTime currentFrameTime,
+                                 OsCallback &frameTicker)
 {
    // If the device is not valid, let the user know it's bad.
    if ( !isDeviceValid() )
@@ -259,6 +259,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    mCurFrameTime = currentFrameTime;
    mUnderrunLength = 0;
    mTotSampleCount = 0;
+   mpTickerNotification = &frameTicker;
 
    // Open the wave device.
    int nChannels = 1;
@@ -678,13 +679,6 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
    return status;
 }
 
-OsStatus MpodWinMM::setTickerNotification(OsNotification *pFrameTicker)
-{
-   mpNotifier = pFrameTicker;
-   return OS_SUCCESS;
-}
-
-
 /* ////////////////////////// PUBLIC STATIC ///////////////////////////////// */
 UtlString MpodWinMM::getDefaultDeviceName()
 {
@@ -760,9 +754,9 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
       mEmptyHeaderList.insert(pvptr);
 
       // send a ticker notification so that more frames can be sent.
-      if(mpNotifier != NULL)
+      if(mpTickerNotification != NULL)
       {
-         mpNotifier->signal(mCurFrameTime);
+         mpTickerNotification->signal(mCurFrameTime);
       }
    }
 

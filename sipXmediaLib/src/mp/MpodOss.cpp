@@ -46,7 +46,6 @@
 MpodOss::MpodOss(const UtlString& name)
 : MpOutputDeviceDriver(name)
 , mAudioFrame(NULL)
-, pNotificator(NULL)
 , mNotificationThreadEn(FALSE)
 {
    mpCont = MpOssContainer::getContainer();
@@ -84,7 +83,8 @@ OsStatus MpodOss::setNotificationMode(UtlBoolean bThreadNotification)
 
 OsStatus MpodOss::enableDevice(unsigned samplesPerFrame,
                                unsigned samplesPerSec,
-                               MpFrameTime currentFrameTime)
+                               MpFrameTime currentFrameTime,
+                               OsCallback &frameTicker)
 {
    OsStatus ret;
    if (isEnabled())
@@ -118,6 +118,7 @@ OsStatus MpodOss::enableDevice(unsigned samplesPerFrame,
    mSamplesPerFrame = samplesPerFrame;
    mSamplesPerSec = samplesPerSec;
    mCurrentFrameTime = currentFrameTime;
+   mpTickerNotification = &frameTicker;
 
    // Get buffer for audio data and fill it with silence
    mAudioFrame = new MpAudioSample[samplesPerFrame];
@@ -183,12 +184,6 @@ OsStatus MpodOss::pushFrame(unsigned int numSamples,
    return OS_SUCCESS;
 }
 
-OsStatus MpodOss::setTickerNotification(OsNotification *pFrameTicker)
-{
-   pNotificator = pFrameTicker;
-   return OS_SUCCESS;
-}
-
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -198,7 +193,7 @@ OsStatus MpodOss::signalForNextFrame()
 {
    OsStatus ret = OS_FAILED;
 
-   ret = pNotificator->signal(mCurrentFrameTime);
+   ret = mpTickerNotification->signal(mCurrentFrameTime);
    return ret;
 }
 

@@ -65,18 +65,10 @@ MpAudioOutputConnection::MpAudioOutputConnection(MpOutputDeviceHandle deviceId,
 , mpFlowgraphTicker(NULL)
 {
    assert(mpDeviceDriver != NULL);
-
-   // Register callback it with the device driver
-   OsStatus result = mpDeviceDriver->setTickerNotification(&readyForDataCallbackNotf);
-   assert(result == OS_SUCCESS);
 };
 
 MpAudioOutputConnection::~MpAudioOutputConnection()
 {
-   if (mpDeviceDriver != NULL)
-   {
-      mpDeviceDriver->setTickerNotification(NULL);
-   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -120,8 +112,10 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
    }
 
    // Enable device driver
-   result = mpDeviceDriver->enableDevice(samplesPerFrame, samplesPerSec,
-                                         mCurrentFrameTime);
+   result = mpDeviceDriver->enableDevice(samplesPerFrame,
+                                         samplesPerSec,
+                                         mCurrentFrameTime,
+                                         readyForDataCallbackNotf);
 
    return result;
 }

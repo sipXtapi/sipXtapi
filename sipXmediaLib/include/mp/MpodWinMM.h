@@ -100,7 +100,8 @@ public:
      /// @copydoc MpOutputDeviceDriver::enableDevice(unsigned, unsigned, MpFrameTime)
    OsStatus enableDevice(unsigned samplesPerFrame, 
                          unsigned samplesPerSec,
-                         MpFrameTime currentFrameTime);
+                         MpFrameTime currentFrameTime,
+                         OsCallback &frameTicker);
 
      /// @copydoc MpOutputDeviceDriver::disableDevice()
    OsStatus disableDevice();
@@ -109,10 +110,6 @@ public:
    OsStatus pushFrame(unsigned int numSamples,
                       const MpAudioSample* samples,
                       MpFrameTime frameTime);
-
-     /// @copydoc MpOutputDeviceDriver::setTickerNotification(OsNotification*)
-   OsStatus setTickerNotification(OsNotification *pFrameTicker);
-
 
 //@}
 
@@ -130,10 +127,7 @@ public:
 //@{
 
      /// @brief Inquire if the windows device is valid
-   virtual inline UtlBoolean isDeviceValid();
-
-     /// @copydoc MpOutputDeviceDriver::isEnabled()
-   virtual inline UtlBoolean isEnabled();
+   inline UtlBoolean isDeviceValid();
 
 //@}
 
@@ -177,7 +171,6 @@ protected:
 
 protected:
    OsMutex  mEmptyHdrVPtrListsMutex; ///< Mutex to serialize access to vptr and empty header lists.
-   OsNotification* mpNotifier; ///< Event signaled when windows is ready to receive a new buffer.
    int      mWinMMDeviceId;    ///< The underlying windows Device ID (not the 
                                ///< logical Mp device ID)
    HWAVEOUT mDevHandle;        ///< The Microsoft handle for this audio input device
@@ -249,12 +242,7 @@ private:
 
 UtlBoolean MpodWinMM::isDeviceValid()
 {
-   return (mWinMMDeviceId >= 0);
-}
-
-UtlBoolean MpodWinMM::isEnabled()
-{
-   return (mIsEnabled);
+   return mWinMMDeviceId >= 0;
 }
 
 #endif  // _MpodWinMM_h_

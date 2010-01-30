@@ -19,6 +19,7 @@
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
+#include <os/OsCallback.h>
 #include <os/OsDateTime.h>
 #include <utl/UtlString.h>
 #include <os/OsFS.h>
@@ -66,8 +67,11 @@
 #error Unknown platform!
 #endif
 
-//static MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
-//static UtlBoolean sampleDataInitialized=FALSE;
+static int sampleRates[]={8000, 16000, 32000, 48000};
+static MpAudioSample* sampleData;
+static int rateIndex;
+static int frame;
+static MpFrameTime frameTime;
 
 static void calculateSampleData(int frequency, 
                                 MpAudioSample sampleData[], 
@@ -96,9 +100,6 @@ class MpOutputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testCreate);
    CPPUNIT_TEST(testEnableDisable);
    CPPUNIT_TEST(testEnableDisableFast);
-   // This test is disabled, because it audio quality during it may be very bad.
-   // Thus enable it only to test brand new drivers, which don't support notifications yet.
-//   CPPUNIT_TEST(testDirectWrite);
    CPPUNIT_TEST(testTickerNotification);
    CPPUNIT_TEST(measureJitter);
    CPPUNIT_TEST_SUITE_END();
@@ -146,12 +147,18 @@ public:
 
    void testEnableDisable()
    {
+      CallbackUserData userData;
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
 
+      userData.mDriver = &driver;
+      userData.mEvent = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+
       for (int i=0; i<ENABLE_DISABLE_TEST_RUNS_NUMBER; i++)
       {
-         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback);
          CPPUNIT_ASSERT(driver.isEnabled());
 
          OsTask::delay(50);
@@ -163,45 +170,19 @@ public:
 
    void testEnableDisableFast()
    {
+      CallbackUserData userData;
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
+
+      userData.mDriver = &driver;
+      userData.mEvent = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
 
       for (int i=0; i<ENABLE_DISABLE_FAST_TEST_RUNS_NUMBER; i++)
       {
-         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback);
          CPPUNIT_ASSERT(driver.isEnabled());
-
-         driver.disableDevice();
-         CPPUNIT_ASSERT(!driver.isEnabled());
-      }
-   }
-
-   void testDirectWrite()
-   {
-      MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
-      calculateSampleData(440, sampleData, TEST_SAMPLE_DATA_SIZE, 80, 8000);
-
-      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      CPPUNIT_ASSERT(!driver.isEnabled());
-
-      for (int i=0; i<DIRECT_WRITE_TEST_RUNS_NUMBER; i++)
-      {
-         MpFrameTime frameTime=0;
-
-         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
-         CPPUNIT_ASSERT(driver.isEnabled());
-
-         // Write some data to device.
-         for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
-         {
-            OsTask::delay(1000*TEST_SAMPLES_PER_FRAME_SIZE/TEST_SAMPLES_PER_SECOND);
-            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE,
-                                                  sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame,
-                                                  frameTime));
-
-            frameTime += TEST_SAMPLES_PER_FRAME_SIZE*1000/TEST_SAMPLES_PER_SECOND;
-         }
 
          driver.disableDevice();
          CPPUNIT_ASSERT(!driver.isEnabled());
@@ -210,8 +191,8 @@ public:
 
    void testTickerNotification()
    {
+      CallbackUserData userData;
       OsEvent notificationEvent;
-      int sampleRates[]={8000, 16000, 32000, 48000};
       int numRates = sizeof(sampleRates)/sizeof(int);
       int frequencies[] = {1000, 2000, 4000, 8000, 16000, 20000, 24000, 28000};
       int numFreqs = sizeof(frequencies)/sizeof(int);
@@ -219,11 +200,14 @@ public:
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
 
-      int rateIndex;
+      userData.mDriver = &driver;
+      userData.mEvent = &notificationEvent;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+
       for(rateIndex = 0; rateIndex < numRates; rateIndex++)
       {
          int sampleDataSz = sampleRates[rateIndex];
-         MpAudioSample* sampleData = new MpAudioSample[sampleDataSz];
+         sampleData = new MpAudioSample[sampleDataSz];
 
          for (int i=0; i<numFreqs; i++)
          {
@@ -233,25 +217,16 @@ public:
                                 sampleRates[rateIndex]/100, sampleRates[rateIndex]);
             MpFrameTime frameTime=0;
 
-            driver.enableDevice(sampleRates[rateIndex]/100, sampleRates[rateIndex], 0);
+            driver.enableDevice(sampleRates[rateIndex]/100, sampleRates[rateIndex],
+                                0, notificationCallback);
             CPPUNIT_ASSERT(driver.isEnabled());
-
-            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.setTickerNotification(&notificationEvent));
 
             // Write some data to device.
             for (int frame=0; frame<100; frame++)
             {
                CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notificationEvent.wait(OsTime(1000)));
                notificationEvent.reset();
-               CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                    driver.pushFrame(sampleRates[rateIndex]/100,
-                                                     sampleData + sampleRates[rateIndex]/100*frame,
-                                                     frameTime));
-
-               frameTime += sampleRates[rateIndex]/100*1000/sampleRates[rateIndex];
             }
-
-            CPPUNIT_ASSERT(driver.setTickerNotification(NULL) == OS_SUCCESS);
 
             driver.disableDevice();
             CPPUNIT_ASSERT(!driver.isEnabled());
@@ -262,14 +237,18 @@ public:
 
    void measureJitter()
    {
+      CallbackUserData userData;
       OsEvent notificationEvent;
-      int sampleRates[]={8000, 16000, 32000, 44100, 48000, 96000};
       int numRates = sizeof(sampleRates)/sizeof(int);
       // The tone we will test with is an 'A' 440Hz sine tone.
       int testFrequency = 440;
 
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
+
+      userData.mDriver = &driver;
+      userData.mEvent = &notificationEvent;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
 
       int rateIndex;
       for(rateIndex = 0; rateIndex < numRates; rateIndex++)
@@ -282,7 +261,7 @@ public:
 
          // Calculate the data for playing one tone
          calculateSampleData(testFrequency, sampleData, sampleDataSz, 
-            samplesPerFrame, sampleRates[rateIndex]);
+                             samplesPerFrame, sampleRates[rateIndex]);
 
          // Create buffers for capturing jitter data
          OsTime* jitterTimes[MEASURE_JITTER_TEST_RUNS_NUMBER];
@@ -297,11 +276,8 @@ public:
 
             // Enable the device for each run so that we get an accurate setup/teardown
             // for enable/disable cycle captured in each test run.
-            driver.enableDevice(samplesPerFrame, sampleRates[rateIndex], 0);
+            driver.enableDevice(samplesPerFrame, sampleRates[rateIndex], 0, notificationCallback);
             CPPUNIT_ASSERT(driver.isEnabled());
-
-            // Register a callback to receive ticker notifications from the device driver.
-            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.setTickerNotification(&notificationEvent));
 
             // Write all the data we calculated to the device.
             for (int frame=0; frame<numFrames; frame++)
@@ -318,9 +294,6 @@ public:
 
                frameTime += samplesPerFrame*1000/sampleRates[rateIndex];
             }
-
-            // Disable the ticker notifications
-            CPPUNIT_ASSERT(driver.setTickerNotification(NULL) == OS_SUCCESS);
 
             // Reset any notifications that may have been triggered.
             notificationEvent.reset();
@@ -366,9 +339,33 @@ public:
    }
 
 protected:
+
+   struct CallbackUserData
+   {
+      OsEvent *mEvent;
+      MpOutputDeviceDriver *mDriver;
+   };
+
+   static void driverCallback(const intptr_t userData, const intptr_t eventData)
+   {
+      CallbackUserData *pData = (CallbackUserData*)userData;
+
+      // Push data to the driver first.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           pData->mDriver->pushFrame(sampleRates[rateIndex]/100,
+                                                     sampleData + sampleRates[rateIndex]/100*frame,
+                                                     frameTime));
+      frameTime += sampleRates[rateIndex]/100*1000/sampleRates[rateIndex];
+
+      // Signal the callback.
+      if (pData->mEvent != NULL)
+      {
+         pData->mEvent->signal(eventData);
+      }
+   }
+
    MpBufPool *mpPool;         ///< Pool for data buffers
    MpBufPool *mpHeadersPool;  ///< Pool for buffers headers
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MpOutputDeviceDriverTest);

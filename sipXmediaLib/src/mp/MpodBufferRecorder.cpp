@@ -45,7 +45,6 @@ MpodBufferRecorder::MpodBufferRecorder(const UtlString& name,
 , mpBuffer(NULL)
 , mBufferEnd(0)
 , mpTickerTimer(NULL)
-, mpTickerNotification(NULL)
 {
 }
 
@@ -55,13 +54,6 @@ MpodBufferRecorder::~MpodBufferRecorder()
    {
       delete[] mpBuffer;
       mpBuffer = NULL;
-   }
-
-   if (mpTickerNotification != NULL)
-   {
-      OsSysLog::add(FAC_MP, PRI_ERR, "Ticker notification is not cleared "
-                                     "before driver destruction!");
-      setTickerNotification(NULL);
    }
 
    if (isEnabled())
@@ -75,7 +67,8 @@ MpodBufferRecorder::~MpodBufferRecorder()
 
 OsStatus MpodBufferRecorder::enableDevice(unsigned samplesPerFrame, 
                                           unsigned samplesPerSec,
-                                          MpFrameTime currentFrameTime)
+                                          MpFrameTime currentFrameTime,
+                                          OsCallback &frameTicker)
 {
    assert(!isEnabled());
    assert(mpBuffer == NULL);
@@ -90,12 +83,32 @@ OsStatus MpodBufferRecorder::enableDevice(unsigned samplesPerFrame,
 
    mIsEnabled = TRUE;
 
+   if (mpTickerTimer != NULL)
+   {
+      mpTickerTimer->stop(TRUE);
+      delete mpTickerTimer;
+      mpTickerTimer = NULL;
+   }
+
+   mpTickerNotification = &frameTicker;
+
+   // Start firing events
+   mpTickerTimer = new OsTimer((OsNotification&)*mpTickerNotification);
+   OsTime period(samplesPerFrame*1000/samplesPerSec);
+   mpTickerTimer->periodicEvery(period, period);
+
    return OS_SUCCESS;
 }
 
 OsStatus MpodBufferRecorder::disableDevice()
 {
    assert(isEnabled());
+
+   if (mpTickerTimer != NULL)
+   {
+      mpTickerTimer->stop(TRUE);
+      delete mpTickerTimer;
+   }
 
    if (mpBuffer != NULL)
    {
@@ -151,26 +164,6 @@ OsStatus MpodBufferRecorder::pushFrame(unsigned int numSamples,
    }
 
    mBufferEnd += samplesToCopy;
-
-   return OS_SUCCESS;
-}
-
-OsStatus MpodBufferRecorder::setTickerNotification(OsNotification *pFrameTicker)
-{
-   if (mpTickerTimer != NULL)
-   {
-      mpTickerTimer->stop(TRUE);
-      delete mpTickerTimer;
-      mpTickerTimer = NULL;
-   }
-
-   mpTickerNotification = pFrameTicker;
-
-   if (mpTickerNotification != NULL)
-   {
-      mpTickerTimer = new OsTimer(*mpTickerNotification);
-      mpTickerTimer->periodicEvery(OsTime(10), OsTime(10));
-   }
 
    return OS_SUCCESS;
 }

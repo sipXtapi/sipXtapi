@@ -30,6 +30,7 @@ MpOutputDeviceDriver::MpOutputDeviceDriver(const UtlString& name)
 , mIsEnabled(FALSE)
 , mSamplesPerFrame(0)
 , mSamplesPerSec(0)
+, mpTickerNotification(NULL)
 {
 }
 
