@@ -103,16 +103,18 @@
 #     include <mp/MpodCoreAudio.h>
 #     define OUTPUT_DRIVER MpodCoreAudio
 #     define OUTPUT_DRIVER_DEFAULT_NAME "[default]"
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 #  elif defined(ANDROID)
 #     include <mp/MpodAndroid.h>
 #     define OUTPUT_DRIVER MpodAndroid
-#     define OUTPUT_DRIVER_DEFAULT_NAME MpodAndroid::DEFAULT
+#     define OUTPUT_DRIVER_DEFAULT_NAME "default"
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (MpodAndroid::DEFAULT)
 #  else
 #     include <mp/MpodOss.h>
 #     define OUTPUT_DRIVER MpodOss
 #     define OUTPUT_DRIVER_DEFAULT_NAME "/dev/dsp"
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 #  endif
-#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 
 #else // __pingtel_on_posix__ ]
 #  error Unknown platform!
