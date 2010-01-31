@@ -54,7 +54,6 @@
 
 #ifdef ANDROID
 #  define USE_TEST_INPUT_DRIVER
-#  define USE_TEST_OUTPUT_DRIVER
 #endif
 
 #ifdef USE_TEST_INPUT_DRIVER // USE_TEST_DRIVER [
@@ -100,15 +99,19 @@
 #  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-# ifdef __APPLE__
-#  include <mp/MpodCoreAudio.h>
-#  define OUTPUT_DRIVER MpodCoreAudio
-#  define OUTPUT_DRIVER_DEFAULT_NAME "[default]"
-# else
-#  include <mp/MpodOss.h>
-#  define OUTPUT_DRIVER MpodOss
-#  define OUTPUT_DRIVER_DEFAULT_NAME "/dev/dsp"
-# endif
+#  ifdef __APPLE__
+#     include <mp/MpodCoreAudio.h>
+#     define OUTPUT_DRIVER MpodCoreAudio
+#     define OUTPUT_DRIVER_DEFAULT_NAME "[default]"
+#  elif defined(ANDROID)
+#     include <mp/MpodAndroid.h>
+#     define OUTPUT_DRIVER MpodAndroid
+#     define OUTPUT_DRIVER_DEFAULT_NAME MpodAndroid::DEFAULT
+#  else
+#     include <mp/MpodOss.h>
+#     define OUTPUT_DRIVER MpodOss
+#     define OUTPUT_DRIVER_DEFAULT_NAME "/dev/dsp"
+#  endif
 #  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 
 #else // __pingtel_on_posix__ ]
