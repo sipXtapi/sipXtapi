@@ -29,6 +29,7 @@
 #define TEST_SAMPLES_PER_FRAME_SIZE   80
 #define BUFFER_NUM                    50
 #define TEST_SAMPLES_PER_SECOND       8000
+#define TEST_FRAME_RATE               (TEST_SAMPLES_PER_SECOND/TEST_SAMPLES_PER_FRAME_SIZE)
 #define TEST_MIXER_BUFFER_LENGTH      10
 #define TEST_SAMPLE_DATA_LENGTH_SEC   2  // test length in seconds
 #define TEST_SAMPLE_DATA_SIZE         (TEST_SAMPLES_PER_SECOND*TEST_SAMPLE_DATA_LENGTH_SEC)
@@ -38,28 +39,41 @@
 //#define USE_TEST_DRIVER
 
 #ifdef USE_TEST_DRIVER // USE_TEST_DRIVER [
-#include <mp/MpodBufferRecorder.h>
-#define OUTPUT_DRIVER MpodBufferRecorder
-#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "default", TEST_SAMPLE_DATA_SIZE*1000/TEST_SAMPLES_PER_SECOND
+#  include <mp/MpodBufferRecorder.h>
+#  define OUTPUT_DRIVER MpodBufferRecorder
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "default", TEST_SAMPLE_DATA_SIZE*1000/TEST_SAMPLES_PER_SECOND
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
-#include <mp/MpodWinMM.h>
-#define OUTPUT_DRIVER MpodWinMM
-#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
+#  include <mp/MpodWinMM.h>
+#  define OUTPUT_DRIVER MpodWinMM
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-#include <mp/MpodOss.h>
-#define OUTPUT_DRIVER MpodOss
-#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
+#  if __APPLE__
+#     include <mp/MpodCoreAudio.h>
+#     define OUTPUT_DRIVER MpodCoreAudio
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "[default]"
+#  elif defined(ANDROID)
+#     include <mp/MpodAndroid.h>
+#     define OUTPUT_DRIVER MpodAndroid
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodAndroid::ENFORCED_AUDIBLE
+#  else
+#     include <mp/MpodOss.h>
+#     define OUTPUT_DRIVER MpodOss
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
+#  endif
 
 #else // __pingtel_on_possix__ ]
 #error Unknown platform!
 #endif
 
-static MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
+// Sample data array
 static UtlBoolean sampleDataInitialized=FALSE;
+static MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
+static int sampleDataSz;
+// Current time for callback
+static int frameInCallback;
 static MpFrameTime frameTime;
-static int frame;
 
 void calculateSampleData()
 {
@@ -149,8 +163,8 @@ public:
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CallbackUserData userData;
       userData.mDriver = &driver;
-      userData.mEvent = NULL;
       OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
       driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
                           0, notificationCallback);
       OsTask::delay(50);
@@ -162,8 +176,8 @@ public:
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CallbackUserData userData;
       userData.mDriver = &driver;
-      userData.mEvent = NULL;
       OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
       driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
                           0, notificationCallback);
       driver.disableDevice();
@@ -172,7 +186,6 @@ public:
    void testTickerNotification()
    {
       CallbackUserData userData;
-      OsEvent notificationEvent;
      
       RTL_START(1000000);
 
@@ -181,22 +194,19 @@ public:
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
 
       userData.mDriver = &driver;
-      userData.mEvent = &notificationEvent;
       OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
 
       frameTime = 0;
+      sampleDataSz = TEST_SAMPLE_DATA_SIZE;
       driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
                           0, notificationCallback);
 
-      // Write some data to device.
-      for (frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
-      {
-         notificationEvent.wait(OsTime(500));
-         notificationEvent.reset();
-         RTL_BLOCK("test ticker loop");
-      }
+      // Wait defined amount of time.
+      OsTask::delay(TEST_SAMPLE_DATA_LENGTH_SEC*1000);
 
       driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+      CPPUNIT_ASSERT(frameInCallback > TEST_SAMPLE_DATA_LENGTH_SEC*TEST_FRAME_RATE);
 
       RTL_WRITE("testTickerNotification.rtl");
       RTL_STOP
@@ -206,23 +216,29 @@ protected:
 
    struct CallbackUserData
    {
-      OsEvent *mEvent;
       MpOutputDeviceDriver *mDriver;
    };
 
    static void driverCallback(const intptr_t userData, const intptr_t eventData)
    {
       CallbackUserData *pData = (CallbackUserData*)userData;
+      const int samplesPerFrame = TEST_SAMPLES_PER_FRAME_SIZE;
 
-      // Push data to the driver first.
-      pData->mDriver->pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame, -1);
-      frameTime += TEST_SAMPLES_PER_FRAME_SIZE*1000/TEST_SAMPLES_PER_SECOND;
-
-      // Signal the callback.
-      if (pData->mEvent != NULL)
+      // Push data to the driver
+      if (samplesPerFrame*frameInCallback < sampleDataSz)
       {
-         pData->mEvent->signal(eventData);
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              pData->mDriver->pushFrame(samplesPerFrame,
+                                                        sampleData + samplesPerFrame*frameInCallback,
+                                                        frameTime));
       }
+      else
+      {
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              pData->mDriver->pushFrame(0, NULL, frameTime));
+      }
+      frameInCallback++;
+      frameTime += samplesPerFrame;
    }
 
    MpBufPool *mpPool;         ///< Pool for data buffers
