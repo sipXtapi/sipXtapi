@@ -160,6 +160,14 @@ public:
      /// Return quality of resampling conversion.
    int32_t getQuality() const;
 
+   static inline
+   int getNumSamplesConverted(uint32_t inputRate, uint32_t outputRate,
+                              int numInputSamples, int &remainingSamplesNum);
+
+   static inline
+   int getNumSamplesOriginal(uint32_t inputRate, uint32_t outputRate,
+                             int numOutputSamples, int &remainingSamplesNum);
+
 //@}
 
 /* =============================== INQUIRY ================================ */
@@ -183,5 +191,21 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+int MpResamplerBase::getNumSamplesConverted(uint32_t inputRate, uint32_t outputRate,
+                                            int numInputSamples, int &remainingSamplesNum)
+{
+   int numOutputSamples = outputRate*numInputSamples/inputRate;
+   remainingSamplesNum = numInputSamples - inputRate*numOutputSamples/outputRate;
+   return numOutputSamples;
+}
+
+int MpResamplerBase::getNumSamplesOriginal(uint32_t inputRate, uint32_t outputRate,
+                                           int numOutputSamples, int &remainingSamplesNum)
+{
+   int numInputSamples = inputRate*numOutputSamples/outputRate;
+   remainingSamplesNum = numOutputSamples - outputRate*numInputSamples/inputRate;
+   return numInputSamples;
+}
 
 #endif  // _MpResamplerBase_h_
