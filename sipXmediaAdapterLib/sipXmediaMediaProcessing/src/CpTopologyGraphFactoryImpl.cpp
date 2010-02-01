@@ -52,10 +52,6 @@
 
 #ifdef USE_DEVICE_ADD_HACK // [
 
-#ifdef ANDROID
-#  define USE_TEST_INPUT_DRIVER
-#endif
-
 #ifdef USE_TEST_INPUT_DRIVER // USE_TEST_DRIVER [
 #  include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #  define INPUT_DRIVER MpSineWaveGeneratorDeviceDriver
@@ -69,16 +65,23 @@
 #  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-# ifdef __APPLE__
-#  include <mp/MpidCoreAudio.h>
-#  define INPUT_DRIVER MpidCoreAudio
-#  define INPUT_DRIVER_DEFAULT_NAME "[default]"
-# else
-#  include <mp/MpidOss.h>
-#  define INPUT_DRIVER MpidOss
-#  define INPUT_DRIVER_DEFAULT_NAME "/dev/dsp"
-# endif
-#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
+#  ifdef __APPLE__
+#     include <mp/MpidCoreAudio.h>
+#     define INPUT_DRIVER MpidCoreAudio
+#     define INPUT_DRIVER_DEFAULT_NAME "[default]"
+#     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
+#  elif defined(ANDROID)
+#     include <mp/MpidAndroid.h>
+#     define INPUT_DRIVER MpidAndroid
+#     define INPUT_DRIVER_DEFAULT_NAME "default"
+#     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (MpidAndroid::AUDIO_SOURCE_DEFAULT), (manager)
+#     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
+#  else
+#     include <mp/MpidOss.h>
+#     define INPUT_DRIVER MpidOss
+#     define INPUT_DRIVER_DEFAULT_NAME "/dev/dsp"
+#     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
+#  endif
 
 #else // __pingtel_on_possix__ ]
 #  error Unknown platform!
