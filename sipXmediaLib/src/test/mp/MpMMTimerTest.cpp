@@ -135,11 +135,6 @@ public:
 
    void testGetResolution()
    {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
       // Test getting the resolution, and get it..
       unsigned resolution;
       MpMMTimer* pMMTimer = MpMMTimer::create(MpMMTimer::Notification);
@@ -156,11 +151,6 @@ public:
 
    void testPeriodRange()
    {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
       // Test the period range static method..
       unsigned unusedMin = 0;
       unsigned unusedMax = 0;
@@ -264,11 +254,6 @@ public:
 
    void testNotificationTimer()
    {
-#ifdef ANDROID
-      CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-      return;
-#endif
-
       // Set the below variables and preprocessor defines to tweak this test.
       // mPerfCountsSz defines the number of timer fire repetitions to do 
       // (set this to an even value),

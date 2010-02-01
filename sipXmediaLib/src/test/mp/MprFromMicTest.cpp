@@ -177,11 +177,6 @@ public:
 
    void testEnabledWithData()
    {
-#ifdef ANDROID
-       CPPUNIT_ASSERT_MESSAGE("ANDROID_HANG", 0);
-       return;
-#endif
-
        MprFromMic*       pFromMic   = NULL;
        OsMsgQ*           pMsgQ      = NULL;
        MpBufferMsg*      pMsg       = NULL;
