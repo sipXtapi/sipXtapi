@@ -249,7 +249,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := sipxsandbox
 
 LOCAL_SRC_FILES := \
-  src/test/os/OsSysLogTest.cpp
+  src/test/os/OsMutexTest.cpp
 
 #  src/test/sipxportunit/bar.cpp \
 #  src/test/sipxportunit/foo.cpp
