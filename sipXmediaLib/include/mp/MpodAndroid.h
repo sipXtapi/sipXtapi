@@ -1,0 +1,164 @@
+//  
+// Copyright (C) 2010 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2010 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// $$
+///////////////////////////////////////////////////////////////////////////////
+
+// Author: Alexander Chemeris <Alexander DOT Chemeris AT SIPez DOT com>
+
+#ifndef _MpodAndroid_h_
+#define _MpodAndroid_h_
+
+// SIPX INCLUDES
+#include <os/OsIntTypes.h>
+#include <os/OsStatus.h>
+#include <utl/UtlString.h>
+#include "mp/MpTypes.h"
+#include "mp/MpOutputDeviceDriver.h"
+
+// SYSTEM INCLUDES
+#include <utils/threads.h>
+#include <media/AudioSystem.h>
+#include <media/AudioTrack.h>
+
+// APPLICATION INCLUDES
+// DEFINES
+// MACROS
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// STRUCTS
+// TYPEDEFS
+// FORWARD DECLARATIONS
+class OsNotification;
+using namespace android;
+
+/**
+*  @brief Audio output driver for Android OS.
+*
+*  @see MpOutputDeviceDriver
+*  @nosubgrouping
+*/
+class MpodAndroid : public MpOutputDeviceDriver
+{
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+
+/* ============================ CREATORS ================================== */
+///@name Creators
+//@{
+
+   // Look at AudioSystem.h in Android sources for description.
+   enum StreamType
+   {
+      DEFAULT          =-1,
+      VOICE_CALL       = 0,
+      SYSTEM           = 1,
+      RING             = 2,
+      MUSIC            = 3,
+      ALARM            = 4,
+      NOTIFICATION     = 5,
+      BLUETOOTH_SCO    = 6,
+      ENFORCED_AUDIBLE = 7, // Sounds that cannot be muted by user and must be routed to speaker
+      DTMF             = 8,
+      TTS              = 9,
+      NUM_STREAM_TYPES
+   };
+
+     /// Default constructor.
+   explicit
+   MpodAndroid(StreamType streamType);
+     /**<
+     *  @note Device name is not supported under Android for now.
+     */
+
+     /// Destructor.
+   virtual
+   ~MpodAndroid();
+
+//@}
+
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+
+     /// @copydoc MpOutputDeviceDriver::enableDevice(unsigned, unsigned, MpFrameTime)
+   virtual OsStatus enableDevice(unsigned samplesPerFrame, 
+                                 unsigned samplesPerSec,
+                                 MpFrameTime currentFrameTime,
+                                 OsCallback &frameTicker);
+
+     /// @copydoc MpOutputDeviceDriver::disableDevice()
+   virtual OsStatus disableDevice();
+
+     /// @copydoc MpOutputDeviceDriver::pushFrame(unsigned int, const MpAudioSample*, MpFrameTime)
+   virtual OsStatus pushFrame(unsigned int numSamples,
+                              const MpAudioSample* samples,
+                              MpFrameTime frameTime);
+
+//@}
+
+/* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
+
+/* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+   enum State {
+      DRIVER_IDLE,     ///< MpodAndroid is being initialized or initialization failed
+      DRIVER_INIT,     ///< MpodAndroid has been successfully initialized and is not playing
+      DRIVER_STARTING, ///< MpodAndroid is starting playing
+      DRIVER_PLAYING,  ///< MpodAndroid is playing
+      DRIVER_STOPPING, ///< MpodAndroid is stopping
+      DRIVER_STOPPED   ///< MpodAndroid is stopped: the AudioTrack will be stopped
+   };
+
+   StreamType mStreamType;   ///< Android type of the output stream
+   OsAtomicLightUInt mState; ///< Internal class state
+   AudioTrack *mpAudioTrack; ///< Pointer to audio track used for playback
+   Mutex mLock;              ///< Mutex to control concurrent access to this object
+                             ///<  from audio callback and application API
+   Condition mWaitCbkCond;   ///< condition enabling interface to wait for audio callback
+                             ///<  completion after a change is requested
+   MpFrameTime mCurFrameTime;  ///< The current frame time for this device.
+   OsNotification* mpNotifier; ///< Event signaled when windows is ready to receive a new buffer.
+
+   ///@name Variables to push audio data to callback.
+   //@{
+   MpAudioSample *mpSampleBuffer; ///< Buffer which pushBuffer should copy to.
+   int mSampleBufferIndex;     ///< Index of the first sample not yet pushed to device.
+   //@}
+
+     /// Allocates and configures AudioTrack used for PCM output.
+   UtlBoolean initAudioTrack();
+
+     /// Callback function called by Android to request more data.
+   static void audioCallback(int event, void* user, void *info);
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+
+     /// Copy constructor (not implemented for this class)
+   MpodAndroid(const MpodAndroid& rMpodAndroid);
+
+     /// Assignment operator (not implemented for this class)
+   MpodAndroid& operator=(const MpodAndroid& rhs);
+};
+
+
+/* ============================ INLINE METHODS ============================ */
+
+#endif  // _MpodAndroid_h_
