@@ -67,6 +67,7 @@ LOCAL_SRC_FILES := \
     src/mp/MpFlowGraphBase.cpp \
     src/mp/MpFlowGraphMsg.cpp \
     src/mp/mpG711.cpp \
+    src/mp/MpidAndroid.cpp \
     src/mp/MpInputDeviceDriver.cpp \
     src/mp/MpInputDeviceManager.cpp \
     src/mp/MpJbeFixed.cpp \
@@ -78,6 +79,7 @@ LOCAL_SRC_FILES := \
     src/mp/MpMisc.cpp \
     src/mp/MpMMTimer.cpp \
     src/mp/MpMMTimerPosix.cpp \
+    src/mp/MpodAndroid.cpp \
     src/mp/MpodBufferRecorder.cpp \
     src/mp/MpOutputDeviceDriver.cpp \
     src/mp/MpOutputDeviceManager.cpp \
@@ -185,7 +187,8 @@ LOCAL_CXXFLAGS += \
                   -DDISABLE_STREAM_PLAYER \
                   -DSIPX_TMPDIR=\"/usr/var/tmp\" \
                   -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/tmp\"
+                  -DTEST_DIR=\"/tmp\" \
+                  -include os/OsIntTypes.h
 
 
 LOCAL_C_INCLUDES += \
@@ -193,14 +196,27 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
     $(SIPX_HOME)/sipXsdpLib/include \
     $(SIPX_HOME)/sipXtackLib/include \
-    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include
 
 
 #LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack
-
 LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
+
+# Android audio related stuff
+SIPX_MEDIA_SHARED_LIBS += libmedia libutils
+SIPX_MEDIA_LDLIBS += -llog -Wl,--allow-shlib-undefined
+SIPX_MEDIA_CXXFLAGS += -include AndroidConfig.h -DANDROID_2_0
+SIPX_MEDIA_C_INCLUDES += \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/frameworks/base/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/system/core/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/system/core/include/arch/linux-arm
+
+LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
+LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
@@ -222,8 +238,6 @@ fails_to_compile_use_exceptions := \
 
 # Has Oss sys/soundcard.h dependencies
 fails_to_compile_uses_oss := \
-    src/test/mp/MpOutputDriverTest.cpp \
-    src/test/mp/MpOutputFrameworkTest.cpp \
     src/test/mp/MpWBInputOutputDeviceTest.cpp \
 
 # MprFromFIle does not compile yet, so we cannot run this test yet
@@ -244,6 +258,8 @@ LOCAL_SRC_FILES := \
     src/test/mp/MpInputDeviceDriverTest.cpp \
     src/test/mp/MpMMTimerTest.cpp \
     src/test/mp/MpMediaTaskTest.cpp \
+    src/test/mp/MpOutputDriverTest.cpp \
+    src/test/mp/MpOutputFrameworkTest.cpp \
     src/test/mp/MpOutputManagerTest.cpp \
     src/test/mp/MpResourceTest.cpp \
     src/test/mp/MpResourceTopologyTest.cpp \
@@ -278,12 +294,18 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXsdpLib/include \
     $(SIPX_HOME)/sipXtackLib/include \
     $(SIPX_HOME)/sipXmediaLib/include \
-    $(SIPX_HOME)/sipXmediaLib/src/test \
+    $(SIPX_HOME)/sipXmediaLib/src/test
 
 #LOCAL_SHARED_LIBRARIES :=
 LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmedia libsipXport libpcre $(SIPX_CODEC_LIBS)
 
 LOCAL_LDLIBS += -lstdc++ -ldl
+
+# Add sipXmediaLib dependencies
+LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
+LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)
 
@@ -298,8 +320,12 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := mediasandbox
 
 LOCAL_SRC_FILES := \
-    src/test/mp/MpMMTimerTest.cpp \
+    src/test/mp/MpInputDeviceDriverTest.cpp
+#    src/test/mp/MpOutputDriverTest.cpp \
+#    src/test/mp/MpOutputFrameworkTest.cpp
 
+
+#    src/test/mp/MpMMTimerTest.cpp \
 
 LOCAL_CFLAGS += \
                   -D__pingtel_on_posix__ \
@@ -321,12 +347,17 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXsdpLib/include \
     $(SIPX_HOME)/sipXtackLib/include \
     $(SIPX_HOME)/sipXmediaLib/include \
-    $(SIPX_HOME)/sipXmediaLib/src/test \
+    $(SIPX_HOME)/sipXmediaLib/src/test
 
 #LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmedia libsipXport libpcre
-
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmedia libsipXport libpcre $(SIPX_CODEC_LIBS)
 LOCAL_LDLIBS += -lstdc++ -ldl
+
+# Add sipXmediaLib dependencies
+LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
+LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)
 
