@@ -50,6 +50,11 @@ struct itimerspec
 #include "mp/MpMMTimerPosix.h"
 
 #define TIMER_SIGNAL    SIGRTMIN
+#ifdef ANDROID // [
+#  define TIMER_SIGTERM SIGCONT
+#else // ANDROID ][
+#  define TIMER_SIGTERM SIGTERM
+#endif // ANDROID ]
 
 const char * const MpMMTimerPosix::TYPE = "POSIX Timer";
 
@@ -85,14 +90,16 @@ MpMMTimerPosix::~MpMMTimerPosix()
 
    sem_destroy(&mIoSem);
 
-   pthread_kill(mThread, SIGTERM);
+   pthread_kill(mThread, TIMER_SIGTERM);
+#ifndef ANDROID // [
+   // Under Android this leads to hans. Not sure why.
    pthread_join(mThread, NULL);
+#endif // ANDROID ]
 }
 
 OsStatus MpMMTimerPosix::run(unsigned usecPeriodic)
 {
   OsStatus status = OS_SUCCESS;
-
    if(mbTimerStarted)
    {
       return OS_INVALID_STATE;
@@ -109,7 +116,6 @@ OsStatus MpMMTimerPosix::run(unsigned usecPeriodic)
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, 
          "Couldn't create POSIX timer");
-
       return OS_INVALID_ARGUMENT;
    }
 
@@ -241,10 +247,11 @@ void MpMMTimerPosix::callback()
 void* MpMMTimerPosix::threadIoWrapper(void* arg)
 {
    MpMMTimerPosix* obj = (MpMMTimerPosix*)arg;
+
    sigset_t mask, fmask;
    sigemptyset(&mask);
    sigaddset (&mask, gPosixTimerReg.getSignalNum());
-   sigaddset (&mask, SIGTERM);
+   sigaddset (&mask, TIMER_SIGTERM);
 
    sigfillset(&fmask);
    pthread_sigmask (SIG_SETMASK, &fmask, NULL);
@@ -263,10 +270,24 @@ void* MpMMTimerPosix::threadIoWrapper(void* arg)
    for(;;)
    {
       sigwait(&mask, &signum);
-      if (signum == SIGTERM)
+      if (signum == TIMER_SIGTERM)
+      {
+#ifdef ANDROID // [
+         LOGD("threadIoWrapper received signal TIMER_SIGTERM\n");
+#endif // ANDROID ]
          return NULL;
-
+      }
       assert(signum == gPosixTimerReg.getSignalNum());
+#ifdef ANDROID // [
+      if (signum == gPosixTimerReg.getSignalNum())
+      {
+         //LOGD("threadIoWrapper received signal gPosixTimerReg.getSignalNum()\n");
+      }
+      else
+      {
+         LOGD("threadIoWrapper unknown signal: %d\n", signum);
+      }
+#endif // ANDROID ]
 
       obj->callback();
    }
