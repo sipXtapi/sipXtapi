@@ -18,6 +18,8 @@
 #include <mp/MpInputDeviceManager.h>
 #ifdef WIN32
 #include <mp/MpidWinMM.h>
+#elif defined ANDROID
+#include <mp/MpidAndroid.h>
 #elif defined __linux__
 #include <mp/MpidOss.h>
 #elif defined __APPLE__
@@ -84,6 +86,8 @@ public:
       MpInputDeviceDriver* pInDevDriver = 
 #ifdef WIN32
          new MpidWinMM(MpidWinMM::getDefaultDeviceName(), inDevMgr);
+#elif defined ANDROID
+         new MpidAndroid(MpidAndroid::AUDIO_SOURCE_DEFAULT, inDevMgr);
 #elif defined __linux__
          new MpidOss("/dev/dsp", inDevMgr);
 #elif defined __APPLE__
@@ -159,6 +163,9 @@ public:
             derivBufSz += nDerivsPerBuf;
          }
 
+         // Ok, now disable it via the manager -- this time it should succeed.
+         CPPUNIT_ASSERT(inDevMgr.disableDevice(iDrvHnd) == OS_SUCCESS);
+
          // Define weighted average accumulator and period.
          double derivWeightedAverage = 0;
          int derivWAvgPeriod = 5;
@@ -196,9 +203,6 @@ public:
 
             CPPUNIT_ASSERT(derivs[i] <= 4);
          }
-
-         // Ok, now disable it via the manager -- this time it should succeed.
-         CPPUNIT_ASSERT(inDevMgr.disableDevice(iDrvHnd) == OS_SUCCESS);
 
          // Remove the device from the manager explicitly, 
          // Otherwise the manager will assert fail if there are devices
