@@ -109,10 +109,23 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 
     CpPhoneMediaInterfaceTest()
     {
+        mpMediaFactory = NULL;
     };
 
     virtual void setUp()
     {
+        // Clean up if there is something left over from a prior test run
+        if(mMediaInterfaces.entries() > 0)
+        {
+           printf("setUp mMediaInterfaces contains: %d\n", mMediaInterfaces.entries());
+        }
+        CpMediaInterface *pInterface = NULL;
+        while (pInterface = (CpMediaInterface*)mMediaInterfaces.get())
+        {
+           printf("setUp releasing: %p line: %d\n", pInterface, __LINE__);
+           pInterface->release();
+        }
+
         enableConsoleOutput(0);
 
         // Add some codec paths.
@@ -143,8 +156,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
     virtual void tearDown()
     {
         CpMediaInterface *pInterface;
-        UtlSListIterator interfaceIterator(mMediaInterfaces);
-        while (pInterface = (CpMediaInterface*)interfaceIterator())
+        while (pInterface = (CpMediaInterface*)mMediaInterfaces.get())
         {
            pInterface->release();
         }
@@ -155,6 +167,11 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 
         mInterestingNotifactions.destroyAll();
         RTL_STOP
+
+        if(mMediaInterfaces.entries())
+        {
+           printf("tearDown exit mMediaInterfaces contains: %d\n", mMediaInterfaces.entries());
+        }
     }
 
     void printMediaInterfaceType()
@@ -185,6 +202,11 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 
     void testSetCodecPath()
     {
+#ifdef ANDROID
+       CPPUNIT_ASSERT_MESSAGE("Dynamically loaded codecs not supported on Android", 0);
+       return;
+#endif
+
        // Test storing codec paths for loading.
        UtlString testBadCodecPath1 = "|****|****|";
        CPPUNIT_ASSERT_EQUAL(OS_FAILED,
