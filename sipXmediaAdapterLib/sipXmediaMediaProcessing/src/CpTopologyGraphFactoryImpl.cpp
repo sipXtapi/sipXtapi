@@ -75,7 +75,6 @@
 #     define INPUT_DRIVER MpidAndroid
 #     define INPUT_DRIVER_DEFAULT_NAME "default"
 #     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (MpidAndroid::AUDIO_SOURCE_DEFAULT), (manager)
-#     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
 #  else
 #     include <mp/MpidOss.h>
 #     define INPUT_DRIVER MpidOss
