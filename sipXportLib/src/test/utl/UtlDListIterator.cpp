@@ -67,6 +67,9 @@ public:
 
     void setUp()
     {
+        // In case a test aborts without tearDown always clean the list out
+        commonList.removeAll();
+
         commonString1 = UtlString(regularString) ; 
         commonString1_clone = UtlString(regularString) ; 
         commonString2 = UtlString("") ; 

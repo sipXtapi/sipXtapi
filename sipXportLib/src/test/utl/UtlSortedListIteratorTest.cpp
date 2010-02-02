@@ -78,6 +78,10 @@ public:
 
     void setUp()
     {
+        // In case prior test aborts and tearDown is not invoked:
+        stringList.destroyAll();
+        intList.destroyAll();
+
         testDataForStringList[0].testDescription = "A numeric string(alphabetically first!)" ; 
         testDataForStringList[0].item = new UtlString("123") ; 
         testDataForStringList[0].expectedIndex = 0 ; 
