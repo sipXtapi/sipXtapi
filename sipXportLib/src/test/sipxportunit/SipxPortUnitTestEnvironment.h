@@ -77,6 +77,8 @@ class SipxPortUnitTestClass;
  *
  */
 
+typedef void (*SipxUnitStringOutputter)(const char* logMesage);
+
 class SipxPortUnitTestEnvironment 
 {
 /* ============================= P U B L I C ============================== */
@@ -97,6 +99,8 @@ public:
     static void reportResults();
 
     static void printOut(const char* messageText);
+
+    static void defaultPrintOut(const char* messageText);
 
 /* ========================== A C C E S S O R S =========================== */
 
@@ -123,6 +127,7 @@ public:
     static SipxPortUnitTestClass* getCurrentTestClass();
     static void setCurrentTestClass(SipxPortUnitTestClass* currentClass);
 
+    static void setStringOutMethod(SipxUnitStringOutputter outputMethod);
 
 /* ============================ I N Q U I R Y ============================= */
 
@@ -176,6 +181,8 @@ private:
     static int sNumExceptionsForSameClass;
     static int sLastExceptionMethodIndex;
     static int sLastExceptionTestPointIndex;
+
+    static SipxUnitStringOutputter sStringOutputMethod;
 };
 
 

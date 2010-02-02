@@ -56,6 +56,8 @@ int SipxPortUnitTestEnvironment::sNumExceptionsForSameClass = 0;
 int SipxPortUnitTestEnvironment::sLastExceptionMethodIndex = -1;
 int SipxPortUnitTestEnvironment::sLastExceptionTestPointIndex = -1;
 
+SipxUnitStringOutputter SipxPortUnitTestEnvironment::sStringOutputMethod = defaultPrintOut;
+
 // Stack to recover to if something bad happens in a test
 jmp_buf sLongJumpStack;
 
@@ -342,9 +344,17 @@ void SipxPortUnitTestEnvironment::reportResults()
     }
 }
 
-void SipxPortUnitTestEnvironment::printOut(const char* messageText)
+void SipxPortUnitTestEnvironment::defaultPrintOut(const char* messageText)
 {
     printf("%s", messageText);
+}
+
+void SipxPortUnitTestEnvironment::printOut(const char* messageText)
+{
+    if(sStringOutputMethod)
+    {
+        (sStringOutputMethod)(messageText);
+    }
 }
 
 /* ========================== A C C E S S O R S =========================== */
@@ -409,6 +419,11 @@ SipxPortUnitTestClass* SipxPortUnitTestEnvironment::getCurrentTestClass()
 void SipxPortUnitTestEnvironment::setCurrentTestClass(SipxPortUnitTestClass* currentClass)
 {
     spCurrentTestClass = currentClass;
+}
+
+void SipxPortUnitTestEnvironment::setStringOutMethod(SipxUnitStringOutputter newOutputMethod)
+{
+    sStringOutputMethod = newOutputMethod;
 }
 
 /* ============================ I N Q U I R Y ============================= */
