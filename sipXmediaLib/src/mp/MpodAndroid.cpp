@@ -11,7 +11,7 @@
 // Author: Alexander Chemeris <Alexander DOT Chemeris AT SIPez DOT com>
 
 #define LOG_NDEBUG 0
-#define LOG_TAG "AudioOut"
+#define LOG_TAG "MpodAndroid"
 
 // SIPX INCLUDES
 #include "mp/MpodAndroid.h"
@@ -256,14 +256,14 @@ UtlBoolean MpodAndroid::initAudioTrack()
                                  this,  // user
                                  mSamplesPerFrame);  // notificationFrames
    if (mpAudioTrack == NULL) {
-      LOGE("MpidAndroid::initAudioRecord() AudioTrack allocation failed\n");
+      LOGE("MpodAndroid::initAudioRecord() AudioTrack allocation failed\n");
       goto initAudioTrack_exit;
    }
-   LOGV("MpidAndroid::initAudioRecord() Create Track: %p\n", mpAudioTrack);
+   LOGV("MpodAndroid::initAudioRecord() Create Track: %p\n", mpAudioTrack);
 
    initRes = mpAudioTrack->initCheck();
    if (initRes != NO_ERROR) {
-      LOGE("MpidAndroid::initAudioRecord() AudioTrack->initCheck() returned %d\n", initRes);
+      LOGE("MpodAndroid::initAudioRecord() AudioTrack->initCheck() returned %d\n", initRes);
       goto initAudioTrack_exit;
    }
 
@@ -290,7 +290,7 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
    bool lSignal = false;
    if (event != AudioTrack::EVENT_MORE_DATA)
    {
-      LOGV("AudioOut::audioCallback(event=%d)\n", event);
+      LOGV("MpodAndroid::audioCallback(event=%d)\n", event);
       return;
    }
 
@@ -302,7 +302,7 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
 
    int samplesToCopy = sipx_min(buffer->frameCount,
                                 pDriver->mSamplesPerFrame-pDriver->mSampleBufferIndex);
-//   LOGV("AudioOut::audioCallback() buffer=%p samples=%d toCopy=%d\n",
+//   LOGV("MpodAndroid::audioCallback() buffer=%p samples=%d toCopy=%d\n",
 //        buffer->i16, buffer->frameCount, samplesToCopy);
 
    // Copy data to buffer
@@ -317,7 +317,7 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
       pDriver->mSampleBufferIndex = 0;
 
       // Fire callback. It will call our pushFrame() in turn.
-      LOGV("AudioOut::audioCallback() signal ticker, time %"PRIi64"ns\n", systemTime(SYSTEM_TIME_REALTIME));
+      LOGV("MpodAndroid::audioCallback() signal ticker, time %"PRIi64"ns\n", systemTime(SYSTEM_TIME_REALTIME));
       pDriver->mpTickerNotification->signal(pDriver->mSamplesPerFrame);
 
       // Update frame time.
