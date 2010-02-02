@@ -168,6 +168,11 @@ LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXcall libsipXmediaAdapter libsipXmed
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
+# Add sipXmediaLib dependencies
+LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
+LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)
 
