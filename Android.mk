@@ -31,6 +31,8 @@ include $(SIPX_HOME)/sipXmediaAdapterLib/Android.mk
 
 include $(SIPX_HOME)/sipXcallLib/Android.mk
 
+include $(SIPX_HOME)/sipXtapiJni/Android.mk
+
 include $(CLEAR_VARS)
 
 #LOCAL_MODULE    := libsipXtapi

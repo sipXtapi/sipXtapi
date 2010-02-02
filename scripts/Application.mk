@@ -15,8 +15,8 @@
 #
 #
 
-UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit sipxsdpunit sipxtackunit mediasandbox sipxmediaunit sipxmediaadapterunit
-SIPX_LIBS := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall libsipXtapi 
+UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit sipxsdpunit sipxtackunit mediasandbox sipxmediaunit sipxmediaadapterunit sipxcallunit 
+SIPX_LIBS := libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall libsipXtapi libpcre libsipXtapijni libsipxportjnisandbox
 SIPX_CODEC_LIBS := libcodec_pcmapcmu libcodec_tones libcodec_g722
 
 APP_MODULES := $(SIPX_LIBS) \
@@ -25,4 +25,6 @@ APP_MODULES := $(SIPX_LIBS) \
 
 APP_PROJECT_PATH := $(call my-dir)/project
 #APP_BUILD_SCRIPT := $(call my-dir)/Android.mk
-APP_OPTIM        := release
+#APP_OPTIM        := release
+APP_OPTIM        := debug
+
