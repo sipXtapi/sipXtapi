@@ -238,6 +238,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
 
+
 # =======================
 
 # Executable for testing the unit test framework
@@ -278,6 +279,43 @@ include $(BUILD_EXECUTABLE)
 
 # =======================
 
+# shared lib for JNI run of unit tests
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libsipxportjnisandbox
+
+LOCAL_SRC_FILES := \
+  src/test/sipxportunit/unitJni.cpp \
+  src/test/os/OsSysLogTest.cpp
+
+#  src/test/sipxportunit/bar.cpp \
+#  src/test/sipxportunit/foo.cpp
+
+LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DSIPX_TMPDIR=\"/sdcard\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/sdcard\"
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+
+
+#LOCAL_SHARED_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := libsipxUnitJni libsipXport libpcre
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+#include $(BUILD_EXECUTABLE)
+include $(BUILD_SHARED_LIBRARY)
+
+
+# =======================
 # Executable for testing the sipXportLib utilities
 
 include $(CLEAR_VARS)
