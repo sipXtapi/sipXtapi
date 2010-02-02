@@ -273,7 +273,7 @@ void* MpMMTimerPosix::threadIoWrapper(void* arg)
       if (signum == TIMER_SIGTERM)
       {
 #ifdef ANDROID // [
-         LOGD("threadIoWrapper received signal TIMER_SIGTERM\n");
+         OsSysLog::add(FAC_MP, PRI_DEBUG, "threadIoWrapper received signal TIMER_SIGTERM\n");
 #endif // ANDROID ]
          return NULL;
       }
@@ -281,11 +281,11 @@ void* MpMMTimerPosix::threadIoWrapper(void* arg)
 #ifdef ANDROID // [
       if (signum == gPosixTimerReg.getSignalNum())
       {
-         //LOGD("threadIoWrapper received signal gPosixTimerReg.getSignalNum()\n");
+         //OsSysLog::add(FAC_MP, PRI_DEBUG, "threadIoWrapper received signal gPosixTimerReg.getSignalNum()\n");
       }
       else
       {
-         LOGD("threadIoWrapper unknown signal: %d\n", signum);
+         OsSysLog::add(FAC_MP, PRI_WARNING, "threadIoWrapper unknown signal: %d\n", signum);
       }
 #endif // ANDROID ]
 
