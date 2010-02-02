@@ -349,6 +349,8 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
       return;
    }
 
+   LOGV("MpidAndroid::audioCallback() time %"PRIi64"ns\n", systemTime(SYSTEM_TIME_REALTIME));
+
    AudioRecord::Buffer *buffer = static_cast<AudioRecord::Buffer *>(info);
    MpidAndroid *pDriver = static_cast<MpidAndroid *>(user);
 
