@@ -282,7 +282,7 @@ bool MpidAndroid::probeSampleRate(int targetRate, int targetFrameSize,
    }
 
    // And now test frequencies which are lower then target one.
-   for (int i=0; i<ratesListLen; i++)
+   for (int i=ratesListLen-1; i>=0; i--)
    {
       if (ratesList[i] < targetRate)
       {
