@@ -373,10 +373,12 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
          {
             uint32_t samplesProcessed;
             uint32_t samplesWritten;
-            pDriver->mpResampler->resample(0, buffer->i16,
-                                           pDriver->mSamplesPerFrameInternal, samplesProcessed,
-                                           pDriver->mpResampleBuf,
-                                           pDriver->mSamplesPerFrame, samplesWritten);
+            OsStatus status =
+               pDriver->mpResampler->resample(0, buffer->i16,
+                                              pDriver->mSamplesPerFrameInternal, samplesProcessed,
+                                              pDriver->mpResampleBuf,
+                                              pDriver->mSamplesPerFrame, samplesWritten);
+            assert(status == OS_SUCCESS);
             assert(pDriver->mSamplesPerFrameInternal == samplesProcessed
                    && pDriver->mSamplesPerFrame == samplesWritten);
             pushSamples = pDriver->mpResampleBuf;
