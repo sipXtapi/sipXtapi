@@ -361,10 +361,10 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
    // Only process if we're enabled..
    if(pDriver->mIsEnabled)
    {
-      if (buffer->frameCount != pDriver->mSamplesPerFrame)
+      if (buffer->frameCount != pDriver->mSamplesPerFrameInternal)
       {
-         LOGE("frameCount=%d mSamplesPerFrame=%d", buffer->frameCount, pDriver->mSamplesPerFrame);
-         assert(buffer->frameCount == pDriver->mSamplesPerFrame);
+         LOGE("frameCount=%d mSamplesPerFrameInternal=%d", buffer->frameCount, pDriver->mSamplesPerFrameInternal);
+         assert(buffer->frameCount == pDriver->mSamplesPerFrameInternal);
       }
       else
       {
