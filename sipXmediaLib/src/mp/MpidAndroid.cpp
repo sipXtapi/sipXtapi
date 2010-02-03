@@ -105,7 +105,7 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
    if (mSamplesPerSecInternal != mSamplesPerSec)
    {
       mpResampler = MpResamplerBase::createResampler(1, mSamplesPerSecInternal, mSamplesPerSec);
-      mpResampleBuf = new MpAudioSample[mSamplesPerFrameInternal];
+      mpResampleBuf = new MpAudioSample[mSamplesPerFrame];
       assert(mpResampler != NULL && mpResampleBuf != NULL);
    }
 
