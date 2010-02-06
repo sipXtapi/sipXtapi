@@ -12,8 +12,12 @@ LOCAL_MODULE := libsipXport
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 #intermediates := $(call local-intermediates-dir)
 
+not_used_on_android := \
+    src/os/linux/OsRWMutexLinux.cpp \
+
 
 LOCAL_SRC_FILES := \
+    src/os/shared/OsRWMutexShared.cpp \
     config/sipxportlib-buildstamp.h \
     config/sipxportlib-buildstamp.cpp \
     src/utl/UtlLongLongInt.cpp \
@@ -143,7 +147,6 @@ LOCAL_SRC_FILES := \
     src/os/linux/OsPathLinux.cpp \
     src/os/linux/OsProcessIteratorLinux.cpp \
     src/os/linux/OsProcessLinux.cpp \
-    src/os/linux/OsRWMutexLinux.cpp \
     src/os/linux/OsSharedLibMgrLinux.cpp \
     src/os/linux/OsTaskLinux.cpp \
     src/os/linux/OsUtilLinux.cpp \
@@ -250,6 +253,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := sipxsandbox
 
 LOCAL_SRC_FILES := \
+  src/test/os/OsLockTest.cpp \
   src/test/os/OsMutexTest.cpp
 
 #  src/test/sipxportunit/bar.cpp \
@@ -307,7 +311,7 @@ LOCAL_C_INCLUDES += \
 
 
 #LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnitJni libsipXport libpcre
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 

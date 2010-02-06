@@ -41,7 +41,7 @@
 #if defined(_WIN32)
 #  include "os/shared/OsRWMutexShared.h"
    typedef class OsRWMutexShared OsRWMutex;
-#elif defined(_VXWORKS)
+#elif defined(_VXWORKS) || defined(ANDROID)
 #  include "os/shared/OsRWMutexShared.h"
    typedef class OsRWMutexShared OsRWMutex;
 #elif defined(__pingtel_on_posix__)
