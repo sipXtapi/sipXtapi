@@ -516,20 +516,18 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
          mMarkNext1 = TRUE;
       }
 
-      if (mpPrimaryCodec != NULL)
+      // Update current timestamp to maintain RTP clock.
+      if (mNeedResample && mpPrimaryCodec != NULL)
       {
-         // Update current timestamp to maintain RTP clock.
-         if (mNeedResample)
-         {
-            mCurrentTimestamp += in->getSamplesNumber()
-                                 *mpPrimaryCodec->getInfo()->getSampleRate()
-                                 /mpFlowGraph->getSamplesPerSec();
-         }
-         else
-         {
-            mCurrentTimestamp += in->getSamplesNumber();
-         }
+         mCurrentTimestamp += getSamplesPerFrame()
+                              *mpPrimaryCodec->getInfo()->getSampleRate()
+                              /mpFlowGraph->getSamplesPerSec();
       }
+      else
+      {
+         mCurrentTimestamp += getSamplesPerFrame();
+      }
+
       return;
    }
 
