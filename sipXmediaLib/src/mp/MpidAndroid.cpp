@@ -12,11 +12,13 @@
 
 #define LOG_NDEBUG 0
 #define LOG_TAG "MpidAndroid"
+#define ENABLE_FRAME_TIME_LOGGING
 
 // SIPX INCLUDES
-#include "mp/MpidAndroid.h"
-#include "mp/MpInputDeviceManager.h"
-#include "mp/MpResampler.h"
+#include <os/OsSysLog.h>
+#include <mp/MpidAndroid.h>
+#include <mp/MpInputDeviceManager.h>
+#include <mp/MpResampler.h>
 
 // SYSTEM INCLUDES
 #include <utils/Log.h>
@@ -37,7 +39,7 @@ const int MpidAndroid::mSampleRatesListLen =
 // Default constructor
 MpidAndroid::MpidAndroid(audio_source source,
                          MpInputDeviceManager& deviceManager)
-: MpInputDeviceDriver("", deviceManager)
+: MpInputDeviceDriver("default", deviceManager)
 , mStreamSource(source)
 , mState(DRIVER_IDLE)
 , mpAudioRecord(NULL)
@@ -68,12 +70,12 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
    // If the device is not valid, let the user know it's bad.
    if (!isDeviceValid())
    {
-      return OS_INVALID_STATE;  // perhaps new OsState of OS_RESOURCE_INVALID?
+      return OS_INVALID;  // perhaps new OsState of OS_RESOURCE_INVALID?
    }
 
    if (isEnabled())
    {
-      return OS_FAILED;
+      return OS_NAME_IN_USE;
    }
 
    // Start accessing non-atomic member variables
@@ -81,7 +83,7 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
 
    if (mState != DRIVER_IDLE) {
       LOGV("MpidAndroid::enableDevice() wrong state %d\n", mState);
-      return OS_FAILED;
+      return OS_INVALID_STATE;
    }
 
    // Set some wave header stat information.
@@ -93,17 +95,19 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
       LOGV("MpidAndroid::enableDevice() INIT OK, time: %"PRId64"\n", ns2ms(systemTime()));
    } else {
       LOGV("MpidAndroid::enableDevice() INIT FAILED!!!\n");
-      return OS_FAILED;
+      return OS_INVALID_ARGUMENT;
    }
 
    if (mState != DRIVER_INIT) {
       LOGV("MpidAndroid::enableDevice() wrong state: %d\n", mState);
-      return OS_FAILED;
+      return OS_INVALID_STATE;
    }
 
    // Create resampler
    if (mSamplesPerSecInternal != mSamplesPerSec)
    {
+      OsSysLog::add(FAC_MP, PRI_ERR, "mSamplesPerSecInternal: %d mSamplesPerSec: %d\n", mSamplesPerSecInternal, mSamplesPerSec);
+      LOGV("mSamplesPerSecInternal: %d mSamplesPerSec: %d\n", mSamplesPerSecInternal, mSamplesPerSec);
       mpResampler = MpResamplerBase::createResampler(1, mSamplesPerSecInternal, mSamplesPerSec);
       mpResampleBuf = new MpAudioSample[mSamplesPerFrame];
       assert(mpResampler != NULL && mpResampleBuf != NULL);
@@ -111,7 +115,23 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
 
    mState = DRIVER_STARTING;
    mLock.unlock();
-   mpAudioRecord->start();
+   status_t startStatus = mpAudioRecord->start();
+   if(startStatus != NO_ERROR)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpidAndroid::enableDevice AudioRecord::start returned error: %d", startStatus);
+      LOGE("MpidAndroid::enableDevice AudioRecord::start returned error: %d", startStatus);
+      switch(startStatus)
+      {
+      case INVALID_OPERATION:
+           status = OS_LIMIT_REACHED;
+      break;
+      default:
+           status = OS_FAILED;
+      break;
+      }
+      return(status);
+   }
+
    mLock.lock();
    if (mState == DRIVER_STARTING) {
       LOGV("MpidAndroid::enableDevice() waiting for start callback");
@@ -120,7 +140,7 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
          LOGE("MpidAndroid::enableDevice() callback timed out, status %d", lStatus);
          mState = DRIVER_IDLE;
          mIsEnabled = FALSE;
-         return OS_FAILED;
+         return OS_WAIT_TIMEOUT;
       }
    } else {
       LOGW("MpidAndroid::enableDevice() state %d\n", mState);
@@ -349,14 +369,18 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
       return;
    }
 
+#ifdef ENABLE_FRAME_TIME_LOGGING
    LOGV("MpidAndroid::audioCallback() time %"PRIi64"ns\n", systemTime(SYSTEM_TIME_REALTIME));
+#endif
 
    AudioRecord::Buffer *buffer = static_cast<AudioRecord::Buffer *>(info);
    MpidAndroid *pDriver = static_cast<MpidAndroid *>(user);
 
    // Start accessing non-atomic member variables
    AutoMutex autoLock(pDriver->mLock);
+#ifdef ENABLE_FRAME_TIME_LOGGING
    LOGV("MpidAndroid::audioCallback() frameCount=%d state=%d\n", buffer->frameCount, pDriver->mState);
+#endif
 
    // Only process if we're enabled..
    if(pDriver->mIsEnabled)
@@ -373,12 +397,24 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
          {
             uint32_t samplesProcessed;
             uint32_t samplesWritten;
+            LOGV("i16: %d mSamplesPerFrameInternal: %d samplesProcessed: %d mpResampleBuf: %d mSamplesPerFrame: %d samplesWritten: %d\n", 
+                   buffer->i16, pDriver->mSamplesPerFrameInternal, samplesProcessed, pDriver->mpResampleBuf, pDriver->mSamplesPerFrame, samplesWritten);
+            LOGV("pDriver->mpResampler->getInputRate(): %d pDriver->mpResampler->getOutputRate(): %d\n",
+                   pDriver->mpResampler->getInputRate(), pDriver->mpResampler->getOutputRate());
             OsStatus status =
                pDriver->mpResampler->resample(0, buffer->i16,
                                               pDriver->mSamplesPerFrameInternal, samplesProcessed,
                                               pDriver->mpResampleBuf,
                                               pDriver->mSamplesPerFrame, samplesWritten);
             assert(status == OS_SUCCESS);
+            if(pDriver->mSamplesPerFrameInternal != samplesProcessed ||
+               pDriver->mSamplesPerFrame != samplesWritten)
+            {
+               LOGE("mSamplesPerFrameInternal: %d samplesProcessed: %d mSamplesPerFrame: %d samplesWritten: %d\n", 
+                      pDriver->mSamplesPerFrameInternal, samplesProcessed, pDriver->mSamplesPerFrame, samplesWritten);
+               printf("mSamplesPerFrameInternal: %d samplesProcessed: %d mSamplesPerFrame: %d samplesWritten: %d\n", 
+                      pDriver->mSamplesPerFrameInternal, samplesProcessed, pDriver->mSamplesPerFrame, samplesWritten);
+            }
             assert(pDriver->mSamplesPerFrameInternal == samplesProcessed
                    && pDriver->mSamplesPerFrame == samplesWritten);
             pushSamples = pDriver->mpResampleBuf;
