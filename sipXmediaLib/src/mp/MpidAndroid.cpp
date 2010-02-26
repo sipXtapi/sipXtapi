@@ -129,6 +129,9 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
            status = OS_FAILED;
       break;
       }
+
+      mState = DRIVER_IDLE;
+      mIsEnabled = FALSE;
       return(status);
    }
 
