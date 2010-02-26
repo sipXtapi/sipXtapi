@@ -190,17 +190,19 @@ LOCAL_CXXFLAGS += \
                   -DTEST_DIR=\"/tmp\" \
                   -include os/OsIntTypes.h
 
+#                  -DHAVE_SPEEX_RESAMPLER \
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
     $(SIPX_HOME)/sipXportLib/include \
     $(SIPX_HOME)/sipXsdpLib/include \
     $(SIPX_HOME)/sipXtackLib/include \
-    $(SIPX_HOME)/sipXmediaLib/include
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libspeex/include \
 
 
 #LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack
-LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport libpcre
+LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport libpcre 
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
@@ -488,3 +490,50 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 include $(BUILD_STATIC_LIBRARY)
 
 # =======================
+
+# shared lib for JNI run of unit tests
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libsipxmediajnisandbox
+
+LOCAL_SRC_FILES := \
+  ../sipXportLib/src/test/sipxportunit/unitJni.cpp \
+  src/test/mp/MpInputDeviceDriverTest.cpp
+
+#  src/test/mp/MpOutputDriverTest.cpp
+#  src/test/mp/MpOutputFrameworkTest.cpp
+
+LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DSIPX_TMPDIR=\"/sdcard\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\" \
+                  -DTEST_DIR=\"/sdcard\"
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaLib/src/test
+
+
+#LOCAL_SHARED_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXmedia libsipXsdp libsipXtack libsipXport libpcre $(SIPX_CODEC_LIBS)
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+# Add sipXmediaLib dependencies
+LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
+LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
+
+#include $(BUILD_EXECUTABLE)
+include $(BUILD_SHARED_LIBRARY)
+
+
+# =======================
+
