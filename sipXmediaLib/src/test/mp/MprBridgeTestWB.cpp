@@ -100,7 +100,11 @@ public:
       CPPUNIT_ASSERT(pBridge != NULL);
       
       // Create MediaTask
-      MpMediaTask *pMediaTask = MpMediaTask::createMediaTask(10);
+      MpMediaTask *pMediaTask = MpMediaTask::getMediaTask();
+      if(pMediaTask == NULL)
+      {
+          MpMediaTask::createMediaTask(10);
+      }
       // Get media task ticker.
       OsNotification *pTicker = pMediaTask->getTickerNotification();
 

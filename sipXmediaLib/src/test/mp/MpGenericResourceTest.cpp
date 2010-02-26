@@ -26,8 +26,10 @@ MpGenericResourceTest::MpGenericResourceTest()
 // Initialize test framework
 void MpGenericResourceTest::setUp()
 {
+   // Just in case the test aborted without doing a shut down, try to shut things down
+   OsStatus res = mpShutdown();
+
    MpMediaTask* pMediaTask = NULL;
-   OsStatus res;
 
    // Setup codec paths..
    UtlString codecPaths[] = {
