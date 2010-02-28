@@ -176,3 +176,69 @@ LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)
 
+#####################################################
+
+# sipXtapi unit tests
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+# LOCAL_MODULE/_CLASS are required for local-intermediates-dir to work.
+LOCAL_MODULE := sipxtapiunit
+
+fails_to_compile := \
+    src/test/tapi/SipSubcriptionTest.cpp \
+
+
+LOCAL_SRC_FILES := \
+    src/test/tapi/callbacks.cpp \
+    src/test/tapi/EventRecorder.cpp \
+    src/test/tapi/EventValidator.cpp \
+    src/test/tapi/sipXtapiTestCall.cpp \
+    src/test/tapi/sipXtapiTestConferenceAdv.cpp \
+    src/test/tapi/sipXtapiTestConference.cpp \
+    src/test/tapi/sipXtapiTestConfig.cpp \
+    src/test/tapi/sipXtapiTest.cpp \
+    src/test/tapi/sipXtapiTestLine.cpp \
+    src/test/tapi/sipXtapiTestSubscribe.cpp \
+    src/test/tapi/sipXtapiTestTransfer.cpp \
+    src/test/tapi/TestExternalTransport.cpp \
+    src/test/tapi/TestRegistrar.cpp \
+    src/test/tapi/TestRegistryCollection.cpp \
+    src/test/tapi/TestRegistryData.cpp \
+    src/test/tapi/TestStunServerTask.cpp \
+
+
+LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
+                  -DANDROID \
+                  -DDEFINE_S_IREAD_IWRITE \
+                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
+                  -DSIPX_CONFDIR=\"/etc/sipx\"
+
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include \
+    $(SIPX_HOME)/sipXmediaAdapterLib/interface \
+    $(SIPX_HOME)/sipXcallLib/include \
+    $(SIPX_HOME)/sipXcallLib/src/test \
+
+#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter
+
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport libpcre $(SIPX_CODEC_LIBS)
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+# Add sipXmediaLib dependencies
+LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
+LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
+
+include $(BUILD_EXECUTABLE)

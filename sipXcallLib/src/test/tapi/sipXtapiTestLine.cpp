@@ -262,6 +262,10 @@ const char* const URL_EMPTY_STRING       = "";
 
 void sipXtapiTestSuite::testLines() 
 {
+    OsSysLog::initialize(0, "sipxTapi_testLines");
+    OsSysLog::setLoggingPriority(PRI_DEBUG);
+    OsSysLog::setOutputFile(0, "/sdcard/sipxtapi.log");
+
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
         SIPX_CALL hCall ;
@@ -283,6 +287,7 @@ void sipXtapiTestSuite::testLines()
         // Setup Auto-answer call back
         sipxEventListenerAdd(g_hInst2, basicCall_CallBack_Receive, (void*)URL_JILL_AT_LOCALHOST) ;
 
+        printf("createCall line: %d %s\n", hLineGeorge, URL_GEORGE_AT_JUNGLE);
         createCall(hLineGeorge, &hCall) ;
 
         sipxCallConnect(hCall, URL_JILL_AT_LOCALHOST) ;
@@ -305,6 +310,7 @@ void sipXtapiTestSuite::testLines()
         sipxEventListenerAdd(g_hInst, linetest_verify_lineurl, (void*)URL_JANE_AT_JUNGLE) ;
 
         sipxEventListenerAdd(g_hInst2, basicCall_CallBack_Receive, (void*)URL_BOB_AT_LOCALHOST) ;
+        printf("createCall line: %d %s\n", hLineJane, URL_JANE_AT_JUNGLE);
         createCall(hLineJane, &hCall) ;
 
         sipxCallConnect(hCall, URL_BOB_AT_LOCALHOST) ;

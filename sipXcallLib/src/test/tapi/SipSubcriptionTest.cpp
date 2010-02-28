@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2010 SIPfoundry Inc.  All rights reserved.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -9,8 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlString.h>
 #include <os/OsDefs.h>
@@ -26,14 +25,15 @@
 #define UNIT_TEST_RTP_PORT_START2 45100
 #define UNIT_TEST_MAX_CALL_LEGS 10
 
-#define ASSERT_STR_EQUAL(X, Y) (CPPUNIT_ASSERT(strcmp((X), (Y)) == 0))
-
+#if defined(NO_CPPUNIT)
+#    define ASSERT_STR_EQUAL(X, Y) (CPPUNIT_ASSERT(strcmp((X), (Y)) == 0))
+#endif
 
 /**
  * Unittest for sipXtapi SIP Subscribe/Notify client and server APIs
  */
 
-class SipSubscriptionTest : public CppUnit::TestCase
+class SipSubscriptionTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(SipSubscriptionTest);
     CPPUNIT_TEST(subscribeTest);

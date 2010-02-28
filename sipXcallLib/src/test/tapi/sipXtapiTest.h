@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2010 SIPfoundry Inc. All rights reserved.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -24,7 +24,7 @@
 #endif
 #endif
 
-#include <cppunit/extensions/HelperMacros.h>
+#include <sipxunittests.h>
 
 #include "utl/UtlSList.h"
 #include "tapi/sipXtapi.h"
@@ -61,6 +61,21 @@
   #define TEST_NAT                1
   #define TEST_UTILS              1
   #define TEST_PROBLEMATIC_CASES  0  
+#elif ANDROID
+  #define TEST_AUDIO              0
+  #define TEST_LINE               1
+  #define TEST_CALL               0
+  #define TEST_CALL_HOLD          0
+  #define TEST_CONF               1
+  #define TEST_REG                1
+  #define TEST_TRANSFER           0
+  #define TEST_TRANSFER_ADVANCED  0
+  #define TEST_CONFIG             0
+  #define TEST_SUBSCRIBE          0
+  #define TEST_NAT                0
+  #define TEST_UTILS              0
+  #define TEST_PROBLEMATIC_CASES  0  
+
 #else
   #define TEST_AUDIO              1
   #define TEST_LINE               1
@@ -104,7 +119,7 @@ bool SIPX_CALLING_CONVENTION basicCall_CallBack_Receive3_busy(SIPX_EVENT_CATEGOR
                                          void* pInfo, 
                                          void* pUserData);
 
-class sipXtapiTestSuite : public CppUnit::TestFixture
+class sipXtapiTestSuite : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(sipXtapiTestSuite) ;
 

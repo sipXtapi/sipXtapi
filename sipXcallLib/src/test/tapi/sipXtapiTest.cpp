@@ -9,14 +9,20 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "sipXtapiTest.h"
-#include <cppunit/CompilerOutputter.h>
-#include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/ui/text/TestRunner.h>
+#include <sipxunittests.h>
 #include "EventRecorder.h"
 #include "EventValidator.h"
 #include "os/OsBSem.h"
 #include "os/OsDatagramSocket.h"
 
+
+#ifdef ANDROID
+#  define INTERNAL_SAMPLE_RATE 8000
+#  define DEVICE_SAMPLE_RATE 8000
+#else
+#  define INTERNAL_SAMPLE_RATE 16000
+#  define DEVICE_SAMPLE_RATE 48000
+#endif
 
 #ifdef PURIFY
     #include "pure.h"
@@ -50,7 +56,11 @@ OsDatagramSocket* g_pPrimaryStunSeverSocket2 ;
 OsDatagramSocket* g_pSecondaryStunServerSocket ;
 OsDatagramSocket* g_pSecondaryStunServerSocket2 ;
 
+#ifdef ANDROID
 
+// main gets linked in from the unit test library on android
+
+#else
 int main(int argc, char* argv[])
 {
     enableConsoleOutput(FALSE) ;
@@ -71,7 +81,7 @@ int main(int argc, char* argv[])
     // Return error code 1 if one of the tests failed.
     return wasSuccessful ? 0 : 1 ;
 }
-
+#endif
 
 CPPUNIT_TEST_SUITE_REGISTRATION( sipXtapiTestSuite );
 
@@ -91,6 +101,7 @@ sipXtapiTestSuite::sipXtapiTestSuite()
 OsBSem suiteLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 void sipXtapiTestSuite::setUp()
 {
+    printf("sipXtapiTestSuite::setUp line: %d\n", __LINE__);
 #ifdef _WIN32
 #ifdef SIPX_TEST_FOR_MEMORY_LEAKS
     _CrtSetReportMode( _CRT_WARN, _CRTDBG_MODE_FILE);
@@ -107,25 +118,25 @@ void sipXtapiTestSuite::setUp()
 
     if (g_hInst == NULL)
     {
-        sipxInitialize(&g_hInst, 8000, 8000, 8001, 8050, 32, HINST_ADDRESS, "127.0.0.1") ;
+        sipxInitialize(&g_hInst, 8000, 8000, 8001, 8050, 32, HINST_ADDRESS, "127.0.0.1", false, NULL, NULL, NULL, true, INTERNAL_SAMPLE_RATE, DEVICE_SAMPLE_RATE) ;
         sipxConfigSetConnectionIdleTimeout(g_hInst, 7) ;
     }
 
     if (g_hInst2 == NULL)
     {
-        sipxInitialize(&g_hInst2, 9100, 9100, 9101, 9050, 32, HINST2_ADDRESS, "127.0.0.1") ;
+        sipxInitialize(&g_hInst2, 9100, 9100, 9101, 9050, 32, HINST2_ADDRESS, "127.0.0.1", false, NULL, NULL, NULL, true, INTERNAL_SAMPLE_RATE, DEVICE_SAMPLE_RATE) ;
         sipxConfigSetConnectionIdleTimeout(g_hInst2, 7) ;
     }
 
     if (g_hInst3 == NULL)
     {
-        sipxInitialize(&g_hInst3, 10000, 10000, 10001, 10050, 32, HINST3_ADDRESS, "127.0.0.1") ;
+        sipxInitialize(&g_hInst3, 10000, 10000, 10001, 10050, 32, HINST3_ADDRESS, "127.0.0.1", false, NULL, NULL, NULL, true, INTERNAL_SAMPLE_RATE, DEVICE_SAMPLE_RATE) ;
         sipxConfigSetConnectionIdleTimeout(g_hInst3, 7) ;
     }
 
     if (g_hInst4 == NULL)
     {
-        sipxInitialize(&g_hInst4, 12070, 12070, 12071, 12050, 32, HINST4_ADDRESS, "127.0.0.1") ;
+        sipxInitialize(&g_hInst4, 12070, 12070, 12071, 12050, 32, HINST4_ADDRESS, "127.0.0.1, false, NULL, NULL, NULL, true, INTERNAL_SAMPLE_RATE, DEVICE_SAMPLE_RATE") ;
         sipxConfigSetConnectionIdleTimeout(g_hInst4, 7) ;
     }
 
@@ -141,10 +152,12 @@ void sipXtapiTestSuite::setUp()
     PurifyClearLeaks();
 #endif
     suiteLock.release();
+    printf("sipXtapiTestSuite::setUp line: %d\n", __LINE__);
 } 
 
 void sipXtapiTestSuite::tearDown()
 {
+    printf("sipXtapiTestSuite::tearDown line: %d\n", __LINE__);
 #ifdef _WIN32
 #ifdef SIPX_TEST_FOR_MEMORY_LEAKS
     static bool bFirstRun = true ;
@@ -239,6 +252,7 @@ void sipXtapiTestSuite::tearDown()
     }
 #endif
 #endif
+    printf("sipXtapiTestSuite::tearDown line: %d\n", __LINE__);
 }
 
 void sipXtapiTestSuite::setupStunServer() 
@@ -371,6 +385,7 @@ void sipXtapiTestSuite::checkForLeaks()
 #define MAX_CALL_CHECK  16
 void sipXtapiTestSuite::checkForCallLeaks(SIPX_INST hInst) 
 {
+    printf("sipXtapiTestSuite::checkForCallLeaks line: %d\n", __LINE__);
     SIPX_RESULT rc ;
     UtlString callIds[MAX_CALL_CHECK] ;
     int numCalls ;
@@ -390,4 +405,5 @@ void sipXtapiTestSuite::checkForCallLeaks(SIPX_INST hInst)
             CPPUNIT_ASSERT_EQUAL(numCalls, 0) ;
         }
     }     
+    printf("sipXtapiTestSuite::checkForCallLeaks line: %d\n", __LINE__);
 }
