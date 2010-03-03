@@ -173,6 +173,7 @@ LOCAL_CFLAGS += \
                   -DSIPX_CONFDIR=\"/etc/sipx\"
 
 LOCAL_CXXFLAGS += \
+                  -include os/OsIntTypes.h
 
 
 sipXportLib/config/sipxportlib-buildstamp.cpp:
@@ -224,7 +225,8 @@ LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DDEFINE_S_IREAD_IWRITE \
                   -DSIPX_TMPDIR=\"/sdcard\" \
                   -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/sdcard\"
+                  -DTEST_DIR=\"/sdcard\" \
+                  -include os/OsIntTypes.h
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
@@ -264,7 +266,8 @@ LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DDEFINE_S_IREAD_IWRITE \
                   -DSIPX_TMPDIR=\"/sdcard\" \
                   -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/sdcard\"
+                  -DTEST_DIR=\"/sdcard\" \
+                  -include os/OsIntTypes.h
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
@@ -291,7 +294,7 @@ LOCAL_MODULE := libsipxportjnisandbox
 
 LOCAL_SRC_FILES := \
   src/test/sipxportunit/unitJni.cpp \
-  src/test/os/OsSysLogTest.cpp
+  src/test/os/OsTimeTest.cpp
 
 #  src/test/sipxportunit/bar.cpp \
 #  src/test/sipxportunit/foo.cpp
@@ -301,7 +304,8 @@ LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DDEFINE_S_IREAD_IWRITE \
                   -DSIPX_TMPDIR=\"/sdcard\" \
                   -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/sdcard\"
+                  -DTEST_DIR=\"/sdcard\" \
+                  -include os/OsIntTypes.h
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
@@ -395,6 +399,7 @@ LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
                   -DSIPX_TMPDIR=\"/sdcard\" \
                   -DSIPX_CONFDIR=\"/etc/sipx\" \
                   -DTEST_DIR=\"/sdcard\" \
+                  -include os/OsIntTypes.h
 
 
 LOCAL_C_INCLUDES += \
