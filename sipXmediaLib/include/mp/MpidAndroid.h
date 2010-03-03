@@ -18,7 +18,6 @@
 
 // SYSTEM INCLUDES
 #include <utils/threads.h>
-#include <media/AudioSystem.h>
 #include <media/AudioRecord.h>
 
 // DEFINES
@@ -123,6 +122,9 @@ protected:
    AudioRecord *mpAudioRecord; ///< Pointer to audio track used for record
    int mSamplesPerSecInternal; ///< Sample rate of AudioRecord.
    int mSamplesPerFrameInternal; ///< Number of sample per frame we use with AudioRecord.
+   MpAudioSample *mpBufInternal; ///< Temporary audio buffer to save data if don't receive
+                               ///<  full buffer. Have mSamplesPerFrameInternal size.
+   int mBufInternalSamples;    ///< Number of samples currently stored in mpBufInternal.
    Mutex mLock;                ///< Mutex to control concurrent access to driver object
                                ///<  from audio callback and application API
    Condition mWaitCbkCond;     ///< condition enabling interface to wait for audio

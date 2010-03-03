@@ -12,7 +12,8 @@
 
 #define LOG_NDEBUG 0
 #define LOG_TAG "MpidAndroid"
-#define ENABLE_FRAME_TIME_LOGGING
+#define MPID_ANDROID_CLEAN_EXIT
+//#define ENABLE_FRAME_TIME_LOGGING
 
 // SIPX INCLUDES
 #include <os/OsSysLog.h>
@@ -22,6 +23,10 @@
 
 // SYSTEM INCLUDES
 #include <utils/Log.h>
+#include <media/AudioSystem.h>
+#ifdef MPID_ANDROID_CLEAN_EXIT // [
+#  include <signal.h>
+#endif // MPID_ANDROID_CLEAN_EXIT ]
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -32,6 +37,22 @@ const int MpidAndroid::mpSampleRatesList[] =
 const int MpidAndroid::mSampleRatesListLen =
    sizeof(MpidAndroid::mpSampleRatesList) / sizeof(MpidAndroid::mpSampleRatesList[0]);
 
+#ifdef MPID_ANDROID_CLEAN_EXIT // [
+static AudioRecord *sgAudioRecord = NULL;
+
+static void sigabrt_handler(int signum)
+{
+   LOGE("Caught signal: %d", signum);
+   if(sgAudioRecord != NULL)
+   {
+      LOGE("sigabrt_handler deleting sgAudioRecord: %p", sgAudioRecord);
+      sgAudioRecord->stop();
+      delete sgAudioRecord;
+      sgAudioRecord = NULL;
+   }
+   exit(2);
+}
+#endif // MPID_ANDROID_CLEAN_EXIT ]
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -43,9 +64,21 @@ MpidAndroid::MpidAndroid(audio_source source,
 , mStreamSource(source)
 , mState(DRIVER_IDLE)
 , mpAudioRecord(NULL)
+, mpBufInternal(NULL)
+, mBufInternalSamples(0)
 , mpResampler(NULL)
 , mpResampleBuf(NULL)
 {
+#ifdef MPID_ANDROID_CLEAN_EXIT // [
+   // THIS IS A BIG HACK
+   // We intercept SIGABRT signal here, which may be intercepted somewhere
+   // else already. We shouldn't do this in a generic system, but for now
+   // I think we don't intercept it anywhere else anyway.
+   signal(SIGABRT, sigabrt_handler);
+   // Current Android use SIGSEGV instead of SIGABRT.
+   // See: bionic/libc/unistd/abort.c
+   signal(SIGSEGV, sigabrt_handler);
+#endif // MPID_ANDROID_CLEAN_EXIT ]
 }
 
 MpidAndroid::~MpidAndroid()
@@ -102,6 +135,12 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
       LOGV("MpidAndroid::enableDevice() wrong state: %d\n", mState);
       return OS_INVALID_STATE;
    }
+
+   // Allocate internal buffer
+   assert(mSamplesPerFrameInternal > 0);
+   mpBufInternal = new MpAudioSample[mSamplesPerFrameInternal];
+   assert(mpBufInternal != NULL);
+   mBufInternalSamples = 0;
 
    // Create resampler
    if (mSamplesPerSecInternal != mSamplesPerSec)
@@ -178,13 +217,22 @@ OsStatus MpidAndroid::disableDevice()
          LOGE("MpidAndroid::disableDevice() Stop timed out");
          mState = DRIVER_IDLE;
          mpAudioRecord->stop();
+         delete mpAudioRecord;
+         mpAudioRecord = NULL;
+#ifdef MPID_ANDROID_CLEAN_EXIT // [
+         sgAudioRecord = NULL;
+#endif // MPID_ANDROID_CLEAN_EXIT ]
       }
    }
 
-   // Clear out all the wave header information.
+   // Clear out all the audio stream information.
    mSamplesPerFrame = 0;
    mSamplesPerSec = 0;
    mCurrentFrameTime = 0;
+
+   // Free internal buffer
+   delete[] mpBufInternal;
+   mBufInternalSamples = 0;
 
    // Free resampler
    delete mpResampler;
@@ -225,6 +273,10 @@ bool MpidAndroid::initAudioRecord()
       goto initAudioTrack_exit;
    }
    LOGV("MpidAndroid::initAudioRecord() Create Record: %p\n", mpAudioRecord);
+
+#ifdef MPID_ANDROID_CLEAN_EXIT // [
+   sgAudioRecord = mpAudioRecord;
+#endif // MPID_ANDROID_CLEAN_EXIT ]
 
 //   initRes = mpAudioTrack->initCheck();
    initRes = mpAudioRecord->set(mStreamSource,  // inputSource
@@ -388,24 +440,47 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
    // Only process if we're enabled..
    if(pDriver->mIsEnabled)
    {
-      if (buffer->frameCount != pDriver->mSamplesPerFrameInternal)
+      if (buffer->frameCount + pDriver->mBufInternalSamples < pDriver->mSamplesPerFrameInternal)
       {
-         LOGE("frameCount=%d mSamplesPerFrameInternal=%d", buffer->frameCount, pDriver->mSamplesPerFrameInternal);
-         assert(buffer->frameCount == pDriver->mSamplesPerFrameInternal);
+         LOGV("frameCount=%d mBufInternalSamples=%d (sum=%d) mSamplesPerFrameInternal=%d",
+              buffer->frameCount, pDriver->mBufInternalSamples,
+              buffer->frameCount + pDriver->mBufInternalSamples,
+              pDriver->mSamplesPerFrameInternal);
+
+         memcpy(pDriver->mpBufInternal, buffer->i16, buffer->frameCount*sizeof(short));
+         pDriver->mBufInternalSamples += buffer->frameCount;
       }
       else
       {
-         MpAudioSample *pushSamples = buffer->i16;
+         // Copy samples to the temp buffer if needed.
+         MpAudioSample *origSamples;
+         int origSamplesConsumed;
+         if (pDriver->mBufInternalSamples > 0)
+         {
+            origSamplesConsumed = sipx_min(pDriver->mSamplesPerFrameInternal-pDriver->mBufInternalSamples,
+                                           buffer->frameCount);
+            memcpy(pDriver->mpBufInternal, buffer->i16, origSamplesConsumed*sizeof(short));
+            pDriver->mBufInternalSamples += origSamplesConsumed;
+            origSamples = pDriver->mpBufInternal;
+         }
+         else
+         {
+            origSamples = buffer->i16;
+            origSamplesConsumed = pDriver->mSamplesPerFrameInternal;
+         }
+         
+         // Resample is needed.
+         MpAudioSample *pushSamples = origSamples;
          if (pDriver->mpResampler != NULL)
          {
             uint32_t samplesProcessed;
             uint32_t samplesWritten;
-            LOGV("i16: %d mSamplesPerFrameInternal: %d samplesProcessed: %d mpResampleBuf: %d mSamplesPerFrame: %d samplesWritten: %d\n", 
-                   buffer->i16, pDriver->mSamplesPerFrameInternal, samplesProcessed, pDriver->mpResampleBuf, pDriver->mSamplesPerFrame, samplesWritten);
+            LOGV("origSamples: %d mSamplesPerFrameInternal: %d samplesProcessed: %d mpResampleBuf: %d mSamplesPerFrame: %d samplesWritten: %d\n",
+                 pDriver->mBufInternalSamples, pDriver->mSamplesPerFrameInternal, samplesProcessed, pDriver->mpResampleBuf, pDriver->mSamplesPerFrame, samplesWritten);
             LOGV("pDriver->mpResampler->getInputRate(): %d pDriver->mpResampler->getOutputRate(): %d\n",
-                   pDriver->mpResampler->getInputRate(), pDriver->mpResampler->getOutputRate());
+                 pDriver->mpResampler->getInputRate(), pDriver->mpResampler->getOutputRate());
             OsStatus status =
-               pDriver->mpResampler->resample(0, buffer->i16,
+               pDriver->mpResampler->resample(0, pDriver->mpBufInternal,
                                               pDriver->mSamplesPerFrameInternal, samplesProcessed,
                                               pDriver->mpResampleBuf,
                                               pDriver->mSamplesPerFrame, samplesWritten);
@@ -426,10 +501,25 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
                                                   pDriver->mSamplesPerFrame,
                                                   pushSamples,
                                                   pDriver->mCurrentFrameTime);
+
+         // Copy remaining samples to temp buffer if anything left.
+         pDriver->mBufInternalSamples = sipx_min(buffer->frameCount-origSamplesConsumed,
+                                                 pDriver->mSamplesPerFrameInternal);
+         if (pDriver->mBufInternalSamples > 0)
+         {
+            memcpy(pDriver->mpBufInternal, buffer->i16+origSamplesConsumed,
+                   pDriver->mBufInternalSamples*sizeof(short));
+            if (buffer->frameCount-origSamplesConsumed >= pDriver->mSamplesPerFrameInternal)
+            {
+               LOGW("TOO BIG FRAMES FROM MIC: %d", buffer->frameCount);
+            }
+            
+         }
+
+         // Ok, we have received and pushed a frame to the manager,
+         // Now we advance the frame time.
+         pDriver->mCurrentFrameTime += (pDriver->mSamplesPerFrame*1000)/pDriver->mSamplesPerSec;
       }
-      // Ok, we have received and pushed a frame to the manager,
-      // Now we advance the frame time.
-      pDriver->mCurrentFrameTime += (pDriver->mSamplesPerFrame*1000)/pDriver->mSamplesPerSec;
    }
 
    switch (pDriver->mState) {
