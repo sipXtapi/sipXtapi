@@ -39,20 +39,33 @@
 #define BUFFERS_TO_BUFFER_ON_INPUT    3     ///< Number of buffers to buffer in input manager.
 #define BUFFERS_TO_BUFFER_ON_OUTPUT   2     ///< Number of buffers to buffer in output manager.
 
-#define TEST_SAMPLES_PER_FRAME        480    ///< in samples
-#define TEST_SAMPLES_PER_SECOND       48000  ///< in samples/sec (Hz)
+#ifdef ANDROID // [
+#  define TEST_SAMPLES_PER_FRAME        160    ///< in samples
+#  define TEST_SAMPLES_PER_SECOND       16000  ///< in samples/sec (Hz)
+#else // ANDROID ][
+#  define TEST_SAMPLES_PER_FRAME        480    ///< in samples
+#  define TEST_SAMPLES_PER_SECOND       48000  ///< in samples/sec (Hz)
+#endif // !ANDROID ]
 
 #define DEFAULT_BUFFER_ON_OUTPUT_MS   (BUFFERS_TO_BUFFER_ON_OUTPUT*TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND)
                                             ///< Buffer size in output manager in milliseconds.
+
+#ifdef ANDROID // [
+#  define try 
+#endif // !ANDROID ]
+
 
 //#define USE_TEST_INPUT_DRIVER
 //#define USE_TEST_OUTPUT_DRIVER
 
 // OS-specific device input drivers
 #ifndef USE_TEST_INPUT_DRIVER
-#  ifdef __pingtel_on_posix__ // [
+#  ifdef ANDROID // [
+#     define USE_ANDROID_INPUT_DRIVER
+#  elif defined(__linux__) // [
 #     define USE_OSS_INPUT_DRIVER
-// __pingtel_on_posix__ ]
+#  elif defined(__APPLE__) // [
+#     define USE_COREAUDIO_INPUT_DRIVER
 #  elif defined(WIN32) // [
 #     define USE_WNT_INPUT_DRIVER
 #  endif // WIN32 ]
@@ -60,9 +73,12 @@
 
 // OS-specific device output drivers
 #ifndef USE_TEST_OUTPUT_DRIVER
-#  ifdef __pingtel_on_posix__ // [
+#  ifdef ANDROID // [
+#     define USE_ANDROID_OUTPUT_DRIVER
+#  elif defined(__linux__) // [
 #     define USE_OSS_OUTPUT_DRIVER
-// __pingtel_on_posix__ ]
+#  elif defined(__APPLE__) // [
+#     define USE_COREAUDIO_OUTPUT_DRIVER
 #  elif defined(WIN32) // [
 #     define USE_WNT_OUTPUT_DRIVER
 #  endif // WIN32 ]
@@ -72,30 +88,38 @@
 
 #ifdef USE_TEST_INPUT_DRIVER // [
 #  include <mp/MpSineWaveGeneratorDeviceDriver.h>
-// USE_TEST_INPUT_DRIVER ]
+#elif defined(USE_ANDROID_INPUT_DRIVER) // [
+#  include <mp/MpidAndroid.h>
+#elif defined(USE_OSS_INPUT_DRIVER) // [
+#  include <mp/MpidOss.h>
+#elif defined(USE_COREAUDIO_INPUT_DRIVER) // [
+#  include <mp/MpidCoreAudio.h>
 #elif defined(USE_WNT_INPUT_DRIVER) // [
 #  include <mp/MpidWinMM.h>
-// USE_WNT_INPUT_DRIVER ]
-#elif defined(__pingtel_on_posix__) // [
-#  include <mp/MpidOss.h>
-#endif // __pingtel_on_posix__ ]
+#endif // USE_*_INPUT_DRIVER ]
 
 #ifdef USE_TEST_OUTPUT_DRIVER // [
 #  include <mp/MpodBufferRecorder.h>
-// USE_TEST_OUTPUT_DRIVER ]
+#elif defined(USE_ANDROID_OUTPUT_DRIVER) // [
+#  include <mp/MpodAndroid.h>
+#elif defined(USE_OSS_OUTPUT_DRIVER) // [
+#  include <mp/MpodOss.h>
+#elif defined(USE_COREAUDIO_OUTPUT_DRIVER) // [
+#  include <mp/MpodCoreAudio.h>
 #elif defined(USE_WNT_OUTPUT_DRIVER) // [
 #  include <mp/MpodWinMM.h>
-// USE_WNT_OUTPUT_DRIVER ]
-#elif defined(__pingtel_on_posix__) // [
-#  include <mp/MpodOss.h>
-#endif // __pingtel_on_posix__ ]
+#endif // USE_*_OUTPUT_DRIVER ]
 
-// Define number of drivers for each 
+/// Number of input drivers to test
 static size_t nInputDrivers = 
 #ifdef USE_TEST_INPUT_DRIVER
-   10;  ///< Number of sine generators
-#elif defined(USE_OSS_INPUT_DRIVER)
-   2;   ///< Number of OSS input drivers
+   10;
+#elif defined(USE_ANDROID_INPUT_DRIVER) // [
+   1;
+#elif defined(USE_OSS_INPUT_DRIVER) // [
+   2;
+#elif defined(USE_COREAUDIO_INPUT_DRIVER) // [
+   1;
 #elif defined(USE_WNT_INPUT_DRIVER)
    1;
 #else
@@ -103,11 +127,16 @@ static size_t nInputDrivers =
 #endif
 static UtlString* sInputDriverNames = NULL;
 
+/// Number of output drivers to test
 static size_t nOutputDrivers = 
 #ifdef USE_TEST_OUTPUT_DRIVER
-   10;  ///< Number of buffer recorders
-#elif defined(USE_OSS_OUTPUT_DRIVER)
-   2;   ///< Number of OSS output drivers
+   10;
+#elif defined(USE_ANDROID_OUTPUT_DRIVER) // [
+   2;
+#elif defined(USE_OSS_OUTPUT_DRIVER) // [
+   2;
+#elif defined(USE_COREAUDIO_OUTPUT_DRIVER) // [
+   1;
 #elif defined(USE_WNT_OUTPUT_DRIVER)
    1;
 #else
@@ -187,9 +216,11 @@ public:
       //       current environment.
       createTestInputDrivers();
       createWntInputDrivers();
+      createAndroidInputDrivers();
       createOSSInputDrivers();
       createTestOutputDrivers();
       createWntOutputDrivers();
+      createAndroidOutputDrivers();
       createOSSOutputDrivers();
    }
 
@@ -279,7 +310,6 @@ public:
                                      sinkDeviceId);
 
       try {
-
          // Add source and sink resources to flowgraph and link them together.
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(sourceResource));
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(sinkResource));
@@ -315,6 +345,7 @@ public:
                                  mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
                                                                                  NULL));
          }
+#ifndef ANDROID // [
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
@@ -325,6 +356,7 @@ public:
             // Rethrow exception.
             throw(e);
          }
+#endif // !ANDROID ]
 
          // Unmanage flowgraph with media task.
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->unmanageFlowGraph(*mpFlowGraph));
@@ -344,6 +376,7 @@ public:
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sourceResource));
          mpFlowGraph->processNextFrame();
       }
+#ifndef ANDROID // [
       catch (CppUnit::Exception& e)
       {
          // Remove resources from flowgraph. We should remove them explicitly
@@ -363,6 +396,7 @@ public:
          // Rethrow exception.
          throw(e);
       }
+#endif // !ANDROID ]
 
       RTL_WRITE("testShortCircuit.rtl");
       RTL_STOP
@@ -424,6 +458,7 @@ public:
                                  mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
                                                                                  NULL));
          }
+#ifndef ANDROID // [
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
@@ -434,6 +469,7 @@ public:
             // Rethrow exception.
             throw(e);
          }
+#endif // !ANDROID ]
 
          // Unmanage flowgraph with media task.
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->unmanageFlowGraph(*mpFlowGraph));
@@ -451,6 +487,7 @@ public:
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sourceResource));
          mpFlowGraph->processNextFrame();
       }
+#ifndef ANDROID // [
       catch (CppUnit::Exception& e)
       {
          // Remove resources from flowgraph. We should remove them explicitly
@@ -470,6 +507,7 @@ public:
          // Rethrow exception.
          throw(e);
       }
+#endif // !ANDROID ]
 
       RTL_WRITE("testOutput.rtl");
       RTL_STOP
@@ -551,6 +589,7 @@ public:
                                                                                  NULL));
 
          }
+#ifndef ANDROID // [
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
@@ -561,6 +600,7 @@ public:
             // Rethrow exception.
             throw(e);
          }
+#endif // !ANDROID ]
 
          // Unmanage flowgraph with media task.
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->unmanageFlowGraph(*mpFlowGraph));
@@ -584,6 +624,7 @@ public:
          }
          mpFlowGraph->processNextFrame();
       }
+#ifndef ANDROID // [
       catch (CppUnit::Exception& e)
       {
          // Remove resources from flowgraph. We should remove them explicitly
@@ -610,6 +651,7 @@ public:
          // Rethrow exception.
          throw(e);
       }
+#endif // !ANDROID ]
 
       // Free output resources.
       for (sinkDevice=0; sinkDevice<mOutputDeviceNumber; sinkDevice++)
@@ -694,6 +736,7 @@ public:
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                  mpOutputDeviceManager->disableDevice(tickerDeviceId));
          }
+#ifndef ANDROID // [
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
@@ -706,6 +749,7 @@ public:
             // Rethrow exception.
             throw(e);
          }
+#endif // !ANDROID ]
 
          // Unmanage flowgraph with media task.
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->unmanageFlowGraph(*mpFlowGraph));
@@ -728,6 +772,7 @@ public:
          }
          mpFlowGraph->processNextFrame();
       }
+#ifndef ANDROID // [
       catch (CppUnit::Exception& e)
       {
          // Remove resources from flowgraph. We should remove them explicitly
@@ -750,6 +795,7 @@ public:
          // Rethrow exception.
          throw(e);
       }
+#endif // !ANDROID ]
 
       // Free output resources.
       for (sourceDevice=0; sourceDevice<mInputDeviceNumber; sourceDevice++)
@@ -835,6 +881,7 @@ public:
                                  mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
                                                                                  NULL));
          }
+#ifndef ANDROID // [
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
@@ -845,6 +892,7 @@ public:
             // Rethrow exception.
             throw(e);
          }
+#endif // !ANDROID ]
 
          // Unmanage flowgraph with media task.
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->unmanageFlowGraph(*mpFlowGraph));
@@ -869,6 +917,7 @@ public:
          }
          mpFlowGraph->processNextFrame();
       }
+#ifndef ANDROID // [
       catch (CppUnit::Exception& e)
       {
          // Remove resources from flowgraph. We should remove them explicitly
@@ -891,6 +940,7 @@ public:
          // Rethrow exception.
          throw(e);
       }
+#endif // !ANDROID ]
 
       // Free output resources.
       for (sourceDevice=0; sourceDevice<mInputDeviceNumber; sourceDevice++)
@@ -919,6 +969,7 @@ protected:
    {
       // Add driver to manager
       MpInputDeviceHandle deviceId = mpInputDeviceManager->addDevice(*pDriver);
+      printf("Managed Android driver %p with ID %d(%d)\n", pDriver, deviceId, pDriver->getDeviceId());
       CPPUNIT_ASSERT(deviceId > 0);
       CPPUNIT_ASSERT(!mpInputDeviceManager->isDeviceEnabled(deviceId));
 
@@ -980,6 +1031,30 @@ protected:
       // Add driver to manager
       manageInputDevice(pDriver);
 #endif // USE_WNT_INPUT_DRIVER ]
+   }
+
+   void createAndroidInputDrivers()
+   {
+#ifdef USE_ANDROID_INPUT_DRIVER // [
+      assert(sInputDriverNames == NULL);
+      sInputDriverNames = new UtlString[nInputDrivers];
+
+      size_t i;
+      for (i=0; i < nInputDrivers; i++)
+      {
+         sInputDriverNames[i] = "default";
+
+         printf("Creating Android driver...\n");
+         // Create driver
+         MpidAndroid *pDriver = new MpidAndroid(MpidAndroid::AUDIO_SOURCE_DEFAULT,
+                                                *mpInputDeviceManager);
+         CPPUNIT_ASSERT(pDriver != NULL);
+         printf("Created Android driver %p with ID %d\n", pDriver, pDriver->getDeviceId());
+
+         // Add driver to manager
+         manageInputDevice(pDriver);
+      }
+#endif // USE_ANDROID_INPUT_DRIVER ]
    }
 
    void createOSSInputDrivers()
@@ -1051,6 +1126,25 @@ protected:
       // Add driver to manager
       manageOutputDevice(pDriver);
 #endif // USE_WNT_INPUT_DRIVER ]
+   }
+
+   void createAndroidOutputDrivers()
+   {
+#ifdef USE_ANDROID_OUTPUT_DRIVER // [
+      assert(outputDriverNames == NULL);
+      outputDriverNames = new UtlString[nOutputDrivers];
+
+      size_t i;
+      for (i=0; i < nOutputDrivers; i++)
+      {
+         // Create driver
+         MpodAndroid *pDriver = new MpodAndroid(MpodAndroid::DEFAULT);
+         CPPUNIT_ASSERT(pDriver != NULL);
+
+         // Add driver to manager
+         manageOutputDevice(pDriver);
+      }
+#endif // USE_ANDROID_OUTPUT_DRIVER ]
    }
 
    void createOSSOutputDrivers()
