@@ -85,8 +85,13 @@ MpidAndroid::~MpidAndroid()
 {
    LOGV("MpidAndroid destructor\n");
 
-   if (mpAudioRecord) {
+   if (isEnabled())
+   {
+      LOGV("MpidAndroid enabled, disabling\n");
       disableDevice();
+   }
+
+   if (mpAudioRecord) {
       LOGV("Delete Track Record: %p\n", mpAudioRecord);
       delete mpAudioRecord;
    }
@@ -201,6 +206,8 @@ OsStatus MpidAndroid::disableDevice()
 
    if (!isDeviceValid() || !isEnabled())
    {
+      LOGE("Invalid device (valid=%d) or already disabled (enable=%d).",
+           isDeviceValid(), isEnabled());
       return OS_FAILED;
    }
 

@@ -69,7 +69,7 @@ MpodAndroid::MpodAndroid(StreamType streamType)
 
 MpodAndroid::~MpodAndroid()
 {
-   if (mpAudioTrack) {
+   if (isEnabled()) {
       disableDevice();
    }
 }
@@ -81,7 +81,8 @@ OsStatus MpodAndroid::enableDevice(unsigned samplesPerFrame,
                                    MpFrameTime currentFrameTime,
                                    OsCallback &frameTicker)
 {
-   LOGV("MpodAndroid::enableDevice()\n");
+   LOGV("MpodAndroid::enableDevice(samplesPerFrame=%d, samplesPerSec=%d, currentFrameTime=%d, frameTicker=%p)\n",
+        samplesPerFrame, samplesPerSec, currentFrameTime, (void*)&frameTicker);
 
    if (isEnabled())
    {
@@ -102,6 +103,7 @@ OsStatus MpodAndroid::enableDevice(unsigned samplesPerFrame,
    if (mState == DRIVER_IDLE) {
       LOGV("MpodAndroid::enableDevice() trying to init AudioTrack");
       if (!initAudioTrack()) {
+         LOGE("MpodAndroid::enableDevice() init failed!");
          return OS_FAILED;
       }
    }
@@ -143,6 +145,7 @@ OsStatus MpodAndroid::disableDevice()
    // then don't do anything and return failure.
    if ( !isEnabled() )
    {
+      LOGV("Device already disabled\n");
       return OS_FAILED;
    }
 
@@ -175,6 +178,8 @@ OsStatus MpodAndroid::disableDevice()
 
    // Indicate we are no longer enabled
    mIsEnabled = FALSE;
+
+   return OS_SUCCESS;
 }
 
 OsStatus MpodAndroid::pushFrame(unsigned int numSamples,
@@ -232,6 +237,7 @@ OsStatus MpodAndroid::pushFrame(unsigned int numSamples,
 
 UtlBoolean MpodAndroid::initAudioTrack()
 {
+   LOGV("MpodAndroid::initAudioTrack");
    status_t initRes;
 
    if (mpAudioTrack) {
@@ -256,16 +262,19 @@ UtlBoolean MpodAndroid::initAudioTrack()
                                  this,  // user
                                  mSamplesPerFrame);  // notificationFrames
    if (mpAudioTrack == NULL) {
-      LOGE("MpodAndroid::initAudioRecord() AudioTrack allocation failed\n");
+      LOGE("MpodAndroid::initAudioTrack() AudioTrack allocation failed\n");
       goto initAudioTrack_exit;
    }
-   LOGV("MpodAndroid::initAudioRecord() Create Track: %p\n", mpAudioTrack);
+   LOGV("MpodAndroid::initAudioTrack() Create Track: %p\n", mpAudioTrack);
 
    initRes = mpAudioTrack->initCheck();
    if (initRes != NO_ERROR) {
-      LOGE("MpodAndroid::initAudioRecord() AudioTrack->initCheck() returned %d\n", initRes);
+      LOGE("MpodAndroid::initAudioTrack() AudioTrack->initCheck() returned %d\n", initRes);
       goto initAudioTrack_exit;
    }
+
+   LOGD("initAudioTrack AudioTrack sampleRate: %d frameSize: %d frameCount: %d latency: %d",
+        (int)mpAudioTrack->getSampleRate(), mpAudioTrack->frameSize(), (int)mpAudioTrack->frameCount(), (int)mpAudioTrack->latency());
 
    mpAudioTrack->setVolume(1.0, 1.0);
 
