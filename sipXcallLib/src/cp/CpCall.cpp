@@ -33,7 +33,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define CALL_STACK_SIZE (24*1024)    // 24K stack for the call task
+#define CALL_STACK_SIZE (128*1024)    // 128K stack for the call task
 #       define LOCAL_ONLY 0
 #       define LOCAL_AND_REMOTE 1
 #define UI_TERMINAL_CONNECTION_STATE "TerminalConnectionState"
