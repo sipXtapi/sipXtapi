@@ -45,7 +45,7 @@
 #define TICKER_TEST_LENGTH_SEC               1
 #define MEASURE_JITTER_TEST_RUNS_NUMBER      1
 #define MEASURE_JITTER_TEST_LENGTH_SEC       5
-// Define this to enable writing of colected jitter data to files.
+// Define this to enable writing of collected jitter data to files.
 //#define WRITE_JITTER_RESULTS_TO_FILE
 
 #undef USE_TEST_DRIVER
@@ -241,6 +241,7 @@ public:
             OsTask::delay(TICKER_TEST_LENGTH_SEC*1000);
 
             driver.disableDevice();
+            printf("Frames played: %d\n", frameInCallback);
             CPPUNIT_ASSERT(!driver.isEnabled());
             CPPUNIT_ASSERT(frameInCallback > TICKER_TEST_LENGTH_SEC*TEST_FRAME_RATE);
          }
