@@ -11,6 +11,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// Android log defines
+#define LOG_NDEBUG 0
+#define LOG_TAG "sipXsyslog"
 
 // SYSTEM INCLUDES
 #include "os/OsIntTypes.h"
@@ -21,6 +24,9 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#ifdef ANDROID
+#  include <android/log.h>
+#endif
 
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
@@ -72,6 +78,30 @@ const int OsSysLog::sPriorityNamesNum =
 // LOCAL FUNCTIONS
 static void mysprintf(UtlString& results, const char* format, ...) ;
 static void myvsprintf(UtlString& results, const char* format, va_list args) ;
+
+#ifdef ANDROID
+static int androidPri(OsSysLogPriority pri)
+{
+   switch (pri)
+   {
+   case PRI_DEBUG:
+      return ANDROID_LOG_DEBUG;
+   case PRI_INFO:
+   case PRI_NOTICE:
+      return ANDROID_LOG_INFO;
+   case PRI_WARNING:
+      return ANDROID_LOG_WARN;
+   case PRI_ERR:
+      return ANDROID_LOG_ERROR;
+   case PRI_CRIT:
+   case PRI_ALERT:
+   case PRI_EMERG:
+      return ANDROID_LOG_FATAL;
+   default:
+      return ANDROID_LOG_INFO;
+   }
+}
+#endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -362,6 +392,11 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          UtlString logEntry;
          myvsprintf(logData, format, ap) ;
          logData = escape(logData) ;
+
+#ifdef ANDROID
+         __android_log_print(androidPri(priority), "sipXsyslog", "[%s] %s",
+                             OsSysLog::sFacilityNames[facility], logData.data());
+#endif
 
          OsTime timeNow;
          OsDateTime::getCurTime(timeNow); 
