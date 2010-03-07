@@ -15,6 +15,10 @@
 #include <signal.h>
 #include <sched.h>
 #include <sys/time.h>
+#ifdef ANDROID // [
+#  include <sys/resource.h> // for setpriority()
+#endif // !ANDROID ]
+
 
 /* Make sure we get MCL_CURRENT and MCL_FUTURE (for mlockall) on OS X 10.3 */
 #define _P1003_1B_VISIBLE
@@ -187,9 +191,38 @@ OsStatus OsTaskLinux::setPriority(int priority)
       return OS_TASK_NOT_STARTED;
    }
 
+#ifdef ANDROID // [
+   int nice = OsUtilLinux::cvtOsPrioToLinuxPrio(priority);
+   int res = setpriority(PRIO_PROCESS, 0, nice);
+   OsSysLog::add(FAC_KERNEL, PRI_INFO,
+                 "OsTaskLinux::setPriority(%d): setpriority(%d) for thread %s returned %d",
+                 priority, nice, getName().data(), res);
+   linuxRes = POSIX_OK;
+
+   int rtPrio = OsUtilLinux::cvtOsPrioToLinuxRtPrio(priority);
+   if (rtPrio > OsTaskLinux::RT_NO)
+   {
+      pthread_getschedparam(mTaskId, &policy, &param);
+      param.sched_priority = rtPrio;
+      linuxRes = pthread_setschedparam(mTaskId, SCHED_FIFO, &param);
+      if (linuxRes == POSIX_OK)
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_INFO, 
+                       "OsTaskLinux::setPriority: setting RT priority %d for \"%s\"", 
+                       rtPrio, mName.data());
+      }
+      else
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_ERR, 
+                       "OsTaskLinux::setPriority: failed to set RT priority %d for task \"%s\"", 
+                       rtPrio, mName.data());
+      }
+   }
+#else // ANDROID ][
    pthread_getschedparam(mTaskId, &policy, &param);
    param.sched_priority = OsUtilLinux::cvtOsPrioToLinuxPrio(priority);
    linuxRes = pthread_setschedparam(mTaskId, policy, &param);
+#endif // !ANDROID ]
 
    if (linuxRes == POSIX_OK)
    {
@@ -501,13 +534,22 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "doLinuxCreateTask: pthread_attr_init failed (%d) ", linuxRes);
    }
 
-   // Instead of using the default 2M as stack size, reduce it to 1M
+   // Set desired stack size.
    size_t stacksize = 0;
    linuxRes = pthread_attr_getstacksize(&attributes, &stacksize);
    if (linuxRes != POSIX_OK) {
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_attr_getstacksize error, returned %d", linuxRes);
    } else {
-      linuxRes = pthread_attr_setstacksize(&attributes, OSTASK_STACK_SIZE_1M);
+      if (mStackSize < PTHREAD_STACK_MIN)
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux:doLinuxCreateTask %s increasing stack size from %d to allowed minimium %d",
+                       pTaskName, mStackSize, PTHREAD_STACK_MIN);
+         mStackSize = PTHREAD_STACK_MIN;
+      }
+
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux:doLinuxCreateTask %s default stack size: %d setting to: %d",
+                    pTaskName, stacksize, mStackSize);
+      linuxRes = pthread_attr_setstacksize(&attributes, mStackSize);
       if (linuxRes != POSIX_OK)
          OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_attr_setstacksize error, returned %d", linuxRes);
    }
@@ -516,6 +558,20 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
    linuxRes = pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_DETACHED);
    if (linuxRes != POSIX_OK) {
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_attr_setdetachstate error, returned %d", linuxRes);
+   }
+
+   // Create threads with given RT policy and given priority
+   linuxRes = pthread_attr_setschedpolicy(&attributes, SCHED_FIFO);
+   if (linuxRes != POSIX_OK) {
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_attr_setschedpolicy error, returned %d", linuxRes);
+   }
+   {
+      struct sched_param param;
+      param.sched_priority = OsUtilLinux::cvtOsPrioToLinuxRtPrio(mPriority);
+      linuxRes = pthread_attr_setschedparam(&attributes, &param);
+      if (linuxRes != POSIX_OK) {
+         OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_attr_setschedparam error, returned %d", linuxRes);
+      }
    }
 
    // Lock startup synchronization mutex. It will be used in conjunction with
@@ -686,6 +742,33 @@ void * OsTaskLinux::taskEntry(void* arg)
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux::taskEntry: pthread_attr_init failed (%d) ", linuxRes);
    }
 
+   // Lock synchronization mutex. Begin synchronization of started thread with
+   // doLinuxCreateTask() which created it.
+   pthread_mutex_lock(&pTask->mStartupSyncMutex);
+
+   // Thread started up. Signal this to doLinuxCreateTask().
+   pthread_cond_signal(&pTask->mTaskStartedEvent);
+
+
+   // Wait until our init in doLinuxCreateTask() is finished.
+   //
+   // The actual thread is created and started with pthread_create(), then
+   // doLinuxCreateTask() enters the thread in the name database and
+   // sets mState=STARTED. However, if OsTaskLinux::taskEntry() runs before
+   // this initialization completes, callers might think (among other things)
+   // that the thread is not started.
+   pthread_cond_wait(&pTask->mTaskInitializedEvent, &pTask->mStartupSyncMutex);
+
+   // Unlock startup synchronization mutex. Synchronization finished.
+   pthread_mutex_unlock(&pTask->mStartupSyncMutex);
+
+   // Log Thread ID for debug purposes
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::taskEntry: Started task %s with lwp=%ld, pid=%d",
+                 pTask->mName.data(), gettid(), getpid());
+
+#ifdef ANDROID // [
+   pTask->setPriority(pTask->mPriority);
+#else // ANDROID ][
    int linuxPriority = OsUtilLinux::cvtOsPrioToLinuxPrio(pTask->mPriority);
 
    if(linuxPriority != RT_NO)
@@ -724,30 +807,7 @@ void * OsTaskLinux::taskEntry(void* arg)
          }
       }
    }
-
-   // Lock synchronization mutex. Begin synchronization of started thread with
-   // doLinuxCreateTask() which created it.
-   pthread_mutex_lock(&pTask->mStartupSyncMutex);
-
-   // Thread started up. Signal this to doLinuxCreateTask().
-   pthread_cond_signal(&pTask->mTaskStartedEvent);
-
-
-   // Wait until our init in doLinuxCreateTask() is finished.
-   //
-   // The actual thread is created and started with pthread_create(), then
-   // doLinuxCreateTask() enters the thread in the name database and
-   // sets mState=STARTED. However, if OsTaskLinux::taskEntry() runs before
-   // this initialization completes, callers might think (among other things)
-   // that the thread is not started.
-   pthread_cond_wait(&pTask->mTaskInitializedEvent, &pTask->mStartupSyncMutex);
-
-   // Unlock startup synchronization mutex. Synchronization finished.
-   pthread_mutex_unlock(&pTask->mStartupSyncMutex);
-
-   // Log Thread ID for debug purposes
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::taskEntry: Started task %s with lwp=%ld, pid=%d",
-                 pTask->mName.data(), gettid(), getpid());
+#endif // !ANDROID ]
 
 
    // Run the code the task is supposed to run, namely the run()

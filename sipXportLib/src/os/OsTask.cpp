@@ -33,7 +33,7 @@
 // STATIC VARIABLE INITIALIZATIONS
 const int OsTaskBase::DEF_OPTIONS   = 0;             // default task options
 const int OsTaskBase::DEF_PRIO      = 128;           // default task priority
-const int OsTaskBase::DEF_STACKSIZE = 16384;         // default task stack size
+const int OsTaskBase::DEF_STACKSIZE = 256*1024;       // default task stack size
 const UtlString OsTaskBase::TASK_PREFIX("Task.");     // Task name db prefix
 const UtlString OsTaskBase::TASKID_PREFIX("TaskID."); // TaskId name db prefix
 OsAtomicInt OsTaskBase::taskCount(0);

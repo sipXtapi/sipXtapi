@@ -46,6 +46,9 @@ public:
    static int cvtOsPrioToLinuxPrio(const int osPrio);
      //:Convert an abstraction layer task priority to a Linux task priority
 
+   static int cvtOsPrioToLinuxRtPrio(const int osPrio);
+     //:Convert an abstraction layer task priority to a Linux task priority
+
    static int cvtLinuxPrioToOsPrio(const int linuxPrio);
      //:Convert a Linux task priority to an abstraction layer task priority
 
