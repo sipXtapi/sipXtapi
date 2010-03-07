@@ -8,9 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // SYSTEM INCLUDES
-//#include <...>
 
 // APPLICATION INCLUDES
 #include <stdio.h>
@@ -36,6 +34,13 @@ void PrintIt(const char *s)
     OutputDebugString(s);
 }
 
+#elif defined(ANDROID)
+#include <android/log.h>
+void PrintIt(const char *s)
+{
+//   printf("%s",s);
+   __android_log_print(ANDROID_LOG_VERBOSE, "sipXprintf", "%s",s);
+}
 #else
 #define PrintIt(x) printf("%s", (char *) (x))
 #endif
