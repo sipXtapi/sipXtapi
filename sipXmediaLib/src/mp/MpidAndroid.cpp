@@ -40,7 +40,8 @@ const int MpidAndroid::mSampleRatesListLen =
 #ifdef MPID_ANDROID_CLEAN_EXIT // [
 static AudioRecord *sgAudioRecord = NULL;
 
-static void sigabrt_handler(int signum)
+static struct sigaction old_signalhandlers[NSIG];
+static void android_signal_handler(int signum, siginfo_t *info, void *reserved)
 {
    LOGE("Caught signal: %d", signum);
    if(sgAudioRecord != NULL)
@@ -50,7 +51,7 @@ static void sigabrt_handler(int signum)
       delete sgAudioRecord;
       sgAudioRecord = NULL;
    }
-   exit(2);
+   old_signalhandlers[signum].sa_handler(signum);
 }
 #endif // MPID_ANDROID_CLEAN_EXIT ]
 
@@ -74,10 +75,26 @@ MpidAndroid::MpidAndroid(audio_source source,
    // We intercept SIGABRT signal here, which may be intercepted somewhere
    // else already. We shouldn't do this in a generic system, but for now
    // I think we don't intercept it anywhere else anyway.
-   signal(SIGABRT, sigabrt_handler);
-   // Current Android use SIGSEGV instead of SIGABRT.
-   // See: bionic/libc/unistd/abort.c
-   signal(SIGSEGV, sigabrt_handler);
+   //
+   // Note: Current Android use SIGSEGV instead of SIGABRT.
+   //       See bionic/libc/unistd/abort.c
+
+   struct sigaction sig_handler;
+   memset(&sig_handler, 0, sizeof(struct sigaction));
+   sig_handler.sa_sigaction = android_signal_handler;
+   sig_handler.sa_flags = SA_RESETHAND;
+#define CATCHSIG(X) sigaction(X, &sig_handler, &old_signalhandlers[X])
+   CATCHSIG(SIGILL);
+   CATCHSIG(SIGABRT);
+   CATCHSIG(SIGBUS);
+   CATCHSIG(SIGFPE);
+   CATCHSIG(SIGSEGV);
+   CATCHSIG(SIGSTKFLT);
+   CATCHSIG(SIGPIPE);
+   CATCHSIG(SIGTERM);
+   CATCHSIG(SIGQUIT);
+   CATCHSIG(SIGKILL);
+#undef CATCHSIG
 #endif // MPID_ANDROID_CLEAN_EXIT ]
 }
 
@@ -94,6 +111,10 @@ MpidAndroid::~MpidAndroid()
    if (mpAudioRecord) {
       LOGV("Delete Track Record: %p\n", mpAudioRecord);
       delete mpAudioRecord;
+      mpAudioRecord = NULL;
+#ifdef MPID_ANDROID_CLEAN_EXIT // [
+      sgAudioRecord = NULL;
+#endif // MPID_ANDROID_CLEAN_EXIT ]
    }
 }
 
@@ -223,13 +244,17 @@ OsStatus MpidAndroid::disableDevice()
       } else {
          LOGE("MpidAndroid::disableDevice() Stop timed out");
          mState = DRIVER_IDLE;
-         mpAudioRecord->stop();
-         delete mpAudioRecord;
-         mpAudioRecord = NULL;
-#ifdef MPID_ANDROID_CLEAN_EXIT // [
-         sgAudioRecord = NULL;
-#endif // MPID_ANDROID_CLEAN_EXIT ]
       }
+   }
+
+   if (mpAudioRecord != NULL)
+   {
+      mpAudioRecord->stop();
+      delete mpAudioRecord;
+      mpAudioRecord = NULL;
+#ifdef MPID_ANDROID_CLEAN_EXIT // [
+      sgAudioRecord = NULL;
+#endif // MPID_ANDROID_CLEAN_EXIT ]
    }
 
    // Clear out all the audio stream information.
@@ -271,6 +296,9 @@ bool MpidAndroid::initAudioRecord()
    if (mpAudioRecord) {
       delete mpAudioRecord;
       mpAudioRecord = NULL;
+#ifdef MPID_ANDROID_CLEAN_EXIT // [
+      sgAudioRecord = NULL;
+#endif // MPID_ANDROID_CLEAN_EXIT ]
    }
 
    // Open audio track
@@ -312,6 +340,9 @@ initAudioTrack_exit:
       LOGV("MpidAndroid::initAudioRecord() Delete AudioRecord: %p\n", mpAudioRecord);
       delete mpAudioRecord;
       mpAudioRecord = NULL;
+#ifdef MPID_ANDROID_CLEAN_EXIT // [
+      sgAudioRecord = NULL;
+#endif // MPID_ANDROID_CLEAN_EXIT ]
    }
 
    return false;
@@ -449,10 +480,12 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
    {
       if (buffer->frameCount + pDriver->mBufInternalSamples < pDriver->mSamplesPerFrameInternal)
       {
+#ifdef ENABLE_FRAME_TIME_LOGGING
          LOGV("frameCount=%d mBufInternalSamples=%d (sum=%d) mSamplesPerFrameInternal=%d",
               buffer->frameCount, pDriver->mBufInternalSamples,
               buffer->frameCount + pDriver->mBufInternalSamples,
               pDriver->mSamplesPerFrameInternal);
+#endif
 
          memcpy(pDriver->mpBufInternal, buffer->i16, buffer->frameCount*sizeof(short));
          pDriver->mBufInternalSamples += buffer->frameCount;
