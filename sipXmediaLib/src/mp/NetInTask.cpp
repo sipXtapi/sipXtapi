@@ -115,7 +115,7 @@ const int NetInTask::DEF_NET_IN_TASK_OPTIONS   = 0;   // default task options
 #ifdef USING_NET_EQ /* [ */
 const int NetInTask::DEF_NET_IN_TASK_STACKSIZE = 40960;//default task stacksize
 #else /* USING_NET_EQ ] [ */
-const int NetInTask::DEF_NET_IN_TASK_STACKSIZE = 4096;// default task stacksize
+const int NetInTask::DEF_NET_IN_TASK_STACKSIZE = 64*1024;// default task stacksize
 #endif /* USING_NET_EQ ] */
 
 #define SIPX_DEBUG
