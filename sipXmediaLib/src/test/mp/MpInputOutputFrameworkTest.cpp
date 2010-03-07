@@ -132,7 +132,7 @@ static size_t nOutputDrivers =
 #ifdef USE_TEST_OUTPUT_DRIVER
    10;
 #elif defined(USE_ANDROID_OUTPUT_DRIVER) // [
-   2;
+   1;
 #elif defined(USE_OSS_OUTPUT_DRIVER) // [
    2;
 #elif defined(USE_COREAUDIO_OUTPUT_DRIVER) // [
@@ -969,7 +969,6 @@ protected:
    {
       // Add driver to manager
       MpInputDeviceHandle deviceId = mpInputDeviceManager->addDevice(*pDriver);
-      printf("Managed Android driver %p with ID %d(%d)\n", pDriver, deviceId, pDriver->getDeviceId());
       CPPUNIT_ASSERT(deviceId > 0);
       CPPUNIT_ASSERT(!mpInputDeviceManager->isDeviceEnabled(deviceId));
 
@@ -1044,12 +1043,10 @@ protected:
       {
          sInputDriverNames[i] = "default";
 
-         printf("Creating Android driver...\n");
          // Create driver
          MpidAndroid *pDriver = new MpidAndroid(MpidAndroid::AUDIO_SOURCE_DEFAULT,
                                                 *mpInputDeviceManager);
          CPPUNIT_ASSERT(pDriver != NULL);
-         printf("Created Android driver %p with ID %d\n", pDriver, pDriver->getDeviceId());
 
          // Add driver to manager
          manageInputDevice(pDriver);

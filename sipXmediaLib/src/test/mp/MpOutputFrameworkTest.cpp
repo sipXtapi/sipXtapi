@@ -26,9 +26,14 @@
 #  define RTL_STOP
 #endif // RTL_ENABLED ]
 
-#define TEST_SAMPLES_PER_FRAME_SIZE   80
+#ifdef ANDROID // [
+#  define TEST_SAMPLES_PER_FRAME_SIZE   160
+#  define TEST_SAMPLES_PER_SECOND       16000
+#else // ANDROID ][
+#  define TEST_SAMPLES_PER_FRAME_SIZE   80
+#  define TEST_SAMPLES_PER_SECOND       8000
+#endif // !ANDROID ]
 #define BUFFER_NUM                    50
-#define TEST_SAMPLES_PER_SECOND       8000
 #define TEST_FRAME_RATE               (TEST_SAMPLES_PER_SECOND/TEST_SAMPLES_PER_FRAME_SIZE)
 #define TEST_MIXER_BUFFER_LENGTH      10
 #define TEST_SAMPLE_DATA_LENGTH_SEC   2  // test length in seconds
