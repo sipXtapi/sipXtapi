@@ -12,6 +12,7 @@
 
 #define LOG_NDEBUG 0
 #define LOG_TAG "MpodAndroid"
+//#define ENABLE_FRAME_TIME_LOGGING
 
 // SIPX INCLUDES
 #include "mp/MpodAndroid.h"
@@ -247,7 +248,6 @@ UtlBoolean MpodAndroid::initAudioTrack()
 
    // Open audio track
    mpAudioTrack = new AudioTrack(mStreamType,  // streamType
-//                               44100,  // sampleRate
                                  mSamplesPerSec,  // sampleRate
                                  AudioSystem::PCM_16_BIT,  // format
 #ifdef ANDROID_1_6
@@ -255,7 +255,6 @@ UtlBoolean MpodAndroid::initAudioTrack()
 #else
                                  AudioSystem::CHANNEL_OUT_MONO,
 #endif
-//                               6*441,  // frameCount
                                  0,  // frameCount
                                  0,  // flags
                                  audioCallback,  // cbf
@@ -311,8 +310,10 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
 
    int samplesToCopy = sipx_min(buffer->frameCount,
                                 pDriver->mSamplesPerFrame-pDriver->mSampleBufferIndex);
-//   LOGV("MpodAndroid::audioCallback() buffer=%p samples=%d toCopy=%d\n",
-//        buffer->i16, buffer->frameCount, samplesToCopy);
+#ifdef ENABLE_FRAME_TIME_LOGGING
+   LOGV("MpodAndroid::audioCallback() buffer=%p samples=%d toCopy=%d\n",
+        buffer->i16, buffer->frameCount, samplesToCopy);
+#endif
 
    // Copy data to buffer
    memcpy(buffer->i16, pDriver->mpSampleBuffer+pDriver->mSampleBufferIndex, samplesToCopy*sizeof(short));
@@ -326,7 +327,9 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
       pDriver->mSampleBufferIndex = 0;
 
       // Fire callback. It will call our pushFrame() in turn.
+#ifdef ENABLE_FRAME_TIME_LOGGING
       LOGV("MpodAndroid::audioCallback() signal ticker, time %"PRIi64"ns\n", systemTime(SYSTEM_TIME_REALTIME));
+#endif
       pDriver->mpTickerNotification->signal(pDriver->mSamplesPerFrame);
 
       // Update frame time.
