@@ -50,11 +50,11 @@ public:
    enum audio_source {
       AUDIO_SOURCE_DEFAULT = 0,
       AUDIO_SOURCE_MIC = 1,
-      AUDIO_SOURCE_VOICE_UPLINK = 2,
-      AUDIO_SOURCE_VOICE_DOWNLINK = 3,
-      AUDIO_SOURCE_VOICE_CALL = 4,
-      AUDIO_SOURCE_CAMCORDER = 5,
-      AUDIO_SOURCE_VOICE_RECOGNITION = 6,
+      AUDIO_SOURCE_VOICE_UPLINK = 2,      // Don't work on Droid/Milestone
+      AUDIO_SOURCE_VOICE_DOWNLINK = 3,    // Don't work on Droid/Milestone
+      AUDIO_SOURCE_VOICE_CALL = 4,        // Don't work on Droid/Milestone
+      AUDIO_SOURCE_CAMCORDER = 5,         // Seems equal to MIC on Droid/Milestone
+      AUDIO_SOURCE_VOICE_RECOGNITION = 6, // Seems equal to MIC on Droid/Milestone
       AUDIO_SOURCE_MAX = AUDIO_SOURCE_VOICE_RECOGNITION,
 
       AUDIO_SOURCE_LIST_END  // must be last - used to validate audio source type
