@@ -201,6 +201,9 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     mpOutputDeviceManager =
         new MpOutputDeviceManager(mgrSamplesPerFrame,    // samples per frame
                                   mDefaultSamplesPerSec, // samples per second
+#ifdef ANDROID // [
+                                  (100 > mFrameSizeMs*3) ? 100 : mFrameSizeMs*5 // mixer buffer length (ms)
+#else // ANDROID ][
                                   // On Windows (especially on Vista)
                                   // audio is consumed by 50ms chunks, causing
                                   // bursts of ticker notifications. So we
@@ -211,6 +214,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                   // of mixer buffer is used which increases
                                   // in case of bursts.
                                   (60 > mFrameSizeMs*3) ? 60 : mFrameSizeMs*3 // mixer buffer length (ms)
+#endif // !ANDROID ]
                                   );
 
     // Get media task ticker notification
@@ -294,6 +298,10 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     OsStatus result = 
         mpInitialResourceTopology->validateResourceTypes(*mpResourceFactory, 
                                                          firstInvalidResourceIndex);
+    if(result != OS_SUCCESS)
+    {
+       OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphFactoryImpl: validateResourceTypes returned error: %d", result);
+    }
     assert(result == OS_SUCCESS);
     assert(firstInvalidResourceIndex == -1);
 
