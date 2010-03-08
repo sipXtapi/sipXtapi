@@ -44,14 +44,9 @@ LOCAL_SRC_FILES := \
     sipXmediaMediaProcessing/src/sipXmediaFactoryImpl.cpp \
 
 
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DDISABLE_STREAM_PLAYER \
-                  -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY \
-                  -DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\"
+LOCAL_CFLAGS += -DDISABLE_STREAM_PLAYER \
+                -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY \
+                -DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -71,7 +66,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
-LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 #include $(BUILD_SHARED_LIBRARY)
@@ -92,19 +87,9 @@ LOCAL_SRC_FILES := \
     sipXmediaMediaProcessing/src/test/CpPhoneMediaInterfaceTest.cpp \
 
 
-LOCAL_CFLAGS += \
-                  -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-
-
-LOCAL_CXXFLAGS += \
-                  -DDISABLE_STREAM_PLAYER \
-                  -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY \
-                  -DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/tmp\"
+LOCAL_CFLAGS += -DDISABLE_STREAM_PLAYER \
+                -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY \
+                -DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
 
 
 LOCAL_C_INCLUDES += \
@@ -128,7 +113,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
-LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)

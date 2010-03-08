@@ -163,29 +163,11 @@ LOCAL_SRC_FILES := \
 
 # Would like to use native threads instead of sipX mutex and sem, but pthread_mutex_timedlock is not
 # in the bionic lib for 1.6 though it is in the header file
-#                  -DSIPX_USE_NATIVE_PTHREADS \
-
-LOCAL_CFLAGS += \
-                  -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\"
-
-LOCAL_CXXFLAGS += \
-                  -include os/OsIntTypes.h
+#LOCAL_CFLAGS += -DSIPX_USE_NATIVE_PTHREADS
 
 
 sipXportLib/config/sipxportlib-buildstamp.cpp:
 	( cd $SIPX_HOME; scripts/makeBuildTimestamps.sh )
-
-#ifeq ($(TARGET_ARCH),arm)
-#	LOCAL_CFLAGS += -DARMv5_ASM
-#endif
-
-#ifeq ($(TARGET_BUILD_TYPE),debug)
-#	LOCAL_CFLAGS += -DDEBUG
-#endif
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include
@@ -198,7 +180,7 @@ LOCAL_C_INCLUDES += \
 
 LOCAL_STATIC_LIBRARIES := libpcre
 
-LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
@@ -220,14 +202,6 @@ LOCAL_SRC_FILES := \
   src/test/sipxunit/TestUtilities.cpp \
   src/test/sipxportunit/main.cpp
 
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/sdcard\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/sdcard\" \
-                  -include os/OsIntTypes.h
-
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
     $(SIPX_HOME)/sipXportLib/src/test \
@@ -238,7 +212,7 @@ LOCAL_C_INCLUDES += \
 
 LOCAL_STATIC_LIBRARIES := 
 
-LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
@@ -261,14 +235,6 @@ LOCAL_SRC_FILES := \
 #  src/test/sipxportunit/bar.cpp \
 #  src/test/sipxportunit/foo.cpp
 
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/sdcard\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/sdcard\" \
-                  -include os/OsIntTypes.h
-
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
     $(SIPX_HOME)/libpcre \
@@ -279,7 +245,7 @@ LOCAL_C_INCLUDES += \
 #LOCAL_SHARED_LIBRARIES :=
 LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
 
-LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
 include $(BUILD_EXECUTABLE)
 
@@ -299,14 +265,6 @@ LOCAL_SRC_FILES := \
 #  src/test/sipxportunit/bar.cpp \
 #  src/test/sipxportunit/foo.cpp
 
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/sdcard\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/sdcard\" \
-                  -include os/OsIntTypes.h
-
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
     $(SIPX_HOME)/libpcre \
@@ -317,7 +275,7 @@ LOCAL_C_INCLUDES += \
 #LOCAL_SHARED_LIBRARIES :=
 LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
 
-LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
 #include $(BUILD_EXECUTABLE)
 include $(BUILD_SHARED_LIBRARY)
@@ -393,15 +351,6 @@ LOCAL_SRC_FILES := \
   src/test/utl/XmlContentTest.cpp \
 
 
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/sdcard\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/sdcard\" \
-                  -include os/OsIntTypes.h
-
-
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
     $(SIPX_HOME)/libpcre \
@@ -412,7 +361,7 @@ LOCAL_C_INCLUDES += \
 #LOCAL_SHARED_LIBRARIES :=
 LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
 
-LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
 include $(BUILD_EXECUTABLE)
 

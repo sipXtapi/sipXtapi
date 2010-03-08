@@ -174,23 +174,12 @@ LOCAL_SRC_FILES := \
     src/rtcp/SourceDescription.cpp
 
 
-LOCAL_CFLAGS += \
-                  -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DCODEC_PCMA_PCMU_STATIC=1 \
-                  -DCODEC_TONES_STATIC=1 \
-                  -DCODEC_G722_STATIC=1 \
+LOCAL_CFLAGS += -DCODEC_PCMA_PCMU_STATIC=1 \
+                -DCODEC_TONES_STATIC=1 \
+                -DCODEC_G722_STATIC=1 \
+                -DDISABLE_STREAM_PLAYER
 
-
-LOCAL_CXXFLAGS += \
-                  -DDISABLE_STREAM_PLAYER \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/tmp\" \
-                  -include os/OsIntTypes.h
-
-#                  -DHAVE_SPEEX_RESAMPLER \
+#                -DHAVE_SPEEX_RESAMPLER \
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -209,7 +198,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 # Android audio related stuff
 SIPX_MEDIA_SHARED_LIBS += libmedia libutils
 SIPX_MEDIA_LDLIBS += -llog -Wl,--allow-shlib-undefined
-SIPX_MEDIA_CXXFLAGS += -include AndroidConfig.h -DANDROID_2_0
+SIPX_MEDIA_CFLAGS += -include AndroidConfig.h -DANDROID_2_0
 SIPX_MEDIA_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/frameworks/base/include \
     $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/system/core/include \
@@ -217,7 +206,7 @@ SIPX_MEDIA_C_INCLUDES += \
 
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
-LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 #include $(BUILD_SHARED_LIBRARY)
@@ -276,17 +265,7 @@ LOCAL_SRC_FILES := \
     src/test/mp/MprToneGenTest.cpp \
 
 
-LOCAL_CFLAGS += \
-                  -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-
-
-LOCAL_CXXFLAGS += \
-                  -DDISABLE_STREAM_PLAYER \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/tmp\"
+LOCAL_CFLAGS += -DDISABLE_STREAM_PLAYER
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -306,7 +285,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
-LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)
@@ -322,24 +301,15 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := mediasandbox
 
 LOCAL_SRC_FILES := \
-    src/test/mp/MpInputDeviceDriverTest.cpp
+    src/test/mp/MpInputOutputFrameworkTest.cpp
 #    src/test/mp/MpOutputDriverTest.cpp \
 #    src/test/mp/MpOutputFrameworkTest.cpp
+#    src/test/mp/MpInputDeviceDriverTest.cpp
 
 
 #    src/test/mp/MpMMTimerTest.cpp \
 
-LOCAL_CFLAGS += \
-                  -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-
-
-LOCAL_CXXFLAGS += \
-                  -DDISABLE_STREAM_PLAYER \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/tmp\"
+LOCAL_CFLAGS += -DDISABLE_STREAM_PLAYER
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -358,7 +328,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
-LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)
@@ -383,17 +353,8 @@ LOCAL_SRC_FILES := \
     contrib/libspandsp/src/g711.c
 
 
-LOCAL_CFLAGS += \
-                  -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DCODEC_STATIC \
-
-LOCAL_CXXFLAGS += \
-                  -DDISABLE_STREAM_PLAYER \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/tmp\"
+LOCAL_CFLAGS += -DCODEC_STATIC \
+                -DDISABLE_STREAM_PLAYER
 
 
 LOCAL_C_INCLUDES += \
@@ -421,19 +382,8 @@ LOCAL_MODULE := libcodec_tones
 LOCAL_SRC_FILES := \
     src/mp/codecs/plgtones/PlgTones.c \
 
-
-LOCAL_CFLAGS += \
-                  -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DCODEC_STATIC \
-
-LOCAL_CXXFLAGS += \
-                  -DDISABLE_STREAM_PLAYER \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/tmp\"
-
+LOCAL_CFLAGS += -DCODEC_STATIC \
+                -DDISABLE_STREAM_PLAYER
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -462,17 +412,8 @@ LOCAL_SRC_FILES := \
     contrib/libspandsp/src/g722_decode.c \
 
 
-LOCAL_CFLAGS += \
-                  -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DCODEC_STATIC \
-
-LOCAL_CXXFLAGS += \
-                  -DDISABLE_STREAM_PLAYER \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/tmp\"
+LOCAL_CFLAGS += -DCODEC_STATIC \
+                -DDISABLE_STREAM_PLAYER
 
 
 LOCAL_C_INCLUDES += \
@@ -499,17 +440,12 @@ LOCAL_MODULE := libsipxmediajnisandbox
 
 LOCAL_SRC_FILES := \
   ../sipXportLib/src/test/sipxportunit/unitJni.cpp \
-  src/test/mp/MpInputDeviceDriverTest.cpp
+  src/test/mp/MpOutputDriverTest.cpp \
+  src/test/mp/MpOutputFrameworkTest.cpp
 
+#  src/test/mp/MpInputDeviceDriverTest.cpp
 #  src/test/mp/MpOutputDriverTest.cpp
 #  src/test/mp/MpOutputFrameworkTest.cpp
-
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/sdcard\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/sdcard\"
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
@@ -528,7 +464,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
-LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 #include $(BUILD_EXECUTABLE)

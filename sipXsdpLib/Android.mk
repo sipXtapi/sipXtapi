@@ -33,19 +33,6 @@ LOCAL_SRC_FILES := \
     src/sdp/SdpDefaultCodecFactory.cpp \
     src/sdp/SdpMediaLine.cpp
 
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
-
-#ifeq ($(TARGET_ARCH),arm)
-#	LOCAL_CFLAGS += -DARMv5_ASM
-#endif
-
-#ifeq ($(TARGET_BUILD_TYPE),debug)
-#	LOCAL_CFLAGS += -DDEBUG
-#endif
-
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
     $(SIPX_HOME)/sipXportLib/include \
@@ -55,7 +42,7 @@ LOCAL_C_INCLUDES += \
 
 LOCAL_STATIC_LIBRARIES := libsipXport libpcre
 
-LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
@@ -76,12 +63,6 @@ LOCAL_SRC_FILES := \
     src/test/sdp/SdpSetGetTest.cpp \
     src/test/sdp/sdpTest.cpp
 
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\" \
-                  -DTEST_DIR=\"/tmp\"
-
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
     $(SIPX_HOME)/libpcre \
@@ -93,7 +74,7 @@ LOCAL_C_INCLUDES += \
 #LOCAL_SHARED_LIBRARIES :=
 LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libsipXsdp libpcre
 
-LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
 include $(BUILD_EXECUTABLE)
 

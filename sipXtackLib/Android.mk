@@ -18,7 +18,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 # For a few includes we need to hack into the path
-ANDROID_CORE_PATH := /Users/dpetrie/dev/android_1.6
+ANDROID_CORE_PATH := /home/ipse/work/sipez/android-master
 
 # Set up the target identity.
 # LOCAL_MODULE/_CLASS are required for local-intermediates-dir to work.
@@ -128,11 +128,6 @@ LOCAL_SRC_FILES := \
   src/net/Url.cpp \
   src/net/pk12wrapper.cpp 
 
-LOCAL_CFLAGS += \
-                  -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-
 bionic_compile_flags := \
                 -DWITH_ERRLIST                  \
                 -DANDROID_CHANGES               \
@@ -146,10 +141,6 @@ bionic_compile_flags := \
                 -I$(LOCAL_PATH)/private \
                 -DUSE_DL_PREFIX
 
-
-
-LOCAL_CXXFLAGS += \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -171,7 +162,7 @@ $(SIPX_HOME)/sipXtackLib/include/net/version.h:
 
 LOCAL_STATIC_LIBRARIES := libsipXsdp libsipXport libpcre 
 
-LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
@@ -219,17 +210,6 @@ LOCAL_SRC_FILES := \
     src/test/SdpHelperTest.cpp \
 
 
-LOCAL_CFLAGS += \
-                  -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-
-
-LOCAL_CXXFLAGS += \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\" \
-                  -DTEST_DIR=\"/tmp\"
-
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
     $(SIPX_HOME)/sipXportLib/include \
@@ -245,7 +225,7 @@ LOCAL_C_INCLUDES += \
 #LOCAL_SHARED_LIBRARIES :=
 LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXport libpcre 
 
-LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
 include $(BUILD_EXECUTABLE)
 

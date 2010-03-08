@@ -56,14 +56,6 @@ LOCAL_SRC_FILES := \
 # Not immediately needed on Android
 FOO_DONT_BUILD := \
 
-
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\"
-
-
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
     $(SIPX_HOME)/sipXportLib/include \
@@ -83,7 +75,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
-LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 #include $(BUILD_SHARED_LIBRARY)
@@ -98,11 +90,6 @@ LOCAL_MODULE := libsipXtapi
 
 LOCAL_SRC_FILES := \
     src/jni/testJni.cpp \
-
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" -DSIPX_CONFDIR=\"/etc/sipxpbx\"
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -121,7 +108,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
-LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 include $(BUILD_SHARED_LIBRARY)
@@ -140,14 +127,6 @@ LOCAL_MODULE := sipxcallunit
 LOCAL_SRC_FILES := \
     src/test/cp/CallManagerTest.cpp \
     src/test/cp/CpTestSupport.cpp \
-
-
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\"
-
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -171,7 +150,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
-LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)
@@ -209,13 +188,6 @@ LOCAL_SRC_FILES := \
     src/test/tapi/TestStunServerTask.cpp \
 
 
-LOCAL_CXXFLAGS += -D__pingtel_on_posix__ \
-                  -DANDROID \
-                  -DDEFINE_S_IREAD_IWRITE \
-                  -DSIPX_TMPDIR=\"/usr/var/tmp\" \
-                  -DSIPX_CONFDIR=\"/etc/sipx\"
-
-
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
     $(SIPX_HOME)/sipXportLib/include \
@@ -238,7 +210,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
-LOCAL_CXXFLAGS += $(SIPX_MEDIA_CXXFLAGS)
+LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)
