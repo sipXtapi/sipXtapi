@@ -95,7 +95,19 @@ extern "C" void sipxDestroyMediaFactoryFactory()
             delete spFactory;
             spFactory = NULL;
          }
+         else
+         {
+            OsSysLog::add(FAC_MP, PRI_WARNING, "sipxDestroyMediaFactoryFactory null factory\n");
+         }
       }
+      else
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG, "sipxDestroyMediaFactoryFactory siInstanceCount: %d\n", siInstanceCount);
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "sipxDestroyMediaFactoryFactory siInstanceCount <= 0 siInstanceCount: %d\n", siInstanceCount);
    }
 }
 
@@ -197,6 +209,7 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb,
 // Destructor
 sipXmediaFactoryImpl::~sipXmediaFactoryImpl()
 {
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "~sipXmediaFactoryImpl miInstanceCount: %d\n", miInstanceCount);
    // TODO: Shutdown
    --miInstanceCount;
    if (miInstanceCount == 0)
