@@ -46,12 +46,7 @@ LOCAL_SRC_FILES := \
     src/tao/TaoObjectMap.cpp \
     src/tao/TaoReference.cpp \
     src/tao/TaoString.cpp \
-    src/tapi/sipXtapi.cpp \
-    src/tapi/SipXEventDispatcher.cpp \
-    src/tapi/sipXtapiEvents.cpp \
-    src/tapi/sipXtapiInternal.cpp \
-    src/tapi/SipXHandleMap.cpp \
-    src/tapi/SipXMessageObserver.cpp
+
 
 # Not immediately needed on Android
 FOO_DONT_BUILD := \
@@ -84,12 +79,21 @@ include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 
+#####################################################
+
 # Set up the target identity.
 # LOCAL_MODULE/_CLASS are required for local-intermediates-dir to work.
 LOCAL_MODULE := libsipXtapi
 
 LOCAL_SRC_FILES := \
+    src/tapi/sipXtapi.cpp \
+    src/tapi/SipXEventDispatcher.cpp \
+    src/tapi/sipXtapiEvents.cpp \
+    src/tapi/sipXtapiInternal.cpp \
+    src/tapi/SipXHandleMap.cpp \
+    src/tapi/SipXMessageObserver.cpp \
     src/jni/testJni.cpp \
+
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -208,7 +212,7 @@ LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXcall libsipXmediaAdapter libsipXmed
 LOCAL_LDLIBS += -lstdc++ -ldl
 
 # Add sipXmediaLib dependencies
-LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS) libsipXtapi
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
 LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
