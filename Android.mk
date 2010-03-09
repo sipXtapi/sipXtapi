@@ -25,20 +25,14 @@ include $(SIPX_HOME)/sipXsdpLib/Android.mk
 
 include $(SIPX_HOME)/sipXtackLib/Android.mk
 
+#include $(SIPX_HOME)/sipXmediaLib/contrib/libspeex/Android.mk
+
 include $(SIPX_HOME)/sipXmediaLib/Android.mk
 
 include $(SIPX_HOME)/sipXmediaAdapterLib/Android.mk
 
 include $(SIPX_HOME)/sipXcallLib/Android.mk
 
-include $(SIPX_HOME)/sipXtapiJni/Android.mk
-
 include $(CLEAR_VARS)
 
-#LOCAL_MODULE    := libsipXtapi
-#LOCAL_SRC_FILES := 
-
-#LOCAL_STATIC_LIBRARIES := libsipXtapi
-
-#include $(BUILD_SHARED_LIBRARY)
 

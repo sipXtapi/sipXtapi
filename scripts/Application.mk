@@ -15,12 +15,13 @@
 #
 #
 
-UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit sipxsdpunit sipxtackunit mediasandbox sipxmediaunit sipxmediaadapterunit sipxcallunit sipxtapiunit
-JNI_UNIT_LIBS := libsipxportjnisandbox libsipxmediajnisandbox
-SIPX_LIBS := libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall libsipXtapi libpcre libsipXtapijni 
+SIPX_LIBS := libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall libsipXtapi libpcre
 SIPX_CODEC_LIBS := libcodec_pcmapcmu libcodec_tones libcodec_g722
+JNI_UNIT_LIBS := libsipxportjnisandbox libsipxmediajnisandbox
+UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit sipxsdpunit sipxtackunit mediasandbox sipxmediaunit sipxmediaadapterunit sipxcallunit sipxtapiunit
 
 APP_MODULES := $(SIPX_LIBS) \
+   $(APP_EXTRA_LIBS) \
    $(SIPX_CODEC_LIBS) \
    $(JNI_UNIT_LIBS) \
    $(UNIT_TESTS)
