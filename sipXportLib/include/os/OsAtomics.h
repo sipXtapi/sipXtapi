@@ -24,7 +24,11 @@ typedef atomic_address OsAtomicVoidPtr;
 
 #define OsAtomicLight OsAtomic
 
-#else // HAVE_C_ATOMICS ][
+#elif defined(ANDROID) // HAVE_C_ATOMICS ][ ANDROID
+
+#include <os/OsAtomicsAndroid.h>
+
+#else // ANDROID ][
 
 #ifdef __arm__
 #warning ARM version of OsAtomics need to be fixed to support ARM features.

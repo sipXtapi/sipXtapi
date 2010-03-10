@@ -196,7 +196,7 @@ LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport libpcre
 LOCAL_LDLIBS += -lstdc++ -ldl
 
 # Android audio related stuff
-SIPX_MEDIA_SHARED_LIBS += libmedia libutils
+SIPX_MEDIA_SHARED_LIBS += libmedia libutils libcutils
 SIPX_MEDIA_LDLIBS += -llog -Wl,--allow-shlib-undefined
 SIPX_MEDIA_CFLAGS += -include AndroidConfig.h -DANDROID_2_0
 SIPX_MEDIA_C_INCLUDES += \

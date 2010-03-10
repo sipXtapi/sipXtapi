@@ -443,7 +443,7 @@ public:
 
    static OsTimer* getTimer();
 
-   static UtlBoolean isTaskPtrNull() { return(spOsSysLogTask == NULL); };
+   static UtlBoolean isTaskPtrNull() { return(spOsSysLogTask.load() == NULL); };
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

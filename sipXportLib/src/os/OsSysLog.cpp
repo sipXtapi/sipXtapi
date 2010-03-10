@@ -120,10 +120,10 @@ OsStatus OsSysLog::initialize(const int   maxInMemoryLogEntries,
 
    setLoggingPriority(OsSysLog::sLoggingPriority) ;
 
-   if (spOsSysLogTask == NULL)
+   if (isTaskPtrNull())
    {
       spOsSysLogTask = new OsSysLogTask(maxInMemoryLogEntries, options) ;
-      if(spOsSysLogTask == NULL)
+      if(isTaskPtrNull())
       {
          rc = OS_FAILED;
       }
@@ -303,7 +303,7 @@ OsStatus OsSysLog::add(const char*            taskName,
    OsStatus rc = OS_UNSPECIFIED;
 
    // If the log has not been initialized, print everything
-   if (spOsSysLogTask == NULL)
+   if (isTaskPtrNull())
    {
       // Convert the variable arguments into a single string
       UtlString data ;
@@ -348,7 +348,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
    OsStatus rc = OS_UNSPECIFIED;
 
    // If the log has not been initialized, print everything
-   if (spOsSysLogTask != NULL)
+   if (!isTaskPtrNull())
    {
       if (willLog(facility, priority))
       {
@@ -384,7 +384,7 @@ OsStatus OsSysLog::vadd(const char*            taskName,
                         va_list                ap)
 {
    // If the log has not been initialized, print everything to the console
-   if (spOsSysLogTask != NULL)
+   if (!isTaskPtrNull())
    {
       if (willLog(facility, priority))
       {

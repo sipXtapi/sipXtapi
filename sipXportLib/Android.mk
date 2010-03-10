@@ -182,6 +182,19 @@ LOCAL_STATIC_LIBRARIES := libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
+SIPX_PORT_SHARED_LIBS += libcutils
+SIPX_PORT_LDLIBS += -Wl,--allow-shlib-undefined
+SIPX_PORT_CFLAGS += -include AndroidConfig.h -DANDROID_2_0
+SIPX_PORT_C_INCLUDES += \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/frameworks/base/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/system/core/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/system/core/include/arch/linux-arm
+
+LOCAL_SHARED_LIBRARIES += $(SIPX_PORT_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_PORT_LDLIBS)
+LOCAL_CFLAGS += $(SIPX_PORT_CFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_PORT_C_INCLUDES)
+
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
 
@@ -247,6 +260,11 @@ LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
+LOCAL_SHARED_LIBRARIES += $(SIPX_PORT_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_PORT_LDLIBS)
+LOCAL_CFLAGS += $(SIPX_PORT_CFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_PORT_C_INCLUDES)
+
 include $(BUILD_EXECUTABLE)
 
 
@@ -276,6 +294,11 @@ LOCAL_C_INCLUDES += \
 LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
+
+LOCAL_SHARED_LIBRARIES += $(SIPX_PORT_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_PORT_LDLIBS)
+LOCAL_CFLAGS += $(SIPX_PORT_CFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_PORT_C_INCLUDES)
 
 #include $(BUILD_EXECUTABLE)
 include $(BUILD_SHARED_LIBRARY)
@@ -362,6 +385,11 @@ LOCAL_C_INCLUDES += \
 LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
+
+LOCAL_SHARED_LIBRARIES += $(SIPX_PORT_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_PORT_LDLIBS)
+LOCAL_CFLAGS += $(SIPX_PORT_CFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_PORT_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)
 
