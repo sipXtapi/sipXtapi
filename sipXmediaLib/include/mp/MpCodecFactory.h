@@ -36,7 +36,7 @@
 #  define CODEC_PLUGINS_FILTER "^codec_.*\\.so$"
 #elif defined(WIN32) // __pingtel_on_posix__ ] [
 #  define CODEC_PLUGINS_FILTER "^codec_.*\\.dll$"
-#elif // WIN32 ] [
+#else // WIN32 ] [
 #  error Unknown platform! Please specify correct codec plugins file filter.
 #endif // ]
 

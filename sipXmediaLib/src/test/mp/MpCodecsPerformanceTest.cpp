@@ -35,7 +35,7 @@ static UtlString sCodecPaths[] = {
 #ifdef WIN32
                                   "bin",
                                   "..\\bin",
-#elif __pingtel_on_posix__
+#elif defined(__pingtel_on_posix__)
                                   "../../../../bin",
                                   "../../../bin",
 #else
