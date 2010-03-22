@@ -32,6 +32,7 @@
 #include "os/OsWriteLock.h"
 #include "os/OsSysLog.h"
 #include "os/OsMutex.h"
+#include "os/OsMsgQ.h"
 #include "os/OsNatKeepaliveListener.h"
 
 // DEFINES
@@ -56,6 +57,7 @@ class SipUserAgent ;
 class SipRefreshMgr ;
 class KeepaliveEventDispatcher;
 class SipXEventDispatcher;
+class CpMediaInterface;
 
 // STRUCTS
 
@@ -168,6 +170,7 @@ typedef struct SIPX_INSTANCE_DATA
     char             szAcceptLanguage[16]; /**< accept language to use in sip messages>*/
     char             szLocationHeader[256]; /**< location header */
     bool             bRtpOverTcp;   /**< allow RTP over TCP */
+    int              nEnergyLevelNotificationPeriodMs; /**< period of time between each stream energy level notification>*/
 
     KeepaliveEventDispatcher* pKeepaliveDispatcher ;
 } SIPX_INSTANCE_DATA ;
@@ -799,6 +802,26 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalAudioConnectionId(const SIPX_INST hIn
      * @param bEnable Enable or disable VoceEngine trace output
      */
     SIPXTAPI_API SIPX_RESULT sipxEnableAudioLogging(const SIPX_INST hInst, bool bEnable);
+
+#else /* not VoiceEngine */
+
+   /**
+     * Get pointer to Sipx media interface for call.
+     *
+     * @param hCall Handle to a call.  Call handles are obtained either by
+     *        invoking sipxCallCreate or passed to your application through
+     *        a listener interface.
+     */
+   SIPXTAPI_API CpMediaInterface* sipxCallGetCpMediaInterface(const SIPX_CALL hCall);
+
+   /**
+     * Get pointer to Sipx media control message queue for call.
+     *
+     * @param hCall Handle to a call.  Call handles are obtained either by
+     *        invoking sipxCallCreate or passed to your application through
+     *        a listener interface.
+     */
+   SIPXTAPI_API OsMsgQ* sipxCallGetMediaConrolQueue(const SIPX_CALL hCall);
 #endif
                                                            
 

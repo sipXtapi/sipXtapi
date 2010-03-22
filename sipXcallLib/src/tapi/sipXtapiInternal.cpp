@@ -1982,6 +1982,32 @@ SIPXTAPI_API SIPX_RESULT sipxEnableAudioLogging(const SIPX_INST hInst, bool bEna
     return rc;
 }
 
+#else
+
+
+SIPXTAPI_API CpMediaInterface* sipxCallGetCpMediaInterface(const SIPX_CALL hCall)
+{
+    CpMediaInterface* pMediaInterface = NULL;
+
+    if (hCall)
+    {
+        sipxCallGetConnectionMediaInterface(hCall, (void**)&pMediaInterface);
+    }
+    return(pMediaInterface);    
+}
+
+SIPXTAPI_API OsMsgQ* sipxCallGetMediaConrolQueue(const SIPX_CALL hCall)
+{
+    CpMediaInterface* pMediaInterface = sipxCallGetCpMediaInterface(hCall);
+    OsMsgQ* mediaControlQueue = NULL;
+    if(pMediaInterface)
+    {
+        mediaControlQueue = pMediaInterface->getMsgQ();
+    }
+
+    return(mediaControlQueue);
+}
+
 #endif
 
 SIPXTAPI_API SIPX_RESULT sipxStructureIntegrityCheck()

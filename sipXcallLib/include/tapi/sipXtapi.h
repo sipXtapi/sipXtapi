@@ -2931,6 +2931,15 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetMicAudioHook(fnMicAudioHook hookProc) ;
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigSetSpkrAudioHook(fnSpkrAudioHook hookProc) ;
 
+/*
+ * Set the period of time between stream (e.g. mic, RTP) energy
+ * level notifications.
+ *
+ @ param 
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetEnergyLevelNotificationPeriod(const SIPX_INST hInst,
+                                                                    int periodMs);
+
 /**
  * Sets the User-Agent name to be used with outgoing SIP messages.
  *

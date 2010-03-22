@@ -551,6 +551,7 @@ typedef enum SIPX_MEDIA_EVENT
     MEDIA_DEVICE_FAILURE,       /**< Fired if the media device is not present or
                                      already in use. */
     MEDIA_REMOTE_ACTIVE,        /**< Media has been received */
+    MEDIA_MIC_ENERGY_LEVEL      /**< Mic energy level - value in idleTime */
 
 } SIPX_MEDIA_EVENT ;
 
@@ -670,7 +671,8 @@ typedef struct SIPX_MEDIA_INFO
                                          time (ms). For MEDIA_RECORDFILE_STOP and
                                          MEDIA_RECORDBUFFER_STOP events contains number
                                          of recorded samples. For other events this
-                                         value should be ignored. */
+                                         value should be ignored. 
+                                         For MEDIA_MIC_ENERGY_LEVEL contains energy level*/
     SIPX_TONE_ID        toneId;	    /**< DTMF tone received from remote party;
                                          only supplied on MEDIA_REMOTE_DTMF event).
                                          Note: Only RFC 2833 DTMF detection is supported

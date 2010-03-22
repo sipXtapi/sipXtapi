@@ -29,6 +29,8 @@
 #include "net/Url.h"
 #include "utl/UtlHashMap.h"
 #include "utl/UtlString.h"
+#include "mp/MprVoiceActivityNotifier.h"
+#include "mp/MpResourceTopology.h"
 #include "net/SipSession.h"
 #include "cp/CallManager.h"
 
@@ -1204,6 +1206,20 @@ void sipxFireCallEvent(const void* pSrc,
 
         hCall = gpCallHandleMap->allocHandle(pCallData) ;
 
+        // If energy level notifications are turned on
+        if(pInst->nEnergyLevelNotificationPeriodMs > 0)
+        {
+            // get flowgraph queue to post message on
+            OsMsgQ* flowgraphQueue = sipxCallGetMediaConrolQueue(hCall);
+            if(flowgraphQueue)
+            {
+                // Create and send message to turn on Mic energy notifications
+                MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                                  *flowgraphQueue,
+                                                                  pInst->nEnergyLevelNotificationPeriodMs);
+            }
+        }
+
         if (pEventData)
         {
             const char* szOriginalCallId = (const char*) pEventData ;                
@@ -1615,6 +1631,11 @@ void sipxFireMediaEvent(const void* pSrc,
                                     memcpy(&mediaInfo.codec, pEventData, sizeof(SIPX_CODEC_INFO)) ;
                                 }
                                 break ;
+
+                            case MEDIA_MIC_ENERGY_LEVEL:
+                                mediaInfo.idleTime = (int) pEventData;
+                                break;
+
                             case MEDIA_REMOTE_SILENT:
                             case MEDIA_RECORDFILE_STOP:
                             case MEDIA_RECORDBUFFER_STOP:
@@ -2020,6 +2041,10 @@ SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
         case MEDIA_REMOTE_ACTIVE:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_REMOTE_ACTIVE");
             break ;
+
+        case MEDIA_MIC_ENERGY_LEVEL:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_MIC_ENERGY_LEVEL");
+            break;
 
     }
     return szBuffer;

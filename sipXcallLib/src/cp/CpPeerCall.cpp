@@ -26,6 +26,7 @@
 #include <net/SipMessageEvent.h>
 #include <cp/SipConnection.h>
 #include <cp/CpGhostConnection.h>
+#include <mp/MpResourceTopology.h>
 #include <mi/CpMediaInterface.h>
 #include <mi/MiDtmfNotf.h>
 #include <mi/MiIntNotf.h>
@@ -2544,6 +2545,28 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                                             MEDIA_CAUSE_FAILED,
                                             MEDIA_TYPE_AUDIO) ;
             break;
+
+         case MiNotification::MI_NOTF_ENERGY_LEVEL:
+            {
+               MiIntNotf &intNotif = (MiIntNotf&)notification;
+               UtlString resourceName = intNotif.getSourceId();
+
+               // No sense in sending mic energy when we are not in focus
+               if(isInFocus() && resourceName.compareTo(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX) == 0)
+               {
+                  pConnection->fireSipXMediaEvent(MEDIA_MIC_ENERGY_LEVEL,
+                                                  MEDIA_CAUSE_NORMAL,
+                                                  MEDIA_TYPE_AUDIO,
+                                                  (void*)intNotif.getValue());
+               }
+               else
+               {
+                  OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring MI_NOTF_ENERGY_LEVEL focus: %s resource name: %s",
+                     isInFocus() ? "true" : "false", resourceName.data());
+               }
+            }                             
+            break;
+
          default:
             break;
          }

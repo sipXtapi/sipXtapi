@@ -39,6 +39,8 @@
 #include "sdp/SdpCodecList.h"
 #include "sdp/SdpDefaultCodecFactory.h"
 #include "cp/CallManager.h"
+#include <mp/MprVoiceActivityNotifier.h>
+#include <mp/MpResourceTopology.h>
 #include "mi/CpMediaInterfaceFactory.h"
 #include "mi/CpMediaInterfaceFactoryImpl.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
@@ -446,6 +448,18 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "Default Identity: %s\n",
             localAddress.data()) ;
 
+    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "internalFrameSizeMs: %d devicesSamplerate: %d bEnableLocalAudio: %s callInputDeviceName: %s callOutputDeviceName: %s", 
+           internalFrameSizeMs, devicesSamplerate, bEnableLocalAudio ? "true" : "false", callInputDeviceName, callOutputDeviceName);
+    CpMediaInterfaceFactory* interfaceFactory =
+                            sipXmediaFactoryFactory(NULL, internalFrameSizeMs,
+                                                    devicesSamplerate,
+                                                    devicesSamplerate,
+                                                    bEnableLocalAudio,
+                                                    callInputDeviceName,
+                                                    callOutputDeviceName);
+
+    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipXinitialize interfaceFactory: %p", interfaceFactory);
+
     pInst->pCallManager = new CallManager(FALSE,
                             pInst->pLineManager,
                             TRUE, // early media in 180 ringing
@@ -473,12 +487,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
                             CP_MAXIMUM_RINGING_EXPIRE_SECONDS,
                             QOS_LAYER3_LOW_DELAY_IP_TOS,
                             10,
-                            sipXmediaFactoryFactory(NULL, internalFrameSizeMs,
-                                                    devicesSamplerate,
-                                                    devicesSamplerate,
-                                                    bEnableLocalAudio,
-                                                    callInputDeviceName,
-                                                    callOutputDeviceName),
+                            interfaceFactory,
                             internalSamplerate);
 
 
@@ -1161,6 +1170,20 @@ static SIPX_RESULT sipxCallCreateHelper(const SIPX_INST hInst,
                     *phCall = gpCallHandleMap->allocHandle(pData) ;
                     assert(*phCall != 0) ;
                     sr = SIPX_RESULT_SUCCESS ;
+
+                    // If energy level notifications are turned on
+                    if(pInst->nEnergyLevelNotificationPeriodMs > 0)
+                    {
+                        // get flowgraph queue to post message on
+                        OsMsgQ* flowgraphQueue = sipxCallGetMediaConrolQueue(*phCall);
+                        if(flowgraphQueue)
+                        {
+                            // Create and send message to turn on Mic energy notifications
+                            MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                                              *flowgraphQueue,
+                                                                              pInst->nEnergyLevelNotificationPeriodMs);
+                        }
+                    }
                 }
             }
             else
@@ -1408,8 +1431,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                 OsStatus rc = pInst->pCallManager->getCalledAddresses(
                         callId.data(), 1, numAddresses, &address) ;
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
-                              "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = %s",
-                              hCall, callId.data(), numAddresses, address.data());
+                              "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = %s rc = %d",
+                              hCall, callId.data(), numAddresses, address.data(), rc);
                 assert(rc == OS_SUCCESS) ;
                 assert(numAddresses == 1) ;
 
@@ -5739,6 +5762,23 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetSpkrAudioHook(fnSpkrAudioHook hookProc)
     return SIPX_RESULT_SUCCESS ;
 }
 
+
+SIPXTAPI_API SIPX_RESULT sipxConfigSetEnergyLevelNotificationPeriod(const SIPX_INST hInst,
+                                                                    int periodMs)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetEnergyLevelNotificationPeriod");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConfigSetEnergyLevelNotificationPeriod hInst=%p periodMs=%d", hInst, periodMs);
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;   
+
+    SIPX_RESULT error = SIPX_RESULT_INVALID_ARGS;
+    if(periodMs >= 0 && pInst)
+    {
+        error = SIPX_RESULT_SUCCESS;
+        pInst->nEnergyLevelNotificationPeriodMs = periodMs;
+    }
+    return(error);
+}
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetOutboundProxy(const SIPX_INST hInst,
                                                     const char* szProxy)
