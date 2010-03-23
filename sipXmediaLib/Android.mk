@@ -179,6 +179,7 @@ LOCAL_CFLAGS += -DCODEC_PCMA_PCMU_STATIC=1 \
                 -DCODEC_G722_STATIC=1 \
                 -DDISABLE_STREAM_PLAYER
 
+LOCAL_CFLAGS += -DHAVE_SPEEX
 #                -DHAVE_SPEEX_RESAMPLER \
 
 LOCAL_C_INCLUDES += \
@@ -186,25 +187,27 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/include \
     $(SIPX_HOME)/sipXsdpLib/include \
     $(SIPX_HOME)/sipXtackLib/include \
-    $(SIPX_HOME)/sipXmediaLib/include \
-    $(SIPX_HOME)/sipXmediaLib/contrib/libspeex/include \
+    $(SIPX_HOME)/sipXmediaLib/include
 
 
 #LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack
-LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport libpcre 
+LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
 # Android audio related stuff
 SIPX_MEDIA_SHARED_LIBS += libmedia libutils libcutils
+SIPX_MEDIA_STATIC_LIBS += libspeex libspeexdsp
 SIPX_MEDIA_LDLIBS += -llog -Wl,--allow-shlib-undefined
 SIPX_MEDIA_CFLAGS += -include AndroidConfig.h -DANDROID_2_0
 SIPX_MEDIA_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/frameworks/base/include \
     $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/system/core/include \
-    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/system/core/include/arch/linux-arm
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/system/core/include/arch/linux-arm \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libspeex/include
 
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_STATIC_LIBRARIES += $(SIPX_MEDIA_STATIC_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
 LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
@@ -284,6 +287,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_STATIC_LIBRARIES += $(SIPX_MEDIA_STATIC_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
 LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
@@ -327,6 +331,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_STATIC_LIBRARIES += $(SIPX_MEDIA_STATIC_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
 LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
@@ -463,6 +468,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 
 # Add sipXmediaLib dependencies
 LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS)
+LOCAL_STATIC_LIBRARIES += $(SIPX_MEDIA_STATIC_LIBS)
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
 LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)

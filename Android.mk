@@ -25,7 +25,7 @@ include $(SIPX_HOME)/sipXsdpLib/Android.mk
 
 include $(SIPX_HOME)/sipXtackLib/Android.mk
 
-#include $(SIPX_HOME)/sipXmediaLib/contrib/libspeex/Android.mk
+include $(SIPX_HOME)/sipXmediaLib/contrib/libspeex/Android.mk
 
 include $(SIPX_HOME)/sipXmediaLib/Android.mk
 

@@ -17,12 +17,14 @@
 
 SIPX_LIBS := libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall libsipXtapi libpcre
 SIPX_CODEC_LIBS := libcodec_pcmapcmu libcodec_tones libcodec_g722
+SIPX_SPEEX_LIBS := libspeex libspeexdsp
 JNI_UNIT_LIBS := libsipxportjnisandbox libsipxmediajnisandbox
 UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit sipxsdpunit sipxtackunit mediasandbox sipxmediaunit sipxmediaadapterunit sipxcallunit sipxtapiunit
 
 APP_MODULES := $(SIPX_LIBS) \
    $(APP_EXTRA_LIBS) \
    $(SIPX_CODEC_LIBS) \
+   $(SIPX_SPEEX_LIBS) \
    $(JNI_UNIT_LIBS) \
    $(UNIT_TESTS)
 
