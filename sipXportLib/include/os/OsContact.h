@@ -29,7 +29,7 @@
 /**
 * Enumeration of IP address types.
 */
-typedef enum IpAddressType
+enum IpAddressType
 {
     IP4,    /** < Internet Protocol version 4 >*/
     IP6     /** < Internet Protocol version 6 >*/   
