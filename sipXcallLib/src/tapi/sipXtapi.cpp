@@ -950,7 +950,21 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
                             pLocationHeader,
                             bandWidth,
                             bSendEarlyMedia ? TRUE : FALSE);
-                            
+                           
+                    // If energy level notifications are turned on
+                    if(pInst->nEnergyLevelNotificationPeriodMs > 0)
+                    {
+                        // get flowgraph queue to post message on
+                        OsMsgQ* flowgraphQueue = sipxCallGetMediaConrolQueue(hCall);
+                        if(flowgraphQueue)
+                        {
+                            // Create and send message to turn on Mic energy notifications
+                            MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                                  *flowgraphQueue,
+                                                                  pInst->nEnergyLevelNotificationPeriodMs);
+                        }
+                    }
+ 
                     sipxCallReleaseLock(pCallData, SIPX_LOCK_READ, stackLogger);
                 }
             }
@@ -967,6 +981,28 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
                             pLocationHeader,
                             bandWidth,
                             bSendEarlyMedia ? TRUE : FALSE);
+
+                    // If energy level notifications are turned on
+                    if(pInst->nEnergyLevelNotificationPeriodMs > 0)
+                    {
+                        OsMsgQ tempQueue;
+                        // Create and send message to turn on Mic energy notifications
+                        MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                                  tempQueue,
+                                                                  pInst->nEnergyLevelNotificationPeriodMs);
+
+                        OsMsg* flowgraphMessage = NULL;
+                        tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
+                        if(flowgraphMessage)
+                        {
+                            pInst->pCallManager->sendFlowgraphMessage(callId.data(), *flowgraphMessage);
+                        }
+                        else
+                        {
+                            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxCallAccept failed to create MprVoiceActivityNotifier message");
+                        }
+                    }
+
                     sipxCallReleaseLock(pCallData, SIPX_LOCK_READ, stackLogger);
                 }
             }

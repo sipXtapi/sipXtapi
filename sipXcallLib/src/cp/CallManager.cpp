@@ -792,6 +792,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_LIMIT_CODEC_PREFERENCES:
         case CP_OUTGOING_INFO:
         case CP_GET_USERAGENT:
+        case CP_FLOWGRAPH_MESSAGE:
             // Forward the message to the call
             {
                 UtlString callId;
@@ -1419,6 +1420,19 @@ PtStatus CallManager::transfer_blind(const char* callId, const char* transferToU
         postMessage(transferMessage);
     }
     return(returnCode);
+}
+
+void CallManager::sendFlowgraphMessage(const char* callId, OsMsg& flowgraphMessage)
+{
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::sendFlowgraphMessage");
+    CpMultiStringMessage message(CP_FLOWGRAPH_MESSAGE,
+                                 callId, 
+                                 NULL,
+                                 NULL, 
+                                 NULL, 
+                                 NULL,
+                                 (intptr_t) &flowgraphMessage);
+    postMessage(message);
 }
 
 void CallManager::toneStart(const char* callId, int toneId, UtlBoolean local, UtlBoolean remote)

@@ -167,6 +167,7 @@ public:
     //: to initiating the split/join.
 
 
+    virtual void sendFlowgraphMessage(const char* callId, OsMsg& flowgraphMessage);
     virtual void toneStart(const char* callId, int toneId, UtlBoolean local, UtlBoolean remote);
     virtual void toneStop(const char* callId);
     virtual void toneChannelStart(const char* callId, const char* szRemoteAddress, int toneId, UtlBoolean local, UtlBoolean remote);

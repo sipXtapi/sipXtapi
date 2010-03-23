@@ -144,6 +144,8 @@ public:
     virtual void inFocus(int talking = 1);
     virtual void outOfFocus();
 
+    virtual void sendFlowgraphMessage(OsMsg& flowgraphMessage);
+
     //virtual void hold();
     //virtual void offHold();
     virtual void localHold();

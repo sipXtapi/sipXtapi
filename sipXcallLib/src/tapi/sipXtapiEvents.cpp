@@ -29,8 +29,6 @@
 #include "net/Url.h"
 #include "utl/UtlHashMap.h"
 #include "utl/UtlString.h"
-#include "mp/MprVoiceActivityNotifier.h"
-#include "mp/MpResourceTopology.h"
 #include "net/SipSession.h"
 #include "cp/CallManager.h"
 
@@ -1205,20 +1203,6 @@ void sipxFireCallEvent(const void* pSrc,
         pCallData->lineURI = new UtlString(urlFrom.toString()) ;
 
         hCall = gpCallHandleMap->allocHandle(pCallData) ;
-
-        // If energy level notifications are turned on
-        if(pInst->nEnergyLevelNotificationPeriodMs > 0)
-        {
-            // get flowgraph queue to post message on
-            OsMsgQ* flowgraphQueue = sipxCallGetMediaConrolQueue(hCall);
-            if(flowgraphQueue)
-            {
-                // Create and send message to turn on Mic energy notifications
-                MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
-                                                                  *flowgraphQueue,
-                                                                  pInst->nEnergyLevelNotificationPeriodMs);
-            }
-        }
 
         if (pEventData)
         {

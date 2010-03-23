@@ -24,6 +24,8 @@
 #include <mi/CpMediaInterface.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpIntMessage.h>
+#include <mp/MprVoiceActivityNotifier.h>
+#include <mp/MpResourceTopology.h>
 #include "ptapi/PtConnection.h"
 #include "ptapi/PtCall.h"
 #include "ptapi/PtTerminalConnection.h"
@@ -212,6 +214,20 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                     local, remote);
                 }
             }
+            break;
+
+        case CallManager::CP_FLOWGRAPH_MESSAGE:
+        {
+            OsMsg* flowgraphMessage = (OsMsg*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
+            if(flowgraphMessage)
+            {
+                sendFlowgraphMessage(*flowgraphMessage);
+
+                // Free up the flowgraph message
+                // flowgraphMessage->releaseMsg();
+            }
+
+        }
             break;
 
         case CallManager::CP_STOP_TONE_TERM_CONNECTION:
@@ -503,6 +519,22 @@ void CpCall::outOfFocus()
     if(mpMediaInterface)
     {
         mpMediaInterface->defocus();
+    }
+}
+
+void CpCall::sendFlowgraphMessage(OsMsg& flowgraphMessage)
+{
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::sendFlowgraphMessage");
+    if(mpMediaInterface)
+    {
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::sendFlowgraphMessage line: %d", __LINE__);
+        OsMsgQ* messageQueue = mpMediaInterface->getMsgQ();
+        if(messageQueue)
+        {
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::sendFlowgraphMessage line: %d", __LINE__);
+            messageQueue->send(flowgraphMessage);
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::sendFlowgraphMessage line: %d", __LINE__);
+        }
     }
 }
 
