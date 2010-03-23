@@ -10,8 +10,7 @@
 
 // Author: Alexander Chemeris <Alexander DOT Chemeris AT SIPez DOT com>
 
-#ifdef HAVE_SPEEX
-
+#if defined(HAVE_SPEEX) || defined(HAVE_SPEEX_RESAMPLER)
 // WIN32: Add libspeexdsp to linker input.
 #ifdef WIN32 // [
 #   pragma comment(lib, "libspeexdsp.lib")

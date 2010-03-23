@@ -13,7 +13,7 @@
 #ifndef _MpResamplerSpeex_h_
 #define _MpResamplerSpeex_h_
 
-#ifdef HAVE_SPEEX
+#if defined(HAVE_SPEEX) || defined(HAVE_SPEEX_RESAMPLER)
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES

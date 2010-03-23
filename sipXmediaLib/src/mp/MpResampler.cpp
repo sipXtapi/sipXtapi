@@ -16,7 +16,7 @@
 #include <os/OsSysLog.h>
 #include "mp/MpResampler.h"
 #include <mp/MpAudioUtils.h>
-#if defined(HAVE_SPEEX)
+#if defined(HAVE_SPEEX) || defined(HAVE_SPEEX_RESAMPLER)
 #  include "mp/MpResamplerSpeex.h"
 #endif
 
@@ -39,7 +39,7 @@ MpResamplerBase *MpResamplerBase::createResampler(uint32_t numChannels,
                                                   int32_t quality)
 {
    return new 
-#if defined(HAVE_SPEEX)
+#if defined(HAVE_SPEEX) || defined(DHAVE_SPEEX_RESAMPLER)
       MpResamplerSpeex
 #else
       MpResamplerBase
