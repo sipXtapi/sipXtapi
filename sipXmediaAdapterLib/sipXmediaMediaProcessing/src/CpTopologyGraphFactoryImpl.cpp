@@ -191,11 +191,16 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 , mNumMcastStreams(3)
 {
     assert(MpMisc.RawAudioPool);
+#ifdef ANDROID
+    int numBufferedFrames = 10;
+#else
+    int numBufferedFrames = 3;
+#endif
     uint32_t mgrSamplesPerFrame = (mFrameSizeMs*mDefaultSamplesPerSec)/1000;
     mpInputDeviceManager = 
         new MpInputDeviceManager(mgrSamplesPerFrame,    // samples per frame
                                  mDefaultSamplesPerSec, // samples per second
-                                 3,    // number of buffered frames
+                                 numBufferedFrames,    // number of buffered frames
                                  *MpMisc.RawAudioPool);
 
     mpOutputDeviceManager =
