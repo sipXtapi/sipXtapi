@@ -41,3 +41,9 @@ APP_CFLAGS      := -D__pingtel_on_posix__ \
                    -include apps/sipxtapi/project/jni/sipXportLib/include/os/OsIntTypes.h \
                    -O2 -g
 
+# Optimizations for ARM Cortex-A8, used in Motorola Droid/Milestone, HTC Nexus One, etc
+# This enables real FPU instructions too.
+APP_CFLAGS += -march=armv7-a -mtune=cortex-a8 -mfpu=neon
+APP_CFLAGS += -D__ARM_ARCH_6__ -D__ARM_ARCH_7__ -D__ARM_ARCH_7A__
+APP_CFLAGS += -ftree-vectorize -ffast-math -mvectorize-with-neon-quad -mno-apcs-stack-check
+
