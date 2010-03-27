@@ -38,7 +38,12 @@
 
 // MACROS
 #ifdef DEBUG_PRINT // [
+#  ifdef ANDROID
+#  include <mp/MpidAndroid.h> // pulls in Android LOG prototypes
+#  define debugPrintf    LOGV
+#  else
 #  define debugPrintf    printf
+#  endif
 #else  // DEBUG_PRINT ][
 static void debugPrintf(...) {}
 #endif // DEBUG_PRINT ]
@@ -61,6 +66,12 @@ MprFromInputDevice::MprFromInputDevice(const UtlString& rName,
 , mDeviceId(deviceId)
 , mpResampler(MpResamplerBase::createResampler(1, 8000, 8000))
 {
+#ifdef DEBUG_PRINT
+   UtlString devName;
+   mpInputDeviceManager->getDeviceName(mDeviceId, devName);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprFromInputDevice::MprFromInputDevice deviceId: %d device name: \"%s\"",
+                 mDeviceId, devName.data());
+#endif
 }
 
 // Destructor
@@ -90,6 +101,10 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    // NOTE: Logic to react to frequent starvation is missing.
    RTL_BLOCK("MprFromInputDevice::doProcessFrame");
 
+   if(mpInputDeviceManager == NULL)
+   {
+       OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame mpInputDeviceManager NULL");
+   }
    assert(mpInputDeviceManager);
 
    if (!isEnabled)
@@ -169,6 +184,12 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
       RTL_EVENT("MprFromInputDevice::advance", numAdvances);
    }
 
+   if(getResult != OS_SUCCESS)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame getFrame(mDeviceId=%d, frameToFetch=%d, inAudioBuffer=xx, numFramesNotPlayed=%d, numFramedBufferedBehind=%d) returned: %d",
+                    mDeviceId, frameToFetch, numFramesNotPlayed, numFramedBufferedBehind, getResult);
+   }
+
    if (!mFrameTimeInitialized)
    {
       if (getResult == OS_SUCCESS)
@@ -184,15 +205,20 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
 
    uint32_t devSampleRate = 0;
    OsStatus stat = mpInputDeviceManager->getDeviceSamplesPerSec(mDeviceId, devSampleRate);
-   assert(stat == OS_SUCCESS);
    if(stat != OS_SUCCESS)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame "
          "- Couldn't get device sample rate from input device manager!  "
-         "Device - \"%s\"", devName.data());
+         "Device - \"%s\" deviceId: %d", devName.data(), mDeviceId);
+      assert(stat == OS_SUCCESS);
       return FALSE;
    }
 
+   if(mpResampler == NULL)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame mpResampler NULL");
+      assert(mpResampler);
+   }
    // Check to see if the resampler needs it's rate adjusted.
    if(mpResampler->getInputRate() != devSampleRate)
       mpResampler->setInputRate(devSampleRate);
