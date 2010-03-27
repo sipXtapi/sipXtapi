@@ -210,8 +210,9 @@ public:
                      unsigned& numFramesAfter) const
    {
       OsStatus result = OS_INVALID_STATE;
-      assert(mpInputDeviceDriver && mpInputDeviceDriver->isEnabled());
-      if (mpInputDeviceDriver && mpInputDeviceDriver->isEnabled())
+      assert(mpInputDeviceDriver);
+      //assert(mpInputDeviceDriver && mpInputDeviceDriver->isEnabled());
+      if (mpInputDeviceDriver) // && mpInputDeviceDriver->isEnabled())
       {
          result = OS_NOT_FOUND;
       }
@@ -425,6 +426,7 @@ MpInputDeviceManager::~MpInputDeviceManager()
 /* ============================ MANIPULATORS ============================== */
 int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
 {
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpInputDeviceManager::addDevice");
    OsWriteLock lock(mRwMutex);
 
    MpInputDeviceHandle newDeviceId = ++mLastDeviceId;
@@ -444,10 +446,20 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
    OsSysLog::add(FAC_MP, PRI_DEBUG,
                  "MpInputDeviceManager::addDevice dev: %s id: %d", 
                  newDevice.data(), newDeviceId);
-   mConnectionsByDeviceName.insertKeyAndValue(&newDevice, idValue);
+   UtlContainable* objInserted = mConnectionsByDeviceName.insertKeyAndValue(&newDevice, idValue);
+   if(objInserted == NULL)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpInputDeviceManager::addDevice device not added to mConnectionsByDeviceName");
+   }
+   assert(objInserted);
 
    // Map by device ID
-   mConnectionsByDeviceId.insert(connection);
+   objInserted = mConnectionsByDeviceId.insert(connection);
+   if(objInserted == NULL)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpInputDeviceManager::addDevice device not added to mConnectionsByDeviceId");
+   }
+   assert(objInserted);
 
    return(newDeviceId);
 }
@@ -721,6 +733,12 @@ OsStatus MpInputDeviceManager::getDeviceName(MpInputDeviceHandle deviceId,
          deviceName = *deviceDriver;
       }
    }
+   else
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING, "MpInputDeviceManager::getDeviceName deviceId=%d not found, device count: %d",
+                    deviceId, mConnectionsByDeviceId.entries());
+   }
+
    return(status);
 }
 
