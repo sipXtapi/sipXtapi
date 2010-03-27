@@ -343,10 +343,19 @@ OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
 
 OsStatus MpAudioOutputConnection::advanceMixerBuffer(unsigned numSamples)
 {
-   assert(numSamples > 0 && numSamples <= mMixerBufferLength);
-
    // If buffer could be copied in one pass
-   if (mMixerBufferBegin+numSamples <= mMixerBufferLength)
+   if(numSamples <= 0)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpAudioOutputConnection::advanceMixerBuffer invoked with: %d samples\n", numSamples);
+      assert(numSamples > 0);
+   }
+   else if(numSamples > mMixerBufferLength)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpAudioOutputConnection::advanceMixerBuffer invoked with numSamples: %d > mMixerBufferLength: %d\n",
+             numSamples, mMixerBufferLength);
+      assert(numSamples <= mMixerBufferLength);
+   }
+   else if (mMixerBufferBegin+numSamples <= mMixerBufferLength)
    {
       memset(&mpMixerBuffer[mMixerBufferBegin],
              0,
