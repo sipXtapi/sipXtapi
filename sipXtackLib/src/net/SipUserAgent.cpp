@@ -86,10 +86,10 @@
 #  define PLATFORM_UA_PARAM " (VxWorks)"
 #elif defined(__APPLE__)
 #  define PLATFORM_UA_PARAM " (Darwin)"
-#elif defined(__linux__)
-#  define PLATFORM_UA_PARAM " (Linux)"
 #elif defined(ANDROID)
 #  define PLATFORM_UA_PARAM " (Android)"
+#elif defined(__linux__)
+#  define PLATFORM_UA_PARAM " (Linux)"
 #elif defined(sun)
 #  define PLATFORM_UA_PARAM " (Solaris)"
 #endif
