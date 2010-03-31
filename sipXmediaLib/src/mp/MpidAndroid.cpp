@@ -14,6 +14,7 @@
 #define LOG_TAG "MpidAndroid"
 #define MPID_ANDROID_CLEAN_EXIT
 //#define ENABLE_FRAME_TIME_LOGGING
+//#define ENABLE_FILE_LOGGING
 
 // SIPX INCLUDES
 #include <os/OsSysLog.h>
@@ -92,6 +93,25 @@ public:
 static SignalCatcher sgSignalCatcher;
 
 #endif // MPID_ANDROID_CLEAN_EXIT ]
+
+#ifdef ENABLE_FILE_LOGGING
+static FILE *sgOutFile=NULL;
+class OutFileInit
+{
+public:
+   OutFileInit()
+   {
+      sgOutFile = fopen("/sdcard/in.raw", "w");
+      LOGI("Openned file for audio debug: %x", sgOutFile);
+   }
+
+   ~OutFileInit()
+   {
+      fclose(sgOutFile);
+   }
+}
+static OutFileInit sgOutFileInit;
+#endif // ENABLE_FILE_LOGGING
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -481,10 +501,15 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
    AudioRecord::Buffer *buffer = static_cast<AudioRecord::Buffer *>(info);
    MpidAndroid *pDriver = static_cast<MpidAndroid *>(user);
 
+#ifdef ENABLE_FILE_LOGGING
+   fwrite(buffer->i16, 1, buffer->frameCount*sizeof(short), sgOutFile);
+#endif // ENABLE_FILE_LOGGING
+
    // Start accessing non-atomic member variables
    AutoMutex autoLock(pDriver->mLock);
 #ifdef ENABLE_FRAME_TIME_LOGGING
-   LOGV("MpidAndroid::audioCallback() frameCount=%d state=%d\n", buffer->frameCount, pDriver->mState);
+   LOGV("MpidAndroid::audioCallback() frameCount=%d size=%d state=%d\n",
+        buffer->frameCount, buffer->size, pDriver->mState);
 #endif
 
    // Only process if we're enabled..

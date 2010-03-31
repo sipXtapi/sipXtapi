@@ -13,6 +13,7 @@
 #define LOG_NDEBUG 0
 #define LOG_TAG "MpodAndroid"
 //#define ENABLE_FRAME_TIME_LOGGING
+//#define ENABLE_FILE_LOGGING
 
 // SIPX INCLUDES
 #include "mp/MpodAndroid.h"
@@ -28,6 +29,25 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
+#ifdef ENABLE_FILE_LOGGING
+static FILE *sgOutFile=NULL;
+class OutFileInit
+{
+public:
+   OutFileInit()
+   {
+      sgOutFile = fopen("/sdcard/out.raw", "w");
+      LOGI("Openned file for audio debug: %x", sgOutFile);
+   }
+
+   ~OutFileInit()
+   {
+      fclose(sgOutFile);
+   }
+};
+
+static OutFileInit sgOutFileInit;
+#endif // ENABLE_FILE_LOGGING
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -311,8 +331,8 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
    int samplesToCopy = sipx_min(buffer->frameCount,
                                 pDriver->mSamplesPerFrame-pDriver->mSampleBufferIndex);
 #ifdef ENABLE_FRAME_TIME_LOGGING
-   LOGV("MpodAndroid::audioCallback() buffer=%p samples=%d toCopy=%d\n",
-        buffer->i16, buffer->frameCount, samplesToCopy);
+   LOGV("MpodAndroid::audioCallback() buffer=%p samples=%d size=%d toCopy=%d\n",
+        buffer->i16, buffer->frameCount, buffer->size, samplesToCopy);
 #endif
 
    // Copy data to buffer
@@ -320,6 +340,10 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
    buffer->frameCount = samplesToCopy;
    buffer->size = samplesToCopy*sizeof(short);
    pDriver->mSampleBufferIndex += samplesToCopy;
+
+#ifdef ENABLE_FILE_LOGGING
+   fwrite(buffer->i16, 1, buffer->frameCount*sizeof(short), sgOutFile);
+#endif // ENABLE_FILE_LOGGING
 
    if (pDriver->mSampleBufferIndex >= pDriver->mSamplesPerFrame)
    {
