@@ -109,7 +109,8 @@ public:
    {
       fclose(sgOutFile);
    }
-}
+};
+
 static OutFileInit sgOutFileInit;
 #endif // ENABLE_FILE_LOGGING
 
