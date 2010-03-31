@@ -40,7 +40,10 @@ const int MpidAndroid::mSampleRatesListLen =
 #ifdef MPID_ANDROID_CLEAN_EXIT // [
 static AudioRecord *sgAudioRecord = NULL;
 
+/// Storage for original signal handlers
 static struct sigaction old_signalhandlers[NSIG];
+
+/// Signal hander function. It frees allocated AudioRecord object.
 static void android_signal_handler(int signum, siginfo_t *info, void *reserved)
 {
    LOGE("Caught signal: %d", signum);
@@ -53,6 +56,41 @@ static void android_signal_handler(int signum, siginfo_t *info, void *reserved)
    }
    old_signalhandlers[signum].sa_handler(signum);
 }
+
+class SignalCatcher {
+public:
+   SignalCatcher()
+   {
+      // THIS IS A BIG HACK
+      // We intercept SIGABRT signal here, which may be intercepted somewhere
+      // else already. We shouldn't do this in a generic system, but for now
+      // I think we don't intercept it anywhere else anyway.
+      //
+      // Note: Current Android use SIGSEGV instead of SIGABRT.
+      //       See bionic/libc/unistd/abort.c
+
+      struct sigaction sig_handler;
+      memset(&sig_handler, 0, sizeof(struct sigaction));
+      sig_handler.sa_sigaction = android_signal_handler;
+      sig_handler.sa_flags = SA_RESETHAND;
+#define CATCHSIG(X) sigaction(X, &sig_handler, &old_signalhandlers[X])
+      CATCHSIG(SIGILL);
+      CATCHSIG(SIGABRT);
+      CATCHSIG(SIGBUS);
+      CATCHSIG(SIGFPE);
+      CATCHSIG(SIGSEGV);
+      CATCHSIG(SIGSTKFLT);
+      CATCHSIG(SIGPIPE);
+      CATCHSIG(SIGTERM);
+      CATCHSIG(SIGQUIT);
+      CATCHSIG(SIGKILL);
+#undef CATCHSIG
+   }
+};
+
+/// Initializer of signal handler
+static SignalCatcher sgSignalCatcher;
+
 #endif // MPID_ANDROID_CLEAN_EXIT ]
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -70,32 +108,6 @@ MpidAndroid::MpidAndroid(audio_source source,
 , mpResampler(NULL)
 , mpResampleBuf(NULL)
 {
-#ifdef MPID_ANDROID_CLEAN_EXIT // [
-   // THIS IS A BIG HACK
-   // We intercept SIGABRT signal here, which may be intercepted somewhere
-   // else already. We shouldn't do this in a generic system, but for now
-   // I think we don't intercept it anywhere else anyway.
-   //
-   // Note: Current Android use SIGSEGV instead of SIGABRT.
-   //       See bionic/libc/unistd/abort.c
-
-   struct sigaction sig_handler;
-   memset(&sig_handler, 0, sizeof(struct sigaction));
-   sig_handler.sa_sigaction = android_signal_handler;
-   sig_handler.sa_flags = SA_RESETHAND;
-#define CATCHSIG(X) sigaction(X, &sig_handler, &old_signalhandlers[X])
-   CATCHSIG(SIGILL);
-   CATCHSIG(SIGABRT);
-   CATCHSIG(SIGBUS);
-   CATCHSIG(SIGFPE);
-   CATCHSIG(SIGSEGV);
-   CATCHSIG(SIGSTKFLT);
-   CATCHSIG(SIGPIPE);
-   CATCHSIG(SIGTERM);
-   CATCHSIG(SIGQUIT);
-   CATCHSIG(SIGKILL);
-#undef CATCHSIG
-#endif // MPID_ANDROID_CLEAN_EXIT ]
 }
 
 MpidAndroid::~MpidAndroid()
