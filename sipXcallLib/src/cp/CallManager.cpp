@@ -736,6 +736,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_SET_CODEC_CPU_LIMIT:
         case CP_GET_CODEC_CPU_LIMIT:
         case CP_GET_CODEC_CPU_COST:
+        case CP_SET_MIC_GAIN:
         case CP_UNHOLD_LOCAL_TERM_CONNECTION:
         case CP_HOLD_LOCAL_TERM_CONNECTION:
         case CP_START_TONE_TERM_CONNECTION:
@@ -2646,6 +2647,20 @@ OsStatus CallManager::setInboundCodecCPULimit(int limit)
 {
     CpMultiStringMessage setInboundCPULimitMsg(CP_SET_INBOUND_CODEC_CPU_LIMIT, NULL, NULL, NULL, NULL, NULL, limit);
     postMessage(setInboundCPULimitMsg);
+
+    return OS_SUCCESS ;
+}
+
+
+// Sets the Mic gain.
+OsStatus CallManager::setMicGain(const char* callId,
+                                 float gain)
+{
+    int iOldLevel = -1 ;
+
+    float *pGain = new float(gain);
+    CpMultiStringMessage setCPULimitMsg(CP_SET_MIC_GAIN, callId, NULL, NULL, NULL, NULL, (intptr_t)pGain);
+    postMessage(setCPULimitMsg);
 
     return OS_SUCCESS ;
 }

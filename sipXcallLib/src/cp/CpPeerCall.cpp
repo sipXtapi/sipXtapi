@@ -1294,6 +1294,23 @@ UtlBoolean CpPeerCall::handleGetCodecCPULimit(OsMsg& eventMessage)
 }
 
 
+// Handles the processing of a CallManager::CP_SET_MIC_GAIN message
+UtlBoolean CpPeerCall::handleSetMicGain(OsMsg& eventMessage)
+{
+    UtlBoolean bRC = FALSE ;
+
+    float *pMicGain = (float*)((CpMultiStringMessage&)eventMessage).getInt1Data();
+    if (mpMediaInterface && pMicGain)
+    {
+        OsStatus stat = mpMediaInterface->setMicWeightOnBridge(*pMicGain) ;
+        bRC = (stat==OS_SUCCESS) ;
+    }
+    delete pMicGain;
+
+    return bRC ;
+}
+
+
 // Handles the processing of a CallManager::CP_TRANSFER_CONNECTION_STATUS 
 // message
 UtlBoolean CpPeerCall::handleTransferConnectionStatus(OsMsg* pEventMessage)
@@ -2224,6 +2241,10 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_GET_CODEC_CPU_COST:
         handleGetCodecCPUCost(eventMessage);
         break ;
+
+    case CallManager::CP_SET_MIC_GAIN:
+       handleSetMicGain(eventMessage);
+       break ;
 
     case CallManager::CP_GET_CODEC_CPU_LIMIT:
         handleGetCodecCPULimit(eventMessage);

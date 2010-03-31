@@ -680,6 +680,9 @@ private:
                                              int destConnectionId,
                                              float weight);
 
+      /// Set mixing weight from the Mic to all other Bridge ports.
+    OsStatus setMicWeightOnBridge(float weight);
+
       /// Disabled copy constructor
     CpTopologyGraphInterface(CpTopologyGraphInterface&);
 

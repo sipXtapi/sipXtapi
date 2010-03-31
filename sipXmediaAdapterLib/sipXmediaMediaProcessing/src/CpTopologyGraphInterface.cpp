@@ -3283,4 +3283,51 @@ OsStatus CpTopologyGraphInterface::setConnectionToConnectionWeight(CpTopologyMed
    return stat;
 }
 
+
+OsStatus CpTopologyGraphInterface::setMicWeightOnBridge(float weight)
+{
+   // Prepare input RTP streams names.
+   UtlString inStreamName(VIRTUAL_NAME_LOCAL_STREAM_OUTPUT);
+
+   // Determine number of bridge ports
+   int numBridgePorts = getNumBridgePorts();
+   if (numBridgePorts<0)
+   {
+      assert(!"Can't determine number of bridge ports!");
+      return OS_NOT_FOUND;
+   }
+
+   // Get the port number of the Mic stream
+   int port;
+   OsStatus stat = getResourceInputPortOnBridge(inStreamName, 0, port);
+   if (stat != OS_SUCCESS)
+   {
+      assert(!"Can't determine bridge port number for stream!");
+      return OS_FAILED;
+   }
+   assert(port>=0 && port<numBridgePorts);
+
+   // Allocate array for weights
+   MpBridgeGain *weights = new MpBridgeGain[numBridgePorts];
+   MpBridgeGain bridgeWeight = MPF_BRIDGE_FLOAT(weight);
+
+   // Fill in the weights vector
+   for (int i=0; i<numBridgePorts; i++)
+   {
+      weights[i] = bridgeWeight;
+   }
+   weights[port] = 0;
+
+   // Set weights
+   MprBridge::setMixWeightsForInput(DEFAULT_BRIDGE_RESOURCE_NAME,
+                                    *mpTopologyGraph->getMsgQ(),
+                                    port,
+                                    numBridgePorts,
+                                    weights);
+
+   delete[] weights;
+
+   return OS_SUCCESS;
+}
+
 /* ============================ FUNCTIONS ================================= */

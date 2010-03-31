@@ -254,6 +254,9 @@ public:
     virtual OsStatus setInboundCodecCPULimit(int limit)  ;
       //:Sets the inbound call CPU limit for codecs
 
+      /// Sets the Mic gain.
+    virtual OsStatus setMicGain(const char* callId, float gain);
+
     virtual void setMaxCalls(int maxCalls);
     //:Set the maximum number of calls to admit to the system.
 

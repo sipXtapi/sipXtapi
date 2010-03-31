@@ -578,6 +578,9 @@ public:
     */
    virtual void setCodecCPULimit(int iLimit) = 0 ;
 
+     /// @brief Set microphone gain.
+   virtual OsStatus setMicWeightOnBridge(float weight) = 0 ;
+
      /// @brief Record the microphone data to a file
    virtual OsStatus recordMic(int ms,
                               int silenceLength,

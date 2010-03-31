@@ -180,6 +180,9 @@ protected:
     UtlBoolean handleGetCodecCPUCost(OsMsg& eventMessage);
     //: Handles the processing of a CallManager::CP_GET_CODEC_CPU_COST
     //: message
+    UtlBoolean handleSetMicGain(OsMsg& eventMessage);
+    //: Handles the processing of a CallManager::CP_SET_MIC_GAIN
+    //: message
 
     UtlBoolean handleDialString(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_DIAL_STRING message
