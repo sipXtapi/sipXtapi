@@ -2088,6 +2088,22 @@ SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecPreferences(const SIPX_CALL hCall,
                                                        const SIPX_VIDEO_BANDWIDTH_ID videoBandwidth,
                                                        const char* szVideoCodecName);
 
+/**
+ * Sets the gain of the microphone for a given call. This gain is applied
+ * digitally inside of the media engine.
+ *
+ * @note Right now this is implemented for sipXmediaLib with Topology enabled
+ *       only.
+ *
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ * @param gain Floating point gain to apply. Gain should be >0. Internally,
+ *        inside of a media engine, it may be represented as fixed point value.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallSetMicGain(const SIPX_CALL hCall,
+                                            float gain);
+
 //@}
 
 /** @name Publishing Methods */

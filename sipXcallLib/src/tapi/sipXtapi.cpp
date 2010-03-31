@@ -3062,6 +3062,31 @@ SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecPreferences(const SIPX_CALL hCall,
     return sr ;
 }
 
+
+
+SIPXTAPI_API SIPX_RESULT sipxCallSetMicGain(const SIPX_CALL hCall,
+                                            float gain)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallSetMicGain");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "sipxCallSetMicGain hCall=%d Gain=%f", hCall, gain);
+
+    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
+    SIPX_INSTANCE_DATA *pInst ;
+    UtlString callId ;
+
+    if (gain >= 0.)
+    {
+       sr = SIPX_RESULT_INVALID_ARGS ;
+    }
+    else if (sipxCallGetCommonData(hCall, &pInst, &callId, NULL, NULL))
+    {
+        pInst->pCallManager->setMicGain(callId.data(), gain);
+        sr = SIPX_RESULT_SUCCESS ;
+    }
+
+    return sr ;
+}
+
 /****************************************************************************
  * Publisher Related Functions
  ***************************************************************************/

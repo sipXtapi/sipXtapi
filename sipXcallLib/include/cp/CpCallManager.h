@@ -469,6 +469,9 @@ public:
     //! Set the call codec CPU limit for inbound connections in a call.
     virtual OsStatus setInboundCodecCPULimit(int limit) = 0 ;
 
+    /// Sets the Mic gain.
+    virtual OsStatus setMicGain(const char* callId, float gain) = 0;
+
     //@{
 
     //! Accept the incoming connection
