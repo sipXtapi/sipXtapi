@@ -1492,6 +1492,19 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                     }
                     sipxCallReleaseLock(pData, SIPX_LOCK_WRITE, stackLogger);
                 }
+                // If energy level notifications are turned on
+                if(pInst->nEnergyLevelNotificationPeriodMs > 0)
+                {
+                    // get flowgraph queue to post message on
+                    OsMsgQ* flowgraphQueue = sipxCallGetMediaConrolQueue(hCall);
+                    if(flowgraphQueue)
+                    {
+                        // Create and send message to turn on Mic energy notifications
+                        MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                                          *flowgraphQueue,
+                                                                          pInst->nEnergyLevelNotificationPeriodMs);
+                    }
+                }
             }
             else
             {
