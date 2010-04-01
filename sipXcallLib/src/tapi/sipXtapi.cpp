@@ -3068,20 +3068,27 @@ SIPXTAPI_API SIPX_RESULT sipxCallSetMicGain(const SIPX_CALL hCall,
                                             float gain)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallSetMicGain");
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "sipxCallSetMicGain hCall=%d Gain=%f", hCall, gain);
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "sipxCallSetMicGain() hCall=%d Gain=%f", hCall, gain);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA *pInst ;
     UtlString callId ;
 
-    if (gain >= 0.)
+    if (gain < 0.)
     {
-       sr = SIPX_RESULT_INVALID_ARGS ;
+        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, "sipxCallSetMicGain() gain<0");
+        sr = SIPX_RESULT_INVALID_ARGS ;
     }
     else if (sipxCallGetCommonData(hCall, &pInst, &callId, NULL, NULL))
     {
+        OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                      "sipxCallSetMicGain() Setting Mic gain for \"%s\"", callId.data());
         pInst->pCallManager->setMicGain(callId.data(), gain);
         sr = SIPX_RESULT_SUCCESS ;
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, "sipxCallSetMicGain() Can't get call common data");
     }
 
     return sr ;
