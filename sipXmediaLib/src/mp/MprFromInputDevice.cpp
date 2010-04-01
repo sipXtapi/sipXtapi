@@ -20,6 +20,7 @@
 #include <mp/MprFromInputDevice.h>
 #include <mp/MpMisc.h>
 #include <mp/MpResampler.h>
+#include <mp/MpIntResourceMsg.h>
 
 #ifdef RTL_ENABLED
 #include <rtl_macro.h>
@@ -65,6 +66,8 @@ MprFromInputDevice::MprFromInputDevice(const UtlString& rName,
 , mPreviousFrameTime(0)
 , mDeviceId(deviceId)
 , mpResampler(MpResamplerBase::createResampler(1, 8000, 8000))
+, mGain(MP_BRIDGE_GAIN_PASSTHROUGH)
+, mpGainBuffer(NULL)
 {
 #ifdef DEBUG_PRINT
    UtlString devName;
@@ -78,9 +81,18 @@ MprFromInputDevice::MprFromInputDevice(const UtlString& rName,
 MprFromInputDevice::~MprFromInputDevice()
 {
    delete mpResampler;
+   delete[] mpGainBuffer;
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+OsStatus MprFromInputDevice::setGain(const UtlString& namedResource, OsMsgQ& fgQ,
+                                     MpBridgeGain gain)
+{
+   MpIntResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_SET_GAIN,
+                        namedResource, gain);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
 
 /* ============================ ACCESSORS ================================= */
 
@@ -205,12 +217,18 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
 
    uint32_t devSampleRate = 0;
    OsStatus stat = mpInputDeviceManager->getDeviceSamplesPerSec(mDeviceId, devSampleRate);
+#ifndef ANDROID
+   assert(stat == OS_SUCCESS);
+#endif
    if(stat != OS_SUCCESS)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame "
          "- Couldn't get device sample rate from input device manager!  "
          "Device - \"%s\" deviceId: %d", devName.data(), mDeviceId);
       assert(stat == OS_SUCCESS);
+#ifdef ANDROID
+      disable();
+#endif
       return FALSE;
    }
 
@@ -244,8 +262,53 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    // after this!
    outBufs[0].swap((resampledBuffer.isValid()) ? resampledBuffer : inAudioBuffer);
 
+   if (mGain != MP_BRIDGE_GAIN_PASSTHROUGH)
+   {
+      // Allocate temp buffer if not yet allocated.
+      if (mpGainBuffer == NULL)
+      {
+         mpGainBuffer = new MpBridgeAccum[samplesPerFrame];
+      }
+      
+      // We're going to modify buffer inline.
+      outBufs[0].requestWrite();
+
+      MpAudioBufPtr audio(outBufs[0]);
+
+      // Multiply
+      MpDspUtils::mul(audio->getSamplesPtr(), mGain, mpGainBuffer, samplesPerFrame);
+      // Shift back
+      MpDspUtils::convert_Att(mpGainBuffer, audio->getSamplesWritePtr(), samplesPerFrame, MP_BRIDGE_FRAC_LENGTH);
+   }
+
    return getResult;
 }
 
+UtlBoolean MprFromInputDevice::handleMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean msgHandled = FALSE;
+
+   switch (rMsg.getMsg()) 
+   {
+   case MPRM_SET_GAIN:
+      {
+         MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&rMsg;
+         msgHandled = handleSetGain((int16_t)pMsg->getData());
+      }
+      break;
+
+   default:
+      // If we don't handle the message here, let our parent try.
+      msgHandled = MpResource::handleMessage(rMsg); 
+      break;
+   }
+   return msgHandled;
+}
+
+UtlBoolean MprFromInputDevice::handleSetGain(MpBridgeGain gain)
+{
+   mGain = gain;
+   return TRUE;
+}
 /* ============================ FUNCTIONS ================================= */
 

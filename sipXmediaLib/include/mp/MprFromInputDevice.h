@@ -18,6 +18,8 @@
 // APPLICATION INCLUDES
 #include <mp/MpAudioResource.h>
 #include <mp/MpResampler.h>
+#include <mp/MpResourceMsg.h>
+#include <mp/MpBridgeAlgBase.h> // For MpBridgeGain type
 
 // DEFINES
 // MACROS
@@ -64,6 +66,16 @@ public:
 ///@name Manipulators
 //@{
 
+     /// Send message to set gain to apply to the audio.
+   static OsStatus setGain(const UtlString& namedResource, 
+                           OsMsgQ& fgQ,
+                           MpBridgeGain gain);
+     /**<
+     *  @param[in] gain - the gain value (multiplier) to apply to the incoming
+     *             audio. Set to MP_BRIDGE_GAIN_PASSTHROUGH to pass audio
+     *             unchanged.
+     */
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -85,6 +97,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+   typedef enum
+   {
+      MPRM_SET_GAIN = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+   } AddlMsgTypes;
+
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
                                      int inBufsSize,
@@ -98,6 +115,17 @@ private:
    MpFrameTime mPreviousFrameTime;
    MpInputDeviceHandle mDeviceId;
    MpResamplerBase *mpResampler;
+   MpBridgeGain mGain;
+   MpBridgeAccum *mpGainBuffer;
+
+     /// Handle resource messages for this resource.
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
+
+     /// Actually set gain to apply to incoming audio.
+   virtual UtlBoolean handleSetGain(MpBridgeGain gain);
+     /**<
+     *  @see setGain() for explanation of parameters.
+     */
 
      /// Copy constructor (not implemented for this class)
    MprFromInputDevice(const MprFromInputDevice& rMprFromInputDevice);
