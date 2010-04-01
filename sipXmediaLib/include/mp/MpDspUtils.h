@@ -311,6 +311,13 @@ public:
      *  @todo Write unittest!!!
      */
 
+     /// Multiply vector by constant with saturation.
+   static MP_DSP_VECTOR_API
+   OsStatus mul_I(int16_t *pSrcDst, const int16_t val, int dataLength);
+     /**<
+     *  @todo Write unittest!!!
+     */
+
      /// @brief Multiply source vector by values linearly changing from
      /// \p valStart to \p valEnd and add it to accumulator vector.
    static MP_DSP_VECTOR_API

@@ -100,6 +100,28 @@ OsStatus MpDspUtils::mul(const int16_t *pSrc, const int16_t val, int32_t *pDst, 
    return OS_SUCCESS;
 }
 
+OsStatus MpDspUtils::mul_I(int16_t *pSrcDst, const int16_t val, int dataLength)
+{
+   const int16_t thresold = INT16_MAX/val;
+   for (int i=0; i<dataLength; i++)
+   {
+      if (pSrcDst[i] > thresold)
+      {
+         pSrcDst[i] = INT16_MAX;
+      }
+      else if (pSrcDst[i] < -thresold)
+      {
+         pSrcDst[i] = -INT16_MAX;
+      }
+      else
+      {
+         pSrcDst[i] *= val;
+      }
+   }
+
+   return OS_SUCCESS;
+}
+
 OsStatus MpDspUtils::mulLinear(const int16_t *pSrc, int16_t valStart, int16_t valEnd,
                                int32_t *pDst, int dataLength)
 {
