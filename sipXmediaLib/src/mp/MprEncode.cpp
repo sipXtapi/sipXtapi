@@ -761,7 +761,12 @@ void MprEncode::notifyStartTx()
                                 MprnRtpStreamActivityMsg::STREAM_START,
                                 mpToNet->getSSRC(), 0, -1);
    OsStatus stat = sendNotification(msg);
-   assert(stat == OS_SUCCESS || stat == OS_NOT_FOUND);
+   if (stat != OS_SUCCESS && stat != OS_NOT_FOUND)
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "MprEncode::notifyStartTx() sendNotification() returns %d",
+                    stat);
+   }
    dprintf("Start TX\n");
 }
 
@@ -771,6 +776,11 @@ void MprEncode::notifyStopTx()
                                 MprnRtpStreamActivityMsg::STREAM_STOP,
                                 mpToNet->getSSRC(), 0, -1);
    OsStatus stat = sendNotification(msg);
-   assert(stat == OS_SUCCESS || stat == OS_NOT_FOUND);
+   if (stat != OS_SUCCESS && stat != OS_NOT_FOUND)
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "MprEncode::notifyStartTx() sendNotification() returns %d",
+                    stat);
+   }
    dprintf("Stop TX\n");
 }
