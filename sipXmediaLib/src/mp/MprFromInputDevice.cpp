@@ -49,6 +49,29 @@
 static void debugPrintf(...) {}
 #endif // DEBUG_PRINT ]
 
+//#define ENABLE_FILE_LOGGING
+#ifdef ENABLE_FILE_LOGGING
+static FILE *sgInRawFile=NULL;
+static FILE *sgInResampleFile=NULL;
+class OutFileInit
+{
+public:
+   OutFileInit()
+   {
+      sgInRawFile = fopen("/sdcard/fg_in_raw.raw", "w");
+      sgInResampleFile = fopen("/sdcard/fg_in_resample.raw", "w");
+//      LOGI("Openned file for audio debug: %x", sgOutFile);
+   }
+
+   ~OutFileInit()
+   {
+      fclose(sgInRawFile);
+      fclose(sgInResampleFile);
+   }
+};
+
+static OutFileInit sgOutFileInit;
+#endif // ENABLE_FILE_LOGGING
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -201,6 +224,12 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
       OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame getFrame(mDeviceId=%d, frameToFetch=%d, inAudioBuffer=xx, numFramesNotPlayed=%d, numFramedBufferedBehind=%d) returned: %d",
                     mDeviceId, frameToFetch, numFramesNotPlayed, numFramedBufferedBehind, getResult);
    }
+#ifdef ENABLE_FILE_LOGGING
+   else
+   {
+      fwrite(inAudioBuffer->getSamplesPtr(), 1, inAudioBuffer->getSamplesNumber()*sizeof(short), sgInRawFile);
+   }
+#endif // ENABLE_FILE_LOGGING
 
    if (!mFrameTimeInitialized)
    {
@@ -254,6 +283,13 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
       // Error messages have already been logged. No need to do so here.
       return FALSE;
    }
+
+#ifdef ENABLE_FILE_LOGGING
+   if (resampledBuffer.isValid())
+   {
+      fwrite(resampledBuffer->getSamplesPtr(), 1, resampledBuffer->getSamplesNumber()*sizeof(short), sgInResampleFile);
+   }
+#endif // ENABLE_FILE_LOGGING
 
    // Set the output buffer ptr to the device's audio (either resampled or not
    // if it was not needed)
