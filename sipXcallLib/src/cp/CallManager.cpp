@@ -2659,8 +2659,8 @@ OsStatus CallManager::setMicGain(const char* callId,
     int iOldLevel = -1 ;
 
     float *pGain = new float(gain);
-    CpMultiStringMessage setCPULimitMsg(CP_SET_MIC_GAIN, callId, NULL, NULL, NULL, NULL, (intptr_t)pGain);
-    postMessage(setCPULimitMsg);
+    CpMultiStringMessage setMicGainMsg(CP_SET_MIC_GAIN, callId, NULL, NULL, NULL, NULL, (intptr_t)pGain);
+    OsStatus stat = postMessage(setMicGainMsg);
 
     return OS_SUCCESS ;
 }
