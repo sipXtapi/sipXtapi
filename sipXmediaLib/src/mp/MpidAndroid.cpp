@@ -525,7 +525,9 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
               pDriver->mSamplesPerFrameInternal);
 #endif
 
-         memcpy(pDriver->mpBufInternal, buffer->i16, buffer->frameCount*sizeof(short));
+         memcpy(pDriver->mpBufInternal+pDriver->mBufInternalSamples,
+                buffer->i16,
+                buffer->frameCount*sizeof(short));
          pDriver->mBufInternalSamples += buffer->frameCount;
       }
       else
@@ -537,7 +539,9 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
          {
             origSamplesConsumed = sipx_min(pDriver->mSamplesPerFrameInternal-pDriver->mBufInternalSamples,
                                            buffer->frameCount);
-            memcpy(pDriver->mpBufInternal, buffer->i16, origSamplesConsumed*sizeof(short));
+            memcpy(pDriver->mpBufInternal+pDriver->mBufInternalSamples,
+                   buffer->i16,
+                   origSamplesConsumed*sizeof(short));
             pDriver->mBufInternalSamples += origSamplesConsumed;
             origSamples = pDriver->mpBufInternal;
          }
