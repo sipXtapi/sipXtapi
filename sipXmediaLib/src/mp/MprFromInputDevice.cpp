@@ -262,7 +262,7 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    // after this!
    outBufs[0].swap((resampledBuffer.isValid()) ? resampledBuffer : inAudioBuffer);
 
-   if (mGain != MP_BRIDGE_GAIN_PASSTHROUGH)
+   if (outBufs[0].isValid() && mGain != MP_BRIDGE_GAIN_PASSTHROUGH)
    {
       // Allocate temp buffer if not yet allocated.
       if (mpGainBuffer == NULL)
