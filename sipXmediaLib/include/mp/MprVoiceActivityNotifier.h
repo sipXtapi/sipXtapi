@@ -115,6 +115,7 @@ protected:
    int mInactivityTimeoutMs;    ///< Number of milliseconds of silence before STOP notification.
    int mInactivityTimeoutSmp;   ///< Number of samples of silence before STOP notification.
    int mInactivitySamples;      ///< Number of samples since last active packet.
+   int mEnergyLevelMax;         ///< Maximum of the energy level since the last notification.
    StreamState mStreamState;    ///< Stream activity state.
 
      /// @copydoc MpAudioResource::doProcessFrame

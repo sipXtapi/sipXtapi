@@ -22,7 +22,6 @@
 #include <mp/MprnIntMsg.h>
 #include <mp/MpFlowGraphBase.h>
 
-
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -45,6 +44,7 @@ MprVoiceActivityNotifier::MprVoiceActivityNotifier(const UtlString& rName,
 , mInactivityTimeoutMs(inactivityTimeoutMs)
 , mInactivityTimeoutSmp(0)
 , mInactivitySamples(0)
+, mEnergyLevelMax(0)
 , mStreamState(STREAM_SILENT)
 {
 }
@@ -139,15 +139,17 @@ UtlBoolean MprVoiceActivityNotifier::doProcessFrame(MpBufPtr inBufs[],
          if (mLevelSamplesPassed < mLevelPeriodSmp)
          {
             mLevelSamplesPassed += mpFlowGraph->getSamplesPerFrame();
+            mEnergyLevelMax = sipx_max(mEnergyLevelMax, energy);
          }
          else
          {
             mLevelSamplesPassed = 0;
             MprnIntMsg msg(MpResNotificationMsg::MPRNM_ENERGY_LEVEL,
                            getName(),
-                           energy);
+                           mEnergyLevelMax);
             sendNotification(msg);
 //            printf("%s level: %d\n", getName().data(), energy);
+            mEnergyLevelMax = 0;
          }
       }
       else
