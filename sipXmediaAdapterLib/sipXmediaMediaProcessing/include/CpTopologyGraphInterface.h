@@ -680,6 +680,9 @@ private:
                                              int destConnectionId,
                                              float weight);
 
+      /// Set the Mic gain.
+    OsStatus setMicGain(float gain);
+
       /// Set mixing weight from the Mic to all other Bridge ports.
     OsStatus setMicWeightOnBridge(float weight);
 

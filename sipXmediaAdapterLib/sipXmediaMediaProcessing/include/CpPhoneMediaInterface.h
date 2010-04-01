@@ -233,7 +233,7 @@ public:
    virtual void setCodecCPULimit(int iLimit);
 
      /// @copydoc CpMediaInterface::setMicWeightOnBridge()
-   virtual OsStatus setMicWeightOnBridge(float weight) {return OS_NOT_YET_IMPLEMENTED;} ;
+   virtual OsStatus setMicGain(float gain) {return OS_NOT_YET_IMPLEMENTED;} ;
 
      /// @copydoc CpMediaInterface::recordMic(int,int16_t*,int)
    virtual OsStatus recordMic(int ms, int16_t* pAudioBuf, int bufferSize);

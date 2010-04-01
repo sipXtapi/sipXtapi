@@ -37,6 +37,7 @@
 #include <mp/MprEncode.h>
 #include <mp/MprBridge.h>
 #include <mp/MprRecorder.h>
+#include <mp/MprFromInputDevice.h>
 #include <mp/dtmflib.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpCodecFactory.h>
@@ -3283,6 +3284,22 @@ OsStatus CpTopologyGraphInterface::setConnectionToConnectionWeight(CpTopologyMed
    return stat;
 }
 
+OsStatus CpTopologyGraphInterface::setMicGain(float gain)
+{
+#if 0
+   setMicWeightOnBridge(weight);
+#else
+   OsSysLog::add(FAC_CP, PRI_INFO,
+                 "CpTopologyGraphInterface::setMicGain(%f)\n", gain);
+
+   // Set Gain in MprFromInputDevice
+   MprFromInputDevice::setGain(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME,
+                               *mpTopologyGraph->getMsgQ(),
+                               MPF_BRIDGE_FLOAT(gain));
+
+   return OS_SUCCESS;
+#endif
+}
 
 OsStatus CpTopologyGraphInterface::setMicWeightOnBridge(float weight)
 {
