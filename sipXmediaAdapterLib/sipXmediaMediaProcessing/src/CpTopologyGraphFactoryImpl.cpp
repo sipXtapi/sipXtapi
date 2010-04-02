@@ -192,7 +192,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 {
     assert(MpMisc.RawAudioPool);
 #ifdef ANDROID
-    int numBufferedFrames = 10;
+    int numBufferedFrames = 16;
 #else
     int numBufferedFrames = 3;
 #endif
