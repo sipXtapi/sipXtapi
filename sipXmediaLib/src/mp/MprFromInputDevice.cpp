@@ -139,6 +139,7 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    if(mpInputDeviceManager == NULL)
    {
        OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame mpInputDeviceManager NULL");
+       OsSysLog::flush();
    }
    assert(mpInputDeviceManager);
 
@@ -246,14 +247,12 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
 
    uint32_t devSampleRate = 0;
    OsStatus stat = mpInputDeviceManager->getDeviceSamplesPerSec(mDeviceId, devSampleRate);
-#ifndef ANDROID
-   assert(stat == OS_SUCCESS);
-#endif
    if(stat != OS_SUCCESS)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame "
          "- Couldn't get device sample rate from input device manager!  "
          "Device - \"%s\" deviceId: %d", devName.data(), mDeviceId);
+      OsSysLog::flush();
       assert(stat == OS_SUCCESS);
 #ifdef ANDROID
       disable();
@@ -264,6 +263,7 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    if(mpResampler == NULL)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame mpResampler NULL");
+      OsSysLog::flush();
       assert(mpResampler);
    }
    // Check to see if the resampler needs it's rate adjusted.
