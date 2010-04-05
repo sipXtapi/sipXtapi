@@ -1302,7 +1302,7 @@ UtlBoolean CpPeerCall::handleSetMicGain(OsMsg& eventMessage)
     float *pMicGain = (float*)((CpMultiStringMessage&)eventMessage).getInt1Data();
     if (mpMediaInterface && pMicGain)
     {
-        OsStatus stat = mpMediaInterface->setMicWeightOnBridge(*pMicGain) ;
+        OsStatus stat = mpMediaInterface->setMicGain(*pMicGain) ;
         bRC = (stat==OS_SUCCESS) ;
     }
     delete pMicGain;
