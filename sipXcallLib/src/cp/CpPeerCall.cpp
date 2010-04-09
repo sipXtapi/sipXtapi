@@ -1712,6 +1712,11 @@ void CpPeerCall::getLocalContactAddresses( SIPX_CONTACT_ADDRESS contacts[],
         contacts[nActualContacts].eTransportType = TRANSPORT_UDP;
         nActualContacts++ ;
     }
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::getLocalContactAddresses nActualContacts: %d", nActualContacts);
+    for(int cIndex = 0; cIndex < nActualContacts; cIndex++)
+    {
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "contact[%d]= %s", cIndex, contacts[cIndex].cIpAddress);
+    }
 }
 
 
