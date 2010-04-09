@@ -1541,8 +1541,23 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
         contactType = CONTACT_AUTO  ;
     }
 
+    if(contactType == CONTACT_CONFIG)
+    {
+        SIPX_CONTACT_ADDRESS* pContact = pData->pSipUserAgent->getContactDb().findByType(contactType, sipx_protocol, "");
+        if(pContact)
+        {
+            uri.setHostAddress(pContact->cIpAddress);
+            uri.setHostPort(pContact->iPort);
+            bSet = TRUE;
+        }
+        else
+        {
+            contactType = CONTACT_AUTO;
+        }
+    }
+
     // Use configured address first
-    if ((contactType == CONTACT_AUTO) || (contactType == CONTACT_CONFIG))
+    if(contactType == CONTACT_AUTO)
     {
         if (pData->pSipUserAgent->getConfiguredPublicAddress(&useIp, &usePort))
         {

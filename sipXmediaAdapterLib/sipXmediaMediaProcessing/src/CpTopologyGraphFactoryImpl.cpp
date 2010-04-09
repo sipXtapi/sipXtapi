@@ -413,6 +413,12 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                        turnPassword, turnKeepAliveSecs, 
                                        enableIce,
                                        pDispatcher);
+
+    if(mConfiguredIpAddress.length() > 0)
+    {
+        pIf->setConfiguredIpAddress(mConfiguredIpAddress);
+    }
+
     pIf->setValue(miInterfaceId);
     miInterfaceId++;
     return pIf;

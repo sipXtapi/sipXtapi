@@ -3289,6 +3289,20 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVersion(char* szVersion,
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipUdpPort(SIPX_INST hInst, int* pPort) ;
 
+/**
+ * Add a contact using the given IP address and port.  This can be used for
+ * IP address spoofing in the SIP Contact and SDP/RTP c address.
+ *
+ * @param szSipContactAddress - IP address to use in SIP Contact in initial
+ *        REGISTER and INVITE requests as well as the c field in the SDP.
+ * @param iSipContactPort - port to use in the SIP Contact headers.
+ * @param iNewContactId - contactId to use to specify this contact should 
+ *        be used (see @sipxLineAdd, @sipxCallCreate, @sipxCallConnect).
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigAddContact(const SIPX_INST hInst,
+                                              const char* szSipContactAddress,
+                                              const int iSipContactPort,
+                                              SIPX_CONTACT_ID& iNewContactId);
 
 /**
  * Get the local TCP port for SIP signaling.  The port is supplied in the 

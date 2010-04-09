@@ -61,6 +61,11 @@ int CpMediaInterface::getInvalidConnectionId()
     return(sInvalidConnectionId);
 }
 
+void CpMediaInterface::setConfiguredIpAddress(const UtlString& ipAddress)
+{
+    mConfiguredIpAddress = ipAddress;
+}
+
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean CpMediaInterface::isConnectionIdValid(int connectionId)

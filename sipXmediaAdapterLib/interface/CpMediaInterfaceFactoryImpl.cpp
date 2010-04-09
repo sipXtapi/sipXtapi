@@ -211,6 +211,11 @@ void CpMediaInterfaceFactoryImpl::clearCodecPaths()
 
 /* ============================ ACCESSORS ================================= */
 
+void CpMediaInterfaceFactoryImpl::setConfiguredIpAddress(const UtlString& configuredIpAddress)
+{
+    mConfiguredIpAddress = configuredIpAddress;
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

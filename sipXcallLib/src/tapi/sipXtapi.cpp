@@ -393,9 +393,10 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 
     UtlString defaultBindAddressString;
   	int unused;
+
     pInst->pSipUserAgent->getLocalAddress(&defaultBindAddressString, &unused, TRANSPORT_UDP);
-  	unsigned long defaultBindAddress = inet_addr(defaultBindAddressString.data());
-  	OsSocket::setDefaultBindAddress(defaultBindAddress);
+    unsigned long defaultBindAddress = inet_addr(defaultBindAddressString.data());
+    OsSocket::setDefaultBindAddress(defaultBindAddress);
     pInst->pSipUserAgent->start();    
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "Default bind address %s, udpPort=%d, tcpPort=%d, tlsPort=%d",
             defaultBindAddressString.data(),
@@ -7541,7 +7542,45 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
     }        
     return rc;
 }
+SIPXTAPI_API SIPX_RESULT sipxConfigAddContact(const SIPX_INST hInst,
+                                              const char* szSipContactAddress,
+                                              const int iSipContactPort,
+                                              SIPX_CONTACT_ID& iNewContactId)
+{
+    iNewContactId = 0;
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
 
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst;
+ 
+    if (pInst)
+    {
+        SipContactDb* contactDb = &(pInst->pSipUserAgent->getContactDb());
+
+        if(contactDb && szSipContactAddress && *szSipContactAddress && (iSipContactPort > 0))
+        {
+            SIPX_CONTACT_ADDRESS spoofedContact;
+            spoofedContact.iPort = iSipContactPort;
+            strncpy(spoofedContact.cIpAddress, szSipContactAddress, 27);
+            spoofedContact.cIpAddress[27] = '\0';
+            spoofedContact.eContactType = CONTACT_CONFIG;
+            bool contactAdded = contactDb->addContact(spoofedContact);
+            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigAddContact Spoofed address was %sadded, contactId: %d", contactAdded ? "" : "NOT ", 
+                spoofedContact.id);
+            iNewContactId = spoofedContact.id;
+            rc = SIPX_RESULT_SUCCESS;
+
+            CpMediaInterfaceFactoryImpl* pImpl =
+                pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
+
+            if(pImpl)
+            {
+                pImpl->setConfiguredIpAddress(szSipContactAddress);
+            }
+        }
+    }
+
+    return(rc);
+}
 
 SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalFeedbackAddress(const SIPX_INST hInst,
                                                            const char*     szRemoteIp,

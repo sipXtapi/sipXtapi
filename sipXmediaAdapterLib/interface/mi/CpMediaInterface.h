@@ -780,7 +780,8 @@ public:
      ///< Get the specific type of this media interface
    virtual UtlString getType() = 0;
 
-
+   ///< Set IP address to advertise in SDP
+   virtual void setConfiguredIpAddress(const UtlString& ipAddress);
 
 /* ============================ INQUIRY =================================== */
 
@@ -826,6 +827,7 @@ public:
 protected:
     CpMediaInterfaceFactoryImpl *mpFactoryImpl ;
     SdpSrtpParameters mSrtpParams;
+    UtlString mConfiguredIpAddress;  ///< Address to use instead of local address in SDP
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

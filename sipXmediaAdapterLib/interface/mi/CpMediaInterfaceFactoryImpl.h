@@ -307,6 +307,8 @@ public:
       return OS_NOT_SUPPORTED ;
    }
 
+   /// @brief Set IP address to use in SDP (spoofed address)
+   virtual void setConfiguredIpAddress(const UtlString& configuredIpAddress);
 
 /* ============================ INQUIRY =================================== */
 
@@ -355,6 +357,7 @@ protected:
    UtlSList mlistFreePorts ;  /**< List of recently freed ports */
    UtlSList mlistBusyPorts ;  /**< List of busy ports */
    OsMutex  mlockList ;       /**< Lock for port allocation */
+   UtlString mConfiguredIpAddress; /**< IP address to use for SDP c line */
 
    static size_t mnAllocCodecPaths; ///< Number of slots allocated in codec path array.
    static size_t mnCodecPaths;      ///< Number of codec paths stored.

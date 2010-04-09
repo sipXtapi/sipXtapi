@@ -595,6 +595,13 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
                 }
 
             }
+            else if(pMediaConn->mContactType == CONTACT_CONFIG)
+            {
+                UtlString dummyHostIp;
+                rtpHostAddress = mConfiguredIpAddress;
+                getLocalAddresses(connectionId, dummyHostIp, rtpAudioPort,
+                        rtcpAudioPort, rtpVideoPort, rtcpVideoPort);
+            }
             else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
             {
                 assert(!pMediaConn->mIsMulticast);
@@ -637,6 +644,10 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
                     // External address should match that of Audio RTP
                     assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
                 }
+            }
+            else if (pMediaConn->mContactType == CONTACT_CONFIG)
+            {
+                // Do nothing as it was taken care of above for RTP.
             }
             else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
             {
@@ -718,6 +729,17 @@ OsStatus CpTopologyGraphInterface::getCapabilitiesEx(int connectionId,
     {        
         switch (pMediaConn->mContactType)
         {
+            case CONTACT_CONFIG:
+                if(nActualAddresses < nMaxAddresses)
+                {
+                    UtlString dummyHostIp;
+                    rtpHostAddresses[nActualAddresses] = mConfiguredIpAddress;
+                    getLocalAddresses(connectionId, dummyHostIp, rtpAudioPorts[nActualAddresses],
+                        rtcpAudioPorts[nActualAddresses], rtpVideoPorts[nActualAddresses], rtcpVideoPorts[nActualAddresses]);
+                    nActualAddresses++;
+                }
+                break;
+
             case CONTACT_LOCAL:
                 addLocalContacts(connectionId, nMaxAddresses, rtpHostAddresses,
                         rtpAudioPorts, rtcpAudioPorts, rtpVideoPorts, 
