@@ -53,6 +53,7 @@ public:
     GIPSVEDTMF* getDTMF() ;
     GIPSVEFile* getFile() ;
     GIPSVEExternalMedia* getExternalMedia() ;
+    GIPSVEVQMon* getVqMon() ;
 
 	
     /* ============================ INQUIRY =================================== */
@@ -68,9 +69,11 @@ protected:
     GIPSVERTP_RTCP* m_pRTCP;
     GIPSVEHardware* m_pHardware;
     GIPSVEVolumeControl* m_pVolumnControl;
-    GIPSVEDTMF* m_pDTMF ;
-    GIPSVEFile* m_pFile ;
+    GIPSVEDTMF* m_pDTMF;
+    GIPSVEFile* m_pFile;
     GIPSVEExternalMedia* m_pExternalMedia;
+    GIPSVEVQMon* m_pVqMon;
+
 
     /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

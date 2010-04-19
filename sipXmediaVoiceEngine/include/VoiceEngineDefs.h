@@ -42,6 +42,7 @@
 #include "GIPSVEVolumeControl.h"
 #include "GIPSVEVQE.h"
 #include "GIPS_common_types.h"
+#include "GIPSVEVQMon.h"
 #else
 # include "include/stubbed_types.h"
 # include "include/StubbedVoiceEngineLib.h"
@@ -83,7 +84,7 @@ typedef GipsVideoEngineMac GipsVideoEnginePlatform;
 #undef USE_GLOBAL_VOICE_ENGINE    // Comment to use USE_GLOBAL_VOICE_ENGINE
 
 #define ENABLE_GIPS_VQMON
-#undef ENABLE_GIPS_VQMON       // Comment to disable VQMon
+//#undef ENABLE_GIPS_VQMON       // Comment to use VQMon
 
 #define USE_GIPS_DLL
 #undef USE_GIPS_DLL            // Comment to use the DLL version of GIPS

@@ -404,7 +404,7 @@ OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId,
 
         
 #ifdef ENABLE_GIPS_VQMON   
-        rc = mpVoiceEngine->GIPSVE_EnableVQMon(connectionId, true);
+        rc = mpVoiceEngine->getVqMon()->GIPSVE_SetVQMonStatus(connectionId, true);
         checkVoiceEngineReturnCode("GIPSVE_EnableVQMon", connectionId, rc, true) ;
 #endif
 
@@ -853,7 +853,7 @@ OsStatus VoiceEngineMediaInterface::startRtpReceive(int       connectionId,
             checkVoiceEngineReturnCode("GIPSVE_SetRTCPCNAME", connectionId, rc, true) ;
         }                        
 #ifdef ENABLE_GIPS_VQMON
-        rc = mpVoiceEngine->GIPSVE_EnableRTCP_XR(connectionId, true);
+        rc = mpVoiceEngine->getVqMon()->GIPSVE_SetRTCPXRStatus(connectionId, true);
         checkVoiceEngineReturnCode("GIPSVE_EnableRTCP_XR", connectionId, rc, true) ;
 #endif
     }
@@ -2417,10 +2417,10 @@ OsStatus VoiceEngineMediaInterface::generateVoiceQualityReport(int connectionId,
             unsigned int  nLength = sizeof(cBuf) ;
             memset(cBuf, 0, sizeof(cBuf)) ;
 
-            int iRC = mpVoiceEngine->GIPSVE_GetVQMonSIPReport(
+            int iRC = mpVoiceEngine->getVqMon()->GIPSVE_GetVQMonSIPReport(
                     connectionId,
                     cBuf,
-                    &nLength,
+                    nLength,
                     (char*) callId,
                     (char*) callId,
                     (char*) startWriteTime.data(),
@@ -2954,12 +2954,12 @@ void VoiceEngineMediaInterface::setVQMonAddresses(int connectionId)
         unsigned long remoteAddr = inet_addr(pMediaConn->mRtpSendHostAddress) ;
         
         int rc ;
-        rc = mpVoiceEngine->GIPSVE_VQMonIPInfo(connectionId, 
+        rc = mpVoiceEngine->getVqMon()->GIPSVE_SetVQMonIPInfo(connectionId, 
                 (unsigned char*) &localAddr, 
                 rtpAudioPort, 
                 (unsigned char*) &remoteAddr, 
                 pMediaConn->mRtpAudioSendHostPort) ;
-        checkVoiceEngineReturnCode("GIPSVE_VQMonIPInfo", connectionId, rc, true) ;
+        checkVoiceEngineReturnCode("GIPSVE_VQMonIPInfo", connectionId, rc, false) ;
     }
 #endif
 }

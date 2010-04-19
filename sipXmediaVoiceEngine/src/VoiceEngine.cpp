@@ -42,10 +42,12 @@ VoiceEngine::VoiceEngine(GIPSVoiceEngine* pGIPSVoiceEngine)
     m_pDTMF = GIPSVEDTMF::GetInterface(m_pGIPSVoiceEngine) ;
     m_pFile = GIPSVEFile::GetInterface(m_pGIPSVoiceEngine) ;
     m_pExternalMedia = GIPSVEExternalMedia::GetInterface(m_pGIPSVoiceEngine) ;
+    m_pVqMon = GIPSVEVQMon::GetInterface(m_pGIPSVoiceEngine) ;
 }
 
 VoiceEngine::~VoiceEngine() 
 {
+    m_pVqMon->Release() ;
     m_pExternalMedia->Release() ;
     m_pFile->Release() ;
     m_pDTMF->Release() ;
@@ -124,6 +126,13 @@ GIPSVEExternalMedia* VoiceEngine::getExternalMedia()
 {
     return m_pExternalMedia ;
 }
+
+GIPSVEVQMon* VoiceEngine::getVqMon() 
+{
+    return m_pVqMon ;
+}
+
+
 
 /* ============================ INQUIRY =================================== */
 
