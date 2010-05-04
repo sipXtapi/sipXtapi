@@ -10,6 +10,11 @@
 
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
+#ifdef HAVE_SPEEX // [
+#  define USE_SPEEX_AEC
+#endif // HAVE_SPEEX ]
+#define USE_SPEEX_AEC
+
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
@@ -42,8 +47,10 @@
 #include "mi/CpMediaInterfaceFactory.h"
 #include "CpTopologyGraphInterface.h"
 #include <os/OsSysLog.h>
-#ifdef HAVE_SPEEX // [
+#ifdef USE_SPEEX_AEC // [
 #  include <mp/MprToOutputDeviceWithAecConstructor.h>
+#endif // USE_SPEEX_AEC ]
+#ifdef HAVE_SPEEX // [
 #  include <mp/MprSpeexPreProcessConstructor.h>
 #endif // HAVE_SPEEX ]
 
@@ -75,6 +82,7 @@
 #     define INPUT_DRIVER MpidAndroid
 #     define INPUT_DRIVER_DEFAULT_NAME "default"
 #     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (MpidAndroid::AUDIO_SOURCE_DEFAULT), (manager)
+#     define MP_LATE_DEVICE_ENABLE
 #  else
 #     include <mp/MpidOss.h>
 #     define INPUT_DRIVER MpidOss
@@ -123,10 +131,6 @@
 #endif
 
 #endif // USE_DEVICE_ADD_HACK ]
-
-#ifdef HAVE_SPEEX // [
-#  define USE_SPEEX_AEC
-#endif // HAVE_SPEEX ]
 
 // EXTERNAL FUNCTIONS
 extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWnt.cpp
@@ -249,6 +253,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
        OsStatus tempRes;
 
        // Enable devices
+#ifndef MP_LATE_DEVICE_ENABLE // [
        tempRes = mpInputDeviceManager->enableDevice(sourceDeviceId);
        if (tempRes != OS_SUCCESS)
        {
@@ -258,6 +263,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
           mpInputDeviceManager->removeDevice(sourceDeviceId);
           delete sourceDevice;
        }
+#endif // MP_LATE_DEVICE_ENABLE ]
        tempRes = mpOutputDeviceManager->enableDevice(sinkDeviceId);
        if (tempRes == OS_SUCCESS)
        {
@@ -399,9 +405,16 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                                  uint32_t samplesPerSec,
                                                  OsMsgDispatcher* pDispatcher)
 {
+#ifdef MP_LATE_DEVICE_ENABLE // [
+    if (mpInputDeviceManager->enableDevice(1) != OS_SUCCESS)
+    {
+       return NULL;
+    }
+#endif // MP_LATE_DEVICE_ENABLE ]
+
     // if the sample rate passed in is zero, use the default.
     samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSec : samplesPerSec;
-    CpMediaInterface *pIf =
+    CpTopologyGraphInterface *pIf =
           new CpTopologyGraphInterface(this,
                                        (mFrameSizeMs*samplesPerSec)/1000, samplesPerSec, 
                                        publicAddress, localAddress, 
@@ -412,7 +425,12 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                        turnServer, turnPort, turnUserName, 
                                        turnPassword, turnKeepAliveSecs, 
                                        enableIce,
-                                       pDispatcher);
+                                       pDispatcher,
+                                       mpInputDeviceManager,
+                                       1,
+                                       TRUE,
+                                       mpOutputDeviceManager,
+                                       1);
 
     if(mConfiguredIpAddress.length() > 0)
     {

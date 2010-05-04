@@ -79,7 +79,9 @@ public:
    MpAudioInputConnection(MpInputDeviceHandle deviceId,
                           MpInputDeviceDriver& deviceDriver,
                           unsigned int frameBufferLength,
-                          MpBufPool& bufferPool)
+                          MpBufPool& bufferPool,
+                          uint32_t samplesPerFrame,
+                          uint32_t samplesPerSec)
    : UtlInt(deviceId)
    , mLastPushedFrame(frameBufferLength - 1)
    , mFrameBufferLength(frameBufferLength)
@@ -88,6 +90,9 @@ public:
    , mpInputDeviceDriver(&deviceDriver)
    , mpBufferPool(&bufferPool)
    , mInUse(FALSE)
+   , mEnableCounter(0)
+   , mSamplesPerFrame(samplesPerFrame)
+   , mSamplesPerSec(samplesPerSec)
    {
       assert(mFrameBufferLength > 0);
       mppFrameBufferArray = new MpInputDeviceFrameData[mFrameBufferLength];
@@ -115,6 +120,71 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+
+   OsStatus setup(uint32_t samplesPerFrame, uint32_t samplesPerSec)
+   {
+      mSamplesPerFrame = samplesPerFrame;
+      mSamplesPerSec = samplesPerSec;
+      return OS_SUCCESS;
+   }
+
+   OsStatus enable()
+   {
+      OsStatus status = OS_SUCCESS;
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpAudioInputConnection::enable() mEnableCounter=%d", mEnableCounter);
+      if (mEnableCounter == 0)
+      {
+         MpInputDeviceDriver *deviceDriver = getDeviceDriver();
+         if (deviceDriver)
+         {
+            status = deviceDriver->enableDevice(mSamplesPerFrame,
+                                                mSamplesPerSec);
+         }
+         else
+         {
+            status = OS_NOT_FOUND;
+         }
+      }
+      if (status == OS_SUCCESS)
+      {
+         mEnableCounter++;
+      }
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpAudioInputConnection::enable() counter changed to %d, status is %d",
+                    mEnableCounter, status);
+      
+      return status;
+   }
+
+   OsStatus disable()
+   {
+      OsStatus status = OS_SUCCESS;
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpAudioInputConnection::disable() mEnableCounter=%d", mEnableCounter);
+      if (mEnableCounter == 1)
+      {
+         MpInputDeviceDriver *deviceDriver = getDeviceDriver();
+         if (deviceDriver)
+         {
+            status = deviceDriver->disableDevice();
+         }
+         else
+         {
+            status = OS_NOT_FOUND;
+         }
+      }
+      if (status == OS_SUCCESS)
+      {
+         mEnableCounter--;
+      }
+
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpAudioInputConnection::disable() counter changed to %d, status is %d",
+                    mEnableCounter, status);
+
+      return status;
+   }
 
    OsStatus pushFrame(unsigned int numSamples,
                       MpAudioSample* samples,
@@ -379,6 +449,9 @@ private:
    MpInputDeviceDriver* mpInputDeviceDriver;
    MpBufPool* mpBufferPool;          
    UtlBoolean mInUse;                ///< Use indicator to synchronize disable and remove.
+   int mEnableCounter;               ///< Reference counter for enable() and disable() calls.
+   uint32_t mSamplesPerFrame;        ///< Samples per frame setting for enable()
+   uint32_t mSamplesPerSec;          ///< Samples per second setting for enable()
 
      /// Copy constructor (not implemented for this class)
    MpAudioInputConnection(const MpAudioInputConnection& rMpAudioInputConnection);
@@ -439,7 +512,9 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
       new MpAudioInputConnection(newDeviceId,
                                  newDevice, 
                                  mDefaultNumBufferedFrames,
-                                 *mpBufferPool);
+                                 *mpBufferPool,
+                                 mDefaultSamplesPerFrame,
+                                 mDefaultSamplesPerSecond);
 
    // Map by device name string
    UtlInt* idValue = new UtlInt(newDeviceId);
@@ -543,16 +618,12 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
 }
 
 
-OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId,
-                                            uint32_t samplesPerFrame,
-                                            uint32_t samplesPerSec)
+OsStatus MpInputDeviceManager::setupDevice(MpInputDeviceHandle deviceId,
+                                           uint32_t samplesPerFrame,
+                                           uint32_t samplesPerSec)
 {
    OsStatus status = OS_NOT_FOUND;
    OsWriteLock lock(mRwMutex);
-
-   // If sample rate or samples per frame were not provided, use defaults.
-   samplesPerFrame = (samplesPerFrame == 0) ? mDefaultSamplesPerFrame : samplesPerFrame;
-   samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSecond : samplesPerSec;
 
    MpAudioInputConnection* connectionFound = NULL;
    UtlInt deviceKey(deviceId);
@@ -562,14 +633,26 @@ OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId,
 
    if (connectionFound)
    {
-      deviceDriver = connectionFound->getDeviceDriver();
-      assert(deviceDriver);
-      if (deviceDriver)
-      {
-         status = 
-            deviceDriver->enableDevice(samplesPerFrame, 
-                                       samplesPerSec);
-      }
+      status = connectionFound->setup(samplesPerFrame, samplesPerSec);
+   }
+   return(status);
+}
+
+
+OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
+{
+   OsStatus status = OS_NOT_FOUND;
+   OsWriteLock lock(mRwMutex);
+
+   MpAudioInputConnection* connectionFound = NULL;
+   UtlInt deviceKey(deviceId);
+   connectionFound =
+      (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+   MpInputDeviceDriver* deviceDriver = NULL;
+
+   if (connectionFound)
+   {
+      status = connectionFound->enable();
    }
    return(status);
 }
@@ -635,12 +718,7 @@ OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
 
    if (okToDisable)
    {
-      deviceDriver = connectionFound->getDeviceDriver();
-      assert(deviceDriver);
-      if (deviceDriver)
-      {
-         status = deviceDriver->disableDevice();
-      }
+      status = connectionFound->disable();
 
       mRwMutex.acquireWrite();
       connectionFound->clearInUse();

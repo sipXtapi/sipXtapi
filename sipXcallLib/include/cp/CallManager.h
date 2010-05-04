@@ -442,12 +442,12 @@ private:
 
     void doHold();
 
-    void doCreateCall(const char* callId,
-                        int metaEventId = 0,
-                        int metaEventType = PtEvent::META_EVENT_NONE,
-                        int numMetaEventCalls = 0,
-                        const char* metaEventCallIds[] = NULL,
-                        UtlBoolean assumeFocusIfNoInfocusCall = TRUE);
+    OsStatus doCreateCall(const char* callId,
+                          int metaEventId = 0,
+                          int metaEventType = PtEvent::META_EVENT_NONE,
+                          int numMetaEventCalls = 0,
+                          const char* metaEventCallIds[] = NULL,
+                          UtlBoolean assumeFocusIfNoInfocusCall = TRUE);
 
     void doConnect(const char* callId,
                    const char* addressUrl,

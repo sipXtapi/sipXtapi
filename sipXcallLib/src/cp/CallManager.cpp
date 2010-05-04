@@ -3608,13 +3608,14 @@ CpMediaInterfaceFactory* CallManager::getMediaInterfaceFactory()
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-void CallManager::doCreateCall(const char* callId,
-                               int metaEventId,
-                               int metaEventType,
-                               int numMetaEventCalls,
-                               const char* metaEventCallIds[],
-                               UtlBoolean assumeFocusIfNoInfocusCall)
+OsStatus CallManager::doCreateCall(const char* callId,
+                                   int metaEventId,
+                                   int metaEventType,
+                                   int numMetaEventCalls,
+                                   const char* metaEventCallIds[],
+                                   UtlBoolean assumeFocusIfNoInfocusCall)
 {
+    OsStatus status = OS_SUCCESS;
     OsWriteLock lock(mCallListMutex);
 
     CpCall* call = findHandlingCall(callId);
@@ -3622,7 +3623,8 @@ void CallManager::doCreateCall(const char* callId,
     {
         // This is generally bad.  The call should not exist.
         OsSysLog::add(FAC_CP, PRI_ERR, "doCreateCall cannot create call. CallId: %s already exists.\n",
-            callId);
+                      callId);
+        status = OS_FAILED;
     }
     else
     {
@@ -3653,6 +3655,11 @@ void CallManager::doCreateCall(const char* callId,
                 mStunServer, mStunPort, mStunKeepAlivePeriodSecs, 
                 mTurnServer, mTurnPort, mTurnUsername, mTurnPassword, 
                 mTurnKeepAlivePeriodSecs, isIceEnabled(), mDefaultSampleRate);
+            if (mediaInterface == NULL)
+            {
+                status = OS_FAILED;
+                goto doCreateCall_codecCleanup;
+            }
 
             OsSysLog::add(FAC_CP, PRI_DEBUG, "Creating new SIP Call, mediaInterface: %p\n", mediaInterface);
             call = new CpPeerCall(mIsEarlyMediaFor180,
@@ -3699,6 +3706,7 @@ void CallManager::doCreateCall(const char* callId,
                 pushCall(call);
             }
 
+doCreateCall_codecCleanup:
             for (int i = 0; i < numCodecs; i++)
             {
                 delete codecArray[i];
@@ -3706,6 +3714,7 @@ void CallManager::doCreateCall(const char* callId,
             delete[] codecArray;
         }
     }
+    return status;
 }
 
 

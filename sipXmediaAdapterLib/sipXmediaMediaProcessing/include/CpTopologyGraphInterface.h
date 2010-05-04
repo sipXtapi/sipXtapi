@@ -39,6 +39,8 @@ class CpTopologyMediaConnection;
 class MpTopologyGraph;
 class MpResourceTopology;
 class MpResourceFactory;
+class MpInputDeviceManager;
+class MpOutputDeviceManager;
 class OsSocket;
 
 
@@ -71,9 +73,14 @@ public:
                              const char* turnPassword = NULL,
                              int turnKeepAlivePeriodSecs = 28,
                              UtlBoolean enableIce = FALSE,
-                             OsMsgDispatcher* pDispatcher = NULL
+                             OsMsgDispatcher* pDispatcher = NULL,
+                             MpInputDeviceManager* pInputDeviceManager = NULL,
+                             MpInputDeviceHandle inputDeviceHandle = 1,
+                             UtlBoolean inputDeviceAlreadyEnabled = FALSE,
+                             MpOutputDeviceManager* pOutputDeviceManager = NULL,
+                             MpOutputDeviceHandle outputDeviceHandle = 1
                             );
-     
+
 
     //! Destructor
     virtual ~CpTopologyGraphInterface();
@@ -625,6 +632,11 @@ private:
    SdpCodecList mSupportedCodecs;
    UtlDList mMediaConnections;
    int mExpeditedIpTos;
+
+   MpInputDeviceManager*  mpInputDeviceManager;
+   MpInputDeviceHandle    mInputDeviceHandle;
+   MpOutputDeviceManager* mpOutputDeviceManager;
+   MpOutputDeviceHandle   mOutputDeviceHandle;
 
    UtlString mStunServer;
    int mStunPort;

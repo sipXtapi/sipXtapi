@@ -142,20 +142,36 @@ public:
      */
 
 
+     /// @brief Set device parameters before enabling it.
+   OsStatus setupDevice(MpInputDeviceHandle deviceId,
+                        uint32_t samplesPerFrame = 0,
+                        uint32_t samplesPerSec = 0);
+     /**<
+     *  Use this method if you want to set parameters different from the manager
+     *  defaults. If you're happy with the manager defaults, you may omit this.
+     *
+     *  @param[in] deviceId - (in) The device to setup.
+     *  @param[in] samplesPerFrame (optional) - The samples per frame that this 
+     *         device should operate with.  If not specified, the manager's 
+     *         default will be used.
+     *  @param[in] samplesPerSec (optional) - The sample rate that this device 
+     *         should operate at.  If not specified, the manager's default will 
+     *         be used.
+     *  @returns OS_NOT_FOUND if the device could not be found.
+     *  
+     *  @NOTE This SHOULD NOT be used to mute/unmute a device. Disabling and
+     *        enabling a device results in state and buffer queues being cleared.
+     *
+     *  Multi-thread safe.
+     */
+
+
      /// @brief Helper to enable device driver
-   OsStatus enableDevice(MpInputDeviceHandle deviceId,
-                         uint32_t samplesPerFrame = 0,
-                         uint32_t samplesPerSec = 0);
+   OsStatus enableDevice(MpInputDeviceHandle deviceId);
      /**<
      *  This method enables the device driver indicated by the device id.
      *
-     *  @param deviceId - (in) The device to enable.
-     *  @param samplesPerFrame (optional) - The samples per frame that this 
-     *         device should operate with.  If not specified, the manager's 
-     *         default will be used.
-     *  @param samplesPerSec (optional) - The sample rate that this device 
-     *         should operate at.  If not specified, the manager's default will 
-     *         be used.
+     *  @param[in] deviceId - The device to enable.
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  
      *  @NOTE This SHOULD NOT be used to mute/unmute a device. Disabling and
@@ -170,7 +186,7 @@ public:
      /**<
      *  This method disables the device driver indicated by the device id.
      *
-     *  @param deviceId - (in) The device to disable.
+     *  @param[in] deviceId - The device to disable.
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  @returns OS_BUSY if the device is currently being removed or disabled.
      *

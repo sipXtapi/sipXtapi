@@ -28,6 +28,8 @@
 #include <os/OsStatus.h>
 #include <mp/MpTopologyGraph.h>
 #include <mp/MpResourceTopology.h>
+#include <mp/MpInputDeviceManager.h>
+#include <mp/MpOutputDeviceManager.h>
 #include <mp/MprToneGen.h>
 #include <mp/MprFromFile.h>
 #include <mp/MprDecode.h>
@@ -182,9 +184,18 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
                                                    const char* turnPassword,
                                                    int turnKeepAlivePeriodSecs,
                                                    UtlBoolean enableIce,
-                                                   OsMsgDispatcher* pDispatcher
+                                                   OsMsgDispatcher* pDispatcher,
+                                                   MpInputDeviceManager* pInputDeviceManager,
+                                                   MpInputDeviceHandle inputDeviceHandle,
+                                                   UtlBoolean inputDeviceAlreadyEnabled,
+                                                   MpOutputDeviceManager* pOutputDeviceManager,
+                                                   MpOutputDeviceHandle outputDeviceHandle
                                                   )
-    : CpMediaInterface(pFactoryImpl)
+: CpMediaInterface(pFactoryImpl)
+, mpInputDeviceManager(pInputDeviceManager)
+, mInputDeviceHandle(inputDeviceHandle)
+, mpOutputDeviceManager(pOutputDeviceManager)
+, mOutputDeviceHandle(outputDeviceHandle)
 {
     mLastConnectionId = 0;
 
@@ -252,6 +263,12 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    }
 
    mExpeditedIpTos = expeditedIpTos;
+
+   if (!inputDeviceAlreadyEnabled && mpInputDeviceManager != NULL
+      && mInputDeviceHandle > -1)
+   {
+      mpInputDeviceManager->enableDevice(mInputDeviceHandle);
+   }
 }
 
 
@@ -265,14 +282,13 @@ CpTopologyGraphInterface::~CpTopologyGraphInterface()
     while ((mediaConnection = (CpTopologyMediaConnection*) mMediaConnections.get()))
     {
         deleteMediaConnection(mediaConnection);
-//        delete mediaConnection;
         mediaConnection = NULL;
     }
 
     if(mpTopologyGraph)
     {
-      // Free up the resources used by tone generation ASAP
-      stopTone();
+        // Free up the resources used by tone generation ASAP
+        stopTone();
 
         // Stop the net in/out stuff before the sockets are deleted
         //mpMediaFlowGraph->stopReceiveRtp();
@@ -292,6 +308,11 @@ CpTopologyGraphInterface::~CpTopologyGraphInterface()
                       mpTopologyGraph);
         delete mpTopologyGraph;
         mpTopologyGraph = NULL;
+    }
+
+    if (mpInputDeviceManager != NULL && mInputDeviceHandle > -1)
+    {
+       mpInputDeviceManager->disableDevice(mInputDeviceHandle);
     }
 
     // Delete the properties and their values
@@ -2198,7 +2219,7 @@ UtlBoolean CpTopologyGraphInterface::getNatedAddresses(int connectionId,
                     hostIp = host ;
                     rtpAudioPort = port ;
 
-                    bRC = TRUE ;
+                    bRC = FALSE ;
                 }
             
                 // Audio rtcp port (optional) 
