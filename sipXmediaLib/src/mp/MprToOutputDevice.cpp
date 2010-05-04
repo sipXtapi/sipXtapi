@@ -49,6 +49,26 @@ static const UtlString classname="MprToOutputDevice";
 static void debugPrintf(...) {}
 #endif // DEBUG_PRINT ]
 
+//#define ENABLE_FILE_LOGGING
+#ifdef ENABLE_FILE_LOGGING
+static FILE *sgSpkrFile=NULL;
+class OutFileInit
+{
+public:
+   OutFileInit()
+   {
+      sgSpkrFile = fopen("/sdcard/spkr.raw", "w");
+   }
+
+   ~OutFileInit()
+   {
+      fclose(sgSpkrFile);
+   }
+};
+
+static OutFileInit sgOutFileInit;
+#endif // ENABLE_FILE_LOGGING
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -67,7 +87,8 @@ MprToOutputDevice::MprToOutputDevice(const UtlString& rName,
 , mDeviceId(deviceId)
 , mpResampler(MpResamplerBase::createResampler(1, 8000, 8000))
 , mCopyQPool(rName+"-copy-pool", MpBufferMsg(MpBufferMsg::AUD_PLAY),
-             20, 0, 0, 1, OsMsgPool::SINGLE_CLIENT)
+             20, OsMsgQ::DEF_MAX_MSGS, OsMsgQ::DEF_MAX_MSGS, 1,
+             OsMsgPool::SINGLE_CLIENT)
 , mIsCopyQEnabled(FALSE)
 {
 }
@@ -326,6 +347,21 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       mFrameTime += frameTimeInterval;
    }
 
+#ifdef ENABLE_FILE_LOGGING
+   if (status == OS_SUCCESS && inAudioBuffer.isValid())
+   {
+      fwrite(inAudioBuffer->getSamplesPtr(), 1, inAudioBuffer->getSamplesNumber()*sizeof(short), sgSpkrFile);
+   }
+   else
+   {
+      MpAudioSample silence = 0;
+      for (int i=0; i<samplesPerFrame; i++)
+      {
+         fwrite(&silence, 1, sizeof(short), sgSpkrFile);
+      }
+   }
+#endif // ENABLE_FILE_LOGGING
+
    // Send buffer to copy queue if copy queue is enabled
    if (pCopyMsg != NULL)
    {
@@ -374,6 +410,15 @@ UtlBoolean MprToOutputDevice::handleMessage(MpResourceMsg& rMsg)
       break;
    }
    return msgHandled;
+}
+
+
+UtlBoolean MprToOutputDevice::handleEnable()
+{
+   mFrameTimeInitialized = FALSE;
+   mFrameTime = 0;
+   mMixerBufferPosition = 0;
+   return MpResource::handleEnable();
 }
 
 /* ============================ FUNCTIONS ================================= */

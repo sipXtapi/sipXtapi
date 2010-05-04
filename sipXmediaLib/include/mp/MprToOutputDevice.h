@@ -144,6 +144,9 @@ private:
      /// @copydoc MpResource::handleMessage()
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
+     /// @copydoc MpResource::handleEnable()
+   virtual UtlBoolean handleEnable();
+
      /// Copy constructor (not implemented for this class)
    MprToOutputDevice(const MprToOutputDevice& rMprToOutputDevice);
 
