@@ -50,7 +50,16 @@ public:
    static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
 
    enum {
-      MAX_ECHO_QUEUE=21
+#ifdef WIN32
+      MAX_ECHO_QUEUE=21,
+      DEFAULT_ECHO_QUEUE_LEN=130
+#elif defined(ANDROID)
+      MAX_ECHO_QUEUE=40,
+      DEFAULT_ECHO_QUEUE_LEN=300
+#else
+      MAX_ECHO_QUEUE=20,
+      DEFAULT_ECHO_QUEUE_LEN=90
+#endif
    };
 
    enum GlobalEnableState {
@@ -66,11 +75,7 @@ public:
      /// Constructor
    MprSpeexEchoCancel(const UtlString& rName,
                       OsMsgQ* pSpkrQ=NULL,
-#ifdef WIN32
-                      int spkrQDelayMs=130,
-#else
-                      int spkrQDelayMs=90,
-#endif
+                      int spkrQDelayMs=DEFAULT_ECHO_QUEUE_LEN,
                       int filterLength=SPEEX_DEFAULT_AEC_FILTER_LENGTH);
      /**<
      *  @param[in] rName - resource name.
