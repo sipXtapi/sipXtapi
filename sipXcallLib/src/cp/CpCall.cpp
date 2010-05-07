@@ -92,8 +92,11 @@ CpCall::CpCall(CpCallManager* manager,
     // Set the media notification dispatcher we created on the media
     // interface and turn on notifications, so that the CpCall queue 
     // will receive the media notifications in its queue.
-    mpMediaInterface->setNotificationDispatcher(&mMediaMsgDispatcher);
-    mpMediaInterface->setNotificationsEnabled(true);
+    if (mpMediaInterface)
+    {
+       mpMediaInterface->setNotificationDispatcher(&mMediaMsgDispatcher);
+       mpMediaInterface->setNotificationsEnabled(true);
+    }
 
     mCallState = PtCall::IDLE;
     mLocalConnectionState = PtEvent::CONNECTION_IDLE;
