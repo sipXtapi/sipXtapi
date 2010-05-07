@@ -3618,7 +3618,7 @@ OsStatus CallManager::doCreateCall(const char* callId,
     OsStatus status = OS_SUCCESS;
     OsWriteLock lock(mCallListMutex);
 
-    CpCall* call = findHandlingCall(callId);
+    CpPeerCall* call = (CpPeerCall*)findHandlingCall(callId);
     if(call)
     {
         // This is generally bad.  The call should not exist.
@@ -3655,11 +3655,6 @@ OsStatus CallManager::doCreateCall(const char* callId,
                 mStunServer, mStunPort, mStunKeepAlivePeriodSecs, 
                 mTurnServer, mTurnPort, mTurnUsername, mTurnPassword, 
                 mTurnKeepAlivePeriodSecs, isIceEnabled(), mDefaultSampleRate);
-            if (mediaInterface == NULL)
-            {
-                status = OS_FAILED;
-                goto doCreateCall_codecCleanup;
-            }
 
             OsSysLog::add(FAC_CP, PRI_DEBUG, "Creating new SIP Call, mediaInterface: %p\n", mediaInterface);
             call = new CpPeerCall(mIsEarlyMediaFor180,
@@ -3706,12 +3701,21 @@ OsStatus CallManager::doCreateCall(const char* callId,
                 pushCall(call);
             }
 
-doCreateCall_codecCleanup:
             for (int i = 0; i < numCodecs; i++)
             {
                 delete codecArray[i];
             }
             delete[] codecArray;
+
+            // If Media Interface is not started, send an event
+            if (mediaInterface == NULL)
+            {
+               OsSysLog::add(FAC_CP, PRI_WARNING,
+                             "CallManager::doCreateCall() MediaInterface creation failed");
+               call->fireSipXMediaEvent(MEDIA_DEVICE_FAILURE,
+                                        MEDIA_CAUSE_DEVICE_UNAVAILABLE,
+                                        MEDIA_TYPE_AUDIO);
+            }
         }
     }
     return status;
