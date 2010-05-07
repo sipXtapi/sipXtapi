@@ -3362,6 +3362,25 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     return connection;
 }
 
+OsStatus CpPeerCall::fireSipXMediaEvent(SIPX_MEDIA_EVENT event,
+                                        SIPX_MEDIA_CAUSE cause,
+                                        SIPX_MEDIA_TYPE  type,
+                                        void*            pEventData)
+{
+   OsStatus status = OS_FAILED;
+
+   OsReadLock lock(mConnectionMutex);
+   UtlDListIterator iterator(mConnections);
+   Connection* pConnection;
+   while ((pConnection = (Connection*) iterator()))
+   {
+      pConnection->fireSipXMediaEvent(event, cause, type, pEventData);
+      status = OS_SUCCESS;
+   }
+
+   return status;
+}
+
 UtlBoolean CpPeerCall::hasCallId(const char* callIdString)
 {
     UtlString connectionCallId;

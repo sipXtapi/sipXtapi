@@ -109,8 +109,10 @@ public:
         SIPX_TRANSPORT_DATA* pTransport = NULL,
         const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
 
-    Connection* stringDial(OsMsg& eventMessage, UtlString& dialString);
-
+    OsStatus fireSipXMediaEvent(SIPX_MEDIA_EVENT event,
+                                SIPX_MEDIA_CAUSE cause,
+                                SIPX_MEDIA_TYPE  type,
+                                void*            pEventData = NULL);
 
     /* ============================ ACCESSORS ================================= */
 
