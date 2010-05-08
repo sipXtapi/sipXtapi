@@ -13,7 +13,6 @@
 #ifdef HAVE_SPEEX // [
 #  define USE_SPEEX_AEC
 #endif // HAVE_SPEEX ]
-#define USE_SPEEX_AEC
 
 // SYSTEM INCLUDES
 
