@@ -23,7 +23,7 @@
 
 // DEFINES
 
-/// @brief Default filter length (tail length) of AEC filter.
+/// @brief Default filter length (tail length) of AEC filter (in milliseconds).
 /// @see documentation on MprSpeexEchoCancel::MprSpeexEchoCancel() for more information.
 #define SPEEX_DEFAULT_AEC_FILTER_LENGTH 200
 
@@ -86,14 +86,12 @@ public:
      *             playing and recording audio. This value is used to minimize
      *             delay between far and near end audio in AEC and reduce
      *             computational cost of AEC.
-     *  @param[in] filterLength  - the amount of data (in samples) you want to
-     *             process at once and filter_length is the length (in samples) 
-     *             of the echo cancelling filter you want to use (also known as
-     *             tail length). The recommended tail length is approximately
-     *             the third of the room reverberation time. For example,in
-     *             a small room, reverberation time is in the order of 300 ms,
-     *             so a tail length of 100 ms is a good choice (800 samples at
-     *             8000 Hz sampling rate).
+     *  @param[in] filterLength  - the length (in msec) of the echo cancelling
+     *             filter you want to use (also known as tail length).
+     *             The recommended tail length is approximately the third of
+     *             the room reverberation time. For example,in a small room,
+     *             reverberation time is in the order of 300 ms, so a tail
+     *             length of 100 ms is a good choice.
      */
 
      /// Destructor
