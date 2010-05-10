@@ -4299,7 +4299,7 @@ void CpPeerCall::addConnection(Connection* connection)
 void CpPeerCall::removeConnection(Connection* connection)
 {
 	// OsWriteLock lock(mConnectionMutex);
-	mConnections.remove(connection);
+	mConnections.removeReference(connection);
 }
 
 Connection* CpPeerCall::findQueuedConnection()
