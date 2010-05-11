@@ -170,11 +170,13 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
       return OS_NAME_IN_USE;
    }
 
+   LOGI("MpidAndroid::enableDevice()");
+
    // Start accessing non-atomic member variables
    AutoMutex autoLock(mLock);
 
    if (mState != DRIVER_IDLE) {
-      LOGV("MpidAndroid::enableDevice() wrong state %d\n", mState);
+      LOGW("MpidAndroid::enableDevice() wrong state %d\n", mState);
       return OS_INVALID_STATE;
    }
 
@@ -186,12 +188,12 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
    if (probeSampleRate(mSamplesPerSec, mSamplesPerFrame, mpSampleRatesList, mSampleRatesListLen)) {
       LOGV("MpidAndroid::enableDevice() INIT OK, time: %"PRId64"\n", ns2ms(systemTime()));
    } else {
-      LOGV("MpidAndroid::enableDevice() INIT FAILED!!!\n");
+      LOGW("MpidAndroid::enableDevice() INIT FAILED!!!\n");
       return OS_INVALID_ARGUMENT;
    }
 
    if (mState != DRIVER_INIT) {
-      LOGV("MpidAndroid::enableDevice() wrong state: %d\n", mState);
+      LOGW("MpidAndroid::enableDevice() wrong state: %d\n", mState);
       return OS_INVALID_STATE;
    }
 
@@ -258,9 +260,11 @@ OsStatus MpidAndroid::disableDevice()
 {
    OsStatus status = OS_SUCCESS;
 
+   LOGI("MpidAndroid::disableDevice()");
+
    if (!isDeviceValid() || !isEnabled())
    {
-      LOGE("Invalid device (valid=%d) or already disabled (enable=%d).",
+      LOGW("Invalid device (valid=%d) or already disabled (enable=%d).",
            isDeviceValid(), isEnabled());
       return OS_FAILED;
    }
@@ -275,7 +279,7 @@ OsStatus MpidAndroid::disableDevice()
       if (lStatus == NO_ERROR) {
          LOGV("MpidAndroid::disableDevice() track stop complete, time %d", (unsigned int)(systemTime()/1000000));
       } else {
-         LOGE("MpidAndroid::disableDevice() Stop timed out");
+         LOGW("MpidAndroid::disableDevice() Stop timed out");
          mState = DRIVER_IDLE;
       }
    }
@@ -337,7 +341,7 @@ bool MpidAndroid::initAudioRecord()
    // Open audio track
    mpAudioRecord = new AudioRecord();
    if (mpAudioRecord == NULL) {
-      LOGE("MpidAndroid::initAudioRecord() AudioRecord allocation failed\n");
+      LOGW("MpidAndroid::initAudioRecord() AudioRecord allocation failed\n");
       goto initAudioTrack_exit;
    }
    LOGV("MpidAndroid::initAudioRecord() Create Record: %p\n", mpAudioRecord);
@@ -358,7 +362,7 @@ bool MpidAndroid::initAudioRecord()
                                 mSamplesPerFrameInternal,  // notificationFrames
                                 false);  // threadCanCallJava
    if (initRes != NO_ERROR) {
-      LOGE("MpidAndroid::initAudioRecord() AudioRecord->initCheck() returned %d\n", initRes);
+      LOGW("MpidAndroid::initAudioRecord() AudioRecord->initCheck() returned %d\n", initRes);
       goto initAudioTrack_exit;
    }
 
