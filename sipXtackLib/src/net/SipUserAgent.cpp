@@ -141,6 +141,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mpLineMgr(NULL)
         , mIsUaTransactionByDefault(defaultToUaTransactions)
         , mbUseRport(FALSE)
+        , mUseRportMapping(TRUE)
         , mbUseLocationHeader(FALSE)
         , mbIncludePlatformInUserAgentName(TRUE)
         , mDoUaMessageChecks(doUaMessageChecks)
@@ -1594,7 +1595,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType, SIPX_TRANSPORT
 
         message->getLastVia(&viaAddr, &viaPort, &viaProtocol, &receivedPort,
                             &receivedSet, &maddrSet, &receivedPortSet) ;
-        if (receivedSet || receivedPortSet)
+        if (mUseRportMapping && (receivedSet || receivedPortSet))
         {
             UtlString sendAddress ;
             int sendPort ;
@@ -3019,6 +3020,11 @@ UtlBoolean SipUserAgent::setUseRport(UtlBoolean bEnable)
     mbUseRport = bEnable ;
 
     return bOld ;
+}
+
+void SipUserAgent::setUseRportMapping(UtlBoolean bEnable)
+{
+    mUseRportMapping = bEnable;
 }
 
 // Is use report set?

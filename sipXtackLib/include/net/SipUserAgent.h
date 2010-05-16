@@ -428,6 +428,9 @@ public:
     //! Is use report set?
     UtlBoolean getUseRport() const ;
 
+    //! Enable or diable use of rport IP and port in response via for contact mapping database
+    void setUseRportMapping(UtlBoolean bEnable);
+
     //! Get the manually configured public address
     UtlBoolean getConfiguredPublicAddress(UtlString* pIpAddress, int* pPort) ;
 
@@ -770,6 +773,7 @@ private:
     UtlBoolean mRecurseOnlyOne300Contact;
     UtlBoolean mReturnViasForMaxForwards;
     UtlBoolean mbUseRport;
+    UtlBoolean mUseRportMapping; // use Rport IP and port for contact database
     UtlBoolean mbUseLocationHeader;
     bool mbIncludePlatformInUserAgentName;  // whether or not the platform name should
                                             // be appended to the user agent name
