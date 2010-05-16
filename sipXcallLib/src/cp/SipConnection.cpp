@@ -693,9 +693,14 @@ void SipConnection::updateContactFromResponse(const SipMessage* pResponse)
     UtlBoolean receivedSet = false ;
     UtlBoolean maddrSet = false ;
     UtlBoolean receivedPortSet = false ;
+    UtlBoolean shouldMapRportResponse = TRUE;
+    if(sipUserAgent)
+    {
+        shouldMapRportResponse = sipUserAgent->getUseRportMapping();
+    }
 
     pResponse->getLastVia(&viaAddr, &viaPort, &viaProtocol, &receivedPort, &receivedSet, &maddrSet, &receivedPortSet) ;
-    if (receivedSet || receivedPortSet)
+    if (shouldMapRportResponse && (receivedSet || receivedPortSet))
     {
         if (receivedPortSet && portIsValid(receivedPort))
         {
