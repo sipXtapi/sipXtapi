@@ -3038,6 +3038,17 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetDnsSrvFailoverTimeout(const SIPX_INST hIns
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigEnableRport(const SIPX_INST hInst,
                                                const bool bEnable) ;
+
+/**
+ * Enable or diable the use of IP and port provided in the response via (rport) for
+ * mapping of NAT/public IP address and port in the contact database.  By default
+ * rport mapping is enabled.
+ *
+ * @param bEnable - true/false if IP address and port provided via rport should be
+ *        used for contact database NAT address mapping.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigEnableRportMapping(const SIPX_INST hInst,
+                                                      const bool bEnable);
                                                
 /**
  * Specifies the expiration period for registration.  After setting this 

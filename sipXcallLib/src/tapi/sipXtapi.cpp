@@ -5938,7 +5938,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetRegisterResponseWaitSeconds(const SIPX_INS
     }
     
     return rc;
-}   
+}  
+ 
 SIPXTAPI_API SIPX_RESULT sipxConfigEnableRport(const SIPX_INST hInst,
                                                const bool bEnable)
 {
@@ -5957,6 +5958,31 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableRport(const SIPX_INST hInst,
         if (pInst->pSipUserAgent)
         {
             pInst->pSipUserAgent->setUseRport(bEnable) ;
+            rc = SIPX_RESULT_SUCCESS ;
+        }
+    }
+
+    return rc ;
+}
+
+SIPXTAPI_API SIPX_RESULT sipxConfigEnableRportMapping(const SIPX_INST hInst,
+                                                      const bool bEnable)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigEnableRportMapping");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConfigEnableRportMapping hInst=%p bEnable=%d",
+        hInst, bEnable);
+
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
+
+    assert(pInst) ;
+    if (pInst)
+    {
+        assert(pInst->pSipUserAgent) ;
+        if (pInst->pSipUserAgent)
+        {
+            pInst->pSipUserAgent->setUseRportMapping(bEnable) ;
             rc = SIPX_RESULT_SUCCESS ;
         }
     }
