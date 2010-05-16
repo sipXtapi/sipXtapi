@@ -3027,6 +3027,11 @@ void SipUserAgent::setUseRportMapping(UtlBoolean bEnable)
     mUseRportMapping = bEnable;
 }
 
+UtlBoolean SipUserAgent::getUseRportMapping() const
+{
+    return(mUseRportMapping);
+}
+
 // Is use report set?
 UtlBoolean SipUserAgent::getUseRport() const
 {

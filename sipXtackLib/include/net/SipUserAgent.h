@@ -428,8 +428,11 @@ public:
     //! Is use report set?
     UtlBoolean getUseRport() const ;
 
-    //! Enable or diable use of rport IP and port in response via for contact mapping database
+    //! Enable or disable use of rport IP and port in response via for contact mapping database
     void setUseRportMapping(UtlBoolean bEnable);
+
+    //! Get if use of rport IP and port in response via for contact mapping database is enabled
+    UtlBoolean getUseRportMapping() const;
 
     //! Get the manually configured public address
     UtlBoolean getConfiguredPublicAddress(UtlString* pIpAddress, int* pPort) ;
