@@ -18,7 +18,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 # For a few includes we need to hack into the path
-ANDROID_CORE_PATH := /home/ipse/work/sipez/android-master
+ANDROID_CORE_PATH := /Users/dpetrie/dev/android_1.6
 
 # Set up the target identity.
 # LOCAL_MODULE/_CLASS are required for local-intermediates-dir to work.
@@ -238,4 +238,78 @@ LOCAL_CFLAGS += $(SIPX_PORT_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_PORT_C_INCLUDES)
 
 include $(BUILD_EXECUTABLE)
+
+# =======================
+
+# Executable for testing the unit test framework
+# this can also be used as a sandbox test.  Just delete the
+# foo and bar tests from the LOCAL_SRC_FILES and add your test(s)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := sipxtacksandbox
+
+LOCAL_SRC_FILES := \
+    src/test/net/SipSrvLookupTest.cpp
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include
+
+# Need to hack things a bit as resolv code is packaged in Bionic (Android clib)
+LOCAL_C_INCLUDES += \
+    $(ANDROID_CORE_PATH)/bionic/libc/private
+
+#LOCAL_SHARED_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXport libpcre
+
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
+
+LOCAL_SHARED_LIBRARIES += $(SIPX_PORT_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_PORT_LDLIBS)
+LOCAL_CFLAGS += $(SIPX_PORT_CFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_PORT_C_INCLUDES)
+
+include $(BUILD_EXECUTABLE)
+
+
+# =======================
+
+# shared lib for JNI run of unit tests
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libsipxtackjnisandbox
+
+LOCAL_SRC_FILES := \
+    ../sipXportLib/src/test/sipxportunit/unitJni.cpp \
+    src/test/net/SipSrvLookupTest.cpp
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXportLib/src/test \
+    $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include
+
+# Need to hack things a bit as resolv code is packaged in Bionic (Android clib)
+LOCAL_C_INCLUDES += \
+    $(ANDROID_CORE_PATH)/bionic/libc/private
+
+#LOCAL_SHARED_LIBRARIES :=
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXport libpcre
+
+LOCAL_LDLIBS += -lstdc++ -ldl -llog
+
+LOCAL_SHARED_LIBRARIES += $(SIPX_PORT_SHARED_LIBS)
+LOCAL_LDLIBS += $(SIPX_PORT_LDLIBS)
+LOCAL_CFLAGS += $(SIPX_PORT_CFLAGS)
+LOCAL_C_INCLUDES += $(SIPX_PORT_C_INCLUDES)
+
+include $(BUILD_SHARED_LIBRARY)
 

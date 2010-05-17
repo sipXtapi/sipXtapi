@@ -405,6 +405,8 @@ void SipSrvLookup::setOption(OptionCode option, int value)
 //! Sets the DNS SRV times.  Defaults: timeout=5, retries=4
 void SipSrvLookup::setDnsSrvTimeouts(int initialTimeoutInSecs, int retries)
 {
+   OsSysLog::add(FAC_NET, PRI_DEBUG, "SipSrvLookup::setDnsSrvTimeouts(initialTimeoutInSecs=%d, retries=%d)", 
+                 initialTimeoutInSecs, retries);
 #if defined(ANDROID)
    // Could not put code in here for Android due to header file errors/conflicts in C++ code
    android_res_setDnsSrvTimeouts(initialTimeoutInSecs, retries);
@@ -428,6 +430,23 @@ void SipSrvLookup::setDnsSrvTimeouts(int initialTimeoutInSecs, int retries)
 #  endif
    }
 #endif /* non ANDROID */
+}
+
+void  SipSrvLookup::getDnsSrvTimeouts(int& initialTimeoutInSecs, int& retries)
+{
+#if defined(ANDROID)
+   // Could not put code in here for Android due to header file errors/conflicts in C++ code
+   android_res_getDnsSrvTimeouts(&initialTimeoutInSecs, &retries);
+
+#else
+
+#  if defined(__pingtel_on_posix__)
+   initialTimeoutInSecs = _res.retrans;
+#  else
+   initialTimeoutInSecs = _sip_res.retrans;
+#  endif
+
+#endif
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

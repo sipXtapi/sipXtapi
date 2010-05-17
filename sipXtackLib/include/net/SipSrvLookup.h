@@ -155,6 +155,11 @@ public:
                                  /**< Number of retries to attempt,
                                   *   or 0 for no change. */
       );
+
+   /// Gets the timing paramters for DSN SRV queries
+   static void getDnsSrvTimeouts(int& initialTimeoutInSecs,
+                                  int& retries);
+
    ///< Defaults are: timeout = 5, retries = 4.
 
    /// Perform a DNS query and parse the results.  Follows CNAME records.

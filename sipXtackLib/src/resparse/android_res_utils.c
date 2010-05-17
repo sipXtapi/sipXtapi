@@ -33,5 +33,14 @@ void android_res_setDnsSrvTimeouts(int initialTimeoutInSecs, int retries)
     }
 }
 
+void android_res_getDnsSrvTimeouts(int* initialTimeoutInSecs, int* retries)
+{
+    struct __res_state* staticResPtr = __res_get_state();
+    assert(staticResPtr);
+
+    *initialTimeoutInSecs = staticResPtr->retrans;
+    *retries = staticResPtr->retry;
+}
+
 #endif
 

@@ -84,6 +84,7 @@ extern "C" {
 
 #if defined(ANDROID)
 void android_res_setDnsSrvTimeouts(int initialTimeoutInSecs, int retries);
+void android_res_getDnsSrvTimeouts(int* initialTimeoutInSecs, int* retries);
 
 // Had to pull this stuff out of bionic/libc/private/resolv_private.h
 // as there were C++ compiler errors when trying to include it

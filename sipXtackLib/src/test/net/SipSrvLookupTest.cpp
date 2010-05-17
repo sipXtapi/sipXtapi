@@ -35,6 +35,7 @@
 
 #include "net/SipSrvLookup.h"
 #include "os/OsSocket.h"
+#include <os/OsSysLog.h>
 
 // Defines
 #define TEST_PRINT
@@ -707,6 +708,40 @@ public:
       CPPUNIT_ASSERT(!failure_seen);
 #else /* NAMED_PROGRAM */
       printf("... not executed because 'named' was not available.\n");
+      CPPUNIT_ASSERT_MESSAGE("... not executed because 'named' was not available.\n", 0);
+      SipSrvLookup::setDnsSrvTimeouts(2, 3); // seconds, retries
+      char printBuf[1024];
+      int timeOut = 0;
+      int retries = 0;
+      SipSrvLookup::getDnsSrvTimeouts(timeOut, retries);
+      sprintf(printBuf, "timeOut: %d retries: %d", timeOut, retries);
+      CPPUNIT_ASSERT_MESSAGE(printBuf, 0);
+
+      OsSysLog::add(FAC_NET, PRI_DEBUG, "calling SipSrvLookup::servers");
+      server_t* srvArray = SipSrvLookup::servers("test2.sipez.com", "sip", OsSocket::UNKNOWN, -1, NULL);
+      OsSysLog::add(FAC_NET, PRI_DEBUG, "called SipSrvLookup::servers");
+
+      char result_string[1024];
+      result_string[0] = '\0';
+
+      for (server_t* srvRecord = srvArray; srvRecord->isValidServerT(); srvRecord++)
+      {
+         // Append "IP:port,weight,score,priority,proto\n" to
+         // result_string.
+         UtlString ip_addr;
+         srvRecord->getIpAddressFromServerT(ip_addr);
+         sprintf(result_string + strlen(result_string),
+                 "%s:%d,%u,%.3f,%u,%s\n",
+                 ip_addr.data(),
+                 srvRecord->getPortFromServerT(),
+                 srvRecord->getWeightFromServerT(),
+                 srvRecord->getScoreFromServerT(),
+                 srvRecord->getPriorityFromServerT(),
+                 printable_proto(srvRecord->getProtocolFromServerT()));
+
+         CPPUNIT_ASSERT_MESSAGE(result_string, 0);
+      }
+
 #endif /* NAMED_PROGRAM */
    }
 };
