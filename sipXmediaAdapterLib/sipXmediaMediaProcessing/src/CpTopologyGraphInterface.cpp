@@ -598,6 +598,9 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
 
     if (pMediaConn)
     {
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::getCapabilities mContactType: %d",
+            pMediaConn->mContactType);
+
         // Audio RTP
         if (pMediaConn->mpRtpAudioSocket)
         {
@@ -663,7 +666,10 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
                 else
                 {
                     // External address should match that of Audio RTP
-                    assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
+                    // but its better to ignore this and have no RTCP than take the call down.
+                    //assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
+                    OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphInterface::getCapabilities mapped RTP IP: %s differs from mapped RTCP IP: %s",
+                        rtpHostAddress.data(), tempHostAddress.data());
                 }
             }
             else if (pMediaConn->mContactType == CONTACT_CONFIG)
@@ -681,7 +687,10 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
                 else
                 {
                     // External address should match that of Audio RTP
-                    assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
+                    // but its better to ignore this and have no RTCP than take the call down.
+                    //assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
+                    OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphInterface::getCapabilities mapped RTP IP: %s differs from mapped RTCP IP: %s",
+                        rtpHostAddress.data(), tempHostAddress.data());
                 }
             }
             else if (pMediaConn->mContactType == CONTACT_LOCAL)
