@@ -11,7 +11,7 @@ SPEEX_CFLAGS += -fstrict-aliasing -fprefetch-loop-arrays
 #SPEEX_CFLAGS += -march=armv7-a -mtune=cortex-a8 -mfpu=vfpv3
 #SPEEX_CFLAGS += -march=armv7-a -mtune=cortex-a8 -mfpu=neon
 #SPEEX_CFLAGS += -D__ARM_ARCH_6__ -D__ARM_ARCH_7__ -D__ARM_ARCH_7A__
-SPEEX_CFLAGS += -ftree-vectorize -ffast-math -mvectorize-with-neon-quad -mno-apcs-stack-check
+#SPEEX_CFLAGS += -ftree-vectorize -ffast-math -mvectorize-with-neon-quad -mno-apcs-stack-check
 
 SPEEX_LDFLAGS = -no-undefined -version-info $(SPEEX_LT_CURRENT):$(SPEEX_LT_REVISION):$(SPEEX_LT_AGE)
 
