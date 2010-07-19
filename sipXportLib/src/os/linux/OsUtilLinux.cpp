@@ -53,7 +53,7 @@ int OsUtilLinux::cvtOsPrioToLinuxPrio(const int osPrio)
    return (osPrio*32)/255 - 16;
 
 #else // ANDROID ][
-   return cvtOsPrioToLinuxRtPrio(linuxPrio);
+   return cvtOsPrioToLinuxRtPrio(osPrio);
 #endif // !ANDROID ]
 }
 
