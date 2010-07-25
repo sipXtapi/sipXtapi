@@ -289,7 +289,7 @@ void UPnpAgent::setEnabled(const bool bEnabled)
 
 bool UPnpAgent::isEnabled()
 {
-   bool bEnabled = true;
+   bool bEnabled = false;
    
    OsRegistry reg;
    int value = 0;
@@ -302,7 +302,6 @@ bool UPnpAgent::isEnabled()
 
 void UPnpAgent::setAvailable(const bool bAvailable)
 {
-   
    // the registry entry will be keyed by a digest of a string
    // representing the current adapter info (ip, apdapter name, gateway ip, dns list -
    //                                             for all of the adapters)

@@ -3168,7 +3168,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableStun(const SIPX_INST hInst,
 /**
  * Enable global UPNP discovery and binding.  Allows for
  * NAT traversal across NAT hardware that supports UPNP.
- * UPNP is enabled by default.
+ * UPNP is disables by default.
  *
  * @param timeoutSeconds The maximum time to wait for discovery / binding
  *                       operations.

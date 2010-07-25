@@ -44,6 +44,8 @@
                                                 // a camera where changing 
                                                 // resolutions caused a problem
 
+#define NO_CAMERA_DELAY_MS					2500	// ms to wait before showing the no camera image
+
 // FORWARD DECLARATIONS
 class VideoEngine;
 class VoiceEngineFactoryImpl ;

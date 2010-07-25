@@ -101,7 +101,10 @@ void VideoEngine::setGipsVideoEngine(GipsVideoEnginePlatform* pVideoEngine)
 
 #ifdef _WIN32
     if (mpVideoEngine != NULL && mhNoCameraBitmap != NULL)
-        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap, 1000) ;
+
+		// The no camera image may flicker on/off when the PC is CPU starved.
+		// To avoid this, only show the background image after 2.5s.
+        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap, NO_CAMERA_DELAY_MS) ;
 #endif
 
 }
@@ -611,7 +614,11 @@ void VideoEngine::setBitmaps(HBITMAP hNoCamera, HBITMAP hConnecting)
     }
     mhConnectingBitmap = hConnecting ;
     if (mpVideoEngine != NULL)
-        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap, 1000) ;
+	{
+		// The no camera image may flicker on/off when the PC is CPU starved.
+		// To avoid this, only show the background image after 2.5s.
+        mpVideoEngine->GIPSVideo_SetBackgroundImage(-1, mhNoCameraBitmap, NO_CAMERA_DELAY_MS) ;
+	}
 
 }
 #endif
