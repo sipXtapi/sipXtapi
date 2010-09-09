@@ -29,6 +29,54 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
+// This wraper class is used to create some extra memory padding
+// at the end of the AudioTrack class.  on Droid X an assert was
+// firing because memory was getting trashed in the footer of the
+// malloc memory chunk for the AudioTrack.  It is not cleary why
+// this was happening.  However when we got lock and used a chunk
+// with an extra 8 bytes at the end, everything was happy.  Hense
+// this wrapper class with 2 int of bufer space at the end.
+class SipxAudioTrack : public AudioTrack
+{
+public:
+   SipxAudioTrack(int streamType,
+                  uint32_t sampleRate  = 0,
+                  int format           = 0,
+                  int channels         = 0,
+                  int frameCount       = 0,
+                  uint32_t flags       = 0,
+                  callback_t cbf       = 0,
+                  void* user           = 0,
+                  int notificationFrames = 0) :
+   AudioTrack(streamType, sampleRate, format, channels, frameCount, flags, cbf, user, notificationFrames)
+   {
+      dummy1 = 11;
+      dummy2 = 7;
+   };
+
+private:
+   SipxAudioTrack(const SipxAudioTrack&); // no copy
+   SipxAudioTrack& operator=(const SipxAudioTrack&); // no copy
+
+   int dummy1;  // Padding to prevent overwrite on Droid X
+   int dummy2;
+};
+
+void dumpAudioTrack(const char* label, AudioTrack* atPtr)
+{
+   LOGV("sizeof AudioTrack: %d sizeof size_t: %d\n", sizeof(AudioTrack), sizeof(size_t));
+   LOGV("%s AudioTrack[-2] = %p\n", label, *(((int*)(atPtr))-2));
+   LOGV("%s AudioTrack[-1] = %p\n", label, *(((int*)(atPtr))-1));
+   LOGV("%s AudioTrack[%d] = %p\n", label, (sizeof(SipxAudioTrack)/4)+2, *(((int*)(atPtr))-(sizeof(SipxAudioTrack)/4)+2));
+   LOGV("%s AudioTrack[%d] = %p\n", label, (sizeof(SipxAudioTrack)/4)+1, *(((int*)(atPtr))-(sizeof(SipxAudioTrack)/4)+1));
+#if 0
+   for(int ptrIndex = 0; ptrIndex < (sizeof(SipxAudioTrack) / 4); ptrIndex ++)
+   {
+      LOGV("%s AudioTrack[%d] = %p\n", label, ptrIndex, *(((int*)(atPtr))+ptrIndex));
+   }
+#endif
+}
+
 #ifdef ENABLE_FILE_LOGGING
 static FILE *sgOutFile=NULL;
 class OutFileInit
@@ -90,7 +138,9 @@ MpodAndroid::MpodAndroid(StreamType streamType)
 
 MpodAndroid::~MpodAndroid()
 {
-   if (isEnabled()) {
+   if (isEnabled()) 
+   {
+      LOGV("MpodAndroid::~MpodAndroid calling disableDevice\n");
       disableDevice();
    }
 }
@@ -102,8 +152,8 @@ OsStatus MpodAndroid::enableDevice(unsigned samplesPerFrame,
                                    MpFrameTime currentFrameTime,
                                    OsCallback &frameTicker)
 {
-   LOGV("MpodAndroid::enableDevice(samplesPerFrame=%d, samplesPerSec=%d, currentFrameTime=%d, frameTicker=%p)\n",
-        samplesPerFrame, samplesPerSec, currentFrameTime, (void*)&frameTicker);
+   LOGV("MpodAndroid::enableDevice(samplesPerFrame=%d, samplesPerSec=%d, currentFrameTime=%d, frameTicker=%p) mState=%d, mIsEnabled=%s\n",
+        samplesPerFrame, samplesPerSec, currentFrameTime, (void*)&frameTicker, (int)mState, ((mIsEnabled != FALSE) ? "true" : "false"));
 
    if (isEnabled())
    {
@@ -138,6 +188,7 @@ OsStatus MpodAndroid::enableDevice(unsigned samplesPerFrame,
 
    LOGV("MpodAndroid::enableDevice() starting, time %d\n", (unsigned int)(systemTime()/1000000));
    mState = DRIVER_STARTING;
+   dumpAudioTrack("MpodAndroid::enableDevice", mpAudioTrack);
    mLock.unlock();
    mpAudioTrack->start();
    mLock.lock();
@@ -186,9 +237,11 @@ OsStatus MpodAndroid::disableDevice()
       }
    }
 
+   dumpAudioTrack("MpodAndroid::disableDevice", mpAudioTrack);
    LOGV("MpodAndroid::disableDevice() Delete Track: %p\n", mpAudioTrack);
    delete mpAudioTrack;
    mpAudioTrack = NULL;
+   LOGV("MpodAndroid::disableDevice() Deleted Track\n");
 
    // Clear out stream information.
    mSamplesPerFrame = 0;
@@ -196,6 +249,7 @@ OsStatus MpodAndroid::disableDevice()
    mCurFrameTime = 0;
    mpTickerNotification = NULL;
    delete[] mpSampleBuffer;
+   LOGV("MpodAndroid::disableDevice() Deleted mpSampleBuffer\n");
 
    // Indicate we are no longer enabled
    mIsEnabled = FALSE;
@@ -262,12 +316,14 @@ UtlBoolean MpodAndroid::initAudioTrack()
    status_t initRes;
 
    if (mpAudioTrack) {
+      LOGV("MpodAndroid::initAudioTrack deleting mpAudioTrack");
       delete mpAudioTrack;
+      LOGV("MpodAndroid::initAudioTrack deleted mpAudioTrack");
       mpAudioTrack = NULL;
    }
 
    // Open audio track
-   mpAudioTrack = new AudioTrack(mStreamType,  // streamType
+   mpAudioTrack = new SipxAudioTrack(mStreamType,  // streamType
                                  mSamplesPerSec,  // sampleRate
                                  AudioSystem::PCM_16_BIT,  // format
 #ifdef ANDROID_1_6
@@ -284,6 +340,7 @@ UtlBoolean MpodAndroid::initAudioTrack()
       LOGE("MpodAndroid::initAudioTrack() AudioTrack allocation failed\n");
       goto initAudioTrack_exit;
    }
+   dumpAudioTrack("MpodAndroid::initAudioTrack", mpAudioTrack);
    LOGV("MpodAndroid::initAudioTrack() Create Track: %p\n", mpAudioTrack);
 
    initRes = mpAudioTrack->initCheck();
@@ -292,6 +349,8 @@ UtlBoolean MpodAndroid::initAudioTrack()
       goto initAudioTrack_exit;
    }
 
+   LOGV("MpodAndroid::initAudioTrack() AudioTrack->initCheck() returned %d, NO_ERROR=%p\n", initRes, NO_ERROR);
+   dumpAudioTrack("MpodAndroid::initAudioTrack after initCheck", mpAudioTrack);
    LOGD("initAudioTrack AudioTrack sampleRate: %d frameSize: %d frameCount: %d latency: %d",
         (int)mpAudioTrack->getSampleRate(), mpAudioTrack->frameSize(), (int)mpAudioTrack->frameCount(), (int)mpAudioTrack->latency());
 
@@ -347,6 +406,11 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
 
    if (pDriver->mSampleBufferIndex >= pDriver->mSamplesPerFrame)
    {
+      if(pDriver->mSampleBufferIndex > pDriver->mSamplesPerFrame)
+      {
+         LOGE("MpodAndroid::audioCallback() sample index (%d) > samples/frame (%d)\n", (int)pDriver->mSampleBufferIndex, (int)pDriver->mSamplesPerFrame);
+      }
+
       // Return index to the beginning
       pDriver->mSampleBufferIndex = 0;
 
@@ -370,7 +434,9 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
 //       pDriver->mState = DRIVER_STOPPED;
 //       break;
     case DRIVER_STOPPED:
+       LOGV("MpodAndroid::audioCallback() stopping Track\n");
        pDriver->mpAudioTrack->stop();
+       LOGV("MpodAndroid::audioCallback() stopped Track\n");
        buffer->size = 0;
        pDriver->mState = DRIVER_IDLE;
        lSignal = true;
@@ -381,7 +447,9 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
 
    if (lSignal)
    {
+      LOGV("MpodAndroid::audioCallback signalling\n");
       pDriver->mWaitCbkCond.signal();
+      LOGV("MpodAndroid::audioCallback signalled\n");
    }
 }
 
