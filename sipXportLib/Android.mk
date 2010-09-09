@@ -278,7 +278,61 @@ LOCAL_MODULE := libsipxportjnisandbox
 
 LOCAL_SRC_FILES := \
   src/test/sipxportunit/unitJni.cpp \
-  src/test/os/OsTimeTest.cpp
+  src/test/os/OsMutexTest.cpp \
+  src/test/os/OsLockTest.cpp \
+  src/test/os/OsAdapterInfoTest.cpp \
+  src/test/os/OsCallbackTest.cpp \
+  src/test/os/OsConfigDbTest.cpp \
+  src/test/os/OsContactListTest.cpp \
+  src/test/os/OsContactTest.cpp \
+  src/test/os/OsDirTest.cpp \
+  src/test/os/OsEventTest.cpp \
+  src/test/os/OsFileIteratorTest.cpp \
+  src/test/os/OsFileSystemTest.cpp \
+  src/test/os/OsMsgDispatcherTest.cpp \
+  src/test/os/OsMsgQTest.cpp \
+  src/test/os/OsNameDbTest.cpp \
+  src/test/os/OsPathTest.cpp \
+  src/test/os/OsProcessIteratorTest.cpp \
+  src/test/os/OsProcessMgrTest.cpp \
+  src/test/os/OsProcessTest.cpp \
+  src/test/os/OsSemTest.cpp \
+  src/test/os/OsServerTaskTest.cpp \
+  src/test/os/OsSharedLibMgrTest.cpp \
+  src/test/os/OsSocketTest.cpp \
+  src/test/os/OsTestUtilities.cpp \
+  src/test/os/OsTimeTest.cpp \
+  src/test/os/OsTimerTaskTest.cpp \
+  src/test/os/OsTimerTest.cpp \
+  src/test/utl/UtlChainTest.cpp \
+  src/test/utl/UtlContainableTestStub.cpp \
+  src/test/utl/UtlCrc32Test.cpp \
+  src/test/utl/UtlCryptoTest.cpp \
+  src/test/utl/UtlDList.cpp \
+  src/test/utl/UtlDListIterator.cpp \
+  src/test/utl/UtlHashBag.cpp \
+  src/test/utl/UtlHashBagIterator.cpp \
+  src/test/utl/UtlHashMap.cpp \
+  src/test/utl/UtlHashMapIterator.cpp \
+  src/test/utl/UtlInt.cpp \
+  src/test/utl/UtlLinkTest.cpp \
+  src/test/utl/UtlLongLongInt.cpp \
+  src/test/utl/UtlRegex.cpp \
+  src/test/utl/UtlSList.cpp \
+  src/test/utl/UtlSListIteratorTest.cpp \
+  src/test/utl/UtlSortedList.cpp \
+  src/test/utl/UtlSortedListIteratorTest.cpp \
+  src/test/utl/UtlStringTest.cpp \
+  src/test/utl/UtlStringTest_ConstructiveManipulators.cpp \
+  src/test/utl/UtlStringTest_DestructiveManipulators.cpp \
+  src/test/utl/UtlStringTest_NonMutating.cpp \
+  src/test/utl/UtlTokenizerTest.cpp \
+  src/test/utl/UtlVoidPtr.cpp \
+  src/test/utl/XmlContentTest.cpp \
+
+Unit_tests_not_ready =: \
+  src/test/os/OsFileTest.cpp \
+
 
 #  src/test/sipxportunit/bar.cpp \
 #  src/test/sipxportunit/foo.cpp
