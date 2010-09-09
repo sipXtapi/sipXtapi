@@ -69,7 +69,8 @@ LOCAL_SRC_FILES += libspeex/window.c
 
 LOCAL_C_INCLUDES += \
 	$(LOCAL_PATH)/include \
-	$(LOCAL_PATH)
+	$(LOCAL_PATH) \
+	$(SIPX_HOME)/sipXmediaLib/contrib/android
 
 LOCAL_PRELINK_MODULE := false
 
@@ -94,7 +95,8 @@ LOCAL_SRC_FILES += libspeex/scal.c
 
 LOCAL_C_INCLUDES += \
 	$(LOCAL_PATH)/include \
-	$(LOCAL_PATH)
+	$(LOCAL_PATH) \
+	$(SIPX_HOME)/sipXmediaLib/contrib/android
 
 ifeq ($(SPEEX_FFT),KISS_FFT)
   SPEEX_CFLAGS += -DUSE_KISS_FFT
