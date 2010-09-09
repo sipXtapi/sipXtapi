@@ -287,7 +287,31 @@ LOCAL_MODULE := libsipxtackjnisandbox
 
 LOCAL_SRC_FILES := \
     ../sipXportLib/src/test/sipxportunit/unitJni.cpp \
-    src/test/net/SipSrvLookupTest.cpp
+    src/test/net/HttpBodyTest.cpp \
+    src/test/net/HttpMessageTest.cpp \
+    src/test/net/NameValuePairInsensitiveTest.cpp \
+    src/test/net/NameValuePairTest.cpp \
+    src/test/net/NetAttributeTokenizerTest.cpp \
+    src/test/net/NetBase64CodecTest.cpp \
+    src/test/net/NetMd5CodecTest.cpp \
+    src/test/net/SdpBodyTest.cpp \
+    src/test/net/SipContactDbTest.cpp \
+    src/test/net/SipDialogEventTest.cpp \
+    src/test/net/SipDialogMonitorTest.cpp \
+    src/test/net/SipDialogTest.cpp \
+    src/test/net/SipMessageTest.cpp \
+    src/test/net/SipPresenceEventTest.cpp \
+    src/test/net/SipProxyMessageTest.cpp \
+    src/test/net/SipPublishContentMgrTest.cpp \
+    src/test/net/SipRefreshManagerTest.cpp \
+    src/test/net/SipServerShutdownTest.cpp \
+    src/test/net/SipSrvLookupTest.cpp \
+    src/test/net/SipSubscribeServerTest.cpp \
+    src/test/net/SipSubscriptionClientTest.cpp \
+    src/test/net/SipSubscriptionMgrTest.cpp \
+    src/test/net/SipUserAgentTest.cpp \
+    src/test/net/UrlTest.cpp \
+    src/test/SdpHelperTest.cpp \
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
