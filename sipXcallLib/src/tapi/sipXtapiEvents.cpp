@@ -248,6 +248,9 @@ static const char* convertCallstateCauseToString(SIPX_CALLSTATE_CAUSE eMinor)
         case CALLSTATE_CAUSE_NO_CODECS:
             str = "CAUSE_NO_CODECS";
             break;
+        case CALLSTATE_CAUSE_SERVER_ERROR:
+            str = "CALLSTATE_CAUSE_SERVER_ERROR";
+            break;
         default:
             assert(FALSE);
             break ;

@@ -4783,14 +4783,27 @@ void SipConnection::processInviteResponseFailed(const SipMessage* response)
             break;
         default:
 
+            // 400 class errors
             if(responseCode < SIP_SERVER_INTERNAL_ERROR_CODE)
+            {
                 cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
-            else if(responseCode >= SIP_SERVER_INTERNAL_ERROR_CODE &&
+            }
+            // 500 class errors
+            else if(// implicit: responseCode >= SIP_SERVER_INTERNAL_ERROR_CODE &&
                 responseCode < SIP_GLOBAL_BUSY_CODE)
+            {
                 cause = CONNECTION_CAUSE_NETWORK_NOT_OBTAINABLE;
-            if(responseCode >= SIP_GLOBAL_BUSY_CODE)
+            }
+            // 600 class errors
+            else if(responseCode >= SIP_GLOBAL_BUSY_CODE)
+            {
                 cause = CONNECTION_CAUSE_NETWORK_CONGESTION;
-            else cause = CONNECTION_CAUSE_UNKNOWN;
+            }
+            // Who knows.
+            else
+            {
+               cause = CONNECTION_CAUSE_UNKNOWN;
+            }
             break;
         }
 
@@ -4837,8 +4850,18 @@ void SipConnection::processInviteResponseFailed(const SipMessage* response)
         }
         else
         {
+            int errorClass = responseCode / 100;
             setState(CONNECTION_FAILED, CONNECTION_REMOTE, cause);
-            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_UNKNOWN);
+            switch(errorClass)
+            {
+                case 5: // 500 class
+                    fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_SERVER_ERROR);
+                break;
+
+                default:
+                    fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_UNKNOWN);
+                break;
+            }
         }
 
         mbCancelling = FALSE;   // if was cancelling, now cancelled.
