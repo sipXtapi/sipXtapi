@@ -1153,13 +1153,16 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
    if (mpTopologyGraph)
    {
 #ifdef TEST_PRINT
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Sending RTP/RTCP codec: %d sockets: %p/%p descriptors: %d/%d\n",
+       OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Sending RTP/RTCP codec: %d sockets: %p/%p descriptors: %d/%d address: %s ports: %d, %d\n",
            audioCodec ? audioCodec->getCodecType() : -2,
            (mediaConnection->mpRtpAudioSocket), (mediaConnection->mpRtcpAudioSocket),
            mediaConnection->mpRtpAudioSocket->getSocketDescriptor(),
-           mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
+           mediaConnection->mpRtcpAudioSocket->getSocketDescriptor(),
+           mediaConnection->mRtpSendHostAddress.data(),
+           mediaConnection->mRtpAudioSendHostPort, mediaConnection->mRtcpAudioSendHostPort);
 #endif
 
+       
        // Store the primary codec for cost calculations later
        if (mediaConnection->mpAudioCodec != NULL)
        {
