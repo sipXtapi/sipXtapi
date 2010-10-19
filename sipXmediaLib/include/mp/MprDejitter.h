@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -137,6 +137,9 @@ public:
 
       /// Get number of late packets in buffer.
    inline int getNumLatePackets() const;
+
+      /// Get RTP header info. for first sequentially available packet
+   OsStatus getFirstPacketInfo(RtpSeq& packetSeq, RtpTimestamp& packetTime) const;
 
 //@}
 

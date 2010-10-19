@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -12,6 +12,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#ifdef ANDROID
+   // Set to 1 to disable, 0 to enable verbose (LOGV) messages
+#  define LOG_NDEBUG 1
+#  define LOG_TAG "MprDejitter"
+
+#  include <utils/Log.h>
+#endif
+
 #include <assert.h>
 
 // APPLICATION INCLUDES
@@ -262,6 +270,15 @@ MpRtpBufPtr MprDejitter::pullPacket(RtpTimestamp maxTimestamp,
       RTL_EVENT(mResourceName+"_pop_pulled", 0);
    }
 
+#ifdef ANDROID
+   LOGV("pullPacket %s packet, maxTime: %u seq: %u time: %ud numPackets: %d late packets: %d",
+          found.isValid() ? "got" : "no", 
+          maxTimestamp,
+          found.isValid() ? found->getRtpSequenceNumber() : mMaxPulledSeqNo,
+          found.isValid() ? found->getRtpTimestamp() : 0,
+          mNumPackets, mNumLatePackets);
+#endif
+
    RTL_EVENT(mResourceName+"_numPackets", mNumPackets);
    RTL_EVENT(mResourceName+"_numLatePackets", mNumLatePackets);
    RTL_EVENT(mResourceName+"_numDiscarded", mNumDiscarded);
@@ -307,6 +324,36 @@ void MprDejitter::setFlowgrapName(const UtlString &fgName)
 
 /* ============================ INQUIRY =================================== */
 
+OsStatus MprDejitter::getFirstPacketInfo(RtpSeq& firstSeq, RtpTimestamp& firstTime) const
+{
+   OsStatus foundStatus = OS_FAILED;
+
+   int firstPacketIndex = 0;
+   for (; firstPacketIndex < MAX_RTP_PACKETS; firstPacketIndex++)
+   if (mpPackets[firstPacketIndex].isValid())
+   {
+      foundStatus = OS_SUCCESS;
+      break;
+   }
+
+   for(int packetIndex = firstPacketIndex + 1; packetIndex < MAX_RTP_PACKETS; packetIndex++)
+   {
+      if(mpPackets[packetIndex].isValid() &&
+         (mpPackets[packetIndex]->getRtpSequenceNumber() <
+          mpPackets[firstPacketIndex]->getRtpSequenceNumber()))
+      {
+         firstPacketIndex = packetIndex;
+      }
+   }
+
+   if(foundStatus == OS_SUCCESS)
+   {
+      firstSeq = mpPackets[firstPacketIndex]->getRtpSequenceNumber();
+      firstTime = mpPackets[firstPacketIndex]->getRtpTimestamp();
+   }
+
+   return(foundStatus);
+}
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
