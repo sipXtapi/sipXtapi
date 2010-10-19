@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -13,6 +13,15 @@
 
 
 // SYSTEM INCLUDES
+#ifdef ANDROID
+   // Set to 1 to disable, 0 to enable verbose (LOGV) messages
+#  define LOG_NDEBUG 1
+#  define LOG_TAG "MpJitterBuffer"
+
+#  include <utils/Log.h>
+#endif
+
+
 //#include "assert.h"
 //#include "string.h"
 
@@ -281,6 +290,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    dprintf(" %d", packetSpeechParams.mSpeechType);
 
    int wantedAdjustment = wantedBufferSamples + mSamplesPerPacket - getSamplesNum();
+   int wantedAdjustmentOrig = wantedAdjustment;
 
 #define N_POS  2
 #define N_NEG  3
@@ -331,10 +341,11 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       break;
    }
 
+   int maxAdjustment = 0;
    // Bound wantedAdjustment to maintain minimum number of samples in buffer.
    if (minBufferSamples > 0 && wantedAdjustment < 0)
    {
-      int maxAdjustment = getSamplesNum()+decodedSamples-minBufferSamples;
+      maxAdjustment = getSamplesNum()+decodedSamples-minBufferSamples;
       wantedAdjustment = sipx_min(sipx_max(wantedAdjustment, -maxAdjustment), 0);
    }
 
@@ -360,6 +371,11 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
          outSamplesNum = mSamplesPerPacket + adjustment;
          decodedSamples = mSamplesPerPacket;
       }
+#ifdef ANDROID
+      LOGV("pushPacket wantedAdjustmentOrig: %d wantedBufferSamples: %d mSamplesPerPacket: %d getSamplesNum()=%d maxAdjustment: %d decodedSamples: %d",
+          wantedAdjustmentOrig, wantedBufferSamples, mSamplesPerPacket, getSamplesNum(), maxAdjustment, decodedSamples);
+#endif
+
    }
    else
    {
