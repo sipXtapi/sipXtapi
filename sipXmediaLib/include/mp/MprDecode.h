@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -177,6 +177,8 @@ private:
       uint32_t dejitterLength;      ///< Difference between newest received RTP packet's
                                     ///< timestamp and latest pulled packet's timestamp.
    } mStreamState;
+
+   RtpSeq mLastPulledSeq;           ///< Sequence number of last pulled packet
 
    MpJitterBufferEstimation *mpJbEstimationState; ///< State of JB delay estimation.
 

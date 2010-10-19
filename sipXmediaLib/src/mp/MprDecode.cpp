@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2010 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -16,6 +16,14 @@
 #include <os/OsIntTypes.h>
 
 // SYSTEM INCLUDES
+#ifdef ANDROID
+   // Set to 1 to disable, 0 to enable verbose (LOGV) messages
+#  define LOG_NDEBUG 1
+#  define LOG_TAG "MprDecode"
+
+#  include <utils/Log.h>
+#endif
+
 #include <assert.h>
 
 #ifdef WIN32 /* [ */
@@ -404,6 +412,37 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       RTL_EVENT(str_fg+"_PF_JB_late_packets", mpMyDJ->getNumLatePackets());
       rtp = mpMyDJ->pullPacket(mStreamState.rtpStreamPosition,
                                &nextPacketAvailable);
+
+      // We did not get a packet, but there are some in there.  Check if we have a discontinuity
+      // in the time stamp
+      if(!rtp.isValid())
+      {
+         int numPacketInDejitter = mpMyDJ->getNumPackets();
+         if(mStreamState.isFirstRtpPulled && numPacketInDejitter > 2)
+         {
+            RtpSeq nextSeq;
+            RtpTimestamp nextTime;
+            OsStatus nextStatus = mpMyDJ->getFirstPacketInfo(nextSeq, nextTime);
+            // Sequentially the next packet is available, so use its time stamp to get it
+            // This can occur if the remote side introduces a discontinuity in the time stamp
+            if(nextStatus == OS_SUCCESS &&
+               MpDspUtils::compareSerials(mLastPulledSeq + 1, nextSeq) >= 0)
+            // TODO: allow more slop in sequence to account for signalling or if there are a lot of packet already
+            // in dejitter
+            {
+               rtp = mpMyDJ->pullPacket(nextTime, &nextPacketAvailable);
+#ifdef ANDROID
+               LOGV("doProcessFrame pullPacket second attempt due to sequential packets, possible time stamp discontinuity nextTime: %u",
+                    nextTime);
+#endif
+            }
+         }
+      }
+      else
+      {
+            mLastPulledSeq = rtp->getRtpSequenceNumber();
+      }
+
       if (rtp.isValid())
       {
          dprintf(" <%"PRIu32" n=%d", rtp->getRtpTimestamp(), nextPacketAvailable);
@@ -440,6 +479,11 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       int wantedBufferSamples = (int)( mStreamState.rtpStreamPosition
                                      - mStreamState.playbackStreamPosition)
                               + mStreamState.rtpStreamHint;
+#ifdef ANDROID
+      LOGV("doProcessFrame wantedBufferSamples: %d rtpStreamPosition: %u playbackStreamPosition: %u rtpStreamHint: %d JB getSamplesNum(): %d",
+           wantedBufferSamples, mStreamState.rtpStreamPosition, mStreamState.playbackStreamPosition, mStreamState.rtpStreamHint, mpJB->getSamplesNum());
+#endif
+
       int adjustment;
       int decodedLength;
       UtlBoolean isPlayed;
@@ -470,6 +514,12 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       {
          if (isPlayed)
          {
+            // Discontiuous change in RTP time stamp, need to make similar update to
+            // playback time.
+            if(mStreamState.rtpStreamPosition + 5000 < rtp->getRtpTimestamp())
+            {
+               mStreamState.playbackStreamPosition += (rtp->getRtpTimestamp() - mStreamState.rtpStreamPosition);
+            }
             mStreamState.rtpStreamPosition = rtp->getRtpTimestamp() + decodedLength;
          } 
          else
@@ -477,6 +527,11 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
             mStreamState.rtpStreamPosition += decodedLength;
          }
       }
+#ifdef ANDROID
+      LOGV("doProcessFrame decodedLength: %d isPlayed: %s rtpStreamPosition: %u",
+           decodedLength, isPlayed ? "true" : "false", mStreamState.rtpStreamPosition);
+#endif
+
       if (res != OS_SUCCESS)
       {
          osPrintf("\n\n *** MpJitterBuffer::pushPacket() returned %d\n", res);
