@@ -996,6 +996,7 @@ SipRefreshMgr::processOKResponse(
     if (!request)
         assert(0);
 
+    // Check response for Expires header or field if no header
     if ( !response->getExpiresField(&responseRefreshPeriod) )
     {   
         // this method looks at the request/response pair
@@ -1003,12 +1004,18 @@ SipRefreshMgr::processOKResponse(
         // for the expires header corresponding to the request
         parseContactFields( response, request, responseRefreshPeriod );
     }
+
+    // Check request for Expires header or field if no header
     int requestRefreshPeriod = -1;
     if ( !request->getExpiresField(&requestRefreshPeriod) )
     {
         // to get expires value @JC whi request 2 times
         parseContactFields( request, request, requestRefreshPeriod );
     }
+
+    OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG,
+                  "SipRefreshMgr::processOKResponse requestRefreshPeriod: %d responseRefreshPeriod: %d",
+                   requestRefreshPeriod, responseRefreshPeriod);
 
     //get to To Tag from the 200 ok response and add it to the request
     UtlString toAddr;
@@ -1123,6 +1130,8 @@ SipRefreshMgr::parseContactFields(
     Url requestContactUrl(requestContactEntry);
     UtlString requestContactIdentity;
     requestContactUrl.getIdentity(requestContactIdentity);
+    UtlString requestContactLineId;
+    requestContactUrl.getUrlParameter(SIP_LINE_LINEID, requestContactLineId);
     
     UtlString contactField;
     int indexContactField = 0;
@@ -1132,8 +1141,16 @@ SipRefreshMgr::parseContactFields(
         Url returnedContact(contactField);
         UtlString returnedIdentity;
         returnedContact.getIdentity(returnedIdentity);
+        UtlString responseContactLineId;
+        returnedContact.getUrlParameter(SIP_LINE_LINEID, responseContactLineId);
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG,
+                            "SipRefreshMgr::parseContactFields response returnedIdentity: %s lineId: %s, request requestContactIdentity: %s lineId: %s",
+                            returnedIdentity.data(), responseContactLineId.data(), requestContactIdentity.data(), requestContactLineId.data());
+#endif
         
-        if ( returnedIdentity.compareTo(requestContactIdentity) == 0 )
+        if ( returnedIdentity.compareTo(requestContactIdentity) == 0 ||
+             responseContactLineId.compareTo(requestContactLineId) == 0)
         {
             UtlString subfieldText;
             int subfieldIndex = 0;
@@ -1145,8 +1162,9 @@ SipRefreshMgr::parseContactFields(
                 UtlNameValueTokenizer::getSubField(subfieldText.data(), 0, "=", &subfieldName);
                 UtlNameValueTokenizer::getSubField(subfieldText.data(), 1, "=", &subfieldValue);
 #ifdef TEST_PRINT
-                osPrintf("SipUserAgent::processRegisterResponce found contact parameter[%d]: \"%s\" value: \"%s\"\n",
-                         subfieldIndex, subfieldName.data(), subfieldValue.data());
+                OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG,
+                            "SipUserAgent::processRegisterResponce found contact parameter[%d]: \"%s\" value: \"%s\"\n",
+                            subfieldIndex, subfieldName.data(), subfieldValue.data());
 #endif
                 subfieldName.toUpper();
                 if ( subfieldName.compareTo(SIP_EXPIRES_FIELD) == 0 )
