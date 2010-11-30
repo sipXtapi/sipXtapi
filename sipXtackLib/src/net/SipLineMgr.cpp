@@ -1114,14 +1114,21 @@ SipLineMgr::addCredentialForLine(
     SipLine *line = NULL;
     if (! (line = sLineList.getLine(identity)) )
     {
-        osPrintf("ERROR::SipLineMgr::addCredentialForLine() - No Line for identity\n");
+        UtlString id;
+        identity.getIdentity(id);
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+                      "SipLineMgr::addCredentialForLine() - No Line for identity: %s", id.data());
         return false;
     }
 
     if (!line->addCredentials(strRealm , strUserID, strPasswd, type))
     {
         line = NULL;
-        osPrintf("ERROR::SipLineMgr::addCredentialForLine() - Duplicate Realm\n");
+        UtlString id;
+        identity.getIdentity(id);
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+                      "SipLineMgr::addCredentialForLine() - Duplicate Realm: %s for identity: %s",
+                      strRealm.data(), id.data());
         return false;
     }
     return true;
@@ -1130,15 +1137,20 @@ SipLineMgr::addCredentialForLine(
 UtlBoolean
 SipLineMgr::deleteCredentialForLine(const Url& identity, const UtlString strRealm)
 {
+    UtlBoolean wasRemoved = FALSE;
     SipLine *line = NULL;
     if (! (line = sLineList.getLine(identity)) )
     {
-        osPrintf("ERROR::SipLineMgr::addCredentialForLine() - No Line for identity\n");
+        UtlString id;
+        identity.getIdentity(id);
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "SipLineMgr::deleteCredentialForLine() - No Line for identity: %s", id.data());
         return false;
     }
-    line->removeCredential(&strRealm);
-    return true;
 
+    wasRemoved = line->removeCredential(&strRealm);
+    
+    return(wasRemoved);
 }
 
 int
