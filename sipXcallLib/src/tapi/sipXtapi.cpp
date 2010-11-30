@@ -5574,10 +5574,50 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddCredential(const SIPX_LINE hLine,
                     szPasswd,
                     HTTP_DIGEST_AUTHENTICATION) ;
 
-            assert(rc) ;
+            // Add credential fails for two common reasons: 1) the line handle does not exist
+            // which is unlikely at this point as we have already looked up the line info, or 2)
+            // a credential set exists for this realm.  So try removing the credential for this 
+            // realm and try adding again
+            if(!rc)
+            {
+                UtlString id;
+                assert(pData->lineURI);
+                pData->lineURI->getIdentity(id);
+                OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                              "addCredentialForLine failed for line: %s, trying to delete credential and add again",
+                              id.data());
+                rc = pData->pInst->pLineManager->deleteCredentialForLine(*pData->lineURI,
+                    szRealm);
+
+                // If the credential was not removed, don't bother trying to add it again.
+                if(rc)
+                {
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                                  "deleteCredentialForLine deleted credential, trying to add again");
+                    rc = pData->pInst->pLineManager->addCredentialForLine(*pData->lineURI,
+                        szRealm,
+                        szUserID,
+                        szPasswd,
+                        HTTP_DIGEST_AUTHENTICATION);
+                }
+                else
+                {
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                                  "deleteCredentialForLine failed to remove old credential");
+                }
+            }
             if (rc)
             {
-                sr = SIPX_RESULT_SUCCESS ;
+                sr = SIPX_RESULT_SUCCESS;
+            }
+            else
+            {
+                UtlString id;
+                assert(pData->lineURI);
+                pData->lineURI->getIdentity(id);
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                              "addCredentialForLine failed for line: %s", id.data());
+                assert(rc);
             }
         }
         else
