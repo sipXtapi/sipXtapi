@@ -25,6 +25,7 @@
 #include <os/OsReadLock.h>
 #include <os/OsWriteLock.h>
 #include <os/OsDateTime.h>
+#include <os/OsSysLog.h>
 #include <net/NetMd5Codec.h>
 
 
@@ -357,17 +358,24 @@ UtlBoolean SipLine::getDuplicateCredentials(const UtlString& type /*[in]*/,
    return  credentialsFound ;
 }
 
-void SipLine::removeCredential(const UtlString *realm)
+UtlBoolean SipLine::removeCredential(const UtlString *realm)
 {
    UtlString matchRealm(*realm);
- 
-   UtlContainable* wasRemoved = mCredentials.removeReference(&matchRealm);
+
+#if 0
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "SipLine::removeCredential mCredentials contains: %d credentials for realm: \"%s\"",
+                 mCredentials.entries(), matchRealm.data()); 
+#endif
+
+   UtlContainable* wasRemoved = mCredentials.remove(&matchRealm);
 
    if(wasRemoved)
    {
       delete wasRemoved;
    }
 
+   return(wasRemoved != NULL);
 }
 
 void SipLine::removeAllCredentials()
