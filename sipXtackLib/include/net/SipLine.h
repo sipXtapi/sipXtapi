@@ -141,7 +141,7 @@ public:
       UtlString passtoken[]/*[out/int]*/);
 
         //removes credetials for a particular realm
-        void removeCredential(const UtlString* realm);
+        UtlBoolean removeCredential(const UtlString* realm);
         //removes all credentials for this line
         void removeAllCredentials();
 
