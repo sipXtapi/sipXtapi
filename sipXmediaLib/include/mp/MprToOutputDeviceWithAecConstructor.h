@@ -51,6 +51,8 @@ public:
     , mpDefaultManager(defaultManager)
     , mDefaultDriver(defaultDriver)
     {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+           "MprToOutputDeviceWithAecConstructor::MprToOutputDeviceWithAecConstructor");
     };
 
       /// Destructor
@@ -64,6 +66,9 @@ public:
                                  int& numResourcesCreated,
                                  MpResource* resourceArray[])
     {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+           "MprToOutputDeviceWithAecConstructor::newResource");
+
         assert(maxResourcesToCreate >= 2);
         numResourcesCreated = 2;
         MprToOutputDevice *pToOutput = new MprToOutputDevice(resourceName,
