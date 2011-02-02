@@ -27,6 +27,7 @@
 #include "mp/MpOutputDeviceManager.h"
 #include "os/OsTask.h"
 #include "os/OsNotification.h"
+#include "os/OsCallback.h"
 
 #ifdef RTL_ENABLED // [
 #  include "rtl_macro.h"
