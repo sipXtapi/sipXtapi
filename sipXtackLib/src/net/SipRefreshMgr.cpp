@@ -661,7 +661,12 @@ SipRefreshMgr::sendRequest (
         SipMessage* message = new SipMessage( request );
 
         if (!message)
+        {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                "SipRefreshMgr::sendRequest failed to allocate new SipMessage");
+            OsSysLog::flush();
             assert(0);
+        }
 
         if ( request.getResponseListenerData() )
         {
@@ -718,7 +723,12 @@ SipRefreshMgr::rescheduleRequest(
             method, secondsFromNow, percentage, sendImmediate) ;
 
     if (!request)
+    {
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+            "SipRefreshMgr::rescheduleRequest null request");
+        OsSysLog::flush();
         assert(0);
+    }
 
     if ( methodStr.compareTo(SIP_REGISTER_METHOD) == 0 )
     {
@@ -871,7 +881,12 @@ SipRefreshMgr::processResponse(
     UtlBoolean sendEventToUpperlayer = FALSE;    
 
     if (!request)
+    {
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+            "SipRefreshMgr::processResponse null request");
+        OsSysLog::flush();
         assert(0);
+    }
 
     UtlString method;
     requestCopy->getRequestMethod( &method) ;
@@ -994,7 +1009,12 @@ SipRefreshMgr::processOKResponse(
     int responseRefreshPeriod = -1;
 
     if (!request)
+    {
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+            "SipRefreshMgr::processOKResponse null request");
+        OsSysLog::flush();
         assert(0);
+    }
 
     // Check response for Expires header or field if no header
     if ( !response->getExpiresField(&responseRefreshPeriod) )
@@ -1222,7 +1242,12 @@ SipRefreshMgr::sendToObservers (
     int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
 
     if (!request)
+    {
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+            "SipRefreshMgr::sendToObservers null request");
+        OsSysLog::flush();
         assert(0);
+    }
 
     // Create a new message event
     SipMessage * message = new SipMessage(*Response);
@@ -2034,7 +2059,12 @@ SipRefreshMgr::rescheduleAfterTime(
     request->getCSeqField(&dummy, &method);
     
     if (!request)
+    {
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+            "SipRefreshMgr::rescheduleAfterTime null request");
+        OsSysLog::flush();
         assert(0);
+    }
 
     if (request)
         request->getRequestMethod(&method);
