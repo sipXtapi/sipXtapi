@@ -34,6 +34,7 @@ class HttpMessageTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testSdp);
     CPPUNIT_TEST(testMd5Digest);
     CPPUNIT_TEST(testEscape);
+    CPPUNIT_TEST(testNoHeaders);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -672,6 +673,22 @@ public:
     HttpMessage::unescape(umlautString);
     ASSERT_STR_EQUAL(umlautUriValue, umlautString.data());
   }
+
+  void testNoHeaders()
+  {
+    UtlString sourceMessageBytes(END_OF_LINE_DELIMITOR END_OF_LINE_DELIMITOR);
+
+    HttpMessage message(sourceMessageBytes);
+
+    UtlString reconstructedMessageBytes;
+    int messageLength;
+
+    message.getBytes(&reconstructedMessageBytes, &messageLength);
+
+    ASSERT_STR_EQUAL(sourceMessageBytes.data(), reconstructedMessageBytes.data());
+    CPPUNIT_ASSERT_MESSAGE("message should be 4 bytes", messageLength == 4);
+  }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(HttpMessageTest);
