@@ -287,6 +287,9 @@ server_t* SipSrvLookup::servers(const char* domain,
    // Case 1: Domain name is a numeric IP address.
    if ( IS_INET_RETURN_OK( inet_aton((char *)domain, &in.sin_addr)) )
    {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipSrvLookup::servers IP address ('%s') no DNS lookup", domain);
+
       in.sin_family = AF_INET;
       // Set up the port number.
       // If port was specified in the URI, that is the port to use.
@@ -305,6 +308,9 @@ server_t* SipSrvLookup::servers(const char* domain,
    }
    else
    {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipSrvLookup::servers DNS SRV lookup for address: '%s'", domain);
+
       // Case 2: SRV records exist for this domain.
       // (Only used if no port is specified in the URI.)
       if (port <= 0 && !options[OptionCodeIgnoreSRV])
@@ -339,6 +345,9 @@ server_t* SipSrvLookup::servers(const char* domain,
       // produce any addresses.  This includes if an explicit port was given.)
       if (list_length_used == 0)
       {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipSrvLookup::servers DNS lookup A record for address: '%s'", domain);
+
          lookup_A(list, list_length_allocated, list_length_used,
                   domain,
                   // Default the transport for "sips".
