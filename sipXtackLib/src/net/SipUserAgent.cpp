@@ -441,12 +441,20 @@ SipUserAgent::~SipUserAgent()
     delete mpTimer;
     mpTimer = NULL;
 
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipUserAgent::~SipUserAgent waitUntilShutDown");
+    OsSysLog::flush();
+
     // Wait until this OsServerTask has stopped or handleMethod
     // might access something we are about to delete here.
     waitUntilShutDown();
 
     if(mSipTcpServer)
     {
+       OsSysLog::add(FAC_SIP, PRI_INFO,
+                     "SipUserAgent::~SipUserAgent shutting down mSipTcpServer");
+       OsSysLog::flush();
+
        mSipTcpServer->shutdownListener();
        mSipTcpServer->requestShutdown();
        delete mSipTcpServer;
@@ -455,6 +463,10 @@ SipUserAgent::~SipUserAgent()
 
     if(mSipUdpServer)
     {
+       OsSysLog::add(FAC_SIP, PRI_INFO,
+                     "SipUserAgent::~SipUserAgent shutting down mSipUdpServer");
+       OsSysLog::flush();
+
        mSipUdpServer->shutdownListener();
        mSipUdpServer->requestShutdown();
        delete mSipUdpServer;
@@ -464,12 +476,20 @@ SipUserAgent::~SipUserAgent()
 #ifdef SIP_TLS
     if(mSipTlsServer)
     {
+       OsSysLog::add(FAC_SIP, PRI_INFO,
+                     "SipUserAgent::~SipUserAgent shutting down mSipTlsServer");
+       OsSysLog::flush();
+
        mSipTlsServer->shutdownListener();
        mSipTlsServer->requestShutdown();
        delete mSipTlsServer;
        mSipTlsServer = NULL;
     }
 #endif
+
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipUserAgent::~SipUserAgent deleting databases");
+    OsSysLog::flush();
 
     if(mpAuthenticationDb)
     {
@@ -492,6 +512,10 @@ SipUserAgent::~SipUserAgent()
     allowedSipMethods.destroyAll();
     mMessageObservers.destroyAll();
     allowedSipExtensions.destroyAll();
+
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipUserAgent::~SipUserAgent exiting");
+    OsSysLog::flush();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -509,6 +533,10 @@ SipUserAgent::operator=(const SipUserAgent& rhs)
 
 void SipUserAgent::shutdown(UtlBoolean blockingShutdown)
 {
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipUserAgent::shutdown(blocking=%s) starting shutdown", blockingShutdown ? "TRUE" : "FALSE");
+    OsSysLog::flush();
+
     mbShuttingDown = TRUE;
     mSipTransactions.stopTransactionTimers();
 
@@ -522,10 +550,19 @@ void SipUserAgent::shutdown(UtlBoolean blockingShutdown)
 
         OsRpcMsg shutdownMsg(OsMsg::PHONE_APP, SipUserAgent::SHUTDOWN_MESSAGE, shutdownEvent);
         postMessage(shutdownMsg);
+        OsSysLog::add(FAC_SIP, PRI_INFO,
+                      "SipUserAgent::shutdown waiting for shutdown to complete");
+        OsSysLog::flush();
         res = shutdownEvent.wait();
+        OsSysLog::add(FAC_SIP, PRI_INFO,
+                      "SipUserAgent::shutdown shutdown complete wait status=%d", res);
+        OsSysLog::flush();
         assert(res == OS_SUCCESS);
 
         res = shutdownEvent.getEventData(rpcRetVal);
+        OsSysLog::add(FAC_SIP, PRI_INFO,
+                      "SipUserAgent::shutdown shutdown event status=%d", rpcRetVal);
+        OsSysLog::flush();
         assert(res == OS_SUCCESS && rpcRetVal == OS_SUCCESS);
 
         mbShutdownDone = TRUE;
@@ -536,6 +573,10 @@ void SipUserAgent::shutdown(UtlBoolean blockingShutdown)
         OsMsg shutdownMsg(OsMsg::PHONE_APP, SipUserAgent::SHUTDOWN_MESSAGE);
         postMessage(shutdownMsg);
     }
+
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipUserAgent::shutdown exiting shutdown");
+    OsSysLog::flush();
 }
 
 void SipUserAgent::enableStun(const char* szStunServer, 
@@ -2838,8 +2879,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    {
       garbageCollection();
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipUserAgent::handleMessage after GC, queue size = %d",
-                    getMessageQueue()->numMsgs());
+                    "SipUserAgent::handleMessage after GC, queue size = %d handled message type: %d subtype: %d",
+                    getMessageQueue()->numMsgs(), msgType, msgSubType);
    }
    return(messageProcessed);
 }
