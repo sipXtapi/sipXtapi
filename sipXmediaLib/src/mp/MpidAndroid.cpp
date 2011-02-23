@@ -29,6 +29,15 @@
 #  include <signal.h>
 #endif // MPID_ANDROID_CLEAN_EXIT ]
 
+//#define RTL_ENABLED
+#ifdef RTL_ENABLED // [
+#  include "rtl_macro.h"
+#else  // RTL_ENABLED ][
+#  define RTL_WRITE(x)
+#  define RTL_BLOCK(x)
+#  define RTL_START(x)
+#endif // RTL_ENABLED ]
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -495,10 +504,12 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
 {
    bool lSignal = false;
    if (event != AudioTrack::EVENT_MORE_DATA) {
+      RTL_BLOCK("MpidAndroid::audioCallback_nondata");
       LOGV("MpidAndroid::audioCallback(event=%d)\n", event);
       return;
    }
 
+   RTL_BLOCK("MpidAndroid::audioCallback");
 #ifdef ENABLE_FRAME_TIME_LOGGING
    LOGV("MpidAndroid::audioCallback() time %"PRIi64"ns\n", systemTime(SYSTEM_TIME_REALTIME));
 #endif

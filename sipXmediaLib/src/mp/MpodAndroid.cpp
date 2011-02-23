@@ -24,6 +24,15 @@
 #include <math.h>
 #include <utils/Log.h>
 
+//#define RTL_ENABLED
+//#define RTL_AUDIO_ENABLED
+#ifdef RTL_ENABLED // [
+#  include "rtl_macro.h"
+#else  // RTL_ENABLED ][
+#  define RTL_BLOCK(x)
+#  define RTL_EVENT(x, y)
+#endif // RTL_ENABLED ]
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -32,8 +41,8 @@
 // This wraper class is used to create some extra memory padding
 // at the end of the AudioTrack class.  on Droid X an assert was
 // firing because memory was getting trashed in the footer of the
-// malloc memory chunk for the AudioTrack.  It is not cleary why
-// this was happening.  However when we got lock and used a chunk
+// malloc memory chunk for the AudioTrack.  It is not clear why
+// this was happening.  However when we got lucky and used a chunk
 // with an extra 8 bytes at the end, everything was happy.  Hense
 // this wrapper class with 2 int of bufer space at the end.
 class SipxAudioTrack : public AudioTrack
@@ -261,6 +270,8 @@ OsStatus MpodAndroid::pushFrame(unsigned int numSamples,
                                 const MpAudioSample* samples,
                                 MpFrameTime frameTime)
 {
+   RTL_BLOCK("MpodAndroid::pushFrame");
+
    if (!isEnabled())
    {
       return OS_FAILED;
@@ -374,6 +385,7 @@ initAudioTrack_exit:
 
 void MpodAndroid::audioCallback(int event, void* user, void *info)
 {
+   RTL_BLOCK("MpodAndroid::audioCallback");
    bool lSignal = false;
    if (event != AudioTrack::EVENT_MORE_DATA)
    {
@@ -393,7 +405,7 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
    LOGV("MpodAndroid::audioCallback() buffer=%p samples=%d size=%d toCopy=%d\n",
         buffer->i16, buffer->frameCount, buffer->size, samplesToCopy);
 #endif
-
+   RTL_EVENT("MpodAndroid::audioCallback_bufsize", samplesToCopy);
    // Copy data to buffer
    memcpy(buffer->i16, pDriver->mpSampleBuffer+pDriver->mSampleBufferIndex, samplesToCopy*sizeof(short));
    buffer->frameCount = samplesToCopy;
@@ -406,6 +418,7 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
 
    if (pDriver->mSampleBufferIndex >= pDriver->mSamplesPerFrame)
    {
+      RTL_BLOCK("MpodAndroid::audioCallback_tick");
       if(pDriver->mSampleBufferIndex > pDriver->mSamplesPerFrame)
       {
          LOGE("MpodAndroid::audioCallback() sample index (%d) > samples/frame (%d)\n", (int)pDriver->mSampleBufferIndex, (int)pDriver->mSamplesPerFrame);
