@@ -279,7 +279,9 @@ typedef enum SIPX_RESULT
     SIPX_RESULT_TLS_TCP_IMPORT_FAILURE, /**< The operation failed because a TCP socket could not be imported by the SSL/TLS module. */
     SIPX_RESULT_NSS_FAILURE,          /**< The operation failed due to an NSS failure. */
     SIPX_RESULT_NOT_SUPPORTED,        /**< The operation is not supported in this build/configuration */
-    SIPX_RESULT_NETWORK_FAILURE       /**< The network is down or failing */
+    SIPX_RESULT_NETWORK_FAILURE,      /**< The network is down or failing */
+    SIPX_RESULT_LIB_NOT_FOUND,        /**< Dependent shared library not found */
+    SIPX_RESULT_OS_PLATFORM_UNSUPPORTED/**< libraries or facilities not supported for this specific OS platform */
     
 } SIPX_RESULT ;
 
