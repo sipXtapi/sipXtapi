@@ -48,7 +48,7 @@ const int MpidAndroid::mSampleRatesListLen =
    sizeof(MpidAndroid::mpSampleRatesList) / sizeof(MpidAndroid::mpSampleRatesList[0]);
 
 #ifdef MPID_ANDROID_CLEAN_EXIT // [
-static AudioRecord *sgAudioRecord = NULL;
+static MpAndroidAudioRecord *sgAudioRecord = NULL;
 
 /// Storage for original signal handlers
 static struct sigaction old_signalhandlers[NSIG];
@@ -151,7 +151,7 @@ MpidAndroid::~MpidAndroid()
    }
 
    if (mpAudioRecord) {
-      LOGV("Delete Track Record: %p\n", mpAudioRecord);
+      LOGV("Delete AudioRecord: %p\n", mpAudioRecord);
       delete mpAudioRecord;
       mpAudioRecord = NULL;
 #ifdef MPID_ANDROID_CLEAN_EXIT // [
@@ -224,7 +224,7 @@ OsStatus MpidAndroid::enableDevice(unsigned samplesPerFrame,
 
    mState = DRIVER_STARTING;
    mLock.unlock();
-   status_t startStatus = mpAudioRecord->start();
+   int startStatus = mpAudioRecord->start();
    if(startStatus != NO_ERROR)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, "MpidAndroid::enableDevice AudioRecord::start returned error: %d", startStatus);
@@ -348,7 +348,7 @@ bool MpidAndroid::initAudioRecord()
    }
 
    // Open audio track
-   mpAudioRecord = new AudioRecord();
+   mpAudioRecord = MpAndroidAudioRecord::spAudioRecordCreate();
    if (mpAudioRecord == NULL) {
       LOGW("MpidAndroid::initAudioRecord() AudioRecord allocation failed\n");
       goto initAudioTrack_exit;
@@ -359,7 +359,7 @@ bool MpidAndroid::initAudioRecord()
    sgAudioRecord = mpAudioRecord;
 #endif // MPID_ANDROID_CLEAN_EXIT ]
 
-//   initRes = mpAudioTrack->initCheck();
+   /*
    initRes = mpAudioRecord->set(mStreamSource,  // inputSource
                                 mSamplesPerSecInternal,  // sampleRate
                                 AudioSystem::PCM_16_BIT,  // format
@@ -370,8 +370,14 @@ bool MpidAndroid::initAudioRecord()
                                 (void*)this,  // user
                                 mSamplesPerFrameInternal,  // notificationFrames
                                 false);  // threadCanCallJava
+   */
+   initRes = mpAudioRecord->set(mStreamSource,  // inputSource
+                                mSamplesPerSecInternal,  // sampleRate
+                                audioCallback,  // cbf
+                                (void*)this,  // user
+                                mSamplesPerFrameInternal);  // notificationFrames
    if (initRes != NO_ERROR) {
-      LOGW("MpidAndroid::initAudioRecord() AudioRecord->initCheck() returned %d\n", initRes);
+      LOGW("MpidAndroid::initAudioRecord() AudioRecord->set() returned %d\n", initRes);
       goto initAudioTrack_exit;
    }
 
@@ -474,7 +480,7 @@ bool MpidAndroid::probeSampleRate(int targetRate, int targetFrameSize,
 
    // If nothing helps - try default frequency.
    int remainingSamplesNum;
-   mSamplesPerSecInternal = AudioRecord::DEFAULT_SAMPLE_RATE;
+   mSamplesPerSecInternal = MpAndroidAudioRecord::DEFAULT_SAMPLE_RATE;
    mSamplesPerFrameInternal =
       MpResamplerBase::getNumSamplesOriginal(mSamplesPerSecInternal,
                                              targetRate, targetFrameSize,
@@ -503,7 +509,7 @@ bool MpidAndroid::probeSampleRate(int targetRate, int targetFrameSize,
 void MpidAndroid::audioCallback(int event, void* user, void *info)
 {
    bool lSignal = false;
-   if (event != AudioTrack::EVENT_MORE_DATA) {
+   if (event != MpAndroidAudioRecord::EVENT_MORE_DATA) {
       RTL_BLOCK("MpidAndroid::audioCallback_nondata");
       LOGV("MpidAndroid::audioCallback(event=%d)\n", event);
       return;
@@ -514,7 +520,7 @@ void MpidAndroid::audioCallback(int event, void* user, void *info)
    LOGV("MpidAndroid::audioCallback() time %"PRIi64"ns\n", systemTime(SYSTEM_TIME_REALTIME));
 #endif
 
-   AudioRecord::Buffer *buffer = static_cast<AudioRecord::Buffer *>(info);
+   MpAndroidAudioRecord::Buffer *buffer = static_cast<MpAndroidAudioRecord::Buffer *>(info);
    MpidAndroid *pDriver = static_cast<MpidAndroid *>(user);
 
 #ifdef ENABLE_FILE_LOGGING

@@ -22,8 +22,7 @@
 
 // SYSTEM INCLUDES
 #include <utils/threads.h>
-#include <media/AudioSystem.h>
-#include <media/AudioTrack.h>
+#include <mp/MpAndroidAudioTrack.h>
 
 // APPLICATION INCLUDES
 // DEFINES
@@ -128,7 +127,7 @@ protected:
 
    StreamType mStreamType;   ///< Android type of the output stream
    OsAtomicLightUInt mState; ///< Internal class state
-   AudioTrack *mpAudioTrack; ///< Pointer to audio track used for playback
+   MpAndroidAudioTrack *mpAudioTrack; ///< Pointer to audio track used for playback
    Mutex mLock;              ///< Mutex to control concurrent access to this object
                              ///<  from audio callback and application API
    Condition mWaitCbkCond;   ///< condition enabling interface to wait for audio callback

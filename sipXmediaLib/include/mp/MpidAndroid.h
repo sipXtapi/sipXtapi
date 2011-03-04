@@ -14,11 +14,11 @@
 #define _MpidAndroid_h_
 
 // SIPX INCLUDES
-#include "mp/MpInputDeviceDriver.h"
+#include <mp/MpInputDeviceDriver.h>
+#include <mp/MpAndroidAudioRecord.h>
 
 // SYSTEM INCLUDES
 #include <utils/threads.h>
-#include <media/AudioRecord.h>
 
 // DEFINES
 // MACROS
@@ -119,7 +119,7 @@ protected:
    audio_source mStreamSource; ///< Source of a stream we're recording.
    DriverState mState;         ///< Driver internal state
 
-   AudioRecord *mpAudioRecord; ///< Pointer to audio track used for record
+   MpAndroidAudioRecord *mpAudioRecord; ///< Pointer to audio track used for record
    int mSamplesPerSecInternal; ///< Sample rate of AudioRecord.
    int mSamplesPerFrameInternal; ///< Number of sample per frame we use with AudioRecord.
    MpAudioSample *mpBufInternal; ///< Temporary audio buffer to save data if don't receive

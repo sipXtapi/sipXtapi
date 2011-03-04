@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <utils/Log.h>
+#include <media/AudioSystem.h>
 
 //#define RTL_ENABLED
 //#define RTL_AUDIO_ENABLED
@@ -37,54 +38,6 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-
-// This wraper class is used to create some extra memory padding
-// at the end of the AudioTrack class.  on Droid X an assert was
-// firing because memory was getting trashed in the footer of the
-// malloc memory chunk for the AudioTrack.  It is not clear why
-// this was happening.  However when we got lucky and used a chunk
-// with an extra 8 bytes at the end, everything was happy.  Hense
-// this wrapper class with 2 int of bufer space at the end.
-class SipxAudioTrack : public AudioTrack
-{
-public:
-   SipxAudioTrack(int streamType,
-                  uint32_t sampleRate  = 0,
-                  int format           = 0,
-                  int channels         = 0,
-                  int frameCount       = 0,
-                  uint32_t flags       = 0,
-                  callback_t cbf       = 0,
-                  void* user           = 0,
-                  int notificationFrames = 0) :
-   AudioTrack(streamType, sampleRate, format, channels, frameCount, flags, cbf, user, notificationFrames)
-   {
-      dummy1 = 11;
-      dummy2 = 7;
-   };
-
-private:
-   SipxAudioTrack(const SipxAudioTrack&); // no copy
-   SipxAudioTrack& operator=(const SipxAudioTrack&); // no copy
-
-   int dummy1;  // Padding to prevent overwrite on Droid X
-   int dummy2;
-};
-
-void dumpAudioTrack(const char* label, AudioTrack* atPtr)
-{
-   LOGV("sizeof AudioTrack: %d sizeof size_t: %d\n", sizeof(AudioTrack), sizeof(size_t));
-   LOGV("%s AudioTrack[-2] = %p\n", label, *(((int*)(atPtr))-2));
-   LOGV("%s AudioTrack[-1] = %p\n", label, *(((int*)(atPtr))-1));
-   LOGV("%s AudioTrack[%d] = %p\n", label, (sizeof(SipxAudioTrack)/4)+2, *(((int*)(atPtr))-(sizeof(SipxAudioTrack)/4)+2));
-   LOGV("%s AudioTrack[%d] = %p\n", label, (sizeof(SipxAudioTrack)/4)+1, *(((int*)(atPtr))-(sizeof(SipxAudioTrack)/4)+1));
-#if 0
-   for(int ptrIndex = 0; ptrIndex < (sizeof(SipxAudioTrack) / 4); ptrIndex ++)
-   {
-      LOGV("%s AudioTrack[%d] = %p\n", label, ptrIndex, *(((int*)(atPtr))+ptrIndex));
-   }
-#endif
-}
 
 #ifdef ENABLE_FILE_LOGGING
 static FILE *sgOutFile=NULL;
@@ -197,13 +150,13 @@ OsStatus MpodAndroid::enableDevice(unsigned samplesPerFrame,
 
    LOGV("MpodAndroid::enableDevice() starting, time %d\n", (unsigned int)(systemTime()/1000000));
    mState = DRIVER_STARTING;
-   dumpAudioTrack("MpodAndroid::enableDevice", mpAudioTrack);
+   mpAudioTrack->dumpAudioTrack("MpodAndroid::enableDevice");
    mLock.unlock();
    mpAudioTrack->start();
    mLock.lock();
    if (mState == DRIVER_STARTING) {
       LOGV("MpodAndroid::enableDevice() waiting for start callback");
-      status_t lStatus = mWaitCbkCond.waitRelative(mLock, seconds(3));
+      int /*status_t*/ lStatus = mWaitCbkCond.waitRelative(mLock, seconds(3));
       if (lStatus != NO_ERROR) {
          LOGE("MpodAndroid::enableDevice() callback timed out, status %d", lStatus);
          mState = DRIVER_IDLE;
@@ -236,7 +189,7 @@ OsStatus MpodAndroid::disableDevice()
    if (mState == DRIVER_PLAYING || mState == DRIVER_STARTING) {
       mState = DRIVER_STOPPING;
       LOGV("MpodAndroid::disableDevice() waiting cond");
-      status_t lStatus = mWaitCbkCond.waitRelative(mLock, seconds(3));
+      int /*status_t*/ lStatus = mWaitCbkCond.waitRelative(mLock, seconds(3));
       if (lStatus == NO_ERROR) {
          LOGV("MpodAndroid::disableDevice() track stop complete, time %d", (unsigned int)(systemTime()/1000000));
       } else {
@@ -246,7 +199,7 @@ OsStatus MpodAndroid::disableDevice()
       }
    }
 
-   dumpAudioTrack("MpodAndroid::disableDevice", mpAudioTrack);
+   mpAudioTrack->dumpAudioTrack("MpodAndroid::disableDevice");
    LOGV("MpodAndroid::disableDevice() Delete Track: %p\n", mpAudioTrack);
    delete mpAudioTrack;
    mpAudioTrack = NULL;
@@ -324,7 +277,7 @@ OsStatus MpodAndroid::pushFrame(unsigned int numSamples,
 UtlBoolean MpodAndroid::initAudioTrack()
 {
    LOGV("MpodAndroid::initAudioTrack");
-   status_t initRes;
+   int /*status_t*/ initRes;
 
    if (mpAudioTrack) {
       LOGV("MpodAndroid::initAudioTrack deleting mpAudioTrack");
@@ -334,7 +287,7 @@ UtlBoolean MpodAndroid::initAudioTrack()
    }
 
    // Open audio track
-   mpAudioTrack = new SipxAudioTrack(mStreamType,  // streamType
+   mpAudioTrack = MpAndroidAudioTrack::spAudioTrackCreate(mStreamType,  // streamType
                                  mSamplesPerSec,  // sampleRate
                                  AudioSystem::PCM_16_BIT,  // format
 #ifdef ANDROID_1_6
@@ -351,7 +304,7 @@ UtlBoolean MpodAndroid::initAudioTrack()
       LOGE("MpodAndroid::initAudioTrack() AudioTrack allocation failed\n");
       goto initAudioTrack_exit;
    }
-   dumpAudioTrack("MpodAndroid::initAudioTrack", mpAudioTrack);
+   mpAudioTrack->dumpAudioTrack("MpodAndroid::initAudioTrack");
    LOGV("MpodAndroid::initAudioTrack() Create Track: %p\n", mpAudioTrack);
 
    initRes = mpAudioTrack->initCheck();
@@ -361,7 +314,7 @@ UtlBoolean MpodAndroid::initAudioTrack()
    }
 
    LOGV("MpodAndroid::initAudioTrack() AudioTrack->initCheck() returned %d, NO_ERROR=%p\n", initRes, NO_ERROR);
-   dumpAudioTrack("MpodAndroid::initAudioTrack after initCheck", mpAudioTrack);
+   mpAudioTrack->dumpAudioTrack("MpodAndroid::initAudioTrack after initCheck");
    LOGD("initAudioTrack AudioTrack sampleRate: %d frameSize: %d frameCount: %d latency: %d",
         (int)mpAudioTrack->getSampleRate(), mpAudioTrack->frameSize(), (int)mpAudioTrack->frameCount(), (int)mpAudioTrack->latency());
 
@@ -387,13 +340,13 @@ void MpodAndroid::audioCallback(int event, void* user, void *info)
 {
    RTL_BLOCK("MpodAndroid::audioCallback");
    bool lSignal = false;
-   if (event != AudioTrack::EVENT_MORE_DATA)
+   if (event != MpAndroidAudioTrack::EVENT_MORE_DATA)
    {
       LOGV("MpodAndroid::audioCallback(event=%d)\n", event);
       return;
    }
 
-   AudioTrack::Buffer *buffer = static_cast<AudioTrack::Buffer *>(info);
+   MpAndroidAudioTrack::Buffer *buffer = static_cast<MpAndroidAudioTrack::Buffer *>(info);
    MpodAndroid *pDriver = static_cast<MpodAndroid *>(user);
 
    // Start accessing non-atomic member variables
