@@ -25,7 +25,11 @@
 
 /// @brief Default filter length (tail length) of AEC filter (in milliseconds).
 /// @see documentation on MprSpeexEchoCancel::MprSpeexEchoCancel() for more information.
-#define SPEEX_DEFAULT_AEC_FILTER_LENGTH 200
+#ifdef ANDROID
+#  define SPEEX_DEFAULT_AEC_FILTER_LENGTH 240
+#else
+#  define SPEEX_DEFAULT_AEC_FILTER_LENGTH 200
+#endif
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -122,6 +126,12 @@ public:
      *  @see smGlobalEnableState for more details.
      */
 
+     /// Get global state.
+   static inline GlobalEnableState getGlobalEnableState();
+     /**<
+     *  @see smGlobalEnableState for more details.
+     */
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -204,6 +214,11 @@ private:
 void MprSpeexEchoCancel::setGlobalEnableState(GlobalEnableState state)
 {
    smGlobalEnableState = state;
+}
+
+MprSpeexEchoCancel::GlobalEnableState  MprSpeexEchoCancel::getGlobalEnableState()
+{
+   return(smGlobalEnableState);
 }
 
 SpeexEchoState *MprSpeexEchoCancel::getSpeexEchoState() const
