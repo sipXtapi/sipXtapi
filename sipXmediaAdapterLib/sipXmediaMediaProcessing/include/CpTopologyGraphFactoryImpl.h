@@ -99,6 +99,8 @@ public:
     virtual OsStatus setMicrophoneDevice(const UtlString& device);
       /// @copydoc CpMediaInterfaceFactoryImpl::setAudioAECMode()
     virtual OsStatus setAudioAECMode(const MEDIA_AEC_MODE mode);
+      /// @copydoc CpMediaInterfaceFactoryImpl::getAudioAECMode()
+    virtual OsStatus getAudioAECMode(MEDIA_AEC_MODE& mode) const;
       /// @copydoc CpMediaInterfaceFactoryImpl::enableAGC()
     virtual OsStatus enableAGC(UtlBoolean bEnable);
       /// @copydoc CpMediaInterfaceFactoryImpl::setAudioNoiseReductionMode()

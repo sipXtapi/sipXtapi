@@ -476,6 +476,38 @@ OsStatus CpTopologyGraphFactoryImpl::setAudioAECMode(const MEDIA_AEC_MODE mode)
 #endif // !USE_SPEEX_AEC ]
 }
 
+
+OsStatus CpTopologyGraphFactoryImpl::getAudioAECMode(MEDIA_AEC_MODE& mode) const
+{
+   OsStatus status = OS_SUCCESS;
+#ifdef USE_SPEEX_AEC // [
+
+   MprSpeexEchoCancel::GlobalEnableState state = MprSpeexEchoCancel::getGlobalEnableState();
+   switch (state) 
+   {
+       case MprSpeexEchoCancel::LOCAL_MODE:
+          mode = MEDIA_AEC_CANCEL_AUTO;
+       break;
+       case MprSpeexEchoCancel::GLOBAL_ENABLE:
+          mode = MEDIA_AEC_CANCEL;
+       break;
+       case MprSpeexEchoCancel::GLOBAL_DISABLE:
+          mode = MEDIA_AEC_DISABLED;
+       break;
+       default:
+          OsSysLog::add(FAC_CP, PRI_ERR, 
+                        "CpTopologyGraphFactoryImpl::setAudioAECMode MprSpeexEchoCancel::getGlobalEnableState returned unknown state: %d", 
+                        state);
+          status = OS_INVALID_STATE;
+       break;
+   }
+
+#else // USE_SPEEX_AEC ][
+   status = OS_NOT_SUPPORTED;
+#endif // !USE_SPEEX_AEC ]
+   return(status);
+}
+
 OsStatus CpTopologyGraphFactoryImpl::enableAGC(UtlBoolean bEnable) 
 {
 #ifdef HAVE_SPEEX // [
