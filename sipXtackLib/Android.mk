@@ -18,7 +18,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 # For a few includes we need to hack into the path
-ANDROID_CORE_PATH := /Users/dpetrie/dev/android_1.6
+ANDROID_CORE_PATH := $(SIPX_HOME)/sipXtackLib/contrib/android/android_2_0_headers
 
 # Set up the target identity.
 # LOCAL_MODULE/_CLASS are required for local-intermediates-dir to work.
