@@ -19,7 +19,8 @@
 #ifdef WIN32
 #include <mp/MpidWinMM.h>
 #elif defined ANDROID
-#include <mp/MpidAndroid.h>
+#   include <mp/MpidAndroid.h>
+#   include <mp/MpAndroidAudioTrack.h>
 #elif defined __linux__
 #include <mp/MpidOss.h>
 #elif defined __APPLE__
@@ -50,6 +51,10 @@ private:
 public:
    void setUp()
    {
+#ifdef ANDROID
+      OsStatus stat = MpAndroidAudioTrack::setAudioTrackCreator();
+#endif
+
       mpBufPool = 
          new MpBufPool(MIDDT_SAMPLES_PER_FRAME * sizeof(MpAudioSample)
                        + MpArrayBuf::getHeaderSize(), 
