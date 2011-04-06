@@ -23,6 +23,8 @@
 #include <mp/MpResampler.h>
 
 // SYSTEM INCLUDES
+#include <stdio.h>
+#include <fcntl.h>
 #include <utils/Log.h>
 #include <media/AudioSystem.h>
 #ifdef MPID_ANDROID_CLEAN_EXIT // [
@@ -57,6 +59,17 @@ static struct sigaction old_signalhandlers[NSIG];
 static void android_signal_handler(int signum, siginfo_t *info, void *reserved)
 {
    LOGE("Caught signal: %d", signum);
+   // Catch the stack trace and dump it to a file
+   const char* dumpFileName = "/sdcard/sipezncrashdump.txt";
+   int fd = open(dumpFileName, O_WRONLY | O_TRUNC | O_CREAT, 0666); // O_APPEND
+   FILE* fp = fdopen(fd, "w");// "a"
+   // Empty the native crash dump file and leave it modified.  We can detect this and append
+   // the logcat in the java layer upon resart
+   const char* header = "Test stack dump\n";
+   write(fd, header, strlen(header));
+   fflush(fp);
+   fclose(fp);
+
    if(sgAudioRecord != NULL)
    {
       LOGE("sigabrt_handler deleting sgAudioRecord: %p", sgAudioRecord);
@@ -65,6 +78,11 @@ static void android_signal_handler(int signum, siginfo_t *info, void *reserved)
       sgAudioRecord = NULL;
    }
    old_signalhandlers[signum].sa_handler(signum);
+
+   // Cannot just divert logcat output into crash dump file as it does not yet
+   // have the stack trace in it at this point in time.  The stack trace gets
+   // put into the logcat log by the debuggerd some time after this signal
+   // handler returns.
 }
 
 class SignalCatcher {
@@ -78,6 +96,8 @@ public:
       //
       // Note: Current Android use SIGSEGV instead of SIGABRT.
       //       See bionic/libc/unistd/abort.c
+
+      LOGE("SignalCatcher::SignalCatcher constructed");
 
       struct sigaction sig_handler;
       memset(&sig_handler, 0, sizeof(struct sigaction));
@@ -138,6 +158,7 @@ MpidAndroid::MpidAndroid(audio_source source,
 , mpResampler(NULL)
 , mpResampleBuf(NULL)
 {
+   LOGV("MpidAndroid constructor");
 }
 
 MpidAndroid::~MpidAndroid()
