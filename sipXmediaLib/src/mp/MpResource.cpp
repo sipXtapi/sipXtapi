@@ -18,6 +18,7 @@
 // APPLICATION INCLUDES
 #include <os/OsDefs.h>
 #include <os/OsLock.h>
+#include <os/OsSysLog.h>
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MpFlowGraphMsg.h>
 #include <mp/MpResourceMsg.h>
@@ -224,7 +225,7 @@ void MpResource::resourceInfo(MpResource* pResource, int index)
        const char*       name;
 
        name = pResource->getName();
-       osPrintf("    Resource[%d]: %p, %s (%sabled)\n",
+       OsSysLog::add(FAC_MP, PRI_DEBUG, "    Resource[%d]: %p, %s (%sabled)\n",
               index, pResource, name, pResource->mIsEnabled ? "En" : "Dis");
 
        OsLock lock(pResource->mLock);
@@ -233,16 +234,16 @@ void MpResource::resourceInfo(MpResource* pResource, int index)
           if (NULL != pResource->mpInConns[i].pResource) 
           {
              name = pResource->mpInConns[i].pResource->getName();
-             osPrintf("        Input %d from %s:%d\n", i, 
+             OsSysLog::add(FAC_MP, PRI_DEBUG, "        Input %d from %s:%d\n", i, 
                 name, pResource->mpInConns[i].portIndex);
           }
           else if(pResource->mpInConns[i].reserved)
           {
-             osPrintf("        Input %d reserved", i);
+             OsSysLog::add(FAC_MP, PRI_DEBUG, "        Input %d reserved", i);
           }
           else
           {
-             osPrintf("        Input %d  not reserved", i);
+             OsSysLog::add(FAC_MP, PRI_DEBUG, "        Input %d  not reserved", i);
           }
        }
 
@@ -251,16 +252,16 @@ void MpResource::resourceInfo(MpResource* pResource, int index)
           if (NULL != pResource->mpOutConns[i].pResource) 
           {
              name = pResource->mpOutConns[i].pResource->getName();
-             osPrintf("        Output %d to %s:%d\n", i, 
+             OsSysLog::add(FAC_MP, PRI_DEBUG, "        Output %d to %s:%d\n", i, 
                 name, pResource->mpOutConns[i].portIndex);
           }
           else if(pResource->mpOutConns[i].reserved)
           {
-             osPrintf("        Output %d reserved", i);
+             OsSysLog::add(FAC_MP, PRI_DEBUG, "        Output %d reserved", i);
           }
           else
           {
-             osPrintf("        Output %d  not reserved", i);
+             OsSysLog::add(FAC_MP, PRI_DEBUG, "        Output %d  not reserved", i);
           }
        }
    }
