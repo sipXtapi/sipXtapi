@@ -48,7 +48,7 @@ LOCAL_CFLAGS += -DDISABLE_STREAM_PLAYER \
                 -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY \
                 -DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
 
-#LOCAL_CFLAGS += -DHAVE_SPEEX
+LOCAL_CFLAGS += -DHAVE_SPEEX
 
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre \
@@ -59,9 +59,9 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaAdapterLib/interface \
     $(SIPX_HOME)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include
 
-#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia
+LOCAL_SHARED_LIBRARIES := libpcre
 
-LOCAL_STATIC_LIBRARIES := libsipXmedia libsipXtack libsipXsdp libsipXport libpcre
+LOCAL_STATIC_LIBRARIES := libsipXmedia libsipXtack libsipXsdp libsipXport
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
@@ -108,8 +108,8 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include \
 
 
-#LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmediaAdapter libsipXmedia libsipXport libpcre $(SIPX_CODEC_LIBS)
+LOCAL_SHARED_LIBRARIES := libpcre 
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXmediaAdapter libsipXmedia libsipXport $(SIPX_CODEC_LIBS)
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
