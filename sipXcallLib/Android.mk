@@ -61,9 +61,9 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaAdapterLib/interface \
     $(SIPX_HOME)/sipXcallLib/include
 
-#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter
+LOCAL_SHARED_LIBRARIES := libpcre 
 
-LOCAL_STATIC_LIBRARIES := libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport libpcre
+LOCAL_STATIC_LIBRARIES := libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport 
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
@@ -106,7 +106,8 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaAdapterLib/interface \
     $(SIPX_HOME)/sipXcallLib/include
 
-LOCAL_STATIC_LIBRARIES := libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport libpcre $(SIPX_CODEC_LIBS)
+LOCAL_SHARED_LIBRARIES := libpcre 
+LOCAL_STATIC_LIBRARIES := libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport $(SIPX_CODEC_LIBS)
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
@@ -147,9 +148,9 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXcallLib/include \
     $(SIPX_HOME)/sipXcallLib/src/test \
 
-#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter
+LOCAL_SHARED_LIBRARIES := libpcre
 
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport libpcre $(SIPX_CODEC_LIBS)
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport $(SIPX_CODEC_LIBS)
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
@@ -208,10 +209,8 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXcallLib/include \
     $(SIPX_HOME)/sipXcallLib/src/test \
 
-#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter
-
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport libpcre $(SIPX_CODEC_LIBS)
-LOCAL_SHARED_LIBRARIES := libsipXtapi
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXcall libsipXmediaAdapter libsipXmedia libsipXtack libsipXsdp libsipXport $(SIPX_CODEC_LIBS)
+LOCAL_SHARED_LIBRARIES := libsipXtapi libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
