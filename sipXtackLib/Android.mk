@@ -158,9 +158,9 @@ $(SIPX_HOME)/sipXtackLib/include/net/version.h:
 	echo '#endif' >> $(SIPX_HOME)/sipXtackLib/include/net/version.h
 
 
-#LOCAL_SHARED_LIBRARIES := libpcre libsipXport libsipXsdp
+LOCAL_SHARED_LIBRARIES := libpcre
 
-LOCAL_STATIC_LIBRARIES := libsipXsdp libsipXport libpcre 
+LOCAL_STATIC_LIBRARIES := libsipXsdp libsipXport
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
@@ -227,8 +227,8 @@ LOCAL_C_INCLUDES += \
 LOCAL_C_INCLUDES += \
     $(ANDROID_CORE_PATH)/bionic/libc/private
 
-#LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXport libpcre 
+LOCAL_SHARED_LIBRARIES := libpcre 
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXport
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
@@ -264,8 +264,8 @@ LOCAL_C_INCLUDES += \
 LOCAL_C_INCLUDES += \
     $(ANDROID_CORE_PATH)/bionic/libc/private
 
-#LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXport libpcre
+LOCAL_SHARED_LIBRARIES := libpcre
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXport
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
@@ -325,8 +325,8 @@ LOCAL_C_INCLUDES += \
 LOCAL_C_INCLUDES += \
     $(ANDROID_CORE_PATH)/bionic/libc/private
 
-#LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXport libpcre
+LOCAL_SHARED_LIBRARIES := libpcre
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXtack libsipXport
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
