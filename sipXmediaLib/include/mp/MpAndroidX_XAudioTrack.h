@@ -24,6 +24,8 @@
 #    ifndef LOG_TAG
 #        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_TRACK
 #    endif
+extern "C" int setpriority(int, int, int);
+#define PRIO_PROCESS 0
 #else
 #    error Unsupported version of Android AudioTrack
 #endif
@@ -33,6 +35,7 @@
 
 // SYSTEM INCLUDES
 #include <media/AudioTrack.h>
+#include <private/media/AudioTrackShared.h>
 
 // DEFINES
 // MACROS
@@ -80,6 +83,105 @@ public:
       dummy2 = 7;
    };
 
+   void start()
+   {
+       LOGD("SipxAudioTrack::start() entered");
+#ifdef ANDROID_2_0
+       AudioTrack::start();
+#else
+    // Code from Android 2.3 AudioTrack::start() added here as it hangs on Android 3.0
+    // BEGIN ANDROID CODE
+    //////////////////////////////////////////////////////////////////////////////////
+/* //device/extlibs/pv/android/AudioTrack.cpp
+**
+** Copyright 2007, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+    
+    sp<AudioTrackThread> t = mAudioTrackThread;
+    status_t status;
+
+    LOGV("start %p", this);
+    if (t != 0) {
+        if (t->exitPending()) {
+            //LOGD("SipxAudioTrack::start() exitPending");
+
+            if (t->requestExitAndWait() == WOULD_BLOCK) {
+                LOGE("AudioTrack::start called from thread");
+                return;
+            }
+        }
+        else
+        {
+            //LOGD("SipxAudioTrack::start() NOT exitPending");
+        }
+        t->mLock.lock();
+     }
+     //LOGD("SipxAudioTrack::start() after t->mLock.lock");
+
+    if (android_atomic_or(1, &mActive) == 0) {
+        mNewPosition = mCblk->server + mUpdatePeriod;
+        mCblk->bufferTimeoutMs = MAX_STARTUP_TIMEOUT_MS;
+        mCblk->waitTimeMs = 0;
+        mCblk->flags &= ~CBLK_DISABLED_ON;
+        if (t != 0) {
+           //LOGD("SipxAudioTrack::start() about to t->run");
+           t->run("AudioTrackThread", THREAD_PRIORITY_AUDIO_CLIENT);
+        } else {
+           //LOGD("SipxAudioTrack::start() about to setpriority");
+            setpriority(PRIO_PROCESS, 0, THREAD_PRIORITY_AUDIO_CLIENT);
+        }
+           //LOGD("SipxAudioTrack::start() after set priority");
+
+        if (mCblk->flags & CBLK_INVALID_MSK) {
+            LOGW("start() track %p invalidated, creating a new one", this);
+            // no need to clear the invalid flag as this cblk will not be used anymore
+            // force new track creation
+            status = DEAD_OBJECT;
+        } else {
+            status = mAudioTrack->start();
+        }
+        //LOGD("SipxAudioTrack::start() after mAudioTrack->start()");
+        if (status == DEAD_OBJECT) {
+            LOGV("start() dead IAudioTrack: creating a new one");
+            status = createTrack(mStreamType, mCblk->sampleRate, mFormat, mChannelCount,
+                                 mFrameCount, mFlags, mSharedBuffer, getOutput(), false);
+            if (status == NO_ERROR) {
+                status = mAudioTrack->start();
+                if (status == NO_ERROR) {
+                    mNewPosition = mCblk->server + mUpdatePeriod;
+                }
+            }
+        }
+        if (status != NO_ERROR) {
+            LOGV("start() failed");
+            android_atomic_and(~1, &mActive);
+            if (t != 0) {
+                t->requestExit();
+            } else {
+                setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_NORMAL);
+            }
+        }
+    }
+
+    if (t != 0) {
+        t->mLock.unlock();
+    }
+    //////////////////////////////////////////////////////////////////////////
+    // END ANDROID CODE
+#endif
+   };
 
 private:
    SipxAudioTrack(const SipxAudioTrack&); // no copy
@@ -179,7 +281,7 @@ private:
       /// Assignment operator (not implemented for this class)
     MP_ANDROID_AUDIO_TRACK& operator=(const MP_ANDROID_AUDIO_TRACK& rhs);
 
-    AudioTrack* mpAudioTrack;
+    SipxAudioTrack* mpAudioTrack;
 };
 
 /* ============================ INLINE METHODS ============================ */
