@@ -119,6 +119,7 @@ OsStatus MpodAndroid::enableDevice(unsigned samplesPerFrame,
 
    if (isEnabled())
    {
+      LOGE("MpodAndroid::enableDevice() already enabled");
       return OS_FAILED;
    }
 
@@ -153,6 +154,7 @@ OsStatus MpodAndroid::enableDevice(unsigned samplesPerFrame,
    mpAudioTrack->dumpAudioTrack("MpodAndroid::enableDevice");
    mLock.unlock();
    mpAudioTrack->start();
+   mpAudioTrack->dumpAudioTrack("MpodAndroid::enableDevice after start");
    mLock.lock();
    if (mState == DRIVER_STARTING) {
       LOGV("MpodAndroid::enableDevice() waiting for start callback");
@@ -338,6 +340,7 @@ initAudioTrack_exit:
 
 void MpodAndroid::audioCallback(int event, void* user, void *info)
 {
+   //LOGV("MpodAndroid::audioCallback(event=%d)\n", event);
    RTL_BLOCK("MpodAndroid::audioCallback");
    bool lSignal = false;
    if (event != MpAndroidAudioTrack::EVENT_MORE_DATA)
