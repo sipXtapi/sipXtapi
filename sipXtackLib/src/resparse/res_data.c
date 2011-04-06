@@ -56,7 +56,8 @@ static char rcsid[] = "";
 
 #include "resparse/res_config.h"
 
-#if !defined(__pingtel_on_posix__) || defined(INCLUDE_SIPX_RESPARSE)
+/* Define on ANDROID as Android 3.0 and above does not */
+#if !defined(__pingtel_on_posix__) || defined(INCLUDE_SIPX_RESPARSE) || defined(ANDROID)
 const char *_res_opcodes[] = {
         "QUERY",
         "IQUERY",
