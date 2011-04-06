@@ -30,6 +30,7 @@
 #include <binder/IMemory.h>
 #include <utils/threads.h>
 
+class SipxAudioTrack;
 
 namespace android {
 
@@ -421,7 +422,7 @@ private:
     /* copying audio tracks is not allowed */
                         AudioTrack(const AudioTrack& other);
             AudioTrack& operator = (const AudioTrack& other);
-
+protected:
     /* a small internal class to handle the callback */
     class AudioTrackThread : public Thread
     {
@@ -429,6 +430,7 @@ private:
         AudioTrackThread(AudioTrack& receiver, bool bCanCallJava = false);
     private:
         friend class AudioTrack;
+        friend class ::SipxAudioTrack;
         virtual bool        threadLoop();
         virtual status_t    readyToRun();
         virtual void        onFirstRef();
