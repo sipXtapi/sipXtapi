@@ -176,9 +176,9 @@ LOCAL_C_INCLUDES += \
 LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/libpcre
 
-#LOCAL_SHARED_LIBRARIES := libpcre
+LOCAL_SHARED_LIBRARIES := libpcre
 
-LOCAL_STATIC_LIBRARIES := libpcre
+#LOCAL_STATIC_LIBRARIES := libpcre
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
@@ -255,8 +255,8 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
 
 
-#LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
+LOCAL_SHARED_LIBRARIES := libpcre
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport 
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
@@ -344,8 +344,8 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
 
 
-#LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
+LOCAL_SHARED_LIBRARIES := libpcre
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
@@ -435,8 +435,8 @@ LOCAL_C_INCLUDES += \
     $(SIPX_HOME)/sipXportLib/src/test/sipxportunit \
 
 
-#LOCAL_SHARED_LIBRARIES :=
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libpcre
+LOCAL_SHARED_LIBRARIES := libpcre
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
