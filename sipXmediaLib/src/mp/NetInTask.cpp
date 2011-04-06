@@ -150,7 +150,7 @@ private:
 
 
 NetInTaskHelper::NetInTaskHelper(int port)
-: OsTask("NetInTaskHelper-%d", NULL, 25, 0, 2000)
+: OsTask("NetInTaskHelper-%d", NULL, 25, 0, 16000)
 , mpSocket(NULL)
 , mPort(port)
 {
