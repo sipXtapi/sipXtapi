@@ -206,6 +206,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                  numBufferedFrames,    // number of buffered frames
                                  *MpMisc.RawAudioPool);
 
+    OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl MpInputDeviceManager constructed");
     mpOutputDeviceManager =
         new MpOutputDeviceManager(mgrSamplesPerFrame,    // samples per frame
                                   mDefaultSamplesPerSec, // samples per second
@@ -238,7 +239,9 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
        INPUT_DRIVER *sourceDevice =
           new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*mpInputDeviceManager,
                                                            tmpInputDeviceName));
+
        MpInputDeviceHandle sourceDeviceId = mpInputDeviceManager->addDevice(*sourceDevice);
+       OsSysLog::add(FAC_CP, (sourceDeviceId > 0) ? PRI_INFO : PRI_ERR, "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl mpInputDeviceManager->addDevice returned: %d", sourceDeviceId);
        assert(sourceDeviceId > 0);
 
        // Create sink (output) device and add it to manager.
@@ -247,6 +250,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
        OUTPUT_DRIVER *sinkDevice =
           new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(tmpOutputDeviceName));
        MpOutputDeviceHandle sinkDeviceId = mpOutputDeviceManager->addDevice(sinkDevice);
+       OsSysLog::add(FAC_CP, (sinkDeviceId > 0) ? PRI_INFO : PRI_ERR, "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl mpOutputDeviceManager->addDevice returned: %d", sourceDeviceId);
        assert(sinkDeviceId > 0);
 
        OsStatus tempRes;
@@ -269,6 +273,10 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
           // Use our output device as a source of media task ticks.
           tempRes = mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId,
                                                                     pTickerNotf);
+          if(tempRes != OS_SUCCESS)
+          {
+             OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl mpOutputDeviceManager->setFlowgraphTickerSource returned: %d", tempRes);
+          }
           assert(tempRes == OS_SUCCESS);
        }
        else
