@@ -67,6 +67,10 @@
 #include "utl/UtlSList.h"
 #include "utl/UtlHashMapIterator.h"
 
+#ifdef ANDROID
+#include <mp/MpAndroidAudioTrack.h>
+#endif
+
 #ifdef VOICE_ENGINE
 #include "include/VoiceEngineFactoryImpl.h"
 #else
@@ -300,8 +304,41 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 #else
 #warning "Network availability check not implemented on non-WIN32"
 #endif
+
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
+
+#ifdef ANDROID
+// Load and initialize correct driver for this version of Android
+    OsStatus stat = MpAndroidAudioTrack::setAudioTrackCreator();
+    switch(stat)
+    {
+        // Things are good continue
+        case OS_SUCCESS:
+        break;
+
+        // Could not find audio driver symbol in sipX android audio drivers shared lib
+        case OS_PLATFORM_NOT_SUPPORTED:
+            rc = SIPX_RESULT_OS_PLATFORM_UNSUPPORTED;
+        break;
+
+        // Could not find sipX android audio drivers shared lib specific to this version
+        case OS_NOT_FOUND:
+            rc = SIPX_RESULT_LIB_NOT_FOUND;
+        break;
+
+        // Unknown case
+            rc = SIPX_RESULT_NOT_SUPPORTED;
+        default:
+
+        break;
+    }
+    if(stat != OS_SUCCESS)
+    {
+        return(rc);
+    }
+#endif
    
-    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
+    rc = SIPX_RESULT_INVALID_ARGS ;
 
 #ifdef SIPXTAPI_EVAL_EXPIRATION
     OsDateTime expireDate(EVAL_EXPIRE_YEAR, EVAL_EXPIRE_MONTH, EVAL_EXPIRE_DAY, 23, 59, 59, 0) ;
@@ -4876,14 +4913,22 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetAECMode(const SIPX_INST hInst,
 
         if (pInterface && !pInst->aecSetting.bInitialized)
         {
+            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                          "sipxAudioGetAECMode !aecSetting.bInitialized");
             MEDIA_AEC_MODE aceMode ;
-            if (pInterface->getAudioAECMode(aceMode) == OS_SUCCESS)
+            OsStatus miStatus = pInterface->getAudioAECMode(aceMode);
+            if (miStatus == OS_SUCCESS)
             {
                 pInst->aecSetting.bInitialized = true;
                 pInst->aecSetting.mode = (SIPX_AEC_MODE) aceMode ;
                 mode = (SIPX_AEC_MODE) aceMode ;
 
                 sr = SIPX_RESULT_SUCCESS;
+            }
+            else
+            {
+                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                              "sipxAudioGetAECMode getAudioAECMode returned: %d", miStatus);
             }
         }
         else
