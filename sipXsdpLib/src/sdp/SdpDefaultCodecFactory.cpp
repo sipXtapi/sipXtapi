@@ -1130,7 +1130,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
       break;
 
    default:
-      osPrintf("\n\n  **** Unsupported codec: %d **** \n\n",
+      OsSysLog::add(FAC_SDP, PRI_ERR, "\n\n  **** Unsupported codec: %d **** \n\n",
                internalCodecId);
       assert(FALSE);
       return SdpCodec();
