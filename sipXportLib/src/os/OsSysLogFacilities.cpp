@@ -71,6 +71,7 @@ const char* OsSysLog::sFacilityNames[] =
    "VIDEOENGINE",
    "APP",
    "SIP_CUSTOM",
+   "SDP",
    "UNKNOWN"
 } ;
 
