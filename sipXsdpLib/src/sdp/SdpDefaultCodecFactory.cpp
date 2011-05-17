@@ -16,6 +16,7 @@
 
 // APPLICATION INCLUDES
 #include <sdp/SdpDefaultCodecFactory.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
