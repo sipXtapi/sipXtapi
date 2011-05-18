@@ -1,5 +1,5 @@
 
-SUBDIRS = sipxunit testplugin
+SUBDIRS = @SIPX_UNIT_TARGET@ testplugin
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
@@ -11,7 +11,7 @@ check_PROGRAMS = testsuite sandbox UtlListPerformance UtlHashMapPerformance
 ## To load source in gdb for libsipXport.la, type the 'share' at the
 ## gdb console just before stepping into function in sipXportLib
 testsuite_LDADD = \
-    sipxunit/libsipXunit.la \
+    @SIPX_UNIT_TARGET@/libsipXunit.la \
     ../libsipXport.la
 
 testsuite_CXXFLAGS = \
@@ -56,8 +56,6 @@ testsuite_SOURCES = \
     os/OsTimerTaskTest.cpp \
     os/OsTimerTest.cpp \
     os/OsTimeTest.cpp \
-    os/StunMessageTest.cpp \
-    os/TurnMessageTest.cpp \
     utl/PluginHooksTest.cpp \
     utl/TestPlugin.h \
     utl/UtlChainTest.cpp \
@@ -74,7 +72,6 @@ testsuite_SOURCES = \
     utl/UtlInt.cpp \
     utl/UtlLinkTest.cpp \
     utl/UtlLongLongInt.cpp \
-    utl/UtlRegex.cpp \
     utl/UtlRegex.cpp \
     utl/UtlSList.cpp \
     utl/UtlSListIteratorTest.cpp \
