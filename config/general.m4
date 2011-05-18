@@ -123,16 +123,19 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
     fi
   fi
 
+  SIPX_UNIT_TARGET="sipxunit"
+
   if test "x$no_cppunit" = x ; then
      ifelse([$2], , :, [$2])
   else
-     CPPUNIT_CFLAGS=""
+     CPPUNIT_CFLAGS=" -DNO_CPPUNIT -I./sipxportunit "
      CPPUNIT_LIBS=""
-     ifelse([$3], , :, [$3])
+     SIPX_UNIT_TARGET="sipxportunit"
   fi
 
   AC_SUBST(CPPUNIT_CFLAGS)
   AC_SUBST(CPPUNIT_LIBS)
+  AC_SUBST(SIPX_UNIT_TARGET)
 ])   
 
 AC_DEFUN([CHECK_CPPUNIT],
@@ -815,7 +818,7 @@ AC_DEFUN([CHECK_PCRE],
 
     # Check for libpcre.{so,a} in the specified lib directory if any, and a
     # number of other likely places.
-    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib /opt/local/lib /sw/lib; do
+    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib /usr/lib64 /opt/local/lib /sw/lib; do
         if test -f "$dir/libpcre.so" -o -f "$dir/libpcre.a"; then
             found_pcre_lib="yes";
             libval=$dir
