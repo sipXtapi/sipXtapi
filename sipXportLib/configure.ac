@@ -69,6 +69,7 @@ AC_CONFIG_FILES([
   src/Makefile 
   src/test/Makefile
   src/test/sipxunit/Makefile
+  src/test/sipxportunit/Makefile
   src/test/testplugin/Makefile
   syslogviewer/Makefile
   doc/Makefile
