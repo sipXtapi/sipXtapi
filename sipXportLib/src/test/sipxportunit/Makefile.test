@@ -10,7 +10,10 @@
 # Author: Daniel Petrie
 #         dpetrie AT SIPez DOT com
 #////////////////////////////////////////////////////////////////////////////
-
+#
+# This make files is used to build test executables for testing the unit test.
+# i.e. a test of the test framework.  It is not used for production use of the
+# unit test suite.
 
 
 unitexec : SipxPortUnitTest*.cpp main.cpp foo.cpp bar.cpp
