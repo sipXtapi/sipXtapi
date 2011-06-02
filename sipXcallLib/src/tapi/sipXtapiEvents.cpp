@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -1620,7 +1623,7 @@ void sipxFireMediaEvent(const void* pSrc,
                                 break ;
 
                             case MEDIA_MIC_ENERGY_LEVEL:
-                                mediaInfo.idleTime = (int) pEventData;
+                                mediaInfo.idleTime = (intptr_t) pEventData;
                                 break;
 
                             case MEDIA_REMOTE_SILENT:
