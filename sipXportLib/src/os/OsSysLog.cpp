@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -702,6 +702,36 @@ OsStatus OsSysLog::parseLogString(const char *szSource,
 
    return OS_SUCCESS ;
 }
+
+OsStatus OsSysLog::getPriorityName(OsSysLogPriority priorityId, UtlString& name)
+{
+    OsStatus status = OS_NOT_FOUND;
+    if(priorityId >= 0 && priorityId < sPriorityNamesNum)
+    {
+        name = sPriorityNames[priorityId];
+        status = OS_SUCCESS;
+    }
+
+    return(status);
+}
+
+OsStatus OsSysLog::getPriorityForName(const UtlString& name, OsSysLogPriority& priorityId)
+{
+    OsStatus status = OS_NOT_FOUND;
+    priorityId = (OsSysLogPriority) sPriorityNamesNum;
+    for(int nameIndex = 0; nameIndex < sPriorityNamesNum; nameIndex++)
+    {
+        if(name.compareTo(sPriorityNames[nameIndex]) == 0)
+        {
+            priorityId = (OsSysLogPriority) nameIndex;
+            status = OS_SUCCESS;
+            break;
+        }
+    }
+
+    return(status);
+}
+
 /* ============================ INQUIRY =================================== */
 
 // Get the present logging priority

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2011 SIPez LLC. All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -421,6 +424,12 @@ public:
                                   UtlString& processId,
                                   UtlString& content) ;
    //:Parses a log string into its parts.
+
+   static OsStatus getPriorityName(OsSysLogPriority priorityId, UtlString& name);
+     //: Get the string name for the given priority level
+
+   static OsStatus getPriorityForName(const UtlString& name, OsSysLogPriority& priorityId);
+     //: Get the priority level for the given string (case sensitive)
 
 /* ============================ INQUIRY =================================== */
 
