@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2010 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -929,8 +929,11 @@ UtlBoolean CpPeerCall::handleRejectConnection(OsMsg* pEventMessage)
 {
     UtlString remoteAddress;
     UtlBoolean connectionFound = FALSE;
+    UtlString errorText;
 
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
+    ((CpMultiStringMessage*)pEventMessage)->getString3Data(errorText);
+    int errorCode = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
     // This is a bit of a hack/short cut.
     // Find the first remote connection which is in the OFFERING
@@ -964,7 +967,7 @@ UtlBoolean CpPeerCall::handleRejectConnection(OsMsg* pEventMessage)
 
             if(connectState == Connection::CONNECTION_OFFERING)
             {
-                connection->reject();
+                connection->reject(errorCode, errorText);
                 connectionFound = TRUE;
                 break;
             }

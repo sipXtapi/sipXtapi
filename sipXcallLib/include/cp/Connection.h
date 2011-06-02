@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -272,7 +272,7 @@ public:
                              const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
                              UtlBoolean sendEarlyMedia = FALSE) = 0;
 
-   virtual UtlBoolean reject() = 0;
+   virtual UtlBoolean reject(int errorCode = 0, const char* errorText = "") = 0;
 
    virtual UtlBoolean redirect(const char* forwardAddress) = 0;
 

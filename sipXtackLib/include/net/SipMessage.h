@@ -1,6 +1,6 @@
 //
 // 
-// Copyright (C) 2005, 2006 SIPez LLC
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2005, 2006 SIPfoundry Inc.
@@ -760,6 +760,8 @@ public:
     void setLoopDetectedData(const SipMessage* inviteRequest);
 
     void setInviteBusyData(const SipMessage* inviteRequest);
+
+    void setInviteErrorData(const SipMessage* inviteRequest, int errorCode, const UtlString& errorText);
 
     void setInviteOkData(const SipMessage* inviteRequest,                         
                          int maxSessionExpiresSeconds,

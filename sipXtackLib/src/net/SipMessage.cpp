@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2010 SIPez LLC.
+// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -721,6 +721,11 @@ void SipMessage::setLoopDetectedData(const SipMessage* inviteRequest)
 
 void SipMessage::setInviteBusyData(const SipMessage* inviteRequest)
 {
+   setInviteErrorData(inviteRequest, SIP_BUSY_CODE, SIP_BUSY_TEXT);
+}
+
+void SipMessage::setInviteErrorData(const SipMessage* inviteRequest, int errorCode, const UtlString& errorText)
+{
    UtlString fromField;
    UtlString toField;
    UtlString callId;
@@ -734,8 +739,9 @@ void SipMessage::setInviteBusyData(const SipMessage* inviteRequest)
    inviteRequest->getCallIdField(&callId);
    inviteRequest->getCSeqField(&sequenceNum, &sequenceMethod);
 
-   setInviteBusyData(fromField.data(), toField.data(),
-      callId.data(), sequenceNum);
+   setResponseData(errorCode, errorText,
+                   fromField, toField,
+                   callId, sequenceNum, SIP_INVITE_METHOD);
 
    setViaFromRequest(inviteRequest);
 }

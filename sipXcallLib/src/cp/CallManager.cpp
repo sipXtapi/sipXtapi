@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -1935,10 +1935,10 @@ void CallManager::acceptConnection(const char* callId,
 
 
 
-void CallManager::rejectConnection(const char* callId, const char* address)
+void CallManager::rejectConnection(const char* callId, const char* address, int errorCode, const char* errorText)
 {
-    CpMultiStringMessage acceptMessage(CP_REJECT_CONNECTION, callId, address);
-    postMessage(acceptMessage);
+    CpMultiStringMessage rejectMessage(CP_REJECT_CONNECTION, callId, address, errorText, NULL, NULL, errorCode);
+    postMessage(rejectMessage);
 }
 
 PtStatus CallManager::redirectConnection(const char* callId, const char* address,

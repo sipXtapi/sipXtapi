@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2008 SIPez LLC.
+// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -499,7 +499,9 @@ public:
      * causes a  486 Busy Here response to be sent.
      */
     virtual void rejectConnection(const char* callId,
-                                  const char* address) = 0;
+                                  const char* address, 
+                                  int errorCode = 0, 
+                                  const char* errorText =  "") = 0;
 
     //! Redirect the incoming connection
     /*! Progress the connection from the OFFERING state to

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -160,7 +160,7 @@ UtlBoolean CpGhostConnection::hold()
     unimplemented("CpGhostConnection::hold");
     return(FALSE);
 }
-UtlBoolean CpGhostConnection::reject()
+UtlBoolean CpGhostConnection::reject(int errorCode, const char* errorText)
 {
     unimplemented("CpGhostConnection::reject");
     return(FALSE);

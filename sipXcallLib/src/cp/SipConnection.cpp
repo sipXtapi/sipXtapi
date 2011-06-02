@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -1633,7 +1633,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
 }
 
 
-UtlBoolean SipConnection::reject()
+UtlBoolean SipConnection::reject(int errorCode, const char* errorText)
 {
     UtlBoolean responseSent = FALSE;
     if(inviteMsg && !inviteFromThisSide)
@@ -1661,9 +1661,11 @@ UtlBoolean SipConnection::reject()
             }
             else
             {
-                SipMessage busyMessage;
-                busyMessage.setInviteBusyData(inviteMsg);
-                responseSent = send(busyMessage);
+                SipMessage rejectMessage;
+                rejectMessage.setInviteErrorData(inviteMsg,
+                                                 errorCode < 400 ? SIP_BUSY_CODE : errorCode,
+                                                 (errorText == NULL || errorText[0] == '\0') ? SIP_BUSY_TEXT : errorText);
+                responseSent = send(rejectMessage);
 #ifdef TEST_PRINT
                 osPrintf("SipConnection::reject - CONNECTION_FAILED, cause BUSY : 833\n");
 #endif

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2009 SIPez LLC.
+// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -1058,8 +1058,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallReject(const SIPX_CALL hCall,
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallReject");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxCallReject hCall=%d",
-        hCall);
+        "sipxCallReject hCall=%d code=%d text=\"%s\"",
+        hCall, errorCode, szErrorText);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA* pInst ;
@@ -1071,7 +1071,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallReject(const SIPX_CALL hCall,
         assert(remoteAddress.length()) ;
         if (remoteAddress.length())
         {
-            pInst->pCallManager->rejectConnection(callId.data(), remoteAddress.data()) ;
+            pInst->pCallManager->rejectConnection(callId.data(), remoteAddress.data(), errorCode, szErrorText) ;
         }
         sr = SIPX_RESULT_SUCCESS ;
     }

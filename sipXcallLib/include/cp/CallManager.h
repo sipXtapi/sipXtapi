@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -200,7 +200,7 @@ public:
                                   const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
                                   UtlBoolean sendEarlyMedia = FALSE);
                                   
-    virtual void rejectConnection(const char* callId, const char* address);
+    virtual void rejectConnection(const char* callId, const char* address, int errorCode = 0, const char* errorText =  "");
     virtual PtStatus redirectConnection(const char* callId, const char* address, const char* forwardAddressUrl);
     virtual void dropConnection(const char* callId, const char* address);
     virtual void getNumConnections(const char* callId, int& numConnections);
