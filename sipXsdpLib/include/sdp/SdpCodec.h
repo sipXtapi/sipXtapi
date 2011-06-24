@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2008 SIPez LLC.
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -50,23 +50,33 @@
 #define MIME_SUBTYPE_SPEEX "speex"
 #define MIME_SUBTYPE_AMR "amr"
 #define MIME_SUBTYPE_AMRWB "amr-wb"
+#define MIME_SUBTYPE_AAC_LC "AAC_LC"
 #define MIME_SUBTYPE_VP71 "VP71"
 #define MIME_SUBTYPE_IYUV "IYUV"
 #define MIME_SUBTYPE_I420 "I420"
 #define MIME_SUBTYPE_RGB24 "RGB24"
 #define MIME_SUBTYPE_H263 "H263"
+#define MIME_SUBTYPE_H264 "H264"
 
 // Bandwidth requirements for SDP Codecs
 #define SDP_CODEC_BANDWIDTH_VARIABLE 0
 #define SDP_CODEC_BANDWIDTH_LOW      1
 #define SDP_CODEC_BANDWIDTH_NORMAL   2
 #define SDP_CODEC_BANDWIDTH_HIGH     3
+#define SDP_CODEC_BANDWIDTH_VERY_HIGH 4
 
 // Video formats - must be bitmap values
 #define SDP_VIDEO_FORMAT_SQCIF       0x0001
 #define SDP_VIDEO_FORMAT_QCIF        0x0002
 #define SDP_VIDEO_FORMAT_CIF         0x0004
 #define SDP_VIDEO_FORMAT_QVGA        0x0008
+#define SDP_VIDEO_FORMAT_VGA         0x0010
+#define SDP_VIDEO_FORMAT_NTSC        0x0020
+#define SDP_VIDEO_FORMAT_4CIF        0x0040
+#define SDP_VIDEO_FORMAT_EDTV        0x0080
+#define SDP_VIDEO_FORMAT_QHD         0x0100
+#define SDP_VIDEO_FORMAT_HD720       0x0200
+#define SDP_VIDEO_FORMAT_HD1088      0x0400
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -197,7 +207,26 @@ public:
         SDP_CODEC_H263_CIF,
         SDP_CODEC_H263_QCIF,
         SDP_CODEC_H263_SQCIF,
-        SDP_CODEC_H263_QVGA
+        SDP_CODEC_H263_QVGA,
+        SDP_CODEC_H264,
+        SDP_CODEC_H264_CIF_256,
+        SDP_CODEC_H264_NTSC_256,
+        SDP_CODEC_H264_4CIF_512,
+        SDP_CODEC_H264_EDTV_512,
+        SDP_CODEC_H264_QHD_1024,
+        SDP_CODEC_H264_HD720_1024,
+        SDP_CODEC_H264_HD720_2048,
+        SDP_CODEC_H264_HD1088_2048,
+        SDP_CODEC_H264_HD1088_4096,
+        SDP_CODEC_H264_PM1_CIF_256,
+        SDP_CODEC_H264_PM1_NTSC_256,
+        SDP_CODEC_H264_PM1_4CIF_512,
+        SDP_CODEC_H264_PM1_EDTV_512,
+        SDP_CODEC_H264_PM1_QHD_1024,
+        SDP_CODEC_H264_PM1_HD720_1024,
+        SDP_CODEC_H264_PM1_HD720_2048,
+        SDP_CODEC_H264_PM1_HD1088_2048,
+        SDP_CODEC_H264_PM1_HD1088_4096
         //@}
     };
 
@@ -206,7 +235,8 @@ public:
     enum SdpCodecCPUCost
     {
        SDP_CODEC_CPU_LOW = 0,
-       SDP_CODEC_CPU_HIGH = 1
+       SDP_CODEC_CPU_HIGH = 1,
+       SDP_CODEC_CPU_VERY_HIGH = 2
     };
 
 

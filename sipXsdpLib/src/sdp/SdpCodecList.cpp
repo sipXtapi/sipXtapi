@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -39,7 +39,7 @@
 SdpCodecList::SdpCodecList(int numCodecs, SdpCodec* codecs[])
 : mReadWriteMutex(OsRWMutex::Q_FIFO)
 {
-   mCodecCPULimit = SdpCodec::SDP_CODEC_CPU_HIGH ;
+   mCodecCPULimit = SdpCodec::SDP_CODEC_CPU_VERY_HIGH ;
    addCodecs(numCodecs, codecs);
 }
 

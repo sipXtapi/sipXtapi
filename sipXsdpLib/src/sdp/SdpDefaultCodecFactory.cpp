@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -87,7 +87,25 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_L16_24000_STEREO, "l16", 24000, 2,  NULL },
    { SdpCodec::SDP_CODEC_L16_32000_STEREO, "l16", 32000, 2,  NULL },
    { SdpCodec::SDP_CODEC_L16_44100_STEREO, "l16", 44100, 2,  NULL },
-   { SdpCodec::SDP_CODEC_L16_48000_STEREO, "l16", 48000, 2,  NULL }
+   { SdpCodec::SDP_CODEC_L16_48000_STEREO, "l16", 48000, 2,  NULL },
+   { SdpCodec::SDP_CODEC_H264_CIF_256,         "h264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=396;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_NTSC_256,        "h264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=330;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_4CIF_512,        "h264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1584;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_EDTV_512,        "h264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1320;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_QHD_1024,        "h264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=2040;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_HD720_1024,      "h264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=3600;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_HD720_2048,      "h264", 90000, 1, "profile-level-id=428020;max-mbps=216000;max-fs=3600;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_HD1088_2048,     "h264", 90000, 1, "profile-level-id=428028;max-mbps=245760;max-fs=8160;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_HD1088_4096,     "h264", 90000, 1, "profile-level-id=42802A;max-mbps=522240;max-fs=8160;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_PM1_CIF_256,     "h264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=396;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_NTSC_256,    "h264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=330;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_4CIF_512,    "h264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1584;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_EDTV_512,    "h264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1320;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_QHD_1024,    "h264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=2040;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD720_1024,  "h264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=3600;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD720_2048,  "h264", 90000, 1, "profile-level-id=428020;max-mbps=216000;max-fs=3600;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD1088_2048, "h264", 90000, 1, "profile-level-id=428028;max-mbps=245760;max-fs=8160;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD1088_4096, "h264", 90000, 1, "profile-level-id=42802A;max-mbps=522240;max-fs=8160;packetization-mode=1" },
 };
 #define SIZEOF_MIME_INFO_MAP     \
    (sizeof(sgMimeInfoMap) / sizeof(sgMimeInfoMap[0]))
@@ -168,6 +186,24 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_H263_QCIF,       "H263-QCIF" },
    { SdpCodec::SDP_CODEC_H263_SQCIF,      "H263-SQCIF" },
    { SdpCodec::SDP_CODEC_H263_QVGA,       "H263-QVGA" },
+   { SdpCodec::SDP_CODEC_H264_PM1_CIF_256, "H264_PM1_CIF_256" },
+   { SdpCodec::SDP_CODEC_H264_PM1_NTSC_256, "H264_PM1_NTSC_256" },
+   { SdpCodec::SDP_CODEC_H264_PM1_4CIF_512, "H264_PM1_4CIF_512" },
+   { SdpCodec::SDP_CODEC_H264_PM1_EDTV_512, "H264_PM1_EDTV_512" },
+   { SdpCodec::SDP_CODEC_H264_PM1_QHD_1024, "H264_PM1_QHD_1024" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD720_1024, "H264_PM1_HD720_1024" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD720_2048, "H264_PM1_HD720_2048" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD1088_2048, "H264_PM1_HD1088_2048" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD1088_4096, "H264_PM1_HD1088_4096" },
+   { SdpCodec::SDP_CODEC_H264_CIF_256, "H264_CIF_256" },
+   { SdpCodec::SDP_CODEC_H264_NTSC_256, "H264_NTSC_256" },
+   { SdpCodec::SDP_CODEC_H264_4CIF_512, "H264_4CIF_512" },
+   { SdpCodec::SDP_CODEC_H264_EDTV_512, "H264_EDTV_512" },
+   { SdpCodec::SDP_CODEC_H264_QHD_1024, "H264_QHD_1024" },
+   { SdpCodec::SDP_CODEC_H264_HD720_1024, "H264_HD720_1024" },
+   { SdpCodec::SDP_CODEC_H264_HD720_2048, "H264_HD720_2048" },
+   { SdpCodec::SDP_CODEC_H264_HD1088_2048, "H264_HD1088_2048" },
+   { SdpCodec::SDP_CODEC_H264_HD1088_4096, "H264_HD1088_4096" },
    { SdpCodec::SDP_CODEC_RGB24_CIF,       "RGB24-CIF" },
    { SdpCodec::SDP_CODEC_RGB24_QCIF,      "RGB24-QCIF" },
    { SdpCodec::SDP_CODEC_RGB24_SQCIF,     "RGB24-SQCIF" },
@@ -1114,6 +1150,276 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
       }
       break;
 
+   case SdpCodec::SDP_CODEC_H264_CIF_256:
+     { 
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_CIF_256,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42800D;max-mbps=11880;max-fs=396;packetization-mode=0",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_CIF));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_NTSC_256:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_NTSC_256,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42800D;max-mbps=11880;max-fs=330;packetization-mode=0",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_NTSC));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_4CIF_512:
+      { 
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_4CIF_512,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42801E;max-mbps=40500;max-fs=1584;packetization-mode=0",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_4CIF));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_EDTV_512:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_EDTV_512,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42801E;max-mbps=40500;max-fs=1320;packetization-mode=0",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_EDTV));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_QHD_1024:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_QHD_1024,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42801F;max-mbps=108000;max-fs=2040;packetization-mode=0",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_QHD));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_HD720_1024:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_HD720_1024,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42801F;max-mbps=108000;max-fs=3600;packetization-mode=0",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_HD720));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_HD720_2048:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_HD720_2048,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=428020;max-mbps=216000;max-fs=3600;packetization-mode=0",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_VERY_HIGH,
+                         SDP_VIDEO_FORMAT_HD720));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_HD1088_2048:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_HD1088_2048,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=428028;max-mbps=245760;max-fs=8160;packetization-mode=0",
+                         SdpCodec::SDP_CODEC_CPU_VERY_HIGH,
+                         SDP_CODEC_BANDWIDTH_VERY_HIGH,
+                         SDP_VIDEO_FORMAT_HD1088));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_HD1088_4096:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_HD1088_4096,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42802A;max-mbps=522240;max-fs=8160;packetization-mode=0",
+                         SdpCodec::SDP_CODEC_CPU_VERY_HIGH,
+                         SDP_CODEC_BANDWIDTH_VERY_HIGH,
+                         SDP_VIDEO_FORMAT_HD1088));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_PM1_CIF_256:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_PM1_CIF_256,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42800D;max-mbps=11880;max-fs=396;packetization-mode=1",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_LOW,
+                         SDP_VIDEO_FORMAT_CIF));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_PM1_NTSC_256:
+      { 
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_PM1_NTSC_256,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42800D;max-mbps=11880;max-fs=330;packetization-mode=1",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_NTSC));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_PM1_4CIF_512:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_PM1_4CIF_512,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42801E;max-mbps=40500;max-fs=1584;packetization-mode=1",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_4CIF));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_PM1_EDTV_512:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_PM1_EDTV_512,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42801E;max-mbps=40500;max-fs=1320;packetization-mode=1",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_EDTV));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_PM1_QHD_1024:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_PM1_QHD_1024,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42801F;max-mbps=108000;max-fs=2040;packetization-mode=1",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_QHD));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_PM1_HD720_1024:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_PM1_HD720_1024,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42801F;max-mbps=108000;max-fs=3600;packetization-mode=1",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_HIGH,
+                         SDP_VIDEO_FORMAT_HD720));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_PM1_HD720_2048:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_PM1_HD720_2048,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=428020;max-mbps=216000;max-fs=3600;packetization-mode=1",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_VERY_HIGH,
+                         SDP_VIDEO_FORMAT_HD720));
+      } 
+      break;
+   case SdpCodec::SDP_CODEC_H264_PM1_HD1088_2048:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_PM1_HD1088_2048,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=428028;max-mbps=245760;max-fs=8160;packetization-mode=1",
+                         SdpCodec::SDP_CODEC_CPU_VERY_HIGH,
+                         SDP_CODEC_BANDWIDTH_VERY_HIGH,
+                         SDP_VIDEO_FORMAT_HD1088));
+      }
+      break;
+   case SdpCodec::SDP_CODEC_H264_PM1_HD1088_4096:
+      {
+         return(SdpCodec(SdpCodec::SDP_CODEC_H264_PM1_HD1088_4096,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_VIDEO,
+                         MIME_SUBTYPE_H264,
+                         90000,
+                         20000,
+                         1,
+                         "profile-level-id=42802A;max-mbps=522240;max-fs=8160;packetization-mode=1",
+                         SdpCodec::SDP_CODEC_CPU_VERY_HIGH,
+                         SDP_CODEC_BANDWIDTH_VERY_HIGH,
+                         SDP_VIDEO_FORMAT_HD1088));
+      }
+      break;
    case SdpCodec::SDP_CODEC_RGB24_QVGA:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_RGB24_QVGA,
