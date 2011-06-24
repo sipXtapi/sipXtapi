@@ -1,9 +1,9 @@
 //  
+// Copyright (C) 2006-2011 SIPez LLC. All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2006-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2006-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -689,6 +689,48 @@ OsStatus MpResourceTopology::getNextVirtualOutput(VirtualPortIterator &portIter,
    return getNextVirtualInput(portIter, realResourceName, realPortIndex,
                               virtualResourceName, virtualPortIndex);
 }
+
+int MpResourceTopology::dumpResources(UtlString& dumpString)
+{
+    dumpString.remove(0);
+    int resourceCount = 0;
+
+    UtlString resourceType; 
+    UtlString resourceName;
+    MpConnectionID connectionId;
+    int streamId;
+
+    while(getResource(resourceCount, resourceType, resourceName, connectionId, streamId) == OS_SUCCESS)
+    {
+        dumpString.appendFormat("Resource[%d] type=%s name=%s connectionId=%d streamId=%d\n", 
+                                resourceCount, resourceType.data(), resourceName.data(), connectionId, streamId);
+        
+        resourceCount++;
+    }
+
+    return(resourceCount);
+}
+
+int MpResourceTopology::dumpConnections(UtlString& dumpString)
+{
+    dumpString.remove(0);
+    int connectionCount = 0;
+
+    UtlString outputResourceName;
+    int outputPortIndex;
+    UtlString inputResourceName;
+    int inputPortIndex;
+
+    while(getConnection(connectionCount, outputResourceName, outputPortIndex, inputResourceName, inputPortIndex) == OS_SUCCESS)
+    {
+        dumpString.appendFormat("connection[%d] (out) %s[%d] => (in) %s[%d]\n", 
+                                connectionCount, outputResourceName.data(), outputPortIndex, inputResourceName.data(), inputPortIndex);
+        connectionCount++;
+    }
+
+    return(connectionCount);
+}
+
 
 /* ============================ INQUIRY =================================== */
 

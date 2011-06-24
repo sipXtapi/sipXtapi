@@ -1,9 +1,9 @@
 //  
+// Copyright (C) 2006-2011 SIPez LLC. All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2006-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2006-2009 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -368,6 +368,12 @@ public:
      *  @retval OS_SUCCESS - Next virtual port fetched and all output parameters
      *          are filed with correct values.
      */
+
+    /// Dump resources to debug string
+    int dumpResources(UtlString& dumpString);
+
+    /// Dump connections to debug string
+    int dumpConnections(UtlString& dumpString);
 
 /* ============================ INQUIRY =================================== */
 
