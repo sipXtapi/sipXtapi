@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2005 SIPfoundry Inc.
@@ -92,7 +92,8 @@ const char* XmlRpcDispatch::DEFAULT_URL_PATH = "/RPC2";
 // Constructor
 XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
                                bool isSecureServer,
-                               const char* uriPath)
+                               const char* uriPath,
+                               const char* httpBindAddress)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
     UtlString osBaseUriDirectory ;
@@ -108,6 +109,10 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
    if (isSecureServer)
    {
 #ifdef HAVE_SSL
+      // OsSSLServerSocket currently only binds on all addresses.  Need to add argument to
+      // OsSSLServerSocket constructor
+      assert(httpBindAddress == NULL); 
+
       pServerSocket = new OsSSLServerSocket(50, httpServerPort);
 #else
       assert(0);
@@ -115,7 +120,7 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
    }
    else
    {
-      pServerSocket = new OsServerSocket(50, httpServerPort);
+      pServerSocket = new OsServerSocket(50, httpServerPort, httpBindAddress);
    }
       
    mpHttpServer = new HttpServer(pServerSocket,

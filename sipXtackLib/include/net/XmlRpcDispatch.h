@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -84,7 +87,8 @@ public:
    /// Create a dispatch object.
    XmlRpcDispatch(int httpServerPort,           ///< port number for HttpServer
                   bool isSecureServer,          ///< option for HTTP or HTTPS
-                  const char* uriPath = DEFAULT_URL_PATH          ///< uri path
+                  const char* uriPath = DEFAULT_URL_PATH, ///< uri path
+                  const char* httpBindAddress = NULL ///< IP address/interface to bind http server to
                   ); 
 
    /// Destructor.
