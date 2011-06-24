@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -18,7 +18,7 @@
 
 // APPLICATION INCLUDES
 #include <os/OsLock.h>
-
+#include <os/OsSysLog.h>
 #include <utl/UtlSListIterator.h>
 #include <utl/UtlTokenizer.h>
 #include <sdp/SdpCodec.h>
@@ -1617,12 +1617,19 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
     {
         rtpCodecs[codecIndex]->getMediaType(mimeType);
 
+        rtpCodecs[codecIndex]->getEncodingName(mimeSubType);
+        // printf("codec %s mime type: %s\n", mimeSubType.data(), mimeType.data());
+
         if (mimeType.compareTo(SDP_VIDEO_MEDIA_TYPE) == 0)
         {
+            // printf("found video codec\n");
             rtpCodecs[codecIndex]->getEncodingName(mimeSubType);
 
-            if (mimeSubType.compareTo(prevMimeSubType) == 0)
+            //  Cannot combine H264 fmtp strings as they will conflict
+            // Not even sure this makes sense for other video codecs either
+            if ((mimeSubType.compareTo(prevMimeSubType) == 0) && (mimeSubType.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase) != 0))
             {
+                // printf("duplicate mime subtype\n");
                 // If we still have the same mime type only change format. We're depending on the
                 // fact that codecs with the same mime subtype are added sequentially to the 
                 // codec factory. Otherwise this won't work.
@@ -1632,6 +1639,7 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
             }
             else
             {
+                // printf("new format\n");
                 // New mime subtype - add new codec to codec list. Mark this index and put all
                 // video format information into this codec because it will be looked at later.
                 firstMimeSubTypeIndex = codecIndex;
@@ -1648,6 +1656,7 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
         }
     }
 
+    // printf("rtpVideoPorts[0]=%d\n", rtpVideoPorts[0]);
     if (rtpVideoPorts[0] > 0)
     {
         // If any security is enabled we set RTP/SAVP and add a crypto field - not for video at this time
@@ -1739,6 +1748,10 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
             setValue("b", ct);
         }
     }
+    else if(destIndex  >= 0)
+    {
+        OsSysLog::add(FAC_NET, PRI_WARNING, "SdpBody %d video codecs enabled, but video port: %d < 0", destIndex + 1, rtpVideoPorts[0]);
+    }
 }
 
 
@@ -1775,7 +1788,7 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
          codec->getSdpFmtpField(formatParameters);
          payloadType = codec->getCodecPayloadFormat();
 
-         // Workaround RFC bug with G.722 samplerate.
+         // Workarmund RFC bug with G.722 samplerate.
          // Read RFC 3551 Section 4.5.2 "G722" for details.
          if (codec->getCodecType() == SdpCodec::SDP_CODEC_G722)
          {
@@ -1796,7 +1809,9 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
          // Build an rtpmap
          addRtpmap(payloadType, mimeSubtype.data(), sampleRate, numChannels);
 
-         if ((videoFmtp=codec->getVideoFmtp()) != 0)
+         // Non H264 video codecs need to construct format string.
+         // H.264 codecs just use the configured fmtp string for the codec.
+         if ((videoFmtp=codec->getVideoFmtp()) != 0 && mimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase))
          {
             if (codec->getCodecPayloadFormat() != SdpCodec::SDP_CODEC_H263)
             {
@@ -1820,6 +1835,7 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
                }
             }
          }
+
          // Add the format specific parameters if present
          if(!formatParameters.isNull())
          {
@@ -2492,6 +2508,7 @@ void SdpBody::addMediaData(const char* mediaType,
       value.append(integerString);
    }
 
+   // printf("adding m line: \"%s\"\n", value.data());
    addValue("m", value.data());
 
 }
