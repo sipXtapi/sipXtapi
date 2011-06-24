@@ -1,9 +1,9 @@
 //
+// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2007-2009 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,6 +180,7 @@ public:
       /// Get number of input connections this topology can support.
     static int getMaxInputConnections();
 
+    virtual OsStatus getVideoCpuValue(int& cpuValue) const;
 //@}
 
 /* ============================ INQUIRY =================================== */

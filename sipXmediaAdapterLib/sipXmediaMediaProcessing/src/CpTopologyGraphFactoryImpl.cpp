@@ -1,9 +1,9 @@
 //
+// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2007-2010 SIPfoundry Inc. All rights reserved.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2007-2009 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -1039,6 +1039,12 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::getMcastConnectionResourceTopolo
 MpInputDeviceManager* CpTopologyGraphFactoryImpl::getInputDeviceManager() const
 {
     return(mpInputDeviceManager);
+}
+
+OsStatus CpTopologyGraphFactoryImpl::getVideoCpuValue(int& cpuValue) const
+{
+    cpuValue = SdpCodec::SDP_CODEC_CPU_VERY_HIGH;
+    return(OS_SUCCESS);
 }
 
 /* ============================ INQUIRY =================================== */

@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2009 SIPez LLC.
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -81,6 +81,14 @@ public:
     , mNumRtpStreams(0)
     , mpRtpAudioSocket(NULL)
     , mpRtcpAudioSocket(NULL)
+#ifdef VIDEO
+    , mpRtpVideoSocket(NULL)
+    , mpRtcpVideoSocket(NULL)
+    , mRtpVideoSendHostPort(0)
+    , mRtcpVideoSendHostPort(0)
+    , mRtpVideoReceivePort(0)
+    , mRtcpVideoReceivePort(0)
+#endif
     , mRtpAudioSendHostPort(0)
     , mRtcpAudioSendHostPort(0)
     , mRtpAudioReceivePort(0)
@@ -147,6 +155,14 @@ public:
     int mNumRtpStreams;
     OsSocket* mpRtpAudioSocket;
     OsSocket* mpRtcpAudioSocket;
+#ifdef VIDEO
+    OsSocket* mpRtpVideoSocket;
+    OsSocket* mpRtcpVideoSocket;
+    int mRtpVideoSendHostPort;
+    int mRtcpVideoSendHostPort;
+    int mRtpVideoReceivePort;
+    int mRtcpVideoReceivePort;
+#endif
     int mRtpAudioSendHostPort;
     int mRtcpAudioSendHostPort;
     int mRtpAudioReceivePort;
@@ -213,10 +229,21 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
       pTmpDispatcherPtr = NULL;
    }
 
+   MpResourceTopology* topology = pFactoryImpl->getInitialResourceTopology();
+#ifdef DUMP_TOPOLGY
+   UtlString topoDump;
+   topology->dumpResources(topoDump);
+   printf("MpResourceTopology resources:\n%s\n", topoDump.data());
+   topology->dumpConnections(topoDump);
+   printf("MpResourceTopology connections:\n%s\n", topoDump.data());
+#endif
+
+   MpResourceFactory* factory = pFactoryImpl->getResourceFactory();
+
    mpTopologyGraph = new MpTopologyGraph(samplesPerFrame,
                                          samplesPerSec,
-                                         *(pFactoryImpl->getInitialResourceTopology()),
-                                         *(pFactoryImpl->getResourceFactory()),
+                                         *topology,
+                                         *factory,
                                          pTmpDispatcherPtr);
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::CpTopologyGraphInterface creating a new MpTopologyGraph %p",
                  mpTopologyGraph);
@@ -2178,7 +2205,7 @@ UtlBoolean CpTopologyGraphInterface::getLocalAddresses(int connectionId,
         }
 
 #ifdef VIDEO
-        // Video rtp port (optional)
+        // Video receive socket exists, get rtp port (optional)
         if (pMediaConn->mpRtpVideoSocket && bRC)
         {
             rtpVideoPort = pMediaConn->mpRtpVideoSocket->getLocalHostPort();
@@ -2188,6 +2215,13 @@ UtlBoolean CpTopologyGraphInterface::getLocalAddresses(int connectionId,
             {
                 rtcpVideoPort = pMediaConn->mpRtcpVideoSocket->getLocalHostPort();
             }
+        }
+
+        // Video pass through enabled
+        else if(pMediaConn->mRtpVideoReceivePort > 0 && bRC)
+        {
+            rtpVideoPort = pMediaConn->mRtpVideoReceivePort;
+            rtcpVideoPort = pMediaConn->mRtcpVideoReceivePort;
         }
 #endif
     }
@@ -2347,7 +2381,7 @@ UtlBoolean CpTopologyGraphInterface::getRelayAddresses(int connectionId,
         // Video rtp port (optional)
         if (pMediaConn->mpRtpVideoSocket && bRC)
         {
-            if ((OsNatDatagramSocket*)pMediaConn->mpRtpVideoSocket)->getRelayIp(&host, &port))
+            if (((OsNatDatagramSocket*)pMediaConn->mpRtpVideoSocket)->getRelayIp(&host, &port))
             {
                 rtpVideoPort = port ;
                 if (host.compareTo(hostIp) != 0)
@@ -2360,7 +2394,7 @@ UtlBoolean CpTopologyGraphInterface::getRelayAddresses(int connectionId,
                 // Video rtcp port (optional)
                 if (pMediaConn->mpRtcpVideoSocket)
                 {
-                    if ((OsNatDatagramSocket*)pMediaConn->mpRtcpVideoSocket)->getRelayIp(&host, &port))
+                    if (((OsNatDatagramSocket*)pMediaConn->mpRtcpVideoSocket)->getRelayIp(&host, &port))
                     {
                         rtcpVideoPort = port ;
                         if (host.compareTo(hostIp) != 0)
