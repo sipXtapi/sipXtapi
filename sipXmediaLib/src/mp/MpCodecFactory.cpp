@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -134,6 +134,8 @@ MpCodecFactory::~MpCodecFactory()
 
 OsStatus MpCodecFactory::loadDynCodec(const char* name)
 {
+   OsSysLog::add(FAC_MP, PRI_INFO, "MpCodecFactory::loadDynCodec(\"%s\")", name);
+
    OsStatus res;
    OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
 
@@ -154,6 +156,7 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
    dlGetCodecsV1 getCodecsV1 = (dlGetCodecsV1)address;
    const char* codecName;
    int i, r, count = 0;
+   UtlString codecTokens;
 
    // 100 is a watchdog value, should be enough for everyone.
    for (i = 0; (i < 100); i++) 
@@ -168,6 +171,14 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
          }
          return OS_SUCCESS;
       }
+
+      OsSysLog::add(FAC_MP, PRI_INFO, "found codec: %s", codecName);
+
+      if(i > 0)
+      {
+         codecTokens.append(' ');
+      }
+      codecTokens.append(codecName);
 
       // Obtaining codecs functions
       UtlBoolean st;
@@ -250,6 +261,8 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
       pShrMgr->unloadSharedLib(name);
       return OS_FAILED;
    }
+   OsSysLog::add(FAC_MP, PRI_INFO, "Loaded %d codecs (%s) from %s", count, codecTokens.data(), name);
+
    return OS_SUCCESS;
 }
 
