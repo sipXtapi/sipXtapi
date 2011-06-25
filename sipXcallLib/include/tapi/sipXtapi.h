@@ -2,7 +2,7 @@
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005-2009 SIPez LLC.
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -1406,6 +1406,18 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetLocalID(const SIPX_CALL hCall,
                                             char* szId, 
                                             const size_t iMaxLength) ;
 
+/**
+ * Get the line handle for the given call if it has one.
+ *
+ * @param hCall - Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ * @param hLine - handle to call for local side of call.
+ * Note: not all calls have a line handle.  Set to SIPX_LINE_NULL if
+ * line handle does not exist for call.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallGetLine(const SIPX_CALL hCall,
+                                        SIPX_LINE& hLine);
 
 /**
  * Get the SIP identity of the remote connection.

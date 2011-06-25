@@ -1811,6 +1811,27 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetLocalID(const SIPX_CALL hCall,
     return sr ;
 }
 
+SIPXTAPI_API SIPX_RESULT sipxCallGetLine(const SIPX_CALL hCall,
+                                        SIPX_LINE& hLine)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallGetLine");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "sipxCallGetLine hCall=%d", hCall);
+
+    SIPX_RESULT result = SIPX_RESULT_INVALID_ARGS;
+    if(hCall != SIPX_CALL_NULL)
+    {
+        SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, stackLogger);
+        if(pData && pData->hLine != SIPX_LINE_NULL)
+        {
+            result = SIPX_RESULT_SUCCESS;
+            hLine = pData->hLine;
+        }
+        sipxCallReleaseLock(pData, SIPX_LOCK_READ, stackLogger);
+    }
+
+    return(result);
+}
+
 
 SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteID(const SIPX_CALL hCall,
                                              char* szId,
