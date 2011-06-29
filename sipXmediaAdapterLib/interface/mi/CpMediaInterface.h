@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2009 SIPez LLC.
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -97,6 +97,13 @@ class CpMediaInterface : public UtlInt
 {
 /* //////////////////////////// PUBLIC //////////////////////////// */
 public:
+
+   enum MEDIA_STREAM_TYPE
+   {
+      MEDIA_TYPE_UNKNOWN = 0,
+      AUDIO_STREAM,
+      VIDEO_STREAM
+   };
 
 /* =========================== CREATORS =========================== */
 
@@ -219,6 +226,20 @@ public:
      *              failure codes to expect, etc. -- kkyzivat 20070801 >>
      */
 
+     /// @brief Set pass through port and address to send RTP stream to.
+   virtual OsStatus setMediaPassThrough(int connectionId,
+                                        MEDIA_STREAM_TYPE mediaType,
+                                        int mediaTypeStreamIndex,
+                                        UtlString& receiveAddress,
+                                        int rtpPort,
+                                        int rtcpPort) = 0;
+     /**<
+      * Set up so that RTP stream does not go through the media subsystem, but get
+      * send directly to this port and address.  The idea is that this address and
+      * port(s) are provided for use in advertizing in the SDP for the local address
+      * and port that the remote side should send the media stream to.  This address
+      * and port is provided in the getCapabilitiesEx/getCapabilities methods.
+      */
 
      /// @brief Set the connection destination (target) for the designated
      ///        media connection.

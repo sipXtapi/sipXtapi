@@ -750,6 +750,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_RECORD_AUDIO_CONNECTION_START:
         case CP_RECORD_AUDIO_CONNECTION_STOP:
         case CP_RECORD_BUFFER_AUDIO_CONNECTION_START:
+        case CP_SET_MEDIA_PASS_THROUGH:
         case CP_RECORD_BUFFER_AUDIO_CONNECTION_STOP:
         case CP_PLAY_BUFFER_TERM_CONNECTION:
         case CP_CREATE_PLAYER:
@@ -1542,7 +1543,6 @@ OsStatus CallManager::audioChannelRecordStart(const char* callId, const char* sz
     return status ;
 }
 
-
 OsStatus CallManager::audioChannelRecordStop(const char* callId, const char* szRemoteAddress) 
 {
     OsStatus status = OS_FAILED ;
@@ -1586,6 +1586,30 @@ OsStatus CallManager::audioChannelRecordStop(const char* callId, const char* szR
     return status ;
 }
 
+OsStatus CallManager::setMediaPassThrough(const UtlString& callId, const UtlString& remoteAddress, CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                          int mediaTypeStreamIndex, const UtlString& mediaRecieveAddress, int rtpPort, int rtcpPort)
+{
+    OsStatus status = OS_SUCCESS;
+
+    CpMultiStringMessage message(CP_SET_MEDIA_PASS_THROUGH,
+                                 callId,
+                                 remoteAddress,
+                                 mediaRecieveAddress,
+                                 NULL,
+                                 NULL,
+                                 mediaType,
+                                 mediaTypeStreamIndex,
+                                 rtpPort,
+                                 rtcpPort);
+
+    status = postMessage(message);
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CallManager::setMediaPassThrough postin CP_SET_MEDIA_PASS_THROUGH (%d) post returned: %d",
+                  CP_SET_MEDIA_PASS_THROUGH, status);
+
+    return(status);
+}
 
 OsStatus CallManager::audioChannelRecordBufferStart(const char* callId,
                                                     const char* szRemoteAddress,

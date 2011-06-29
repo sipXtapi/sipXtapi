@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2009 SIPez LLC.
+// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -71,6 +71,12 @@ public:
     , mRtcpAudioReceivePort(0)
     , mRtpAudioSending(FALSE)
     , mRtpAudioReceiving(FALSE)
+#ifdef VIDEO
+    , mpRtpVideoSocket(NULL)
+    , mpRtcpVideoSocket(NULL)
+    , mRtpVideoSendHostPort(0)
+    , mRtcpVideoSendHostPort(0)
+#endif
     , mpAudioCodec(NULL)
     , mpCodecFactory(NULL)
     , mContactType(CONTACT_AUTO)
@@ -132,6 +138,12 @@ public:
     int mRtcpAudioReceivePort;
     UtlBoolean mRtpAudioSending;
     UtlBoolean mRtpAudioReceiving;
+#ifdef VIDEO
+    OsDatagramSocket* mpRtpVideoSocket;
+    OsDatagramSocket* mpRtcpVideoSocket;
+    int mRtpVideoSendHostPort;
+    int mRtcpVideoSendHostPort;
+#endif
     SdpCodec* mpAudioCodec;
     SdpCodecList* mpCodecFactory;
     SIPX_CONTACT_TYPE mContactType ;
@@ -2144,7 +2156,7 @@ UtlBoolean CpPhoneMediaInterface::getRelayAddresses(int connectionId,
         // Video rtp port (optional)
         if (pMediaConn->mpRtpVideoSocket && bRC)
         {
-            if ((OsNatDatagramSocket*)pMediaConn->mpRtpVideoSocket)->getRelayIp(&host, &port))
+            if(((OsNatDatagramSocket*)pMediaConn->mpRtpVideoSocket)->getRelayIp(&host, &port))
             {
                 rtpVideoPort = port ;
                 if (host.compareTo(hostIp) != 0)
@@ -2157,7 +2169,7 @@ UtlBoolean CpPhoneMediaInterface::getRelayAddresses(int connectionId,
                 // Video rtcp port (optional)
                 if (pMediaConn->mpRtcpVideoSocket)
                 {
-                    if ((OsNatDatagramSocket*)pMediaConn->mpRtcpVideoSocket)->getRelayIp(&host, &port))
+                    if(((OsNatDatagramSocket*)pMediaConn->mpRtcpVideoSocket)->getRelayIp(&host, &port))
                     {
                         rtcpVideoPort = port ;
                         if (host.compareTo(hostIp) != 0)

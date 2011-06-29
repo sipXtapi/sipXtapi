@@ -88,6 +88,7 @@ public:
     , mRtcpVideoSendHostPort(0)
     , mRtpVideoReceivePort(0)
     , mRtcpVideoReceivePort(0)
+    , mVideoPassThroughEnabled(FALSE)
 #endif
     , mRtpAudioSendHostPort(0)
     , mRtcpAudioSendHostPort(0)
@@ -110,7 +111,7 @@ public:
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
             //printf(
-                "~CpTopologyMediaConnection deleting RTP socket: %p descriptor: %d",
+                "~CpTopologyMediaConnection deleting audio RTP socket: %p descriptor: %d",
                 mpRtpAudioSocket, mpRtpAudioSocket->getSocketDescriptor());
 #endif
             delete mpRtpAudioSocket;
@@ -122,12 +123,38 @@ public:
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
             //printf(
-                "~CpTopologyMediaConnection deleting RTCP socket: %p descriptor: %d",
+                "~CpTopologyMediaConnection deleting audio RTCP socket: %p descriptor: %d",
                 mpRtcpAudioSocket, mpRtcpAudioSocket->getSocketDescriptor());
 #endif
             delete mpRtcpAudioSocket;
             mpRtcpAudioSocket = NULL;
         }
+
+#ifdef VIDEO
+        if(!mIsCustomSockets && mpRtpVideoSocket)
+        {
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            //printf(
+                "~CpTopologyMediaConnection deleting video RTP socket: %p descriptor: %d",
+                mpRtpVideoSocket, mpRtpVideoSocket->getSocketDescriptor());
+#endif
+            delete mpRtpVideoSocket;
+            mpRtpVideoSocket = NULL;
+        }
+
+        if(!mIsCustomSockets && mpRtcpVideoSocket)
+        {
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            //printf(
+                "~CpTopologyMediaConnection deleting video RTCP socket: %p descriptor: %d",
+                mpRtcpVideoSocket, mpRtcpVideoSocket->getSocketDescriptor());
+#endif
+            delete mpRtcpVideoSocket;
+            mpRtcpVideoSocket = NULL;
+        }
+#endif
 
         if(mpCodecFactory)
         {
@@ -162,6 +189,7 @@ public:
     int mRtcpVideoSendHostPort;
     int mRtpVideoReceivePort;
     int mRtcpVideoReceivePort;
+    UtlBoolean mVideoPassThroughEnabled;
 #endif
     int mRtpAudioSendHostPort;
     int mRtcpAudioSendHostPort;
@@ -856,6 +884,50 @@ OsStatus CpTopologyGraphInterface::getCapabilitiesEx(int connectionId,
     }
 
     return rc ;
+}
+
+OsStatus CpTopologyGraphInterface::setMediaPassThrough(int connectionId,
+                                                       MEDIA_STREAM_TYPE mediaType,
+                                                       int mediaTypeStreamIndex,
+                                                       UtlString& receiveAddress,
+                                                       int rtpPort,
+                                                       int rtcpPort)
+{
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "CpTopologyGraphInterface::setMediaPassThrough(connectionId=%d, mediaType=%d, mediaTypeStreamIndex=%d, receiveAddress=\"%s\", rtpPort=%d, rtcpPort=%d",
+                  connectionId, (int)mediaType, mediaTypeStreamIndex, receiveAddress.data(), rtpPort, rtcpPort);
+
+    // May support multiple audio or video stream in future.
+    assert(mediaType == VIDEO_STREAM);
+    assert(mediaTypeStreamIndex == 0);
+    OsStatus status = OS_NOT_YET_IMPLEMENTED;
+    if(mediaType == VIDEO_STREAM &&
+       mediaTypeStreamIndex == 0)
+    {
+        CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+        if(mediaConnection)
+        {
+            switch(mediaType)
+            {
+            case VIDEO_STREAM:
+                mediaConnection->mVideoPassThroughEnabled = TRUE;
+                mediaConnection->mRtpVideoReceivePort = rtpPort;
+                mediaConnection->mRtcpVideoReceivePort = rtcpPort;
+                status = OS_SUCCESS;
+            break;
+
+            default:
+            break;
+            }
+        }
+        else
+        {
+            status = OS_INVALID_ARGUMENT;
+        }
+    }
+
+    return(status);
 }
 
 OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
@@ -2220,13 +2292,16 @@ UtlBoolean CpTopologyGraphInterface::getLocalAddresses(int connectionId,
         // Video pass through enabled
         else if(pMediaConn->mRtpVideoReceivePort > 0 && bRC)
         {
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                "CpTopologyGraphInterface::getLocalAddresses got video pass through mRtpVideoReceivePort=%d, mRtcpVideoReceivePort=%d",
+                pMediaConn->mRtpVideoReceivePort, pMediaConn->mRtcpVideoReceivePort);
             rtpVideoPort = pMediaConn->mRtpVideoReceivePort;
             rtcpVideoPort = pMediaConn->mRtcpVideoReceivePort;
         }
 #endif
     }
 
-    return bRC ;
+    return(bRC);
 }
 
 UtlBoolean CpTopologyGraphInterface::getNatedAddresses(int connectionId,

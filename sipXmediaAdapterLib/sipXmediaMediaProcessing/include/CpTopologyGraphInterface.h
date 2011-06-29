@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2009 SIPez LLC.
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -157,6 +157,14 @@ public:
      *  @param[out] portOnBridge - index of an input port to which resource
      *              is connected.
      */
+
+     /// @copydoc CpMediaInterface::setMediaPassThrough()
+   virtual OsStatus setMediaPassThrough(int connectionId,
+                                        MEDIA_STREAM_TYPE mediaType,
+                                        int mediaTypeStreamIndex,
+                                        UtlString& receiveAddress,
+                                        int rtpPort,
+                                        int rtcpPort);
 
      /// @copydoc CpMediaInterface::setConnectionDestination()
    virtual OsStatus setConnectionDestination(int connectionId,

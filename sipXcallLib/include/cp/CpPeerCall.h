@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -31,6 +34,43 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
+
+// Container class to cache pass through address and port info
+class MediaStreamPassThroughData
+{
+public:
+    MediaStreamPassThroughData(CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                               int mediaTypeStreamIndex,
+                               UtlString mediaRecieveAddress,
+                               int rtpPort,
+                               int rtcpPort) :
+     mMediaType(mediaType),
+     mMediaTypeStreamIndex(mediaTypeStreamIndex),
+     mMediaRecieveAddress(mediaRecieveAddress),
+     mRtpPort(rtpPort),
+     mRtcpPort(rtcpPort)
+    {};
+
+    MediaStreamPassThroughData(const MediaStreamPassThroughData& ref) :
+     mMediaType(ref.mMediaType),
+     mMediaTypeStreamIndex(ref.mMediaTypeStreamIndex),
+     mMediaRecieveAddress(ref.mMediaRecieveAddress),
+     mRtpPort(ref.mRtpPort),
+     mRtcpPort(ref.mRtcpPort)
+    {};
+
+    virtual ~MediaStreamPassThroughData(){};
+
+    CpMediaInterface::MEDIA_STREAM_TYPE mMediaType;
+    int mMediaTypeStreamIndex;
+    UtlString mMediaRecieveAddress;
+    int mRtpPort;
+    int mRtcpPort;
+
+private:
+    MediaStreamPassThroughData();
+};
+
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class Connection;
@@ -389,6 +429,7 @@ private:
 
    UtlBoolean checkForTag(UtlString &address);
 
+   MediaStreamPassThroughData* mpPassThroughData;
 };
 
 /* ============================ INLINE METHODS ============================ */

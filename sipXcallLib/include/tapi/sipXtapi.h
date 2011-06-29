@@ -136,6 +136,15 @@ class securityHelper;
 
 // TYPEDEFS
 /**
+ * Media type
+ */
+typedef enum MEDIA_TYPE
+{
+    AUDIO_MEDIA,
+    VIDEO_MEDIA
+} MEDIA_TYPE;
+
+/**
  * Speaker output types are used to differentiate between the logical ringer 
  * (used to alert user of in inbound call) and speaker (in call audio device).
  */
@@ -1719,6 +1728,13 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStart(const SIPX_CALL hCall,
  */
 SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStop(const SIPX_CALL hCall) ; 
 
+
+SIPXTAPI_API SIPX_RESULT sipxCallSetMediaPassThrough(const SIPX_CALL hCall,
+                                                     MEDIA_TYPE mediaType,
+                                                     int mediaTypeStreamIndex,
+                                                     const char* streamReceiveAddress,
+                                                     int rtpPort,
+                                                     int rtcpPort);
 
 /**
  * Subscribe for NOTIFY events which may be published by the other end-point 

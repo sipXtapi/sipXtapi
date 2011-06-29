@@ -2473,6 +2473,55 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStop(const SIPX_CALL hCall)
     return sr ;
 }
 
+SIPXTAPI_API SIPX_RESULT sipxCallSetMediaPassThrough(const SIPX_CALL hCall,
+                                                     MEDIA_TYPE mediaType,
+                                                     int mediaTypeStreamIndex,
+                                                     const char* streamReceiveAddress,
+                                                     int rtpPort,
+                                                     int rtcpPort)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallSetMediaPassThrough");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallSetMediaPassThrough hCall=%d mediaType=%d mediaTypeStreamIndex=%d streamReceiveAddress=\"%s\" rtpPort=%d rtcpPort=%d",
+        hCall, mediaType, mediaTypeStreamIndex, streamReceiveAddress, rtpPort, rtcpPort);
+
+    SIPX_RESULT sipxResult = SIPX_RESULT_FAILURE;
+    SIPX_INSTANCE_DATA *pInst;
+    UtlString callId;
+    UtlString remoteAddress;
+    UtlString lineId;
+
+    if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
+    {
+        CpMediaInterface::MEDIA_STREAM_TYPE cpMediaType = CpMediaInterface::MEDIA_TYPE_UNKNOWN;
+        assert(mediaType == VIDEO_MEDIA);
+        switch(mediaType)
+        {
+        case AUDIO_MEDIA:
+            cpMediaType = CpMediaInterface::AUDIO_STREAM;
+        break;
+
+        case VIDEO_MEDIA:
+            cpMediaType = CpMediaInterface::VIDEO_STREAM;
+        break;
+
+        default:
+            assert(mediaType == VIDEO_MEDIA);
+        break;
+        }
+
+        OsStatus osStatus = 
+            pInst->pCallManager->setMediaPassThrough(callId, remoteAddress, cpMediaType, mediaTypeStreamIndex,
+                                                     streamReceiveAddress, rtpPort, rtcpPort);
+
+        if(osStatus == OS_SUCCESS)
+        {
+            sipxResult = SIPX_RESULT_SUCCESS;
+        }
+    }
+
+    return(sipxResult);
+}
 
 SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
                                            const char* szEventType,

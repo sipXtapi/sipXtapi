@@ -37,6 +37,7 @@ class SipUserAgent;
 class SipMessage;
 class SdpCodec;
 class SdpCodecList;
+class MediaStreamPassThroughData;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -164,6 +165,12 @@ public:
 
     void setVoiceQualityReportTarget(const char* szTargetSipUrl) ;
     void sendVoiceQualityReport(const char* szTargetSipUrl) ;
+
+    void cacheMediaPassThroughData(CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                   int mediaTypeStreamIndex,
+                                   UtlString& receiveAddress,
+                                   int rtpPort,
+                                   int rtcpPort);
 
     /* ============================ ACCESSORS ================================= */
 
@@ -358,6 +365,7 @@ private:
     UtlString mRemoteUserAgent;
     SIPX_TRANSPORT_DATA mTransport;
     UtlString mVoiceQualityReportTarget;
+    MediaStreamPassThroughData* mpPassThroughData;
 
     UtlBoolean getInitialSdpCodecs(const SipMessage* sdpMessage,
                                    SdpCodecList& supportedCodecsArray,

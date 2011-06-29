@@ -79,7 +79,8 @@ SipConnection::SipConnection(const char* outboundLineAddress,
                              const char* forwardOnBusyUrl)
                              : Connection(callMgr, call, mediaInterface, offeringDelayMilliSeconds,
                              availableBehavior, forwardUnconditionalUrl,
-                             busyBehavior, forwardOnBusyUrl)
+                             busyBehavior, forwardOnBusyUrl),
+                             mpPassThroughData(NULL)
 {
     inviteFromThisSide = 0 ;
     mIsEarlyMediaFor180 = true ;
@@ -158,11 +159,6 @@ SipConnection::SipConnection(const char* outboundLineAddress,
 
 }
 
-// Copy constructor
-SipConnection::SipConnection(const SipConnection& rSipConnection)
-{
-}
-
 // Destructor
 SipConnection::~SipConnection()
 {
@@ -185,6 +181,13 @@ SipConnection::~SipConnection()
         delete mReferMessage;
         mReferMessage = NULL;
     }
+
+    if(mpPassThroughData)
+    {
+        delete mpPassThroughData;
+        mpPassThroughData = NULL;
+    }
+
 #ifdef TEST_PRINT
     if (!callId.isNull())
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: %s\n", callId.data());
@@ -830,6 +833,19 @@ UtlBoolean SipConnection::dial(const char* dialString,
         }
         else
         {
+            if(mpPassThroughData)
+            {
+                OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::dial mpPassThroughData cached, setting on mediaConnection: %d", mConnectionId);
+                mpMediaInterface->setMediaPassThrough(mConnectionId,
+                                                      mpPassThroughData->mMediaType,
+                                                      mpPassThroughData->mMediaTypeStreamIndex,
+                                                      mpPassThroughData->mMediaRecieveAddress,
+                                                      mpPassThroughData->mRtpPort,
+                                                      mpPassThroughData->mRtcpPort);
+                delete mpPassThroughData;
+                mpPassThroughData = NULL;
+            }
+
             int numCodecs;
             SdpCodec** rtpCodecsArray = NULL;
             mpMediaInterface->setContactType(mConnectionId, mContactType, mContactId) ;
@@ -6208,6 +6224,17 @@ void SipConnection::sendVoiceQualityReport(const char* szTargetSipUrl)
     }
 }
 
+void SipConnection::cacheMediaPassThroughData(CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                              int mediaTypeStreamIndex,
+                                              UtlString& receiveAddress,
+                                              int rtpPort,
+                                              int rtcpPort)
+{
+    // For now only support a single stream
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::cacheMediaPassThroughData mpPassThroughData cached");
+    assert(mpPassThroughData == NULL);
+    mpPassThroughData = new MediaStreamPassThroughData(mediaType, mediaTypeStreamIndex, receiveAddress, rtpPort, rtcpPort);
+}
 
 /* ============================ ACCESSORS ================================= */
 
