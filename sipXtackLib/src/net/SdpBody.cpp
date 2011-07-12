@@ -32,6 +32,7 @@
 #define MAXIMUM_LONG_INT_CHARS 20
 #define MAXIMUM_MEDIA_TYPES 30
 #define MAXIMUM_VIDEO_SIZES 6
+//#define TEST_PRINT
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -1358,6 +1359,10 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
          }
       }
    }
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::getCodecsInCommon videoRtpPort=%d", videoRtpPort);
+#endif
+
    if (videoRtpPort != 0)
    {
         for(typeIndex = 0; typeIndex < videoPayloadIdCount; typeIndex++)
@@ -1393,6 +1398,9 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                 // The codec negotiation depends on the fact that codecs with the same
                 // mime subtype are added sequentially.
                 localRtpCodecs.getCodecs(numCodecs, sdpCodecArray, SDP_VIDEO_MEDIA_TYPE, mimeSubtype);
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::getCodecsInCommon got %d local video codec(s)", numCodecs);
+#endif
 
                 // Loop through the other side's video sizes first so we match the size
                 // preferences of the other side
@@ -1410,8 +1418,9 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                         
                         // In addition to everything else do a bit-wise comparison of video formats. For
                         // every codec with the same sub mime type that supports one of the video formats
-                        // add a seperate codec in the codecsInCommonArray.
-                        if((matchingCodec != NULL) && (matchingCodec->getVideoFormat() == videoSizes[videoSize]) &&
+                        // add a seperate codec in the codecsInCommonArray.  For H.264 size is not important.
+                        if((matchingCodec != NULL) && 
+                           ((matchingCodec->getVideoFormat() == videoSizes[videoSize]) ||  (mimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase)) == 0) &&
                             (matchingCodec->getSampleRate() == sampleRate ||
                             sampleRate == -1) &&
                             (matchingCodec->getNumChannels() == numChannels ||
@@ -1428,7 +1437,20 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
 
                             numCodecsInCommon++;
                         }
-
+                        else
+                        {
+                            if(matchingCodec == NULL)
+                            {
+                                OsSysLog::add(FAC_NET, PRI_DEBUG,
+                                    "SdpBody::getCodecsInCommon matchingCodec NULL");
+                            }
+                            else
+                            {
+                                OsSysLog::add(FAC_NET, PRI_DEBUG, 
+                                    "SdpBody::getCodecsInCommon codec does not match mime subtype: %s match rate: %d remote rate: %d match channels: %d remote channels: %d",
+                                    mimeSubtype.data(), matchingCodec->getSampleRate(), sampleRate, matchingCodec->getNumChannels(), numChannels);
+                            }
+                        }
                     }
                 }
                 // Delete the codec array we got to loop through codecs with the same mime subtype
@@ -1943,6 +1965,11 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
 
       if(fieldFound)
       {
+
+#ifdef TEST_PRINT 
+         OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::addCodecsAnswer media type: %s", mediaType.data());
+#endif
+
          // Check for unsupported stuff
          // i.e. non audio media, non RTP transported media, etc
           if(  (  mediaType.compareTo(SDP_AUDIO_MEDIA_TYPE, UtlString::ignoreCase) != 0
@@ -2006,6 +2033,9 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
                                  supportedPayloadCount,
                                  codecsDummy,
                                  codecsInCommon);
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::addCodecsAnswer audio codecs enabled: %d video codecs enabled: %d", numAudioPayloadTypes, numVideoPayloadTypes);
+#endif
 
    SdpSrtpParameters commonAudioSrtpParams;
    SdpSrtpParameters commonVideoSrtpParams;
@@ -2097,6 +2127,10 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
             payloadIndex++)
         {
             codecsInCommon[payloadIndex]->getMediaType(mediaType);
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::addCodecsAnswer codecsInCommon[%d] looking for video, found: getMediaType=%s", payloadIndex, mediaType.data());
+#endif
+
             if (mediaType.compareTo(SDP_VIDEO_MEDIA_TYPE) == 0)
             {
                 // We've found at least one common video codec
@@ -2477,6 +2511,10 @@ void SdpBody::addMediaData(const char* mediaType,
                            int numPayloadTypes,
                            int payloadTypes[])
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::addMediaData mediaType: %s", mediaType);
+#endif
+
    UtlString value;
    char integerString[MAXIMUM_LONG_INT_CHARS];
    int codecIndex;
