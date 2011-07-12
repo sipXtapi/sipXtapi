@@ -218,7 +218,11 @@ public:
    virtual void setRtpPortRange(int startRtpPort, int lastRtpPort) ;
 
      /// Gets the next available rtp port
-   virtual OsStatus getNextRtpPort(int &rtpPort) ;
+   virtual OsStatus getNextRtpPort(const char* bindAddress, int &rtpPort);
+   /**
+    * @param bindAddress - address on which to find available port, may be NULL
+    * @param rtpPort - next available RTP port to attempt to bind do
+    */
 
      /// @brief Release the rtp port back to the pool of available RTP ports
    virtual OsStatus releaseRtpPort(const int rtpPort) ;
@@ -366,10 +370,14 @@ protected:
 
      /// @brief Bind the the specified port and see if any data is ready to 
      /// read for the designated check time.
-   virtual UtlBoolean isPortBusy(int iPort, int checkTimeMS) ;
+   UtlBoolean isAddressPortBusy(const char* bindAddress, int iPort, int checkTimeMS) ;
      /**<
+     *  @param bindAddress - IP address on which to check port availablity
      *  @param iPort Port number to check
      *  @param checkTimeMS Number of ms to wait for data.
+     *  Note: had a problem on x86_64 where this was not properly invoked without
+     *  specifying explicitly class CpMediaInterfaceFactoryImpl scope.  So for
+     *  now made this a non-virtual function. 
      */
 
      /// @brief Ensure that there is enough capacity in our codec paths array

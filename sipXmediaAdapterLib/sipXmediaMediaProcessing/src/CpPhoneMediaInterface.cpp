@@ -2551,7 +2551,7 @@ OsStatus CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
 
    if (!localPortGiven)
    {
-      mpFactoryImpl->getNextRtpPort(localPort);
+      mpFactoryImpl->getNextRtpPort(localAddress, localPort);
       firstRtpPort = localPort;
    }
 

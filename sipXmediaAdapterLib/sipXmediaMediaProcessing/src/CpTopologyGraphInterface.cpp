@@ -2999,9 +2999,14 @@ OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
 
    if (!localPortGiven)
    {
-      mpFactoryImpl->getNextRtpPort(localPort);
+      mpFactoryImpl->getNextRtpPort(localAddress, localPort);
       firstRtpPort = localPort;
    }
+
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::createRtpSocketPair localPortGiven: %s, localPort: %d firstRtpPort: %d",
+       localPortGiven ? "true" : "false", localPort, firstRtpPort);
+#endif
 
    if (isMulticast)
    {

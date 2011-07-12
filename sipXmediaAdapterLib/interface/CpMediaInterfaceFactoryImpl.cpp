@@ -28,6 +28,8 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define DEFAULT_NUM_CODEC_PATHS 10;
+//#define TEST_PRINT
+
 // STATIC VARIABLE INITIALIZATIONS
 size_t CpMediaInterfaceFactoryImpl::mnCodecPaths = 0;
 size_t CpMediaInterfaceFactoryImpl::mnAllocCodecPaths = 0;
@@ -71,6 +73,8 @@ void CpMediaInterfaceFactoryImpl::release()
 
 void CpMediaInterfaceFactoryImpl::setRtpPortRange(int startRtpPort, int lastRtpPort) 
 {
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpMediaInterfaceFactoryImpl::setRtpPortRange start=%d end=%d",
+        startRtpPort, lastRtpPort);
     miStartRtpPort = startRtpPort ;
     if (miStartRtpPort < 0)
     {
@@ -82,8 +86,13 @@ void CpMediaInterfaceFactoryImpl::setRtpPortRange(int startRtpPort, int lastRtpP
 
 #define MAX_PORT_CHECK_ATTEMPTS     miLastRtpPort - miStartRtpPort
 #define MAX_PORT_CHECK_WAIT_MS      50
-OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(int &rtpPort) 
+OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(const char* bindAddress, int &rtpPort) 
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpMediaInterfaceFactoryImpl::getNextRtpPort bindAddress=%s start=%d end=%d last=%d",
+        bindAddress ? bindAddress : "NULL", miStartRtpPort, miLastRtpPort, miNextRtpPort);
+#endif
+
     OsLock lock(mlockList) ;
     bool bGoodPort = false ;
     int iAttempts = 0 ;
@@ -122,7 +131,12 @@ OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(int &rtpPort)
             }
         }
 
-        bGoodPort = !isPortBusy(rtpPort, MAX_PORT_CHECK_WAIT_MS) ;
+        // The only think that I can think of is that this is some weird x86_64 complier bug.
+        // isAddressPortBusy is not derived that I can see and yet CpMediaInterfaceFactoryImpl::isAddressPortBusy
+        // does not get called if the class scope is not explicitly used.  A strange value of 522 is
+        // somehow returned.
+        UtlBoolean portBusy =  CpMediaInterfaceFactoryImpl::isAddressPortBusy(bindAddress, rtpPort, MAX_PORT_CHECK_WAIT_MS);
+        bGoodPort = (FALSE == portBusy);
         if (!bGoodPort)
         {
             mlistBusyPorts.insert(new UtlInt(rtpPort)) ;
@@ -132,6 +146,7 @@ OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(int &rtpPort)
     // If unable to find a usable port, let the system pick one.
     if (!bGoodPort)
     {
+        OsSysLog::add(FAC_CP, PRI_WARNING, "CpMediaInterfaceFactoryImpl::getNextRtpPort found no ports defaulting to 0");
         rtpPort = 0 ;
     }
     
@@ -148,7 +163,8 @@ OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
     if (miNextRtpPort != 0)
     {
         // if it is not already in the list...
-        if (!mlistFreePorts.find(&UtlInt(rtpPort)))
+        UtlInt rtpPortInt(rtpPort);
+        if (mlistFreePorts.find(&rtpPortInt) == NULL)
         {
             // Release port to head of list (generally want to reuse ports)
             mlistFreePorts.insert(new UtlInt(rtpPort)) ;
@@ -181,7 +197,7 @@ OsStatus CpMediaInterfaceFactoryImpl::addCodecPaths(const size_t nCodecPaths,
       OsSysLog::add(FAC_MP, PRI_ERR, "CpMediaInterfaceFactory::addCodecPaths "
                     " - Error ensuring static codec path capacity when adding "
                     "%d codec paths to %d already existing paths!", 
-                    nCodecPaths, mnCodecPaths);
+                    (int) nCodecPaths, (int) mnCodecPaths);
       return OS_FAILED;
    }
 
@@ -220,37 +236,47 @@ void CpMediaInterfaceFactoryImpl::setConfiguredIpAddress(const UtlString& config
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-UtlBoolean CpMediaInterfaceFactoryImpl::isPortBusy(int iPort, int checkTimeMS) 
+UtlBoolean CpMediaInterfaceFactoryImpl::isAddressPortBusy(const char* bindAddress, int iPort, int checkTimeMS) 
 {
     UtlBoolean bBusy = FALSE ;
 
     if (iPort > 0)
     {
-        OsDatagramSocket* pSocket = new OsDatagramSocket(0, NULL, iPort, NULL) ;
+        OsDatagramSocket* pSocket = new OsDatagramSocket(0, NULL, iPort, bindAddress);
         if (pSocket != NULL)
         {
-            if (!pSocket->isOk() || pSocket->isReadyToRead(checkTimeMS))
+            if (!pSocket->isOk())
             {
-                bBusy = true ;
+                OsSysLog::add(FAC_CP, PRI_DEBUG, "CpMediaInterfaceFactoryImpl::isAddressPortBusy UDP port not OK");
+                bBusy = TRUE;
+            }
+            else if(pSocket->isReadyToRead(checkTimeMS))
+            {
+                OsSysLog::add(FAC_CP, PRI_DEBUG, "CpMediaInterfaceFactoryImpl::isAddressPortBusy UDP port ready to read");
+                bBusy = TRUE;
             }
             pSocket->close() ;
             delete pSocket ;
         }
         
         // also check TCP port availability
-        OsServerSocket* pTcpSocket = new OsServerSocket(64, iPort, 0, 1);
-        if (pTcpSocket != NULL)
+        if(bBusy == FALSE)
         {
-            if (!pTcpSocket->isOk())
+            OsServerSocket* pTcpSocket = new OsServerSocket(64, iPort, bindAddress, 1);
+            if (pTcpSocket != NULL)
             {
-                bBusy = TRUE;
+                if (!pTcpSocket->isOk())
+                {
+                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpMediaInterfaceFactoryImpl::isAddressPortBusy TCP port not OK");
+                    bBusy = TRUE;
+                }
+                pTcpSocket->close();
+                delete pTcpSocket;
             }
-            pTcpSocket->close();
-            delete pTcpSocket;
         }
     }
 
-    return bBusy ;
+    return(bBusy);
 }
 
 OsStatus CpMediaInterfaceFactoryImpl::ensureCapacityCodecPaths(size_t newSize)
