@@ -2472,6 +2472,74 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceLimitCodecPreferences(const SIPX_CONF hCo
                                                              const SIPX_AUDIO_BANDWIDTH_ID audioBandwidth,
                                                              const SIPX_VIDEO_BANDWIDTH_ID videoBandwidth,
                                                              const char* szVideoCodecName) ;
+
+/**
+ *  Create a new media connetion that is indpendent of any existing call legs in the conference.
+ *  This media connection is for independent control independent of SIP call control.
+ *  RTP streams may be stopped and started manually via the sipXtapi methods:
+ *     sipxConferenceRtpSetDestination
+ *     sipxConferenceRtpStartSend
+ *     sipxConferenceRtpStopSend
+ *
+ *  @param[in] hConf - conference handle indicating which media interface in which the new
+ *       media connection is to be created.
+ *  @param[out] connectionId - handle/id for the media connection created.
+ */
+SIPXTAPI_API SIPX_RESULT sipxMediaConnectionCreate(const SIPX_CONF hConf,
+                                                   int& connectionId);
+
+/**
+ *  Set the destination to which RTP streams are to be sent.
+ *
+ *  @param[in] hConf - conference handle indicating which media interface the connection
+ *       belongs.
+ *  @param[in] connectionId - handle/id for media connection
+ *  @param[in] mediaType - media stream type (e.g. VIDEO_MEDIA, AUDIO_MEDIA)
+ *  @param[in] mediaTypeStreamIndex - index to which stream for the given type of media
+ *       for now limited to 1 stream (i.e. index = 0)
+ *  @param[in] streamSendAddress - remote IP address to send RTP to
+ *  @param[in] rtpPort - port at remote address to send RTP stream to
+ *  @param[in] rtcpPort - port at remote address to send RTCP stream to
+ */
+SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpSetDestination(const SIPX_CONF hConf,
+                                                              int connectionId,
+                                                              MEDIA_TYPE mediaType,
+                                                              int mediaTypeStreamIndex,
+                                                              const char* streamSendAddress,
+                                                              int rtpPort,
+                                                              int rtcpPort);
+
+/**
+ *  Start sending the RTP/RTCP stream
+ *  @param[in] hConf - conference handle indicating which media interface the connection
+ *       belongs.
+ *  @param[in] connectionId - handle/id for media connection
+ *  @param[in] mediaType - media stream type (e.g. VIDEO_MEDIA, AUDIO_MEDIA)
+ *  @param[in] mediaTypeStreamIndex - index to which stream for the given type of media
+ *       for now limited to 1 stream (i.e. index = 0)
+ *  @param[in] codec - codec string token
+ *
+ */
+SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStartSend(const SIPX_CONF hConf,
+                                                         int connectionId,
+                                                         MEDIA_TYPE mediaType,
+                                                         int mediaTypeStreamIndex,
+                                                         const char* codec);
+
+/**
+ *  Stop sending RTP/RTCP
+ *  @param[in] hConf - conference handle indicating which media interface the connection
+ *       belongs.
+ *  @param[in] connectionId - handle/id for media connection
+ *  @param[in] mediaType - media stream type (e.g. VIDEO_MEDIA, AUDIO_MEDIA)
+ *  @param[in] mediaTypeStreamIndex - index to which stream for the given type of media
+ *       for now limited to 1 stream (i.e. index = 0)
+ */
+SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStopSend(const SIPX_CONF hConf,
+                                                        int connectionId,
+                                                        MEDIA_TYPE mediaType,
+                                                        int mediaTypeStreamIndex);
+
 //@}
 
 /** @name Audio Methods */

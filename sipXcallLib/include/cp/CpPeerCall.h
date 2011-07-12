@@ -349,6 +349,9 @@ protected:
     UtlBoolean handleJoinConnection(OsMsg* pEventMessage) ;
     //: Handles the processing of a CP_JOIN_CONNECTION message
     
+    UtlBoolean handleSetMediaPassThrough(const OsMsg& eventMessage);
+    //: Handles processing of CP_SET_MEDIA_PASS_THROUGH
+
     UtlBoolean handleTransferOtherPartyHold(OsMsg* pEventMessage) ;
     //: Handles the processing of a CP_TRANSFER_OTHER_PARTY_HOLD message
 

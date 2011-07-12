@@ -182,6 +182,13 @@ public:
     virtual OsStatus audioChannelRecordBufferStop(const char* callId, const char* szRemoteAddress);
     virtual OsStatus setMediaPassThrough(const UtlString& callId, const UtlString& remoteAddress, CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
                                          int mediaTypeStreamIndex, const UtlString& mediaRecieveAddress, int rtpPort, int rtcpPort);
+    virtual OsStatus createMediaConnection(const UtlString& callId, int& connectionId);
+    virtual OsStatus setRtpDestination(const UtlString& callId, int connectionId, CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                       int mediaTypeStreamIndex, const UtlString& mediaRecieveAddress, int rtpPort, int rtcpPort);
+    virtual OsStatus startRtpSend(const UtlString& callId, int connectionId, CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                  int mediaTypeStreamIndex, SdpCodec& codec);
+    virtual OsStatus stopRtpSend(const UtlString& callId, int connectionId, CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                 int mediaTypeStreamIndex);
     virtual void bufferPlay(const char* callId, const void* audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
 
 #ifndef EXCLUDE_STREAMING

@@ -2500,67 +2500,80 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         break ;
 
     case CallManager::CP_SET_MEDIA_PASS_THROUGH:
+        handleSetMediaPassThrough(eventMessage);
+        break;
+
+    case CallManager::CP_CREATE_MEDIA_CONNECTION:
         {
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall handle CP_SET_MEDIA_PASS_THROUGH # connections; %d",
-                mConnections.entries());
+            OsProtectedEvent* event = (OsProtectedEvent*)
+                    ((CpMultiStringMessage&)eventMessage).getInt1Data();
+            int connectionId = -1;
+            if(mpMediaInterface)
+            {
+                UtlString localBindAddress;
+                int contactId = CONTACT_LOCAL;
+                SIPX_CONTACT_ADDRESS* contactAddress = sipUserAgent->getContactDb().getLocalContact(contactId);
+                if (contactAddress != NULL)
+                {
+                    localBindAddress = contactAddress->cIpAddress;
+                }
 
-            // This is a bit of a hack.  We want to set the pass through addresses
-            // before either initiating an out bound call or accepting an incoming
-            // call so that the INVITE or 200 response respectively uses the pass
-            // through addresses for the identifed media stream(s).  This works fine
-            // for an incoming call as the media connection is created before the 
-            // offering notification is given.  However for the out going call,
-            // the media connection is not created until you do a connect at which
-            // point its too late to set the pass through address for the INVITE.
-            // 
-            // So here we make the assumption that we can cache the pass through
-            // address information until the point when connect is invoked and 
-            // then set pass through information.  This assumes that the next
-            // media connection created by connect is the same one intended.  With
-            // sipXtapi this is a safe assumption, but for direct users of the
-            // cp API that is not necessarily true.  I am not aware of anyone
-            // who uses the CP library directly.  Sorry if I missed you.
+                mpMediaInterface->createConnection(connectionId,
+                                                   localBindAddress);
+            }
 
-            UtlString remoteAddress;
-            ((CpMultiStringMessage&)eventMessage).getString2Data(remoteAddress);
-            CpMediaInterface::MEDIA_STREAM_TYPE mediaType = 
-                    (CpMediaInterface::MEDIA_STREAM_TYPE) ((CpMultiStringMessage&)eventMessage).getInt1Data();
-            int mediaTypeStreamIndex = ((CpMultiStringMessage&)eventMessage).getInt2Data();
+            // If the event has already been signaled, clean up
+            if(event && OS_ALREADY_SIGNALED == event->signal(connectionId))
+            {
+                // The other end must have timed out on the wait
+                OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+                eventMgr->release(event);
+            }
+        }
+        break;
+
+    case CallManager::CP_SET_RTP_DESTINATION:
+        if(mpMediaInterface)
+        {
+            int connectionId = ((CpMultiStringMessage&)eventMessage).getInt1Data();
             UtlString mediaRecieveAddress;
-            ((CpMultiStringMessage&)eventMessage).getString3Data(mediaRecieveAddress);
-            int rtpPort = ((CpMultiStringMessage&)eventMessage).getInt3Data();
-            int rtcpPort = ((CpMultiStringMessage&)eventMessage).getInt4Data();
+            ((CpMultiStringMessage&)eventMessage).getString2Data(mediaRecieveAddress);
+            CpMediaInterface::MEDIA_STREAM_TYPE mediaType = 
+                (CpMediaInterface::MEDIA_STREAM_TYPE) ((CpMultiStringMessage&)eventMessage).getInt2Data();
+            int mediaTypeStreamIndex = ((CpMultiStringMessage&)eventMessage).getInt3Data();
+            int rtpPort = ((CpMultiStringMessage&)eventMessage).getInt4Data();
+            int rtcpPort = ((CpMultiStringMessage&)eventMessage).getInt5Data();
 
-            Connection* connection = findHandlingConnection(remoteAddress);
-            if (connection && mpMediaInterface)
-            {
-                int connectionId = connection->getConnectionId();
+            mpMediaInterface->setConnectionDestination(connectionId, mediaRecieveAddress,
+                                                       mediaType == CpMediaInterface::AUDIO_STREAM ? rtpPort : -1,
+                                                       mediaType == CpMediaInterface::AUDIO_STREAM ? rtcpPort : -1,
+                                                       mediaType == CpMediaInterface::VIDEO_STREAM ? rtpPort : -1,
+                                                       mediaType == CpMediaInterface::VIDEO_STREAM ? rtcpPort : -1);
+        }
+        break;
 
-                OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                    "CpPeerCall handle CP_SET_MEDIA_PASS_THROUGH setting mediaType=%d mediaTypeStreamIndex=%d mediaRecieveAddress=\"%s\" rtpPort=%d rtcpPort=%d",
-                    mediaType, mediaTypeStreamIndex, mediaRecieveAddress.data(), rtpPort, rtcpPort);
-                mpMediaInterface->setMediaPassThrough(connectionId,
-                                                      mediaType,
-                                                      mediaTypeStreamIndex,
-                                                      mediaRecieveAddress,
-                                                      rtpPort,
-                                                      rtcpPort);
-            }
-            // The connection does not exist so cache the pass through info until
-            // a connect is done for an out bound call
-            else if(mConnections.entries() == 0)
-            {
-                // If we get to the point were more than one stream is passed through, then
-                // we will need a list of this things
-                OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                    "CpPeerCall handle CP_SET_MEDIA_PASS_THROUGH caching mediaType=%d mediaTypeStreamIndex=%d mediaRecieveAddress=\"%s\" rtpPort=%d rtcpPort=%d",
-                    mediaType, mediaTypeStreamIndex, mediaRecieveAddress.data(), rtpPort, rtcpPort);
-                assert(mediaTypeStreamIndex == 0);
-                assert(mpPassThroughData == NULL);
-                mpPassThroughData = 
-                    new MediaStreamPassThroughData(mediaType, mediaTypeStreamIndex,
-                        mediaRecieveAddress, rtpPort, rtcpPort);
-            }
+    case CallManager::CP_START_RTP_SEND:
+        if(mpMediaInterface)
+        {
+            int connectionId = ((CpMultiStringMessage&)eventMessage).getInt1Data();
+            CpMediaInterface::MEDIA_STREAM_TYPE mediaType = 
+                (CpMediaInterface::MEDIA_STREAM_TYPE) ((CpMultiStringMessage&)eventMessage).getInt2Data();
+            int mediaTypeStreamIndex = ((CpMultiStringMessage&)eventMessage).getInt3Data();
+            SdpCodec* codec = (SdpCodec*) ((CpMultiStringMessage&)eventMessage).getInt4Data();
+
+            mpMediaInterface->startRtpSend(connectionId, 1, &codec);
+        }
+        break;
+
+    case CallManager::CP_STOP_RTP_SEND:
+        if(mpMediaInterface)
+        {
+            int connectionId = ((CpMultiStringMessage&)eventMessage).getInt1Data();
+            CpMediaInterface::MEDIA_STREAM_TYPE mediaType = 
+                (CpMediaInterface::MEDIA_STREAM_TYPE) ((CpMultiStringMessage&)eventMessage).getInt2Data();
+            int mediaTypeStreamIndex = ((CpMultiStringMessage&)eventMessage).getInt3Data();
+
+            mpMediaInterface->stopRtpSend(connectionId);
         }
         break;
 
@@ -3229,6 +3242,67 @@ void CpPeerCall::handleGetTermConnections(OsMsg* pEventMessage)
         delete connectionList;
         OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
         eventMgr->release(getConnEvent);
+    }
+}
+
+UtlBoolean CpPeerCall::handleSetMediaPassThrough(const OsMsg& eventMessage)
+{
+    // This is a bit of a hack.  We want to set the pass through addresses
+    // before either initiating an out bound call or accepting an incoming
+    // call so that the INVITE or 200 response respectively uses the pass
+    // through addresses for the identifed media stream(s).  This works fine
+    // for an incoming call as the media connection is created before the 
+    // offering notification is given.  However for the out going call,
+    // the media connection is not created until you do a connect at which
+    // point its too late to set the pass through address for the INVITE.
+    // 
+    // So here we make the assumption that we can cache the pass through
+    // address information until the point when connect is invoked and 
+    // then set pass through information.  This assumes that the next
+    // media connection created by connect is the same one intended.  With
+    // sipXtapi this is a safe assumption, but for direct users of the
+    // cp API that is not necessarily true.  I am not aware of anyone
+    // who uses the CP library directly.  Sorry if I missed you.
+
+    UtlString remoteAddress;
+    ((CpMultiStringMessage&)eventMessage).getString2Data(remoteAddress);
+    CpMediaInterface::MEDIA_STREAM_TYPE mediaType = 
+            (CpMediaInterface::MEDIA_STREAM_TYPE) ((CpMultiStringMessage&)eventMessage).getInt1Data();
+    int mediaTypeStreamIndex = ((CpMultiStringMessage&)eventMessage).getInt2Data();
+    UtlString mediaRecieveAddress;
+    ((CpMultiStringMessage&)eventMessage).getString3Data(mediaRecieveAddress);
+    int rtpPort = ((CpMultiStringMessage&)eventMessage).getInt3Data();
+    int rtcpPort = ((CpMultiStringMessage&)eventMessage).getInt4Data();
+
+    Connection* connection = findHandlingConnection(remoteAddress);
+    if (connection && mpMediaInterface)
+    {
+        int connectionId = connection->getConnectionId();
+
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpPeerCall handle CP_SET_MEDIA_PASS_THROUGH setting mediaType=%d mediaTypeStreamIndex=%d mediaRecieveAddress=\"%s\" rtpPort=%d rtcpPort=%d",
+            mediaType, mediaTypeStreamIndex, mediaRecieveAddress.data(), rtpPort, rtcpPort);
+        mpMediaInterface->setMediaPassThrough(connectionId,
+                                              mediaType,
+                                              mediaTypeStreamIndex,
+                                              mediaRecieveAddress,
+                                              rtpPort,
+                                              rtcpPort);
+    }
+    // The connection does not exist so cache the pass through info until
+    // a connect is done for an out bound call
+    else if(mConnections.entries() == 0)
+    {
+        // If we get to the point were more than one stream is passed through, then
+        // we will need a list of this things
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpPeerCall handle CP_SET_MEDIA_PASS_THROUGH caching mediaType=%d mediaTypeStreamIndex=%d mediaRecieveAddress=\"%s\" rtpPort=%d rtcpPort=%d",
+            mediaType, mediaTypeStreamIndex, mediaRecieveAddress.data(), rtpPort, rtcpPort);
+        assert(mediaTypeStreamIndex == 0);
+        assert(mpPassThroughData == NULL);
+        mpPassThroughData = 
+            new MediaStreamPassThroughData(mediaType, mediaTypeStreamIndex,
+                mediaRecieveAddress, rtpPort, rtcpPort);
     }
 }
 

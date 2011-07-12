@@ -751,6 +751,10 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_RECORD_AUDIO_CONNECTION_STOP:
         case CP_RECORD_BUFFER_AUDIO_CONNECTION_START:
         case CP_SET_MEDIA_PASS_THROUGH:
+        case CP_CREATE_MEDIA_CONNECTION:
+        case CP_SET_RTP_DESTINATION:
+        case CP_START_RTP_SEND:
+        case CP_STOP_RTP_SEND:
         case CP_RECORD_BUFFER_AUDIO_CONNECTION_STOP:
         case CP_PLAY_BUFFER_TERM_CONNECTION:
         case CP_CREATE_PLAYER:
@@ -840,7 +844,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         msgSubType == CP_RECORD_BUFFER_AUDIO_CONNECTION_START ||
                         msgSubType == CP_RECORD_BUFFER_AUDIO_CONNECTION_STOP ||
                         msgSubType == CP_OUTGOING_INFO ||
-                        msgSubType == CP_GET_USERAGENT)
+                        msgSubType == CP_GET_USERAGENT ||
+                        msgSubType == CP_CREATE_MEDIA_CONNECTION)
                     {
                         // Get the OsProtectedEvent and signal it to go away
                         OsProtectedEvent* eventWithoutCall = (OsProtectedEvent*)
@@ -1607,6 +1612,146 @@ OsStatus CallManager::setMediaPassThrough(const UtlString& callId, const UtlStri
     OsSysLog::add(FAC_CP, PRI_DEBUG, 
                   "CallManager::setMediaPassThrough postin CP_SET_MEDIA_PASS_THROUGH (%d) post returned: %d",
                   CP_SET_MEDIA_PASS_THROUGH, status);
+
+    return(status);
+}
+
+OsStatus CallManager::createMediaConnection(const UtlString& callId, int& connectionId)
+{
+    OsStatus status = OS_FAILED ;
+
+    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+    OsProtectedEvent* event = eventMgr->alloc();
+    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
+
+    CpMultiStringMessage message(CP_CREATE_MEDIA_CONNECTION,
+                                 callId,
+                                 NULL,
+                                 NULL,
+                                 NULL,
+                                 NULL,
+                                 (intptr_t) event);
+
+    postMessage(message);
+
+    // Wait for error response
+    if(event->wait(0, maxEventTime) == OS_SUCCESS)
+    {
+        event->getEventData((intptr_t&)connectionId);
+        eventMgr->release(event);
+
+        if (connectionId > 0)
+        {
+            status = OS_SUCCESS;
+        } 
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::createMediaConnection TIMED OUT\n");
+        // If the event has already been signalled, clean up
+        if(OS_ALREADY_SIGNALED == event->signal(0))
+        {
+            eventMgr->release(event);
+        }
+    }
+
+    return(status);
+}
+
+OsStatus CallManager::setRtpDestination(const UtlString& callId, int connectionId, CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                        int mediaTypeStreamIndex, const UtlString& mediaRecieveAddress, int rtpPort, int rtcpPort)
+{
+    OsStatus status = OS_INVALID_ARGUMENT;
+    assert(!callId.isNull());
+    assert(connectionId > 0);
+    assert(mediaType == CpMediaInterface::AUDIO_STREAM);
+    assert(mediaTypeStreamIndex == 0);
+    assert(!mediaRecieveAddress.isNull());
+
+    if(!callId.isNull() && 
+       connectionId > 0 && 
+       mediaType == CpMediaInterface::AUDIO_STREAM &&
+       mediaTypeStreamIndex == 0 &&
+       !mediaRecieveAddress.isNull())
+    {
+        CpMultiStringMessage message(CP_SET_RTP_DESTINATION,
+                                     callId,
+                                     mediaRecieveAddress,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     connectionId,
+                                     mediaType,
+                                     mediaTypeStreamIndex,
+                                     rtpPort,
+                                     rtcpPort);
+
+        
+        status = postMessage(message);
+    }
+
+    return(status);
+}
+
+OsStatus CallManager::startRtpSend(const UtlString& callId, int connectionId, CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                  int mediaTypeStreamIndex, SdpCodec& codec)
+{
+    OsStatus status = OS_INVALID_ARGUMENT;
+    assert(!callId.isNull());
+    assert(connectionId > 0);
+    assert(mediaType == CpMediaInterface::AUDIO_STREAM);
+    assert(mediaTypeStreamIndex == 0);
+
+    if(!callId.isNull() && 
+       connectionId > 0 &&
+       mediaType == CpMediaInterface::AUDIO_STREAM &&
+       mediaTypeStreamIndex == 0)
+    {
+        CpMultiStringMessage message(CP_START_RTP_SEND,
+                                     callId,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     connectionId,
+                                     mediaType,
+                                     mediaTypeStreamIndex,
+                                     (intptr_t) new SdpCodec(codec)); // Copy needs to be freed in CpPeerCall
+
+        
+        status = postMessage(message);
+    }
+
+    return(status);
+}
+
+OsStatus CallManager::stopRtpSend(const UtlString& callId, int connectionId, CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                  int mediaTypeStreamIndex)
+{
+    OsStatus status = OS_INVALID_ARGUMENT;
+    assert(!callId.isNull());
+    assert(connectionId > 0);
+    assert(mediaType == CpMediaInterface::AUDIO_STREAM);
+    assert(mediaTypeStreamIndex == 0);
+
+    if(!callId.isNull() && 
+       connectionId > 0 &&
+       mediaType == CpMediaInterface::AUDIO_STREAM &&
+       mediaTypeStreamIndex == 0)
+    {
+        CpMultiStringMessage message(CP_STOP_RTP_SEND,
+                                     callId,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     connectionId,
+                                     mediaType,
+                                     mediaTypeStreamIndex);
+
+        
+        status = postMessage(message);
+    }
 
     return(status);
 }
