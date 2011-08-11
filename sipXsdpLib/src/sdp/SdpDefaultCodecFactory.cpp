@@ -88,6 +88,11 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_L16_32000_STEREO, "l16", 32000, 2,  NULL },
    { SdpCodec::SDP_CODEC_L16_44100_STEREO, "l16", 44100, 2,  NULL },
    { SdpCodec::SDP_CODEC_L16_48000_STEREO, "l16", 48000, 2,  NULL },
+   { SdpCodec::SDP_CODEC_AAC_LC_16000,  "aac_lc", 16000, 1,  NULL },   
+   { SdpCodec::SDP_CODEC_AAC_LC_32000,  "aac_lc", 32000, 1,  NULL },   
+   { SdpCodec::SDP_CODEC_AAC_LC_48000,  "aac_lc", 48000, 1,  NULL },   
+
+   // Video
    { SdpCodec::SDP_CODEC_H264_CIF_256,         "h264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=396;packetization-mode=0" },
    { SdpCodec::SDP_CODEC_H264_NTSC_256,        "h264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=330;packetization-mode=0" },
    { SdpCodec::SDP_CODEC_H264_4CIF_512,        "h264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1584;packetization-mode=0" },
@@ -170,6 +175,11 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_GIPS_IPCMA,      "EG711A" },
    { SdpCodec::SDP_CODEC_GIPS_IPCMWB,     "IPCMWB" },
    { SdpCodec::SDP_CODEC_GIPS_ISAC,       "ISAC" },
+   { SdpCodec::SDP_CODEC_AAC_LC_16000,    "AAC_LC_16000" },
+   { SdpCodec::SDP_CODEC_AAC_LC_32000,    "AAC_LC_32000" },
+   { SdpCodec::SDP_CODEC_AAC_LC_48000,    "AAC_LC_48000" },
+
+   // Video
    { SdpCodec::SDP_CODEC_VP71_CIF,        "VP71-CIF" },
    { SdpCodec::SDP_CODEC_VP71_QCIF,       "VP71-QCIF" },
    { SdpCodec::SDP_CODEC_VP71_SQCIF,      "VP71-SQCIF" },
@@ -841,6 +851,51 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          20000,
                          1,
                          "octet-align=1",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_AAC_LC_16000:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_AAC_LC_16000,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_AAC_LC,
+                         16000,
+                         (1024 * 1000 ) / 16, // 1024 sample frames (microsec/frame)
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_AAC_LC_32000:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_AAC_LC_32000,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_AAC_LC,
+                         32000,
+                         (1024 * 1000 ) / 32, // 1024 sample frames (microsec/frame)
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_AAC_LC_48000:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_AAC_LC_48000,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_AAC_LC,
+                         48000,
+                         (1024 * 1000 ) / 48, // 1024 sample frames (microsec/frame)
+                         1,
+                         "",
                          SdpCodec::SDP_CODEC_CPU_HIGH,
                          SDP_CODEC_BANDWIDTH_LOW);
       }

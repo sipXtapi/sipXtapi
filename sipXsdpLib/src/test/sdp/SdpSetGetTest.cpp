@@ -399,8 +399,8 @@ public:
             "SessionLanguage: ''\n"
             "DescriptionLanguage: ''\n"
             "MaximumPacketRate: 0.000000\n";
-        CPPUNIT_ASSERT(sdpString == matchString);
-        //printf("%s\n", sdpString.data());
+        CPPUNIT_ASSERT_EQUAL(matchString, sdpString);
+        //printf("sdpString: %s\nmatchString: %s\n", sdpString.data(), matchString.data());
     }
 
     void testFoundationId()

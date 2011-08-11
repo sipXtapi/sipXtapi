@@ -178,6 +178,10 @@ public:
         SDP_CODEC_G726_24,
         SDP_CODEC_G726_32,
         SDP_CODEC_G726_40,
+        SDP_CODEC_AAC_LC_16000,
+        SDP_CODEC_AAC_LC_32000,
+        SDP_CODEC_AAC_LC_48000,
+
         /// GIPS specific codecs
         //@{
         SDP_CODEC_GIPS_IPCMA,
