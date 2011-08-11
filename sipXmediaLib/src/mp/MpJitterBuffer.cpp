@@ -543,18 +543,28 @@ int MpJitterBuffer::adjustStream(MpAudioSample *pBuffer,
       return 0;
    }
 
+   int pos = 0;
    if (wantedAdjustment > 0)
    {
       numSamples = sipx_min(numSamples, (unsigned)(wantedAdjustment+wantedAdjustment/8));
+      // Cannot expand past the maximum size of buffer, so only look for a splice point
+      // within the window of the maximum possible shift.
+      // Find a good place to glue
+      int maxExpand = sipx_min(numSamples-E_FRAME_WINDOW, bufferSize - numSamples-E_FRAME_WINDOW);
+      if(maxExpand > 0)
+      {
+         pos = getMinEPosition(pBuffer, pBuffer+E_FRAME_WINDOW,
+                               maxExpand);
+      }
    }
    else
    {
       numSamples = sipx_min(numSamples, (unsigned)(-wantedAdjustment+wantedAdjustment/8));
+      // Find a good place to glue
+      pos = getMinEPosition(pBuffer, pBuffer+E_FRAME_WINDOW,
+                            numSamples-E_FRAME_WINDOW);
    }
 
-   // Find a good place to glue
-   int pos = getMinEPosition(pBuffer, pBuffer+E_FRAME_WINDOW,
-                             numSamples-E_FRAME_WINDOW);
    RTL_EVENT("MpJitterBuffer_adjustStream_wantedAdjustment", wantedAdjustment);
    RTL_EVENT("MpJitterBuffer_adjustStream_numSamples", numSamples);
    RTL_EVENT("MpJitterBuffer_adjustStream_pos", pos);
