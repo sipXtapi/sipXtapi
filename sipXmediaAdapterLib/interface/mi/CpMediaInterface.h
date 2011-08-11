@@ -367,6 +367,12 @@ public:
      *             failure codes to expect, etc. -- kkyzivat 20070801 >>
      */
 
+     /// @brief Get the list of codecs and payload IDs for the connection
+   virtual const SdpCodecList* getConnectionCodecList(int connectionId) = 0;
+     /**<
+      * @retval pointer to connection's SdpCodecList
+      */
+
      /// @brief Delete the specified RTP or RTCP connetion.
    virtual OsStatus deleteConnection(int connectionId) = 0 ;
      /**<

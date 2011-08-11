@@ -1423,6 +1423,19 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
    return returnCode;
 }
 
+const SdpCodecList* CpTopologyGraphInterface::getConnectionCodecList(int connectionId)
+{
+   const SdpCodecList* codecList = NULL;
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+   if(mediaConnection)
+   {
+      codecList = mediaConnection->mpCodecFactory;
+   }
+
+   return(codecList);
+}
+
 OsStatus CpTopologyGraphInterface::stopRtpSend(int connectionId)
 {
    OsStatus returnCode = OS_NOT_FOUND;

@@ -186,8 +186,12 @@ public:
 
      /// @copydoc CpMediaInterface::stopRtpSend()
    virtual OsStatus stopRtpSend(int connectionId);
+
      /// @copydoc CpMediaInterface::stopRtpReceive()
    virtual OsStatus stopRtpReceive(int connectionId);
+
+     /// @copydoc CpMediaInterface::getConnectionCodecList()
+   virtual const SdpCodecList* getConnectionCodecList(int connectionId);
 
      /// @copydoc CpMediaInterface::deleteConnection()
    virtual OsStatus deleteConnection(int connectionId);
