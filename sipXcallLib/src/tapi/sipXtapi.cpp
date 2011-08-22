@@ -4580,6 +4580,12 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStartSend(const SIPX_CONF hConf,
         UtlString callId = pData->strCallId;
         SdpCodec sdpCodec = SdpDefaultCodecFactory::getCodec(SdpDefaultCodecFactory::getCodecType(codec));
 
+        // Make sure the codec has a bound payload ID.  Codecs with unbound payload IDs are set to -1
+        if(sdpCodec.getCodecPayloadFormat() == -1)
+        {
+            sdpCodec.setCodecPayloadFormat(121);
+        }
+
         OsStatus osStatus = pData->pInst->pCallManager->startRtpSend(callId, connectionId, cpMediaType,
             mediaTypeStreamIndex, sdpCodec);
 
