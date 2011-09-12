@@ -398,6 +398,13 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength,
                 mNumRecentWriteErrors = 0;
             }
         }
+#ifdef TEST_PRINT
+        else
+        {
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsDatagramSocket::write bytes: %d to address: %s port: %d",
+                bytesSent, ipAddress, port);
+        }
+#endif
     }
     return(bytesSent);
 }
@@ -432,7 +439,8 @@ int OsDatagramSocket::writeTo(const char* buffer, int bufferLength)
 {
     int bytesSent = 0;
 
-    if (getToSockaddr()) {
+    if (getToSockaddr()) 
+    {
         bytesSent = sendto(socketDescriptor,
 #ifdef _VXWORKS
             (char*)
@@ -440,6 +448,12 @@ int OsDatagramSocket::writeTo(const char* buffer, int bufferLength)
             buffer, bufferLength,
             0,
             (struct sockaddr*) mpToSockaddr, sizeof(struct sockaddr_in));
+
+#ifdef TEST_PRINT
+        UtlString address(inet_ntoa(mpToSockaddr->sin_addr));
+        OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsDatagramSocket::writeTo bytes: %d to address: %s port: %d",
+            bytesSent, address.data(), (int) ntohs(mpToSockaddr->sin_port));
+#endif
 
         if(bytesSent != bufferLength)
         {

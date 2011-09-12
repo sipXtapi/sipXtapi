@@ -205,6 +205,12 @@ int OsSocket::write(const char* buffer, int bufferLength)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsSocket::write send returned %d, errno=%d\n", bytesSent, errno);
    }
+#ifdef TEST_PRINT
+   else
+   {
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSocket::write send %d bytes", bytesSent);
+   }
+#endif
 
    // 10038 WSAENOTSOCK not a valid socket descriptor
 
