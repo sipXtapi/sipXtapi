@@ -101,6 +101,9 @@ public:
                        const HttpMessage& request,
                        HttpMessage*& response );
 
+   /// Parse a value in the XML-RPC request
+   static bool parseValue(TiXmlNode* valueNode, int index, UtlSList& params);
+
 /* ============================ ACCESSORS ================================= */
 
    /// Add a method to the RPC dispatch
@@ -128,14 +131,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   /// Parse a value in the XML-RPC request
-   bool parseValue(TiXmlNode* valueNode, int index, UtlSList& params);
-
    /// Parse an array in the XML-RPC request
-   bool parseArray(TiXmlNode* valueNode, UtlSList*& array);
+   static bool parseArray(TiXmlNode* valueNode, UtlSList*& array);
 
    /// Parse a struct in the XML-RPC request
-   bool parseStruct(TiXmlNode* valueNode, UtlHashMap*& memebers);
+   static bool parseStruct(TiXmlNode* valueNode, UtlHashMap*& memebers);
 
    /// Clean up the memory in a struct
    void cleanUp(UtlHashMap* members);
