@@ -101,6 +101,7 @@ public:
         commonInt2_clone = UtlInt(INT_MAX) ; 
         commonInt3 = UtlInt(INT_MIN) ; 
         commonInt3_clone = UtlInt(INT_MIN) ;
+        commonList.removeAll();
         commonList.insert(&commonString1) ; 
         commonContainables[0] = &commonString1 ;
         commonContainables_Clone[0] = &commonString1_clone ; 
