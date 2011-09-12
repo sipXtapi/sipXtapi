@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
+// Copyright (C) 2008-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -52,6 +52,9 @@ public:
 
       /// Destructor
     virtual ~UtlHashMap();
+
+    /// @copydoc UtlCopyableContainable::clone
+    virtual UtlHashMap* clone() const;
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -153,6 +156,22 @@ public:
       *  It does not clear the given map. IF USING destroyAll call, be sure
       *  to call this on only ONE map instance.
       */
+
+    OsStatus deepCopyInto(UtlHashMap& map) const;
+      /**<
+       *  This does a deep copy of the object in this UtlHashMap.
+       *  WARNING: buyer beware, all objects (both keys and values)
+       *  MUST be derived from UtlCopyableContainable or this method will
+       *  fail.  The clone method is invoked on both keys and values to
+       *  create copies into the given map.  The given map does not need
+       *  to be empty, but if the key already exists, the copy will fail.
+       *
+       *  @param map - target UtlHashMap to copy key/value pairs to.
+       *
+       *  @returns OS_NAME_IN_USE if key already exists in map
+       *           OS_NOT_SUPPORTED if any key or object is not derived from UtlCopyableContainable
+       *
+       */
 
       /// The current number of buckets in the hash.
     size_t numberOfBuckets() const

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -139,6 +142,13 @@ int UtlIntPtr::compareTo(UtlContainable const * inVal) const
 UtlBoolean UtlIntPtr::isEqual(UtlContainable const * inVal) const
 {
     return (compareTo(inVal) == 0) ; 
+}
+
+UtlBoolean UtlIntPtr::isInstanceOf(const UtlContainableType type) const
+{
+    // Check if it is my type and the defer parent type comparisons to parent
+    return(areSameTypes(type, UtlIntPtr::TYPE) ||
+           UtlCopyableContainable::isInstanceOf(type));
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

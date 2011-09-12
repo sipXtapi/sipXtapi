@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -126,6 +129,15 @@ void UtlHashMap::resize()
    {
       assert(newBucket); // failed to allocate new buckets
    }
+}
+
+/// Make an off the heap, deep copy of this object
+UtlHashMap* UtlHashMap::clone() const
+{
+   UtlHashMap* copy = new UtlHashMap();
+   deepCopyInto(*copy);
+
+   return(copy);
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -308,6 +320,38 @@ void UtlHashMap::copyInto(UtlHashMap& into) const
     }
 }
 
+OsStatus UtlHashMap::deepCopyInto(UtlHashMap& target) const
+{
+    OsStatus status = OS_SUCCESS;
+    UtlHashMapIterator iterator(*this);
+    UtlContainable* keyPtr = NULL;
+    UtlContainable* valuePtr = NULL;
+    while ((keyPtr = (UtlContainable*) iterator()))
+    {
+        valuePtr = (UtlContainable*) iterator.value();
+
+        if(keyPtr->isInstanceOf(UtlCopyableContainable::TYPE) &&
+           (valuePtr == NULL || valuePtr->isInstanceOf(UtlCopyableContainable::TYPE)))
+        {
+            // Returns key if insert succeeds, NULL if key already exists
+            if(target.insertKeyAndValue(((UtlCopyableContainable*)keyPtr)->clone(),
+                                     valuePtr ? ((UtlCopyableContainable*)valuePtr)->clone() : NULL) == NULL)
+            {
+                status = OS_NAME_IN_USE;
+            }
+             
+        }
+        // Key or value are not clonable (i.e. derived from UtlCopyableContainable
+        else
+        {
+            //assert(keyPtr->isInstanceOf(UtlCopyableContainable::TYPE));
+            //assert(valuePtr->isInstanceOf(UtlCopyableContainable::TYPE));
+            status = OS_NOT_SUPPORTED;
+        }
+    }
+
+    return(status);
+}
 
 /* ============================ ACCESSORS ================================= */
 

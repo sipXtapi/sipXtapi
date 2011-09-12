@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -14,7 +17,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
-#include "utl/UtlContainable.h"
+#include "utl/UtlCopyableContainable.h"
 
 // DEFINES
 // MACROS
@@ -28,7 +31,7 @@
 /**
  * UtlBool is a UtlContainable wrapper for a bool.
  */
-class UtlBool : public UtlContainable
+class UtlBool : public UtlCopyableContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -46,6 +49,9 @@ public:
      * Destructor
      */
     virtual ~UtlBool();
+
+    /// Make a copy of this
+    virtual UtlCopyableContainable* clone() const;
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -84,6 +90,8 @@ public:
      */
     virtual int compareTo(UtlContainable const *) const ;    
 
+    /// @copydoc UtlContainable::isInstanceOf
+    virtual UtlBoolean isInstanceOf(const UtlContainableType type) const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -133,17 +136,32 @@ public:
      * UtlContainableType.
      */
 
-    /// Determine if this object is of the specified UtlContainableType.
+    /// Are UtlContainable types the same
+    static UtlBoolean areSameTypes(const UtlContainableType type1, const UtlContainableType type2);
+
+    /// Determine if this object is a derivative of the specified UtlContainableType
     virtual UtlBoolean isInstanceOf(const UtlContainableType type) const ; 
     /**<
      * Determine if this object is an instance of the designated runtime
-     * class identifer.  For example:
+     * class identifer or one of its derivatives.  For example:
      * <pre>
      * if (pMyObject->isInstanceOf(UtlInt::TYPE))
      * {
      *     ...
      * }
      * </pre>
+     *
+     * If you want to determine if this object is exactly the same type as
+     * the given type (i.e. not a deriviative) use the following:
+     * <pre>
+     * if(myObject->getContainableType() == UtlInt::TYPE)
+     * {
+     *     ...
+     * }
+     * </pre>
+     *
+     * @returns TRUE/FALSE if this object is of the given type or a derivative of
+     *     the given type.
      */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -1289,6 +1292,13 @@ UtlBoolean UtlString::contains(const char* searchStr) const
 UtlBoolean UtlString::isNull() const
 {
     return(mSize == 0);
+}
+
+UtlBoolean UtlString::isInstanceOf(const UtlContainableType type) const
+{
+    // Check if it is my type and the defer parent type comparisons to parent
+    return(areSameTypes(type, UtlString::TYPE) ||
+           UtlCopyableContainable::isInstanceOf(type));
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

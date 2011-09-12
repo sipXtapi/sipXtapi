@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -110,7 +113,7 @@ public:
      */
 
     /// Clone method for UtlCopyableContainable requirements
-    UtlCopyableContainable* clone() const;
+    virtual UtlCopyableContainable* clone() const;
 
 ///@}
 // ================================================================
@@ -644,6 +647,9 @@ public:
      * Test this object to another like-object for equality.  This method
      * returns false if unlike-objects are specified.
      */
+
+    /// @copydoc UtlContainable::isInstanceOf
+    virtual UtlBoolean isInstanceOf(const UtlContainableType type) const;
 
 ///@}
 // ================================================================

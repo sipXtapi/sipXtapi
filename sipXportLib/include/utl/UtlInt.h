@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2008 SIPez LLC  All rights reserved.
+// Copyright (C) 2007-2011 SIPez LLC  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -117,6 +117,9 @@ public:
      * returns false if unlike-objects are specified.
      */
     virtual UtlBoolean isEqual(UtlContainable const *) const ; 
+
+    /// @copydoc UtlContainable::isInstanceOf
+    virtual UtlBoolean isInstanceOf(const UtlContainableType type) const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

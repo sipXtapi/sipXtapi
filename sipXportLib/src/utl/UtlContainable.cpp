@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -46,12 +49,19 @@ UtlContainable::~UtlContainable()
 /* ============================ INQUIRY =================================== */
 
 // RTTI
+UtlBoolean UtlContainable::areSameTypes(const UtlContainableType type1, const UtlContainableType type2)
+{
+    return(type1 != NULL && type2 != NULL && 
+           (type1 == type2 ||
+            (strcmp(type1, type2) == 0)));
+}
+ 
 UtlBoolean UtlContainable::isInstanceOf(const UtlContainableType type) const
 {
-    return (   (type != NULL)
-            && (getContainableType() != NULL)
-            && (type == getContainableType())
-            );
+    return(areSameTypes(type, UtlContainable::TYPE) ||
+            // This is for upward compatablity as many sub-classes do not yet
+            // implement isInstanceOf.  This may be redundent in some cases.
+           areSameTypes(type, getContainableType()));
 }
 
 // Test this object to another like-object for equality. 
