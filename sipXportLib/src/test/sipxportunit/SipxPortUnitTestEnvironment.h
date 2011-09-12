@@ -38,6 +38,7 @@
 // FORWARD DECLARATIONS
 class SipxPortUnitTestConstructor;
 class SipxPortUnitTestClass;
+class UtlContainable;
 
 //
 //! Top level unit test class and envrionment container
@@ -101,6 +102,22 @@ public:
     static void printOut(const char* messageText);
 
     static void defaultPrintOut(const char* messageText);
+
+    static void makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, const char* arg1String, const char* arg2String,
+                    const char* fileName, const char* className, const char* methodName, int testPoint, int lineNum, 
+                    int arg1, int arg2);
+
+    static void makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, const char* arg1String, const char* arg2String,
+                    const char* fileName, const char* className, const char* methodName, int testPoint, int lineNum, 
+                    const char* arg1, const char* arg2);
+
+    static void makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, const char* arg1String, const char* arg2String,
+                    const char* fileName, const char* className, const char* methodName, int testPoint, int lineNum, 
+                    const UtlContainable* arg1, const UtlContainable* arg2);
+
+    static void makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, const char* arg1String, const char* arg2String,
+                    const char* fileName, const char* className, const char* methodName, int testPoint, int lineNum, 
+                    const void* arg1, const void* arg2);
 
 /* ========================== A C C E S S O R S =========================== */
 

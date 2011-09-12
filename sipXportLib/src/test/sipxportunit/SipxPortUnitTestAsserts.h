@@ -42,7 +42,37 @@
     CPPUNIT_ASSERT_EQUAL_MESSAGE("", EQUAL_ARG1, EQUAL_ARG2)
 
 #define CPPUNIT_ASSERT_EQUAL_MESSAGE(NOT_EQ_MSG, EQ_ARG1, EQ_ARG2) \
-    CPPUNIT_ASSERT_MESSAGE(NOT_EQ_MSG, (EQ_ARG1 == EQ_ARG2)) 
+        { \
+            SipxPortUnitTestClass* currentTestClass = 0; \
+            if((currentTestClass = SipxPortUnitTestEnvironment::getCurrentTestClass())) \
+            { \
+                currentTestClass->incrementTestPointIndex(); \
+                currentTestClass->setTestPointLine(__LINE__); \
+                currentTestClass->setTestPointFilename(__FILE__); \
+                if(EQ_ARG1 == EQ_ARG2) \
+                { \
+                    currentTestClass->incrementTestPointsPassed(); \
+                } \
+                else \
+                { \
+                    currentTestClass->incrementTestPointsFailed(); \
+                    char _sipxportunit_message[SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE]; \
+                    const char* className = currentTestClass->getClassName(); \
+                    const char* methodName = currentTestClass->getCurrentMethodName(); /* spMethodNames[getCurrentMethodIndex()]; */ \
+                    int testPoint = currentTestClass->getTestPointIndex(); \
+                    SipxPortUnitTestEnvironment::makeAssertNotEqualMessage(_sipxportunit_message, ((char*)NOT_EQ_MSG), #EQ_ARG1, #EQ_ARG2, \
+                        __FILE__, className, methodName, testPoint, __LINE__, EQ_ARG1, EQ_ARG2); \
+                    SipxPortUnitTestEnvironment::printOut(_sipxportunit_message); \
+                    currentTestClass->addFailedTestPoint(__FILE__, \
+                                                         className, \
+                                                         methodName, \
+                                                         testPoint, \
+                                                         __LINE__, \
+                                                         _sipxportunit_message); \
+                } \
+            } \
+            assert(currentTestClass); \
+        }
 
 #define CPPUNIT_ASSERT(ASSERT_VAL) \
     CPPUNIT_ASSERT_MESSAGE("",  ASSERT_VAL)

@@ -357,6 +357,55 @@ void SipxPortUnitTestEnvironment::printOut(const char* messageText)
     }
 }
 
+void SipxPortUnitTestEnvironment::makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, 
+                                                            const char* arg1String, const char* arg2String,
+                                                            const char* fileName, const char* className, 
+                                                            const char* methodName, int testPoint, int lineNum, 
+                                                            int arg1, int arg2)
+{
+    snprintf(messageBuffer, SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE - 1,
+             "%s, \"%s\" is not equal to \"%s\", file: %s %s::%s test point: %d line: %d\n\t%s=%d\n\t%s=%d\n",
+             notEqualMessage, arg1String, arg2String,
+             fileName, className, methodName, testPoint, lineNum, arg1String, arg1, arg2String, arg2);
+}
+
+void SipxPortUnitTestEnvironment::makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, 
+                                                            const char* arg1String, const char* arg2String,
+                                                            const char* fileName, const char* className, 
+                                                            const char* methodName, int testPoint, int lineNum, 
+                                                            const char* arg1, const char* arg2)
+{
+    snprintf(messageBuffer, SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE - 1,
+             "%s, \"%s\" is not equal to \"%s\", file: %s %s::%s test point: %d line: %d\n\t%s=\"%s\"\n\t%s=\"%s\"\n",
+             notEqualMessage, arg1String, arg2String,
+             fileName, className, methodName, testPoint, lineNum, arg1String, arg1, arg2String, arg2);
+}
+
+void SipxPortUnitTestEnvironment::makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, 
+                                                            const char* arg1String, const char* arg2String,
+                                                            const char* fileName, const char* className, 
+                                                            const char* methodName, int testPoint, int lineNum, 
+                                                            const void* arg1, const void* arg2)
+{
+    snprintf(messageBuffer, SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE - 1,
+             "%s, \"%s\" is not equal to \"%s\", file: %s %s::%s test point: %d line: %d\n\t%s=%p\n\t%s=%p\n",
+             notEqualMessage, arg1String, arg2String,
+             fileName, className, methodName, testPoint, lineNum, arg1String, arg1, arg2String, arg2);
+}
+
+void SipxPortUnitTestEnvironment::makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, 
+                                                            const char* arg1String, const char* arg2String,
+                                                            const char* fileName, const char* className, 
+                                                            const char* methodName, int testPoint, int lineNum, 
+                                                            const UtlContainable* arg1, const UtlContainable* arg2)
+{
+    // No generic way to get value of UtlContainable so we do not print it
+    snprintf(messageBuffer, SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE - 1,
+             "%s, \"%s\" is not equal to \"%s\", file: %s %s::%s test point: %d line: %d\n",
+             notEqualMessage, arg1String, arg2String,
+             fileName, className, methodName, testPoint, lineNum); //, arg1String, arg1, arg2String, arg2);
+}
+
 /* ========================== A C C E S S O R S =========================== */
 
 char* SipxPortUnitTestEnvironment::newCopyString(const char* stringToCopy)
