@@ -11,10 +11,14 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <os/OsIntTypes.h>
+
 #include <string.h>
 
+#include <os/OsDatagramSocket.h>
 #include <utl/UtlString.h>
 #include <utl/UtlInt.h>
+#include <utl/UtlBool.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlContainableTestStub.h>
 #include <sipxunittests.h>
@@ -55,6 +59,7 @@ class UtlHashMapTests : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testCopyInto) ;
     CPPUNIT_TEST(testRemoveCollision) ;
     CPPUNIT_TEST(testOneThousandInserts) ;
+    CPPUNIT_TEST(testDeepCopy);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -917,6 +922,68 @@ public:
             }
          }
       }
+
+    void testDeepCopy()
+    {
+        UtlHashMap source;
+        source.insertKeyAndValue(new UtlString("1"), new UtlBool(TRUE));
+        source.insertKeyAndValue(new UtlString("2"), new UtlInt(2));
+        source.insertKeyAndValue(new UtlString("3"), new UtlString("3"));
+
+        UtlHashMap target;
+        OsStatus status = source.deepCopyInto(target);
+        CPPUNIT_ASSERT_EQUAL(status, OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(3, target.entries());
+
+        // Test UtlBool clone
+        UtlBool aBool(FALSE);
+        CPPUNIT_ASSERT(aBool.isInstanceOf(UtlCopyableContainable::TYPE));
+        UtlString firstKey("1");
+        UtlContainable* keyPtr = target.find(&firstKey);
+        CPPUNIT_ASSERT(keyPtr);
+        CPPUNIT_ASSERT(keyPtr->isInstanceOf(UtlString::TYPE));
+        UtlContainable* valuePtr = target.findValue(&firstKey);
+        CPPUNIT_ASSERT(valuePtr);
+        CPPUNIT_ASSERT(valuePtr->isInstanceOf(UtlBool::TYPE));
+        CPPUNIT_ASSERT_EQUAL(((UtlBool*)valuePtr)->getValue(), TRUE);
+
+        // Test UtlInt clone
+        UtlInt aInt(44);
+        CPPUNIT_ASSERT(aInt.isInstanceOf(UtlCopyableContainable::TYPE));
+        UtlString secondKey("2");
+        keyPtr = target.find(&secondKey);
+        CPPUNIT_ASSERT(keyPtr);
+        CPPUNIT_ASSERT(keyPtr->isInstanceOf(UtlString::TYPE));
+        valuePtr = target.findValue(&secondKey);
+        CPPUNIT_ASSERT(valuePtr);
+        CPPUNIT_ASSERT(valuePtr->isInstanceOf(UtlInt::TYPE));
+        CPPUNIT_ASSERT_EQUAL(*((UtlInt*)valuePtr), 2);
+
+        // Test UtlString clone
+        UtlString thirdKey("3");
+        CPPUNIT_ASSERT(thirdKey.isInstanceOf(UtlCopyableContainable::TYPE));
+        valuePtr = target.findValue(&thirdKey);
+        CPPUNIT_ASSERT(valuePtr);
+        CPPUNIT_ASSERT(valuePtr->isInstanceOf(UtlString::TYPE));
+        CPPUNIT_ASSERT_EQUAL(*((UtlString*)valuePtr), "3");
+
+        // Should fail to copy ask keys already to exist in target
+        status = source.deepCopyInto(target);
+        CPPUNIT_ASSERT_EQUAL(status, OS_NAME_IN_USE);
+
+        // OsSocket is not a cloneable object
+        OsDatagramSocket aSocket(50505, "127.0.0.1");
+        CPPUNIT_ASSERT(! aSocket.isInstanceOf(UtlCopyableContainable::TYPE));
+        target.destroyAll();
+        UtlString socketKey("4");
+        source.insertKeyAndValue(&socketKey, &aSocket);
+        status = source.deepCopyInto(target);
+        CPPUNIT_ASSERT_EQUAL(status, OS_NOT_SUPPORTED);
+        CPPUNIT_ASSERT_EQUAL(3, target.entries());
+        CPPUNIT_ASSERT(source.remove(&socketKey));
+        target.destroyAll();
+        source.destroyAll();
+    }
 };
 
 const int UtlHashMapTests::INDEX_NOT_EXIST = -1;
