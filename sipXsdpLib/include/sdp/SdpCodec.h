@@ -394,6 +394,22 @@ public:
    *  That is the encoding type and its characteristics, not the payload type.
    */
 
+   /// Returns TRUE if the named fmtp parameters are the same in this and the given codec
+   UtlBoolean isFmtpParameterSame(const SdpCodec& codec, const UtlString& fmtpParameterName, const UtlString& fmtpParameterDefaultValue) const;
+   /*
+    * @param codec - codec to compare fmpt parameter with this codec's
+    * @param fmtpParameterName - name of the parameter in the fmtp to compare
+    * @param fmtpParameterDefaultValue - default value of the parameter to assume if it is not set
+    */
+
+   /// Returns TRUE if the named fmtp parameters are the same in this and the given fmtp field string
+   UtlBoolean isFmtpParameterSame(const UtlString& fmtp, const UtlString& fmtpParameterName, const UtlString& fmtpParameterDefaultValue) const;
+   /*
+    * @param fmpt = SDP fmpt field value string containing zero or more parameters and values
+    * @param fmtpParameterName - name of the parameter in the fmtp to compare
+    * @param fmtpParameterDefaultValue - default value of the parameter to assume if it is not set
+    */
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

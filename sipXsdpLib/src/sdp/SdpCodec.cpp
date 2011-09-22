@@ -15,6 +15,11 @@
 
 // APPLICATION INCLUDES
 #include <sdp/SdpCodec.h>
+//#define TEST_PRINT
+#ifdef TEST_PRINT
+#    include <os/OsSysLog.h>
+#endif
+#include <utl/UtlNameValueTokenizer.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -680,10 +685,100 @@ int SdpCodec::getBWCost() const
 
 UtlBoolean SdpCodec::isSameDefinition(SdpCodec& codec) const
 {
-    return(mSampleRate == codec.mSampleRate &&
-           mNumChannels == codec.mNumChannels &&
-           mMimeType.compareTo(codec.mMimeType, UtlString::ignoreCase) == 0 &&
-           mMimeSubtype.compareTo(codec.mMimeSubtype, UtlString::ignoreCase) == 0);
+    UtlBoolean isSame = FALSE;
+
+    if(mSampleRate == codec.mSampleRate &&
+       mNumChannels == codec.mNumChannels &&
+       mMimeType.compareTo(codec.mMimeType, UtlString::ignoreCase) == 0 &&
+       mMimeSubtype.compareTo(codec.mMimeSubtype, UtlString::ignoreCase) == 0)
+    {
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isSameDefinition mime subtype: %s", 
+            mMimeSubtype.data());
+#endif
+
+        // Need to compare more for H.264
+        if(mMimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase) == 0)
+        {
+            isSame = isFmtpParameterSame(codec, "packetization-mode", "0");
+        }
+        else
+        {
+            isSame = TRUE;
+        }
+    }
+
+    return(isSame);
+}
+
+UtlBoolean SdpCodec::isFmtpParameterSame(const SdpCodec& codec, const UtlString& fmtpParameterName, const UtlString& fmtpParameterDefaultValue) const
+{
+    return(isFmtpParameterSame(codec.mFormatSpecificData, fmtpParameterName, fmtpParameterDefaultValue));
+}
+
+UtlBoolean SdpCodec::isFmtpParameterSame(const UtlString& fmtp, const UtlString& fmtpParameterName, const UtlString& fmtpParameterDefaultValue) const
+{
+    UtlBoolean isSame = FALSE;
+
+    // Need to compare the parameter value of the two codecs
+    UtlString thisParam;
+    UtlString thisValue;
+    UtlString thatParam;
+    UtlString thatValue;
+    UtlString thisTempFmpt(mFormatSpecificData);
+    thisTempFmpt.replace(';', '\n'); // Tokenizer only understands newline name/value pair separators
+    UtlNameValueTokenizer thisTokenizer(thisTempFmpt);
+    while(thisTokenizer.getNextPair('=', &thisParam, &thisValue) && 
+          (thisParam.compareTo(fmtpParameterName, UtlString::ignoreCase) != 0))
+    {
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isFmtpParameterSame this fmtp param: \"%s\" value: \"%s\"",
+                      thisParam.data(), thisValue.data());
+#endif
+    }
+
+    // If fmtp parameter is not present, it is assumed to be default
+    if(thisParam.compareTo(fmtpParameterName, UtlString::ignoreCase) != 0)
+    {
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isFmtpParameterSame parameter: %s not found for this codec, assuming: \"%s\"",
+                      fmtpParameterName.data(), fmtpParameterDefaultValue.data());
+#endif
+        thisValue = fmtpParameterDefaultValue;
+    }
+
+    UtlString thatTempFmtp(fmtp);
+    thatTempFmtp.replace(';', '\n'); // Tokenizer only understands newline name/value pair separators
+    UtlNameValueTokenizer thatTokenizer(thatTempFmtp);
+    while(thatTokenizer.getNextPair('=', &thatParam, &thatValue) && 
+          (thatParam.compareTo(fmtpParameterName, UtlString::ignoreCase) != 0))
+    {
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isFmtpParameterSame that fmtp param: \"%s\" value: \"%s\"",
+                      thatParam.data(), thatValue.data());
+#endif
+    }
+
+    // If packetization-mode is not present, it is assumed to be 0
+    if(thatParam.compareTo(fmtpParameterName, UtlString::ignoreCase) != 0)
+    {
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isFmtpParameterSame parameter: %s not found for that codec, assuming: \"%s\"",
+                      fmtpParameterName.data(), fmtpParameterDefaultValue.data());
+#endif
+        thatValue = fmtpParameterDefaultValue;
+    }
+
+    if(thisValue.compareTo(thatValue, UtlString::ignoreCase) == 0)
+    {
+        isSame = TRUE;
+    }
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isFmtpParameterSame parameter %s this: \"%s\" that: \"%s\" isSame: %d",
+                  fmtpParameterName.data(), thisValue.data(), thatValue.data(), isSame);
+#endif
+
+    return(isSame);
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
