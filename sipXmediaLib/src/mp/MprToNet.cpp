@@ -279,6 +279,17 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
    numBytesSent = mpRtpSocket->write(pUdpPacket->getDataPtr(), pUdpPacket->getPacketSize());
 #endif /* DROP_SOME_PACKETS ] */
 
+#ifdef TEST_PRINT
+   UtlString remoteIp("null socket");
+   int remotePort;
+   if(mpRtpSocket)
+   {
+      mpRtpSocket->getRemoteHostIp(&remoteIp, &remotePort);
+   }
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToNet::writeRtp payload: %d send to address: %s port: %d numBytesSent: %d errno: %d",
+      payloadType, remoteIp.data(), remotePort, numBytesSent, errno);
+#endif
+
    if (numBytesSent != pUdpPacket->getPacketSize()) {
       switch (errno) {
          /* insert other benign errno values here */
