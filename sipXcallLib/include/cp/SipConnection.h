@@ -371,7 +371,6 @@ private:
                                    SdpCodecList& supportedCodecsArray,
                                    int& numCodecsInCommon,
                                    SdpCodec** &commonCodecsForEncoder,
-                                   SdpCodec** &commonCodecsForDecoder,
                                    UtlString& remoteAddress,
                                    int& remotePort,
                                    int& remoteRtcpPort,

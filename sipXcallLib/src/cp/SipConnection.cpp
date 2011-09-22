@@ -304,17 +304,6 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
 
                 if(numMatchingCodecs > 0)
                 {
-                    // Need to cleanup the codecs
-                    for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-                    {
-                        delete encoderCodecs[codecIndex];
-                        encoderCodecs[codecIndex] = NULL;
-
-                        delete decoderCodecs[codecIndex];
-                        decoderCodecs[codecIndex] = NULL;
-                    }
-                    delete[] encoderCodecs;
-                    delete[] decoderCodecs;
                     atLeastOneCodecSupported = TRUE;
                 }
                 else
@@ -328,6 +317,9 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
                     sipUa.send(badMediaResponse);
                 }
 
+                // Free up the codec copies and pointer array
+                SdpCodecList::freeArray(numMatchingCodecs, encoderCodecs);
+                SdpCodecList::freeArray(numMatchingCodecs, decoderCodecs);
             }
 
             // Assume that SDP will be sent in ACK
@@ -866,6 +858,8 @@ UtlBoolean SipConnection::dial(const char* dialString,
                 bandWidth,
                 totalBandwidth,
                 videoFramerate);
+
+            // Use the full set of codecs for offer
             supportedCodecs.getCodecs(numCodecs, rtpCodecsArray);
 
             // If we want the call initially on hold, clear our the rtp addresses
@@ -991,6 +985,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
                     // for early media
                     if (!mbLocallyInitiatedRemoteHold)
                     {
+                        // Dial case, we send INVITe with SDP so we cannot later match payload IDs of remote side
                         mpMediaInterface->startRtpReceive(mConnectionId,
                                 numCodecs,
                                 rtpCodecsArray);
@@ -1024,14 +1019,8 @@ UtlBoolean SipConnection::dial(const char* dialString,
                 }
             }
 
-            // Free up the codecs and the array
-            for(int codecIndex = 0; codecIndex < numCodecs; codecIndex++)
-            {
-                delete rtpCodecsArray[codecIndex];
-                rtpCodecsArray[codecIndex] = NULL;
-            }
-            delete[] rtpCodecsArray;
-            rtpCodecsArray = NULL;
+            // Free up the codec copies and pointer array
+            SdpCodecList::freeArray(numCodecs, rtpCodecsArray);
         }
     }
 
@@ -1133,8 +1122,9 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
         currentState == CONNECTION_INITIATED ||
         currentState == CONNECTION_IDLE))
     {
-        int numMatchingCodecs = 0;
+        int numEncoderCodecs = 0;
         SdpCodec** encoderCodecs = NULL;
+        int numDecoderCodecs = 0;
         SdpCodec** decoderCodecs = NULL;
 
         mpMediaInterface->setVideoWindowDisplay(pDisplay);
@@ -1176,9 +1166,8 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
         {
             getInitialSdpCodecs(inviteMsg,
                                 supportedCodecs,
-                                numMatchingCodecs,
+                                numEncoderCodecs,
                                 encoderCodecs,
-                                decoderCodecs,
                                 remoteRtpAddress,
                                 remoteRtpPort,
                                 remoteRtcpPort,
@@ -1191,7 +1180,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                                 videoFramerate,
                                 matchingVideoFramerate);
 
-            fireIncompatibleCodecsEvent(&supportedCodecs, encoderCodecs, numMatchingCodecs) ;
+            fireIncompatibleCodecsEvent(&supportedCodecs, encoderCodecs, numEncoderCodecs) ;
 
             if (matchingBandwidth != 0)
             {
@@ -1229,10 +1218,10 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
     #ifdef TEST_PRINT
                     osPrintf("Sending initial SDP in OK\n");
     #endif
-                    // There were no codecs specified in the INVITE
-                    // Give the full set of supported codecs
-                    supportedCodecs.getCodecs(numMatchingCodecs, decoderCodecs);
                 }
+
+                // Try to match the payload IDs from the remote side's SDP offer
+                mpMediaInterface->copyPayloadIds(mConnectionId, numEncoderCodecs, encoderCodecs);
 
                 // Tweak Contact given request URI / settings
                 setContactType(selectCompatibleContactType(*inviteMsg)) ;
@@ -1254,6 +1243,9 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                         totalBandwidth,
                         videoFramerate);
 
+                // Make a copy of the codec that we offered as we must be prepared to receive all
+                // of them
+                supportedCodecs.getCodecs(numDecoderCodecs, decoderCodecs);
 
                 // If there was SDP in the INVITE and it indicated hold:
                 if( sdpBody &&
@@ -1287,7 +1279,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                     sipResponse.addSdpBody(1, hostAddresses, receiveRtpPorts,
                             receiveRtcpPorts, receiveVideoRtpPorts, receiveVideoRtcpPorts,
                             transportTypes,
-                            numMatchingCodecs, decoderCodecs, &matchingSrtpParams,
+                            numDecoderCodecs, decoderCodecs, &matchingSrtpParams,
                             totalBandwidth, matchingVideoFramerate, inviteMsg) ;
                 }
                 else
@@ -1301,7 +1293,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                     sipResponse.addSdpBody(numAddresses, hostAddresses, receiveRtpPorts,
                             receiveRtcpPorts, receiveVideoRtpPorts, receiveVideoRtcpPorts,
                             transportTypes,
-                            numMatchingCodecs, decoderCodecs, &matchingSrtpParams,
+                            numDecoderCodecs, decoderCodecs, &matchingSrtpParams,
                             totalBandwidth, matchingVideoFramerate, inviteMsg) ;
                 }
 
@@ -1382,10 +1374,12 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                     if (mHoldState == TERMCONNECTION_TALKING)
                     {
                         // if we have a send codec chosen Start sending media
-                        if(numMatchingCodecs > 0)
+                        if(numEncoderCodecs > 0)
                         {
+                            // Answer case, if the INVITE had SDP we can match the payload IDs of the remote side
+                            // otherwise, we cannot later match the remote payload IDs when we recieve SDP in the ACK
                             mpMediaInterface->startRtpReceive(mConnectionId,
-                                    numMatchingCodecs, decoderCodecs);
+                                    numDecoderCodecs, decoderCodecs);
                             fireAudioStartEvents() ;
 
                             setMediaDestination(remoteRtpAddress.data(),
@@ -1398,7 +1392,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                             if(remoteRtpPort > 0)
                             {
                                 mpMediaInterface->startRtpSend(mConnectionId,
-                                    numMatchingCodecs, encoderCodecs);
+                                    numEncoderCodecs, encoderCodecs);
                             }
                             fireAudioStartEvents() ;
                         }
@@ -1415,20 +1409,9 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
             }
         }
 
-        // Free up the codec copies and array
-        for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-        {
-            delete encoderCodecs[codecIndex];
-            encoderCodecs[codecIndex] = NULL;
-
-            delete decoderCodecs[codecIndex];
-            decoderCodecs[codecIndex] = NULL;
-        }
-        delete[] encoderCodecs;
-        encoderCodecs = NULL;
-
-        delete[] decoderCodecs;
-        decoderCodecs = NULL;
+        // Free up the codec copies and pointer array
+        SdpCodecList::freeArray(numDecoderCodecs, decoderCodecs);
+        SdpCodecList::freeArray(numEncoderCodecs, encoderCodecs);
     }
 
     return(answerOk);
@@ -1480,7 +1463,8 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
         int receiveVideoRtcpPorts[MAX_ADDRESS_CANDIDATES];
         RTP_TRANSPORT transportTypes[MAX_ADDRESS_CANDIDATES];
         int numAddresses;
-        int numMatchingCodecs = 0;
+        int numEncoderCodecs = 0;
+        int numDecoderCodecs = 0;
         int matchingBandwidth = 0;
         int totalBandwidth = 0;
         int videoFramerate = 0;
@@ -1541,12 +1525,11 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
 
             inviteMsg->setSecurityAttributes(mpSecurity);
 
-            // Get the codecs if SDP is provided
+            // Get the codecs to send/encode if SDP is provided
             getInitialSdpCodecs(inviteMsg,
                                 supportedCodecs,
-                                numMatchingCodecs,
+                                numEncoderCodecs,
                                 encoderCodecs,
-                                decoderCodecs,
                                 remoteRtpAddress,
                                 remoteRtpPort,
                                 remoteRtcpPort,
@@ -1558,6 +1541,29 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
                                 matchingBandwidth,
                                 videoFramerate,
                                 matchingVideoFramerate);
+
+            // Try to match the payload IDs from the remote side's SDP offer
+            mpMediaInterface->copyPayloadIds(mConnectionId, numEncoderCodecs, encoderCodecs);
+
+            // Need to get the codecs again as the payload IDs may have changed
+            mpMediaInterface->getCapabilitiesEx(mConnectionId,
+                                                MAX_ADDRESS_CANDIDATES,
+                                                hostAddresses,
+                                                receiveRtpPorts,
+                                                receiveRtcpPorts,
+                                                receiveVideoRtpPorts,
+                                                receiveVideoRtcpPorts,
+                                                transportTypes,
+                                                numAddresses,
+                                                supportedCodecs,
+                                                srtpParams,
+                                                mBandwidthId, // ?
+                                                totalBandwidth,
+                                                videoFramerate);
+
+            // Make a copy of the codecs that we offered as we must be prepared to receive all
+            // of them
+            supportedCodecs.getCodecs(numDecoderCodecs, decoderCodecs);
 
             if (matchingBandwidth != 0)
             {
@@ -1580,7 +1586,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
                              receiveVideoRtpPorts, 
                              receiveVideoRtcpPorts,
                              transportTypes,
-                             numMatchingCodecs, 
+                             numDecoderCodecs, 
                              decoderCodecs, 
                              &matchingSrtpParams,
                              totalBandwidth, 
@@ -1595,10 +1601,12 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
             fireSipXCallEvent(CALLSTATE_ALERTING, CALLSTATE_CAUSE_NORMAL) ;
 
             // Try to setup for early receipt of media.
-            if(numMatchingCodecs > 0)
+            if(numEncoderCodecs > 0)
             {
+                // Accept case, if the INVITE had SDP we can match the payload IDs of the remote side
+                // otherwise, we cannot later match the remote payload IDs when we recieve SDP in the ACK
                 mpMediaInterface->startRtpReceive(mConnectionId,
-                        numMatchingCodecs, decoderCodecs);
+                        numDecoderCodecs, decoderCodecs);
                 fireAudioStartEvents();
 
                 // if early media is desired, start sending RTP
@@ -1614,7 +1622,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
                     if(remoteRtpPort > 0)
                     {
                         mpMediaInterface->startRtpSend(mConnectionId,
-                                                       numMatchingCodecs, 
+                                                       numEncoderCodecs, 
                                                        encoderCodecs);
                     }
                     fireAudioStartEvents();
@@ -1629,20 +1637,9 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
                 setRingingTimer(ringingTimeOutSeconds);
             }
 
-            // Free up the codec copies and array
-            for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-            {
-                delete encoderCodecs[codecIndex];
-                encoderCodecs[codecIndex] = NULL;
-
-                delete decoderCodecs[codecIndex];
-                decoderCodecs[codecIndex] = NULL;
-            }
-            delete[] encoderCodecs;
-            encoderCodecs = NULL;
-
-            delete[] decoderCodecs;
-            decoderCodecs = NULL;
+            // Free up the codec copies and pointer array
+            SdpCodecList::freeArray(numDecoderCodecs, decoderCodecs);
+            SdpCodecList::freeArray(numEncoderCodecs, encoderCodecs);
         }
     }
     return(ringingSent);
@@ -1825,13 +1822,7 @@ UtlBoolean SipConnection::hold()
         }
 
         // Free up the codec copies and array
-        for(int codecIndex = 0; codecIndex < numCodecs; codecIndex++)
-        {
-            delete codecsArray[codecIndex];
-            codecsArray[codecIndex] = NULL;
-        }
-        delete[] codecsArray;
-        codecsArray = NULL;
+        SdpCodecList::freeArray(numCodecs, codecsArray);
     }
 
     mbLocallyInitiatedRemoteHold = true ;
@@ -1966,13 +1957,7 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
         mHoldState = TERMCONNECTION_UNHOLDING  ;
 
         // Free up the codec copies and array
-        for(int codecIndex = 0; codecIndex < numCodecs; codecIndex++)
-        {
-            delete rtpCodecs[codecIndex];
-            rtpCodecs[codecIndex] = NULL;
-        }
-        delete[] rtpCodecs;
-        rtpCodecs = NULL;
+        SdpCodecList::freeArray(numCodecs, rtpCodecs);
 
         if(inviteMsg)
         {
@@ -3149,17 +3134,21 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
         numAddresses = 1 ;
     }
 
-    int numMatchingCodecs = 0;
+    int numEncoderCodecs = 0;
     SdpCodec** encoderCodecs = NULL;
+    int numDecoderCodecs = 0;
     SdpCodec** decoderCodecs = NULL;
+
+    // Make a copy of the codec that we offered as we must be prepared to receive all
+    // of them
+    supportedCodecs.getCodecs(numDecoderCodecs, decoderCodecs);
 
     // Get the RTP info from the message if present
     // Should check the content type first
     if(mpMediaInterface && getInitialSdpCodecs(request,
                                                supportedCodecs,
-                                               numMatchingCodecs,
+                                               numEncoderCodecs,
                                                encoderCodecs,
-                                               decoderCodecs,
                                                remoteRtpAddress,
                                                remoteRtpPort,
                                                remoteRtcpPort,
@@ -3172,7 +3161,7 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
                                                videoFramerate,
                                                matchingVideoFramerate))
     {
-        fireIncompatibleCodecsEvent(&supportedCodecs, encoderCodecs, numMatchingCodecs) ;
+        fireIncompatibleCodecsEvent(&supportedCodecs, encoderCodecs, numEncoderCodecs) ;
 
         if (matchingBandwidth != 0)
         {
@@ -3183,7 +3172,7 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
             mpMediaInterface->setConnectionFramerate(mConnectionId, matchingVideoFramerate);
         }
         // If the codecs match send an OK
-        if(numMatchingCodecs > 0)
+        if(numEncoderCodecs > 0)
         {
             // Setup media channel
             setMediaDestination(remoteRtpAddress.data(),
@@ -3236,13 +3225,14 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
                 }
                 else
                 {
+                    // ReINVITE recieved, if it has SDP, we should copy and use its payload IDs
                     // Allow unhold
                     mpMediaInterface->startRtpReceive(mConnectionId,
-                        numMatchingCodecs, decoderCodecs);
+                        numDecoderCodecs, decoderCodecs);
                     fireAudioStartEvents(MEDIA_CAUSE_UNHOLD) ;
 
                     mpMediaInterface->startRtpSend(mConnectionId,
-                        numMatchingCodecs, encoderCodecs);
+                        numEncoderCodecs, encoderCodecs);
                     mRemoteRequestedHold = FALSE;
 
 
@@ -3297,7 +3287,7 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
                 sipResponse.addSdpBody(1, hostAddresses, receiveRtpPorts,
                         receiveRtcpPorts, receiveVideoRtpPorts, receiveVideoRtcpPorts,
                         transportTypes,
-                        numMatchingCodecs, decoderCodecs, &matchingSrtpParams,
+                        numDecoderCodecs, decoderCodecs, &matchingSrtpParams,
                         totalBandwidth, matchingVideoFramerate, inviteMsg) ;
             }
             else
@@ -3309,7 +3299,7 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
                 sipResponse.addSdpBody(numAddresses, hostAddresses, receiveRtpPorts,
                         receiveRtcpPorts, receiveVideoRtpPorts, receiveVideoRtcpPorts,
                         transportTypes,
-                        numMatchingCodecs, decoderCodecs, &matchingSrtpParams,
+                        numDecoderCodecs, decoderCodecs, &matchingSrtpParams,
                         totalBandwidth, matchingVideoFramerate, inviteMsg) ;
             }
 
@@ -3340,12 +3330,6 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
     }
     else
     {
-        // Use the full set of capabilities as the other
-        // side did not give SDP to find common/matching
-        // codecs
-        supportedCodecs.getCodecs(numMatchingCodecs,
-            decoderCodecs);
-
         SipMessage sipResponse;
         sipResponse.setSecurityAttributes(mpSecurity);
         sipResponse.setInviteOkData(request,
@@ -3364,7 +3348,7 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
             sipResponse.addSdpBody(1, hostAddresses, receiveRtpPorts,
                     receiveRtcpPorts, receiveVideoRtpPorts, receiveVideoRtcpPorts,
                     transportTypes,
-                    numMatchingCodecs, decoderCodecs, &srtpParams,
+                    numDecoderCodecs, decoderCodecs, &srtpParams,
                     totalBandwidth, matchingVideoFramerate, inviteMsg) ;
             mHoldState = TERMCONNECTION_HELD ;
         }
@@ -3377,7 +3361,7 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
             sipResponse.addSdpBody(numAddresses, hostAddresses, receiveRtpPorts,
                     receiveRtcpPorts, receiveVideoRtpPorts, receiveVideoRtcpPorts,
                     transportTypes,
-                    numMatchingCodecs, decoderCodecs, &srtpParams,
+                    numDecoderCodecs, decoderCodecs, &srtpParams,
                     totalBandwidth, matchingVideoFramerate, inviteMsg) ;
             mHoldState = TERMCONNECTION_HELD ;
         }
@@ -3403,20 +3387,9 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
         }
     }
 
-    // Free up the codec copies and ar
-    for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-    {
-        delete encoderCodecs[codecIndex];
-        encoderCodecs[codecIndex] = NULL;
-
-        delete decoderCodecs[codecIndex];
-        decoderCodecs[codecIndex] = NULL;
-    }
-    delete[] encoderCodecs;
-    encoderCodecs = NULL;
-
-    delete[] decoderCodecs;
-    decoderCodecs = NULL;
+    // Free up the codec copies and arrray
+    SdpCodecList::freeArray(numDecoderCodecs, decoderCodecs);
+    SdpCodecList::freeArray(numEncoderCodecs, encoderCodecs);
 }
 
 
@@ -3973,17 +3946,21 @@ void SipConnection::processAckRequest(const SipMessage* request)
         // If codecs set ACK in SDP
         // If there is an SDP body find the best
         //codecs, address & port
-        int numMatchingCodecs = 0;
+        int numEncoderCodecs = 0;
         SdpCodec** encoderCodecs = NULL;
+        int numDecoderCodecs = 0;
         SdpCodec** decoderCodecs = NULL;
         SdpSrtpParameters matchingSrtpParams;
         memset(&matchingSrtpParams, 0, sizeof(matchingSrtpParams));
 
+        // Make a copy of the codec that we offered as we must be prepared to receive all
+        // of them
+        supportedCodecs.getCodecs(numDecoderCodecs, decoderCodecs);
+
         if(getInitialSdpCodecs(request,
                                supportedCodecs,
-                               numMatchingCodecs,
+                               numEncoderCodecs,
                                encoderCodecs,
-                               decoderCodecs,
                                remoteRtpAddress,
                                remoteRtpPort,
                                remoteRtcpPort,
@@ -3994,9 +3971,9 @@ void SipConnection::processAckRequest(const SipMessage* request)
                                totalBandwidth,
                                matchingBandwidth,
                                videoFramerate,
-                               matchingVideoFramerate) && numMatchingCodecs > 0)
+                               matchingVideoFramerate) && numEncoderCodecs > 0)
         {
-            fireIncompatibleCodecsEvent(&supportedCodecs, encoderCodecs, numMatchingCodecs) ;
+            fireIncompatibleCodecsEvent(&supportedCodecs, encoderCodecs, numEncoderCodecs) ;
 
             if (matchingBandwidth != 0)
             {
@@ -4019,34 +3996,22 @@ void SipConnection::processAckRequest(const SipMessage* request)
 #endif
 
             mpMediaInterface->startRtpSend(mConnectionId,
-                numMatchingCodecs, encoderCodecs);
+                numEncoderCodecs, encoderCodecs);
             fireAudioStartEvents() ;
         }
 #ifdef TEST_PRINT
         osPrintf("ACK reinviteState: %d\n", reinviteState);
 #endif
-
-        // Free up the codec copies and array
-        for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-        {
-            delete encoderCodecs[codecIndex];
-            encoderCodecs[codecIndex] = NULL;
-
-            delete decoderCodecs[codecIndex];
-            decoderCodecs[codecIndex] = NULL;
-        }
-        if(encoderCodecs) delete[] encoderCodecs;
-        encoderCodecs = NULL;
-
-        if(decoderCodecs) delete[] decoderCodecs;
-        decoderCodecs = NULL;
+        // Free up the codec copies and pointer array
+        SdpCodecList::freeArray(numDecoderCodecs, decoderCodecs);
+        SdpCodecList::freeArray(numEncoderCodecs, encoderCodecs);
 
         if(reinviteState == ACCEPT_INVITE)
         {
             inviteFromThisSide = FALSE;
             setCallerId();
 
-            if (numMatchingCodecs > 0)
+            if (numEncoderCodecs > 0)
             {
                 setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE);
                 if (mpCall->isInFocus())
@@ -4241,7 +4206,6 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
                                               SdpCodecList& supportedCodecsArray,
                                               int& numCodecsInCommon,
                                               SdpCodec** &commonCodecsForEncoder,
-                                              SdpCodec** &commonCodecsForDecoder,
                                               UtlString& remoteAddress,
                                               int& remotePort,
                                               int& remoteRtcpPort,
@@ -4264,6 +4228,7 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
 #ifdef TEST_PRINT
       osPrintf("SDP body in INVITE, finding best codec\n");
 #endif
+      SdpCodec** commonCodecsForDecoder = NULL;
 
       sdpBody->getBestAudioCodecs(supportedCodecsArray,
                                   numCodecsInCommon,
@@ -4281,6 +4246,14 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
                                   localVideoFramerate,
                                   matchingVideoFramerate);
 
+      // We do not care what the subset of codecs that are enabled locally
+      // and supported remotely.  We must be prepared for all the codecs that
+      // are enabled.
+      if(commonCodecsForDecoder)
+      {
+          SdpCodecList::freeArray(numCodecsInCommon, commonCodecsForDecoder);
+      }
+          
       mpMediaInterface->setSrtpParams(matchingSrtpParams);
 
       // To be complient with RFC 3264
@@ -4614,17 +4587,21 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
                 videoFramerate);
             // Setup the media channel
             // The address should be retrieved from the sdpBody
-            int numMatchingCodecs = 0;
+            int numEncoderCodecs = 0;
             SdpCodec** encoderCodecs = NULL;
+            int numDecoderCodecs = 0;
             SdpCodec** decoderCodecs = NULL;
             SdpSrtpParameters matchingSrtpParams;
             memset(&matchingSrtpParams, 0, sizeof(matchingSrtpParams));
 
+            // Make a copy of the codec that we offered as we must be prepared to receive all
+            // of them
+            supportedCodecs.getCodecs(numDecoderCodecs, decoderCodecs);
+
             getInitialSdpCodecs(response,
                                 supportedCodecs,
-                                numMatchingCodecs,
+                                numEncoderCodecs,
                                 encoderCodecs,
-                                decoderCodecs,
                                 remoteRtpAddress,
                                 remoteRtpPort,
                                 remoteRtcpPort,
@@ -4637,9 +4614,9 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
                                 videoFramerate,
                                 matchingVideoFramerate);
 
-            fireIncompatibleCodecsEvent(&supportedCodecs, encoderCodecs, numMatchingCodecs) ;
+            fireIncompatibleCodecsEvent(&supportedCodecs, encoderCodecs, numEncoderCodecs) ;
 
-            if(numMatchingCodecs > 0)
+            if(numEncoderCodecs > 0)
             {
                 if (matchingBandwidth != 0)
                 {
@@ -4673,33 +4650,24 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
                         remoteVideoRtcpPort,
                         response->getSdpBody(mpSecurity));
 
+                    // 18X Ringing recieved, if we sent SDP in the INVITE and this reponse contains SDP,
+                    // we should NOT copy the payload IDs from the response.
                     mpMediaInterface->startRtpReceive(mConnectionId,
-                        numMatchingCodecs,
+                        numDecoderCodecs,
                         decoderCodecs);
                     fireAudioStartEvents() ;
 
                     mpMediaInterface->startRtpSend(mConnectionId,
-                        numMatchingCodecs,
+                        numEncoderCodecs,
                         encoderCodecs);
 
                     fireAudioStartEvents() ;
                 }
             }
 
-            // Free up the codec copies and array
-            for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-            {
-                delete encoderCodecs[codecIndex];
-                encoderCodecs[codecIndex] = NULL;
-
-                delete decoderCodecs[codecIndex];
-                decoderCodecs[codecIndex] = NULL;
-            }
-            if(encoderCodecs) delete[] encoderCodecs;
-            encoderCodecs = NULL;
-
-            if(decoderCodecs) delete[] decoderCodecs;
-            decoderCodecs = NULL;
+            // Free up the codec copies and pointer array
+            SdpCodecList::freeArray(numDecoderCodecs, decoderCodecs);
+            SdpCodecList::freeArray(numEncoderCodecs, encoderCodecs);
         }
     }
 
@@ -5150,16 +5118,20 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
 
         // Setup the media channel
         // The address should be retrieved from the sdpBody
-        int numMatchingCodecs = 0;
+        int numEncoderCodecs = 0;
         SdpCodec** encoderCodecs = NULL;
+        int numDecoderCodecs = 0;
         SdpCodec** decoderCodecs = NULL;
+        // Make a copy of the codec that we offered as we must be prepared to receive all
+        // of them
+        supportedCodecs.getCodecs(numDecoderCodecs, decoderCodecs);
+
         SdpSrtpParameters matchingSrtpParams;
         memset(&matchingSrtpParams, 0, sizeof(matchingSrtpParams));
         getInitialSdpCodecs(response,
                             supportedCodecs,
-                            numMatchingCodecs,
+                            numEncoderCodecs,
                             encoderCodecs,
-                            decoderCodecs,
                             remoteRtpAddress,
                             remoteRtpPort,
                             remoteRtcpPort,
@@ -5172,9 +5144,9 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
                             videoFramerate,
                             matchingVideoFramerate);
 
-        fireIncompatibleCodecsEvent(&supportedCodecs, encoderCodecs, numMatchingCodecs) ;
+        fireIncompatibleCodecsEvent(&supportedCodecs, encoderCodecs, numEncoderCodecs) ;
 
-        if (numMatchingCodecs > 0 && mpMediaInterface != NULL)
+        if (numEncoderCodecs > 0 && mpMediaInterface != NULL)
         {
             if (matchingBandwidth != 0)
             {
@@ -5239,13 +5211,15 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
                 mHoldState = TERMCONNECTION_TALKING ;
 
                 // mpMediaInterface->stopRtpReceive(mConnectionId);
+                // 200 OK reponse received, if we sent SDP in the INVITE and this reponse contains SDP,
+                // we should NOT copy the payload IDs from the response.
                 mpMediaInterface->startRtpReceive(mConnectionId,
-                        numMatchingCodecs,
+                        numDecoderCodecs,
                         decoderCodecs);
                 fireAudioStartEvents() ;
 
                 mpMediaInterface->startRtpSend(mConnectionId,
-                        numMatchingCodecs,
+                        numEncoderCodecs,
                         encoderCodecs);
 
 
@@ -5315,21 +5289,9 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
                 send(optionsRequest);
             }
         }
-
-        // Free up the codec copies and array
-        for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-        {
-            delete encoderCodecs[codecIndex];
-            encoderCodecs[codecIndex] = NULL;
-
-            delete decoderCodecs[codecIndex];
-            decoderCodecs[codecIndex] = NULL;
-        }
-        if(encoderCodecs) delete[] encoderCodecs;
-        encoderCodecs = NULL;
-
-        if(decoderCodecs) delete[] decoderCodecs;
-        decoderCodecs = NULL;
+        // Free up the codec copies and pointer array
+        SdpCodecList::freeArray(numDecoderCodecs, decoderCodecs);
+        SdpCodecList::freeArray(numEncoderCodecs, encoderCodecs);
     }
 }
 
