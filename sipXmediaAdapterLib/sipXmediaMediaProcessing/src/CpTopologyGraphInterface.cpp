@@ -964,6 +964,8 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                     OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpAudioSocket;
                     pSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtpPort) ;
                     pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtpPort) ;
+                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote address: %s port: %d",
+                       remoteRtpHostAddress, remoteAudioRtpPort);
                 }
                 else
                 {
@@ -1112,6 +1114,8 @@ OsStatus CpTopologyGraphInterface::addAudioRtcpConnectionDestination(int        
             mediaConnection->mbAlternateDestinations = TRUE;
             pSocket->addAlternateDestination(candidateIp, candidatePort, iPriority);
             pSocket->readyDestination(candidateIp, candidatePort);
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::addAudioRtcpConnectionDestination adding alt send address: %s port: %d",
+                candidateIp, candidatePort);
 
             returnCode = OS_SUCCESS;
         }
@@ -1202,6 +1206,31 @@ OsStatus CpTopologyGraphInterface::addVideoRtcpConnectionDestination(int        
     return returnCode ;    
 }
 
+OsStatus CpTopologyGraphInterface::copyPayloadIds(int connectionId, int numCodecs, SdpCodec* remoteCodecs[])
+{
+    OsStatus status = OS_NOT_FOUND;
+    CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+    if(mediaConnection && mediaConnection->mpCodecFactory)
+    {
+        UtlString beforeCodecs;
+        mediaConnection->mpCodecFactory->toString(beforeCodecs);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::copyPayloadIds mpCodecFactory:\n%s",
+                      beforeCodecs.data());
+
+        mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
+                                                          remoteCodecs);
+
+        UtlString afterCodecs;
+        mediaConnection->mpCodecFactory->toString(afterCodecs);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::copyPayloadIds codec payload IDs change to:\n%s",
+                      afterCodecs.data());
+
+        status = OS_SUCCESS;
+    }
+
+    return(status);
+}
 
 OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
                                              int numCodecs,
@@ -1241,25 +1270,35 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
       applyAlternateDestinations(connectionId) ;
    }
 
-   // Make sure we use the same payload types as the remote
-   // side.  Its the friendly thing to do.
-   if (mediaConnection->mpCodecFactory)
+   UtlString beforeCodecs;
+   mediaConnection->mpCodecFactory->toString(beforeCodecs);
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "startRtpSend mpCodecFactory:\n%s",
+                 beforeCodecs.data());
+   // Disabling this as it causes us to expect wrong payload IDs for incoming RTP when
+   // we make the SDP offer and their response has different payload IDs
+   if(0) // (mediaConnection->mpCodecFactory)
    {
+      // Make sure we use the same payload types as the remote
+      // side.  Its the friendly thing to do.
       mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
                                                          sendCodecs);
+      UtlString afterCodecs;
+      mediaConnection->mpCodecFactory->toString(afterCodecs);
+      OsSysLog::add(FAC_CP, PRI_DEBUG, "startRtpSend startRtpSend codec payload IDs change to:\n%s",
+                    afterCodecs.data());
    }
 
    if (mpTopologyGraph)
    {
-#ifdef TEST_PRINT
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Sending RTP/RTCP codec: %d sockets: %p/%p descriptors: %d/%d address: %s ports: %d, %d\n",
+//#ifdef TEST_PRINT
+       OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Sending audio RTP/RTCP codec: %d sockets: %p/%p descriptors: %d/%d address: %s send ports: %d, %d\n",
            audioCodec ? audioCodec->getCodecType() : -2,
            (mediaConnection->mpRtpAudioSocket), (mediaConnection->mpRtcpAudioSocket),
            mediaConnection->mpRtpAudioSocket->getSocketDescriptor(),
            mediaConnection->mpRtcpAudioSocket->getSocketDescriptor(),
            mediaConnection->mRtpSendHostAddress.data(),
            mediaConnection->mRtpAudioSendHostPort, mediaConnection->mRtcpAudioSendHostPort);
-#endif
+//#endif
 
        
        // Store the primary codec for cost calculations later
@@ -1272,6 +1311,10 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
        {
            mediaConnection->mpAudioCodec = new SdpCodec();
            *mediaConnection->mpAudioCodec = *audioCodec ;
+           UtlString audioMimeSubType;
+           audioCodec->getEncodingName(audioMimeSubType);
+           OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::startRtpSend primary audio codec: %s payload ID: %d",
+               audioMimeSubType.data(), audioCodec->getCodecPayloadFormat());
        }
 
        // Make sure we use the same payload types as the remote
@@ -1306,6 +1349,8 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
          MpRtpOutputConnection *pConnection;
          OsStatus stat = mpTopologyGraph->lookupResource(outConnectionName,
                                                          (MpResource*&)pConnection);
+         OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::startRtpSend lookupResource of MpConnection %s returned: %d",
+             outConnectionName.data(), stat);
          assert(stat == OS_SUCCESS);
 
          // Set sockets to send to.
@@ -1338,18 +1383,27 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
    if (mediaConnection == NULL)
       return OS_NOT_FOUND;
 
-
-   // Make sure we use the same payload types as the remote
-   // side.  It's the friendly thing to do.
-   if (mediaConnection->mpCodecFactory)
+   UtlString beforeCodecs;
+   mediaConnection->mpCodecFactory->toString(beforeCodecs);
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "startRtpReceive mpCodecFactory:\n%s",
+                 beforeCodecs.data());
+   // Disabling this as it causes us to expect wrong payload IDs for incoming RTP when
+   // we make the SDP offer and their response has different payload IDs
+   if(0)// (mediaConnection->mpCodecFactory)
    {
-         mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
-                                                           receiveCodecs);
+        // Make sure we use the same payload types as the remote
+        // side.  It's the friendly thing to do.
+        mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
+                                                          receiveCodecs);
+        UtlString afterCodecs;
+        mediaConnection->mpCodecFactory->toString(afterCodecs);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "startRtpReceive mpCodecFactory payload IDs changed to:\n%s",
+                      afterCodecs.data());
    }
 
    if (mpTopologyGraph)
    {
-#ifdef TEST_PRINT
+//#ifdef TEST_PRINT
       int i;
 
       OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Receiving RTP/RTCP, %d codec%s; sockets: %p/%p descriptors: %d/%d\n",
@@ -1358,12 +1412,17 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
            (mediaConnection->mpRtcpAudioSocket),
            mediaConnection->mpRtpAudioSocket->getSocketDescriptor(),
            mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
-      for (i=0; i<numCodecs; i++) {
-          osPrintf("   %d:  i:%d .. x:%d\n", i+1,
-                   receiveCodecs[i]->getCodecType(),
-                   receiveCodecs[i]->getCodecPayloadFormat());
+      UtlString audioMimeSubType;
+      for (i=0; i<numCodecs; i++)
+      {
+          receiveCodecs[i]->getEncodingName(audioMimeSubType);
+          OsSysLog::add(FAC_CP, PRI_DEBUG, "startRtpReceive codec[%d]: %s internal ID: %d payload ID: %d\n", 
+                        i+1,
+                        audioMimeSubType.data(),
+                        receiveCodecs[i]->getCodecType(),
+                        receiveCodecs[i]->getCodecPayloadFormat());
       }
-#endif
+//#endif
 
       if(mediaConnection->mRtpAudioReceiving)
       {

@@ -313,7 +313,12 @@ public:
      *  @see CpMediaInterface::addAudioRtpConnectionDestination
      */
 
-
+   /// @brief copies payload IDs for matching codecs to intefaces codec list
+   virtual OsStatus copyPayloadIds(int connectionId, int numCodecs, SdpCodec* remoteCodecs[]) = 0;
+   /* Generally this is used when we recieve an SDP offer so that our answer will
+    * use the same payload IDs as the remote side for the codecs in common.  This
+    * is an inter-op friendly thing to do.
+    */
 
      /// @brief Start sending RTP using the specified codec list.
    virtual OsStatus startRtpSend(int connectionId, 
