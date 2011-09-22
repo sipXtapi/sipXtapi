@@ -522,6 +522,17 @@ void SdpCodecList::getCodecs(int& numCodecs,
     numCodecs = index;
 }
 
+void SdpCodecList::freeArray(int arraySize, SdpCodec**& codecArray)
+{
+    for(int codecIndex = 0; codecIndex < arraySize; codecIndex++)
+    {
+        delete codecArray[codecIndex];
+        codecArray[codecIndex] = NULL;
+    }
+    delete[] codecArray;
+    codecArray = NULL;
+}
+
 
 void SdpCodecList::toString(UtlString& serializedFactory)
 {

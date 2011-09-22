@@ -141,6 +141,12 @@ public:
                   const char* MIMEType,
                   const char* subMimeType);
 
+    /// Frees up codecs and codec pointer array
+    static void freeArray(int arraySize, SdpCodec**& codecArray);
+    /* 
+     *  getCodecs allocates a codec pointer array and codecs.  This frees them.
+     */
+
      /// String representation of factory and codecs.
    void toString(UtlString& serializedFactory);
 
