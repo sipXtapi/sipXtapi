@@ -265,7 +265,7 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
                 codecContext->extradata = 0;
                 av_free(codecContext);
                 codecContext = 0;
-                assert(aacEncoder);
+                assert(aacDecoder);
             }
         }
         /* Encoder: */
