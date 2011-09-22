@@ -1420,7 +1420,8 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                         // every codec with the same sub mime type that supports one of the video formats
                         // add a seperate codec in the codecsInCommonArray.  For H.264 size is not important.
                         if((matchingCodec != NULL) && 
-                           ((matchingCodec->getVideoFormat() == videoSizes[videoSize]) ||  (mimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase)) == 0) &&
+                           ((matchingCodec->getVideoFormat() == videoSizes[videoSize]) ||  
+                            ((mimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase)) == 0 && matchingCodec->isFmtpParameterSame(fmtp, "packetization-mode", "0"))) &&
                             (matchingCodec->getSampleRate() == sampleRate ||
                             sampleRate == -1) &&
                             (matchingCodec->getNumChannels() == numChannels ||
