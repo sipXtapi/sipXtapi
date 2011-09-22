@@ -45,6 +45,7 @@ libsipXport_la_SOURCES =  \
     utl/UtlLongLongInt.cpp \
     utl/UtlNameValueTokenizer.cpp \
     utl/UtlBool.cpp \
+    utl/UtlCopyableContainable.cpp \
     utl/UtlCrc32.cpp \
     utl/UtlCryptoData.cpp \
     utl/UtlCryptoKey.cpp \
