@@ -17,6 +17,9 @@ class UtlObservable;
 class UtlObserver
 {
 public:
+
+    virtual ~UtlObserver(){};
+
     /**
      * Notification method which the observer must implement.  The 
      * observable's (also, subject) responsibility is to notify 
@@ -40,6 +43,8 @@ public:
 class UtlObservable
 {
 public:
+   virtual ~UtlObservable(){};
+
     /**
      * Registers a listener of this observable.
      * Derived classes of UtlObservable should store
