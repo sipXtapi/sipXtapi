@@ -38,6 +38,7 @@ static UtlString sCodecPaths[] = {
 #elif defined(__pingtel_on_posix__)
                                   "../../../../bin",
                                   "../../../bin",
+                                  "../../bin",
 #else
 #                                 error "Unknown platform"
 #endif
@@ -95,6 +96,7 @@ public:
       size_t i;
       for(i = 0; i < sNumCodecPaths; i++)
       {
+         printf("MpCodecsPerformanceTest loading codecs from: %s\n", sCodecPaths[i].data());
          pCodecFactory->loadAllDynCodecs(sCodecPaths[i],
                                          CODEC_PLUGINS_FILTER);
       }
@@ -163,14 +165,20 @@ protected:
       }
 
       // Create and initialize decoder and encoder
+      //printf("creating decoder: %s/%d/%d fmpt=\"%s\"\n",
+      //       codecMime.data(), sampleRate, numChannels, codecFmtp.data());
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            pCodecFactory->createDecoder(codecMime, codecFmtp,
                                                         sampleRate, numChannels,
                                                         0, pDecoder));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           pDecoder->initDecode());
+
+      CPPUNIT_ASSERT(pDecoder);
+
+      OsStatus initDecodeStatus = pDecoder->initDecode();
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, initDecodeStatus);
+                           
       // Could not test speed of signaling codec
-      if (pDecoder->getInfo()->isSignalingCodec())
+      if (pDecoder->getInfo() == NULL || pDecoder->getInfo()->isSignalingCodec())
       {
          pDecoder->freeDecode();
          delete pDecoder;
@@ -180,6 +188,9 @@ protected:
                            pCodecFactory->createEncoder(codecMime, codecFmtp,
                                                         sampleRate, numChannels,
                                                         0, pEncoder));
+
+      CPPUNIT_ASSERT(pEncoder);
+
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            pEncoder->initEncode());
 
