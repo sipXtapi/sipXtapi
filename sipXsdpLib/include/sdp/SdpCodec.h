@@ -50,7 +50,8 @@
 #define MIME_SUBTYPE_SPEEX "speex"
 #define MIME_SUBTYPE_AMR "amr"
 #define MIME_SUBTYPE_AMRWB "amr-wb"
-#define MIME_SUBTYPE_AAC_LC "AAC_LC"
+#define MIME_SUBTYPE_AAC_LC "aac_lc"
+#define MIME_SUBTYPE_MPEG4_GENERIC "mpeg4-generic"
 #define MIME_SUBTYPE_VP71 "VP71"
 #define MIME_SUBTYPE_IYUV "IYUV"
 #define MIME_SUBTYPE_I420 "I420"
@@ -178,9 +179,10 @@ public:
         SDP_CODEC_G726_24,
         SDP_CODEC_G726_32,
         SDP_CODEC_G726_40,
-        SDP_CODEC_AAC_LC_16000,
         SDP_CODEC_AAC_LC_32000,
-        SDP_CODEC_AAC_LC_48000,
+        SDP_CODEC_MPEG4_GENERIC_AAC_LC_16000,
+        SDP_CODEC_MPEG4_GENERIC_AAC_LC_32000,
+        SDP_CODEC_MPEG4_GENERIC_AAC_LC_48000,
 
         /// GIPS specific codecs
         //@{
@@ -389,7 +391,7 @@ public:
 //@{
 
    /// Returns TRUE if this codec is the same definition as the given codec
-   UtlBoolean isSameDefinition(SdpCodec& codec) const;
+   UtlBoolean isSameDefinition(const SdpCodec& codec) const;
    /**<
    *  That is the encoding type and its characteristics, not the payload type.
    */

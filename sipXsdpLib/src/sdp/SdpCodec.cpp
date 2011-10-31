@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2008 SIPez LLC.
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -683,7 +683,7 @@ int SdpCodec::getBWCost() const
 
 /* ============================ INQUIRY =================================== */
 
-UtlBoolean SdpCodec::isSameDefinition(SdpCodec& codec) const
+UtlBoolean SdpCodec::isSameDefinition(const SdpCodec& codec) const
 {
     UtlBoolean isSame = FALSE;
 
