@@ -1,31 +1,32 @@
-//  
+/*  
 // Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 //
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////*/
 
-// Author: Daniel Petrie <dpetrie AT sipez DOT com>
+/* Author: Daniel Petrie <dpetrie AT sipez DOT com> */
 
-// SYSTEM INCLUDES
+/* SYSTEM INCLUDES */
 #include <stdlib.h>
+#include <arpa/inet.h>
 
-// APPLICATION INCLUDES
+/* APPLICATION INCLUDES */
 #include <mp/codecs/PlgDefsV1.h>
 
-// CODEC LIBRARY INCLUDES
+/* CODEC LIBRARY INCLUDES */
 #include "avcodec.h"
 #include "mpeg4audio.h"
 #include <aac.h>
 
-// From FFmpeg
+/* From FFmpeg */
 #undef printf
 
-// EXTERNAL VARIABLES
+/* EXTERNAL VARIABLES */
 static int sSipxFfmpegCodecInitialized = 0;
 
-// CONSTANTS
+/* CONSTANTS */
 #define SDP_AUDIO_CONFIG_LINE_SIZE (5)
 
 /* TODO: confirm this: */
@@ -33,23 +34,33 @@ static int sSipxFfmpegCodecInitialized = 0;
 
 #define SIPX_AAC_ENCODER_BUFFER_SIZE (SAMPLE_PER_AAC_LC_FRAME * 2)
 
-// TYPEDEFS
-// LOCAL DATA TYPES
-// EXTERNAL FUNCTIONS
-void sipxFfmpegCodecInit();
+/* TYPEDEFS */
+/* LOCAL DATA TYPES */
+enum AacHeaderTypes
+{
+    NO_HEADER,
+    AU_HEADER,
+    ADTS_HEADER
+};
+
+
+/* EXTERNAL FUNCTIONS */
 
 void* sipxAacCommonInit(const char* fmtp, int isDecoder,
-                        struct MppCodecFmtpInfoV1_2* codecInfo, int sampleRate);
+                        struct MppCodecFmtpInfoV1_2* codecInfo, int sampleRate, int bitRate);
 
 int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
                                   unsigned encodedPacketSize, void* pcmAudioBuffer,
                                   unsigned pcmBufferSize, unsigned* decodedSamples,
                                   const struct RtpHeader* rtpHeader);
 
-int sipxAacCommonEncode(void* opaqueCodecContext, const void* pcmAudioBuffer,
+int sipxAacCommonEncode(void* opaqueCodecContext, enum AacHeaderTypes headerType, const void* pcmAudioBuffer,
                                      unsigned pcmAudioSamples, int* samplesConsumed,
                                      void* encodedData, unsigned maxCodedDataSize,
                                      int* encodedDataSize, unsigned* sendNow);
+
+int sipxAacCommonFree(void* opaqueCodecContext, int isDecoder);
+
 
 /* Set config bits  
    15,14,13,12,11,10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 
@@ -63,19 +74,24 @@ int sipxAacCommonEncode(void* opaqueCodecContext, const void* pcmAudioBuffer,
     0  0  0  1  0  0  0  1  1  0  0  0  1  0  0  0 == 0x1188 (AAC-LC audio object, 48000 samples/sec, mono) 
 */
 
-// MACROS
-#define DEF_AAC_CODEC(SAMPLE_RATE) \
+DECLARE_FUNCS_V1(mpeg4_generic_aac_lc_16000)
+DECLARE_FUNCS_V1(mpeg4_generic_aac_lc_32000)
+DECLARE_FUNCS_V1(mpeg4_generic_aac_lc_48000)
+DECLARE_FUNCS_V1(aac_lc_32000)
+
+/* MACROS */
+#define DEF_AAC_CODEC(SAMPLE_RATE, BIT_RATE, HEADER_TYPE) \
 /* Exported codec information. */ \
-static const struct MppCodecInfoV1_1 sgCodecInfo_##SAMPLE_RATE = \
+static const struct MppCodecInfoV1_1 sgCodecInfo_mpeg4_generic_##SAMPLE_RATE = \
 { \
 /*/////////// Implementation and codec info ////////////*/ \
    "FFmpeg",                   /* codecManufacturer */ \
-   "AAC_LC/" #SAMPLE_RATE,     /* codecName */ \
+   "MPEG4 AAC_LC/" #SAMPLE_RATE, /* codecName */ \
    "0.8",                      /* codecVersion */ \
    CODEC_TYPE_FRAME_BASED,     /* codecType */ \
 \
 /*///////////////////// SDP info /////////////////////*/ \
-   "AAC_LC",                    /* mimeSubtype */ \
+   "mpeg4-generic",             /* mimeSubtype */ \
    0,                           /* fmtpsNum */ \
    NULL,                        /* fmtps */ \
    SAMPLE_RATE,                 /* sampleRate */ \
@@ -83,22 +99,22 @@ static const struct MppCodecInfoV1_1 sgCodecInfo_##SAMPLE_RATE = \
    CODEC_FRAME_PACKING_NONE     /* framePacking */ \
 }; \
 \
-CODEC_API int PLG_GET_INFO_V1_1(aac_lc_##SAMPLE_RATE)(const struct MppCodecInfoV1_1 **codecInfo) \
+CODEC_API int PLG_GET_INFO_V1_1(mpeg4_generic_aac_lc_##SAMPLE_RATE)(const struct MppCodecInfoV1_1 **codecInfo) \
 { \
    if (codecInfo) \
    { \
-      *codecInfo = &sgCodecInfo_##SAMPLE_RATE; \
+      *codecInfo = &sgCodecInfo_mpeg4_generic_##SAMPLE_RATE; \
    } \
    return RPLG_SUCCESS; \
 } \
 \
-CODEC_API void* PLG_INIT_V1_2(aac_lc_##SAMPLE_RATE)(const char* fmtp, int isDecoder, \
+CODEC_API void* PLG_INIT_V1_2(mpeg4_generic_aac_lc_##SAMPLE_RATE)(const char* fmtp, int isDecoder, \
                                             struct MppCodecFmtpInfoV1_2* codecInfo) \
 { \
-    return(sipxAacCommonInit(fmtp, isDecoder, codecInfo, SAMPLE_RATE)); \
+    return(sipxAacCommonInit(fmtp, isDecoder, codecInfo, SAMPLE_RATE, BIT_RATE)); \
 } \
  \
-CODEC_API int PLG_DECODE_V1(aac_lc_##SAMPLE_RATE)(void* opaqueCodecContext, const void* encodedData, \
+CODEC_API int PLG_DECODE_V1(mpeg4_generic_aac_lc_##SAMPLE_RATE)(void* opaqueCodecContext, const void* encodedData, \
                                      unsigned encodedPacketSize, void* pcmAudioBuffer, \
                                      unsigned pcmBufferSize, unsigned* decodedSamples, \
                                      const struct RtpHeader* rtpHeader) \
@@ -107,85 +123,126 @@ CODEC_API int PLG_DECODE_V1(aac_lc_##SAMPLE_RATE)(void* opaqueCodecContext, cons
                                pcmBufferSize, decodedSamples, rtpHeader)); \
 } \
  \
-CODEC_API int PLG_ENCODE_V1(aac_lc_##SAMPLE_RATE)(void* opaqueCodecContext, const void* pcmAudioBuffer, \
+CODEC_API int PLG_ENCODE_V1(mpeg4_generic_aac_lc_##SAMPLE_RATE)(void* opaqueCodecContext, const void* pcmAudioBuffer, \
                                      unsigned pcmAudioSamples, int* samplesConsumed, \
                                      void* encodedData, unsigned maxCodedDataSize, \
                                      int* encodedDataSize, unsigned* sendNow) \
 { \
-    return(sipxAacCommonEncode(opaqueCodecContext, pcmAudioBuffer, pcmAudioSamples, samplesConsumed, \
+    return(sipxAacCommonEncode(opaqueCodecContext, HEADER_TYPE, pcmAudioBuffer, pcmAudioSamples, samplesConsumed, \
                                encodedData, maxCodedDataSize, encodedDataSize, sendNow)); \
 } \
  \
-CODEC_API int PLG_FREE_V1(aac_lc_##SAMPLE_RATE)(void* opaqueCodecContext, int isDecoder) \
+CODEC_API int PLG_FREE_V1(mpeg4_generic_aac_lc_##SAMPLE_RATE)(void* opaqueCodecContext, int isDecoder) \
 { \
-    AVCodecContext* codecContext = (AVCodecContext*) opaqueCodecContext; \
-    if(!isDecoder) \
-    { \
-        /* we use pkt to buffer up enough sipX frames to encode an AAC frame */ \
-        av_free(codecContext->pkt->data); \
-        codecContext->pkt->data = NULL; \
-        av_free(codecContext->pkt); \
-        codecContext->pkt = NULL; \
-    } \
-    avcodec_close(codecContext); \
-    av_free(codecContext->extradata); \
-    codecContext->extradata =  NULL; \
-    av_free(codecContext); \
-    codecContext = NULL; \
- \
-   return(RPLG_SUCCESS); \
-} 
+    return(sipxAacCommonFree(opaqueCodecContext, isDecoder)); \
+}
+
+/*     sample rate, bit rate, header type */
+DEF_AAC_CODEC(16000, 16000, AU_HEADER)
+DEF_AAC_CODEC(32000, 32000, AU_HEADER)
+DEF_AAC_CODEC(48000, 64000, AU_HEADER)
+
+static const struct MppCodecInfoV1_1 sgCodecInfo_aac_lc_32000 =
+{
+/*/////////// Implementation and codec info ////////////*/
+   "FFmpeg",                   /* codecManufacturer */
+   "AAC_LC/32000",             /* codecName */
+   "0.8",                      /* codecVersion */
+   CODEC_TYPE_FRAME_BASED,     /* codecType */
+
+/*///////////////////// SDP info /////////////////////*/
+   "aac_lc",                    /* mimeSubtype */
+   0,                           /* fmtpsNum */
+   NULL,                        /* fmtps */
+   32000,                       /* sampleRate */
+   1,                           /* numChannels */
+   CODEC_FRAME_PACKING_NONE     /* framePacking */
+};
 
 
+CODEC_API int PLG_GET_INFO_V1_1(aac_lc_32000)(const struct MppCodecInfoV1_1 **codecInfo) \
+{
+   if(codecInfo)
+   {
+      *codecInfo = &sgCodecInfo_aac_lc_32000;
+   }
+   return RPLG_SUCCESS;
+}
 
-DECLARE_FUNCS_V1(aac_lc_16000)
-DECLARE_FUNCS_V1(aac_lc_32000)
-DECLARE_FUNCS_V1(aac_lc_48000)
+CODEC_API void* PLG_INIT_V1_2(aac_lc_32000)(const char* fmtp, int isDecoder,
+                                            struct MppCodecFmtpInfoV1_2* codecInfo)
+{
+    return(sipxAacCommonInit(fmtp, isDecoder, codecInfo, 32000, /* sample rate */
+                             64000 /* bit rate */));
+}
+
+CODEC_API int PLG_DECODE_V1(aac_lc_32000)(void* opaqueCodecContext, const void* encodedData,
+                                         unsigned encodedPacketSize, void* pcmAudioBuffer,
+                                         unsigned pcmBufferSize, unsigned* decodedSamples,
+                                         const struct RtpHeader* rtpHeader)
+{
+    return(sipxAacCommonDecode(opaqueCodecContext, encodedData, encodedPacketSize, pcmAudioBuffer,
+                               pcmBufferSize, decodedSamples, rtpHeader));
+}
+
+CODEC_API int PLG_ENCODE_V1(aac_lc_32000)(void* opaqueCodecContext, const void* pcmAudioBuffer,
+                                     unsigned pcmAudioSamples, int* samplesConsumed,
+                                     void* encodedData, unsigned maxCodedDataSize,
+                                     int* encodedDataSize, unsigned* sendNow)
+{
+    return(sipxAacCommonEncode(opaqueCodecContext, ADTS_HEADER, pcmAudioBuffer, pcmAudioSamples, samplesConsumed,
+                               encodedData, maxCodedDataSize, encodedDataSize, sendNow));
+}
+
+CODEC_API int PLG_FREE_V1(aac_lc_32000)(void* opaqueCodecContext, int isDecoder) 
+{
+    return(sipxAacCommonFree(opaqueCodecContext, isDecoder));
+}
 
 PLG_ENUM_CODEC_START(aac_lc)
-    PLG_ENUM_CODEC(aac_lc_16000)
-    PLG_ENUM_CODEC_NO_SPECIAL_PACKING(aac_lc_16000)
-    PLG_ENUM_CODEC_NO_SIGNALING(aac_lc_16000)
+    PLG_ENUM_CODEC(mpeg4_generic_aac_lc_16000)
+    PLG_ENUM_CODEC_NO_SPECIAL_PACKING(mpeg4_generic_aac_lc_16000)
+    PLG_ENUM_CODEC_NO_SIGNALING(mpeg4_generic_aac_lc_16000)
+
+    PLG_ENUM_CODEC(mpeg4_generic_aac_lc_32000)
+    PLG_ENUM_CODEC_NO_SPECIAL_PACKING(mpeg4_generic_aac_lc_32000)
+    PLG_ENUM_CODEC_NO_SIGNALING(mpeg4_generic_aac_lc_32000)
+
+    PLG_ENUM_CODEC(mpeg4_generic_aac_lc_48000)
+    PLG_ENUM_CODEC_NO_SPECIAL_PACKING(mpeg4_generic_aac_lc_48000)
+    PLG_ENUM_CODEC_NO_SIGNALING(mpeg4_generic_aac_lc_48000)
 
     PLG_ENUM_CODEC(aac_lc_32000)
     PLG_ENUM_CODEC_NO_SPECIAL_PACKING(aac_lc_32000)
     PLG_ENUM_CODEC_NO_SIGNALING(aac_lc_32000)
-
-    PLG_ENUM_CODEC(aac_lc_48000)
-    PLG_ENUM_CODEC_NO_SPECIAL_PACKING(aac_lc_48000)
-    PLG_ENUM_CODEC_NO_SIGNALING(aac_lc_48000)
 PLG_ENUM_CODEC_END
-
-DEF_AAC_CODEC(16000)
-DEF_AAC_CODEC(32000)
-DEF_AAC_CODEC(48000)
 
 /* ============================== FUNCTIONS =============================== */
 
 void sipxFfmpegCodecInit()
 {
-    if(!sSipxFfmpegCodecInitialized)
+    if(sSipxFfmpegCodecInitialized != TRUE)
     {
-        sSipxFfmpegCodecInitialized = 1;
+        sSipxFfmpegCodecInitialized = TRUE;
 
        printf("DDDDDDDD sSipxFfmpegCodecInitialized one time set.\n");
-       // Global FFmpeg codec init
+       /* Global FFmpeg codec init */
        avcodec_init();
        avcodec_register_all();
     }
 }
 
 void* sipxAacCommonInit(const char* fmtp, int isDecoder,
-                        struct MppCodecFmtpInfoV1_2* codecInfo, int sampleRate)
+                        struct MppCodecFmtpInfoV1_2* codecInfo, int sampleRate, int bitRate)
 {
+    AVCodecContext* codecContext;
+    codecContext = NULL; 
     sipxFfmpegCodecInit(); 
  
-    AVCodecContext* codecContext = NULL; 
  
     if (codecInfo != NULL) 
     { 
        /* TODO: what is bit rate for AAC_LC???? */ 
-       int bitRate =  64000; 
        int frameSize = SAMPLE_PER_AAC_LC_FRAME; /* what is AAC_LC framesize???? */ 
        int numChannels = 1; /* as shown in SDP */ 
  
@@ -213,6 +270,8 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
             if(aacDecoder)
             {
                 char configBits[SDP_AUDIO_CONFIG_LINE_SIZE];
+                int openDecoderError;
+
                 switch(sampleRate)
                 {
                     case 16000:
@@ -239,7 +298,7 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
                 memset(codecContext->extradata, 0, SDP_AUDIO_CONFIG_LINE_SIZE + FF_INPUT_BUFFER_PADDING_SIZE);
                 memcpy(codecContext->extradata, configBits, SDP_AUDIO_CONFIG_LINE_SIZE);
 
-                int openDecoderError = avcodec_open(codecContext, aacDecoder);
+                openDecoderError = avcodec_open(codecContext, aacDecoder);
                 if(openDecoderError == 0)
                 {
                 }
@@ -264,7 +323,7 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
                 av_free(codecContext->extradata);
                 codecContext->extradata = 0;
                 av_free(codecContext);
-                codecContext = 0;
+                codecContext = NULL;
                 assert(aacDecoder);
             }
         }
@@ -330,21 +389,85 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
     assert(pcmBufferSize >= SAMPLE_PER_AAC_LC_FRAME);
     if(pcmBufferSize >= SAMPLE_PER_AAC_LC_FRAME)
     {
+        AVPacket ffmpegPacket;
+        int decodedSampleBytes;
+        /* HACK: FFMpeg wants tmpBuffer to be AVCODEC_MAX_AUDIO_FRAME_SIZE, but that blows our thread stack, so we lie */
+        int16_t tmpBuffer[4096]; 
+        int decodedBytesConsumed;
         returnValue = RPLG_SUCCESS;
 
-        AVPacket ffmpegPacket;
         av_init_packet(&ffmpegPacket);
-        ffmpegPacket.data = (uint8_t *) encodedData;
-        ffmpegPacket.size = encodedPacketSize;
-        int decodedSampleBytes = AVCODEC_MAX_AUDIO_FRAME_SIZE; /* pcmBufferSize * 2;  max. size of out buffer in bytes,
+        /* If there is an AU header the first 16 bits is the AU header length which defines the total length of the AU headers, 
+           one for each frame (there could be more than one frame).  Then the minimal AU header is 16 bits the first 13 bits are the
+           AU payload size and the last 3 bits are the ddddddddddd index or delta (if there is more than one frame/AU header.
+        */
+        short* auHeaderLengthNetwork = encodedData;
+        short auHeaderLengthInBits = ntohs(*auHeaderLengthNetwork); /* Generally expect this to be small number (e.g. 16) */
+        short* auHeaderNetwork = (auHeaderLengthNetwork) + 1;
+        short auDataLength = (ntohs(*auHeaderNetwork) >> 3);
+        int auHeaderLengthInBytes = auHeaderLengthInBits / 8;
+        int seqNum = ntohl(rtpHeader->ssrc);
+
+        /* AU header length makes sense and AU header specifies data size which calculates out right */
+        if(encodedPacketSize - auHeaderLengthInBytes == auDataLength && encodedPacketSize - auHeaderLengthInBytes > 0)
+        {
+            ffmpegPacket.data = ((uint8_t*) encodedData) + auHeaderLengthInBytes;
+            ffmpegPacket.size = encodedPacketSize - auHeaderLengthInBytes;
+            /* printf("AAC decode AU header found in ssrc: %d\n", seqNum);
+            */
+        }
+        /* ADTS header begins with 12 set bits */
+        else if(auHeaderLengthInBits & 0xfff0 == 0xfff0)
+        {
+            /* validate length of payload in ADTF header */
+            int adtsPayloadSize;
+            adtsPayloadSize = /* 13 bits accross octets 4-6 */
+                 ((*(((uint8_t*) encodedData) + 3)) & 0x3) * 2048 + /* bottom 2 bits of 4th octet */
+                 (*(((uint8_t*) encodedData) + 4)) * 8 + /* 8 bits of 5th octet */
+                 ((*(((uint8_t*) encodedData) + 5)) & 0xe0) / 32; /* top 3 bits of 6th octet */
+            if(adtsPayloadSize == encodedPacketSize)
+            {
+                /* printf("AAC decode ADTS header found with correct payload length: %d in ssrc: %d\n", 
+                       adtsPayloadSize, seqNum);
+                */
+            }
+            else
+            {
+                printf("AAC decode ADTS header found with incorrect payload length rtp: %d adts: %d in ssrc: %d\n", 
+                       encodedPacketSize, adtsPayloadSize, seqNum);
+            }
+
+            if(auHeaderLengthInBits & 0x1)
+            {
+                /* No CRC header is 7 octets long */
+                ffmpegPacket.data = ((uint8_t*) encodedData) + 7;
+                ffmpegPacket.size = encodedPacketSize - 7;
+            }
+            else
+            {
+                /* CRC included, header is 9 octets long */
+                ffmpegPacket.data = ((uint8_t*) encodedData) + 9;
+                ffmpegPacket.size = encodedPacketSize - 9;
+            }
+            /*printf("AAC decode ADTS header found %s CRC in ssrc: %d\n",
+                   (auHeaderLengthInBits & 0x1) ? "without" : "with", seqNum);
+           */
+        }
+        /*  Else assume no header and use whole payload for AAC frame */
+        else
+        {
+            ffmpegPacket.data = (uint8_t *) encodedData;
+            ffmpegPacket.size = encodedPacketSize;
+            printf("AAC decode no header found in ssrc: %d first octets: %x%x\n", 
+                   seqNum, (int) *(((uint8_t*) encodedData) + 0), (int) *(((uint8_t*) encodedData) + 1));
+        }
+        decodedSampleBytes = AVCODEC_MAX_AUDIO_FRAME_SIZE; /* pcmBufferSize * 2;  max. size of out buffer in bytes,
         gets over written by actual bytes used. */
         /* ffmpeg decoder framework requires huge buffer so that it can be stupid about
            memory allocation and output buffer size estimation.  I would have rather decoded
            directly into pcmAudioBuffer rather than have to use a temp buffer and copy. */
 
-        // HACK: FFMpeg wants tmpBuffer to be AVCODEC_MAX_AUDIO_FRAME_SIZE, but that blows our thread stack, so we lie
-        int16_t tmpBuffer[4096]; 
-        int decodedBytesConsumed = avcodec_decode_audio3(codecContext, tmpBuffer,
+        decodedBytesConsumed = avcodec_decode_audio3(codecContext, tmpBuffer,
                                                          &decodedSampleBytes, &ffmpegPacket);
         if(decodedBytesConsumed < 0)
         {
@@ -366,13 +489,15 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
 }
 
 
-int sipxAacCommonEncode(void* opaqueCodecContext, const void* pcmAudioBuffer,
+int sipxAacCommonEncode(void* opaqueCodecContext, enum AacHeaderTypes headerType, const void* pcmAudioBuffer,
                                      unsigned pcmAudioSamples, int* samplesConsumed,
                                      void* encodedData, unsigned maxCodedDataSize,
                                      int* encodedDataSize, unsigned* sendNow)
 {
     int returnCode = RPLG_FAILED;
-    AVCodecContext* codecContext = (AVCodecContext*) opaqueCodecContext;
+    AVCodecContext* codecContext;
+    *sendNow = FALSE;
+    codecContext = (AVCodecContext*) opaqueCodecContext;
     assert(codecContext->pkt);
     assert(codecContext->pkt->data);
     assert((codecContext->pkt->pos/sizeof(audio_sample_t)) + pcmAudioSamples <= codecContext->pkt->size);
@@ -386,17 +511,38 @@ int sipxAacCommonEncode(void* opaqueCodecContext, const void* pcmAudioBuffer,
     }
     else
     {
+        int consumedInputBytes;
         memcpy(&(codecContext->pkt->data[codecContext->pkt->pos]), pcmAudioBuffer, pcmAudioSamples * sizeof(audio_sample_t));
         codecContext->pkt->pos += pcmAudioSamples * sizeof(audio_sample_t);
         *samplesConsumed = pcmAudioSamples;
 
         /* size in bytes of PCM samples for frame of AAC_LC */
-        int consumedInputBytes = SAMPLE_PER_AAC_LC_FRAME * sizeof(audio_sample_t);
+        consumedInputBytes = SAMPLE_PER_AAC_LC_FRAME * sizeof(audio_sample_t);
 
         if((codecContext->pkt->pos / sizeof(audio_sample_t)) >= SAMPLE_PER_AAC_LC_FRAME)
         {
+            int headerSize = 0;
+
+            switch(headerType)
+            {
+            case NO_HEADER:
+            break;
+
+            case AU_HEADER:
+                headerSize = 4;
+            break;
+
+            case ADTS_HEADER:
+                headerSize = 7;
+            break;
+
+            default:
+                assert(0);
+                break;
+            }
+            /* Leave space for header in packet */
             *encodedDataSize = avcodec_encode_audio(codecContext, 
-                                                    encodedData, maxCodedDataSize,
+                                                    (void*) (((uint8_t*)encodedData) + headerSize), maxCodedDataSize - headerSize,
                                                     (const short*) codecContext->pkt->data);
             if(*encodedDataSize < 0)
             {
@@ -406,6 +552,71 @@ int sipxAacCommonEncode(void* opaqueCodecContext, const void* pcmAudioBuffer,
             }
             else
             {
+                int frequencyIndex;
+                assert(codecContext);
+                switch(codecContext->sample_rate)
+                {
+                case 16000:
+                    frequencyIndex = 8;
+                break;
+
+                case 32000:
+                    frequencyIndex = 5;
+                break;
+                case 48000:
+                    frequencyIndex = 3;
+                break;
+
+                default:
+                    assert(0);
+                    frequencyIndex = 5;
+                break;
+                }
+
+                /* Add header only if we have payload data */
+                /* A guess is that the encoder does not generate payload for the first frame passed in due */
+                /* to the builtin latency and forward error correction of AAC. */
+                switch(*encodedDataSize > 0 ? headerType : NO_HEADER)
+                {
+                case NO_HEADER:
+                break;
+
+                case AU_HEADER:
+                {
+                    short* auHeaderLength = encodedData;
+                    short* auHeader = auHeaderLength + 1;
+                    *auHeaderLength = htons(16); /* We create a header that is always 16 bits long */
+                    *auHeader = htons(*encodedDataSize << 3); /* First 13 bits of AU header is payload size */
+                    *encodedDataSize += 4;
+                }
+                break;
+
+                case ADTS_HEADER:
+                    /* good reference: http://wiki.multimedia.cx/index.php?title=ADTS */
+                    *encodedDataSize += 7;
+                    /* 1st octet always 0xff */
+                    *((uint8_t*)encodedData) = 0xff;
+                    /* 2nd octet: sync always 0xf0, MPEG-4, no CRC */
+                    *(((uint8_t*)encodedData) + 1) = 0xf0 + 0x1; 
+                    /* 3rd octet: (MPEG3 audio object type AAC_LC = 2, minus 1), sample freqency index */
+                    *(((uint8_t*)encodedData) + 2) = 0x1 * 64 + (frequencyIndex * 4);
+                    /* 4th octet: lower 2 bits of channel configuration, top 2 bits of 13 bit payload length including ADTS header */
+                    *(((uint8_t*)encodedData) + 3) = (0x1 & 0x3) * 64 + (((*encodedDataSize) / 2048) & 0x3);
+                    /* 5th octet: bits 4-11 of payload length including ADTS header */
+                    *(((uint8_t*)encodedData) + 4) = (((*encodedDataSize) / 8) & 0xff);
+                    /* 6th octet: top 3 bits are the 3 least signficant bits of the 13 bit payload length, buffer fullness all 1s */
+                    *(((uint8_t*)encodedData) + 5) = ((*encodedDataSize) & 0x7) * 32 + 0x1f;
+                    /* 7th octet: upper 6 bits: buffer fullness all 1s*/
+                    *(((uint8_t*)encodedData) + 6) = 0xfc;
+                    /* We do not include 8th and 9th octet as we do not include CRC */
+
+                break;
+
+                default:
+                    assert(0);
+                break;
+            }
+
                 /* Left over samples, shift them to to front */
                 if(consumedInputBytes < codecContext->pkt->pos)
                 {
@@ -415,6 +626,7 @@ int sipxAacCommonEncode(void* opaqueCodecContext, const void* pcmAudioBuffer,
 
                 codecContext->pkt->pos -= consumedInputBytes;
                 returnCode = RPLG_SUCCESS;
+                *sendNow = TRUE;
             }
         }
         else
@@ -425,8 +637,28 @@ int sipxAacCommonEncode(void* opaqueCodecContext, const void* pcmAudioBuffer,
 
     }
 
-    *sendNow = FALSE;
 
     return(returnCode);
+}
+
+
+int sipxAacCommonFree(void* opaqueCodecContext, int isDecoder)
+{
+    AVCodecContext* codecContext = (AVCodecContext*) opaqueCodecContext;
+    if(!isDecoder)
+    {
+        /* we use pkt to buffer up enough sipX frames to encode an AAC frame */
+        av_free(codecContext->pkt->data);
+        codecContext->pkt->data = NULL;
+        av_free(codecContext->pkt);
+        codecContext->pkt = NULL;
+    }
+    avcodec_close(codecContext);
+    av_free(codecContext->extradata);
+    codecContext->extradata =  NULL;
+    av_free(codecContext);
+    codecContext = NULL;
+
+   return(RPLG_SUCCESS);
 }
 
