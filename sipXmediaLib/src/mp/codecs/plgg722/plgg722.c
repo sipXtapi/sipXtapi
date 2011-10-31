@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -18,6 +18,7 @@
 #include <mp/codecs/PlgDefsV1.h>
 
 // CODEC LIBRARY INCLUDES
+#include <spandsp/telephony.h>
 #include <spandsp/g722.h>
 
 // EXTERNAL VARIABLES
