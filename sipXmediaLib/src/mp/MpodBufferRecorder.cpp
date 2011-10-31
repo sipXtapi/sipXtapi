@@ -108,6 +108,7 @@ OsStatus MpodBufferRecorder::disableDevice()
    {
       mpTickerTimer->stop(TRUE);
       delete mpTickerTimer;
+      mpTickerTimer = NULL;
    }
 
    if (mpBuffer != NULL)
