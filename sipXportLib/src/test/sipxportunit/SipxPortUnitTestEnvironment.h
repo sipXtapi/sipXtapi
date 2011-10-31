@@ -1,10 +1,10 @@
 // 
 //
+// Copyright (C) 2010-2011 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2010 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2010 SIPez LLC  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 // Author: Daniel Petrie
@@ -146,6 +146,9 @@ public:
 
     static void setStringOutMethod(SipxUnitStringOutputter outputMethod);
 
+    static void setLogHookBegin(void (*logBeginFunc)(const char* testClassName));
+    static void setLogHookEnd(void (*logEndFunc)(const char* testClassName));
+
 /* ============================ I N Q U I R Y ============================= */
 
 //__________________________________________________________________________//
@@ -200,6 +203,10 @@ private:
     static int sLastExceptionTestPointIndex;
 
     static SipxUnitStringOutputter sStringOutputMethod;
+
+    static void (*sLogHookBegin)(const char* testName);
+    static void (*sLogHookEnd)(const char* testName);
+
 };
 
 

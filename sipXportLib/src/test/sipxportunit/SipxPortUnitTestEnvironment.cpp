@@ -1,11 +1,11 @@
 // 
 // 
+// Copyright (C) 2010-2011 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2010 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2010 SIPez LLC  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
 // $$
 // Author: Daniel Petrie
 //         dpetrie AT SIPez DOT com
@@ -55,6 +55,9 @@ int SipxPortUnitTestEnvironment::sLastExceptionClassIndex = -1;
 int SipxPortUnitTestEnvironment::sNumExceptionsForSameClass = 0;
 int SipxPortUnitTestEnvironment::sLastExceptionMethodIndex = -1;
 int SipxPortUnitTestEnvironment::sLastExceptionTestPointIndex = -1;
+
+void (*SipxPortUnitTestEnvironment::sLogHookBegin)(const char* testName) = NULL;
+void (*SipxPortUnitTestEnvironment::sLogHookEnd)(const char* testName) = NULL;
 
 SipxUnitStringOutputter SipxPortUnitTestEnvironment::sStringOutputMethod = defaultPrintOut;
 
@@ -196,6 +199,7 @@ void SipxPortUnitTestEnvironment::runTests()
 #ifndef DONT_CATCH_SIGNALS
     signal(SIGFPE, SipxPortUnitTestEnvironment::signalHandler);
     signal(SIGSEGV, SipxPortUnitTestEnvironment::signalHandler);
+    signal(SIGILL, SipxPortUnitTestEnvironment::signalHandler);
 #endif
 
     // Render test inforation for each test class first time this gets run
@@ -244,11 +248,21 @@ void SipxPortUnitTestEnvironment::runTests()
     {
         assert(sTestClassesToRun[sCurrentTestClassIndex]);
 
+        if(sLogHookBegin)
+        {
+            sLogHookBegin(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
+        }
+
         sTestClassesToRun[sCurrentTestClassIndex]->runAllMethodsFrom(sCurrentTestMethodIndex);
 
         // Can now free up the test class, but we keep the test class 
         //constructor around so we can get at the stats
         sTestClassesToRun[sCurrentTestClassIndex]->releaseTestClass();
+
+        if(sLogHookEnd)
+        {
+            sLogHookEnd(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
+        }
 
         sCurrentTestMethodIndex = 0;
         sCurrentTestPointIndex = 0;
@@ -474,6 +488,17 @@ void SipxPortUnitTestEnvironment::setStringOutMethod(SipxUnitStringOutputter new
 {
     sStringOutputMethod = newOutputMethod;
 }
+
+void SipxPortUnitTestEnvironment::setLogHookBegin(void (*logBeginFunc)(const char* testClassName))
+{
+    sLogHookBegin = logBeginFunc;
+}
+
+void SipxPortUnitTestEnvironment::setLogHookEnd(void (*logEndFunc)(const char* testClassName))
+{
+    sLogHookEnd = logEndFunc;
+}
+
 
 /* ============================ I N Q U I R Y ============================= */
 
