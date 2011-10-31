@@ -174,7 +174,14 @@ OsStatus MpodOss::pushFrame(unsigned int numSamples,
       return OS_FAILED;
 
    // Currently only full frame supported
-   assert(numSamples == mSamplesPerFrame);
+   if(numSamples != mSamplesPerFrame)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, 
+         "MpodOss::pushFrame given %d samples, expected full frame of: %d samples",
+         numSamples, mSamplesPerFrame);
+      OsSysLog::flush();
+      assert(numSamples == mSamplesPerFrame);
+   }
 
    RTL_BLOCK("MpodOss::pushFrame");
    if (samples != NULL)
