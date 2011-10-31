@@ -1,15 +1,13 @@
-//
-// Copyright (C) 2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
-// Copyright (C) 2007 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// $$
-///////////////////////////////////////////////////////////////////////////////
-
-// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
-
+// 
+// Copyright (C) 2007-2011 SIPez LLC.  
+// Licensed to SIPfoundry under a Contributor Agreement.  
+// 
+// Copyright (C) 2007 SIPfoundry Inc.  
+// Licensed by SIPfoundry under the LGPL license.  
+// 
+// $$ 
+/////////////////////////////////////////////////////////////////////////////// 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com> 
 #ifdef __linux__
 
 // SYSTEM INCLUDES
@@ -848,7 +846,8 @@ UtlBoolean MpOss::ossSetTrigger(bool turnOn)
    if (!res)
    {
       OsSysLog::add(FAC_MP, PRI_EMERG,
-                    "OSS: could not set OSS trigger\n");
+                    "OSS: could not set OSS trigger fd=%d. ioctl returned: %d (%s)\n",
+                    mfdDevice, errno, sys_errlist[errno]); 
    }
    return res;
 }
