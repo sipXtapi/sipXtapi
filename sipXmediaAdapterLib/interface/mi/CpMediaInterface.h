@@ -646,6 +646,15 @@ public:
    //! Rebuild the codec factory on the fly
    virtual OsStatus setAudioCodecBandwidth(int connectionId, int bandWidth) = 0;
 
+   //! Further restrict the set of codecs to the list provided.
+   virtual OsStatus limitCodecs(int connectionId, const SdpCodecList& includeOnlyCodecList) = 0;
+   /**
+    * No codecs will be added.  This method only removes currently enabled codecs which
+    * are not included in the given list.
+    *
+    * @returns the number of codecs remaining enabled
+    */
+
    //! Rebuild codec factory with one video codec
    virtual OsStatus rebuildCodecFactory(int connectionId, 
                                         int audioBandwidth, 

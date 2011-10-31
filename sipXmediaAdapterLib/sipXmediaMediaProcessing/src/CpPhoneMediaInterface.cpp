@@ -958,7 +958,7 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
    if (mediaConnection->mpCodecFactory)
    {
       mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
-                                                         sendCodecs);
+                                                        (const SdpCodec**)sendCodecs);
    }
 
    if (mpFlowGraph)
@@ -988,7 +988,7 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
        if (mediaConnection->mpCodecFactory)
        {
            mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
-                                                            sendCodecs);
+                                                            (const SdpCodec**)sendCodecs);
        }
 
        if (mediaConnection->mRtpAudioSending)
@@ -1038,7 +1038,7 @@ OsStatus CpPhoneMediaInterface::startRtpReceive(int connectionId,
    if (mediaConnection->mpCodecFactory)
    {
          mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
-                                                           receiveCodecs);
+                                                           (const SdpCodec**) receiveCodecs);
    }
 
    if (mpFlowGraph)

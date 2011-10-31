@@ -1219,7 +1219,7 @@ OsStatus CpTopologyGraphInterface::copyPayloadIds(int connectionId, int numCodec
                       beforeCodecs.data());
 
         mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
-                                                          remoteCodecs);
+                                                          (const SdpCodec**) remoteCodecs);
 
         UtlString afterCodecs;
         mediaConnection->mpCodecFactory->toString(afterCodecs);
@@ -1281,7 +1281,7 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
       // Make sure we use the same payload types as the remote
       // side.  Its the friendly thing to do.
       mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
-                                                         sendCodecs);
+                                                        (const SdpCodec**) sendCodecs);
       UtlString afterCodecs;
       mediaConnection->mpCodecFactory->toString(afterCodecs);
       OsSysLog::add(FAC_CP, PRI_DEBUG, "startRtpSend startRtpSend codec payload IDs change to:\n%s",
@@ -1322,7 +1322,7 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
        if (mediaConnection->mpCodecFactory)
        {
            mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
-                                                            sendCodecs);
+                                                             (const SdpCodec**) sendCodecs);
        }
 
        if (mediaConnection->mRtpAudioSending)
@@ -1394,7 +1394,7 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
         // Make sure we use the same payload types as the remote
         // side.  It's the friendly thing to do.
         mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
-                                                          receiveCodecs);
+                                                          (const SdpCodec**) receiveCodecs);
         UtlString afterCodecs;
         mediaConnection->mpCodecFactory->toString(afterCodecs);
         OsSysLog::add(FAC_CP, PRI_DEBUG, "startRtpReceive mpCodecFactory payload IDs changed to:\n%s",
@@ -1980,6 +1980,29 @@ void CpTopologyGraphInterface::setContactType(int connectionId, SIPX_CONTACT_TYP
 OsStatus CpTopologyGraphInterface::setAudioCodecBandwidth(int connectionId, int bandWidth) 
 {
     return OS_NOT_SUPPORTED ;
+}
+
+OsStatus CpTopologyGraphInterface::limitCodecs(int connectionId, const SdpCodecList& includeOnlyCodecList)
+{
+    OsStatus returnCode = OS_NOT_FOUND;
+    if(connectionId == getInvalidConnectionId())
+    {
+        // Limit the codec set for the media interface
+        mSupportedCodecs.limitCodecs(includeOnlyCodecList);
+        returnCode = OS_SUCCESS;
+    }
+    else
+    {
+        CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+        if(mediaConnection && mediaConnection->mpCodecFactory)
+        {
+            mediaConnection->mpCodecFactory->limitCodecs(includeOnlyCodecList);
+            returnCode = OS_SUCCESS;
+        }
+    }
+
+    return(returnCode);
 }
 
 OsStatus CpTopologyGraphInterface::rebuildCodecFactory(int connectionId, 

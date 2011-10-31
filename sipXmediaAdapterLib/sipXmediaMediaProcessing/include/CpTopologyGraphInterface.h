@@ -317,7 +317,10 @@ public:
     //! Rebuild the codec factory on the fly
     virtual OsStatus setAudioCodecBandwidth(int connectionId, int bandWidth) ;
 
-   virtual OsStatus rebuildCodecFactory(int connectionId, 
+    /// @copydoc CpMediaInterface::limitCodecs
+    virtual OsStatus limitCodecs(int connectionId, const SdpCodecList& includeOnlyCodecList);
+
+    virtual OsStatus rebuildCodecFactory(int connectionId, 
                                         int audioBandwidth, 
                                         int videoBandwidth, 
                                         UtlString& videoCodec);
