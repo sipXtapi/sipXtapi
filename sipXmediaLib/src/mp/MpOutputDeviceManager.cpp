@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -161,7 +161,13 @@ OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
                                          0,
                                          mixerBufferLength);
    }
-   return status;
+   else
+   {
+       OsSysLog::add(FAC_MP, PRI_ERR, "MpOutputDeviceManager::enableDevice deviceId: %d, connection not found",
+           deviceId);
+   }
+
+   return(status);
 }
 
 
