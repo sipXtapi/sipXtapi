@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2008 SIPez LLC.
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -82,11 +82,14 @@ public:
 
      /// @brief If there is a matching codec in this factory, set its
      /// payload type to that of the given codec.
-   void copyPayloadType(SdpCodec& codec);
+   void copyPayloadType(const SdpCodec& codec);
 
      /// @brief For all matching codecs, copy the payload type from
      /// the codecArray to the matching codec in this factory.
-   void copyPayloadTypes(int numCodecs, SdpCodec* codecArray[]);
+   void copyPayloadTypes(int numCodecs, const SdpCodec* codecArray[]);
+
+   /// @brief Remove any codecs in this list that are not equivalent to those in the given list
+   void limitCodecs(const SdpCodecList& includeOnlyCodecList);
 
      /// Clear the list.
    void clearCodecs(void);
@@ -115,8 +118,8 @@ public:
      /// Get a codec given the MIME type, subtype and other parameters.
    const SdpCodec* getCodec(const char* MIMEType, 
                             const char* MIMESubType,
-                            unsigned sampleRate,
-                            unsigned numChannels,
+                            int sampleRate,
+                            int numChannels,
                             const UtlString &fmtp);
 
      /// Get the number of codecs.
@@ -159,6 +162,8 @@ public:
 ///@name Inquiry
 //@{
 
+    /// Query if equivalent codec is in the list
+    UtlBoolean containsCodec(const SdpCodec& codec) const;
 
 //@}
 

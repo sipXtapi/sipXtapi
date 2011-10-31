@@ -226,7 +226,7 @@ void SdpCodecList::bindPayloadTypes()
 #endif /* VERBOSE_CODEC_FACTORY ] */
 }
 
-void SdpCodecList::copyPayloadType(SdpCodec& codec)
+void SdpCodecList::copyPayloadType(const SdpCodec& codec)
 {
     SdpCodec* codecFound = NULL;
     OsWriteLock lock(mReadWriteMutex);
@@ -244,12 +244,29 @@ void SdpCodecList::copyPayloadType(SdpCodec& codec)
 }
 
 void SdpCodecList::copyPayloadTypes(int numCodecs, 
-                                       SdpCodec* codecArray[])
+                                    const SdpCodec* codecArray[])
 {
     int index;
     for(index = 0; index < numCodecs; index++)
     {
         copyPayloadType(*(codecArray[index]));
+    }
+}
+
+void SdpCodecList::limitCodecs(const SdpCodecList& includeOnlyCodecList)
+{
+    // Loop through codecs in this list.
+    SdpCodec* codecFound = NULL;
+    OsWriteLock lock(mReadWriteMutex);
+    UtlDListIterator iterator(mCodecs);
+
+    while((codecFound = (SdpCodec*) iterator()))
+    {
+        // If codec is not in the given list, remove it
+        if(!includeOnlyCodecList.containsCodec(*codecFound))
+        {
+            mCodecs.destroy(codecFound);
+        }
     }
 }
 
@@ -317,8 +334,8 @@ const SdpCodec* SdpCodecList::getCodecByType(int payloadTypeId)
 
 const SdpCodec* SdpCodecList::getCodec(const char* mimeType, 
                                        const char* mimeSubType,
-                                       unsigned sampleRate,
-                                       unsigned numChannels,
+                                       int sampleRate,
+                                       int numChannels,
                                        const UtlString &fmtp)
 {
     const SdpCodec* codecFound = NULL;
@@ -563,6 +580,23 @@ int SdpCodecList::getCodecCPULimit()
 
 
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean SdpCodecList::containsCodec(const SdpCodec& codec) const
+{
+    SdpCodec* codecFound = NULL;
+    OsReadLock lock((OsRWMutex&)mReadWriteMutex);
+    UtlDListIterator iterator(mCodecs);
+
+    while((codecFound = (SdpCodec*) iterator()))
+    {
+        if(codecFound->isSameDefinition(codec))
+        {
+            break;
+        }
+    }
+
+    return(codecFound != NULL);
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
