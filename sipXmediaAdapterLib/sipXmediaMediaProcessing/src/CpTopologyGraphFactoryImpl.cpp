@@ -312,6 +312,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
        addLocalConnectionTopology(mpInitialResourceTopology);
     }
     mpResourceFactory = buildDefaultResourceFactory();
+
     int firstInvalidResourceIndex;
     OsStatus result = 
         mpInitialResourceTopology->validateResourceTypes(*mpResourceFactory, 
@@ -355,6 +356,7 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
       if (pInDriver)
       {
          delete pInDriver;
+         pInDriver = NULL;
       }
 
       // Free output device driver
@@ -362,12 +364,14 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
       if (pOutDriver)
       {
          delete pOutDriver;
+         pOutDriver = NULL;
       }
       else
       {
          // Stop our ticker timer
          mpMediaTaskTicker->stop();
          delete mpMediaTaskTicker;
+         mpMediaTaskTicker = NULL;
       }
 #else // USE_DEVICE_ADD_HACK ][
       assert(!"Can't use local audio without USE_DEVICE_ADD_HACK defined!");
@@ -378,17 +382,24 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
       // Stop our ticker timer
       mpMediaTaskTicker->stop();
       delete mpMediaTaskTicker;
+      mpMediaTaskTicker = NULL;
    }
 
    // Free factory and topologies.
    delete mpResourceFactory;
+   mpResourceFactory = NULL;
    delete mpInitialResourceTopology;
+   mpInitialResourceTopology = NULL;
    delete mpConnectionResourceTopology;
+   mpConnectionResourceTopology = NULL;
    delete mpMcastConnectionResourceTopology;
+   mpMcastConnectionResourceTopology = NULL;
 
    // Free input and output device managers.
    delete mpInputDeviceManager;
+   mpInputDeviceManager = NULL;
    delete mpOutputDeviceManager;
+   mpOutputDeviceManager = NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */

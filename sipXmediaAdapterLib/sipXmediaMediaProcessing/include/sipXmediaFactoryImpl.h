@@ -175,6 +175,10 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
   private:
     static int miInstanceCount;
 
+    /// Diabled
+    sipXmediaFactoryImpl(const sipXmediaFactoryImpl& refFactoryImpl);
+    /// Diabled
+    sipXmediaFactoryImpl& operator=(const sipXmediaFactoryImpl& refFactoryImpl);
 };
 
 /* ============================ INLINE METHODS ============================ */

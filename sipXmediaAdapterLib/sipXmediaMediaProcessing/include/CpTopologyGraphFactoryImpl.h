@@ -118,7 +118,7 @@ public:
     virtual OsStatus getMicrophoneDevice(UtlString& device) const;
 
       /// Set the resource topology to be used when creating new flowgraph.
-    virtual
+    // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
     void setInitialResourceTopology(MpResourceTopology& resourceTopology);
       /**<
       *  The given CpTopolgyGraph defines the topology and types of resources
@@ -127,35 +127,35 @@ public:
 
       /// @brief Get the resource topology defining the resources connections
       /// for a new flowgraph.
-    virtual
+    // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
     MpResourceTopology* getInitialResourceTopology() const;
 
       /// Set the factory used to create resources for the new flowgraph contained .
-    virtual
+    // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
     void setResourceFactory(MpResourceFactory& resourceFactory);
 
       /// Get the factory for constructing new resources.
-    virtual
+    // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
     MpResourceFactory* getResourceFactory() const;
 
       /// @brief Set the resource topology to be added to the flow graph when
       /// adding an unicast RTP connection.
-    virtual
+    // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
     void setConnectionResourceTopology(MpResourceTopology& connectionTopology);
 
       /// @brief Get the resource topology defining what resources get added
       /// when adding an unicast RTP connection.
-    virtual
+    // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
     MpResourceTopology* getConnectionResourceTopology() const;
 
       /// @brief Set the resource topology to be added to the flow graph when
       /// adding an multicast RTP connection.
-    virtual
+    // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
     void setMcastConnectionResourceTopology(MpResourceTopology& connectionTopology);
 
       /// @brief Get the resource topology defining what resources get added
       /// when adding an multicast RTP connection.
-    virtual
+    // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
     MpResourceTopology* getMcastConnectionResourceTopology() const;
 
       /// Return number of RTP streams multicast connection supports
@@ -212,6 +212,10 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+   /// Disabled
+   CpTopologyGraphFactoryImpl(const CpTopologyGraphFactoryImpl* refFactoryImpl);
+   /// Disabled
+   CpTopologyGraphFactoryImpl& operator=(const CpTopologyGraphFactoryImpl* refFactoryImpl);
 };
 
 /* ============================ INLINE METHODS ============================ */
