@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
+// Copyright (C) 2008-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2008 SIPfoundry Inc.
@@ -44,7 +44,7 @@ public:
       , mpCodecs(NULL)
       , mNumCodecs(0)
    {
-      UtlString codecMediaType;
+      //UtlString codecMediaType;
 
       // Allocate new array
       mpCodecs = new SdpCodec*[numCodecs];
@@ -54,12 +54,8 @@ public:
       {
          if (codecs[i] != NULL)
          {
-            codecs[i]->getMediaType(codecMediaType);
-            if (codecMediaType.compareTo("audio") == 0)
-            {
-               mpCodecs[mNumCodecs] = new SdpCodec(*codecs[i]);
-               mNumCodecs++;
-            }
+            mpCodecs[mNumCodecs] = new SdpCodec(*codecs[i]);
+            mNumCodecs++;
          }
          else
          {
