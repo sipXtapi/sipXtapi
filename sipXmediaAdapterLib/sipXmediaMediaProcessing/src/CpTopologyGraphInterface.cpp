@@ -41,10 +41,11 @@
 #include <mp/MprRecorder.h>
 #include <mp/MprFromInputDevice.h>
 #include <mp/dtmflib.h>
+#include <mp/MprFromNet.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpCodecFactory.h>
-#include "CpTopologyGraphInterface.h"
-#include "CpTopologyGraphFactoryImpl.h"
+#include <CpTopologyGraphInterface.h>
+#include <CpTopologyGraphFactoryImpl.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>
@@ -74,14 +75,16 @@ public:
     CpTopologyMediaConnection(int connectionId = -1)
     : UtlInt(connectionId)
     , mpResourceTopology(NULL)
-    , mRtpSendHostAddress()
-    , mDestinationSet(FALSE)
+    , mRtpAudioSendHostAddress()
+    , mAudioDestinationSet(FALSE)
     , mIsMulticast(FALSE)
     , mIsCustomSockets(FALSE)
     , mNumRtpStreams(0)
     , mpRtpAudioSocket(NULL)
     , mpRtcpAudioSocket(NULL)
 #ifdef VIDEO
+    , mRtpVideoSendHostAddress()
+    , mVideoDestinationSet(FALSE)
     , mpRtpVideoSocket(NULL)
     , mpRtcpVideoSocket(NULL)
     , mRtpVideoSendHostPort(0)
@@ -89,6 +92,9 @@ public:
     , mRtpVideoReceivePort(0)
     , mRtcpVideoReceivePort(0)
     , mVideoPassThroughEnabled(FALSE)
+    , mRtpVideoSending(FALSE)
+    , mRtpVideoReceiving(FALSE)
+    , mpVideoCodec(NULL)
 #endif
     , mRtpAudioSendHostPort(0)
     , mRtcpAudioSendHostPort(0)
@@ -171,18 +177,29 @@ public:
             mpAudioCodec = NULL; 
         }              
 
+#ifdef VIDEO
+        if(mpVideoCodec)
+        {
+            delete mpVideoCodec;
+            mpVideoCodec = NULL;
+        }
+#endif
+
         mConnectionProperties.destroyAll();
     }
 
     MpResourceTopology *mpResourceTopology;
-    UtlString mRtpSendHostAddress;
-    UtlBoolean mDestinationSet;
+    UtlString mRtpAudioSendHostAddress;
+    UtlBoolean mAudioDestinationSet;
     UtlBoolean mIsMulticast;
     UtlBoolean mIsCustomSockets;
     int mNumRtpStreams;
     OsSocket* mpRtpAudioSocket;
     OsSocket* mpRtcpAudioSocket;
+
 #ifdef VIDEO
+    UtlString mRtpVideoSendHostAddress;
+    UtlBoolean mVideoDestinationSet;
     OsSocket* mpRtpVideoSocket;
     OsSocket* mpRtcpVideoSocket;
     int mRtpVideoSendHostPort;
@@ -190,7 +207,11 @@ public:
     int mRtpVideoReceivePort;
     int mRtcpVideoReceivePort;
     UtlBoolean mVideoPassThroughEnabled;
+    UtlBoolean mRtpVideoSending;
+    UtlBoolean mRtpVideoReceiving;
+    SdpCodec* mpVideoCodec;
 #endif
+
     int mRtpAudioSendHostPort;
     int mRtcpAudioSendHostPort;
     int mRtpAudioReceivePort;
@@ -199,9 +220,9 @@ public:
     UtlBoolean mRtpAudioReceiving;
     SdpCodec* mpAudioCodec;
     SdpCodecList* mpCodecFactory;
-    SIPX_CONTACT_TYPE mContactType ;
-    UtlString mLocalAddress ;
-    UtlBoolean mbAlternateDestinations ;
+    SIPX_CONTACT_TYPE mContactType;
+    UtlString mLocalAddress;
+    UtlBoolean mbAlternateDestinations;
     UtlHashMap mConnectionProperties;
 };
 
@@ -441,11 +462,54 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
    mediaConnection->mRtcpAudioReceivePort = mediaConnection->mpRtcpAudioSocket->getLocalHostPort() ;
 
    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-      "CpTopologyGraphInterface::createConnection creating a new RTP socket: %p descriptor: %d",
+      "CpTopologyGraphInterface::createConnection creating a new audio RTP socket: %p descriptor: %d",
       mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-      "CpTopologyGraphInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
+      "CpTopologyGraphInterface::createConnection creating a new audio RTCP socket: %p descriptor: %d",
       mediaConnection->mpRtcpAudioSocket, mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
+
+
+#ifdef VIDEO
+   // TODO: need to figure out conditional on when to create video sockets
+   // Create the sockets for the video stream
+   retValue = createRtpSocketPair(mediaConnection->mLocalAddress, localPort != 0 ? localPort + 2 : localPort,
+                                  mediaConnection->mIsMulticast,
+                                  mediaConnection->mContactType,
+                                  mediaConnection->mpRtpVideoSocket, 
+                                  mediaConnection->mpRtcpVideoSocket);
+   if (retValue != OS_SUCCESS)
+   {
+       OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphInterface::createConnection could not create RTP socket pair for video. status: %d",
+           retValue);
+   }
+   else
+   {
+      // Store video stream settings
+      mediaConnection->mRtpVideoReceivePort = mediaConnection->mpRtpVideoSocket->getLocalHostPort() ;
+      mediaConnection->mRtcpVideoReceivePort = mediaConnection->mpRtcpVideoSocket->getLocalHostPort() ;
+
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+         "CpTopologyGraphInterface::createConnection creating a new video RTP socket: %p descriptor: %d",
+         mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtpVideoSocket->getSocketDescriptor());
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+         "CpTopologyGraphInterface::createConnection creating a new video RTCP socket: %p descriptor: %d",
+         mediaConnection->mpRtcpVideoSocket, mediaConnection->mpRtcpVideoSocket->getSocketDescriptor());
+
+      UtlString videoInConnectionName(DEFAULT_VIDEO_RTP_INPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(videoInConnectionName, connectionId);
+
+      // Not sure why the audio sockets are set upon creation.  Setting the sockets
+      // causes them to be read.  It would seem either they should be read all the time and dropped
+      // on the floor or they should only be read when we are recieving.  We currently stop reading
+      // when we stopRtpReceive.
+      //
+      // construct and send message to set sockets on video in rtp connection
+      //MprFromNet::setSockets(videoInConnectionName, *(mpTopologyGraph->getMsgQ()),
+      //    mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtcpVideoSocket);
+   }
+
+
+#endif
 
    // Fence between calls to synchronous flowgraph methods and asynchronous.
    // Also this is required to ensure that the connection has completed being
@@ -484,8 +548,8 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
    // Assign the passed in sockets to the mediaConnection
    mediaConnection->mpRtpAudioSocket = rtpSocket;
    mediaConnection->mpRtcpAudioSocket = rtcpSocket;
-   mediaConnection->mDestinationSet = TRUE;
-   mediaConnection->mRtpSendHostAddress = "127.0.0.1";  // dummy address so that startRtpSend will work
+   mediaConnection->mAudioDestinationSet = TRUE;
+   mediaConnection->mRtpAudioSendHostAddress = "127.0.0.1";  // dummy address so that startRtpSend will work
    mediaConnection->mContactType = CONTACT_LOCAL;
    mediaConnection->mIsCustomSockets = TRUE;
 
@@ -937,6 +1001,25 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                                                          int remoteVideoRtpPort,
                                                          int remoteVideoRtcpPort)
 {
+
+    OsStatus status = setConnectionDestination(connectionId, AUDIO_STREAM, 0, remoteRtpHostAddress, remoteAudioRtpPort, remoteAudioRtcpPort);
+
+    if(status == OS_SUCCESS)
+    {
+        status = setConnectionDestination(connectionId, VIDEO_STREAM, 0, remoteRtpHostAddress, remoteVideoRtpPort, remoteVideoRtcpPort);
+    }
+
+    return(status);
+}
+
+OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
+                                                            CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                                            int streamindex,
+                                                            const char* remoteRtpHostAddress,
+                                                            int remoteRtpPort,
+                                                            int remoteRtcpPort)
+{
+    assert(streamindex == 0);
     OsStatus returnCode = OS_NOT_FOUND;
     CpTopologyMediaConnection* pMediaConnection = getMediaConnection(connectionId);
 
@@ -946,87 +1029,96 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
         /*
          * Common Setup
          */
-        pMediaConnection->mDestinationSet = TRUE;
-        pMediaConnection->mRtpSendHostAddress = remoteRtpHostAddress ;
 
-        /*
-         * Audio Setup
-         */
-        pMediaConnection->mRtpAudioSendHostPort = remoteAudioRtpPort;
-        pMediaConnection->mRtcpAudioSendHostPort = remoteAudioRtcpPort;
-
-        if(!pMediaConnection->mIsCustomSockets)
+        if(mediaType == CpMediaInterface::AUDIO_STREAM)
         {
-            if(pMediaConnection->mpRtpAudioSocket)
+            /*
+             * Audio Setup
+             */
+            pMediaConnection->mAudioDestinationSet = TRUE;
+            pMediaConnection->mRtpAudioSendHostAddress = remoteRtpHostAddress ;
+            pMediaConnection->mRtpAudioSendHostPort = remoteRtpPort;
+            pMediaConnection->mRtcpAudioSendHostPort = remoteRtcpPort;
+
+            if(!pMediaConnection->mIsCustomSockets)
             {
-                if (!pMediaConnection->mIsMulticast)
+                if(pMediaConnection->mpRtpAudioSocket)
                 {
-                    OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpAudioSocket;
-                    pSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtpPort) ;
-                    pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtpPort) ;
-                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote address: %s port: %d",
-                       remoteRtpHostAddress, remoteAudioRtpPort);
-                }
-                else
-                {
-                    ((OsDatagramSocket*)pMediaConnection->mpRtpAudioSocket)->doConnect(remoteAudioRtpPort,
+                    if (!pMediaConnection->mIsMulticast)
+                    {
+                        OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpAudioSocket;
+                        pSocket->readyDestination(remoteRtpHostAddress, remoteRtpPort) ;
+                        pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtpPort) ;
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote address: %s port: %d",
+                            remoteRtpHostAddress, remoteRtpPort);
+                    }
+                    else
+                    {
+                        ((OsDatagramSocket*)pMediaConnection->mpRtpAudioSocket)->doConnect(remoteRtpPort,
                                                  remoteRtpHostAddress,
                                                  TRUE);
+                    }
                 }
-            } 
 
-            if(pMediaConnection->mpRtcpAudioSocket && (remoteAudioRtcpPort > 0))           
-            {
-                if (!pMediaConnection->mIsMulticast)
+                if(pMediaConnection->mpRtcpAudioSocket && (remoteRtcpPort > 0))           
                 {
-                    OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpAudioSocket;
-                    pSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtcpPort) ;
-                    pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtcpPort) ;
+                    if (!pMediaConnection->mIsMulticast)
+                    {
+                        OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpAudioSocket;
+                        pSocket->readyDestination(remoteRtpHostAddress, remoteRtcpPort);
+                        pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtcpPort);
+                    }
+                    else
+                    {
+                        ((OsDatagramSocket*)pMediaConnection->mpRtcpAudioSocket)->doConnect(remoteRtpPort,
+                                                  remoteRtpHostAddress,
+                                                  TRUE);
+                    }
                 }
                 else
                 {
-                    ((OsDatagramSocket*)pMediaConnection->mpRtcpAudioSocket)->doConnect(remoteAudioRtpPort,
-                                                  remoteRtpHostAddress,
-                                                  TRUE);
+                    pMediaConnection->mRtcpAudioSendHostPort = 0 ;
                 }
             }
-            else
-            {
-                pMediaConnection->mRtcpAudioSendHostPort = 0 ;
-            }
+        }
 
+        else if(mediaType == CpMediaInterface::VIDEO_STREAM)
+        {
             /*
              * Video Setup
              */
 #ifdef VIDEO
+            pMediaConnection->mVideoDestinationSet = TRUE;
+            pMediaConnection->mRtpVideoSendHostAddress = remoteRtpHostAddress;
+
             if (pMediaConnection->mpRtpVideoSocket)
             {
-                pMediaConnection->mRtpVideoSendHostPort = remoteVideoRtpPort ;                   
+                pMediaConnection->mRtpVideoSendHostPort = remoteRtpPort;
                 if (!pMediaConnection->mIsMulticast)
                 {
                     OsNatDatagramSocket *pRtpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpVideoSocket;
-                    pRtpSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtpPort) ;
-                    pRtpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtpPort) ;
+                    pRtpSocket->readyDestination(remoteRtpHostAddress, remoteRtpPort);
+                    pRtpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtpPort);
                 }
                 else
                 {
-                    ((OsDatagramSocket*)pMediaConnection->mpRtpVideoSocket)->doConnect(remoteVideoRtpPort,
+                    ((OsDatagramSocket*)pMediaConnection->mpRtpVideoSocket)->doConnect(remoteRtpPort,
                                                       remoteRtpHostAddress,
                                                       TRUE);
                 }
 
-                if(pMediaConnection->mpRtcpVideoSocket && (remoteVideoRtcpPort > 0))
+                if(pMediaConnection->mpRtcpVideoSocket && (remoteRtcpPort > 0))
                 {
-                    pMediaConnection->mRtcpVideoSendHostPort = remoteVideoRtcpPort ;               
+                    pMediaConnection->mRtcpVideoSendHostPort = remoteRtcpPort;               
                     if (!pMediaConnection->mIsMulticast)
                     {
                        OsNatDatagramSocket *pRctpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpVideoSocket;
-                       pRctpSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtcpPort) ;
-                       pRctpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtcpPort) ;
+                       pRctpSocket->readyDestination(remoteRtpHostAddress, remoteRtcpPort);
+                       pRctpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtcpPort);
                     }
                     else
                     {
-                       ((OsDatagramSocket*)pMediaConnection->mpRtcpVideoSocket)->doConnect(remoteVideoRtcpPort,
+                       ((OsDatagramSocket*)pMediaConnection->mpRtcpVideoSocket)->doConnect(remoteRtcpPort,
                                                           remoteRtpHostAddress,
                                                           TRUE);
                     }
@@ -1240,6 +1332,7 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
 
    int i;
    SdpCodec* audioCodec = NULL;
+   SdpCodec* videoCodec = NULL;
    SdpCodec* dtmfCodec = NULL;
    OsStatus returnCode = OS_NOT_FOUND;
    CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
@@ -1248,9 +1341,12 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
       return returnCode;
 
    // Find primary audio, DTMF and video codecs
-   for (i=0; i<numCodecs; i++) {
-      if (SdpCodec::SDP_CODEC_TONES == sendCodecs[i]->getValue()) {
-         if (NULL == dtmfCodec) {
+   for (i=0; i<numCodecs; i++)
+   {
+      if (SdpCodec::SDP_CODEC_TONES == sendCodecs[i]->getValue())
+      {
+         if (NULL == dtmfCodec)
+         {
             dtmfCodec = sendCodecs[i];
          }
          continue;
@@ -1259,13 +1355,21 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
       UtlString codecMediaType;
       sendCodecs[i]->getMediaType(codecMediaType);
 
-      if (codecMediaType == "audio" && audioCodec == NULL) {
+      if(audioCodec == NULL && codecMediaType == "audio")
+      {
          audioCodec = sendCodecs[i];
+         continue;
       }
+
+      if(videoCodec == NULL && codecMediaType.compareTo(MIME_TYPE_VIDEO, UtlString::ignoreCase) == 0)
+      {
+         videoCodec = sendCodecs[i];
+      }
+
    }
 
    // If we haven't set a destination and we have set alternate destinations
-   if (!mediaConnection->mDestinationSet && mediaConnection->mbAlternateDestinations)
+   if (!mediaConnection->mAudioDestinationSet && !mediaConnection->mVideoDestinationSet && mediaConnection->mbAlternateDestinations)
    {
       applyAlternateDestinations(connectionId) ;
    }
@@ -1296,7 +1400,7 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
            (mediaConnection->mpRtpAudioSocket), (mediaConnection->mpRtcpAudioSocket),
            mediaConnection->mpRtpAudioSocket->getSocketDescriptor(),
            mediaConnection->mpRtcpAudioSocket->getSocketDescriptor(),
-           mediaConnection->mRtpSendHostAddress.data(),
+           mediaConnection->mRtpAudioSendHostAddress.data(),
            mediaConnection->mRtpAudioSendHostPort, mediaConnection->mRtcpAudioSendHostPort);
 //#endif
 
@@ -1339,8 +1443,8 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
 #endif
 
       // Start sending RTP if destination address is present.
-      if ( !mediaConnection->mRtpSendHostAddress.isNull()
-         && mediaConnection->mRtpSendHostAddress.compareTo("0.0.0.0"))
+      if ( !mediaConnection->mRtpAudioSendHostAddress.isNull()
+         && mediaConnection->mRtpVideoSendHostAddress.compareTo("0.0.0.0"))
       {
          UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
          UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
@@ -1365,6 +1469,30 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
          MpResource::enable(outConnectionName, *mpTopologyGraph->getMsgQ());
 
          mediaConnection->mRtpAudioSending = TRUE;
+         returnCode = OS_SUCCESS;
+      }
+
+#ifdef VIDEO
+      // Start sending RTP if destination address is present.
+      if ( !mediaConnection->mRtpVideoSendHostAddress.isNull()
+         && mediaConnection->mRtpVideoSendHostAddress.compareTo("0.0.0.0"))
+      {
+         // Do the same for video
+         // Note: temporarily use MprDecode message for video encode as we want full list of
+         // codecs to make inteligent choice at media layer
+         UtlString videoConnectionName(DEFAULT_VIDEO_RTP_OUTPUT_RESOURCE_NAME);
+         MpResourceTopology::replaceNumInName(videoConnectionName, connectionId);
+
+         MprFromNet::setSockets(videoConnectionName, *(mpTopologyGraph->getMsgQ()),
+             mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtcpVideoSocket);
+
+         MprDecode::selectCodecs(videoConnectionName, *mpTopologyGraph->getMsgQ(),
+                                 sendCodecs, numCodecs);
+
+         MpResource::enable(videoConnectionName, *mpTopologyGraph->getMsgQ());
+         mediaConnection->mRtpVideoSending = TRUE;
+#endif
+
          returnCode = OS_SUCCESS;
       }
    }
@@ -1450,6 +1578,24 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
                                     numCodecs);
          }
       }
+
+#ifdef VIDEO
+      // Set codecs on video in RTP stream
+      UtlString inVideoConnectionName(DEFAULT_VIDEO_RTP_INPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(inVideoConnectionName, connectionId);
+      MprDecode::selectCodecs(inVideoConnectionName, 
+                              *(mpTopologyGraph->getMsgQ()),
+                              receiveCodecs,
+                              numCodecs);
+
+      // Enabled video in RTP stream
+      MprDecode::enable(inVideoConnectionName, *(mpTopologyGraph->getMsgQ()));
+
+      // Set video sockets to read RTP
+      MprFromNet::setSockets(inVideoConnectionName, *(mpTopologyGraph->getMsgQ()),
+          mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtcpVideoSocket);
+      mediaConnection->mRtpVideoReceiving = TRUE;
+#endif
 
       // Fence before calling asynchronous method setSockets().
       mpTopologyGraph->synchronize();
@@ -2207,10 +2353,21 @@ OsStatus CpTopologyGraphInterface::getPrimaryCodec(int connectionId,
         *audioPayloadType = pConnection->mpAudioCodec->getCodecPayloadFormat();
     }
 
-    videoCodec="";
-    *videoPayloadType=0;
+#ifdef VIDEO
+    if(pConnection->mpVideoCodec)
+    {
+        pConnection->mpVideoCodec->getEncodingName(videoCodec);
+        *videoPayloadType = pConnection->mpVideoCodec->getCodecPayloadFormat();
+    }
+    else
+#else
+    {
+        videoCodec="";
+        *videoPayloadType=0;
+    }
+#endif
 
-   return OS_SUCCESS;
+   return(OS_SUCCESS);
 }
 
 OsStatus CpTopologyGraphInterface::getVideoQuality(int& quality)
@@ -2272,12 +2429,40 @@ UtlBoolean CpTopologyGraphInterface::isSendingRtpVideo(int connectionId)
 {
    UtlBoolean sending = FALSE;
 
+#ifdef VIDEO
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+   if(mediaConnection)
+   {
+       sending = mediaConnection->mRtpVideoSending;
+   }
+   else
+   {
+       osPrintf("CpTopologyGraphInterface::isSendingRtpVideo invalid connectionId: %d\n",
+          connectionId);
+   }
+#endif
+
    return(sending);
 }
 
 UtlBoolean CpTopologyGraphInterface::isReceivingRtpVideo(int connectionId)
 {
    UtlBoolean receiving = FALSE;
+
+#ifdef VIDEO
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+   if(mediaConnection)
+   {
+      receiving = mediaConnection->mRtpVideoReceiving;
+   }
+   else
+   {
+       osPrintf("CpTopologyGraphInterface::isReceivingRtpVideo invalid connectionId: %d\n",
+          connectionId);
+   }
+
+#endif
 
    return(receiving);
 }
@@ -2290,7 +2475,7 @@ UtlBoolean CpTopologyGraphInterface::isDestinationSet(int connectionId)
 
     if(mediaConnection)
     {
-        isSet = mediaConnection->mDestinationSet;
+        isSet = mediaConnection->mAudioDestinationSet || mediaConnection->mVideoDestinationSet;
     }
     else
     {
@@ -2759,13 +2944,17 @@ void CpTopologyGraphInterface::applyAlternateDestinations(int connectionId)
            return;
         }
 
-        assert(!pMediaConnection->mDestinationSet) ;
-        pMediaConnection->mDestinationSet = true ;
+        assert(!pMediaConnection->mAudioDestinationSet);
+        pMediaConnection->mAudioDestinationSet = true;
 
-        pMediaConnection->mRtpSendHostAddress.remove(0) ;
+        pMediaConnection->mRtpAudioSendHostAddress.remove(0);
         pMediaConnection->mRtpAudioSendHostPort = 0 ;
         pMediaConnection->mRtcpAudioSendHostPort = 0 ;
 #ifdef VIDEO
+        assert(!pMediaConnection->mVideoDestinationSet);
+        pMediaConnection->mVideoDestinationSet = true;
+
+        pMediaConnection->mRtpVideoSendHostAddress.remove(0);
         pMediaConnection->mRtpVideoSendHostPort = 0 ;
         pMediaConnection->mRtcpVideoSendHostPort = 0 ;
 #endif
@@ -2782,7 +2971,7 @@ void CpTopologyGraphInterface::applyAlternateDestinations(int connectionId)
             if (pSocket->getBestDestinationAddress(destAddress, destPort))
             {
                 pSocket->applyDestinationAddress(destAddress, destPort);
-                pMediaConnection->mRtpSendHostAddress = destAddress;
+                pMediaConnection->mRtpAudioSendHostAddress = destAddress;
                 pMediaConnection->mRtpAudioSendHostPort = destPort;
             }
         }
@@ -2808,6 +2997,7 @@ void CpTopologyGraphInterface::applyAlternateDestinations(int connectionId)
             if (pSocket->getBestDestinationAddress(destAddress, destPort))
             {
                 pSocket->applyDestinationAddress(destAddress, destPort) ;                
+                pMediaConnection->mRtpVideoSendHostAddress = destAddress;
                 pMediaConnection->mRtpVideoSendHostPort = destPort;
             }            
         }
@@ -3347,7 +3537,7 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
 #endif
 
    OsStatus returnCode = OS_SUCCESS;
-   mediaConnection->mDestinationSet = FALSE;
+   mediaConnection->mAudioDestinationSet = FALSE;
 
    // Stop sending RTP
    stopRtpSend(mediaConnection);
@@ -3397,6 +3587,21 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
       mediaConnection->mpRtcpAudioSocket = NULL;
    }
 
+#ifdef VIDEO
+   mediaConnection->mVideoDestinationSet = FALSE;
+
+   if(!mediaConnection->mIsCustomSockets && mediaConnection->mpRtpVideoSocket)
+   {
+      delete mediaConnection->mpRtpVideoSocket;
+      mediaConnection->mpRtpVideoSocket = NULL;
+   }
+   if(!mediaConnection->mIsCustomSockets && mediaConnection->mpRtcpVideoSocket)
+   {
+      delete mediaConnection->mpRtcpVideoSocket;
+      mediaConnection->mpRtcpVideoSocket = NULL;
+   }
+#endif
+
    delete mediaConnection;
 
    return(returnCode);
@@ -3435,6 +3640,13 @@ OsStatus CpTopologyGraphInterface::discardLoopbackRtp(CpTopologyMediaConnection*
 void CpTopologyGraphInterface::stopRtpReceive(CpTopologyMediaConnection* mediaConnection)
 {
    MpConnectionID connectionId = mediaConnection->getValue();
+
+#ifdef VIDEO
+   UtlString inVideoConnectionName(DEFAULT_VIDEO_RTP_INPUT_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(inVideoConnectionName, connectionId);
+   MprFromNet::resetSockets(inVideoConnectionName, *(mpTopologyGraph->getMsgQ()));
+   mediaConnection->mRtpVideoReceiving = FALSE;
+#endif
 
    // Stop receiving data from the network (asynchronous call!)
    UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);

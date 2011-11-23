@@ -261,6 +261,23 @@ public:
      *             failure codes to expect, etc. -- kkyzivat 20070801 >>
      */
 
+     /// @brief Set the connection destination (target) for the designated
+     ///        stream on the given media connection.
+  virtual OsStatus setConnectionDestination(int connectionId,
+                                             CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                             int streamIndex,
+                                             const char* rtpHostAddress,
+                                             int rtpPort,
+                                             int rtcpPort) = 0;
+     /**<
+     *  @param[in] connectionId - Connection Id for the call leg obtained from 
+     *             createConnection *  @param[in] rtpHostAddress - IP (or host) address of remote party.
+     *  @param[in] mediaType - stream media type (e.g. audio or video)
+     *  @param[in] streamIndex - stream index for given type in the given connection
+     *  @param[in] rtpPort - RTP port of remote party
+     *  @param[in] rtcpPort - RTCP port of remote party
+     */
+
      /// @brief Add an alternate Audio RTP connection destination for 
      ///        this media interface.
    virtual OsStatus addAudioRtpConnectionDestination(int connectionId,

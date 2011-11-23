@@ -174,6 +174,14 @@ public:
                                              int rtpVideoPort,
                                              int rtcpVideoPort);
 
+     /// @copydoc CpMediaInterface::setConnectionDestination()
+   virtual OsStatus setConnectionDestination(int connectionId,
+                                             CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                             int streamIndex,
+                                             const char* rtpHostAddress, 
+                                             int rtpPort,
+                                             int rtcpPort);
+
     /// @copydoc CpMediaInterface::copyPayloadIds
     virtual OsStatus copyPayloadIds(int connectionId, int numCodecs, SdpCodec* remoceCodecs[]);
 
