@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -174,6 +174,9 @@ static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
      *          message queue.
      */
 
+     /// @brief This method is invoked for resources that care about stream discontinuities
+   virtual void reset();
+
      /// @brief Post a message to enable or disable resource notifications on 
      /// the named resource.
    static OsStatus setNotificationsEnabled(UtlBoolean enable,
@@ -264,6 +267,9 @@ static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
      /**<
      *  @warning This method directly modifies resource structure.
      */
+
+   /// Receive buffer asyncrhonously from resource at given input port
+   virtual OsStatus pushBuffer(int inputPort, MpBufPtr& inputBuffer);
 
 //@}
 
@@ -431,6 +437,9 @@ static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
      *  @see setAllNotificationsEnabled()
      *  @see MpFlowGraphBase::setNotificationsEnabled()
      */
+
+   /// Takes asynchronous input (pushBuffer).
+   virtual UtlBoolean isAsynchInput(int inputIndex);
 
 //@}
 

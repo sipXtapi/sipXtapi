@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -159,6 +159,10 @@ OsStatus MpResource::enable(const UtlString& namedResource,
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
+void MpResource::reset()
+{
+}
+
 OsStatus MpResource::setNotificationsEnabled(UtlBoolean enable,
                                              const UtlString& namedResource, 
                                              OsMsgQ& fgQ)
@@ -211,6 +215,11 @@ void MpResource::setConnectionId(MpConnectionID connectionId)
 void MpResource::setStreamId(int streamId)
 {
    mStreamId = streamId;
+}
+
+OsStatus MpResource::pushBuffer(int inputPort, MpBufPtr& inputBuffer)
+{
+   return(OS_NOT_YET_IMPLEMENTED);
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -476,6 +485,11 @@ UtlBoolean MpResource::areNotificationsEnabled() const
    return mNotificationsEnabled;
 }
 
+UtlBoolean MpResource::isAsynchInput(int inputIndex)
+{
+    return(FALSE);
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Handles an incoming flowgraph message for this media processing object.
@@ -612,7 +626,7 @@ void MpResource::setInputBuffer(int inPortIdx, const MpBufPtr &pBuf)
 // port of this resource.
 // Returns TRUE if there is a resource connected to the specified output
 // port, FALSE otherwise.
-UtlBoolean MpResource::pushBufferDownsream(int outPortIdx, const MpBufPtr &pBuf)
+UtlBoolean MpResource::pushBufferDownsream(int outPortIdx, const MpBufPtr& pBuf)
 {
    MpResource* pDownstreamInput;
    int         downstreamPortIdx;
