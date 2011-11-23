@@ -1729,12 +1729,23 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStart(const SIPX_CALL hCall,
 SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStop(const SIPX_CALL hCall) ; 
 
 
+/**
+ * Set the address and port to which the given media stream is to be recieved.
+ * This is generally used when a separate process is to recieve the media stream.
+ * @param hCall - call handle for the RTP stream
+ * @param mediaType - audio or video
+ * @param mediaTypeStreamIndex - connection Id
+ * @param streamReceiveAddress - IP address on which RTP stream is to be received
+ * @param rtpPort - RTP port on which to receive stream
+ * @param rtcpPort - RTCP port on which to recieve stream
+ */
 SIPXTAPI_API SIPX_RESULT sipxCallSetMediaPassThrough(const SIPX_CALL hCall,
                                                      MEDIA_TYPE mediaType,
                                                      int mediaTypeStreamIndex,
                                                      const char* streamReceiveAddress,
                                                      int rtpPort,
                                                      int rtcpPort);
+
 
 /**
  * Subscribe for NOTIFY events which may be published by the other end-point 
@@ -2089,6 +2100,19 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetAudioRtpSourceIds(const SIPX_CALL hCall,
  */
 SIPXTAPI_API SIPX_RESULT sipxCallGetAudioRtcpStats(const SIPX_CALL hCall,
                                                    SIPX_RTCP_STATS* pStats) ;
+
+/**
+ * Restrict the set of codecs that are allowed to be used for the given call.
+ * This method does not force signalling to occur.  Codecs must be restricted before
+ * the offer or answer SDP is sent from this side.
+ *
+ * @param hCall - call handle for call on which to restrict codec set
+ * @param codecNames - space delimited list of codec names.  
+ * Note: codecNames MUST be a subset of the codecs enabled via sipxConfigSetAudioCodecByName
+ *       TELEPHONE-EVENT is implicitly included
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecs(const SIPX_CALL hCall,
+                                             const char* codecNames);
 
 /**
  * Limits the codec preferences on a per-call basis.  This API will force a 
@@ -2514,31 +2538,21 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpSetDestination(const SIPX_CONF hC
  *  @param[in] hConf - conference handle indicating which media interface the connection
  *       belongs.
  *  @param[in] connectionId - handle/id for media connection
- *  @param[in] mediaType - media stream type (e.g. VIDEO_MEDIA, AUDIO_MEDIA)
- *  @param[in] mediaTypeStreamIndex - index to which stream for the given type of media
- *       for now limited to 1 stream (i.e. index = 0)
- *  @param[in] codec - codec string token
+ *  @param[in] codecTokens - space delimited list of codec names.
  *
  */
 SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStartSend(const SIPX_CONF hConf,
                                                          int connectionId,
-                                                         MEDIA_TYPE mediaType,
-                                                         int mediaTypeStreamIndex,
-                                                         const char* codec);
+                                                         const char* codecTokens);
 
 /**
  *  Stop sending RTP/RTCP
  *  @param[in] hConf - conference handle indicating which media interface the connection
  *       belongs.
  *  @param[in] connectionId - handle/id for media connection
- *  @param[in] mediaType - media stream type (e.g. VIDEO_MEDIA, AUDIO_MEDIA)
- *  @param[in] mediaTypeStreamIndex - index to which stream for the given type of media
- *       for now limited to 1 stream (i.e. index = 0)
  */
 SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStopSend(const SIPX_CONF hConf,
-                                                        int connectionId,
-                                                        MEDIA_TYPE mediaType,
-                                                        int mediaTypeStreamIndex);
+                                                        int connectionId);
 
 //@}
 

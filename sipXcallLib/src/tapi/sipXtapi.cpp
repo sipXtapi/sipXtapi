@@ -496,7 +496,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
                                                     callInputDeviceName,
                                                     callOutputDeviceName);
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipXinitialize interfaceFactory: %p", interfaceFactory);
+    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipxInitialize interfaceFactory: %p", interfaceFactory);
 
     pInst->pCallManager = new CallManager(FALSE,
                             pInst->pLineManager,
@@ -3145,7 +3145,30 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetAudioRtcpStats(const SIPX_CALL hCall,
 
     return rc ;
 }
+SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecs(const SIPX_CALL hCall,
+                                             const char* codecNames)
+{
+    SIPX_RESULT result = SIPX_RESULT_SUCCESS;
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallLimitCodecs");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallLimitCodecs hCall=%d codecNames=\"%s\"",
+        hCall, codecNames);
 
+    SIPX_INSTANCE_DATA *pInst;
+    UtlString callId;
+    UtlString remoteAddress;
+
+    if (codecNames && *codecNames && sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {
+        pInst->pCallManager->limitCodecs(callId, remoteAddress, codecNames);
+    }
+    else
+    {
+        result = SIPX_RESULT_INVALID_ARGS;
+    }
+
+    return(result);
+}
 
 SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecPreferences(const SIPX_CALL hCall,
                                                        const SIPX_AUDIO_BANDWIDTH_ID audioBandwidth,
@@ -4539,7 +4562,6 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpSetDestination(const SIPX_CONF hC
     SIPX_RESULT status = SIPX_RESULT_INVALID_ARGS;
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxMediaConnectionRtpSetDestination");
 
-    assert(mediaType == AUDIO_MEDIA);
     CpMediaInterface::MEDIA_STREAM_TYPE cpMediaType = convertToCpMediaInterfaceMediaType(mediaType);
 
     SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_READ, stackLogger);
@@ -4564,30 +4586,22 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpSetDestination(const SIPX_CONF hC
 
 SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStartSend(const SIPX_CONF hConf,
                                                          int connectionId,
-                                                         MEDIA_TYPE mediaType,
-                                                         int mediaTypeStreamIndex,
-                                                         const char* codec)
+                                                         const char* codecTokens)
 {
     SIPX_RESULT status = SIPX_RESULT_INVALID_ARGS;
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxMediaConnectionRtpStartSend");
-
-    assert(mediaType == AUDIO_MEDIA);
-    CpMediaInterface::MEDIA_STREAM_TYPE cpMediaType = convertToCpMediaInterfaceMediaType(mediaType);
 
     SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_READ, stackLogger);
     if (pData && !pData->strCallId.isNull())
     {
         UtlString callId = pData->strCallId;
-        SdpCodec sdpCodec = SdpDefaultCodecFactory::getCodec(SdpDefaultCodecFactory::getCodecType(codec));
+        SdpCodecList codecList;
+        codecList.addCodecs(codecTokens);
 
-        // Make sure the codec has a bound payload ID.  Codecs with unbound payload IDs are set to -1
-        if(sdpCodec.getCodecPayloadFormat() == -1)
-        {
-            sdpCodec.setCodecPayloadFormat(121);
-        }
+        // Make sure the codecs are bound to payload ID.  Codecs with unbound payload IDs are set to -1
+        codecList.bindPayloadTypes();
 
-        OsStatus osStatus = pData->pInst->pCallManager->startRtpSend(callId, connectionId, cpMediaType,
-            mediaTypeStreamIndex, sdpCodec);
+        OsStatus osStatus = pData->pInst->pCallManager->startRtpSend(callId, connectionId, codecList);
 
         if(osStatus == OS_SUCCESS)
         {
@@ -4603,22 +4617,16 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStartSend(const SIPX_CONF hConf,
 }
 
 SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStopSend(const SIPX_CONF hConf,
-                                                        int connectionId,
-                                                        MEDIA_TYPE mediaType,
-                                                        int mediaTypeStreamIndex)
+                                                        int connectionId)
 {
     SIPX_RESULT status = SIPX_RESULT_INVALID_ARGS;
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxMediaConnectionRtpStopSend");
-
-
-    assert(mediaType == AUDIO_MEDIA);
-    CpMediaInterface::MEDIA_STREAM_TYPE cpMediaType = convertToCpMediaInterfaceMediaType(mediaType);
 
     SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_READ, stackLogger);
     if (pData && !pData->strCallId.isNull())
     {
         UtlString callId = pData->strCallId;
-        OsStatus osStatus = pData->pInst->pCallManager->stopRtpSend(callId, connectionId, cpMediaType, mediaTypeStreamIndex);
+        OsStatus osStatus = pData->pInst->pCallManager->stopRtpSend(callId, connectionId);
 
         if(osStatus == OS_SUCCESS)
         {
@@ -7247,7 +7255,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCaptureDevices(const SIPX_INST hInst,
                 UtlSListIterator iterator(captureDevices);
                 UtlString* pDevice;
                 int index = 0;
-                while (pDevice = (UtlString*)iterator())
+                while ((pDevice = (UtlString*)iterator()))
                 {
                     if (pDevice->length())
                     {
