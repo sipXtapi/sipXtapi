@@ -552,7 +552,9 @@ typedef enum SIPX_MEDIA_EVENT
     MEDIA_DEVICE_FAILURE,       /**< Fired if the media device is not present or
                                      already in use. */
     MEDIA_REMOTE_ACTIVE,        /**< Media has been received */
-    MEDIA_MIC_ENERGY_LEVEL      /**< Mic energy level - value in idleTime */
+    MEDIA_MIC_ENERGY_LEVEL,     /**< Mic energy level - value in idleTime */
+    MEDIA_H264_SPS,             /**< H.264 SPS parameter set recieved */
+    MEDIA_H264_PPS              /**< H.264 PPS parameter set recieved */
 
 } SIPX_MEDIA_EVENT ;
 

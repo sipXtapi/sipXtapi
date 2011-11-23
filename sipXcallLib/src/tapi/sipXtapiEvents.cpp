@@ -320,6 +320,12 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
         case MEDIA_REMOTE_ACTIVE:
             str = "MEDIA_REMOTE_ACTIVE" ;
             break ;
+        case MEDIA_H264_SPS:
+            str = "MEDIA_H264_SPS";
+            break;
+        case MEDIA_H264_PPS:
+            str = "MEDIA_H264_PPS";
+            break;
         default:
             break ;
     }
@@ -1633,6 +1639,24 @@ void sipxFireMediaEvent(const void* pSrc,
                                 break ;
                             case MEDIA_REMOTE_DTMF:
                                 mediaInfo.toneId = (SIPX_TONE_ID) (intptr_t) pEventData ;
+                                break;
+
+                            case MEDIA_H264_SPS:
+                            case MEDIA_H264_PPS:
+                            {
+                                printf("sipxFireMediaEvent got %s\n",
+                                    event == MEDIA_H264_SPS ? "MEDIA_H264_SPS" : "MEDIA_H264_PPS");
+
+                                SIPX_VIDEO_CODEC* videoCodec = (SIPX_VIDEO_CODEC*) (intptr_t) pEventData;
+                                mediaInfo.mediaType = MEDIA_TYPE_VIDEO;
+                                memset(&(mediaInfo.codec), 0, sizeof(SIPX_CODEC_INFO));
+                                if(videoCodec)
+                                {
+                                    memcpy(&(mediaInfo.codec.videoCodec), videoCodec, sizeof(SIPX_VIDEO_CODEC));
+                                }
+                            }
+                                break;
+
                             default:
                                 break ;
                         }                                                        
@@ -2036,6 +2060,13 @@ SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
             SNPRINTF(szBuffer, nBuffer, "MEDIA_MIC_ENERGY_LEVEL");
             break;
 
+        case MEDIA_H264_SPS:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_H264_SPS");
+            break;
+
+        case MEDIA_H264_PPS:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_H264_PPS");
+            break;
     }
     return szBuffer;
 }
