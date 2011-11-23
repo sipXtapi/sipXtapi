@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -21,6 +21,7 @@
 // APPLICATION INCLUDES
 #include <mp/MpResource.h>
 #include <mp/MpResourceMsg.h>
+#include <mp/MprRtpDispatcher.h>
 #include <mp/MpTypes.h>
 #include <utl/UtlString.h>
 #include <os/OsMutex.h>
@@ -50,12 +51,6 @@ class MpRtpInputConnection : public MpResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum RtpStreamAffinity
-   {
-      ADDRESS_AND_PORT,
-      MOST_RECENT_SSRC
-   };
-
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
@@ -65,7 +60,7 @@ public:
                         MpConnectionID myID,
                         IRTCPSession *piRTCPSession = NULL,
                         int maxRtpStreams = 1,
-                        RtpStreamAffinity rtpStreamAffinity = ADDRESS_AND_PORT);
+                        MprRtpDispatcher::RtpStreamAffinity rtpStreamAffinity = MprRtpDispatcher::ADDRESS_AND_PORT);
      /**<
      *  @note If rtpStreamAffinity is set to ADDRESS_AND_PORT, then only one
      *        RTP stream is allowed, i.e. maxRtpStreams must be 1.
@@ -143,7 +138,7 @@ protected:
    MprFromNet*        mpFromNet;       ///< UDP to RTP converter
    MprRtpDispatcher*  mpRtpDispatcher; ///< RTP stream dispatcher
    int                mMaxRtpStreams;  ///< Maximum number of RTP streams
-   RtpStreamAffinity  mRtpStreamAffinity; ///< Algorithm used to dispatch incoming RTP packets
+   MprRtpDispatcher::RtpStreamAffinity  mRtpStreamAffinity; ///< Algorithm used to dispatch incoming RTP packets
    UtlBoolean         mIsRtpStarted;   ///< Are we currently receiving RTP stream?
 
 #ifdef INCLUDE_RTCP /* [ */
