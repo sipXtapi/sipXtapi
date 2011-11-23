@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -23,9 +23,8 @@
 #endif /* _WIN32 ] */
 
 // APPLICATION INCLUDES
+#include <os/OsMsgQ.h>
 #include "os/OsDefs.h"
-#include "os/OsSocket.h"
-#include "mp/NetInTask.h"
 #include "mp/MpUdpBuf.h"
 #include "mp/MpRtpBuf.h"
 #ifdef INCLUDE_RTCP /* [ */
@@ -45,6 +44,10 @@ class MprDecode;
 class MprDejitter;
 class MprRtpDispatcher;
 class OsEvent;
+class OsSocket;
+class MpResourceMsg;
+class NetInTask;
+class UtlString;
 
 /// The "From Network" media processing resource
 class MprFromNet
@@ -67,10 +70,19 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+   /// Handle message to manipulate this
+   UtlBoolean handleMessage(MpResourceMsg& rMsg);
+
+   /// @brief send a message to a resource containing a MprFromNet to set sockets
+   static OsStatus setSockets(const UtlString& resourceName, OsMsgQ& flowgraphMessageQueue, OsSocket* rtpSocket, OsSocket* rtcpSocket);
 
      /// @brief Set the inbound RTP and RTCP sockets.
    OsStatus setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
      /**< @returns Always OS_SUCCESS for now. */
+
+
+   /// @brief send a message to a resource containing a MprFromNet to reset sockets
+   static OsStatus resetSockets(const UtlString& resourceName, OsMsgQ& flowgraphMessageQueue);
 
      /// @brief Unregister the inbound RTP and RTCP sockets.
    OsStatus resetSockets();

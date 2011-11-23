@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#include "rtcp/RtcpConfig.h"
+#include <rtcp/RtcpConfig.h>
 
 #undef WANT_RTCP_LOG_MESSAGES
 
@@ -20,7 +20,7 @@
 #include <assert.h>
 
 #ifdef __pingtel_on_posix__
-#include "os/OsIntTypes.h"
+#include <os/OsIntTypes.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #endif
@@ -30,16 +30,19 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "mp/MprFromNet.h"
-#include "mp/MpMisc.h"
-#include "mp/MpUdpBuf.h"
-#include "mp/MprRtpDispatcher.h"
+#include <mp/MprFromNet.h>
+#include <mp/MpMisc.h>
+#include <mp/MpUdpBuf.h>
+#include <mp/MprRtpDispatcher.h>
 #ifdef INCLUDE_RTCP /* [ */
-#include "rtcp/RTPHeader.h"
+#include <rtcp/RTPHeader.h>
 #endif /* INCLUDE_RTCP ] */
-#include "os/OsEvent.h"
-#include "os/OsMutex.h"
-#include "os/OsDefs.h"
+#include <os/OsEvent.h>
+#include <os/OsMutex.h>
+#include <os/OsDefs.h>
+#include <mp/MpResourceMsg.h>
+#include <mp/MpSetSocketsMsg.h>
+#include <mp/NetInTask.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -103,6 +106,16 @@ MprFromNet::~MprFromNet()
 
 /* ============================ MANIPULATORS ============================== */
 
+OsStatus MprFromNet::setSockets(const UtlString& resourceName,
+                                OsMsgQ& flowgraphQueue,
+                                OsSocket* rtpSocket,
+                                OsSocket* rtcpSocket)
+{
+    MpSetSocketsMsg message(resourceName, rtpSocket, rtcpSocket);
+
+    return(flowgraphQueue.send(message, OsTime::OS_INFINITY /*sOperationQueueTimeout*/));
+}
+
 OsStatus MprFromNet::setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket)
 {
    OsStatus res;
@@ -123,6 +136,13 @@ OsStatus MprFromNet::setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket)
    return OS_SUCCESS;
 }
 
+OsStatus MprFromNet::resetSockets(const UtlString& resourceName, OsMsgQ& flowgraphMessageQueue)
+{
+   MpResourceMsg message(MpResourceMsg::MPRM_RESET_SOCKETS, resourceName);
+
+   return(flowgraphMessageQueue.send(message, OsTime::OS_INFINITY /*sOperationQueueTimeout*/));
+}
+
 OsStatus MprFromNet::resetSockets()
 {
    UtlBoolean needWait;
@@ -140,6 +160,33 @@ OsStatus MprFromNet::resetSockets()
    }
 
    return OS_SUCCESS;
+}
+
+UtlBoolean MprFromNet::handleMessage(MpResourceMsg& rMsg)
+{
+    UtlBoolean handled = FALSE;
+
+    switch(rMsg.getMsg())
+   {
+   case MpResourceMsg::MPRM_SET_SOCKETS:
+   {
+      OsSocket* rtpSocket = ((MpSetSocketsMsg&)rMsg).getRtpSocket();
+      OsSocket* rtcpSocket = ((MpSetSocketsMsg&)rMsg).getRtcpSocket();
+      assert(rtpSocket);
+      assert(rtcpSocket);
+      setSockets(*rtpSocket, *rtcpSocket);
+      handled = TRUE;
+   }
+   break;
+
+   default:
+      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::handleMessage unhandled message type: %d",
+          rMsg.getMsg());
+      OsSysLog::flush();
+      assert(0);
+   }
+
+   return(handled);
 }
 
 #ifndef INCLUDE_RTCP /* [ */
