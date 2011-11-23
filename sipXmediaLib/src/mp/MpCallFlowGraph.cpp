@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2009 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -26,6 +26,7 @@
 #include "mp/MprDejitter.h"
 #include "mp/MpPlcSilence.h"
 #include "mp/MpRtpOutputConnection.h"
+#include <mp/MprRtpDispatcher.h>
 #include "mp/MprEncode.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MpMediaTask.h"
@@ -1198,8 +1199,8 @@ MpConnectionID MpCallFlowGraph::createConnection(int maxRtpStreams,
       mpInputConnections[found] = 
          new MpRtpInputConnection(inConnectionName, found, NULL,
                                        maxRtpStreams,
-                                       isMcast?MpRtpInputConnection::MOST_RECENT_SSRC
-                                              :MpRtpInputConnection::ADDRESS_AND_PORT);
+                                       isMcast ? MprRtpDispatcher::MOST_RECENT_SSRC
+                                               : MprRtpDispatcher::ADDRESS_AND_PORT);
       mNumRtpStreams[found] = maxRtpStreams;
       mIsMcastConnection[found] = isMcast;
       mpDecoders[found] = new MprDecode*[maxRtpStreams];
