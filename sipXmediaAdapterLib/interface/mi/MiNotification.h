@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2009 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
@@ -71,7 +71,9 @@ public:
       MI_NOTF_RX_STREAM_ACTIVITY, ///< Value for MiRtpStreamActivityNotf notifications.
       MI_NOTF_ENERGY_LEVEL,       ///< Audio energy level (MiIntNotf)
       MI_NOTF_VOICE_STARTED,
-      MI_NOTF_VOICE_STOPPED
+      MI_NOTF_VOICE_STOPPED,
+      MI_NOTF_H264_SPS,
+      MI_NOTF_H264_PPS
    } NotfType;
 
      /// Connection ID that indicates invalid connection or no connection.
