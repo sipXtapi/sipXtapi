@@ -311,7 +311,7 @@ public:
 ///@name Accessors
 //@{
 
-   /// Get the internal/Pingtel codec type id
+   /// Get the internal/sipX codec type id
    enum SdpCodecTypes getCodecType() const;
    /**<
    *  @note It is possible that the format id/type used in the SDP "m" field
@@ -326,6 +326,13 @@ public:
 
    /// Get the format specific parameters for the SDP
    virtual void getSdpFmtpField(UtlString& formatSpecificData) const;
+   /**<
+   *  This is what goes in the SDP "a" field in the format:
+   *  "a=fmtp <payloadFormat> <formatSpecificData>"
+   */
+
+   /// Set the format specific parameters for the SDP
+   virtual void setSdpFmtpField(const UtlString& formatSpecificData);
    /**<
    *  This is what goes in the SDP "a" field in the format:
    *  "a=fmtp <payloadFormat> <formatSpecificData>"

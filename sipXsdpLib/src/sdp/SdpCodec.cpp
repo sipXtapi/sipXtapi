@@ -618,6 +618,11 @@ void SdpCodec::getSdpFmtpField(UtlString& formatSpecificData) const
     formatSpecificData = mFormatSpecificData;
 }
 
+void SdpCodec::setSdpFmtpField(const UtlString& formatSpecificData)
+{
+    mFormatSpecificData = formatSpecificData;
+}
+
 void SdpCodec::getMediaType(UtlString& mimeType) const
 {
     mimeType = mMimeType;
