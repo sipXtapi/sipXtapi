@@ -1,9 +1,9 @@
 //  
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//  
 // Copyright (C) 2006 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -37,6 +37,7 @@ void MpRtpBuf::init()
 #ifdef MPBUF_DEBUG
     osPrintf(">>> MpRtpBuf::init()\n");
 #endif
+   mInternalCodecId = SdpCodec::SDP_CODEC_UNKNOWN;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

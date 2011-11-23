@@ -1,9 +1,9 @@
 //  
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//  
 // Copyright (C) 2006-2007 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -21,9 +21,10 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "mp/MpUdpBuf.h"
-//#include "mp/MpTypes.h"
-#include "mp/RtpHeader.h"
+#include <sdp/SdpCodec.h>
+#include <mp/MpUdpBuf.h>
+//#include <mp/MpTypes.h>
+#include <mp/RtpHeader.h>
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -212,6 +213,16 @@ public:
     uint8_t getRtpPayloadType() const
     {return (mRtpHeader.mpt&RTP_PT_MASK) >> RTP_PT_SHIFT;}
 
+    /// Get the internal codec ID for this RTP packet's payload
+    SdpCodec::SdpCodecTypes getCodecId() const { return(mInternalCodecId); };
+    /*
+     * Note this must be set by the RTP Input connection as the bufer maintains no
+     * codec mapping capablity.
+     */
+
+    /// Set the internal codec ID for this packet's payload
+    void setCodecId(SdpCodec::SdpCodecTypes codecId) { mInternalCodecId = codecId; };
+
     /// Get Sequence Number of this packet.
     /**
     *  @note From RFC 3550:
@@ -300,6 +311,9 @@ protected:
     RtpHeader  mRtpHeader;   ///< Fixed header of RTP packet. It is contained as
                              ///< is and functions to access its components are
                              ///< provided.
+
+    SdpCodec::SdpCodecTypes mInternalCodecId; ///<Internal codec ID for this packets payload ID
+
     RtpSRC mRtpCSRCs[RTP_MAX_CSRCS]; ///< CSRCs list of RTP packet.
 
     /// This is called in place of constructor.
