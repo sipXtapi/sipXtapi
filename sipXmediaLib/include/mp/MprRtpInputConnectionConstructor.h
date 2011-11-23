@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPfoundry Inc.
+// Copyright (C) 2006-2011 SIPfoundry Inc.  All rights reserved.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2006-2008 SIPez LLC. 
@@ -17,6 +17,7 @@
 // APPLICATION INCLUDES
 #include <mp/MpAudioResourceConstructor.h>
 #include <mp/MpRtpInputConnection.h>
+#include <mp/MprRtpDispatcher.h>
 #include <mp/MprToSpkr.h>
 
 // DEFINES
@@ -42,8 +43,8 @@ public:
      /// Constructor
    MprRtpInputConnectionConstructor(UtlBoolean isMcast = FALSE,
                                          int numRtpStreams = 1)
-   : MpAudioResourceConstructor(isMcast?DEFAULT_MCAST_RTP_INPUT_RESOURCE_TYPE
-                                       :DEFAULT_RTP_INPUT_RESOURCE_TYPE,
+   : MpAudioResourceConstructor(isMcast ? DEFAULT_MCAST_RTP_INPUT_RESOURCE_TYPE
+                                        : DEFAULT_RTP_INPUT_RESOURCE_TYPE,
                                 0, 0, //minInputs, maxInputs,
                                 0, numRtpStreams) //minOutputs, maxOutputs
    , mNumRtpStreams(numRtpStreams)
@@ -64,9 +65,9 @@ public:
    {
       assert(maxResourcesToCreate >= 1);
       numResourcesCreated = 1;
-      MpRtpInputConnection::RtpStreamAffinity streamAffinity =
-         mIsMcast?MpRtpInputConnection::MOST_RECENT_SSRC
-                 :MpRtpInputConnection::ADDRESS_AND_PORT;
+      MprRtpDispatcher::RtpStreamAffinity streamAffinity =
+         mIsMcast ? MprRtpDispatcher::MOST_RECENT_SSRC
+                  : MprRtpDispatcher::ADDRESS_AND_PORT;
       resourceArray[0] = new MpRtpInputConnection(resourceName,
                                                   -1,
                                                   NULL,

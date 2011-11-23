@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -65,7 +65,7 @@ public:
    void checkRtpStreamsActivity();
 
      /// @copydoc MprRtpDispatcher::connectOutput()
-   UtlBoolean connectOutput(int outputIdx, MprDecode *pDecode);
+   UtlBoolean connectOutput(int outputIdx, MpResource* pushRtpToResource);
 
      /// @copydoc MprRtpDispatcher::disconnectOutput()
    UtlBoolean disconnectOutput(int outputIdx);

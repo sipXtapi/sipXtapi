@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -49,7 +49,7 @@ MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
                                            MpConnectionID myID, 
                                            IRTCPSession *piRTCPSession,
                                            int maxRtpStreams,
-                                           RtpStreamAffinity rtpStreamAffinity)
+                                           MprRtpDispatcher::RtpStreamAffinity rtpStreamAffinity)
 : MpResource(resourceName, 0, 0, 0, maxRtpStreams)
 , mpFromNet(NULL)
 , mpRtpDispatcher(NULL)
@@ -91,12 +91,12 @@ MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
       UtlString name = getName() + "-RtpDispatcher";
       switch (mRtpStreamAffinity)
       {
-      case ADDRESS_AND_PORT:
+      case MprRtpDispatcher::ADDRESS_AND_PORT:
          // We may accept only one RTP stream in this case.
          assert(mMaxRtpStreams == 1);
          mpRtpDispatcher = new MprRtpDispatcherIpAffinity(name, mConnectionId);
          break;
-      case MOST_RECENT_SSRC:
+      case MprRtpDispatcher::MOST_RECENT_SSRC:
          mpRtpDispatcher = new MprRtpDispatcherActiveSsrcs(name, mConnectionId,
                                                            mMaxRtpStreams);
          break;

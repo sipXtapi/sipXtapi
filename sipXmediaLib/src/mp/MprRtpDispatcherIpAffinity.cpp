@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -16,7 +16,6 @@
 #include <mp/MpRtpBuf.h>
 #include <mp/MprRtpDispatcherIpAffinity.h>
 #include <mp/MprDejitter.h>
-#include <mp/MprDecode.h>
 #include <os/OsSocket.h>
 #include <os/OsSysLog.h>
 
@@ -196,7 +195,7 @@ void MprRtpDispatcherIpAffinity::checkRtpStreamsActivity()
 }
 
 UtlBoolean MprRtpDispatcherIpAffinity::connectOutput(int outputIdx,
-                                                     MprDecode *pDecode)
+                                                     MpResource* pushRtpToResource)
 {
    OsLock lock(mMutex);
    
@@ -207,13 +206,13 @@ UtlBoolean MprRtpDispatcherIpAffinity::connectOutput(int outputIdx,
    }
 
    // Check is this output already connected?
-   if (mRtpStream.mpDecode != NULL)
+   if (mRtpStream.mpOutputResource != NULL)
    {
       return FALSE;
    }
 
    // Initialize stream and add it to the inactive list.
-   mRtpStream.mpDecode = pDecode;
+   mRtpStream.mpOutputResource = pushRtpToResource;
 
    return TRUE;
 }
@@ -229,13 +228,13 @@ UtlBoolean MprRtpDispatcherIpAffinity::disconnectOutput(int outputIdx)
    }
 
    // Check is this output connected?
-   if (mRtpStream.mpDecode == NULL)
+   if (mRtpStream.mpOutputResource == NULL)
    {
       return FALSE;
    }
 
    // Mark stream as disconnected.
-   mRtpStream.mpDecode = NULL;
+   mRtpStream.mpOutputResource = NULL;
 
    return TRUE;
 }

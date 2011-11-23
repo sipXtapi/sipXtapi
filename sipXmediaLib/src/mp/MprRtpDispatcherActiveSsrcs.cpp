@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -16,7 +16,6 @@
 #include <mp/MprRtpDispatcherActiveSsrcs.h>
 #include <mp/MpRtpBuf.h>
 #include <mp/MprDejitter.h>
-#include <mp/MprDecode.h>
 #include <os/OsDateTime.h>
 #include <os/OsDefs.h>
 #include <os/OsSysLog.h>
@@ -107,7 +106,7 @@ void MprRtpDispatcherActiveSsrcs::checkRtpStreamsActivity()
 }
 
 UtlBoolean MprRtpDispatcherActiveSsrcs::connectOutput(int outputIdx,
-                                                      MprDecode *pDecode)
+                                                      MpResource* pushRtpToResource)
 {
    OsLock lock(mMutex);
    UtlContainable *pTmp;
@@ -119,13 +118,13 @@ UtlBoolean MprRtpDispatcherActiveSsrcs::connectOutput(int outputIdx,
    }
 
    // Check is this output already connected?
-   if (mpStreamsArray[outputIdx].mpDecode != NULL)
+   if (mpStreamsArray[outputIdx].mpOutputResource != NULL)
    {
       return FALSE;
    }
 
    // Initialize stream and add it to the inactive list.
-   mpStreamsArray[outputIdx].mpDecode = pDecode;
+   mpStreamsArray[outputIdx].mpOutputResource = pushRtpToResource;
    pTmp = mInactiveStreams.append(&mpStreamsArray[outputIdx]);
    assert(pTmp != NULL);
 
@@ -142,7 +141,7 @@ UtlBoolean MprRtpDispatcherActiveSsrcs::disconnectOutput(int outputIdx)
    }
 
    // Check is this output connected?
-   if (mpStreamsArray[outputIdx].mpDecode == NULL)
+   if (mpStreamsArray[outputIdx].mpOutputResource == NULL)
    {
       return FALSE;
    }
@@ -153,7 +152,7 @@ UtlBoolean MprRtpDispatcherActiveSsrcs::disconnectOutput(int outputIdx)
    mInactiveStreams.remove(&mpStreamsArray[outputIdx]);
 
    // Mark stream as disconnected.
-   mpStreamsArray[outputIdx].mpDecode = NULL;
+   mpStreamsArray[outputIdx].mpOutputResource = NULL;
 
    return TRUE;
 }
@@ -204,7 +203,7 @@ MprRtpDispatcher::MpRtpStream *MprRtpDispatcherActiveSsrcs::lookupRtpStream(
       mActiveStreams.insert(pStream);
 
       // Enable decoder to start audio processing.
-      pStream->mpDecode->enable();
+      pStream->mpOutputResource->enable();
 
       // Mark stream as active
       pStream->activate(fromIp.s_addr, fromPort);
@@ -249,7 +248,7 @@ MprRtpDispatcher::MpRtpStream *MprRtpDispatcherActiveSsrcs::lookupRtpStream(
          mActiveStreams.insert(pStream);
 
          // Reset decoder in preparation to handle new stream
-         pStream->mpDecode->reset();
+         pStream->mpOutputResource->reset();
 
          // Mark stream as active
          pStream->activate(fromIp.s_addr, fromPort);

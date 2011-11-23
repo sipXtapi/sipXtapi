@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -15,10 +15,9 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-//#include <mp/MpResource.h>
+#include <mp/MpResource.h>
 //#include "mp/MpEvents.h"
 #include <mp/MpRtpBuf.h>
-#include <mp/MprDecode.h>
 #include <mp/MprnRtpStreamActivityMsg.h>
 #include <utl/UtlString.h>
 #include <utl/UtlInt.h>
@@ -34,7 +33,6 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class MprDecode;
 class OsMsgDispatcher;
 
 /**
@@ -46,6 +44,12 @@ class MprRtpDispatcher
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+   enum RtpStreamAffinity
+   {
+      ADDRESS_AND_PORT,
+      MOST_RECENT_SSRC
+   };
 
 /* ============================ CREATORS ================================== */
 ///@name Creators
@@ -74,10 +78,10 @@ public:
      /// Check activity of the RTP streams and send notifications if needed.
    virtual void checkRtpStreamsActivity() = 0;
 
-     /// Connect given output to the decode resource.
-   virtual UtlBoolean connectOutput(int outputIdx, MprDecode *pDecode) = 0;
+     /// Connect output to the given resource.
+   virtual UtlBoolean connectOutput(int outputIdx, MpResource* pushRtpToResource) = 0;
 
-     /// Disconnect given output from the decode resource.
+     /// Disconnect output from the previously given resource.
    virtual UtlBoolean disconnectOutput(int outputIdx) = 0;
 
      /// Set notification dispatcher.
@@ -152,7 +156,7 @@ public:
       , mStreamActive(FALSE)
       , mAddress(0)
       , mPort(-1)
-      , mpDecode(NULL)
+      , mpOutputResource(NULL)
       {}
 
       int                 mStreamId;       ///< Abstract stream ID, used by higher
@@ -161,7 +165,8 @@ public:
       UtlBoolean          mStreamActive;   ///< Is this stream active or not?
       int                 mAddress;        ///< IP address of the stream source.
       int                 mPort;           ///< Port of the stream source.
-      MprDecode          *mpDecode;        ///< Pointer to Decode resource.
+      MpResource         *mpOutputResource;///< Pointer to async output resource,
+                                           ///< which receives input from RTP stream
                                            ///< Also used as a "connected" mark -
                                            ///< NULL means this stream is not connected.
 
@@ -270,7 +275,8 @@ UtlBoolean MprRtpDispatcher::areNotificationsEnabled() const
 void MprRtpDispatcher::MpRtpStream::pushPacket(MpRtpBufPtr &pRtp)
 {
    OsDateTime::getCurTime(mLastPacketTime);
-   mpDecode->pushPacket(pRtp);
+   mpOutputResource->pushBuffer(0, // input port on resource
+                                pRtp);
 }
 
 /// Mark stream as active.
@@ -309,9 +315,9 @@ void MprRtpDispatcher::MpRtpStream::setSSRC(RtpSRC ssrc)
    // Note, that we deliberately does not check whether SSRC really changed.
    // We trust caller to perform this check. Furthermore some broken
    // implementations does not change SSRC on a new stream start.
-   if (mAddress != 0 && mpDecode != NULL)
+   if (mAddress != 0 && mpOutputResource != NULL)
    {
-      mpDecode->reset();
+      mpOutputResource->reset();
    }
 
    setValue(ssrc);
