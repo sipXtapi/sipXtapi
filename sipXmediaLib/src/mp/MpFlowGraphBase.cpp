@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -112,9 +112,18 @@ OsStatus MpFlowGraphBase::addLink(MpResource& rFrom, int outPortIdx,
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_ADD_LINK, NULL,
                       &rFrom, &rTo, outPortIdx, inPortIdx);
 
-   if (outPortIdx < 0 || outPortIdx >= rFrom.maxOutputs() ||
-       inPortIdx  < 0 || inPortIdx  >= rTo.maxInputs())
-      return OS_INVALID_ARGUMENT;
+   if (outPortIdx < 0 || outPortIdx >= rFrom.maxOutputs())
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpFlowGraphBase::addLink invalid output port: %d for resource: %s",
+          outPortIdx, rFrom.getName().data());
+       return(OS_INVALID_ARGUMENT);
+   }
+   if(inPortIdx  < 0 || inPortIdx  >= rTo.maxInputs())
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpFlowGraphBase::addLink invalid input port: %d for resource: %s",
+          inPortIdx, rTo.getName().data());
+      return(OS_INVALID_ARGUMENT);
+   }
 
    if (mCurState == STARTED)
       return postMessage(msg);
@@ -123,7 +132,10 @@ OsStatus MpFlowGraphBase::addLink(MpResource& rFrom, int outPortIdx,
    if (handled)
       return OS_SUCCESS;
    else
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpFlowGraphBase::addLink message not handled");
       return OS_UNSPECIFIED;
+   }
 }
 
 OsMsgDispatcher* 
@@ -393,7 +405,7 @@ OsStatus MpFlowGraphBase::postNotification(const MpResNotificationMsg& msg)
 {
    // If there is no dispatcher, OS_NOT_FOUND is used.
    OsStatus stat = OS_NOT_FOUND;
-   
+  
    if(mNotifyDispatcher != NULL)
    {
       // If the limit is reached on the queue, OS_LIMIT_REACHED is sent.
@@ -1021,9 +1033,12 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
 static void complainAdd(const char *n1, int p1, const char *n2,
    int p2, const char *n3, int p3)
 {
-   Zprintf("MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n"
-           " %s:%d is already connected!\n",
-           (int) n1, p1, (int) n2, p2, (int) n3, p3);
+   //Zprintf("MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n"
+   //        " %s:%d is already connected!\n",
+   //        (int) n1, p1, (int) n2, p2, (int) n3, p3);
+   OsSysLog::add(FAC_MP, PRI_ERR, 
+       "MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n %s:%d is already connected!\n",
+       n1, p1, n2, p2, n3, p3);
 }
 
 UtlBoolean MpFlowGraphBase::handleSynchronize(MpFlowGraphMsg& rMsg)
@@ -1077,9 +1092,12 @@ UtlBoolean MpFlowGraphBase::handleAddLink(MpResource* pFrom, int outPortIdx,
 
    if (pTo->isInputConnected(inPortIdx))
    {
-      complainAdd(pFrom->getName(), outPortIdx,
-                  pTo->getName(), inPortIdx,
-                  pTo->getName(), inPortIdx);
+
+      OsSysLog::add(FAC_MP, PRI_ERR, 
+         "MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n %s:%d is already connected!\n",
+         pFrom->getName(), outPortIdx,
+         pTo->getName(), inPortIdx,
+         pTo->getName(), inPortIdx);
       assert(FALSE);
       return FALSE;
    }
@@ -1675,6 +1693,12 @@ OsStatus MpFlowGraphBase::processMessages(void)
                if (pMsgDest != NULL)
                {
                   handled = pMsgDest->handleMessage(*pResourceMsg);
+                  if(!handled)
+                  {
+                     OsSysLog::add(FAC_MP, PRI_ERR, "MpFlowGraphBase::processMessages target resource: %s did not handle message: %d",
+                        pResourceMsg->getDestResourceName().data(), pResourceMsg->getMsg());
+                     OsSysLog::flush();
+                  }
                   assert(handled);
                }
                else
