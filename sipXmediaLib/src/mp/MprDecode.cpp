@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -143,9 +143,9 @@ OsStatus MprDecode::reset(const UtlString& namedResource,
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-OsStatus MprDecode::reset()
+void MprDecode::reset()
 {
-   return reset(this->getName(), *mpFlowGraph->getMsgQ());
+   reset(this->getName(), *mpFlowGraph->getMsgQ());
 }
 
 OsStatus MprDecode::selectCodecs(const UtlString& namedResource,
@@ -181,6 +181,22 @@ void MprDecode::setMyDejitter(MprDejitter* pDJ, UtlBoolean ownDj)
    // Set connectionID and streamID on dejitter.
    mpMyDJ->setConnectionId(mConnectionId);
    mpMyDJ->setStreamId(mStreamId);
+}
+
+OsStatus MprDecode::pushBuffer(int inPortIndex, MpBufPtr& inputBuffer)
+{
+   OsStatus status = OS_INVALID_ARGUMENT;
+   assert(inPortIndex == 0);
+   assert(inputBuffer->getType() == MP_BUF_RTP);
+
+   if(inPortIndex == 0 && inputBuffer->getType() == MP_BUF_RTP)
+   {
+      MpRtpBufPtr rtpBuffer = inputBuffer;
+      assert(rtpBuffer.isValid() == inputBuffer.isValid());
+      status = pushPacket(rtpBuffer);
+   }
+
+   return(status);
 }
 
 OsStatus MprDecode::pushPacket(MpRtpBufPtr &pRtp)
@@ -749,34 +765,40 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
 
       mNumCurrentCodecs = 0;
       mpCurrentCodecs = new MpDecoderBase*[numCodecs];
+      UtlString codecMediaType;
 
-      for (i=0; i<numCodecs; i++) {
+      for (i=0; i<numCodecs; i++)
+      {
          pCodec = pCodecs[i];
-         pCodec->getEncodingName(mime);
-         pCodec->getSdpFmtpField(fmtp);
-         int sampleRate = pCodec->getSampleRate();
-         int numChannels = pCodec->getNumChannels();
-         payload = pCodec->getCodecPayloadFormat();
-         ret = pFactory->createDecoder(mime, fmtp, sampleRate, numChannels,
-                                       payload, pNewDecoder);
-         assert(OS_SUCCESS == ret);
-         assert(NULL != pNewDecoder);
-         if (pNewDecoder->initDecode() == OS_SUCCESS)
+         pCodec->getMediaType(codecMediaType);
+         if(codecMediaType.compareTo(MIME_TYPE_AUDIO, UtlString::ignoreCase) == 0)
          {
-            // Add this codec to mpConnection's payload type decoding table.
-            mDecoderMap.addPayloadType(payload, pNewDecoder);
-            mpCurrentCodecs[mNumCurrentCodecs] = pNewDecoder;
-            mNumCurrentCodecs++;
-
-            // Check should we apply G.722 clock rate workaround to this codec?
-            if (mEnableG722Hack && pCodec->getCodecType() == SdpCodec::SDP_CODEC_G722)
+            pCodec->getEncodingName(mime);
+            pCodec->getSdpFmtpField(fmtp);
+            int sampleRate = pCodec->getSampleRate();
+            int numChannels = pCodec->getNumChannels();
+            payload = pCodec->getCodecPayloadFormat();
+            ret = pFactory->createDecoder(mime, fmtp, sampleRate, numChannels,
+                                          payload, pNewDecoder);
+            assert(OS_SUCCESS == ret);
+            assert(NULL != pNewDecoder);
+            if (pNewDecoder->initDecode() == OS_SUCCESS)
             {
-               mG722HackPayloadType = payload;
+               // Add this codec to mpConnection's payload type decoding table.
+               mDecoderMap.addPayloadType(payload, pNewDecoder);
+               mpCurrentCodecs[mNumCurrentCodecs] = pNewDecoder;
+               mNumCurrentCodecs++;
+
+               // Check should we apply G.722 clock rate workaround to this codec?
+               if (mEnableG722Hack && pCodec->getCodecType() == SdpCodec::SDP_CODEC_G722)
+               {
+                  mG722HackPayloadType = payload;
+               }
             }
-         }
-         else
-         {
-            delete pNewDecoder;
+            else
+            {
+               delete pNewDecoder;
+            }
          }
       }
 

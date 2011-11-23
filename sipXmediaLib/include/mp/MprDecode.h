@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -71,7 +71,7 @@ public:
    static OsStatus reset(const UtlString& namedResource, OsMsgQ& fgQ);
 
      /// Reset decoder to the initial state to be able process new stream.
-   OsStatus reset();
+   virtual void reset();
 
      /// Provide set of codecs this decode resource will be able to decode.
    static OsStatus selectCodecs(const UtlString& namedResource,
@@ -107,6 +107,9 @@ public:
      *  If \p ownDj is TRUE, then dejitter instance will be freed in
      *  the destructor of this decoder.
      */
+
+   /// @copy_doc MpResource::pushBuffer
+   virtual OsStatus pushBuffer(int inputPort, MpBufPtr& inputBuffer);
 
      /// Add incoming RTP packet to the decoding queue
    OsStatus pushPacket(MpRtpBufPtr &pRtp);
