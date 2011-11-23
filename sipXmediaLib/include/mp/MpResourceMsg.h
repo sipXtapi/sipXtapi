@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
@@ -46,6 +46,9 @@ public:
       MPRM_BRIDGE_SET_GAINS,    ///< MprBridge: Set row or column in mix matrix.
 
       MPRM_DECODE_SELECT_CODECS,  ///< MprDecode/MprEncode: Select codecs.
+
+      MPRM_SET_SOCKETS,         ///< MprFromNet and containers set RTP/RTCP sockets
+      MPRM_RESET_SOCKETS,       ///< MprFromNet and containers stop reading sockets
 
       // Add new built in resource operation messages above
 
