@@ -14,7 +14,8 @@ nobase_include_HEADERS =  \
     mi/MiIntNotf.h \
     mi/MiDtmfNotf.h \
     mi/MiProgressNotf.h \
-    mi/MiRtpStreamActivityNotf.h
+    mi/MiRtpStreamActivityNotf.h \
+    mi/MiStringNotf.h 
     
 noinst_LTLIBRARIES = libmediainterface.la
 
@@ -30,6 +31,7 @@ libmediainterface_la_SOURCES =  \
     MiDtmfNotf.cpp \
     MiProgressNotf.cpp \
     MiRtpStreamActivityNotf.cpp \
+    MiStringNotf.cpp \
     mi/CpMediaInterface.h \
     mi/CpMediaInterfaceFactoryImpl.h \
     mi/CpMediaInterfaceFactoryFactory.h \
