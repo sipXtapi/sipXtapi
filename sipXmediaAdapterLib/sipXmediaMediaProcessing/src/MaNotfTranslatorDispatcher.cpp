@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2009 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
@@ -13,17 +13,19 @@
 // SYSTEM INCLUDES
 #include <mp/MpResNotificationMsg.h>
 #include <mp/MprnDTMFMsg.h>
+#include <mp/MprnIntMsg.h>
 #include <mp/MprnProgressMsg.h>
 #include <mp/MprnRtpStreamActivityMsg.h>
-#include <mp/MprnIntMsg.h>
+#include <mp/MprnStringMsg.h>
 
 // APPLICATION INCLUDES
-#include "MaNotfTranslatorDispatcher.h"
-#include "mi/MiNotification.h"
-#include "mi/MiDtmfNotf.h"
-#include "mi/MiProgressNotf.h"
-#include "mi/MiRtpStreamActivityNotf.h"
-#include "mi/MiIntNotf.h"
+#include <MaNotfTranslatorDispatcher.h>
+#include <mi/MiNotification.h>
+#include <mi/MiDtmfNotf.h>
+#include <mi/MiProgressNotf.h>
+#include <mi/MiRtpStreamActivityNotf.h>
+#include <mi/MiIntNotf.h>
+#include <mi/MiStringNotf.h>
 #include <mp/MpResNotificationMsg.h>
 
 // EXTERNAL FUNCTIONS
@@ -166,6 +168,43 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
             stat = mpAbstractedMsgDispatcher->post(miNotf);
          }
          break;
+
+      case MpResNotificationMsg::MPRNM_H264_SPS:
+      {
+
+         MprnStringMsg& mediaStringNotif = (MprnStringMsg&)resNotf;
+         UtlString sps;
+         mediaStringNotif.getValue(sps);
+         printf("MaNotfTranslatorDispatcher::post got MpResNotificationMsg::MPRNM_H264_SPS connection ID: %d\n",
+             mediaStringNotif.getConnectionId());
+
+         MiStringNotf miStringNotif(MiNotification::MI_NOTF_H264_SPS,
+                                    mediaStringNotif.getOriginatingResourceName(),
+                                    sps,
+                                    (int)(mediaStringNotif.getConnectionId()),
+                                    mediaStringNotif.getStreamId());
+
+         stat = mpAbstractedMsgDispatcher->post(miStringNotif);
+      }
+      break;
+
+      case MpResNotificationMsg::MPRNM_H264_PPS:
+      {
+         printf("MaNotfTranslatorDispatcher::post got MpResNotificationMsg::MPRNM_H264_PPS\n");
+         MprnStringMsg& mediaStringNotif = (MprnStringMsg&)resNotf;
+         UtlString pps;
+         mediaStringNotif.getValue(pps);
+
+         MiStringNotf miStringNotif(MiNotification::MI_NOTF_H264_PPS,
+                                    mediaStringNotif.getOriginatingResourceName(),
+                                    pps,
+                                    (int)(mediaStringNotif.getConnectionId()),
+                                    mediaStringNotif.getStreamId());
+
+         stat = mpAbstractedMsgDispatcher->post(miStringNotif);
+      }
+      break;
+
       default:
          // If we don't recognize the message, just pass it through
          // without any conversion.
