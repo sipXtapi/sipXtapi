@@ -736,7 +736,7 @@ static const int localConnectionConnectionsNum =
    sizeof(localConnectionConnections)/sizeof(MpResourceTopology::ConnectionDef);
 
 /// Name of last resource in the local input connection
-static char *sgLocalInputConnectionOutput =
+static const char *sgLocalInputConnectionOutput =
 #ifdef INSERT_DELAY_RESOURCE // [
                                         DEFAULT_DELAY_RESOURCE_NAME MIC_NAME_SUFFIX;
 #elif defined(HAVE_SPEEX) // [
@@ -745,7 +745,7 @@ static char *sgLocalInputConnectionOutput =
                                         DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME AEC_NAME_SUFFIX;
 #endif
 /// Name of first resource in the local output connection
-static char *sgLocalOutputConnectionInput =
+static const char *sgLocalOutputConnectionInput =
 #ifdef USE_SPEEX_AEC // [
                                         DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX;
 #else // USE_SPEEX_AEC ][
