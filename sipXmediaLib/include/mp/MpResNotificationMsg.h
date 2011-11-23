@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2009 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
@@ -58,7 +58,9 @@ public:
       MPRNM_RX_STREAM_ACTIVITY, ///< Value for MprnRtpStreamActivityMsg notifications.
       MPRNM_ENERGY_LEVEL,       ///< Audio energy level (MprnIntMsg)
       MPRNM_VOICE_STARTED,
-      MPRNM_VOICE_STOPPED
+      MPRNM_VOICE_STOPPED,
+      MPRNM_H264_SPS,
+      MPRNM_H264_PPS
    } RNMsgType;
 
    /* ============================ CREATORS ================================== */
