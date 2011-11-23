@@ -14,7 +14,7 @@
 // Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 // SYSTEM INCLUDES
-#include "os/OsDefs.h"
+#include <os/OsDefs.h>
 
 // APPLICATION INCLUDES
 #include "utl/UtlRegex.h"
@@ -30,24 +30,25 @@
 #include <mi/CpMediaInterface.h>
 #include <mi/MiDtmfNotf.h>
 #include <mi/MiIntNotf.h>
+#include <mi/MiStringNotf.h>
 #include <net/SipUserAgent.h>
 #include <utl/UtlNameValueTokenizer.h>
 #include <net/Url.h>
 #include <net/SipSession.h>
 #include <ptapi/PtConnection.h>
-#include "ptapi/PtCall.h"
-#include "ptapi/PtEvent.h"
+#include <ptapi/PtCall.h>
+#include <ptapi/PtEvent.h>
 #include <ptapi/PtTerminalConnection.h>
 #include <os/OsReadLock.h>
 #include <os/OsWriteLock.h>
 #include <os/OsProtectEvent.h>
-#include "os/OsQueuedEvent.h"
-#include "os/OsTimer.h"
-#include "os/OsTime.h"
-#include "os/OsDateTime.h"
-#include "os/OsEventMsg.h"
-#include "tao/TaoProviderAdaptor.h"
-#include "net/SmimeBody.h"
+#include <os/OsQueuedEvent.h>
+#include <os/OsTimer.h>
+#include <os/OsTime.h>
+#include <os/OsDateTime.h>
+#include <os/OsEventMsg.h>
+#include <tao/TaoProviderAdaptor.h>
+#include <net/SmimeBody.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -1723,8 +1724,8 @@ void CpPeerCall::getLocalContactAddresses( SIPX_CONTACT_ADDRESS contacts[],
         contacts[nActualContacts].eTransportType = TRANSPORT_UDP;
         nActualContacts++ ;
     }
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::getLocalContactAddresses nActualContacts: %d", nActualContacts);
-    for(int cIndex = 0; cIndex < nActualContacts; cIndex++)
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::getLocalContactAddresses nActualContacts: %d", (int) nActualContacts);
+    for(unsigned int cIndex = 0; cIndex < nActualContacts; cIndex++)
     {
         OsSysLog::add(FAC_CP, PRI_DEBUG, "contact[%d]= %s", cIndex, contacts[cIndex].cIpAddress);
     }
@@ -2153,6 +2154,10 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         handleGetMediaConnectionId(&eventMessage);
         break;
 
+    case CallManager::CP_LIMIT_CODECS:
+        handleLimitCodecs(&eventMessage);
+        break;
+  
     case CallManager::CP_LIMIT_CODEC_PREFERENCES:
         handleLimitCodecPreferences(&eventMessage);
         break;
@@ -2442,7 +2447,7 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             OsProtectedEvent* pEvent = (OsProtectedEvent*)stringMessage.getInt1Data();
             char* pBuffer = (char*)stringMessage.getInt2Data();
             int bufferSize = stringMessage.getInt3Data();
-            int bufferType = stringMessage.getInt4Data();
+            //int bufferType = stringMessage.getInt4Data();
             int maxRecordTime = stringMessage.getInt5Data();
             int maxSilence = stringMessage.getInt6Data();
             UtlBoolean bSuccess = false ;
@@ -2544,11 +2549,8 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             int rtpPort = ((CpMultiStringMessage&)eventMessage).getInt4Data();
             int rtcpPort = ((CpMultiStringMessage&)eventMessage).getInt5Data();
 
-            mpMediaInterface->setConnectionDestination(connectionId, mediaRecieveAddress,
-                                                       mediaType == CpMediaInterface::AUDIO_STREAM ? rtpPort : -1,
-                                                       mediaType == CpMediaInterface::AUDIO_STREAM ? rtcpPort : -1,
-                                                       mediaType == CpMediaInterface::VIDEO_STREAM ? rtpPort : -1,
-                                                       mediaType == CpMediaInterface::VIDEO_STREAM ? rtcpPort : -1);
+            mpMediaInterface->setConnectionDestination(connectionId, mediaType, mediaTypeStreamIndex, mediaRecieveAddress,
+                                                       rtpPort, rtcpPort);
         }
         break;
 
@@ -2556,12 +2558,24 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         if(mpMediaInterface)
         {
             int connectionId = ((CpMultiStringMessage&)eventMessage).getInt1Data();
-            CpMediaInterface::MEDIA_STREAM_TYPE mediaType = 
-                (CpMediaInterface::MEDIA_STREAM_TYPE) ((CpMultiStringMessage&)eventMessage).getInt2Data();
-            int mediaTypeStreamIndex = ((CpMultiStringMessage&)eventMessage).getInt3Data();
-            SdpCodec* codec = (SdpCodec*) ((CpMultiStringMessage&)eventMessage).getInt4Data();
+            SdpCodecList* codecList = (SdpCodecList*) ((CpMultiStringMessage&)eventMessage).getInt2Data();
+            if(codecList)
+            {
+                int numCodecs = 0;
+                SdpCodec** codecArray = NULL;
+                codecList->getCodecs(numCodecs, codecArray);
 
-            mpMediaInterface->startRtpSend(connectionId, 1, &codec);
+                mpMediaInterface->startRtpSend(connectionId, numCodecs, codecArray);
+
+                SdpCodecList::freeArray(numCodecs, codecArray);
+                delete codecList;
+                codecList = NULL;
+            }
+            else
+            {
+                OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::CP_START_RTP_SEND NULL SdpCodecList connecionId: %d",
+                    connectionId);
+            }
         }
         break;
 
@@ -2569,9 +2583,6 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         if(mpMediaInterface)
         {
             int connectionId = ((CpMultiStringMessage&)eventMessage).getInt1Data();
-            CpMediaInterface::MEDIA_STREAM_TYPE mediaType = 
-                (CpMediaInterface::MEDIA_STREAM_TYPE) ((CpMultiStringMessage&)eventMessage).getInt2Data();
-            int mediaTypeStreamIndex = ((CpMultiStringMessage&)eventMessage).getInt3Data();
 
             mpMediaInterface->stopRtpSend(connectionId);
         }
@@ -2752,10 +2763,58 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
 
             }
             break;
+
+         case MiNotification::MI_NOTF_H264_SPS:
+            {
+               MiStringNotf& stringNotif = (MiStringNotf&) notification;
+               UtlString sps;
+               stringNotif.getValue(sps);
+               SIPX_VIDEO_CODEC videoCodec;
+               memset(&videoCodec, 0, sizeof(SIPX_VIDEO_CODEC));
+               memcpy(videoCodec.cName, sps.data(), sps.length());
+               // Hack SPS length into bandwidth field
+               videoCodec.iBandWidth = (SIPX_VIDEO_BANDWIDTH_ID) sps.length();
+               // TODO: would like to set payload incase we get multiple H.264 payload IDs
+               //videoCodec.iPayloadType = 
+               
+               pConnection->fireSipXMediaEvent(MEDIA_H264_SPS,
+                                               MEDIA_CAUSE_NORMAL,
+                                               MEDIA_TYPE_VIDEO,
+                                               &videoCodec);
+
+            }
+         break;
+
+         case MiNotification::MI_NOTF_H264_PPS:
+            {
+               MiStringNotf& stringNotif = (MiStringNotf&) notification;
+               UtlString pps;
+               stringNotif.getValue(pps);
+               SIPX_VIDEO_CODEC videoCodec;
+               memset(&videoCodec, 0, sizeof(SIPX_VIDEO_CODEC));
+               memcpy(videoCodec.cName, pps.data(), pps.length());
+               // Hack SPS length into bandwidth field
+               videoCodec.iBandWidth = (SIPX_VIDEO_BANDWIDTH_ID) pps.length();
+               // TODO: would like to set payload incase we get multiple H.264 payload IDs
+               //videoCodec.iPayloadType = 
+               
+               pConnection->fireSipXMediaEvent(MEDIA_H264_PPS,
+                                               MEDIA_CAUSE_NORMAL,
+                                               MEDIA_TYPE_VIDEO,
+                                               &videoCodec);
+
+            }
+         break;
+
          default:
             break;
          }
          break ;
+      }
+      else if(notification.getMsgSubType() == MiNotification::MI_NOTF_H264_PPS)
+      {
+          printf("MiNotification::MI_NOTF_H264_PPS with no matching connectionId (%d)\n",
+                connectionId);
       }
    }
 
@@ -2850,6 +2909,54 @@ UtlBoolean CpPeerCall::handleGetMediaConnectionId(OsMsg* pEventMessage)
     }
 
     return true;
+}
+
+UtlBoolean CpPeerCall::handleLimitCodecs(OsMsg* pEventMessage)
+{
+    int connectionId = -1;
+    CpMultiStringMessage* pMultiMessage = (CpMultiStringMessage*) pEventMessage;
+
+    UtlString callId;
+    UtlString remoteAddress;
+    UtlString codecNames;
+    pMultiMessage->getString1Data(callId);
+    pMultiMessage->getString2Data(remoteAddress);
+    pMultiMessage->getString3Data(codecNames);
+
+    void* pInstData = NULL;
+
+    SdpCodecList limitToCodecList;
+    limitToCodecList.addCodecs(codecNames);
+
+    // Limit the codecs for all future calls as well.
+    // We do this for the case when a call is created, but its media connection is not
+    // yet created.  This has the effect that when the call's media connection is created,
+    // it will use the media interfaces limited codec set.
+    mpMediaInterface->limitCodecs(mpMediaInterface->getInvalidConnectionId(), limitToCodecList);
+    Connection* connection = NULL;
+    OsReadLock lock(mConnectionMutex);
+    UtlDListIterator iterator(mConnections);
+    while ((connection = (Connection*) iterator()))
+    {
+        UtlString connectionRemoteAddress;
+
+        connection->getRemoteAddress(&connectionRemoteAddress);
+        if (remoteAddress.isNull() || connectionRemoteAddress == remoteAddress)
+        {
+            connectionId = connection->getConnectionId();
+            if (connectionId != -1)
+            {
+                pInstData = connection->getMediaInterfacePtr();
+
+                if (pInstData != NULL)
+                {
+                    ((CpMediaInterface*)pInstData)->limitCodecs(connectionId, limitToCodecList);
+                }
+            }
+        }
+    }
+
+    return(TRUE);
 }
 
 UtlBoolean CpPeerCall::handleLimitCodecPreferences(OsMsg* pEventMessage)
@@ -3294,7 +3401,7 @@ UtlBoolean CpPeerCall::handleSetMediaPassThrough(const OsMsg& eventMessage)
     else if(mConnections.entries() == 0)
     {
         // If we get to the point were more than one stream is passed through, then
-        // we will need a list of this things
+        // we will need a list of these things
         OsSysLog::add(FAC_CP, PRI_DEBUG, 
             "CpPeerCall handle CP_SET_MEDIA_PASS_THROUGH caching mediaType=%d mediaTypeStreamIndex=%d mediaRecieveAddress=\"%s\" rtpPort=%d rtcpPort=%d",
             mediaType, mediaTypeStreamIndex, mediaRecieveAddress.data(), rtpPort, rtcpPort);
@@ -3304,6 +3411,8 @@ UtlBoolean CpPeerCall::handleSetMediaPassThrough(const OsMsg& eventMessage)
             new MediaStreamPassThroughData(mediaType, mediaTypeStreamIndex,
                 mediaRecieveAddress, rtpPort, rtcpPort);
     }
+
+   return(TRUE);
 }
 
 // Handles the processing of a CP_TRANSFER_OTHER_PARTY_HOLD message

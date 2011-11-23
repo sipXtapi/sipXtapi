@@ -5,7 +5,8 @@ EXTRA_DIST = tapi
 
 SUBDIRS = . test
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXmediaAdapterLib/sipXmediaVoiceEngine
+#INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXmediaAdapterLib/sipXmediaVoiceEngine
+INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXmediaAdapterLib/sipXmediaMediaProcessing/include
 
 lib_LTLIBRARIES = libsipXcall.la
 

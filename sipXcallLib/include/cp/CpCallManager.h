@@ -204,7 +204,8 @@ public:
         CP_CREATE_MEDIA_CONNECTION,
         CP_SET_RTP_DESTINATION,
         CP_START_RTP_SEND,
-        CP_STOP_RTP_SEND  //100
+        CP_STOP_RTP_SEND,  //100
+        CP_LIMIT_CODECS
     };
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -602,6 +603,12 @@ public:
                                           const char* addresss,
                                           const char* terminalId) = 0;
 
+    //! Further limit the set of codecs to use for the call to the given set of codecs
+    //! The codecs named, must be a subset of those enabled for the call.
+    virtual void limitCodecs(const char* callId,
+                             const char* remoteAddr,
+                             const char* codecNames) = 0;
+    
     //! Rebuild codec factory on the fly with new audio codec requirements
     //! and one specific video codec
     virtual void limitCodecPreferences(const char* callId,

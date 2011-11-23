@@ -328,6 +328,9 @@ protected:
     UtlBoolean handleGetMediaConnectionId(OsMsg* pEventMessage);
     //: Handles the processing of a CP_GET_MEDIA_CONNECTION_ID message
 
+    UtlBoolean handleLimitCodecs(OsMsg* pEventMessage);
+    //: Handles the processing of CP_LIMIT_CODEC message
+
     UtlBoolean handleLimitCodecPreferences(OsMsg* pEventMessage);
     //: Handles the processing of the CP_LIMIT_CODEC_PREFERENCES message
 

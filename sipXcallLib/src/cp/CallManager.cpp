@@ -799,6 +799,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_OUTGOING_INFO:
         case CP_GET_USERAGENT:
         case CP_FLOWGRAPH_MESSAGE:
+        case CP_LIMIT_CODECS:
             // Forward the message to the call
             {
                 UtlString callId;
@@ -1664,13 +1665,11 @@ OsStatus CallManager::setRtpDestination(const UtlString& callId, int connectionI
     OsStatus status = OS_INVALID_ARGUMENT;
     assert(!callId.isNull());
     assert(connectionId > 0);
-    assert(mediaType == CpMediaInterface::AUDIO_STREAM);
     assert(mediaTypeStreamIndex == 0);
     assert(!mediaRecieveAddress.isNull());
 
     if(!callId.isNull() && 
        connectionId > 0 && 
-       mediaType == CpMediaInterface::AUDIO_STREAM &&
        mediaTypeStreamIndex == 0 &&
        !mediaRecieveAddress.isNull())
     {
@@ -1693,19 +1692,13 @@ OsStatus CallManager::setRtpDestination(const UtlString& callId, int connectionI
     return(status);
 }
 
-OsStatus CallManager::startRtpSend(const UtlString& callId, int connectionId, CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
-                                  int mediaTypeStreamIndex, SdpCodec& codec)
+OsStatus CallManager::startRtpSend(const UtlString& callId, int connectionId, const SdpCodecList& codecList)
 {
     OsStatus status = OS_INVALID_ARGUMENT;
     assert(!callId.isNull());
     assert(connectionId > 0);
-    assert(mediaType == CpMediaInterface::AUDIO_STREAM);
-    assert(mediaTypeStreamIndex == 0);
 
-    if(!callId.isNull() && 
-       connectionId > 0 &&
-       mediaType == CpMediaInterface::AUDIO_STREAM &&
-       mediaTypeStreamIndex == 0)
+    if(!callId.isNull() && connectionId > 0)
     {
         CpMultiStringMessage message(CP_START_RTP_SEND,
                                      callId,
@@ -1714,9 +1707,7 @@ OsStatus CallManager::startRtpSend(const UtlString& callId, int connectionId, Cp
                                      NULL,
                                      NULL,
                                      connectionId,
-                                     mediaType,
-                                     mediaTypeStreamIndex,
-                                     (intptr_t) new SdpCodec(codec)); // Copy needs to be freed in CpPeerCall
+                                     (intptr_t) new SdpCodecList(codecList)); // Copy needs to be freed in CpPeerCall
 
         
         status = postMessage(message);
@@ -1725,19 +1716,13 @@ OsStatus CallManager::startRtpSend(const UtlString& callId, int connectionId, Cp
     return(status);
 }
 
-OsStatus CallManager::stopRtpSend(const UtlString& callId, int connectionId, CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
-                                  int mediaTypeStreamIndex)
+OsStatus CallManager::stopRtpSend(const UtlString& callId, int connectionId)
 {
     OsStatus status = OS_INVALID_ARGUMENT;
     assert(!callId.isNull());
     assert(connectionId > 0);
-    assert(mediaType == CpMediaInterface::AUDIO_STREAM);
-    assert(mediaTypeStreamIndex == 0);
 
-    if(!callId.isNull() && 
-       connectionId > 0 &&
-       mediaType == CpMediaInterface::AUDIO_STREAM &&
-       mediaTypeStreamIndex == 0)
+    if(!callId.isNull() && connectionId > 0)
     {
         CpMultiStringMessage message(CP_STOP_RTP_SEND,
                                      callId,
@@ -1745,11 +1730,8 @@ OsStatus CallManager::stopRtpSend(const UtlString& callId, int connectionId, CpM
                                      NULL,
                                      NULL,
                                      NULL,
-                                     connectionId,
-                                     mediaType,
-                                     mediaTypeStreamIndex);
+                                     connectionId);
 
-        
         status = postMessage(message);
     }
 
@@ -2379,6 +2361,15 @@ OsStatus CallManager::getFromField(const char* callId,
     }
 
     return(status);
+}
+void CallManager::limitCodecs(const char* callId, const char* remoteAddr, const char* codecNames)
+{
+    CpMultiStringMessage message(CP_LIMIT_CODECS, 
+                                 callId, 
+                                 remoteAddr,
+                                 codecNames);
+
+    postMessage(message);
 }
 
 void CallManager::limitCodecPreferences(const char* callId,

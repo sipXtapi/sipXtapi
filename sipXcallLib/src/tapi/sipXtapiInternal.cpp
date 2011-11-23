@@ -1789,9 +1789,6 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
 
     SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, logItem);
 
-    assert(pData != 0);
-    assert(pData->pInst != 0);
-
     if (pData && pData->callId && pData->remoteAddress)
     {
         callId = *pData->callId ;
@@ -1803,7 +1800,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
         sipxCallReleaseLock(pData, SIPX_LOCK_READ, logItem) ;
     }    
 
-    if (!callId.isNull() && !remoteAddress.isNull())
+    if (pData && pData->pInst && !callId.isNull() && !remoteAddress.isNull())
     {
         connectionId = pData->pInst->pCallManager->getMediaConnectionId(callId, remoteAddress, ppInstData);
         if (-1 != connectionId)
