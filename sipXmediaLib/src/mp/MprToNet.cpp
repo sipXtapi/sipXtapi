@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -172,7 +172,7 @@ int dropEvery(int limit)
 #endif // DROP_SOME_PACKETS ]
 
 int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
-                       unsigned char* payloadData, int payloadOctets,
+                       const unsigned char* payloadData, int payloadOctets,
                        unsigned int timestamp, void* csrcList)
 {
    MpRtpBufPtr pRtpPacket;
@@ -216,8 +216,9 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
 
    if (csrcList != NULL)
    {
+      int csrcSize = pRtpPacket->getRtpCSRCCount() * sizeof(RtpSRC);
       // TODO:: implement CSRC list.
-      assert(false);
+      assert(csrcSize == 0);
    }
 
    //////////////////////////////////////////////////////

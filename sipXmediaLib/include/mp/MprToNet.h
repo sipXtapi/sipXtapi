@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -96,7 +96,7 @@ public:
    OsStatus setRtpPal(MprFromNet* pal);
 
    int writeRtp(int payloadType, UtlBoolean markerState,
-      unsigned char* payloadData, int payloadOctets, unsigned int timestamp,
+      const unsigned char* payloadData, int payloadOctets, unsigned int timestamp,
       void* csrcList);
 
 //@}
