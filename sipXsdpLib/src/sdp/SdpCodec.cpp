@@ -618,6 +618,40 @@ void SdpCodec::getSdpFmtpField(UtlString& formatSpecificData) const
     formatSpecificData = mFormatSpecificData;
 }
 
+UtlBoolean SdpCodec::getFmtpParameter(const UtlString& parameterName, UtlString& parameterValue) const
+{
+    return(getFmtpParameter(mFormatSpecificData, parameterName, parameterValue));
+}
+   
+UtlBoolean SdpCodec::getFmtpParameter(const UtlString& fmtpField, const UtlString& parameterName, UtlString& parameterValue)
+{
+    UtlString thisTempFmpt(fmtpField);
+    thisTempFmpt.replace(';', '\n'); // Tokenizer only understands newline name/value pair separators
+    UtlNameValueTokenizer thisTokenizer(thisTempFmpt);
+    UtlBoolean tokenPairFound = FALSE;
+    UtlBoolean parameterFound = FALSE;
+    UtlString thisParam;
+    do
+    {
+        tokenPairFound = thisTokenizer.getNextPair('=', &thisParam, &parameterValue);
+        thisParam.strip(UtlString::both);
+        parameterValue.strip(UtlString::both);
+
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::getFmtpParameter fmtp param: \"%s\" value: \"%s\"",
+                      thisParam.data(), parameterValue.data());
+#endif
+        if(thisParam.compareTo(parameterName, UtlString::ignoreCase) == 0)
+        {
+            parameterFound = TRUE;
+            break;
+        }
+    }
+    while(tokenPairFound);
+
+    return(parameterFound);
+}
+
 void SdpCodec::setSdpFmtpField(const UtlString& formatSpecificData)
 {
     mFormatSpecificData = formatSpecificData;
@@ -724,26 +758,19 @@ UtlBoolean SdpCodec::isFmtpParameterSame(const SdpCodec& codec, const UtlString&
 UtlBoolean SdpCodec::isFmtpParameterSame(const UtlString& fmtp, const UtlString& fmtpParameterName, const UtlString& fmtpParameterDefaultValue) const
 {
     UtlBoolean isSame = FALSE;
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isFmtpParameterSame(mFormatSpecificData=\"%s\" fmpt=\"%s\", fmtpParameterName=\"%s\"",
+        mFormatSpecificData.data(), fmtp.data(), fmtpParameterName.data());
+#endif
 
     // Need to compare the parameter value of the two codecs
-    UtlString thisParam;
     UtlString thisValue;
     UtlString thatParam;
     UtlString thatValue;
-    UtlString thisTempFmpt(mFormatSpecificData);
-    thisTempFmpt.replace(';', '\n'); // Tokenizer only understands newline name/value pair separators
-    UtlNameValueTokenizer thisTokenizer(thisTempFmpt);
-    while(thisTokenizer.getNextPair('=', &thisParam, &thisValue) && 
-          (thisParam.compareTo(fmtpParameterName, UtlString::ignoreCase) != 0))
-    {
-#ifdef TEST_PRINT
-        OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isFmtpParameterSame this fmtp param: \"%s\" value: \"%s\"",
-                      thisParam.data(), thisValue.data());
-#endif
-    }
+    UtlBoolean thisParameterFound = getFmtpParameter(fmtpParameterName, thisValue);
 
     // If fmtp parameter is not present, it is assumed to be default
-    if(thisParam.compareTo(fmtpParameterName, UtlString::ignoreCase) != 0)
+    if(!thisParameterFound)
     {
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isFmtpParameterSame parameter: %s not found for this codec, assuming: \"%s\"",
@@ -752,20 +779,10 @@ UtlBoolean SdpCodec::isFmtpParameterSame(const UtlString& fmtp, const UtlString&
         thisValue = fmtpParameterDefaultValue;
     }
 
-    UtlString thatTempFmtp(fmtp);
-    thatTempFmtp.replace(';', '\n'); // Tokenizer only understands newline name/value pair separators
-    UtlNameValueTokenizer thatTokenizer(thatTempFmtp);
-    while(thatTokenizer.getNextPair('=', &thatParam, &thatValue) && 
-          (thatParam.compareTo(fmtpParameterName, UtlString::ignoreCase) != 0))
-    {
-#ifdef TEST_PRINT
-        OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isFmtpParameterSame that fmtp param: \"%s\" value: \"%s\"",
-                      thatParam.data(), thatValue.data());
-#endif
-    }
+    UtlBoolean thatParameterFound = getFmtpParameter(fmtp, fmtpParameterName, thatValue);
 
     // If packetization-mode is not present, it is assumed to be 0
-    if(thatParam.compareTo(fmtpParameterName, UtlString::ignoreCase) != 0)
+    if(!thatParameterFound)
     {
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodec::isFmtpParameterSame parameter: %s not found for that codec, assuming: \"%s\"",

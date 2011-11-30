@@ -214,7 +214,7 @@ public:
         SDP_CODEC_H263_QCIF,
         SDP_CODEC_H263_SQCIF,
         SDP_CODEC_H263_QVGA,
-        SDP_CODEC_H264,
+        SDP_CODEC_H264, // 166
         SDP_CODEC_H264_CIF_256,
         SDP_CODEC_H264_NTSC_256,
         SDP_CODEC_H264_4CIF_512,
@@ -337,6 +337,12 @@ public:
    *  This is what goes in the SDP "a" field in the format:
    *  "a=fmtp <payloadFormat> <formatSpecificData>"
    */
+
+   /// Get the named parameter in the format field (fmtp parameter)
+   virtual UtlBoolean getFmtpParameter(const UtlString& parameterName, UtlString& parameterValue) const;
+
+   /// Get the named parameter from the given format field (fmtp parameter)
+   static UtlBoolean getFmtpParameter(const UtlString& fmtpField, const UtlString& parameterName, UtlString& parameterValue);
 
    /// Get the media type for the codec
    void getMediaType(UtlString& mimeMajorType) const;
