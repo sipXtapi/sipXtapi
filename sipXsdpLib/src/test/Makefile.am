@@ -34,6 +34,8 @@ testsuite_LDADD = \
 	@SSL_LDFLAGS@
 
 testsuite_SOURCES = \
+    ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
+    sdp/SdpCodecTest.cpp \
 	sdp/SdpSetGetTest.cpp
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
@@ -43,4 +45,5 @@ testsuite_SOURCES = \
 sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
-    sdp/SdpSetGetTest.cpp
+    ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
+    sdp/SdpCodecTest.cpp
