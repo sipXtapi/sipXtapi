@@ -1846,6 +1846,11 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
          numChannels = codec->getNumChannels();
          codec->getSdpFmtpField(formatParameters);
          payloadType = codec->getCodecPayloadFormat();
+#ifdef TEST_PRINT
+         OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::addCodecParameters adding codec: %s payload ID: %d",
+            mimeSubtype.data(), payloadType);
+#endif
+
 
          // Workarmund RFC bug with G.722 samplerate.
          // Read RFC 3551 Section 4.5.2 "G722" for details.
@@ -1909,6 +1914,18 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
                */
          }
       }
+#ifdef TEST_PRINT
+      else
+      {
+         if(codec)
+         {
+            codec->getEncodingName(mimeSubtype);
+         }
+         OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::addCodecParameters skipping codec MIME type: %s/%s payload: %d expecting: %s",
+            mimeType.data(), mimeSubtype.data(), codec ? codec->getCodecPayloadFormat() : -1, szMimeType);
+      }
+#endif
+
    }
 
    // ptime only really make sense for audio
@@ -2177,7 +2194,9 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
                 // If we still have the same mime type only change format. We're depending on the
                 // fact that codecs with the same mime subtype are added sequentially to the 
                 // codec factory. Otherwise this won't work.
-                if (prevMimeSubType.compareTo(mimeSubType) == 0)
+                // TODO: add better comparison of H264 codecs to check for duplicates
+                if (prevMimeSubType.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase) != 0 && 
+                    prevMimeSubType.compareTo(mimeSubType, UtlString::ignoreCase) == 0)
                 {
                     formatArray[destIndex] |= (codecsInCommon[payloadIndex])->getVideoFormat();
                     (codecsInCommon[firstMimeSubTypeIndex])->setVideoFmtp(formatArray[destIndex]);
@@ -2549,7 +2568,18 @@ void SdpBody::addMediaData(const char* mediaType,
                            int payloadTypes[])
 {
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::addMediaData mediaType: %s", mediaType);
+   UtlString payloadString;
+   for(int payloadIndex = 0; payloadIndex < numPayloadTypes; payloadIndex++)
+   {
+       if(payloadIndex > 0)
+       {
+           payloadString.append(", ");
+       }
+       payloadString.appendFormat("%d", payloadTypes);
+   }
+
+   OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::addMediaData mediaType: %s numPayloadTypes: %d {%s}", 
+      mediaType, numPayloadTypes, payloadString.data());
 #endif
 
    UtlString value;
