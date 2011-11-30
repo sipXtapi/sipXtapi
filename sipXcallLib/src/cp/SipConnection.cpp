@@ -1047,7 +1047,8 @@ UtlBoolean SipConnection::sendInfo(UtlString contentType, UtlString sContent)
 
     mCSeqMgr.startTransaction(CSEQ_ID_INFO, iCSeq) ;
 
-    mToUrl.getUri(uri) ;
+    Url remoteUrl(mRemoteContact);
+    remoteUrl.getUri(uri);
     getFromField(&fromAddress);
     getRemoteAddress(&toAddress);
     getCallId(&callId);
