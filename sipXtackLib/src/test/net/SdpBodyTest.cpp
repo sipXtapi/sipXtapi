@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
@@ -37,6 +37,7 @@ class SdpBodyTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testRtcpPortParsing);
     // CPPUNIT_TEST(testCryptoParsing);
     CPPUNIT_TEST(testVideoCodecSelection);
+    CPPUNIT_TEST(testH264CodecCandidate);
     CPPUNIT_TEST(testPtime);
     CPPUNIT_TEST(testGetCodecsInCommon);
     CPPUNIT_TEST_SUITE_END();
@@ -989,6 +990,135 @@ public:
         CPPUNIT_ASSERT(codecsInCommonForEncoder[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
         CPPUNIT_ASSERT(codecsInCommonForDecoder[0]->getVideoFormat() == SDP_VIDEO_FORMAT_QCIF);
         CPPUNIT_ASSERT(codecsInCommonForDecoder[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
+    };
+
+    void testH264CodecCandidate()
+    {
+        const char* videoSdpOfferBytes = 
+            "v=0\r\n"
+            "o=polycomdme 1493339645 0 IN IP4 172.22.2.119\r\n"
+            "s=-\r\n"
+            "c=IN IP4 172.22.2.119\r\n"
+            "b=AS:512\r\n"
+            "t=0 0\r\n"
+            "m=audio 49160 RTP/AVP 115 102 9 15 0 8 18 101\r\n"
+            "a=rtpmap:115 G7221/32000\r\n"
+            "a=fmtp:115 bitrate=48000\r\n"
+            "a=rtpmap:102 G7221/16000\r\n"
+            "a=fmtp:102 bitrate=32000\r\n"
+            "a=rtpmap:9 G722/8000\r\n"
+            "a=rtpmap:15 G728/8000\r\n"
+            "a=rtpmap:0 PCMU/8000\r\n"
+            "a=rtpmap:8 PCMA/8000\r\n"
+            "a=rtpmap:18 G729/8000\r\n"
+            "a=fmtp:18 annexb=no\r\n"
+            "a=rtpmap:101 telephone-event/8000\r\n"
+            "a=fmtp:101 0-15\r\n"
+            "a=sendrecv\r\n"
+            "m=video 49162 RTP/AVP 109 110 111 96 34 31\r\n"
+            "b=TIAS:512000\r\n"
+            "a=rtpmap:109 H264/90000\r\n"
+            "a=fmtp:109 profile-level-id=428016; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
+            "a=rtpmap:110 H264/90000\r\n"
+            "a=fmtp:110 profile-level-id=428016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
+            "a=rtpmap:111 H264/90000\r\n"
+            "a=fmtp:111 profile-level-id=640016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
+            "a=rtpmap:96 H263-1998/90000\r\n"
+            "a=fmtp:96 CIF4=2;CIF=1;QCIF=1;SQCIF=1;CUSTOM=352,240,1;CUSTOM=704,480,2;J;T\r\n"
+            "a=rtpmap:34 H263/90000\r\n"
+            "a=fmtp:34 CIF4=2;CIF=1;QCIF=1;SQCIF=1\r\n"
+            "a=rtpmap:31 H261/90000\r\n"
+            "a=fmtp:31 CIF=1;QCIF=1\r\n"
+            "a=sendrecv\r\n"
+            "a=rtcp-fb:* ccm fir tmmbr\r\n"
+            "m=application 49164 RTP/AVP 10\r\n"
+            "a=rtpmap:100 H224/4800\r\n"
+            "a=sendrecv\r\n";
+
+        SdpBody offerBody(videoSdpOfferBytes);
+
+        SdpCodecList codecList;
+        codecList.addCodecs("G722 PCMU H264_PM1_HD1088_4096 H264_HD1088_4096");
+
+        int numCodecsInCommon = 0;
+        SdpCodec** commonCodecsForEncoder = NULL;
+        SdpCodec** commonCodecsForDecoder = NULL;
+        UtlString rtpAddress;
+        int rtpPort = 0;
+        int rtcpPort = 0;
+        int videoRtpPort = 0;
+        int videoRtcpPort = 0;
+        SdpSrtpParameters localSrtpParams;
+        SdpSrtpParameters matchingSrtpParams;
+        int localBandwidth = 0;
+        int matchingBandwidth = 0;
+        int localVideoFramerate = 0;
+        int matchingVideoFramerate = 0;
+
+        memset(&localSrtpParams, 0, sizeof(SdpSrtpParameters));
+        memset(&matchingSrtpParams, 0, sizeof(SdpSrtpParameters));
+
+        offerBody.getBestAudioCodecs(codecList, numCodecsInCommon, commonCodecsForEncoder, commonCodecsForDecoder,
+            rtpAddress, rtpPort, rtcpPort, videoRtpPort, videoRtcpPort, 
+            localSrtpParams, matchingSrtpParams,
+            localBandwidth, matchingBandwidth, localVideoFramerate, matchingVideoFramerate);
+
+        int expectedCodecCount = 4;
+        CPPUNIT_ASSERT_EQUAL(numCodecsInCommon, expectedCodecCount);
+        CPPUNIT_ASSERT_EQUAL(codecList.getCodecCount(), expectedCodecCount);
+
+        SdpCodec* decodec = NULL;
+        SdpCodec* encodec = NULL;
+        UtlString mimeSubtype;
+
+        int decodePayloadIds[] = {9, 0, -1, -1};
+        int encodePayloadIds[] = {9, 0, 109, 110};
+        int codecIds[] = {9, 0, 175, 184};
+        const char* mimeSubtypes[] = {"g722", "pcmu", "h264", "h264"};
+
+/*
+decode codec[0] payload: 9 internal ID: 9 MIME subtype: g722
+encode codec[0] payload: 9 internal ID: 9 MIME subtype: g722
+decode codec[1] payload: 0 internal ID: 0 MIME subtype: pcmu
+encode codec[1] payload: 0 internal ID: 0 MIME subtype: pcmu
+decode codec[2] payload: -1 internal ID: 175 MIME subtype: h264
+encode codec[2] payload: 109 internal ID: 175 MIME subtype: h264
+decode codec[3] payload: -1 internal ID: 184 MIME subtype: h264
+encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
+*/
+
+        for(int codecIndex = 0; codecIndex < numCodecsInCommon; codecIndex++)
+        {
+            decodec = commonCodecsForDecoder[codecIndex];
+            if(decodec)
+            {
+                decodec->getEncodingName(mimeSubtype);
+#ifdef TEST_PRINT
+                printf("decode codec[%d] payload: %d internal ID: %d MIME subtype: %s\n",
+                    codecIndex, decodec->getCodecPayloadFormat(), decodec->getCodecType(), mimeSubtype.data());
+#endif
+                UtlString message;
+                message.appendFormat("decode index: %d", codecIndex);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(message.data(), decodec->getCodecPayloadFormat(), decodePayloadIds[codecIndex]);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(message.data(), decodec->getCodecType(), codecIds[codecIndex]);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(message.data(), mimeSubtype, (const UtlString) mimeSubtypes[codecIndex]);
+            }
+
+            encodec = commonCodecsForEncoder[codecIndex];
+            if(encodec)
+            {
+                encodec->getEncodingName(mimeSubtype);
+#ifdef TEST_PRINT
+                printf("encode codec[%d] payload: %d internal ID: %d MIME subtype: %s\n",
+                    codecIndex, encodec->getCodecPayloadFormat(), encodec->getCodecType(), mimeSubtype.data());
+#endif
+                UtlString message;
+                message.appendFormat("encode index: %d", codecIndex);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(message.data(), encodec->getCodecPayloadFormat(), encodePayloadIds[codecIndex]);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(message.data(), encodec->getCodecType(), codecIds[codecIndex]);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(message.data(), mimeSubtype, (const UtlString) mimeSubtypes[codecIndex]);
+            }
+        }
     };
 
     void testPtime()

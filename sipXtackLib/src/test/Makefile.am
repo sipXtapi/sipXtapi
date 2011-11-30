@@ -62,4 +62,4 @@ EXTRA_DIST = \
 sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
-    net/SipPublishContentMgrTest.cpp
+    net/SdpBodyTest.cpp
