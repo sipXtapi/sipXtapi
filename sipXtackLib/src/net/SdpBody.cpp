@@ -1385,6 +1385,20 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                             // Get the video sizes in an array
             UtlBoolean bHasFmtp= getPayloadFormat(videoPayloadTypes[typeIndex], fmtp, videoFmtp, 
                                                   numVideoSizes, videoSizes);
+
+            UtlBoolean isH264 = (mimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase) == 0);
+            UtlString h264ProfileLevel;
+
+            if(bHasFmtp && isH264)
+            {
+                SdpCodec::getFmtpParameter(fmtp, "profile-level-id", h264ProfileLevel);
+                h264ProfileLevel.remove(3);
+            }
+            else
+            {
+                h264ProfileLevel = "";
+            }
+
             if (bHasRtpMap || bHasFmtp)
             {
                 // Fixing iChat case where there is no rtpmap field for H263
@@ -1410,19 +1424,41 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                     numVideoSizes = 1;
                     videoSizes[0] = SDP_VIDEO_FORMAT_QCIF;
                 }
+
+                UtlString matchingCodecH264ProfileLevel;
+
                 for (videoSize = 0; videoSize < numVideoSizes; videoSize++)
                 {
                     for (codecIndex = 0; codecIndex < numCodecs; ++codecIndex)
                     {
                         matchingCodec = sdpCodecArray[codecIndex];
-                        
+
+                        if(!h264ProfileLevel.isNull() && matchingCodec)
+                        {
+                            matchingCodec->getFmtpParameter("profile-level-id", matchingCodecH264ProfileLevel);
+                        }
+                        else
+                        {
+                            matchingCodecH264ProfileLevel = "";
+                        }
+
                         // In addition to everything else do a bit-wise comparison of video formats. For
                         // every codec with the same sub mime type that supports one of the video formats
                         // add a seperate codec in the codecsInCommonArray.  For H.264 size is not important.
                         if((matchingCodec != NULL) && 
+                           // Render sizes for non-H264 video codecs
                            ((matchingCodec->getVideoFormat() == videoSizes[videoSize]) ||  
-                            ((mimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase)) == 0 && matchingCodec->isFmtpParameterSame(fmtp, "packetization-mode", "0"))) &&
-                            (matchingCodec->getSampleRate() == sampleRate ||
+
+                            // H264 specific fmpt parameter matching
+                            (isH264 &&
+                             matchingCodec->isFmtpParameterSame(fmtp, "packetization-mode", "0") &&
+                             !h264ProfileLevel.isNull() &&
+                             matchingCodecH264ProfileLevel.index(h264ProfileLevel) == 0
+                            )
+
+                           ) &&
+                           // Sample rate and num channels are pretty meaningless for video
+                           (matchingCodec->getSampleRate() == sampleRate ||
                             sampleRate == -1) &&
                             (matchingCodec->getNumChannels() == numChannels ||
                             numChannels == -1
