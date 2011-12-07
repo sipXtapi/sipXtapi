@@ -256,6 +256,7 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
         codecInfo->packetLossConcealment = CODEC_PLC_NONE;
         codecInfo->vadCng = CODEC_CNG_NONE;
         codecInfo->algorithmicDelay = frameSize * 1000 / (sampleRate / 1000); /* Microseconds of audio/frame (SAMPLE_PER_AAC_LC_FRAME samples) */
+        codecInfo->mSetMarker = TRUE;
 
         codecContext = avcodec_alloc_context();
         codecContext->sample_rate = sampleRate;
