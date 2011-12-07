@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -91,7 +91,8 @@ public:
                    const int bytesLeft,
                    int& rSizeInBytes,
                    UtlBoolean& isPacketReady,
-                   UtlBoolean& isPacketSilent);
+                   UtlBoolean& isPacketSilent,
+                   UtlBoolean& shouldSetMarker);
      /**<
      *  Processes the array of audio samples.  If sufficient samples to encode
      *  a frame are now available, the encoded data will be written to the

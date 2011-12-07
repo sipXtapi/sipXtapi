@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -495,6 +495,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
    OsStatus ret;
    UtlBoolean isPacketReady;
    UtlBoolean isPacketSilent;
+   UtlBoolean codecWantsMarkerSet = FALSE;
    unsigned int codecFrameSamples;
 
    // TODO:: Here we have a bug, which will be visible when DTX is enabled.
@@ -564,7 +565,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
       bytesAdded = 0;
       ret = mpPrimaryCodec->encode(pSamplesIn, numSamplesIn, numSamplesOut,
                                    pDest, payloadBytesLeft, bytesAdded,
-                                   isPacketReady, isPacketSilent);
+                                   isPacketReady, isPacketSilent, codecWantsMarkerSet);
       mPayloadBytesUsed += bytesAdded;
       assert (mPacket1PayloadBytes >= mPayloadBytesUsed);
 
@@ -611,7 +612,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
                 && mConsecutiveUnsentFrames1 >= RTP_KEEP_ALIVE_FRAME_INTERVAL))
          {
             mpToNet->writeRtp(mpPrimaryCodec->getPayloadType(),
-                              mMarkNext1,
+                              mMarkNext1 || codecWantsMarkerSet,
                               mpPacket1Payload,
                               mPayloadBytesUsed,
                               mStartTimestamp1,

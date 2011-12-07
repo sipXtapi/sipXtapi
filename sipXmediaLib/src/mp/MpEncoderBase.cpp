@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -39,6 +39,8 @@ MpEncoderBase::~MpEncoderBase()
 OsStatus MpEncoderBase::initEncode(const char* fmt)
 {
    MppCodecFmtpInfoV1_2 fmtpInfo;
+   //fmtpInfo.cbSize = sizeof(MppCodecFmtpInfoV1_2);
+   fmtpInfo.mSetMarker = FALSE;
 
    plgHandle = mCallInfo.mPlgInit(fmt, CODEC_ENCODER, &fmtpInfo);
 
@@ -81,7 +83,8 @@ OsStatus MpEncoderBase::encode(const MpAudioSample* pAudioSamples,
                                const int bytesLeft,
                                int& rSizeInBytes,
                                UtlBoolean& isPacketReady,
-                               UtlBoolean& isPacketSilent) 
+                               UtlBoolean& isPacketSilent,
+                               UtlBoolean& shouldSetMarker) 
 {
    int res;
    unsigned usendNow;
@@ -102,6 +105,10 @@ OsStatus MpEncoderBase::encode(const MpAudioSample* pAudioSamples,
    // Always set it to FALSE for now, codecs API should be updated to support
    // this.
    isPacketSilent = FALSE;
+
+   // For now this is fairly static.  At some point this may need to be set on 
+   // frame by frame basis.
+   shouldSetMarker = mCodecInfo.shouldSetMarker();
 
    return OS_SUCCESS;
 }
