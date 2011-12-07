@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2009 SIPez LLC. 
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -107,6 +107,7 @@ public:
    inline UtlBoolean doesVadCng(void) const;
      /// @copydoc MppCodecFmtpInfoV1_2::haveInternalPLC
    inline UtlBoolean haveInternalPLC() const;
+   inline UtlBoolean shouldSetMarker() const;
 
 //@}
 
@@ -230,6 +231,11 @@ UtlBoolean MpCodecInfo::doesVadCng() const
 UtlBoolean MpCodecInfo::haveInternalPLC() const
 {
    return packetLossConcealment == CODEC_PLC_INTERNAL;
+}
+
+UtlBoolean MpCodecInfo::shouldSetMarker() const
+{
+   return(mSetMarker);
 }
 
 #endif  // _MpCodecInfo_h_
