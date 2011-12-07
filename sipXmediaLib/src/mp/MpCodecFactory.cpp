@@ -389,7 +389,7 @@ void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
    UtlHashBagIterator iter(mCodecsInfo);
 
    MpCodecSubInfo* pCodec;
-   while (pCodec = (MpCodecSubInfo*)iter())
+   while ((pCodec = (MpCodecSubInfo*)iter()))
    {
       const MppCodecInfoV1_1 *pCodecInfo = pCodec->getCodecInfo();
       if (pCodecInfo->fmtpsNum == 0)
@@ -452,7 +452,7 @@ MpCodecSubInfo* MpCodecFactory::searchByMIME(const UtlString& mime,
    UtlHashBagIterator iter(mCodecsInfo, &mime_copy);
 
    MpCodecSubInfo* pInfo;
-   while (pInfo = (MpCodecSubInfo*)iter())
+   while ((pInfo = (MpCodecSubInfo*)iter()))
    { 
       if (pInfo->getCodecInfo()->sampleRate == sampleRate &&
           pInfo->getCodecInfo()->numChannels == numChannels)
