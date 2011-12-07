@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -153,6 +153,8 @@ struct MppCodecFmtpInfoV1_2
                                         ///<  as codec lookahead. This should not include packaging
                                         ///<  delay (which equals to codec packet size). It will be
                                         ///<  taken into account independently. Counted in samples.
+   int          mSetMarker;             ///< Whether encoder should set marker bit upon send of complete
+                                        ///< frame (currently assumes only whole frames are sent)
 };
 
 #define DECLARE_FUNCS_V1(x)                                                         \
