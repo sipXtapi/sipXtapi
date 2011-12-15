@@ -321,8 +321,10 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    {
        mSupportedCodecs.addCodecs(numCodecs, sdpCodecArray);
 
-       // Assign any unset payload types
-       mSupportedCodecs.bindPayloadTypes();
+       // Don't want to bind any unset payload types until last minute so
+       // that we avoid creating payload ID conflicts if we get payload IDs from
+       // the other side.
+       //mSupportedCodecs.bindPayloadTypes();
    }
    else
    {
@@ -1305,18 +1307,36 @@ OsStatus CpTopologyGraphInterface::copyPayloadIds(int connectionId, int numCodec
 
     if(mediaConnection && mediaConnection->mpCodecFactory)
     {
+//#ifdef TEST_PRINT
+        UtlString remoteCodecsString;
+        UtlString codecString;
+        for(int codecIndex = 0; codecIndex < numCodecs; codecIndex++)
+        {
+            remoteCodecs[codecIndex]->toString(codecString);
+            if(codecIndex > 0)
+            {
+                remoteCodecsString.append("\n");
+            }
+            remoteCodecsString.append(codecString);
+        }
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "remote codecs (%d): %s", numCodecs, remoteCodecsString.data());
+
         UtlString beforeCodecs;
         mediaConnection->mpCodecFactory->toString(beforeCodecs);
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::copyPayloadIds mpCodecFactory:\n%s",
                       beforeCodecs.data());
+//#endif
 
         mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
                                                           (const SdpCodec**) remoteCodecs);
 
+//#ifdef TEST_PRINT
         UtlString afterCodecs;
         mediaConnection->mpCodecFactory->toString(afterCodecs);
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::copyPayloadIds codec payload IDs change to:\n%s",
                       afterCodecs.data());
+//#endif
 
         status = OS_SUCCESS;
     }
@@ -3279,7 +3299,7 @@ OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
                                                        OsSocket* &rtpSocket,
                                                        OsSocket* &rtcpSocket)
 {
-   int firstRtpPort;
+   int firstRtpPort = localPort;
    bool localPortGiven = (localPort != 0); // Does user specified the local port?
 
    if (!localPortGiven)
@@ -3484,7 +3504,11 @@ CpTopologyMediaConnection* CpTopologyGraphInterface::createMediaConnection(int& 
 
    // Set codec factory
    mediaConnection->mpCodecFactory = new SdpCodecList(mSupportedCodecs);
-   mediaConnection->mpCodecFactory->bindPayloadTypes();
+
+   // Don't want to bind any unset payload types until last minute so
+   // that we avoid creating payload ID conflicts if we get payload IDs from
+   // the other side.
+   //mediaConnection->mpCodecFactory->bindPayloadTypes();
    OsSysLog::add(FAC_CP, PRI_DEBUG, 
                  "CpTopologyGraphInterface::createMediaConnection creating a new mpCodecFactory %p",
                  mediaConnection->mpCodecFactory);
@@ -3562,26 +3586,26 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
 
    if(!mediaConnection->mIsCustomSockets && mediaConnection->mpRtpAudioSocket)
    {
-#ifdef TEST_PRINT
+//#ifdef TEST_PRINT
       OsSysLog::add(FAC_CP, PRI_DEBUG, 
       //printf(
                     "CpTopologyGraphInterface::deleteMediaConnection deleting RTP socket: %p descriptor: %d",
                     mediaConnection->mpRtpAudioSocket,
                     mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
-#endif
+//#endif
 
       delete mediaConnection->mpRtpAudioSocket;
       mediaConnection->mpRtpAudioSocket = NULL;
    }
    if(!mediaConnection->mIsCustomSockets && mediaConnection->mpRtcpAudioSocket)
    {
-#ifdef TEST_PRINT
+//#ifdef TEST_PRINT
       OsSysLog::add(FAC_CP, PRI_DEBUG, 
       //printf(
                     "deleting RTCP socket: %p descriptor: %d",
          mediaConnection->mpRtcpAudioSocket,
          mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
-#endif
+//#endif
 
       delete mediaConnection->mpRtcpAudioSocket;
       mediaConnection->mpRtcpAudioSocket = NULL;
@@ -3689,6 +3713,20 @@ void CpTopologyGraphInterface::stopRtpSend(CpTopologyMediaConnection* mediaConne
    MpResource::disable(outConnectionName, *getMsgQ());
 
    mediaConnection->mRtpAudioSending = FALSE;
+
+#ifdef VIDEO
+   // Do the same for video
+   if(mediaConnection->mpRtpVideoSocket || mediaConnection->mpRtcpVideoSocket)
+   {
+      UtlString videoConnectionName(DEFAULT_VIDEO_RTP_OUTPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(videoConnectionName, connectionId);
+
+      MprFromNet::resetSockets(videoConnectionName, *(mpTopologyGraph->getMsgQ()));
+
+      MpResource::disable(videoConnectionName, *mpTopologyGraph->getMsgQ());
+   }
+   mediaConnection->mRtpVideoSending = FALSE;
+#endif
 }
 
 OsStatus CpTopologyGraphInterface::setConnectionWeightOnBridge(CpTopologyMediaConnection *mediaConnection,
