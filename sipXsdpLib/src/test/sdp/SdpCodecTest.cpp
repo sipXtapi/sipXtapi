@@ -32,9 +32,15 @@ public:
         SdpCodec h264Codec2(SdpCodec::SDP_CODEC_UNKNOWN, SdpCodec::SDP_CODEC_UNKNOWN, MIME_TYPE_VIDEO, "H264", 90000, 20000, -1, "profile-level-id=428016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13");
         SdpCodec h264Codec3(SdpCodec::SDP_CODEC_UNKNOWN, SdpCodec::SDP_CODEC_UNKNOWN, MIME_TYPE_VIDEO, "H264", 90000, 20000, -1, "profile-level-id=640016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13");
 
-        CPPUNIT_ASSERT(!sipXH264CodecMode0.isSameDefinition(h264Codec1));
+        CPPUNIT_ASSERT(sipXH264CodecMode0.isSameDefinition(sipXH264CodecMode0));
+        CPPUNIT_ASSERT(sipXH264CodecMode0.isSameDefinition(h264Codec1));
         CPPUNIT_ASSERT(!sipXH264CodecMode0.isSameDefinition(h264Codec2));
         CPPUNIT_ASSERT(!sipXH264CodecMode0.isSameDefinition(h264Codec3));
+
+        CPPUNIT_ASSERT(!sipXH264CodecMode1.isSameDefinition(h264Codec1));
+        CPPUNIT_ASSERT(sipXH264CodecMode1.isSameDefinition(h264Codec2));
+        CPPUNIT_ASSERT(!sipXH264CodecMode1.isSameDefinition(h264Codec3));
+        CPPUNIT_ASSERT(!h264Codec2.isSameDefinition(h264Codec3));
 
         CPPUNIT_ASSERT(sipXH264CodecMode0.isFmtpParameterSame(h264Codec1, "packetization-mode", "0"));
         CPPUNIT_ASSERT(!sipXH264CodecMode1.isFmtpParameterSame(h264Codec1, "packetization-mode", "0"));
