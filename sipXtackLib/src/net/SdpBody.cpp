@@ -1388,15 +1388,21 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
 
             UtlBoolean isH264 = (mimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase) == 0);
             UtlString h264ProfileLevel;
+            UtlString h264ProfileLevelIdc;
 
             if(bHasFmtp && isH264)
             {
                 SdpCodec::getFmtpParameter(fmtp, "profile-level-id", h264ProfileLevel);
-                h264ProfileLevel.remove(3);
+                // the last 2 of 6 hex chars of profile-level-id are level_idc
+                h264ProfileLevelIdc = &(h264ProfileLevel.data()[4]);
+                h264ProfileLevelIdc.toLower();
+                // first 4 of 6 hex chars of profile-level-id are profile_idc & profile-iop.
+                h264ProfileLevel.remove(4);
             }
             else
             {
                 h264ProfileLevel = "";
+                h264ProfileLevelIdc = "";
             }
 
             if (bHasRtpMap || bHasFmtp)
@@ -1426,9 +1432,13 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                 }
 
                 UtlString matchingCodecH264ProfileLevel;
+                UtlString matchingCodecH264ProfileLevelIdc;
+                UtlString priorH264ProfileLevelIdc;
 
                 for (videoSize = 0; videoSize < numVideoSizes; videoSize++)
                 {
+                    UtlBoolean matchAlreadyFound = FALSE;
+
                     for (codecIndex = 0; codecIndex < numCodecs; ++codecIndex)
                     {
                         matchingCodec = sdpCodecArray[codecIndex];
@@ -1436,6 +1446,8 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                         if(!h264ProfileLevel.isNull() && matchingCodec)
                         {
                             matchingCodec->getFmtpParameter("profile-level-id", matchingCodecH264ProfileLevel);
+                            matchingCodecH264ProfileLevelIdc = &(matchingCodecH264ProfileLevel.data()[4]);
+                            matchingCodecH264ProfileLevelIdc.toLower();
                         }
                         else
                         {
@@ -1464,15 +1476,71 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                             numChannels == -1
                             ))
                         {
-                            // Create a copy of the SDP codec and set
-                            // the payload type for it
-                            commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
-                            commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+                            if(matchAlreadyFound)
+                            {
+                                // For now we are assuming that we want the closest match on the level-idc that is equal or
+                                // greater than that of the remote side's.  We may find that we want to be less than, but
+                                // for now we are going with greater than.  So there are 3 cases when the new codec is 
+                                // better than the old one given that we have 3 codecs: the remote one, the prior matched one
+                                // and the new matched one:
+                                //     new >= remote > prior
+                                //     remote >= new > prior
+                                //     prior > new >= remote
 
-                            commonCodecsForEncoder[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
-                            // decoder will use our SDP payload IDs, not those we received
+                                // If this match is better than the prior, take this one instead
+                                if((matchingCodecH264ProfileLevelIdc.compareTo(h264ProfileLevelIdc, UtlString::ignoreCase) >= 0 &&
+                                      h264ProfileLevelIdc.compareTo(priorH264ProfileLevelIdc, UtlString::ignoreCase) > 0) ||
+                                   (h264ProfileLevelIdc.compareTo(matchingCodecH264ProfileLevelIdc, UtlString::ignoreCase) >= 0 &&
+                                      matchingCodecH264ProfileLevelIdc.compareTo(priorH264ProfileLevelIdc, UtlString::ignoreCase) > 0) ||
+                                   (priorH264ProfileLevelIdc.compareTo(matchingCodecH264ProfileLevelIdc, UtlString::ignoreCase) > 0 &&
+                                      matchingCodecH264ProfileLevelIdc.compareTo(h264ProfileLevelIdc, UtlString::ignoreCase) >= 0))
+                                {
+                                    OsSysLog::add(FAC_NET, PRI_DEBUG,
+                                        "SdpBody::getCodecsInCommon match better than prior, prior idc: %s bettern idc: %s remote idc: %s",
+                                        priorH264ProfileLevelIdc.data(), matchingCodecH264ProfileLevelIdc.data(), h264ProfileLevelIdc.data());
 
-                            numCodecsInCommon++;
+                                    // Copy over prior added codec as this one is a better match
+                                    *(commonCodecsForEncoder[numCodecsInCommon - 1]) = *matchingCodec;
+                                    *(commonCodecsForDecoder[numCodecsInCommon - 1]) = *matchingCodec;
+
+                                    commonCodecsForEncoder[numCodecsInCommon - 1]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
+                                    // decoder will use our SDP payload IDs, not those we received
+
+                                    if(bHasFmtp)
+                                    {
+                                        commonCodecsForEncoder[numCodecsInCommon - 1]->setSdpFmtpField(fmtp);
+                                    }
+
+                                    priorH264ProfileLevelIdc = matchingCodecH264ProfileLevelIdc;
+                                }
+                                else
+                                {
+                                    OsSysLog::add(FAC_NET, PRI_DEBUG,
+                                        "SdpBody::getCodecsInCommon NOT better than prior, prior idc: %s bettern idc: %s remote idc: %s",
+                                        priorH264ProfileLevelIdc.data(), matchingCodecH264ProfileLevelIdc.data(), h264ProfileLevelIdc.data());
+                                }
+                            }
+
+                            else
+                            {
+                                // Create a copy of the SDP codec and set
+                                // the payload type for it
+                                commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+                                commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+
+                                commonCodecsForEncoder[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
+                                // decoder will use our SDP payload IDs, not those we received
+
+                                if(bHasFmtp)
+                                {
+                                    commonCodecsForEncoder[numCodecsInCommon]->setSdpFmtpField(fmtp);
+                                }
+
+                                priorH264ProfileLevelIdc = matchingCodecH264ProfileLevelIdc;
+                                numCodecsInCommon++;
+                                matchAlreadyFound = TRUE;
+                            }
+
                         }
                         else
                         {
@@ -1483,9 +1551,12 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                             }
                             else
                             {
+                                UtlString matchFmtp;
+                                matchingCodec->getSdpFmtpField(matchFmtp);
                                 OsSysLog::add(FAC_NET, PRI_DEBUG, 
-                                    "SdpBody::getCodecsInCommon codec does not match mime subtype: %s match rate: %d remote rate: %d match channels: %d remote channels: %d",
-                                    mimeSubtype.data(), matchingCodec->getSampleRate(), sampleRate, matchingCodec->getNumChannels(), numChannels);
+                                    "SdpBody::getCodecsInCommon codec does not match mime subtype: %s match rate: %d remote rate: %d match channels: %d remote channels: %d match profile: %s remote profile: %s \nmatch fmtp: %s \nremote fmtp: %s",
+                                    mimeSubtype.data(), matchingCodec->getSampleRate(), sampleRate, matchingCodec->getNumChannels(), numChannels,
+                                    matchingCodecH264ProfileLevel.data(), h264ProfileLevel.data(), matchFmtp.data(), fmtp.data());
                             }
                         }
                     }
@@ -1677,7 +1748,10 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
         rtpCodecs[codecIndex]->getMediaType(mimeType);
 
         rtpCodecs[codecIndex]->getEncodingName(mimeSubType);
-        // printf("codec %s mime type: %s\n", mimeSubType.data(), mimeType.data());
+//#ifdef TEST_PRINT
+        OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::addCodecsOffer (video loop) codec %s mime type: %s payload ID: %d\n", 
+            mimeSubType.data(), mimeType.data(), rtpCodecs[codecIndex]->getCodecPayloadFormat());
+//#endif
 
         if (mimeType.compareTo(SDP_VIDEO_MEDIA_TYPE) == 0)
         {
@@ -1698,6 +1772,8 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
             }
             else
             {
+                // TODO: Pick highest capability H264 codec and eliminate duplicates
+
                 // printf("new format\n");
                 // New mime subtype - add new codec to codec list. Mark this index and put all
                 // video format information into this codec because it will be looked at later.
@@ -2181,9 +2257,11 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
             payloadIndex++)
         {
             codecsInCommon[payloadIndex]->getMediaType(mediaType);
-#ifdef TEST_PRINT
-            OsSysLog::add(FAC_NET, PRI_DEBUG, "SdpBody::addCodecsAnswer codecsInCommon[%d] looking for video, found: getMediaType=%s", payloadIndex, mediaType.data());
-#endif
+//#ifdef TEST_PRINT
+            OsSysLog::add(FAC_NET, PRI_DEBUG, 
+                "SdpBody::addCodecsAnswer codecsInCommon[%d] looking for video, found: getMediaType=%s payload ID: %d internal codec ID: %d", 
+                payloadIndex, mediaType.data(), codecsInCommon[payloadIndex]->getCodecPayloadFormat(), codecsInCommon[payloadIndex]->getCodecType());
+//#endif
 
             if (mediaType.compareTo(SDP_VIDEO_MEDIA_TYPE) == 0)
             {
