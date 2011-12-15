@@ -26,6 +26,10 @@
 #define VERBOSE_CODEC_FACTORY
 #undef VERBOSE_CODEC_FACTORY
 
+#if defined(VERBOSE_CODEC_FACTORY) || defined(TEST_PRINT)
+#include <os/OsSysLog.h>
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -178,7 +182,7 @@ int SdpCodecList::addCodecs(int codecCount, SdpCodec::SdpCodecTypes codecTypes[]
          UtlString codecEncodingName;
          codecSdp.getMediaType(codecMediaType);
          codecSdp.getEncodingName(codecEncodingName);
-         osPrintf("Using %d codecs: %d %s/%s\n", mCodecs.entries(),
+         osPrintf("Using %d codecs: %d %s/%s\n", (int)mCodecs.entries(),
                   codecTypes[loop],
                   codecMediaType.data(), codecEncodingName.data());
 #endif // VERBOSE_CODEC_FACTORY ]
@@ -218,12 +222,31 @@ void SdpCodecList::bindPayloadTypes()
         SdpCodec** codecs;
         UtlString codecData;
         getCodecs(count, codecs);
-        for (i=0; i<count; i++) {
+        for (i=0; i<count; i++) 
+        {
             codecs[i]->toString(codecData);
-            osPrintf("\n  SDP Codec Factory[%d]:\n %s", i, codecData.data());
+            OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodecList::bind SDP Codec Factory[%d]:\n %s", i, codecData.data());
         }
     }
 #endif /* VERBOSE_CODEC_FACTORY ] */
+}
+
+int SdpCodecList::unbindPayloadType(int payloadId)
+{
+    int unbindCount = 0;
+    if(payloadId > SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC)
+    {
+        // Check if we have other codecs with the same payload ID
+        SdpCodec* conflictedCodec = NULL;
+        while((conflictedCodec = (SdpCodec*) getCodecByType(payloadId, FALSE /* don't lock */)))
+        {
+            unbindCount++;
+            // Unbind this dynamic codec payload ID as it is in conflict
+            conflictedCodec->setCodecPayloadFormat(SdpCodec::SDP_CODEC_UNKNOWN);
+        }
+    }
+
+    return(unbindCount);
 }
 
 void SdpCodecList::copyPayloadType(const SdpCodec& codec)
@@ -237,8 +260,40 @@ void SdpCodecList::copyPayloadType(const SdpCodec& codec)
     {
         if(codecFound->isSameDefinition(codec))
         {
-            newPayloadType = codec.getCodecPayloadFormat();
-            codecFound->setCodecPayloadFormat(newPayloadType);
+            // If this is H.264 we need to have the exact same level_idc or we should not
+            // use the same payload ID
+            UtlString mimeSubtype;
+            codec.getEncodingName(mimeSubtype);
+            if(mimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase) == 0)
+            {
+                UtlString codecFoundProfileId;
+                UtlString codecProfileId;
+                codecFound->getFmtpParameter("profile-level-id", codecFoundProfileId);
+                codec.getFmtpParameter("profile-level-id", codecProfileId);
+                if(codecFoundProfileId.compareTo(codecProfileId, UtlString::ignoreCase) == 0)
+                {
+                    newPayloadType = codec.getCodecPayloadFormat();
+#ifdef TEST_PRINT
+                    UtlString codecFoundString;
+                    UtlString codecString;
+                    codecFound->toString(codecFoundString);
+                    codec.toString(codecString);
+                    OsSysLog::add(FAC_SDP, PRI_DEBUG, "SdpCodecList::copyPayloadType payload ID was: %d, now: %d\n codec: \n%s\n codecFound: \n%s",
+                        codecFound->getCodecPayloadFormat(), newPayloadType, codecString.data(), codecFoundString.data());
+#endif
+
+                    // Unbind any codecs already using this payload ID
+                    unbindPayloadType(newPayloadType);
+                    codecFound->setCodecPayloadFormat(newPayloadType);
+                }
+            }
+            else
+            {
+                newPayloadType = codec.getCodecPayloadFormat();
+                // Unbind any codecs already using this payload ID
+                unbindPayloadType(newPayloadType);
+                codecFound->setCodecPayloadFormat(newPayloadType);
+            }
         }
     }
 }
@@ -262,8 +317,15 @@ void SdpCodecList::limitCodecs(const SdpCodecList& includeOnlyCodecList)
 
     while((codecFound = (SdpCodec*) iterator()))
     {
+        // need to keep the H264 codec only if it has the same fmtp
+        // codec set.  So we use exact matching.
+        // If an allowed codec
+        if(includeOnlyCodecList.containsCodec(*codecFound, TRUE /*exact matching */))
+        {
+        }
+
         // If codec is not in the given list, remove it
-        if(!includeOnlyCodecList.containsCodec(*codecFound))
+        else
         {
             mCodecs.destroy(codecFound);
         }
@@ -311,11 +373,14 @@ const SdpCodec* SdpCodecList::getCodec(SdpCodec::SdpCodecTypes internalCodecId)
     return(codecFound);
 }
 
-const SdpCodec* SdpCodecList::getCodecByType(int payloadTypeId)
+const SdpCodec* SdpCodecList::getCodecByType(int payloadTypeId, UtlBoolean shouldLock)
 {
     const SdpCodec* codecFound = NULL;
+    if(shouldLock)
+    {
+        mReadWriteMutex.acquireRead();
+    }
 
-    OsReadLock lock(mReadWriteMutex);
     UtlDListIterator iterator(mCodecs);
 
     while((codecFound = (SdpCodec*) iterator()))
@@ -327,6 +392,11 @@ const SdpCodec* SdpCodecList::getCodecByType(int payloadTypeId)
             // we found a match
             break;
         }
+    }
+
+    if(shouldLock)
+    {
+        mReadWriteMutex.releaseRead();
     }
 
     return(codecFound);
@@ -581,7 +651,7 @@ int SdpCodecList::getCodecCPULimit()
 
 /* ============================ INQUIRY =================================== */
 
-UtlBoolean SdpCodecList::containsCodec(const SdpCodec& codec) const
+UtlBoolean SdpCodecList::containsCodec(const SdpCodec& codec, UtlBoolean exact) const
 {
     SdpCodec* codecFound = NULL;
     OsReadLock lock((OsRWMutex&)mReadWriteMutex);
@@ -591,7 +661,21 @@ UtlBoolean SdpCodecList::containsCodec(const SdpCodec& codec) const
     {
         if(codecFound->isSameDefinition(codec))
         {
-            break;
+            if(exact)
+            {
+                UtlString codecFoundFmtp;
+                UtlString codecFmtp;
+                codecFound->getSdpFmtpField(codecFoundFmtp);
+                codec.getSdpFmtpField(codecFmtp);
+                if(codecFoundFmtp.compareTo(codecFmtp, UtlString::ignoreCase) == 0)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
         }
     }
 

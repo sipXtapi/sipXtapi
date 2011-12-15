@@ -727,7 +727,11 @@ UtlBoolean SdpCodec::isSameDefinition(const SdpCodec& codec) const
     UtlBoolean isSame = FALSE;
 
     if(mSampleRate == codec.mSampleRate &&
-       mNumChannels == codec.mNumChannels &&
+       (
+           mNumChannels == codec.mNumChannels ||
+           (mNumChannels == -1 && codec.mNumChannels == 1) ||
+           (mNumChannels == 1 && codec.mNumChannels == -1)
+       ) &&
        mMimeType.compareTo(codec.mMimeType, UtlString::ignoreCase) == 0 &&
        mMimeSubtype.compareTo(codec.mMimeSubtype, UtlString::ignoreCase) == 0)
     {
@@ -740,6 +744,24 @@ UtlBoolean SdpCodec::isSameDefinition(const SdpCodec& codec) const
         if(mMimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase) == 0)
         {
             isSame = isFmtpParameterSame(codec, "packetization-mode", "0");
+
+            // Also need to compare profile-level-id parameter in codec fmtp fields
+            if(isSame)
+            {
+                UtlString parameterName("profile-level-id");
+                UtlString thisProfileId;
+                UtlString thatProfileId;
+                getFmtpParameter(parameterName, thisProfileId);
+                codec.getFmtpParameter(parameterName, thatProfileId);
+                // The profile_idc & profile-iop is just the first 4 of 6 characters in the
+                // profile-level-id parameter.  We ignore the level_idc for now.
+                thisProfileId.remove(4);
+                thatProfileId.remove(4);
+                if(thisProfileId.compareTo(thatProfileId, UtlString::ignoreCase))
+                {
+                    isSame = FALSE;
+                }
+            }
         }
         else
         {

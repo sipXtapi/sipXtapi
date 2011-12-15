@@ -425,6 +425,18 @@ public:
     * @param fmtpParameterDefaultValue - default value of the parameter to assume if it is not set
     */
 
+   // Not sure where else to put these.  We don't have codec specializations beyond this class.  Not sure
+   // it makes sense to drevive from SdpCodec for this stuff anyway.
+
+   /// Returns TRUE if this H264 codec is a lower config profile than the given codec.
+   UtlBoolean isLowerH264Profile(const SdpCodec& codec);
+   /*
+    * Assumes both codecs have Mime subtype=H264, but does not check.
+    * Looks at the fmtp config parameter.
+    *
+    * @param codec - codec to check if its profile level is lower.
+    */
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

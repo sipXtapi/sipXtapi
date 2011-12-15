@@ -80,6 +80,15 @@ public:
      /// Assign any unset payload type ids.
    void bindPayloadTypes();
 
+   /// @brief unbind any codec with the given dynamic payload type
+   int unbindPayloadType(int payloadId);
+   /*
+    * @param payloadId - no op if not a dynamic payload ID (> SDP_CODEC_MAXIMUM_STATIC_CODEC), 
+    *        codec payload ID to unbind (set to SDP_CODEC_UNKNOWN)
+    *
+    * @returns number of codecs unbound
+    */
+
      /// @brief If there is a matching codec in this factory, set its
      /// payload type to that of the given codec.
    void copyPayloadType(const SdpCodec& codec);
@@ -113,7 +122,7 @@ public:
    const SdpCodec* getCodec(SdpCodec::SdpCodecTypes internalCodecId);
 
      /// Get a codec given the payload type id.
-   const SdpCodec* getCodecByType(int payloadTypeId);
+   const SdpCodec* getCodecByType(int payloadTypeId, UtlBoolean shouldLock = TRUE);
 
      /// Get a codec given the MIME type, subtype and other parameters.
    const SdpCodec* getCodec(const char* MIMEType, 
@@ -163,7 +172,7 @@ public:
 //@{
 
     /// Query if equivalent codec is in the list
-    UtlBoolean containsCodec(const SdpCodec& codec) const;
+    UtlBoolean containsCodec(const SdpCodec& codec, UtlBoolean exeact = FALSE) const;
 
 //@}
 
