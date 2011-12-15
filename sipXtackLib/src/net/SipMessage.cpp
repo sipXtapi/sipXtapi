@@ -938,9 +938,17 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
         {
             inviteSessionExpires = maxSessionExpiresSeconds;
         }
-        if(inviteSessionExpires > 0)
+        // We are the UAS.  If the UAC volunteered or we can make the UAC be the
+        // refersher, then we are ok with session timer.
+        if(inviteSessionExpires > 0 &&
+           (
+               refresher.isNull() ||
+               (refresher.compareTo(SIP_REFRESHER_UAC, UtlString::ignoreCase) == 0)
+           )
+          )
         {
-            setSessionExpires(inviteSessionExpires);
+            // Allow passive session timer.
+            setSessionExpires(inviteSessionExpires, SIP_REFRESHER_UAC);
         }
    }
 }
@@ -4140,12 +4148,19 @@ UtlBoolean SipMessage::getSessionExpires(int* sessionExpiresSeconds, UtlString* 
     return(value != NULL);
 }
 
-void SipMessage::setSessionExpires(int sessionExpiresSeconds)
+void SipMessage::setSessionExpires(int sessionExpiresSeconds, const char* refresher)
 {
-   char numString[HTTP_LONG_INT_CHARS];
+    UtlString fieldValue;
 
-   sprintf(numString, "%d", sessionExpiresSeconds);
-   setHeaderValue(SIP_SESSION_EXPIRES_FIELD, numString);
+    if(refresher && *refresher)
+    {
+        fieldValue.appendFormat(fieldValue, "%d;refresher=%s", sessionExpiresSeconds, refresher);
+    }
+    else
+    {
+        fieldValue.appendFormat(fieldValue, "%d", sessionExpiresSeconds);
+    }
+    setHeaderValue(SIP_SESSION_EXPIRES_FIELD, fieldValue);
 }
 
 bool SipMessage::hasSelfHeader() const

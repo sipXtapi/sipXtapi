@@ -319,6 +319,10 @@ class SipRegInfoBody;        // for RFC 3680
 #define SIP_DIVERSION_FOLLOWME "follow-me"
 #define SIP_DIVERSION_AWAY "away"
 
+// Session-Timer refresher parameter values
+#define SIP_REFRESHER_UAC "uac"
+#define SIP_REFRESHER_UAS "uas"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -962,7 +966,7 @@ public:
 
     UtlBoolean getSessionExpires(int* sessionExpiresSeconds, UtlString* refresher) const;
 
-    void setSessionExpires(int sessionExpiresSeconds);
+    void setSessionExpires(int sessionExpiresSeconds, const char* refresher = NULL);
 
     UtlBoolean getSupportedField(UtlString& supportedField) const;
 
