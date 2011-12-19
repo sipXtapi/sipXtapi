@@ -110,6 +110,7 @@ nobase_include_HEADERS =  \
     mp/MprnIntMsg.h \
     mp/MprnProgressMsg.h \
     mp/MprnRtpStreamActivityMsg.h \
+    mp/MprnStringMsg.h \
     mp/MprNull.h \
     mp/MprNullConstructor.h \
     mp/MprRecorder.h \
