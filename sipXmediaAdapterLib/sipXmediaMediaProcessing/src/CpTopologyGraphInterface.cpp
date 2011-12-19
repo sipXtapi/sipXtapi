@@ -2507,7 +2507,11 @@ UtlBoolean CpTopologyGraphInterface::isDestinationSet(int connectionId)
 
     if(mediaConnection)
     {
-        isSet = mediaConnection->mAudioDestinationSet || mediaConnection->mVideoDestinationSet;
+        isSet = mediaConnection->mAudioDestinationSet 
+#ifdef VIDEO
+                || mediaConnection->mVideoDestinationSet
+#endif
+                ;
     }
     else
     {
