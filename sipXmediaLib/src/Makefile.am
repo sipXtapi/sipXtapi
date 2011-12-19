@@ -139,6 +139,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprnIntMsg.cpp \
     mp/MprnProgressMsg.cpp \
     mp/MprnRtpStreamActivityMsg.cpp \
+    mp/MprnStringMsg.cpp \
     mp/MprNull.cpp \
     mp/MprNullAec.cpp \
     mp/MprRecorder.cpp \
@@ -172,6 +173,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpTypes.cpp \
     mp/MpVadBase.cpp \
     mp/MpVadSimple.cpp \
+    mp/MpVideoResource.cpp \
     mp/NetInTask.cpp \
     mp/StreamBufferDataSource.cpp \
     mp/StreamDataSource.cpp \
