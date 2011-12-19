@@ -977,10 +977,15 @@ OsStatus CpTopologyGraphInterface::setMediaPassThrough(int connectionId,
             switch(mediaType)
             {
             case VIDEO_STREAM:
+#ifdef VIDEO
                 mediaConnection->mVideoPassThroughEnabled = TRUE;
                 mediaConnection->mRtpVideoReceivePort = rtpPort;
                 mediaConnection->mRtcpVideoReceivePort = rtcpPort;
                 status = OS_SUCCESS;
+#else
+                status = OS_NOT_SUPPORTED;
+#endif
+
             break;
 
             default:
@@ -1389,7 +1394,11 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
    }
 
    // If we haven't set a destination and we have set alternate destinations
-   if (!mediaConnection->mAudioDestinationSet && !mediaConnection->mVideoDestinationSet && mediaConnection->mbAlternateDestinations)
+   if (!mediaConnection->mAudioDestinationSet && 
+#ifdef VIDEO
+       !mediaConnection->mVideoDestinationSet && 
+#endif
+       mediaConnection->mbAlternateDestinations)
    {
       applyAlternateDestinations(connectionId) ;
    }
@@ -1464,7 +1473,10 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
 
       // Start sending RTP if destination address is present.
       if ( !mediaConnection->mRtpAudioSendHostAddress.isNull()
-         && mediaConnection->mRtpVideoSendHostAddress.compareTo("0.0.0.0"))
+#ifdef VIDEO
+         && mediaConnection->mRtpVideoSendHostAddress.compareTo("0.0.0.0")
+#endif
+         )
       {
          UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
          UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
@@ -1511,10 +1523,10 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
 
          MpResource::enable(videoConnectionName, *mpTopologyGraph->getMsgQ());
          mediaConnection->mRtpVideoSending = TRUE;
-#endif
 
          returnCode = OS_SUCCESS;
       }
+#endif
    }
    return returnCode;
 }
