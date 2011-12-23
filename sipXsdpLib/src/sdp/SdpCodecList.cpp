@@ -154,6 +154,14 @@ int SdpCodecList::addCodecs(const UtlString &codecList)
            codecs[0] = internalCodecId;
            numRejected += addCodecs(1,codecs);
        }
+       else
+       {
+          numRejected++;
+#ifdef TEST_PRINT
+          OsSysLog::add(FAC_SDP, PRI_ERROR, "Invalid codec token: %s",
+              oneCodec.data());
+#endif
+       }
 
        codecStringIndex++;
        UtlNameValueTokenizer::getSubField(codecList, codecStringIndex,
@@ -621,7 +629,7 @@ void SdpCodecList::freeArray(int arraySize, SdpCodec**& codecArray)
 }
 
 
-void SdpCodecList::toString(UtlString& serializedFactory)
+void SdpCodecList::toString(UtlString& serializedFactory) const
 {
     serializedFactory.remove(0);
     const SdpCodec* codecFound = NULL;

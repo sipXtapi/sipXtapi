@@ -160,7 +160,7 @@ public:
      */
 
      /// String representation of factory and codecs.
-   void toString(UtlString& serializedFactory);
+   void toString(UtlString& serializedFactory) const;
 
      /// Gets the codec CPU limit level.
    int getCodecCPULimit();
