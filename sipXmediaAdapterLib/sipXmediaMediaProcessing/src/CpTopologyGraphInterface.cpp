@@ -321,6 +321,11 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    {
        mSupportedCodecs.addCodecs(numCodecs, sdpCodecArray);
 
+       UtlString codecsListString;
+       mSupportedCodecs.toString(codecsListString);
+
+       OsSysLog::add(FAC_CP, PRI_INFO, "CpTopologyGraphInterface::CpTopologyGraphInterface %d codec(s) added:\n%s",
+                     numCodecs, codecsListString.data());
        // Don't want to bind any unset payload types until last minute so
        // that we avoid creating payload ID conflicts if we get payload IDs from
        // the other side.
@@ -333,10 +338,10 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
 
        if (OsSysLog::willLog(FAC_CP, PRI_INFO))
        {
-          UtlString codecsList;
-          mSupportedCodecs.toString(codecsList);
+          UtlString codecsListString;
+          mSupportedCodecs.toString(codecsListString);
           OsSysLog::add(FAC_CP, PRI_INFO, "CpTopologyGraphInterface::CpTopologyGraphInterface hard-coded codec factory %s ...",
-                        codecsList.data());
+                        codecsListString.data());
        }
    }
 
@@ -2162,11 +2167,30 @@ OsStatus CpTopologyGraphInterface::setAudioCodecBandwidth(int connectionId, int 
 
 OsStatus CpTopologyGraphInterface::limitCodecs(int connectionId, const SdpCodecList& includeOnlyCodecList)
 {
+#ifdef TEST_PRINT
+    UtlString limitCodecListString;
+    includeOnlyCodecList.toString(limitCodecListString);
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::limitCodecs limit codec list: %s",
+        limitCodecListString.data());
+
+    UtlString unlimitedCodecListString;
+    mSupportedCodecs.toString(unlimitedCodecListString);
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::limitCodecs unlimited interface codec list: %s",
+        unlimitedCodecListString.data());
+#endif
+
     OsStatus returnCode = OS_NOT_FOUND;
     if(connectionId == getInvalidConnectionId())
     {
         // Limit the codec set for the media interface
         mSupportedCodecs.limitCodecs(includeOnlyCodecList);
+
+#ifdef TEST_PRINT
+        UtlString limitedCodecListString;
+        mSupportedCodecs.toString(limitedCodecListString);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::limitCodecs interface codec list limited: %s",
+            limitedCodecListString.data());
+#endif
         returnCode = OS_SUCCESS;
     }
     else
@@ -2175,7 +2199,21 @@ OsStatus CpTopologyGraphInterface::limitCodecs(int connectionId, const SdpCodecL
 
         if(mediaConnection && mediaConnection->mpCodecFactory)
         {
+#ifdef TEST_PRINT
+            UtlString connectionUnlimitedCodecListString;
+            mediaConnection->mpCodecFactory->toString(connectionUnlimitedCodecListString);
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::limitCodecs unlimited connection codec list: %s",
+                connectionUnlimitedCodecListString.data());
+#endif
+
             mediaConnection->mpCodecFactory->limitCodecs(includeOnlyCodecList);
+
+#ifdef TEST_PRINT
+            UtlString connnectionCodecListString;
+            mediaConnection->mpCodecFactory->toString(connnectionCodecListString);
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::limitCodecs connectioncodec list limited: %s",
+                connnectionCodecListString.data());
+#endif
             returnCode = OS_SUCCESS;
         }
     }
@@ -3585,9 +3623,17 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
    // Stop receiving RTP
    stopRtpReceive(mediaConnection);
 
-   // No need for the fence, because releaseSockets()
+   // No need for the fence, because releaseSockets() for audio
    // is an asynchronous call.
-   //mpTopologyGraph->synchronize();
+#ifdef VIDEO
+   // Video sockets are released via message.  So we need to
+   // be sure they are removed from NetInTask before removing the
+   // resources which process the socket remove message and before
+   // the sockets get deleted out from under NetInTask.
+   mpTopologyGraph->synchronize();
+   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+       "CpTopologyGraphInterface::deleteMediaConnection done synchronize");
+#endif
 
    if(mediaConnection->getValue() >= 0)
    {
@@ -3684,6 +3730,9 @@ void CpTopologyGraphInterface::stopRtpReceive(CpTopologyMediaConnection* mediaCo
 #ifdef VIDEO
    UtlString inVideoConnectionName(DEFAULT_VIDEO_RTP_INPUT_RESOURCE_NAME);
    MpResourceTopology::replaceNumInName(inVideoConnectionName, connectionId);
+   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+       "CpTopologyGraphInterface::stopRtpReceive sending stop recieve for %s RTP/RTCP sockets %p/%p",
+       inVideoConnectionName.data(), mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtcpVideoSocket);
    MprFromNet::resetSockets(inVideoConnectionName, *(mpTopologyGraph->getMsgQ()));
    mediaConnection->mRtpVideoReceiving = FALSE;
 #endif
