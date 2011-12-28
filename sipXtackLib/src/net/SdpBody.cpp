@@ -1613,7 +1613,7 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
     UtlString videoFormat;
     int codecIndex;
     int destIndex;
-    int firstMimeSubTypeIndex;
+    int firstMimeSubTypeIndex = 0;
     int preExistingMedia = getMediaSetCount();
     UtlString mimeType;
     UtlString seenMimeType;
@@ -1662,6 +1662,12 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
             addMediaData(SDP_AUDIO_MEDIA_TYPE, rtpAudioPorts[0], 1,
                 SDP_SRTP_MEDIA_TRANSPORT_TYPE, numAudioCodecs,
                 codecArray);
+
+            // The following are for RTSP support as the players seem to want to have
+            // these fields in the SDP
+            addValue("b", "AS:64");  // 64kbits/sec bandwidth
+            addValue("a", "control:trackID=1");
+
             // If this is not the only media record we do need a local
             // address record for this media record
             if(preExistingMedia)
@@ -1684,6 +1690,11 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
             addMediaData(SDP_AUDIO_MEDIA_TYPE, rtpAudioPorts[0], 1,
                 szTransportType, numAudioCodecs,
                 codecArray);
+
+            // The following are for RTSP support as the players seem to want to have
+            // these fields in the SDP
+            addValue("b", "AS:64");  // 64kbits/sec bandwidth
+            addValue("a", "control:trackID=1");
 
             // If this is not the only media record we do need a local
             // address record for this media record
@@ -1801,6 +1812,11 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
             addMediaData(SDP_VIDEO_MEDIA_TYPE, rtpVideoPorts[0], 1,
                 SDP_SRTP_MEDIA_TRANSPORT_TYPE, numVideoCodecs,
                 codecArray);
+
+            // The following are for RTSP support as the players seem to want to have
+            // these fields in the SDP
+            addValue("a", "control:trackID=2");
+
             addSrtpCryptoField(srtpParams);
             // If this is not the only media record we do need a local
             // address record for this media record
@@ -1823,6 +1839,11 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
             addMediaData(SDP_VIDEO_MEDIA_TYPE, rtpVideoPorts[0], 1,
                 szTransportType, numVideoCodecs,
                 codecArray);
+
+            // The following are for RTSP support as the players seem to want to have
+            // these fields in the SDP
+            addValue("a", "control:trackID=2");
+
             // If this is not the only media record we do need a local
             // address record for this media record
             if(preExistingMedia)
@@ -2047,7 +2068,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
    SdpCodec* codecsDummy[MAXIMUM_MEDIA_TYPES]; // just a dummy codec array
    int supportedPayloadCount;
    int destIndex;
-   int firstMimeSubTypeIndex;
+   int firstMimeSubTypeIndex = 0;
    SdpSrtpParameters receivedSrtpParams;
    SdpSrtpParameters receivedAudioSrtpParams;
    SdpSrtpParameters receivedVideoSrtpParams;
@@ -2196,6 +2217,12 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
         addMediaData(SDP_AUDIO_MEDIA_TYPE, rtpAudioPorts[0], 1,
                      audioTransportType.data(), destIndex,
                      supportedPayloadTypes);
+
+        // The following are for RTSP support as the players seem to want to have
+        // these fields in the SDP
+        addValue("b", "AS:64");  // 64kbits/sec bandwidth
+        addValue("a", "control:trackID=1");
+
         if (commonAudioSrtpParams.securityLevel)
         {
             addSrtpCryptoField(commonAudioSrtpParams);
@@ -2303,6 +2330,11 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
                         videoTransportType.data(),
                         destIndex+1,
                         supportedPayloadTypes);
+
+            // The following are for RTSP support as the players seem to want to have
+            // these fields in the SDP
+            addValue("a", "control:trackID=2");
+
             // We do not support video encryption at this time 
             //if (commonVideoSrtpParams.securityLevel)
             //{
