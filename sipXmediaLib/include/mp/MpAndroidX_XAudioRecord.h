@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2010-2011 SIPez LLC. 
+// Copyright (C) 2010-2011 SIPez LLC.  All rights reserved.
 // Licensed under the LGPL license.
 //
 // $$
@@ -21,6 +21,12 @@
 #elif ANDROID_2_3
 #    define MP_ANDROID_AUDIO_RECORD MpAndroid2_3AudioRecord
 #    define QUOTED_MP_ANDROID_AUDIO_RECORD "MpAndroid2_3AudioRecord"
+#    ifndef LOG_TAG
+#        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_RECORD
+#    endif
+#elif ANDROID_2_3_4
+#    define MP_ANDROID_AUDIO_RECORD MpAndroid2_3_4AudioRecord
+#    define QUOTED_MP_ANDROID_AUDIO_RECORD "MpAndroid2_3_4AudioRecord"
 #    ifndef LOG_TAG
 #        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_RECORD
 #    endif
