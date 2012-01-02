@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2010-2011 SIPez LLC. 
+// Copyright (C) 2010-2011 SIPez LLC.  All rights reserved.
 // Licensed under the LGPL license.
 //
 // $$
@@ -21,11 +21,21 @@
 #elif ANDROID_2_3
 #    define MP_ANDROID_AUDIO_TRACK MpAndroid2_3AudioTrack
 #    define QUOTED_MP_ANDROID_AUDIO_TRACK "MpAndroid2_3AudioTrack"
+#    define CREATE_TRACK_METHOD createTrack
 #    ifndef LOG_TAG
 #        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_TRACK
 #    endif
-extern "C" int setpriority(int, int, int);
-#define PRIO_PROCESS 0
+     extern "C" int setpriority(int, int, int);
+#    define PRIO_PROCESS 0
+#elif ANDROID_2_3_4
+#    define MP_ANDROID_AUDIO_TRACK MpAndroid2_3_4AudioTrack
+#    define QUOTED_MP_ANDROID_AUDIO_TRACK "MpAndroid2_3_4AudioTrack"
+#    ifndef LOG_TAG
+#        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_TRACK
+#    endif
+#    define CREATE_TRACK_METHOD createTrack_l
+     extern "C" int setpriority(int, int, int);
+#    define PRIO_PROCESS 0
 #else
 #    error Unsupported version of Android AudioTrack
 #endif
@@ -79,16 +89,14 @@ public:
                   int notificationFrames) :
    AudioTrack(streamType, sampleRate, format, channels, frameCount, flags, cbf, user, notificationFrames)
    {
-      dummy1 = 11;
-      dummy2 = 7;
+      //dummy1 = 11;
+      //dummy2 = 7;
    };
 
    void start()
    {
        LOGD("SipxAudioTrack::start() entered");
-#ifdef ANDROID_2_0
-       AudioTrack::start();
-#else
+#if defined(ANDROID_2_3) || defined(ANDROID_2_3_4)
     // Code from Android 2.3 AudioTrack::start() added here as it hangs on Android 3.0
     // BEGIN ANDROID CODE
     //////////////////////////////////////////////////////////////////////////////////
@@ -108,14 +116,20 @@ public:
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-    
+    LOGD("%s line: %d", __FILE__, __LINE__);
+    LOGD("mAudioTrackThread: %p", &mAudioTrackThread);
+    LOGD("exit pending: %s", mAudioTrackThread->exitPending() ? "TRUE" : "FALSE");
+    LOGD("ref count: %d", mAudioTrackThread->getStrongCount());
+ 
+    LOGD("%s line: %d", __FILE__, __LINE__);
     sp<AudioTrackThread> t = mAudioTrackThread;
+    LOGD("%s line: %d", __FILE__, __LINE__);
     status_t status;
 
     LOGV("start %p", this);
     if (t != 0) {
         if (t->exitPending()) {
-            //LOGD("SipxAudioTrack::start() exitPending");
+            LOGD("SipxAudioTrack::start() exitPending");
 
             if (t->requestExitAndWait() == WOULD_BLOCK) {
                 LOGE("AudioTrack::start called from thread");
@@ -124,11 +138,11 @@ public:
         }
         else
         {
-            //LOGD("SipxAudioTrack::start() NOT exitPending");
+            LOGD("SipxAudioTrack::start() NOT exitPending");
         }
         t->mLock.lock();
      }
-     //LOGD("SipxAudioTrack::start() after t->mLock.lock");
+     LOGD("SipxAudioTrack::start() after t->mLock.lock");
 
     if (android_atomic_or(1, &mActive) == 0) {
         mNewPosition = mCblk->server + mUpdatePeriod;
@@ -136,13 +150,13 @@ public:
         mCblk->waitTimeMs = 0;
         mCblk->flags &= ~CBLK_DISABLED_ON;
         if (t != 0) {
-           //LOGD("SipxAudioTrack::start() about to t->run");
+           LOGD("SipxAudioTrack::start() about to t->run");
            t->run("AudioTrackThread", THREAD_PRIORITY_AUDIO_CLIENT);
         } else {
-           //LOGD("SipxAudioTrack::start() about to setpriority");
+           LOGD("SipxAudioTrack::start() about to setpriority");
             setpriority(PRIO_PROCESS, 0, THREAD_PRIORITY_AUDIO_CLIENT);
         }
-           //LOGD("SipxAudioTrack::start() after set priority");
+        LOGD("SipxAudioTrack::start() after set priority");
 
         if (mCblk->flags & CBLK_INVALID_MSK) {
             LOGW("start() track %p invalidated, creating a new one", this);
@@ -152,10 +166,10 @@ public:
         } else {
             status = mAudioTrack->start();
         }
-        //LOGD("SipxAudioTrack::start() after mAudioTrack->start()");
+        LOGD("SipxAudioTrack::start() after mAudioTrack->start()");
         if (status == DEAD_OBJECT) {
             LOGV("start() dead IAudioTrack: creating a new one");
-            status = createTrack(mStreamType, mCblk->sampleRate, mFormat, mChannelCount,
+            status = CREATE_TRACK_METHOD(mStreamType, mCblk->sampleRate, mFormat, mChannelCount,
                                  mFrameCount, mFlags, mSharedBuffer, getOutput(), false);
             if (status == NO_ERROR) {
                 status = mAudioTrack->start();
@@ -175,11 +189,59 @@ public:
         }
     }
 
+    LOGD("SipxAudioTrack::start() end unlock");
     if (t != 0) {
         t->mLock.unlock();
     }
     //////////////////////////////////////////////////////////////////////////
     // END ANDROID CODE
+    LOGD("SipxAudioTrack::start() exit");
+#else
+       AudioTrack::start();
+    LOGD("SipxAudioTrack::start() exited");
+#endif
+   };
+
+   uint32_t getSampleRate()
+   {
+#ifdef ANDROID_2_3_4
+      // For some weird reason Android 2.3.4 hangs on call to AudioTrack::getSampleRate()
+      LOGV("SipxAudioTrack::getSampleRate mCblk: %p mCblk->sampleRate: %p, mCblk->sampleRate: %d",
+           mCblk, &(mCblk->sampleRate), (int) mCblk->sampleRate);
+      return(mCblk->sampleRate);
+#else
+      return(AudioTrack::getSampleRate());
+#endif
+   };
+
+#ifdef ANDROID_2_0
+void
+#else
+status_t 
+#endif
+       setVolume(float left, float right)
+{
+#ifdef ANDROID_2_3_4
+    // Code from Android 2.3 AudioTrack::setVolume() added here as it hangs on Android 2.3.4
+    // BEGIN ANDROID CODE
+    //////////////////////////////////////////////////////////////////////////////////
+    if (left > 1.0f || right > 1.0f) {
+        return BAD_VALUE;
+    }
+
+    mVolume[LEFT] = left;
+    mVolume[RIGHT] = right;
+
+    // write must be atomic
+    mCblk->volumeLR = (uint32_t(uint16_t(right * 0x1000)) << 16) | uint16_t(left * 0x1000);
+
+    return NO_ERROR;
+    //////////////////////////////////////////////////////////////////////////
+    // END ANDROID CODE
+#elif ANDROID_2_0
+   AudioTrack::setVolume(left, right);
+#else
+   return(AudioTrack::setVolume(left, right));
 #endif
    };
 
@@ -237,6 +299,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
+//@{
 
     virtual void start();
 
