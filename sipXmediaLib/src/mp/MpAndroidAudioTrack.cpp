@@ -64,16 +64,24 @@ OsStatus MpAndroidAudioTrack::setAudioTrackCreator()
 {
     OsStatus res;
     OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
-    const char* libName = "libsipXandroid2_0.so";
-    res = pShrMgr->loadSharedLib(libName);
-    LOGD("loadShardLib(\"%s\") returned: %d", libName, res);
-
-    // Try loading the Android 2.3 drivers if 2.0 failed
-    if(res != OS_SUCCESS)
+    const char* audioDriverLibNames[] =
     {
-        libName = "libsipXandroid2_3.so";
+        "libsipXandroid2_0.so",
+        "libsipXandroid2_3.so",
+        "libsipXandroid2_3_4.so"
+    };
+
+    const char* libName = NULL;
+    for(int libIndex = 0; libIndex < sizeof(audioDriverLibNames)/sizeof(const char*); libIndex++)
+    {
+        libName = audioDriverLibNames[libIndex];
         res = pShrMgr->loadSharedLib(libName);
-        LOGD("loadShardLib(\"%s\") returned: %d", libName, res);
+        LOGD("Trying libs [%d/%d] for platform specific audio driver, loadSharedLib(\"%s\") returned: %d", 
+            libIndex, sizeof(audioDriverLibNames)/sizeof(const char*), libName, res);
+        if(res == OS_SUCCESS)
+        {
+            break;
+        }
     }
 
     if(res == OS_SUCCESS)
