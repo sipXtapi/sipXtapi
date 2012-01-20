@@ -1665,7 +1665,6 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
 
             // The following are for RTSP support as the players seem to want to have
             // these fields in the SDP
-            addValue("b", "AS:64");  // 64kbits/sec bandwidth
             addValue("a", "control:trackID=1");
 
             // If this is not the only media record we do need a local
@@ -1693,7 +1692,6 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
 
             // The following are for RTSP support as the players seem to want to have
             // these fields in the SDP
-            addValue("b", "AS:64");  // 64kbits/sec bandwidth
             addValue("a", "control:trackID=1");
 
             // If this is not the only media record we do need a local
@@ -2220,7 +2218,6 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
 
         // The following are for RTSP support as the players seem to want to have
         // these fields in the SDP
-        addValue("b", "AS:64");  // 64kbits/sec bandwidth
         addValue("a", "control:trackID=1");
 
         if (commonAudioSrtpParams.securityLevel)
