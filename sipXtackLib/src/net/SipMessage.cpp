@@ -4154,11 +4154,11 @@ void SipMessage::setSessionExpires(int sessionExpiresSeconds, const char* refres
 
     if(refresher && *refresher)
     {
-        fieldValue.appendFormat(fieldValue, "%d;refresher=%s", sessionExpiresSeconds, refresher);
+        fieldValue.appendFormat("%d;refresher=%s", sessionExpiresSeconds, refresher);
     }
     else
     {
-        fieldValue.appendFormat(fieldValue, "%d", sessionExpiresSeconds);
+        fieldValue.appendFormat("%d", sessionExpiresSeconds);
     }
     setHeaderValue(SIP_SESSION_EXPIRES_FIELD, fieldValue);
 }
