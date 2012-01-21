@@ -2,8 +2,7 @@
 # Copyright (C) 2009 SIPfoundry Inc.
 # Licensed by SIPfoundry under the LGPL license.
 #
-# Copyright (C) 2009 SIPez LLC.
-# Licensed to SIPfoundry under a Contributor Agreement.
+# Copyright (C) 2009-2012 SIPez LLC.  All rights reserved.
 #
 #
 #//////////////////////////////////////////////////////////////////////////
@@ -33,6 +32,8 @@ fail_to_compile := \
     src/mp/MpAudioWaveFileRead.cpp \
     src/mp/MprFromStream.cpp \
 
+ANDROID_DEBUG_SRC_FILES := \
+    contrib/android/android_2_0_src/system/core/debuggerd/debuggerd.c
 
 LOCAL_SRC_FILES := \
     src/mp/dft.cpp \
@@ -202,6 +203,7 @@ LOCAL_LDLIBS += -lstdc++ -ldl
 #SIPX_MEDIA_SHARED_LIBS += libmedia libutils libcutils 
 SIPX_MEDIA_STATIC_LIBS += libspeex libspeexdsp
 SIPX_MEDIA_LDLIBS += -llog -Wl,--allow-shlib-undefined -L$(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_libs -lmedia -lutils -lcutils
+# Android Dalvik lib used for catching stack dump in native code signal catcher
 SIPX_MEDIA_CFLAGS += -include AndroidConfig.h -DANDROID_2_0
 SIPX_MEDIA_C_INCLUDES += \
     $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_0_headers/frameworks/base/include \
@@ -247,6 +249,38 @@ LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS) libsipXtapi
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
 LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
+
+include $(BUILD_SHARED_LIBRARY)
+
+# =======================
+
+# Shared lib for audio drivers on Android 2.3_4+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := libsipXandroid2_3_4
+
+LOCAL_SRC_FILES := \
+    src/mp/MpAndroidX_XAudioRecord.cpp \
+    src/mp/MpAndroidX_XAudioTrack.cpp \
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+
+LOCAL_SHARED_LIBRARIES += libsipXtapi
+LOCAL_LDLIBS += -llog -Wl,--allow-shlib-undefined -L$(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_3_4_libs -lmedia -lutils -lcutils
+LOCAL_CFLAGS += -include AndroidConfig.h -DANDROID_2_3_4
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_3_4_headers/frameworks/base/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_3_4_headers/system/core/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_3_4_headers/system/core/include/arch/linux-arm \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_2_3_4_headers \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libspeex/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android
+
 
 include $(BUILD_SHARED_LIBRARY)
 
