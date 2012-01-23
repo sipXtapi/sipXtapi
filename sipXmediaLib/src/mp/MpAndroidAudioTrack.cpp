@@ -68,7 +68,8 @@ OsStatus MpAndroidAudioTrack::setAudioTrackCreator()
     {
         "libsipXandroid2_0.so",
         "libsipXandroid2_3.so",
-        "libsipXandroid2_3_4.so"
+        "libsipXandroid2_3_4.so",
+        "libsipXandroid4_0_1.so"
     };
 
     const char* libName = NULL;
