@@ -30,6 +30,12 @@
 #    ifndef LOG_TAG
 #        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_RECORD
 #    endif
+#elif ANDROID_4_0_1
+#    define MP_ANDROID_AUDIO_RECORD MpAndroid4_0_1AudioRecord
+#    define QUOTED_MP_ANDROID_AUDIO_RECORD "MpAndroid4_0_1AudioRecord"
+#    ifndef LOG_TAG
+#        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_RECORD
+#    endif
 #else
 #    error Unsupported version of Android AudioRecord
 #endif

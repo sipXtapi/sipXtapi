@@ -13,7 +13,7 @@
 //#define ENABLE_FILE_LOGGING
 
 // SIPX INCLUDES
-#if defined(ANDROID_2_3) || defined(ANDROID_2_3_4)
+#if defined(ANDROID_2_3) || defined(ANDROID_2_3_4) || defined(ANDROID_4_0_1)
 // Must include specific version of pthreads here before Android audio stuff for Android 2.3 so
 // so that this can be compiled for Android 2.3 using NDK r3
 #    include <development/ndk/platforms/android-9/include/pthread.h>

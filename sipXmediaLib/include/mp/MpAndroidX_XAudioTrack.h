@@ -36,6 +36,15 @@
 #    define CREATE_TRACK_METHOD createTrack_l
      extern "C" int setpriority(int, int, int);
 #    define PRIO_PROCESS 0
+#elif ANDROID_4_0_1
+#    define MP_ANDROID_AUDIO_TRACK MpAndroid4_0_1AudioTrack
+#    define QUOTED_MP_ANDROID_AUDIO_TRACK "MpAndroid4_0_1AudioTrack"
+#    ifndef LOG_TAG
+#        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_TRACK
+#    endif
+#    define CREATE_TRACK_METHOD createTrack_l
+     extern "C" int setpriority(int, int, int);
+#    define PRIO_PROCESS 0
 #else
 #    error Unsupported version of Android AudioTrack
 #endif
