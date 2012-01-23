@@ -3,6 +3,7 @@
 # Licensed by SIPfoundry under the LGPL license.
 #
 # Copyright (C) 2009-2012 SIPez LLC.  All rights reserved.
+# Licensed to SIPfoundry under a Contributor Agreement.
 #
 #
 #//////////////////////////////////////////////////////////////////////////
@@ -249,6 +250,39 @@ LOCAL_SHARED_LIBRARIES += $(SIPX_MEDIA_SHARED_LIBS) libsipXtapi
 LOCAL_LDLIBS += $(SIPX_MEDIA_LDLIBS)
 LOCAL_CFLAGS += $(SIPX_MEDIA_CFLAGS)
 LOCAL_C_INCLUDES += $(SIPX_MEDIA_C_INCLUDES)
+
+include $(BUILD_SHARED_LIBRARY)
+
+# =======================
+
+# Shared lib for audio drivers on Android 4.0.1+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := libsipXandroid4_0_1
+
+LOCAL_SRC_FILES := \
+    src/mp/MpAndroidX_XAudioRecord.cpp \
+    src/mp/MpAndroidX_XAudioTrack.cpp \
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+
+LOCAL_SHARED_LIBRARIES += libsipXtapi
+LOCAL_LDLIBS += -llog -Wl,--allow-shlib-undefined -L$(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_0_1_libs -lmedia -lutils -lcutils
+LOCAL_CFLAGS += -include AndroidConfig.h -DANDROID_4_0_1
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_0_1_headers/frameworks/base/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_0_1_headers/system/core/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_0_1_headers/system/core/include/arch/linux-arm \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_0_1_headers/hardware/libhardware/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_0_1_headers \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libspeex/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android
+
 
 include $(BUILD_SHARED_LIBRARY)
 
