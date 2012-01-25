@@ -2,7 +2,7 @@
 # Copyright (C) 2009 SIPfoundry Inc.
 # Licensed by SIPfoundry under the LGPL license.
 #
-# Copyright (C) 2009 SIPez LLC.
+# Copyright (C) 2009-2012 SIPez LLC.  All rights reserved.
 # Licensed to SIPfoundry under a Contributor Agreement.
 #
 #
@@ -77,7 +77,7 @@ LOCAL_C_INCLUDES += \
 
 
 LOCAL_SHARED_LIBRARIES := libpcre
-LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXport libsipXsdp
+LOCAL_STATIC_LIBRARIES := libsipxUnit libsipXsdp libsipXport 
 
 LOCAL_LDLIBS += -lstdc++ -ldl -llog
 
