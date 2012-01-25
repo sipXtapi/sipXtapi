@@ -227,13 +227,15 @@ protected:
          do 
          {
             // Encode one frame and measure time it took.
+            UtlBoolean setMarkerBit;
             OsStatus result;
             OsDateTime::getCurTime(start);
             result = pEncoder->encode(pOriginal, frameSize, tmpSamplesConsumed,
                                       pRtpPayloadPtr,
                                       ENCODED_FRAME_MAX_SIZE-payloadSize,
                                       tmpEncodedSize, tmpIsPacketReady,
-                                      tmpIsPacketSilent);
+                                      tmpIsPacketSilent,
+                                      setMarkerBit);
             OsDateTime::getCurTime(stop);
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, result);
             
