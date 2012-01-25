@@ -1,6 +1,18 @@
+#
+# Copyright (C) 2009 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2009-2012 SIPez LLC.  All rights reserved.
+# Licensed to SIPfoundry under a Contributor Agreement.
+#
+#
+#//////////////////////////////////////////////////////////////////////////
+#
+# Author: Dan Petrie (dpetrie AT SIPez DOT com)
+#
+#
 # This Makefile is for building sipXportLib, unit test framwork and unit test
-# executables as a part of Android NDK.
-# To build sipXportLib as a part of Android core, use Android-core.mk.
+# as a part of Android NDK.
 
 LOCAL_PATH := $(call my-dir)
 
@@ -45,6 +57,7 @@ LOCAL_SRC_FILES := \
     src/utl/UtlList.cpp \
     src/utl/UtlListIterator.cpp \
     src/utl/UtlSList.cpp \
+    src/utl/UtlCopyableContainable.cpp \
     src/utl/UtlCopyableSList.cpp \
     src/utl/UtlSListIterator.cpp \
     src/utl/UtlDList.cpp \
