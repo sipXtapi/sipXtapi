@@ -38,6 +38,7 @@ LOCAL_SRC_FILES := \
     interface/MiNotification.cpp \
     interface/MiProgressNotf.cpp \
     interface/MiRtpStreamActivityNotf.cpp \
+    interface/MiStringNotf.cpp \
     sipXmediaMediaProcessing/src/CpTopologyGraphFactoryImpl.cpp \
     sipXmediaMediaProcessing/src/CpTopologyGraphInterface.cpp \
     sipXmediaMediaProcessing/src/MaNotfTranslatorDispatcher.cpp \
