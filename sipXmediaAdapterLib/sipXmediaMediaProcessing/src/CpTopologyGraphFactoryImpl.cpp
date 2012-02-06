@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2010 SIPfoundry Inc. All rights reserved.
@@ -266,7 +266,10 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
           mpInputDeviceManager->removeDevice(sourceDeviceId);
           delete sourceDevice;
        }
+#else
+       OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl delaying enabling of input device");
 #endif // MP_LATE_DEVICE_ENABLE ]
+
        tempRes = mpOutputDeviceManager->enableDevice(sinkDeviceId);
        if (tempRes == OS_SUCCESS)
        {
@@ -423,6 +426,7 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                                  uint32_t samplesPerSec,
                                                  OsMsgDispatcher* pDispatcher)
 {
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphFactoryImpl::createMediaInterface");
 #ifdef MP_LATE_DEVICE_ENABLE // [
     if (mpInputDeviceManager->enableDevice(1) != OS_SUCCESS)
     {
