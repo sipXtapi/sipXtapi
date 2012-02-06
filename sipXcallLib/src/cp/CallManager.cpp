@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -331,6 +331,9 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 CpCall* handlingCall = NULL;
 
                 handlingCall = findHandlingCall(eventMessage);
+
+                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "CallManager::handleMessage found call: %p", handlingCall);
 
                 // This message does not belong to any of the calls
                 // If this is an invite for a new call
