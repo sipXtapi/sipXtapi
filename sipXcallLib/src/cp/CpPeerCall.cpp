@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -204,14 +204,13 @@ CpPeerCall::~CpPeerCall()
    }
    waitUntilShutDown(20000) ;
 #ifdef TEST_PRINT
-    UtlString name = getName();
     if (!mCallId.isNull())
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall-%s destructor: %s\n", name.data(), mCallId.data());       
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall-%s destructor: %s\n", getName().data(), mCallId.data());       
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall-%s destructor:: callId is Null\n", name.data());       
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall-%s destructor:: callId is Null\n", getName().data());       
     }
 #endif
 
@@ -228,14 +227,21 @@ CpPeerCall::~CpPeerCall()
         mpPassThroughData = NULL;
     }
 
-#ifdef TEST_PRINT
+    int messageCount = mIncomingQ.numMsgs();
+    if(messageCount)
+    {
+        OsSysLog::add(FAC_CP, PRI_WARNING, "CpPeerCall-%s (callId=%s) destroyed with %d messages in queue",
+                      getName().data(), mCallId.isNull() ? "null" : mCallId.data(), messageCount);
+    }
+
+#if 1 //def TEST_PRINT
     if (!mCallId.isNull())
     {   
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall-%s destructor: %s\n", name.data(), mCallId.data());       
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall-%s destructor: %s\n", getName().data(), mCallId.data());       
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall-%s destructor:: callId is Null\n", name.data());       
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall-%s destructor:: callId is Null\n", getName().data());       
     }
 #endif
 }
@@ -634,15 +640,20 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
     Connection* connection = 
         findHandlingConnection(*pEventMessage);
 
-    UtlString name = getName();
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "CpPeerCall::handleSipMessage found connection: %p", connection);
+#endif
+
     if(connection == NULL)
     {
         if (SipConnection::shouldCreateConnection(*sipUserAgent, 
             *pEventMessage))
         {
 #ifdef TEST_PRINT
-            osPrintf("%s-CpPeerCall::handleSipMessage - connection NULL, shouldCreateConnection TRUE msgType %d msgSubType %d \n", 
-                name.data(), pEventMessage->getMsgType(), pEventMessage->getMsgSubType());
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                "%s-CpPeerCall::handleSipMessage - connection NULL, shouldCreateConnection TRUE msgType %d msgSubType %d",
+                getName().data(), pEventMessage->getMsgType(), pEventMessage->getMsgSubType());
 #endif
             connection = new SipConnection("", // Get local address from message
                 mIsEarlyMediaFor180,
@@ -672,15 +683,17 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
         {
             SipConnection::processNewFinalMessage(sipUserAgent, pEventMessage);
 #ifdef TEST_PRINT
-            osPrintf("%s CpPeerCall::handleSipMessage - processing new final response to INVITE\n", 
-                name.data());
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                "%s CpPeerCall::handleSipMessage - processing new final response to INVITE",
+                getName().data());
 #endif
         }
     }
 
 #ifdef TEST_PRINT
-    osPrintf("%s CpPeerCall::handleSipMessage - connection %d msgType %d msgSubType %d\n", 
-        name.data(), (int)connection, pEventMessage->getMsgType(), pEventMessage->getMsgSubType());
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "%s CpPeerCall::handleSipMessage - connection %d msgType %d msgSubType %d",
+        getName().data(), (int)connection, pEventMessage->getMsgType(), pEventMessage->getMsgSubType());
 #endif
 
     if(connection)
@@ -733,7 +746,7 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
     // Check if call is dead and drop it if it is
     dropIfDead();
 
-    return TRUE ;
+    return(TRUE);
 }
 
 // Handles the processing of a CallManager::CP_DROP_CONNECTION message
@@ -2694,6 +2707,8 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
             break;
 
          default:
+             OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring unhandled MI_NOTIF event: %d",
+                 notification.getMsgSubType());
             break;
          }
       }
@@ -3673,7 +3688,6 @@ UtlBoolean CpPeerCall::hasCallId(const char* callIdString)
             foundCallId = TRUE;
             break;
         }
-
     }
 
     UtlString callId;
@@ -4073,8 +4087,6 @@ void CpPeerCall::offHook(const void* pDisplay)
     mDtmfEnabled = TRUE;
 }
 
-
-
 /* ============================ ACCESSORS ================================= */
 UtlBoolean CpPeerCall::getConnectionState(const char* remoteAddress, int& state)
 {
@@ -4312,7 +4324,8 @@ CpCall::handleWillingness CpPeerCall::willHandleMessage(const OsMsg& eventMessag
                 sipMsg->getCallIdField(&callId);
 
 #ifdef TEST_PRINT
-                osPrintf("%s-Message mCallId %s callid: %s\n", 
+                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "%s-Message mCallId %s callid: %s", 
                     mName.data(), mCallId.data(), callId.data());
 #endif
 
