@@ -1,5 +1,5 @@
 /*  
-// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 //
@@ -225,7 +225,7 @@ void sipxFfmpegCodecInit()
     {
         sSipxFfmpegCodecInitialized = TRUE;
 
-       printf("DDDDDDDD sSipxFfmpegCodecInitialized one time set.\n");
+       printf("sSipxFfmpegCodecInitialized one time set.\n");
        /* Global FFmpeg codec init */
        avcodec_init();
        avcodec_register_all();
@@ -406,14 +406,16 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
         short auHeaderLengthInBits = ntohs(*auHeaderLengthNetwork); /* Generally expect this to be small number (e.g. 16) */
         short* auHeaderNetwork = (auHeaderLengthNetwork) + 1;
         short auDataLength = (ntohs(*auHeaderNetwork) >> 3);
-        int auHeaderLengthInBytes = auHeaderLengthInBits / 8;
+        int auHeaderLengthInBytes = auHeaderLengthInBits / 8; // length of AU header after first short
         int seqNum = ntohl(rtpHeader->ssrc);
 
         /* AU header length makes sense and AU header specifies data size which calculates out right */
-        if(encodedPacketSize - auHeaderLengthInBytes == auDataLength && encodedPacketSize - auHeaderLengthInBytes > 0)
+        int auHeaderLengthLength = 2; // short for header length
+        if(encodedPacketSize - auHeaderLengthInBytes - auHeaderLengthLength == auDataLength && 
+           encodedPacketSize - auHeaderLengthInBytes > 0)
         {
-            ffmpegPacket.data = ((uint8_t*) encodedData) + auHeaderLengthInBytes;
-            ffmpegPacket.size = encodedPacketSize - auHeaderLengthInBytes;
+            ffmpegPacket.data = ((uint8_t*) encodedData) + auHeaderLengthInBytes + auHeaderLengthLength;
+            ffmpegPacket.size = encodedPacketSize - auHeaderLengthInBytes - auHeaderLengthLength;
             /* printf("AAC decode AU header found in ssrc: %d\n", seqNum);
             */
         }
@@ -459,8 +461,11 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
         {
             ffmpegPacket.data = (uint8_t *) encodedData;
             ffmpegPacket.size = encodedPacketSize;
-            printf("AAC decode no header found in ssrc: %d first octets: %x%x\n", 
+            printf("AAC decode no header found in ssrc: %d first octets: %x %x\n", 
                    seqNum, (int) *(((uint8_t*) encodedData) + 0), (int) *(((uint8_t*) encodedData) + 1));
+        
+            //printf("encodedPacketSize: %d auHeaderLengthInBytes: %d auDataLength: %d\n",    
+            //    encodedPacketSize, auHeaderLengthInBytes, auDataLength);
         }
         decodedSampleBytes = AVCODEC_MAX_AUDIO_FRAME_SIZE; /* pcmBufferSize * 2;  max. size of out buffer in bytes,
         gets over written by actual bytes used. */
@@ -472,8 +477,8 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
                                                          &decodedSampleBytes, &ffmpegPacket);
         if(decodedBytesConsumed < 0)
         {
-            printf("avcodec_decode_audio3 returned: %d sipX buffer size: %d (bytes) AVCODEC_MAX_AUDIO_FRAME_SIZE: %d encodedPacketSize: %d\n", 
-                   decodedBytesConsumed, (int) (pcmBufferSize * sizeof(int16_t)), AVCODEC_MAX_AUDIO_FRAME_SIZE, encodedPacketSize);
+            printf("avcodec_decode_audio3 returned: %d sipX buffer size: %d (bytes) AVCODEC_MAX_AUDIO_FRAME_SIZE: %d encodedPacketSize: %d ffmpegPacket.size: %d\n", 
+                   decodedBytesConsumed, (int) (pcmBufferSize * sizeof(int16_t)), AVCODEC_MAX_AUDIO_FRAME_SIZE, encodedPacketSize, ffmpegPacket.size);
             returnValue = RPLG_FAILED;
             *decodedSamples = 0;
         }
