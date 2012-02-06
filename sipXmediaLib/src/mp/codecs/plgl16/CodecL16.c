@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
+// Copyright (C) 2008-2012 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2008 SIPfoundry Inc.
@@ -51,6 +51,12 @@ int sipxL16encode(const void* pAudioBuffer, unsigned cbAudioSamples,
                   unsigned cbMaxCodedData, int* pcbCodedSize)
 {
    unsigned i;
+
+   /* A frame can be larger than the MTU.  Don't put more than will fit. */
+   if(cbAudioSamples * sizeof(audio_sample_t) > cbMaxCodedData)
+   {
+      cbAudioSamples = cbMaxCodedData / sizeof(audio_sample_t);
+   }
 
    for (i=0; i<cbAudioSamples; i++)
    {
