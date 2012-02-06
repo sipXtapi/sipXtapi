@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -488,8 +488,12 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "internalFrameSizeMs: %d devicesSamplerate: %d bEnableLocalAudio: %s callInputDeviceName: %s callOutputDeviceName: %s", 
            internalFrameSizeMs, devicesSamplerate, bEnableLocalAudio ? "true" : "false", callInputDeviceName, callOutputDeviceName);
+
+    OsConfigDb configDb;
+    configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", maxConnections);
+
     CpMediaInterfaceFactory* interfaceFactory =
-                            sipXmediaFactoryFactory(NULL, internalFrameSizeMs,
+                            sipXmediaFactoryFactory(&configDb, internalFrameSizeMs,
                                                     devicesSamplerate,
                                                     devicesSamplerate,
                                                     bEnableLocalAudio,
@@ -503,7 +507,11 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
                             TRUE, // early media in 180 ringing
                             pInst->pCodecFactory,
                             rtpPortStart, // rtp start
-                            rtpPortStart + (2*maxConnections), // rtp end
+#ifdef VIDEO
+                            rtpPortStart + (4 * maxConnections), // rtp end
+#else
+                            rtpPortStart + (2 * maxConnections), // rtp end
+#endif
                             localAddress.data(),
                             localAddress.data(),
                             pInst->pSipUserAgent,
@@ -524,7 +532,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
                             "",
                             CP_MAXIMUM_RINGING_EXPIRE_SECONDS,
                             QOS_LAYER3_LOW_DELAY_IP_TOS,
-                            10,
+                            maxConnections,
                             interfaceFactory,
                             internalSamplerate);
 
