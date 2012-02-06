@@ -263,6 +263,13 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
 , mOutputDeviceHandle(outputDeviceHandle)
 {
     mLastConnectionId = 0;
+    int rtpPoolSize = MpMisc.RtpPool->getNumBlocks();
+    int rtpBufs = MpMisc.RtpPool->getFreeBufferCount();
+    int udpPoolSize = MpMisc.UdpPool->getNumBlocks();
+    int udpBufs = MpMisc.UdpPool->getFreeBufferCount();
+    int audioPoolSize = MpMisc.RawAudioPool->getNumBlocks();
+    int audioBufs  = MpMisc.RawAudioPool->getFreeBufferCount();
+
 
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::CpTopologyGraphInterface creating a new CpMediaInterface %p",
                  this);
@@ -296,6 +303,9 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
                                          pTmpDispatcherPtr);
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::CpTopologyGraphInterface creating a new MpTopologyGraph %p",
                  mpTopologyGraph);
+   OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "available pooled buffers udp: %d/%d rtp: %d/%d audio: %d/%d",
+        udpBufs, udpPoolSize, rtpBufs, rtpPoolSize, audioBufs, audioPoolSize);
    
    mStunServer = stunServer;
    mStunPort = stunPort;
@@ -400,6 +410,17 @@ CpTopologyGraphInterface::~CpTopologyGraphInterface()
 
     // Delete the properties and their values
     mInterfaceProperties.destroyAll();
+
+    int rtpPoolSize = MpMisc.RtpPool->getNumBlocks();
+    int rtpBufs = MpMisc.RtpPool->getFreeBufferCount();
+    int udpPoolSize = MpMisc.UdpPool->getNumBlocks();
+    int udpBufs = MpMisc.UdpPool->getFreeBufferCount();
+    int audioPoolSize = MpMisc.RawAudioPool->getNumBlocks();
+    int audioBufs  = MpMisc.RawAudioPool->getFreeBufferCount();
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "available pooled buffers udp: %d/%d rtp: %d/%d audio: %d/%d",
+        udpBufs, udpPoolSize, rtpBufs, rtpPoolSize, audioBufs, audioPoolSize);
 }
 
 /**
