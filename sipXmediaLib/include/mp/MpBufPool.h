@@ -1,9 +1,9 @@
 //  
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//  
 // Copyright (C) 2006 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -72,6 +72,8 @@ public:
     /// Return number of the buffer in the pool. Use this for debug ouput.
     int getBufferNumber(MpBuf *pBuf) const;
 
+    /// Return the number of free buffers
+    int getFreeBufferCount();
 //@}
 
 /* ============================ INQUIRY =================================== */

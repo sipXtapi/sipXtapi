@@ -1,9 +1,9 @@
 //  
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//  
 // Copyright (C) 2006 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -55,6 +55,18 @@ public:
 
     /// Set buffer next to current.
     void setNextBuf(MpBuf *pNext) {mpPool = (MpBufPool*)pNext;}
+
+    int length() const
+    {
+        int length = 0;
+        MpBufList* next = (MpBufList*) mpPool;
+        while(next)
+        {
+            length++;
+            next = (MpBufList*) next->mpPool;
+        }
+        return(length);
+    }
 
 private:
 
@@ -175,6 +187,18 @@ int MpBufPool::getBufferNumber(MpBuf *pBuf) const
 {
     return ((char*)pBuf-mpPoolData)/mBlockSize;
 };
+
+int MpBufPool::getFreeBufferCount()
+{
+    OsLock lock(mMutex);
+    int count = 0;
+    if(mpFreeList)
+    {
+       count = mpFreeList->length();
+    }
+
+    return(count);
+}
 
 /* ============================ INQUIRY =================================== */
 
