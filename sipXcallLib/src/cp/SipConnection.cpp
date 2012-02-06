@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -2509,7 +2509,8 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage)
         sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
         messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
 #ifdef TEST_PRINT
-        osPrintf("SipConnection::messageType: %d\n", messageType);
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "SipConnection::messageType: %d", messageType);
 #endif
         UtlBoolean messageIsResponse = sipMsg->isResponse();
         UtlString method;
@@ -2782,13 +2783,13 @@ UtlBoolean SipConnection::processRequest(const SipMessage* request)
     UtlBoolean processedOk = TRUE;
     request->getRequestMethod(&sipMethod);
 
-    UtlString name = mpCall->getName();
 #ifdef TEST_PRINT
     int requestSequenceNum = 0;
     UtlString requestSeqMethod;
     request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
 
-    osPrintf("SipConnection::processRequest inviteMsg: %x requestSequenceNum: %d lastRemoteSequenceNumber: %d connectionState: %d reinviteState: %d\n",
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+        "SipConnection::processRequest inviteMsg: %x requestSequenceNum: %d lastRemoteSequenceNumber: %d connectionState: %d reinviteState: %d",
         inviteMsg, requestSequenceNum, lastRemoteSequenceNumber,
         getState(), reinviteState);
 #endif
@@ -2798,7 +2799,7 @@ UtlBoolean SipConnection::processRequest(const SipMessage* request)
     if(strcmp(sipMethod.data(),SIP_INVITE_METHOD) == 0)
     {
 #ifdef TEST_PRINT
-        osPrintf("%s in INVITE case\n", name.data());
+        osPrintf("%s in INVITE case\n", getName().data());
 #endif
         processInviteRequest(request);
     }
@@ -2816,7 +2817,7 @@ UtlBoolean SipConnection::processRequest(const SipMessage* request)
     else if(strcmp(sipMethod.data(),SIP_ACK_METHOD) == 0)
     {
 #ifdef TEST_PRINT
-        osPrintf("%s SIP ACK method received\n", name.data());
+        osPrintf("%s SIP ACK method received\n", getName().data());
 #endif
         processAckRequest(request);
     }
@@ -2826,8 +2827,8 @@ UtlBoolean SipConnection::processRequest(const SipMessage* request)
     else if(strcmp(sipMethod.data(), SIP_BYE_METHOD)  == 0)
     {
 #ifdef TEST_PRINT
-        osPrintf("%s %s method received to close down call\n",
-            name.data(), sipMethod.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "%s %s method received to close down call",
+            getName().data(), sipMethod.data());
 #endif
         processByeRequest(request);
     }
@@ -2838,7 +2839,7 @@ UtlBoolean SipConnection::processRequest(const SipMessage* request)
     {
 #ifdef TEST_PRINT
         osPrintf("%s %s method received to close down call\n",
-            name.data(), sipMethod.data());
+            getName().data(), sipMethod.data());
 #endif
         processCancelRequest(request);
     }
@@ -6372,33 +6373,56 @@ UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
 
     // Do not handle message if marked for deletion
     if (isMarkedForDeletion())
-        return false ;
-
-    if(msgType == OsMsg::PHONE_APP &&
-        msgSubType == CallManager::CP_SIP_MESSAGE)
+    {
+        // already set handleMessage = false;
+    }
+    else if(inviteMsg &&
+            msgType == OsMsg::PHONE_APP &&
+            msgSubType == CallManager::CP_SIP_MESSAGE)
     {
         sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
         messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
 
-        // If the callId, To and From match it belongs to this message
-        if(inviteMsg && inviteMsg->isSameSession(sipMsg))
-        {
-            handleMessage = TRUE;
-        }
-        else if(inviteMsg)
-        {
-            // Trick to reverse the To & From fields
-            SipMessage toFromReversed;
+#ifdef TEST_PRINT
+        UtlString dumpMessage;
+        int msgLen;
+        inviteMsg->getBytes(&dumpMessage, &msgLen);
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "Invite message:\n%s", dumpMessage.data());
+#endif
 
-            toFromReversed.setByeData(inviteMsg,
-                mRemoteContact,
-                FALSE, 1, "", NULL, mLocalContact.data());
-            if(toFromReversed.isSameSession(sipMsg))
-            {
-                handleMessage = TRUE;
-            }
+        SipDialog thisDialog(inviteMsg, inviteFromThisSide);
+
+        if(sipMsg == NULL)
+        {
+            OsSysLog::add(FAC_CP, PRI_ERR,
+                "SipConnection::willHandleMessage PHONE_APP CP_SIP_MESSAGE with NULL message");
+        }
+        // If the callId, To and From tags match it belongs to this message
+        else if(thisDialog.isSameDialog(*sipMsg))
+        {
+           handleMessage = TRUE;
+#ifdef TEST_PRINT
+           OsSysLog::add(FAC_CP, PRI_DEBUG,
+               "SipConnection::willHandleMessage same dialog");
+#endif
+        }
+        else if(thisDialog.isEarlyDialogFor(*sipMsg))
+        {
+           handleMessage = TRUE;
+#ifdef TEST_PRINT
+           OsSysLog::add(FAC_CP, PRI_DEBUG,
+               "SipConnection::willHandleMessage same early dialog");
+#endif
         }
 
+#ifdef TEST_PRINT
+        else
+        {
+           OsSysLog::add(FAC_CP, PRI_DEBUG,
+               "SipConnection::willHandleMessage NOT same dialog");
+        }
+#endif
     }
 
     return(handleMessage);
