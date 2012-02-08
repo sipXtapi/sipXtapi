@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -614,6 +614,12 @@ OsStatus MpFlowGraphBase::stop(void)
 void MpFlowGraphBase::synchronize(const char* tag, int val1)
 {
    OsTask* ptr = OsTask::getCurrentTask();
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpFlowGraphBase::synchronize begin tag: %s val: %d",
+      tag ? tag : "", val1);
+#endif
+
 /*   printf("synchronize in: ");
    if (tag != NULL)
    {
@@ -633,6 +639,11 @@ void MpFlowGraphBase::synchronize(const char* tag, int val1)
       osPrintf("Note: synchronize called from within Media Task\n");
    }
 //   printf("synchronize out\n");
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpFlowGraphBase::synchronize end tag: %s val: %d",
+      tag ? tag : "", val1);
+#endif
 }
 
 /* ============================ ACCESSORS ================================= */
