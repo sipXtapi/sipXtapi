@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -544,7 +544,7 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
    // created before exiting this function. This will allow API's such as
    // getConnectionPortOnBridge() to be used immediately upon return from this
    // function.
-   mpTopologyGraph->synchronize();
+   mpTopologyGraph->synchronize("CpTopologyGraphInterface::createConnection");
 
    // Provide sockets to input connection
    UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
@@ -586,7 +586,7 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
    // created before exiting this function. This will allow API's such as
    // getConnectionPortOnBridge() to be used immediately upon return from this
    // function.
-   mpTopologyGraph->synchronize();
+   mpTopologyGraph->synchronize("CpTopologyGraphInterface::createConnection sockets");
 
    // Provide sockets to input connection
    UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
@@ -1656,7 +1656,7 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
 #endif
 
       // Fence before calling asynchronous method setSockets().
-      mpTopologyGraph->synchronize();
+      mpTopologyGraph->synchronize("CpTopologyGraphInterface::startRtpReceive");
 
       MpRtpInputConnection *pInputConnection;
       OsStatus tmpStat = mpTopologyGraph->lookupResource(inConnectionName,
@@ -3590,7 +3590,7 @@ CpTopologyMediaConnection* CpTopologyGraphInterface::createMediaConnection(int& 
 
    // discardLoopbackRtp() and setConnectionToConnectionWeight() use
    // asynchronous call lookupResource(), so fence is needed.
-   mpTopologyGraph->synchronize();
+   mpTopologyGraph->synchronize("CpTopologyGraphInterface::createMediaConnection");
 
    // Discard looped back RTP packets if multicast is used.
    if (isMcast)
@@ -3651,7 +3651,7 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
    // be sure they are removed from NetInTask before removing the
    // resources which process the socket remove message and before
    // the sockets get deleted out from under NetInTask.
-   mpTopologyGraph->synchronize();
+   mpTopologyGraph->synchronize("CpTopologyGraphInterface::deleteMediaConnection");
    OsSysLog::add(FAC_CP, PRI_DEBUG, 
        "CpTopologyGraphInterface::deleteMediaConnection done synchronize");
 #endif
