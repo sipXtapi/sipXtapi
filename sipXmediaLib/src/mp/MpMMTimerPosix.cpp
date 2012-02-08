@@ -106,6 +106,8 @@ OsStatus MpMMTimerPosix::run(unsigned usecPeriodic)
    }
 
    struct sigevent evnt;
+   // valgrind does not like uninialized vars
+   memset(&evnt, 0, sizeof(struct sigevent));
 
    evnt.sigev_notify = SIGEV_SIGNAL;
    evnt.sigev_value.sival_ptr = this;
