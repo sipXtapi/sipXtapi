@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -58,7 +58,7 @@ const OsTime MpMediaTask::smOperationQueueTimeout = OsTime::OS_INFINITY;
 // STATIC VARIABLE INITIALIZATIONS
 MpMediaTask* volatile MpMediaTask::spInstance = NULL;
 OsBSem       MpMediaTask::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
-int          MpMediaTask::mMaxFlowGraph = NULL;
+int          MpMediaTask::mMaxFlowGraph = 0;
 UtlBoolean   MpMediaTask::mIsBlockingReported = FALSE;
 
 
@@ -901,9 +901,20 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
    // 2) All of the messages that had been queued for this task at the
    //    time the frame start signal occurred have been processed.
 
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MpMediaTask::handleWaitForSignal starting frame processing for flowgraphs: %d",
+         mManagedCnt);
+#endif
+
    // Call processNextFrame() for each of the "started" flow graphs
    for (i=0; i < mManagedCnt; i++)
    {
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MpMediaTask::handleWaitForSignal about to processNextFrame on flowgraph: %d",
+         i);
+#endif
       RTL_EVENT("MpMediaTask::handleWaitForSignal", i+1);
       pFlowGraph = mManagedFGs[i];
       if (pFlowGraph->isStarted())
@@ -913,6 +924,10 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
       }
    }
    RTL_EVENT("MpMediaTask::handleWaitForSignal", 0);
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MpMediaTask::handleWaitForSignal done with all flowgraphs");
+#endif
 
 #ifdef _PROFILE /* [ */
    {
