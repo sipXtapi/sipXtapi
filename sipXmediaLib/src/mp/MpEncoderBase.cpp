@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -12,7 +12,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#include "mp/MpEncoderBase.h"
+#include <mp/MpEncoderBase.h>
+#ifdef TEST_PRINT
+#   include <os/OsSysLog.h>
+#endif
 
 /* ============================ CREATORS ================================== */
 
@@ -86,6 +89,12 @@ OsStatus MpEncoderBase::encode(const MpAudioSample* pAudioSamples,
                                UtlBoolean& isPacketSilent,
                                UtlBoolean& shouldSetMarker) 
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpEncoderBase::encode begin codec: %s",
+      mCodecInfo.getCodecName());
+#endif
+
    int res;
    unsigned usendNow;
 
@@ -98,6 +107,11 @@ OsStatus MpEncoderBase::encode(const MpAudioSample* pAudioSamples,
       &rSizeInBytes, &usendNow);   
    if (res) {
       //Error during encoding
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MpEncoderBase::encode end failed codec: %s",
+         mCodecInfo.getCodecName());
+#endif
       return OS_FAILED;
    }
    isPacketReady = (usendNow) ? TRUE : FALSE;
@@ -110,6 +124,11 @@ OsStatus MpEncoderBase::encode(const MpAudioSample* pAudioSamples,
    // frame by frame basis.
    shouldSetMarker = mCodecInfo.shouldSetMarker();
 
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpEncoderBase::encode end codec: %s",
+      mCodecInfo.getCodecName());
+#endif
    return OS_SUCCESS;
 }
 

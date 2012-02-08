@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -12,7 +12,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <assert.h>
-#include "mp/MpDecoderBase.h"
+#include <mp/MpDecoderBase.h>
+#ifdef TEST_PRINT
+#   include <os/OsSysLog.h>
+#endif
 
 /* ============================ CREATORS ================================== */
 
@@ -80,11 +83,22 @@ int MpDecoderBase::decode(const MpRtpBufPtr &pPacket,
                           unsigned decodedBufferLength,
                           MpAudioSample *samplesBuffer)
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpDecoderBase::decode begin codec: %s",
+      mCodecInfo.getCodecName());
+#endif
+
    unsigned decodedSize = 0;
    int res = RPLG_FAILED;
 
    if (!mInitialized)
    {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpDecoderBase::decode end not intitialized codec: %s",
+      mCodecInfo.getCodecName());
+#endif
       return 0;
    }
 
@@ -111,14 +125,29 @@ int MpDecoderBase::decode(const MpRtpBufPtr &pPacket,
    else
    {
       assert(!"Codec does not have internal PLC. You MUST use external PLC!");
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MpDecoderBase::decode end no PLC  codec: %s",
+         mCodecInfo.getCodecName());
+#endif
       return 0;
    }
 
    if (res != RPLG_SUCCESS)
    {
       //Error during decoding
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MpDecoderBase::decode end error codec: %s",
+         mCodecInfo.getCodecName());
+#endif
       return 0;
    }
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpDecoderBase::decode end codec: %s",
+      mCodecInfo.getCodecName());
+#endif
    return decodedSize;
 }
 
