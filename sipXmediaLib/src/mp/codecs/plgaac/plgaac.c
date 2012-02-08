@@ -271,6 +271,10 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
             if(aacDecoder)
             {
                 char configBits[SDP_AUDIO_CONFIG_LINE_SIZE];
+
+                /* To make valgrind happy */
+                memset(&configBits, 0, SDP_AUDIO_CONFIG_LINE_SIZE);
+
                 int openDecoderError;
 
                 switch(sampleRate)
@@ -295,8 +299,10 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
                 }
                 codecContext->extradata_size = SDP_AUDIO_CONFIG_LINE_SIZE;
                 codecContext->extradata = av_malloc(SDP_AUDIO_CONFIG_LINE_SIZE + FF_INPUT_BUFFER_PADDING_SIZE);
-                /* to make vlagrind hapy */
+
+                /* to make vlagrind happy */
                 memset(codecContext->extradata, 0, SDP_AUDIO_CONFIG_LINE_SIZE + FF_INPUT_BUFFER_PADDING_SIZE);
+
                 memcpy(codecContext->extradata, configBits, SDP_AUDIO_CONFIG_LINE_SIZE);
 
                 openDecoderError = avcodec_open(codecContext, aacDecoder);
@@ -337,6 +343,9 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
                 int codecOpenError = codecOpenError = avcodec_open(codecContext, aacEncoder);
                 if(codecOpenError == 0)
                 {
+                    // Defaults to 64000
+                    codecContext->bit_rate = bitRate;
+
                     printf("AAC encoder initialized, init automatically set: frame_size=%d, profile=%d (FF_PROFILE_AAC_LOW=%d, FF_PROFILE_UNKNOWN=%d), bit_rate=%d extradata=%d %d\n",
                        codecContext->frame_size, codecContext->profile, FF_PROFILE_AAC_LOW, FF_PROFILE_UNKNOWN, 
                        codecContext->bit_rate, (int)codecContext->extradata[0], (int)codecContext->extradata[1]);
