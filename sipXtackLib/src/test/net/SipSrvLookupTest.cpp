@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -707,8 +707,16 @@ public:
       // Report error if any test has failed.
       CPPUNIT_ASSERT(!failure_seen);
 #else /* NAMED_PROGRAM */
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+      "... not executed because 'named' was not available.\n");
+      printf("sizeof(u_long)=%d\n", (int) sizeof(u_long));
+      OsSysLog::flush();
       printf("... not executed because 'named' was not available.\n");
       CPPUNIT_ASSERT_MESSAGE("... not executed because 'named' was not available.\n", 0);
+      
+#if 0
+      SipSrvLookup::setOption(SipSrvLookup::OptionCodePrintAnswers, 1);
+#endif
       SipSrvLookup::setDnsSrvTimeouts(2, 3); // seconds, retries
       char printBuf[1024];
       int timeOut = 0;
@@ -718,20 +726,24 @@ public:
       CPPUNIT_ASSERT_MESSAGE(printBuf, 0);
 
       OsSysLog::add(FAC_NET, PRI_DEBUG, "calling SipSrvLookup::servers");
-      server_t* srvArray = SipSrvLookup::servers("test2.sipez.com", "sip", OsSocket::UNKNOWN, -1, NULL);
-      OsSysLog::add(FAC_NET, PRI_DEBUG, "called SipSrvLookup::servers");
-
+      // SRV record
+      UtlString dnsName("test4.sipez.com");
+      // CNAME
+      //UtlString dnsName("marley.sipez.com");
+      server_t* srvArray = SipSrvLookup::servers(dnsName, "sip", OsSocket::UNKNOWN, -1, NULL);
       char result_string[1024];
       result_string[0] = '\0';
+      server_t* srvRecord = NULL;
 
-      for (server_t* srvRecord = srvArray; srvRecord->isValidServerT(); srvRecord++)
+      for (srvRecord = srvArray; srvRecord->isValidServerT(); srvRecord++)
       {
          // Append "IP:port,weight,score,priority,proto\n" to
          // result_string.
          UtlString ip_addr;
          srvRecord->getIpAddressFromServerT(ip_addr);
          sprintf(result_string + strlen(result_string),
-                 "%s:%d,%u,%.3f,%u,%s\n",
+                 "(%s) %s:%d,%u,%.3f,%u,%s\n",
+                 dnsName.data(),
                  ip_addr.data(),
                  srvRecord->getPortFromServerT(),
                  srvRecord->getWeightFromServerT(),
@@ -739,8 +751,52 @@ public:
                  srvRecord->getPriorityFromServerT(),
                  printable_proto(srvRecord->getProtocolFromServerT()));
 
-         CPPUNIT_ASSERT_MESSAGE(result_string, 0);
+         CPPUNIT_ASSERT_EQUAL(ip_addr, "2.1.4.0");
+         CPPUNIT_ASSERT_EQUAL(srvRecord->getPortFromServerT(), 5060);
+         CPPUNIT_ASSERT_EQUAL(srvRecord->getWeightFromServerT(), 1);
+         CPPUNIT_ASSERT_EQUAL(srvRecord->getPriorityFromServerT(), 1);
+         CPPUNIT_ASSERT_EQUAL(printable_proto(srvRecord->getProtocolFromServerT()), "UDP");
+         //CPPUNIT_ASSERT_MESSAGE(result_string, 0);
       }
+
+      // A record
+      dnsName = "test2.sipez.com";
+      srvArray = SipSrvLookup::servers(dnsName, "sip", OsSocket::UNKNOWN, -1, NULL);
+      result_string[0] = '\0';
+
+      for (srvRecord = srvArray; srvRecord->isValidServerT(); srvRecord++)
+      {
+         // Append "IP:port,weight,score,priority,proto\n" to
+         // result_string.
+         UtlString ip_addr;
+         srvRecord->getIpAddressFromServerT(ip_addr);
+         sprintf(result_string + strlen(result_string),
+                 "(%s) %s:%d,%u,%.3f,%u,%s\n",
+                 dnsName.data(),
+                 ip_addr.data(),
+                 srvRecord->getPortFromServerT(),
+                 srvRecord->getWeightFromServerT(),
+                 srvRecord->getScoreFromServerT(),
+                 srvRecord->getPriorityFromServerT(),
+                 printable_proto(srvRecord->getProtocolFromServerT()));
+
+         CPPUNIT_ASSERT_EQUAL(ip_addr, "1.2.1.0");
+         CPPUNIT_ASSERT_EQUAL(srvRecord->getPortFromServerT(), 5060);
+         CPPUNIT_ASSERT_EQUAL(srvRecord->getWeightFromServerT(), 0);
+         CPPUNIT_ASSERT_EQUAL(srvRecord->getPriorityFromServerT(), 0);
+         // First pseudo record should be UDP
+         if(srvRecord == srvArray)
+         {
+             CPPUNIT_ASSERT_EQUAL(printable_proto(srvRecord->getProtocolFromServerT()), "UDP");
+         }
+         // Second pseudo record should be TCP
+         else
+         {
+             CPPUNIT_ASSERT_EQUAL(printable_proto(srvRecord->getProtocolFromServerT()), "TCP");
+         }
+         //CPPUNIT_ASSERT_MESSAGE(result_string, 0);
+      }
+
 
 #endif /* NAMED_PROGRAM */
    }
