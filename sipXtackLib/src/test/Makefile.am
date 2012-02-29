@@ -28,6 +28,7 @@ testsuite_LDADD = \
     ../libsipXtack.la
 
 testsuite_SOURCES = \
+    ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
     net/HttpBodyTest.cpp \
     net/HttpMessageTest.cpp \
     net/NameValuePairInsensitiveTest.cpp \
@@ -62,4 +63,5 @@ EXTRA_DIST = \
 sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
-    net/SdpBodyTest.cpp
+    ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
+    net/SipSrvLookupTest.cpp
