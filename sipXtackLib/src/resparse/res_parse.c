@@ -1,4 +1,6 @@
 /*
+ * Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+ *
  *  res_parse.c
  *
  *  Parse the result of a DNS query
@@ -179,7 +181,9 @@ parse_rr(
         ptr->rclass = _getshort(*cpp);
         *cpp += sizeof(u_short);
         ptr->ttl = _getlong(*cpp);
-        *cpp += sizeof(u_long);
+        /* Size on the network is 4 bytes so use u_int not u_long as
+         * u_long is architecture dependent (e.g. 8 bytes on 64 bit). */
+        *cpp += sizeof(u_int);
 
         dlen = _getshort(*cpp);
         ptr->dlen = dlen;
