@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2007 SIPez LLC.
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -285,7 +285,13 @@ int OsNatDatagramSocket::write(const char* buffer, int bufferLength,
 }
 
 void OsNatDatagramSocket::enableStun(const char* szStunServer, int stunPort, int iKeepAlive,  int iStunOptions, bool bReadFromSocket) 
-{    
+{
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+        "OsNatDatagramSocket::enableStun(szStunServer=%s, stunPort=%d, iKeepAlive=%d, iStunOptions=%d, bReadFromSocket=%s) port: %d descriptor: %d this: %p",
+        szStunServer, stunPort, iKeepAlive, iStunOptions, bReadFromSocket, getLocalHostPort(), getSocketDescriptor(), this);
+#endif
+
     if (!mStunState.bEnabled)
     {
         mStunState.bEnabled = true ;
@@ -433,6 +439,12 @@ UtlBoolean OsNatDatagramSocket::addCrLfKeepAlive(const char* szRemoteIp,
                                                  const int   keepAliveSecs,
                                                  OsNatKeepaliveListener* pListener) 
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+        "OsNatDatagramSocket::addCrLfKeepAlive(szRemoteIp=%s, remotePort=%d, keepAliveSecs=%d, pListener=%p) for port: %d descriptor: %d this: %p",
+        szRemoteIp, remotePort, keepAliveSecs, pListener, getLocalHostPort(), getSocketDescriptor(), this);
+#endif
+
     return mpNatAgent->addCrLfKeepAlive(this, szRemoteIp, remotePort, 
             keepAliveSecs, pListener) ;
 }
@@ -449,6 +461,12 @@ UtlBoolean OsNatDatagramSocket::addStunKeepAlive(const char* szRemoteIp,
                                                  const int   keepAliveSecs,
                                                  OsNatKeepaliveListener* pListener) 
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+        "OsNatDatagramSocket::addStunKeepAlive(szRemoteIp=%s, remotePort=%d, keepAliveSecs=%d, pListener=%p) for port: %d descriptor: %d this: %p",
+        szRemoteIp, remotePort, keepAliveSecs, pListener, getLocalHostPort(), getSocketDescriptor(), this);
+#endif
+
     return mpNatAgent->addStunKeepAlive(this, szRemoteIp, remotePort, 
             keepAliveSecs, pListener) ;
 }
