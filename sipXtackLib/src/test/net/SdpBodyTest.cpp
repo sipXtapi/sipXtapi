@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
@@ -1015,14 +1015,16 @@ public:
             "a=rtpmap:101 telephone-event/8000\r\n"
             "a=fmtp:101 0-15\r\n"
             "a=sendrecv\r\n"
-            "m=video 49162 RTP/AVP 109 110 111 96 34 31\r\n"
+            "m=video 49162 RTP/AVP 109 110 111 112 96 34 31\r\n"
             "b=TIAS:512000\r\n"
             "a=rtpmap:109 H264/90000\r\n"
             "a=fmtp:109 profile-level-id=428016; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
             "a=rtpmap:110 H264/90000\r\n"
-            "a=fmtp:110 profile-level-id=428016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
+            "a=fmtp:110 profile-level-id=42E016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
             "a=rtpmap:111 H264/90000\r\n"
             "a=fmtp:111 profile-level-id=640016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
+            "a=rtpmap:112 H264/90000\r\n"
+            "a=fmtp:112 profile-level-id=44E016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
             "a=rtpmap:96 H263-1998/90000\r\n"
             "a=fmtp:96 CIF4=2;CIF=1;QCIF=1;SQCIF=1;CUSTOM=352,240,1;CUSTOM=704,480,2;J;T\r\n"
             "a=rtpmap:34 H263/90000\r\n"
