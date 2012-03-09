@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -1387,22 +1387,25 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                                                   numVideoSizes, videoSizes);
 
             UtlBoolean isH264 = (mimeSubtype.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase) == 0);
-            UtlString h264ProfileLevel;
-            UtlString h264ProfileLevelIdc;
+            UtlString h264ProfileLevelId;
+            UtlString h264LevelIdc;
+            UtlString h264ProfileIdc;
 
             if(bHasFmtp && isH264)
             {
-                SdpCodec::getFmtpParameter(fmtp, "profile-level-id", h264ProfileLevel);
+                SdpCodec::getFmtpParameter(fmtp, "profile-level-id", h264ProfileLevelId);
                 // the last 2 of 6 hex chars of profile-level-id are level_idc
-                h264ProfileLevelIdc = &(h264ProfileLevel.data()[4]);
-                h264ProfileLevelIdc.toLower();
-                // first 4 of 6 hex chars of profile-level-id are profile_idc & profile-iop.
-                h264ProfileLevel.remove(4);
+                h264LevelIdc = &(h264ProfileLevelId.data()[4]);
+                h264LevelIdc.toLower();
+                // we ignore the middle 2 of 6 hex chars for now (profile-iop)
+                // first 2 of 6 hex chars of profile-level-id are profile_idc
+                h264ProfileIdc = h264ProfileLevelId;
+                h264ProfileIdc.remove(2);
             }
             else
             {
-                h264ProfileLevel = "";
-                h264ProfileLevelIdc = "";
+                h264LevelIdc = "";
+                h264ProfileIdc = "";
             }
 
             if (bHasRtpMap || bHasFmtp)
@@ -1431,9 +1434,9 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                     videoSizes[0] = SDP_VIDEO_FORMAT_QCIF;
                 }
 
-                UtlString matchingCodecH264ProfileLevel;
-                UtlString matchingCodecH264ProfileLevelIdc;
-                UtlString priorH264ProfileLevelIdc;
+                UtlString matchingCodecH264ProfileLevelId;
+                UtlString matchingCodecH264ProfileIdc;
+                UtlString priorH264ProfileIdc;
 
                 for (videoSize = 0; videoSize < numVideoSizes; videoSize++)
                 {
@@ -1443,15 +1446,15 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                     {
                         matchingCodec = sdpCodecArray[codecIndex];
 
-                        if(!h264ProfileLevel.isNull() && matchingCodec)
+                        if(!h264ProfileIdc.isNull() && matchingCodec)
                         {
-                            matchingCodec->getFmtpParameter("profile-level-id", matchingCodecH264ProfileLevel);
-                            matchingCodecH264ProfileLevelIdc = &(matchingCodecH264ProfileLevel.data()[4]);
-                            matchingCodecH264ProfileLevelIdc.toLower();
+                            matchingCodec->getFmtpParameter("profile-level-id", matchingCodecH264ProfileLevelId);
+                            matchingCodecH264ProfileIdc = &(matchingCodecH264ProfileLevelId.data()[4]);
+                            matchingCodecH264ProfileIdc.toLower();
                         }
                         else
                         {
-                            matchingCodecH264ProfileLevel = "";
+                            matchingCodecH264ProfileIdc = "";
                         }
 
                         // In addition to everything else do a bit-wise comparison of video formats. For
@@ -1464,8 +1467,8 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                             // H264 specific fmpt parameter matching
                             (isH264 &&
                              matchingCodec->isFmtpParameterSame(fmtp, "packetization-mode", "0") &&
-                             !h264ProfileLevel.isNull() &&
-                             matchingCodecH264ProfileLevel.index(h264ProfileLevel) == 0
+                             !h264LevelIdc.isNull() &&
+                             matchingCodecH264ProfileLevelId.index(h264ProfileIdc) == 0
                             )
 
                            ) &&
@@ -1488,16 +1491,16 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                                 //     prior > new >= remote
 
                                 // If this match is better than the prior, take this one instead
-                                if((matchingCodecH264ProfileLevelIdc.compareTo(h264ProfileLevelIdc, UtlString::ignoreCase) >= 0 &&
-                                      h264ProfileLevelIdc.compareTo(priorH264ProfileLevelIdc, UtlString::ignoreCase) > 0) ||
-                                   (h264ProfileLevelIdc.compareTo(matchingCodecH264ProfileLevelIdc, UtlString::ignoreCase) >= 0 &&
-                                      matchingCodecH264ProfileLevelIdc.compareTo(priorH264ProfileLevelIdc, UtlString::ignoreCase) > 0) ||
-                                   (priorH264ProfileLevelIdc.compareTo(matchingCodecH264ProfileLevelIdc, UtlString::ignoreCase) > 0 &&
-                                      matchingCodecH264ProfileLevelIdc.compareTo(h264ProfileLevelIdc, UtlString::ignoreCase) >= 0))
+                                if((matchingCodecH264ProfileIdc.compareTo(h264ProfileIdc, UtlString::ignoreCase) >= 0 &&
+                                      h264ProfileIdc.compareTo(priorH264ProfileIdc, UtlString::ignoreCase) > 0) ||
+                                   (h264ProfileIdc.compareTo(matchingCodecH264ProfileIdc, UtlString::ignoreCase) >= 0 &&
+                                      matchingCodecH264ProfileIdc.compareTo(priorH264ProfileIdc, UtlString::ignoreCase) > 0) ||
+                                   (priorH264ProfileIdc.compareTo(matchingCodecH264ProfileIdc, UtlString::ignoreCase) > 0 &&
+                                      matchingCodecH264ProfileIdc.compareTo(h264ProfileIdc, UtlString::ignoreCase) >= 0))
                                 {
                                     OsSysLog::add(FAC_NET, PRI_DEBUG,
-                                        "SdpBody::getCodecsInCommon match better than prior, prior idc: %s bettern idc: %s remote idc: %s",
-                                        priorH264ProfileLevelIdc.data(), matchingCodecH264ProfileLevelIdc.data(), h264ProfileLevelIdc.data());
+                                        "SdpBody::getCodecsInCommon match better than prior profile-idc, prior: %s better: %s remote: %s",
+                                        priorH264ProfileIdc.data(), matchingCodecH264ProfileIdc.data(), h264ProfileIdc.data());
 
                                     // Copy over prior added codec as this one is a better match
                                     *(commonCodecsForEncoder[numCodecsInCommon - 1]) = *matchingCodec;
@@ -1511,13 +1514,13 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                                         commonCodecsForEncoder[numCodecsInCommon - 1]->setSdpFmtpField(fmtp);
                                     }
 
-                                    priorH264ProfileLevelIdc = matchingCodecH264ProfileLevelIdc;
+                                    priorH264ProfileIdc = matchingCodecH264ProfileIdc;
                                 }
                                 else
                                 {
                                     OsSysLog::add(FAC_NET, PRI_DEBUG,
-                                        "SdpBody::getCodecsInCommon NOT better than prior, prior idc: %s bettern idc: %s remote idc: %s",
-                                        priorH264ProfileLevelIdc.data(), matchingCodecH264ProfileLevelIdc.data(), h264ProfileLevelIdc.data());
+                                        "SdpBody::getCodecsInCommon NOT better than prior profile-idc, prior: %s better: %s remote: %s",
+                                        priorH264ProfileIdc.data(), matchingCodecH264ProfileIdc.data(), h264ProfileIdc.data());
                                 }
                             }
 
@@ -1536,7 +1539,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                                     commonCodecsForEncoder[numCodecsInCommon]->setSdpFmtpField(fmtp);
                                 }
 
-                                priorH264ProfileLevelIdc = matchingCodecH264ProfileLevelIdc;
+                                priorH264ProfileIdc = matchingCodecH264ProfileIdc;
                                 numCodecsInCommon++;
                                 matchAlreadyFound = TRUE;
                             }
@@ -1554,9 +1557,9 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                                 UtlString matchFmtp;
                                 matchingCodec->getSdpFmtpField(matchFmtp);
                                 OsSysLog::add(FAC_NET, PRI_DEBUG, 
-                                    "SdpBody::getCodecsInCommon codec does not match mime subtype: %s match rate: %d remote rate: %d match channels: %d remote channels: %d match profile: %s remote profile: %s \nmatch fmtp: %s \nremote fmtp: %s",
+                                    "SdpBody::getCodecsInCommon codec does not match mime subtype: %s match rate: %d remote rate: %d match channels: %d remote channels: %d match profile-level-id: %s remote level-idc: %s \nmatch fmtp: %s \nremote fmtp: %s",
                                     mimeSubtype.data(), matchingCodec->getSampleRate(), sampleRate, matchingCodec->getNumChannels(), numChannels,
-                                    matchingCodecH264ProfileLevel.data(), h264ProfileLevel.data(), matchFmtp.data(), fmtp.data());
+                                    matchingCodecH264ProfileLevelId.data(), h264ProfileIdc.data(), matchFmtp.data(), fmtp.data());
                             }
                         }
                     }
