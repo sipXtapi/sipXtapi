@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -27,6 +29,8 @@
 #include "utl/UtlSortedListIterator.h"
 #include "utl/UtlSList.h"
 #include "utl/UtlSListIterator.h"
+#include <utl/UtlHashBag.h>
+#include <utl/UtlTokenizer.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -129,8 +133,11 @@ OsStatus OsConfigDb::loadFromFile(FILE* fp)
 #  undef OK
 #  endif
 
-void OsConfigDb::insertEntry(const char* fileLine)
+UtlBoolean OsConfigDb::parseLine(const char* fileLine, UtlBoolean capitalizeName, const char* fileLabel,
+                                 UtlString& parameterName, UtlString& parameterValue)
 {
+   UtlBoolean isParameter = FALSE;
+
    /* Format of a config line is:
     *     whitespace name whitespace : whitespace value whitespace EOL
     */
@@ -199,14 +206,21 @@ void OsConfigDb::insertEntry(const char* fileLine)
             UtlString name(name_start, name_len);
             UtlString value(value_start, value_len);
 
+            if(!name.isNull() || !value.isNull())
+            {
+               isParameter = TRUE;
+            }
+
             // Capitalize the name if required.
-            if (mCapitalizeName)
+            if (capitalizeName)
             {
                name.toUpper();
             }
 
+            parameterName = name;
+            parameterValue = value;
             // Insert the entry.
-            insertEntry(name, value);
+            //insertEntry(name, value);
          }
          else
          {
@@ -214,7 +228,7 @@ void OsConfigDb::insertEntry(const char* fileLine)
             OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                           "Invalid config line format in file '%s', "
                           "no colon found: '%s'",
-                          mIdentityLabel.data(),
+                          fileLabel,
                           fileLine);
          }
       }
@@ -224,10 +238,12 @@ void OsConfigDb::insertEntry(const char* fileLine)
          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                        "Invalid config line format in file '%s', "
                        "name is missing: '%s'",
-                       mIdentityLabel.data(),
+                       fileLabel,
                        fileLine);
       }
    }
+
+   return(isParameter);
 }
 
 void OsConfigDb::setCapitalizeName(UtlBoolean capitalizeName)
@@ -235,6 +251,85 @@ void OsConfigDb::setCapitalizeName(UtlBoolean capitalizeName)
     mCapitalizeName = capitalizeName;
 }
 
+OsStatus OsConfigDb::updateFile(const char* filename)
+{
+   UtlString originalFileContents;
+   long fileLength = OsFile::openAndRead(filename, originalFileContents);
+   const char* unparsedBits = originalFileContents;
+   int unparsedLength = originalFileContents.length();
+
+   // Loop through and try to preserve comments, space and order
+   int lineStart = 0;
+   int lineEnd = 0;
+   UtlHashBag writtenNames;
+   UtlString newFileContents;
+   UtlString name;
+   UtlString value;
+   UtlString newValue;
+
+   while(lineStart < unparsedLength)
+   {
+      lineEnd = UtlTokenizer::nextDelim(unparsedBits, lineStart, unparsedLength, "\n\r");
+
+      //printf("start: %d end: %d length: %d\n", lineStart, lineEnd, unparsedLength);
+
+      UtlString oneLine(&unparsedBits[lineStart], lineEnd - lineStart);
+
+      //printf("Line: <%s>\n", oneLine.data());
+
+      // If line contains a parameter
+      if(parseLine(oneLine, mCapitalizeName, filename, name, value))
+      {
+         //printf("name<%s> value<%s>\n", name.data(), value.data());
+         if(get(name, newValue) == OS_SUCCESS &&
+            !writtenNames.contains(&name))
+         {
+            //printf("Wrote name<%s>\n", name.data());
+            // The parameter still exists in the configDb and we have not yet
+            // written it out, write the potentially changed value
+            newFileContents.appendFormat("%s : %s\n", name.data(), newValue.data());
+
+            // Save names/parameters written so that we can figure out what has not
+            // been written out
+            writtenNames.insert(new UtlString(name));
+         }
+         // else the parameter was removed, do nothing
+      }
+   
+      // The line was a comment or blank line, write it back out the same
+      else
+      {
+         newFileContents.appendFormat("%s\n", oneLine.data());
+      }
+
+      lineStart = lineEnd + 1;
+   }
+
+   int paramIndex;
+   int paramCount = numEntries();
+   DbEntry* paramEntry;
+
+   for (paramIndex = 0; paramIndex < paramCount; paramIndex++)
+   {
+      paramEntry = (DbEntry*) mDb.at(paramIndex);
+
+      removeNewlineReturns(paramEntry->key);
+      removeNewlineReturns(paramEntry->value);
+
+      // We have not written the value yet
+      if(!writtenNames.contains(&(paramEntry->key)))
+      {
+          newFileContents.appendFormat("%s : %s\n", paramEntry->key.data(), paramEntry->value.data());
+          writtenNames.insert(new UtlString(paramEntry->key));
+      }
+   }
+
+   fileLength = OsFile::openAndWrite(filename, newFileContents);
+ 
+   writtenNames.destroyAll();
+
+   return(fileLength > 0 ? OS_SUCCESS : OS_INVALID_ARGUMENT);
+}
 
 OsStatus OsConfigDb::storeToFile(const char *filename)
 {
@@ -419,7 +514,7 @@ OsStatus OsConfigDb::getSubHash(const UtlString& rHashSubKey,
 
    DbEntry* entry;
    // Skip the initial entries in the list that do not match.
-   while (entry = static_cast <DbEntry*> (itor()))
+   while ((entry = static_cast <DbEntry*> (itor())))
    {
       if (strncmp(entry->key.data(), rHashSubKey.data(),
                   rHashSubKey.length()) >= 0)
@@ -500,7 +595,7 @@ OsStatus OsConfigDb::getNext(const UtlString& rKey,
       }
    }
 
-   if (foundMatch && (nextIdx < numEntries()))
+   if (foundMatch && (((int)nextIdx) < numEntries()))
    {
       pEntry     = (DbEntry *)mDb.at(nextIdx);
       rNextKey   = pEntry->key;
@@ -767,23 +862,8 @@ OsStatus OsConfigDb::storeToFile(FILE* fp)
    {
       pEntry = (DbEntry *)mDb.at(i);
 
-      //remove any  \n or \r at the ends of the lines
-      size_t remove_char_loc = 0;
-      while (remove_char_loc != UTL_NOT_FOUND)
-      {
-      remove_char_loc = pEntry->key.first('\r');
-      if (remove_char_loc != UTL_NOT_FOUND)
-         pEntry->key.remove(remove_char_loc,1);
-      }
-
-      remove_char_loc = 0;
-      while (remove_char_loc != UTL_NOT_FOUND)
-      {
-         remove_char_loc = pEntry->value.first('\n');
-         if (remove_char_loc != UTL_NOT_FOUND)
-            pEntry->value.remove(remove_char_loc,1);
-      }
-
+      removeNewlineReturns(pEntry->key);
+      removeNewlineReturns(pEntry->value);
 
       fprintf(fp, "%s : %s\r\n",
               (char*) pEntry->key.data(),
@@ -800,6 +880,30 @@ OsStatus OsConfigDb::storeToFile(FILE* fp)
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+void OsConfigDb::removeNewlineReturns(UtlString& stringData)
+{
+    //remove any  \n or \r at the ends of the lines
+    size_t remove_char_loc = 0;
+    while (remove_char_loc != UTL_NOT_FOUND)
+    {
+        remove_char_loc = stringData.first('\r');
+        if (remove_char_loc != UTL_NOT_FOUND)
+        {
+            stringData.remove(remove_char_loc,1);
+        }
+    }
+
+    remove_char_loc = 0;
+    while (remove_char_loc != UTL_NOT_FOUND)
+    {
+        remove_char_loc = stringData.first('\n');
+        if (remove_char_loc != UTL_NOT_FOUND)
+        {
+            stringData.remove(remove_char_loc,1);
+        }
+    }
+}
 
 OsStatus OsConfigDb::loadFromEncryptedFile(const char *file)
 {
@@ -853,6 +957,8 @@ OsStatus OsConfigDb::loadFromUnencryptedFile(FILE* fp)
 #  define OK VX_OK
 #  endif
 
+   UtlString name;
+   UtlString value;
    // step through the file reading one entry per line
    // each entry is of the form "%s: %s\n"
    while (!feof(fp))
@@ -861,7 +967,10 @@ OsStatus OsConfigDb::loadFromUnencryptedFile(FILE* fp)
       //if (result == 2)
       if(fgets(fileLine, MAX_FILELINE_SIZE, fp))
       {
-         insertEntry(fileLine);
+         if(parseLine(fileLine, mCapitalizeName, mIdentityLabel, name, value))
+         {
+            insertEntry(name, value);
+         }
       }
       else if(ferror(fp))
       {
@@ -923,6 +1032,9 @@ OsStatus OsConfigDb::loadFromUnencryptedBuffer(const char *buf)
    size_t start = 0;
    size_t size ;
    size_t pos;
+   UtlString name;
+   UtlString value;
+
    while (1)
    {
       pos = config.first('\n');
@@ -955,7 +1067,10 @@ OsStatus OsConfigDb::loadFromUnencryptedBuffer(const char *buf)
 
          if (strlen(configLine) == 0) continue;
 
-         insertEntry(configLine);
+         if(parseLine(configLine, mCapitalizeName, mIdentityLabel, name, value))
+         {
+            insertEntry(name, value);
+         }
       }
       else
       {

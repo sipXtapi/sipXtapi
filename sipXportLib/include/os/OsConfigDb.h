@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -93,6 +95,11 @@ public:
      * Store the config database to a file
      */
     virtual OsStatus storeToFile(const char *filename);
+
+    /**
+     * Attempts to update existing file without loosing comments or parameter order
+     */
+    virtual OsStatus updateFile(const char* filename);
 
     /**
      * Remove the key/value pair associated with rKey.
@@ -274,6 +281,11 @@ public:
      */
     void clear() ;
 
+   /**
+    * Remove newlines and carriage returns from string
+    */
+    static void removeNewlineReturns(UtlString& stringData);
+
  protected:
 
     /** reader/writer lock for synchronization */
@@ -308,12 +320,14 @@ public:
         virtual OsStatus storeToFile(FILE* fp);
 
     /**
-     * Parse "key : value" and add to dictionary.
+     * Parse "key : value" and returns TRUE if parameter found
+     * Returns false if line is blank or a comment (begins with #).
      */
-    void insertEntry(const char* line);
+    static UtlBoolean parseLine(const char* line, UtlBoolean capitalizeName, const char* fileLabelForError,
+                                UtlString& name, UtlString& value);
 
     /**
-     * Helper method for inserting a key/value pair into the dictionary
+     * Method for inserting a key/value pair into the dictionary
      * The write lock for the database should be taken before calling this
      * method. If the database already contains an entry for this key, then
      * set the value for the existing entry to rNewValue.
