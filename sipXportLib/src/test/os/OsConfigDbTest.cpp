@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2012 SIPez LLC  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -13,7 +12,36 @@
 
 #include <os/OsConfigDb.h>
 #include <sipxunittests.h>
+#include <os/OsFS.h>
 
+#define CONFIG_WITH_COMMENTS_DUPLICATES \
+"# \n\
+\n\
+# Line 3\n\
+# Line 4\n\
+PARAM1 : 1\n\
+PARAM2 : A\n\
+\n\
+# Duplicate param below should get removed\n\
+PARAM1 : 2\n\
+\n\
+\n\
+# Last line comment \n"
+
+
+#define CONFIG_WITH_COMMENTS_DUPLICATES_AFTER_UPDATE \
+"# \n\
+\n\
+# Line 3\n\
+# Line 4\n\
+PARAM1 : 2\n\
+PARAM2 : B\n\
+\n\
+# Duplicate param below should get removed\n\
+\n\
+\n\
+# Last line comment \n\
+PARAM3 : NEW\n"
 
 /**
  * Test OsConfigDb API
@@ -23,6 +51,7 @@ class OsConfigDbTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST_SUITE(OsConfigDbTest);
     CPPUNIT_TEST(testCreators);
     CPPUNIT_TEST(testManipulators);
+    CPPUNIT_TEST(testUpdate);
     CPPUNIT_TEST(testAccessors);
     CPPUNIT_TEST_SUITE_END();
 
@@ -117,6 +146,33 @@ public:
         value.remove(0);
     }
 
+   void testUpdate()
+   {
+       // Create reference config files
+       UtlString refConfigFile("testConfig.conf");
+       UtlString refConfigContents(CONFIG_WITH_COMMENTS_DUPLICATES);
+       long fileLength = OsFile::openAndWrite(refConfigFile, refConfigContents);
+       CPPUNIT_ASSERT_MESSAGE("failed to write ref config file", fileLength > 0);
+
+       OsConfigDb configDb;
+       configDb.loadFromFile(refConfigFile);
+       CPPUNIT_ASSERT_EQUAL(configDb.numEntries(), 2);
+
+       UtlString value;
+       configDb.get("PARAM2", value);
+       CPPUNIT_ASSERT_EQUAL(value, "A");
+
+       configDb.set("PARAM2", "B");
+       configDb.set("PARAM3", "NEW");
+
+       configDb.updateFile(refConfigFile);
+
+       UtlString actualModifiedConfigContent;
+       fileLength = OsFile::openAndRead(refConfigFile, actualModifiedConfigContent);
+       UtlString expectedModifiedConfigContent(CONFIG_WITH_COMMENTS_DUPLICATES_AFTER_UPDATE);
+       CPPUNIT_ASSERT_EQUAL(expectedModifiedConfigContent, actualModifiedConfigContent);
+
+   }
 
     void testAccessors()
     {
