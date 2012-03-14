@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -51,6 +53,10 @@ class UtlTokenizer
 
 /* ============================ MANIPULATORS ============================== */
 
+   static int nextDelim(const char *tokens, const int start, const int len, const char *delim);
+
+   static UtlBoolean isDelim(const char c, const char *delim);
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -77,10 +83,6 @@ class UtlTokenizer
     * @param rhs right hand side of the equals operator
     */
    UtlTokenizer& operator=(const UtlTokenizer& rhs);  
-
-   int nextDelim(const char *tokens, const int start, const int len, const char *delim);
-
-   UtlBoolean isDelim(const char c, const char *delim);
 };
 
 /* ============================ INLINE METHODS ============================ */
