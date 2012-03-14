@@ -99,7 +99,7 @@ public:
     /**
      * Attempts to update existing file without loosing comments or parameter order
      */
-    virtual OsStatus updateFile(const char* filename);
+    virtual OsStatus updateFile(const char* filename) const;
 
     /**
      * Remove the key/value pair associated with rKey.

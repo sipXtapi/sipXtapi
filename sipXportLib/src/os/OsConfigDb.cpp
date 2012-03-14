@@ -251,7 +251,7 @@ void OsConfigDb::setCapitalizeName(UtlBoolean capitalizeName)
     mCapitalizeName = capitalizeName;
 }
 
-OsStatus OsConfigDb::updateFile(const char* filename)
+OsStatus OsConfigDb::updateFile(const char* filename) const
 {
    UtlString originalFileContents;
    long fileLength = OsFile::openAndRead(filename, originalFileContents);
