@@ -1,6 +1,5 @@
 //
 // Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -740,6 +739,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_GET_CODEC_CPU_LIMIT:
         case CP_GET_CODEC_CPU_COST:
         case CP_SET_MIC_GAIN:
+        case CP_SET_OUTPUT_MIX_WEIGHT:
         case CP_UNHOLD_LOCAL_TERM_CONNECTION:
         case CP_HOLD_LOCAL_TERM_CONNECTION:
         case CP_START_TONE_TERM_CONNECTION:
@@ -2826,6 +2826,21 @@ OsStatus CallManager::setMicGain(const char* callId,
     OsStatus stat = postMessage(setMicGainMsg);
 
     return OS_SUCCESS ;
+}
+
+OsStatus CallManager::setOutputMixWeight(const char* callId, int bridgeOutputIndex, float gain)
+{
+    assert(bridgeOutputIndex >= 0);
+    assert(gain >= 0.0f);
+    int gainInt = gain;
+    int gainFrac = (gain - gainInt) * 1000000;
+
+    CpMultiStringMessage setMixWeightMsg(CP_SET_OUTPUT_MIX_WEIGHT, callId, NULL, NULL, NULL, NULL, 
+       bridgeOutputIndex, gainInt, gainFrac);
+
+    OsStatus stat = postMessage(setMixWeightMsg);
+
+    return(stat);
 }
 
 void CallManager::answerTerminalConnection(const char* callId, const char* address, const char* terminalId,

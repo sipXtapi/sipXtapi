@@ -2,8 +2,7 @@
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2157,6 +2156,18 @@ SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecPreferences(const SIPX_CALL hCall,
  */
 SIPXTAPI_API SIPX_RESULT sipxCallSetMicGain(const SIPX_CALL hCall,
                                             float gain);
+
+/**
+ * Sets the gain for all inputs to the given bridge output, except for
+ * the input of the same index which is set to 0.0f gain.
+ * @param hCall - handle to call using the bridge mixer.
+ * @param bridgeOutputIndex - output index on the bridge whose input 
+ *        gains are to be set.
+ * @param gain - new gain value to set for inputs.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallSetMixOutputGain(const SIPX_CALL hCall,
+                                                  int bridgeOutputIndex,
+                                                  float gain);
 
 //@}
 

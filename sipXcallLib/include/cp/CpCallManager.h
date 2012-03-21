@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -205,7 +204,8 @@ public:
         CP_SET_RTP_DESTINATION,
         CP_START_RTP_SEND,
         CP_STOP_RTP_SEND,  //100
-        CP_LIMIT_CODECS
+        CP_LIMIT_CODECS,
+        CP_SET_OUTPUT_MIX_WEIGHT
     };
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

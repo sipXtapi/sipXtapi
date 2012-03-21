@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -466,6 +468,25 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 ((CpMultiStringMessage&)eventMessage).getString1Data(callId);
 
                 hangUp(callId, metaEventId);                                         
+            }
+            break;
+
+        case CallManager::CP_SET_OUTPUT_MIX_WEIGHT:
+            addHistoryEvent(msgSubType, multiStringMessage);
+            if(mpMediaInterface)
+            {
+               int bridgeOutputIndex = ((CpMultiStringMessage&)eventMessage).getInt1Data();
+               float weight = ((CpMultiStringMessage&)eventMessage).getInt2Data();
+               weight += (((double) ((CpMultiStringMessage&)eventMessage).getInt3Data()) / 
+                      1000000.0f);
+
+               OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "CpCall::handleMessage CP_SET_OUTPUT_MIX_WEIGHT bridge output indiex: %d gain: %f",
+                  bridgeOutputIndex, weight);
+               assert(bridgeOutputIndex >= 0);
+               assert(weight >= 0.0f);
+
+               mpMediaInterface->setMixWeightForOutput(bridgeOutputIndex, weight);
             }
             break;
 

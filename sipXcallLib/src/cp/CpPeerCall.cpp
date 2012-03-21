@@ -15,6 +15,7 @@
 
 // SYSTEM INCLUDES
 #include <os/OsDefs.h>
+#include <math.h>
 
 // APPLICATION INCLUDES
 #include "utl/UtlRegex.h"
@@ -2700,8 +2701,10 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                }
                else
                {
-                  OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring MI_NOTF_ENERGY_LEVEL focus: %s resource name: %s",
-                     isInFocus() ? "true" : "false", resourceName.data());
+                  int energyLevel = intNotif.getValue();
+                  double ledLevel = log(energyLevel) / log(10.0) * 1.2;
+                  OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring MI_NOTF_ENERGY_LEVEL focus: %s resource name: %s energy: %d led: %f",
+                     isInFocus() ? "true" : "false", resourceName.data(), intNotif.getValue(), ledLevel);
                }
             }                             
             break;

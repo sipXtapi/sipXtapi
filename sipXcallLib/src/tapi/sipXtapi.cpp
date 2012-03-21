@@ -1,6 +1,5 @@
 //
 // Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -3251,6 +3250,39 @@ SIPXTAPI_API SIPX_RESULT sipxCallSetMicGain(const SIPX_CALL hCall,
     }
 
     return sr ;
+}
+
+SIPXTAPI_API SIPX_RESULT sipxCallSetMixOutputGain(const SIPX_CALL hCall,
+                                                  int bridgeOutputIndex,
+                                                  float gain)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallSetMixOutputGain");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "sipxCallSetMixOutputGain(hCall=%d, bridgeOutputIndex=%d, gain=%f)",
+        hCall, bridgeOutputIndex, gain);
+
+    SIPX_RESULT status = SIPX_RESULT_INVALID_ARGS;
+    SIPX_INSTANCE_DATA* pInst;
+    UtlString callId;
+
+    if(bridgeOutputIndex < 0 || gain < 0.0f)
+    {
+        // status already set
+        assert(bridgeOutputIndex >= 0);
+        assert(gain >= 0.0f);
+    }
+    else if(sipxCallGetCommonData(hCall, &pInst, &callId, NULL, NULL))
+    {
+        pInst->pCallManager->setOutputMixWeight(callId, bridgeOutputIndex, gain);
+        status = SIPX_RESULT_SUCCESS;
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, "sipxCallSetMixOutputGain could not get call data for callId:%d",
+            hCall);
+        status = SIPX_RESULT_FAILURE;
+    }
+
+    return(status);
 }
 
 /****************************************************************************

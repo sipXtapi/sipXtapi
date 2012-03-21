@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -264,6 +263,9 @@ public:
 
       /// Sets the Mic gain.
     virtual OsStatus setMicGain(const char* callId, float gain);
+
+     /// Set gain for all inputs to the given output on bridge.
+    virtual OsStatus setOutputMixWeight(const char* callId, int bridgeOutputIndex, float gain);
 
     virtual void setMaxCalls(int maxCalls);
     //:Set the maximum number of calls to admit to the system.
