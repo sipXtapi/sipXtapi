@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2005-2009 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -295,6 +294,8 @@ public:
                                                const char* callId,
                                                UtlString& report);
 
+   /// @copydoc CpMediaInterface::setMixWeightsForOutput()
+   virtual OsStatus setMixWeightsForOutput(int bridgeOutputPort, int numWeights, float weights[]);
 
 /* ============================ ACCESSORS ================================= */
 

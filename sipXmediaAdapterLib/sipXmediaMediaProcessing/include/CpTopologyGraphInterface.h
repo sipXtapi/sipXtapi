@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -430,6 +429,11 @@ public:
    /// @copydoc CpMediaInterface::getNotificationDispatcher()
    virtual OsMsgDispatcher* getNotificationDispatcher();
 
+   /// @copydoc CpMediaInterface::setMixWeightForOutput
+   virtual OsStatus setMixWeightForOutput(int bridgeOutputPort, float weight);
+
+   /// @copydoc CpMediaInterface::setMixWeightsForOutput()
+   virtual OsStatus setMixWeightsForOutput(int bridgeOutputPort, int numWeights, float weights[]);
 
    virtual OsStatus getVideoQuality(int& quality);
 

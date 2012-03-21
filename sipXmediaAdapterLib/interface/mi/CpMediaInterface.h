@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -655,6 +654,28 @@ public:
      *  @param[in] ms - The amount of time (in milliseconds) to record.
      *  @param[in] pAudioBuf - Audio buffer to record to.
      *  @param[in] bufferSize - Size of the buffer (in samples).
+     */
+
+     /// Set the mix weight for all inputs, but its own to the given weight and output on bridge.
+   virtual OsStatus setMixWeightForOutput(int bridgeOutputPort, float weight) = 0;
+    /**<
+     *  @param[in] bridgeOutputPort - output port on the bridge to which input gains are to be set
+     *  @param[in] weight - the new weights to set for the inputs.
+     *             1.0f is a net gain of zero.  2.0f is a 3Db gain.
+     *             The input at port bridgeOutputPort, will get a weight of 0.0f.
+     */
+
+    /// Set gain for inputs to given output on bridge
+   virtual OsStatus setMixWeightsForOutput(int bridgeOutputPort, int numWeights, float weights[]) = 0;
+    /**<
+     *  @param[in] bridgeOutputPort - output port on the bridge to which input gains are to be set
+     *  @param[in] numWeights - number of input weights provided.
+     *             If this number is less than the number of inputs
+     *             on the bridge the inputs after numWeights are left
+     *             unchanged.
+     *  @param[in] weights - the new weights to set for the inputs.
+     *             One for each of the numWeights to set.
+     *             1.0f is a net gain of zero.  2.0f is a 3Db gain.
      */
 
    //! Set the preferred contact type for this media connection

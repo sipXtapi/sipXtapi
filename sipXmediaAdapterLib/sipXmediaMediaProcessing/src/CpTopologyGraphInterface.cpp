@@ -1,6 +1,5 @@
 // 
 // Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -306,7 +305,13 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    OsSysLog::add(FAC_CP, PRI_DEBUG,
         "available pooled buffers udp: %d/%d rtp: %d/%d audio: %d/%d",
         udpBufs, udpPoolSize, rtpBufs, rtpPoolSize, audioBufs, audioPoolSize);
-   
+  
+   // Temporary hack while we determine VAD performance issue
+#ifdef ANDROID
+   OsMsgQ* flowgraphQueue = mpTopologyGraph->getMsgQ();
+   MpResource::disable(DEFAULT_VAD_RESOURCE_NAME SPEAKER_NAME_SUFFIX, *flowgraphQueue);
+#endif
+ 
    mStunServer = stunServer;
    mStunPort = stunPort;
    mStunRefreshPeriodSecs = stunKeepAlivePeriodSecs;
@@ -3813,6 +3818,69 @@ void CpTopologyGraphInterface::stopRtpSend(CpTopologyMediaConnection* mediaConne
    }
    mediaConnection->mRtpVideoSending = FALSE;
 #endif
+}
+
+OsStatus CpTopologyGraphInterface::setMixWeightForOutput(int bridgeOutputPort, float weight)
+{
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "CpTopologyGraphInterface::setMixWeightForOutput(bridgeOutputPort: %d, weight: %f)",
+        bridgeOutputPort, weight);
+    OsSysLog::flush();
+    assert(bridgeOutputPort >= 0);
+    // Determine number of bridge ports and allocate array for weights
+    int numBridgePorts = getNumBridgePorts();
+    if (numBridgePorts < 0)
+    {
+       assert(!"Can't determine number of bridge ports!");
+       numBridgePorts = 20;
+    }
+
+    float* weightVector = new float[numBridgePorts];
+    UtlString gainVectorString;
+    for(int weightIndex = 0; weightIndex < numBridgePorts; weightIndex++)
+    {
+        // Mutually exclusve mix so a stream does not get its own feedback
+        if(weightIndex == bridgeOutputPort)
+        {
+            weightVector[weightIndex] = 0.0f;
+        }
+        else
+        {
+            weightVector[weightIndex] = weight;
+        }
+        gainVectorString.appendFormat("%f, ", weightVector[weightIndex]);
+    }
+
+    OsStatus status = setMixWeightsForOutput(bridgeOutputPort, numBridgePorts, weightVector);
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "CpTopologyGraphInterface::setMixWeightForOutput gain vector: {%s} length: %d setMixWeightsForOutput return: %d", 
+        gainVectorString.data(), numBridgePorts, status);
+    delete[] weightVector;
+    weightVector = NULL;
+
+    return(status);
+}
+
+OsStatus CpTopologyGraphInterface::setMixWeightsForOutput(int bridgeOutputPort, int numWeights, float weights[])
+{
+    // Convert in case we are running with fixed point
+    MpBridgeGain* gainWeights = new MpBridgeGain[numWeights];
+    for(int weightIndex = 0; weightIndex < numWeights; weightIndex++)
+    {
+        gainWeights[weightIndex] = MPF_BRIDGE_FLOAT(weights[weightIndex]);
+    }
+
+    OsStatus status = 
+        MprBridge::setMixWeightsForOutput(DEFAULT_BRIDGE_RESOURCE_NAME,
+                                          *mpTopologyGraph->getMsgQ(),
+                                          bridgeOutputPort,
+                                          numWeights,
+                                          gainWeights);
+    delete[] gainWeights;
+    gainWeights = NULL;
+
+    return(status);
 }
 
 OsStatus CpTopologyGraphInterface::setConnectionWeightOnBridge(CpTopologyMediaConnection *mediaConnection,
