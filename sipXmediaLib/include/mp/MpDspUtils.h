@@ -1,9 +1,8 @@
 //  
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
+//  
 // Copyright (C) 2007-2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -414,6 +413,9 @@ public:
    static inline
    int32_t minimum(const int32_t *pSrc, int dataLength);
 
+    /// Find the number of values in vector that are at maximum or minimum 16 bit value
+   static inline
+   int32_t countClippedValues(const int16_t *pSrc, int dataLength);
 
 //@}
 
