@@ -1,9 +1,8 @@
 //
+// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
+//
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -267,6 +266,20 @@ int32_t MpDspUtils::minimum(const int32_t *pSrc, int dataLength)
          val = pSrc[i];
 
    return val;
+}
+
+int32_t MpDspUtils::countClippedValues(const int16_t *pSrc, int dataLength)
+{
+   int32_t clippedCount = 0;
+   for (int32_t i = 0; i < dataLength; i++)
+   {
+      if(pSrc[i] >= INT16_MAX || pSrc[i] <= -INT16_MAX)
+      {
+         clippedCount++;
+      }
+   }
+
+   return(clippedCount);
 }
 
 #endif  // _MpDspUtilsSumVect_h_
