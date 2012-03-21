@@ -1,9 +1,9 @@
 //  
+// Copyright (C) 2008-2012 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//  
 // Copyright (C) 2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -12,8 +12,9 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "mp/MpBridgeAlgLinear.h"
-#include "mp/MpMisc.h"
+#include <mp/MpBridgeAlgLinear.h>
+#include <mp/MpMisc.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -54,6 +55,11 @@ MpBridgeAlgLinear::MpBridgeAlgLinear(int inputs, int outputs,
 
    // Initialize extended inputs, taking into account that we have "standard"
    // (inverse unity) matrix.
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpBridgeAlgLinear::init_simple(in: %d, out: %d)",
+      maxInputs(), maxOutputs());
+   OsSysLog::flush();
+
    mExtendedInputs.init_simple(maxInputs(), maxOutputs());
    // Allocate array for list of active inputs.
    mActiveInputsListSize = maxInputs()*maxOutputs();
@@ -103,44 +109,59 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
    //  Build list of active inputs (stored in mpActiveInputsList).
    //
 #ifdef TEST_PRINT_MIXING_CONTRIBUTORS // [
-   printf("Contributors (inversed order): ");
+   UtlString contributorDumpString("Contributors (inversed order): ");
 #endif // TEST_PRINT_MIXING_CONTRIBUTORS ]
+
    int extInput;
    for ( extInput=numExtendedInputs-1; extInput>=0; extInput-- )
    {
       if (mExtendedInputs.isNotMuted(extInput))
       {
-#ifdef TEST_PRINT_MIXING_CONTRIBUTORS // [
-         printf("(%d)NM",extInput);
-#endif // TEST_PRINT_MIXING_CONTRIBUTORS ]
          int origInput = mExtendedInputs.getOrigin(extInput);
+
+#ifdef TEST_PRINT_MIXING_CONTRIBUTORS // [
+         contributorDumpString.appendFormat("(%d)i:%dNM",extInput, origInput);
+#endif // TEST_PRINT_MIXING_CONTRIBUTORS ]
+
          if (inBufs[origInput].isValid())
          {
+
 #ifdef TEST_PRINT_MIXING_CONTRIBUTORS // [
-            printf("V");
+            contributorDumpString.append("V");
 #endif // TEST_PRINT_MIXING_CONTRIBUTORS ]
+
             MpAudioBufPtr pAudio = inBufs[origInput];
             if ((mMixSilence || isActiveAudio(pAudio->getSpeechType())) &&
                 pAudio->getSpeechType() != MP_SPEECH_MUTED)
             {
+
 #ifdef TEST_PRINT_MIXING_CONTRIBUTORS // [
-               printf("A");
+               contributorDumpString.append("A");
 #endif // TEST_PRINT_MIXING_CONTRIBUTORS ]
+
                mpActiveInputsList[numActiveInputs] = extInput;
                numActiveInputs++;
+
 #ifdef TEST_PRINT_MIXING_CONTRIBUTORS // [
-               printf("+");
+               contributorDumpString.append("+");
 #endif // TEST_PRINT_MIXING_CONTRIBUTORS ]
+
             }
          }
+
 #ifdef TEST_PRINT_MIXING_CONTRIBUTORS // [
-         printf(" ");
+         contributorDumpString.append(" ");
 #endif // TEST_PRINT_MIXING_CONTRIBUTORS ]
+
       }
    }
+
 #ifdef TEST_PRINT_MIXING_CONTRIBUTORS // [
-   printf("\n");
-   printf("Total active inputs: %d\n", numActiveInputs);
+   contributorDumpString.append("\n");
+   //printf(contributorDumpString.data());
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "%s", contributorDumpString.data());
+   //printf("Total active inputs: %d\n", numActiveInputs);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "Total active inputs: %d", numActiveInputs);
 #endif // TEST_PRINT_MIXING_CONTRIBUTORS ]
 
    //
@@ -535,7 +556,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                mpMixDataAmplitude[mixAction.mSrc1] + mpMixDataAmplitude[mixAction.mSrc2];
          }
 #ifdef TEST_PRINT_MIXING // [
-         printf("DO_MIX:     %2d + %2d -> %2d [0x%08X + 0x%08X -> 0x%08X]\n",
+         OsSysLog::add(FAC_MP, PRI_DEBUG, "DO_MIX:     %2d + %2d -> %2d [0x%08X + 0x%08X -> 0x%08X]\n",
                 mpMixActionsStack[action].mSrc1,
                 mpMixActionsStack[action].mSrc2,
                 mpMixActionsStack[action].mDst,
@@ -548,15 +569,20 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
          {
             const int src = mpMixActionsStack[action].mSrc1;
 
+            // Need to look at the input gain for this particular output
             if (src < numActiveInputs &&
-                mExtendedInputs.getGain(src) == MP_BRIDGE_GAIN_PASSTHROUGH)
+                mExtendedInputs.getGain(mpActiveInputsList[src]) == MP_BRIDGE_GAIN_PASSTHROUGH)
             {
                // This is direct input to output copy.
                const int origInput = mExtendedInputs.getOrigin(mpActiveInputsList[src]);
                outBufs[mpMixActionsStack[action].mDst] = inBufs[origInput];
 
 #ifdef TEST_PRINT_MIXING // [
-               printf("COPY_TO_OUTPUT*: %2d -> %2d\n",
+               OsSysLog::add(FAC_MP, PRI_DEBUG, "src: %d mpActiveInputsList[src]: %d origInput: %d",
+                      src, mpActiveInputsList[src], origInput);
+               OsSysLog::add(FAC_MP, PRI_DEBUG, "mExtendedInputs.getGain(src): %d mExtendedInputs.getGain(mpActiveInputsList[src]): %d",
+                      mExtendedInputs.getGain(src), mExtendedInputs.getGain(mpActiveInputsList[src]));
+               OsSysLog::add(FAC_MP, PRI_DEBUG, "COPY_TO_OUTPUT*: %2d -> %2d\n",
                       mpMixActionsStack[action].mSrc1,
                       mpMixActionsStack[action].mDst);
 #endif // TEST_PRINT_MIXING ]
@@ -586,7 +612,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                                        mMixDataStackStep, MP_BRIDGE_FRAC_LENGTH);
 
    #ifdef TEST_PRINT_MIXING // [
-               printf("COPY_TO_OUTPUT:  %2d -> %2d [0x%08X -> 0x%08X]\n",
+               OsSysLog::add(FAC_MP, PRI_DEBUG, "COPY_TO_OUTPUT:  %2d -> %2d [0x%08X -> 0x%08X]\n",
                       mpMixActionsStack[action].mSrc1,
                       mpMixActionsStack[action].mDst,
                       mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mSrc1],
@@ -627,7 +653,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                }
 #endif
 #ifdef TEST_PRINT_MIXING // [
-               printf("COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X <<%d]\n",
+               OsSysLog::add(FAC_MP, PRI_DEBUG, "COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X <<%d]\n",
                       extOutput,
                       extInput,
                       mpMixDataStack[mMixDataStackStep * extOutput],
@@ -654,12 +680,15 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                }
 #endif
 #ifdef TEST_PRINT_MIXING // [
-               printf("COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X *%d]\n",
+               OsSysLog::add(FAC_MP, PRI_DEBUG, "COPY_FROM_INPUT: scaledGain(%d) = %d * %d / %d",
+                      (int) scaledGain, mExtendedInputs.getGain(extInput), MAX_AMPLITUDE_ROUND, curAmplitude);
+               OsSysLog::add(FAC_MP, PRI_DEBUG, "COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X *%d ( %d)]",
                       extOutput,
                       extInput,
                       mpMixDataStack[mMixDataStackStep * extOutput],
                       *pInBuf->getSamplesPtr(),
-                      mExtendedInputs.getGain(extInput));
+                      mExtendedInputs.getGain(extInput),
+                      (int) scaledGain);
 #endif // TEST_PRINT_MIXING ]
             }
             else
@@ -686,7 +715,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                }
 #endif
 #ifdef TEST_PRINT_MIXING // [
-               printf("COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X *%d/(%d->%d)]\n",
+               OsSysLog::add(FAC_MP, PRI_DEBUG, "COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X *%d/(%d->%d)]\n",
                       extOutput,
                       extInput,
                       mpMixDataStack[mMixDataStackStep * extOutput],
@@ -730,6 +759,14 @@ void MpBridgeAlgLinear::setGainMatrixRow(int row, int numValues, const MpBridgeG
          mExtendedInputs.setGain(i, row, val[i]);
       }
    }
+
+#ifdef TEST_PRINT_MIXING
+   UtlString dumpString;
+   dumpOutputMix(dumpString);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, 
+      "MpBridgeAlgLinear::setGainMatrixRow row: %d numValues: %d\n%s", 
+      row, numValues, dumpString.data());
+#endif
 }
 
 void MpBridgeAlgLinear::setGainMatrixColumn(int column, int numValues, const MpBridgeGain val[])
@@ -742,6 +779,43 @@ void MpBridgeAlgLinear::setGainMatrixColumn(int column, int numValues, const MpB
          mExtendedInputs.setGain(column, i, val[i]);
       }
    }
+
+#ifdef TEST_PRINT_MIXING
+   UtlString dumpString;
+   dumpOutputMix(dumpString);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, 
+      "MpBridgeAlgLinear::setGainMatrixColumn column: %d numValues: %d\n%s", 
+      column, numValues, dumpString.data());
+#endif
+}
+
+void MpBridgeAlgLinear::dumpOutputMix(UtlString& dumpString)
+{
+   int extendedInputIndex;
+   int gain;
+
+   for(int outputIndex = 0; outputIndex < mMaxOutputs; outputIndex++)
+   {
+      dumpString.appendFormat("output[%d]: ", outputIndex);
+
+      for(int inputIndex = 0; inputIndex < mMaxInputs; inputIndex++)
+      {
+         extendedInputIndex = mExtendedInputs.getExtendedInput(inputIndex, outputIndex);
+         if(extendedInputIndex >= 0)
+         {
+            gain = mExtendedInputs.getGain(extendedInputIndex);
+         }
+
+         else
+         {
+            gain = -1;
+         }
+
+         dumpString.appendFormat("%s(%d)%d", inputIndex ? ", " : "", extendedInputIndex, gain);
+      }
+
+      dumpString.append('\n');
+   }     
 }
 
 /* ============================== ACCESSORS =============================== */

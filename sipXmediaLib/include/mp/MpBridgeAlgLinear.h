@@ -1,9 +1,9 @@
 //  
+// Copyright (C) 2008-2012 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//  
 // Copyright (C) 2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -15,7 +15,8 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "mp/MpBridgeAlgBase.h"
+#include <mp/MpBridgeAlgBase.h>
+#include <os/OsSysLog.h>
 
 // DEFINES
 #define TEST_PRINT_MIXING
@@ -82,6 +83,8 @@ public:
 ///@name Accessors
 //@{
 
+    /// Dump the mix matrix to log
+   void dumpOutputMix(UtlString& dumpString);
 
 //@}
 
@@ -171,11 +174,20 @@ protected:
       inline void setGain(int input, int output, MpBridgeGain gain)
       {
          assert(input < mInputsNum && output < mOutputsNum);
+         assert(input >= 0);
+         assert(output >= 0);
 
          int extendedInput = mpExtendedInputsMap[input*mOutputsNum + output];
 
          if (extendedInput >= 0)
          {
+            if(mpExtendedInputsInfo[extendedInput].mRefCounter <= 0)
+            {
+               OsSysLog::add(FAC_MP, PRI_DEBUG,
+                  "ExtendedInputs::setGain(in=%d, out=%d, gain=%f) mRefCounter: %d",
+                  input, output, gain, mpExtendedInputsInfo[extendedInput].mRefCounter);
+               OsSysLog::flush();
+            }
             assert(mpExtendedInputsInfo[extendedInput].mRefCounter > 0);
             mpExtendedInputsInfo[extendedInput].mRefCounter--;
          }
@@ -358,39 +370,40 @@ protected:
 
 #ifdef TEST_PRINT_MIXING // [
 #ifdef TEST_PRINT_MIXING_BINARY // [
-#  define PRINT_DATA_SET(offset) \
+#  define PRINT_DATA_SET(printString, offset) \
    for (int i=0; i<mMixDataInfoStackStep; i++) \
    { \
-      printf(" %d", mpMixDataInfoStack[mMixDataInfoStackStep*offset + i]); \
+      printString.appendFormat(" %d", mpMixDataInfoStack[mMixDataInfoStackStep*offset + i]); \
    }
-#  define PRINT_DATA_SET_TOP() \
+#  define PRINT_DATA_SET_TOP(printString) \
    for (int i=0; i<mMixDataInfoStackStep; i++) \
    { \
-      printf(" %d", mpMixDataInfoStackTop[i]); \
+      printString.appendFormat(" %d", mpMixDataInfoStackTop[i]); \
    }
 #else // TEST_PRINT_MIXING_BINARY ][
-#  define PRINT_DATA_SET(offset) \
+#  define PRINT_DATA_SET(printString, offset) \
    for (int i=0; i<mMixDataInfoStackStep; i++) \
    { \
       if (mpMixDataInfoStack[mMixDataInfoStackStep*offset + i] > 0) \
       { \
-         printf(" %d", i); \
+         printString.appendFormat(" %d", i); \
       } \
    }
-#  define PRINT_DATA_SET_TOP() \
+#  define PRINT_DATA_SET_TOP(printString) \
    for (int i=0; i<mMixDataInfoStackStep; i++) \
    { \
       if (mpMixDataInfoStackTop[i] > 0) \
       { \
-         printf(" %d", i); \
+         printString.appendFormat(" %d", i); \
       } \
    }
 #endif //TEST_PRINT_MIXING_BINARY ]
 #  define PRINT_TOP_MIX_DATA() \
    { \
-      printf("pushed data %2d:           [", mMixDataInfoProcessedStackTop); \
-      PRINT_DATA_SET_TOP() \
-      printf("]\n"); \
+      UtlString printString; \
+      printString.appendFormat("pushed data %2d:           [", mMixDataInfoProcessedStackTop); \
+      PRINT_DATA_SET_TOP(printString) \
+      OsSysLog::add(FAC_MP, PRI_DEBUG, "%s]\n", printString.data()); \
    }
 #else  // TEST_PRINT_MIXING ][
 #  define PRINT_TOP_MIX_DATA()
@@ -414,9 +427,11 @@ protected:
    inline void pushMixActionCopyToOutput(int src, int dst)
    {
 #ifdef TEST_PRINT_MIXING // [
-      printf("COPY_TO_OUTPUT:  %2d -> %2d [", src, dst);
-      PRINT_DATA_SET(src);
-      printf("]\n");
+      UtlString printString;
+      printString.appendFormat("COPY_TO_OUTPUT:  %2d -> %2d [", src, dst);
+      PRINT_DATA_SET(printString, src);
+      printString.append("]\n");
+      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpBridgeAlgLinear::pushMixActionCopyToOutput\n%s", printString.data());
 #endif // TEST_PRINT_MIXING ]
       pushMixAction(MixAction::COPY_TO_OUTPUT, src, -1, dst);
    }
@@ -424,9 +439,11 @@ protected:
    inline void pushMixActionCopyFromInput(int src, int dst)
    {
 #ifdef TEST_PRINT_MIXING // [
-      printf("COPY_FROM_INPUT: %2d <- %2d [", dst, src);
-      PRINT_DATA_SET(dst);
-      printf("]\n");
+      UtlString printString;
+      printString.appendFormat("COPY_FROM_INPUT: %2d <- %2d [", dst, src);
+      PRINT_DATA_SET(printString, dst);
+      printString.append("]\n");
+      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpBridgeAlgLinear::pushMixActionCopyFromInput\n%s", printString.data());
 #endif // TEST_PRINT_MIXING ]
       // No real need to do this. Enable if you want debug.
       //mpMixDataInfoProcessedStack[src] = mMixActionsStackTop;
@@ -436,13 +453,15 @@ protected:
    inline void pushMixActionMix(int src1, int src2, int dst)
    {
 #ifdef TEST_PRINT_MIXING // [
-      printf("DO_MIX:     %2d + %2d -> %2d [", src1, src2, dst);
-      PRINT_DATA_SET(src1);
-      printf("] + [");
-      PRINT_DATA_SET(src2);
-      printf("] -> [");
-      PRINT_DATA_SET(dst);
-      printf("]\n");
+      UtlString printString;
+      printString.appendFormat("DO_MIX:     %2d + %2d -> %2d [", src1, src2, dst);
+      PRINT_DATA_SET(printString, src1);
+      printString.append("] + [");
+      PRINT_DATA_SET(printString, src2);
+      printString.append("] -> [");
+      PRINT_DATA_SET(printString, dst);
+      printString.append("]\n");
+      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpBridgeAlgLinear::pushMixActionMix\n%s", printString.data());
 #endif // TEST_PRINT_MIXING ]
       mpMixDataInfoProcessedStack[dst] = mMixActionsStackTop;
       pushMixAction(MixAction::DO_MIX, src1, src2, dst);
@@ -452,7 +471,8 @@ protected:
    {
       int action = mpMixDataInfoProcessedStack[dst];
 #ifdef TEST_PRINT_MIXING // [
-      printf("pull:       %2d + %2d -> %2d\n",
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+             "MpBridgeAlgLinear::moveTopMixActionMix\npull:       %2d + %2d -> %2d\n",
              mpMixActionsStack[action].mSrc1,
              mpMixActionsStack[action].mSrc2,
              mpMixActionsStack[action].mDst);
