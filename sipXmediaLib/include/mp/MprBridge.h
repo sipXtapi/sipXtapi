@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -26,6 +25,9 @@
 // DEFINES
 #define TEST_PRINT_CONTRIBUTORS
 #undef  TEST_PRINT_CONTRIBUTORS
+
+//#define PRINT_CLIPPING_STATS
+#define PRINT_CLIPPING_FREQUENCY 100
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -169,6 +171,11 @@ protected:
    AlgType mAlgType;              ///< Type of the bridge algorithm to use.
    MpBridgeAlgBase *mpBridgeAlg;  ///< Instance of algorithm, used to mix data.
    UtlBoolean mMixSilence;        ///< Should Bridge ignore or mix frames marked as silence?
+
+#ifdef PRINT_CLIPPING_STATS
+   int mClippedFramesCounted;
+   int* mpOutputClippingCount;
+#endif
 
      /// @brief Associates this resource with the indicated flow graph.
    OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);

@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -16,6 +15,7 @@
 #include <assert.h>
 #include <limits.h>
 
+
 // APPLICATION INCLUDES
 #include <os/OsDefs.h> // for min macro
 #include <mp/MpBuf.h>
@@ -25,6 +25,10 @@
 #include <mp/MprBridgeSetGainsMsg.h>
 #include <mp/MpBridgeAlgSimple.h>
 #include <mp/MpBridgeAlgLinear.h>
+
+#ifdef PRINT_CLIPPING_STATS
+#  include <os/OsSysLog.h>
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -156,6 +160,11 @@ MprBridge::MprBridge(const UtlString& rName,
 , mAlgType(algorithm)
 , mpBridgeAlg(NULL)
 , mMixSilence(mixSilence)
+#ifdef PRINT_CLIPPING_STATS
+, mClippedFramesCounted(0)
+, mpOutputClippingCount(NULL)
+#endif
+
 {
    handleDisable();
 
@@ -166,6 +175,21 @@ MprBridge::MprBridge(const UtlString& rName,
    {
       mpLastOutputContributors[i] = new MpContributorVector(maxInOutputs);
    }
+#endif
+
+#ifdef PRINT_CLIPPING_STATS
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MprBridge::MprBridge new int[%d]", maxInOutputs);
+   mpOutputClippingCount = new int[maxInOutputs];
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MprBridge::MprBridge after new int[%d]", maxInOutputs);
+   OsSysLog::flush();
+   for(int outIndex = 0; outIndex < maxInOutputs; outIndex++)
+   {
+      mpOutputClippingCount[outIndex] = 0;
+   }
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MprBridge::MprBridge initialized maxInOutputs");
 #endif
 }
 
@@ -186,6 +210,10 @@ MprBridge::~MprBridge()
    mpLastOutputContributors = NULL;
 #endif
 
+#ifdef PRINT_CLIPPING_STATS
+   delete[] mpOutputClippingCount;
+   mpOutputClippingCount = NULL;
+#endif
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -194,6 +222,7 @@ OsStatus MprBridge::setMixWeightsForOutput(int bridgeOutputPort,
                                            int numWeights,
                                            const MpBridgeGain gains[])
 {
+   assert(bridgeOutputPort >= 0);
    MpBridgeGain *pGainsCopy = new MpBridgeGain[numWeights];
    memcpy(pGainsCopy, gains, numWeights*sizeof(MpBridgeGain));
 
@@ -367,6 +396,7 @@ UtlBoolean MprBridge::handleSetMixWeightsForOutput(int bridgeOutputPort,
                                                    const MpBridgeGain gain[])
 {
    // New gains vector must feet into matrix
+   assert(bridgeOutputPort >= 0);
    assert(numWeights <= maxInputs());
    if (numWeights > maxInputs())
    {
@@ -420,6 +450,45 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
    }
 
    ret = doMix(inBufs, inBufsSize, outBufs, outBufsSize, samplesPerFrame);
+
+#ifdef PRINT_CLIPPING_STATS
+   UtlString outputsClippingMessage;
+   mClippedFramesCounted++;
+   //OsSysLog::add(FAC_MP, PRI_DEBUG, "Bridge clipping frame count: %d outBufsSize: %d", 
+   //   mClippedFramesCounted, outBufsSize);
+
+   for(int outIndex = 0; outIndex < outBufsSize; outIndex++)
+   {
+      if(outBufs[outIndex].isValid())
+      {
+         MpAudioBufPtr audioBufPtr = outBufs[outIndex];
+
+          mpOutputClippingCount[outIndex] +=
+            MpDspUtils::countClippedValues(audioBufPtr->getSamplesPtr(), 
+                                           audioBufPtr->getSamplesNumber());
+      }
+
+      if(mClippedFramesCounted >= PRINT_CLIPPING_FREQUENCY)
+      {
+         outputsClippingMessage.appendFormat("\noutput[%d]: %d", 
+            outIndex, mpOutputClippingCount[outIndex]);
+
+         mpOutputClippingCount[outIndex] = 0;
+      }
+   }
+
+   if(mClippedFramesCounted >= PRINT_CLIPPING_FREQUENCY)
+   {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "Bridge clipping for last %d samples on:%s", 
+         PRINT_CLIPPING_FREQUENCY * mpFlowGraph->getSamplesPerFrame(), 
+         outputsClippingMessage.data());
+
+      mClippedFramesCounted = 0;
+   }
+
+   //OsSysLog::add(FAC_MP, PRI_DEBUG, "Bridge clipping frame count: %d", mClippedFramesCounted);
+#endif
 
 #ifdef TEST_PRINT_CONTRIBUTORS
    for (int outIdx=0; outIdx < outBufsSize; outIdx++) {
