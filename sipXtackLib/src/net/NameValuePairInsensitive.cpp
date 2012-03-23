@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -107,9 +109,7 @@ NameValuePairInsensitive::compareTo(
 {
     int compareFlag = -1;
 
-    if (compareContainable &&
-        compareContainable->isInstanceOf(NameValuePairInsensitive::TYPE) ==
-        TRUE)
+    if (compareContainable)
     {
        compareFlag =
           ((UtlString*) this)->
@@ -127,6 +127,13 @@ NameValuePairInsensitive::isEqual(
    UtlContainable const * compareContainable) const
 {
     return (compareTo(compareContainable) == 0);
+}
+
+UtlBoolean NameValuePairInsensitive::isInstanceOf(const UtlContainableType type) const
+{
+    // Check if it is my type and the defer parent type comparisons to parent
+    return(areSameTypes(type, NameValuePairInsensitive::TYPE) ||
+           NameValuePair::isInstanceOf(type));
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

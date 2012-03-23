@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -14,7 +16,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "net/NameValuePair.h"
+#include <net/NameValuePair.h>
 
 // DEFINES
 // MACROS
@@ -94,6 +96,8 @@ public:
      * Test this object to another like-object for equality.  This method
      * returns false if unlike-objects are specified.
      */
+
+    virtual UtlBoolean isInstanceOf(const UtlContainableType type) const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

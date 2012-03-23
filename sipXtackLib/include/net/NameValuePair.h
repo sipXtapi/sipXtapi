@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -15,7 +17,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "utl/UtlString.h"
+#include <utl/UtlString.h>
 
 #include <os/OsMutex.h>
 
@@ -66,6 +68,9 @@ public:
    void setValue(const char*);
 
 /* ============================ INQUIRY =================================== */
+
+   UtlBoolean isInstanceOf(const UtlContainableType type) const;
+
 public:
         static int count;
 

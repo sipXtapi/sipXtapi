@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -16,7 +18,7 @@
 #include <stdio.h>
 
 // APPLICATION INCLUDES
-#include "net/NameValuePair.h"
+#include <net/NameValuePair.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -123,6 +125,13 @@ void NameValuePair::setValue(const char* newValue)
 }
 
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean NameValuePair::isInstanceOf(const UtlContainableType type) const
+{
+    // Check if it is my type and the defer parent type comparisons to parent
+    return(areSameTypes(type, NameValuePair::TYPE) ||
+           UtlString::isInstanceOf(type));
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
