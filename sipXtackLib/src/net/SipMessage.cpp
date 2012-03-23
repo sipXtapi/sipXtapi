@@ -2827,7 +2827,7 @@ void SipMessage::removeToFieldTag()
     UtlString toField;
     getToField(&toField);
     Url toUrl(toField);
-    toUrl.removeUrlParameter("tag");
+    toUrl.removeFieldParameter("tag");
     setRawToField(toUrl.toString());
 }
 
