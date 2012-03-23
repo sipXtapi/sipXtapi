@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2010 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -37,6 +36,7 @@ class SipMessageTest : public SIPX_UNIT_BASE_CLASS
       CPPUNIT_TEST(testGetViaFieldSubField);
       CPPUNIT_TEST(testGetEventField);
       CPPUNIT_TEST(testGetToAddress);
+      CPPUNIT_TEST(testRemoveToTag);
       CPPUNIT_TEST(testGetFromAddress);
       CPPUNIT_TEST(testGetResponseSendAddress);
       CPPUNIT_TEST(testParseAddressFromUriPort);
@@ -645,8 +645,59 @@ class SipMessageTest : public SIPX_UNIT_BASE_CLASS
          }
       }
 
-   void testGetFromAddress()
-      {
+    void testRemoveToTag()
+    {
+        const char* messageText =
+            "REGISTER sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+            "To: sip:user@1.2.3.4;tag=foo\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 REGISTER\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+        SipMessage request(messageText);
+
+        request.removeToFieldTag();
+        UtlString toField;
+        request.getToField(&toField);
+
+        CPPUNIT_ASSERT_EQUAL("sip:user@1.2.3.4", toField);
+
+
+        const char* message2Text =
+            "REGISTER sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+            "To: <sip:user@1.2.3.4>;tag=foo\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 REGISTER\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+        SipMessage request2(message2Text);
+
+        request2.removeToFieldTag();
+
+        request2.getToField(&toField);
+
+        CPPUNIT_ASSERT_EQUAL("sip:user@1.2.3.4", toField);
+    }
+
+
+    void testGetFromAddress()
+    {
          struct test {
             const char* string;         // Input string.
             int port;                  // Expected returned from-address port.
