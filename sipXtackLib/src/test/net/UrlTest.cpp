@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -755,6 +754,10 @@ public:
     void testChangeValues()
     {
         Url url("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1"); 
+        Url url2("sip:555@example.com;tag=foo");
+        
+        url2.removeFieldParameter("tag");
+        CPPUNIT_ASSERT_EQUAL("sip:555@example.com", url2.toString());
 
         ASSERT_STR_EQUAL("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1",
                          toString(url));
@@ -1624,23 +1627,23 @@ public:
 
          UtlString component;
 
-         CPPUNIT_ASSERT(bigschemeUrl.getScheme() == Url::UnknownUrlScheme); 
+         CPPUNIT_ASSERT_EQUAL(bigschemeUrl.getScheme(), Url::UnknownUrlScheme); 
 
          bigschemeUrl.getUserId(component);
          CPPUNIT_ASSERT(component.isNull()); 
          
          bigschemeUrl.getHostAddress(component);
-         CPPUNIT_ASSERT(component.isNull());
+         CPPUNIT_ASSERT_EQUAL("example.com", component);
          
          Url bigSchemeAddrType(bigscheme, TRUE /* as addr-type */);
 
-         CPPUNIT_ASSERT(bigSchemeAddrType.getScheme() == Url::UnknownUrlScheme); // ?
+         CPPUNIT_ASSERT_EQUAL(bigSchemeAddrType.getScheme(), Url::UnknownUrlScheme); // ?
 
          bigSchemeAddrType.getUserId(component);
          CPPUNIT_ASSERT(component.isNull()); // bigtoken
          
          bigSchemeAddrType.getHostAddress(component);
-         CPPUNIT_ASSERT(component.isNull());        
+         CPPUNIT_ASSERT_EQUAL("user", component);        
       }
 
    void testBigUriUser()
@@ -1689,6 +1692,7 @@ public:
 
    void testBigUriHost()
       {
+         printf("Start testBigUriHost\n");
          
          // see if a 128 character host parses ok
          UtlString okhost("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -1723,7 +1727,9 @@ public:
          
          PARSE(bighost);
 
-         CPPUNIT_ASSERT(bighostUrl.getScheme() == Url::UnknownUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(bighostUrl.getScheme(), Url::SipUrlScheme);
+
+         printf("Finish testBigUriHost\n");
       }
 
     /////////////////////////

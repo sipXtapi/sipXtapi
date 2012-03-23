@@ -64,4 +64,4 @@ sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
     ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
-    net/SipSrvLookupTest.cpp
+    net/UrlTest.cpp
