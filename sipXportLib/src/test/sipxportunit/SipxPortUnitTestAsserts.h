@@ -36,7 +36,7 @@
     ASSERT_STR_EQUAL_MESSAGE("", STRING1, STRING2)
 
 #define ASSERT_STR_EQUAL_MESSAGE(STR_NOT_EQ_MSG, STR1, STR2) \
-    CPPUNIT_ASSERT_MESSAGE(STR_NOT_EQ_MSG, (strcmp(STR1, STR2) == 0))
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(STR_NOT_EQ_MSG, STR1, STR2)
 
 #define CPPUNIT_ASSERT_EQUAL(EQUAL_ARG1, EQUAL_ARG2) \
     CPPUNIT_ASSERT_EQUAL_MESSAGE("", EQUAL_ARG1, EQUAL_ARG2)
@@ -49,7 +49,7 @@
                 currentTestClass->incrementTestPointIndex(); \
                 currentTestClass->setTestPointLine(__LINE__); \
                 currentTestClass->setTestPointFilename(__FILE__); \
-                if(EQ_ARG1 == EQ_ARG2) \
+                if(SipxPortUnitTestEnvironment::areEqual(EQ_ARG1,EQ_ARG2)) \
                 { \
                     currentTestClass->incrementTestPointsPassed(); \
                 } \

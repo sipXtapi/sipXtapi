@@ -371,6 +371,16 @@ void SipxPortUnitTestEnvironment::printOut(const char* messageText)
     }
 }
 
+bool SipxPortUnitTestEnvironment::areEqual(int arg1, int arg2)
+{
+   return(arg1 == arg2);
+}
+
+bool SipxPortUnitTestEnvironment::areEqual(const UtlString& arg1, const UtlString& arg2)
+{
+   return(arg1.compareTo(arg2) == 0);
+}
+
 void SipxPortUnitTestEnvironment::makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, 
                                                             const char* arg1String, const char* arg2String,
                                                             const char* fileName, const char* className, 

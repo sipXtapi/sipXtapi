@@ -15,7 +15,7 @@
 #define _SipxPortUnitTestEnvironment_h_
 
 // SYSTEM INCLUDES
-//#include <...>
+#include <utl/UtlString.h>
 
 // APPLICATION INCLUDES
 // DEFINES
@@ -102,6 +102,10 @@ public:
     static void printOut(const char* messageText);
 
     static void defaultPrintOut(const char* messageText);
+
+    static bool areEqual(int arg1, int arg2);
+
+    static bool areEqual(const UtlString& arg1, const UtlString& arg2);
 
     static void makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, const char* arg1String, const char* arg2String,
                     const char* fileName, const char* className, const char* methodName, int testPoint, int lineNum, 
