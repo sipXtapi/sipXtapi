@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2808,12 +2807,12 @@ void SipMessage::setUriParameter(UtlString* uri, const char* parameterName,
 
 void SipMessage::setToFieldTag(const char* tagValue)
 {
-   UtlString toField;
-   getToField(&toField);
-   //osPrintf("To field before: \"%s\"\n", toField.data());
-   setUriTag(&toField, tagValue);
-   //osPrintf("To field after: \"%s\"\n", toField.data());
-   setRawToField(toField.data());
+    UtlString toField;
+    getToField(&toField);
+    //osPrintf("To field before: \"%s\"\n", toField.data());
+    setUriTag(&toField, tagValue);
+    //osPrintf("To field after: \"%s\"\n", toField.data());
+    setRawToField(toField.data());
 }
 
 void SipMessage::setToFieldTag(int tagValue)
@@ -2821,6 +2820,15 @@ void SipMessage::setToFieldTag(int tagValue)
     char tagString[MAXIMUM_INTEGER_STRING_LENGTH];
     sprintf(tagString, "%d", tagValue);
     setToFieldTag(tagString);
+}
+
+void SipMessage::removeToFieldTag()
+{
+    UtlString toField;
+    getToField(&toField);
+    Url toUrl(toField);
+    toUrl.removeUrlParameter("tag");
+    setRawToField(toUrl.toString());
 }
 
 void SipMessage::setUriTag(UtlString* uri, const char* tagValue)
@@ -2839,7 +2847,7 @@ void SipMessage::getUri(UtlString* address, int* port,
    if( !uriField.isNull())
    {
       //Uri field will only have URL parameters . So add angle backets around the
-      //whole string. else the url parameters will be trated as filed and header parameters
+      //whole string. else the url parameters will be trated as field and header parameters
 
       Url uriUrl(uriField, TRUE); // is addrSpec
 

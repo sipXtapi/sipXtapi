@@ -1,7 +1,6 @@
 //
 // 
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2005, 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -845,6 +844,9 @@ public:
     void setToFieldTag(const char* tagValue);
 
     void setToFieldTag(int tagValue);
+
+    /// Remove the To field tag and value
+    void removeToFieldTag();
 
     void setExpiresField(int expiresInSeconds);
 
