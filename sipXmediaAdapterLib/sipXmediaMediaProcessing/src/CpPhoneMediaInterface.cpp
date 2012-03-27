@@ -1092,6 +1092,11 @@ OsStatus CpPhoneMediaInterface::stopRtpSend(int connectionId)
    return(returnCode);
 }
 
+OsStatus CpPhoneMediaInterface::setMixWeightsForOutput(int bridgeOutputPort, int numWeights, float weights[])
+{
+   return(OS_NOT_YET_IMPLEMENTED);
+}
+
 OsStatus CpPhoneMediaInterface::stopRtpReceive(int connectionId)
 {
    OsStatus returnCode = OS_NOT_FOUND;
