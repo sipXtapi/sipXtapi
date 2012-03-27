@@ -283,6 +283,18 @@ UtlBoolean SipLine::addCredentials( const UtlString& strRealm,
       SipLineCredentials* credential = new SipLineCredentials(strRealm , strUserID, strPasswd, Type);
       mCredentials.insert((UtlString*)credential);
       isAdded = TRUE;
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+          "SipLine::addCredentials(realm=%s, userId=%s, password=%s, type=%s) number of credentials: %d for line: %s",
+          strRealm.data(), strUserID.data(), strPasswd.isNull() ? "" : "******", 
+          Type.data(), mCredentials.entries(), mIdentity.toString().data());
+#endif
+   }
+   else
+   {
+      OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+          "SipLine::addCredentials(realm=%s, userId=%s, ...) not added as its a duplicate",
+          strRealm.data(), strUserID.data());
    }
    return isAdded;
 }
@@ -304,9 +316,17 @@ UtlBoolean SipLine::getCredentials(const UtlString& type /*[in]*/,
    UtlString userPassword;
    *MD5_token = "";
 
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipLine::getCredentials credential count: %d for line: %s",
+                 mCredentials.entries(), mIdentity.toString().data());
+#endif
+
    SipLineCredentials* credential = (SipLineCredentials*) mCredentials.find(&matchRealm);
    if (credential)
    {
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipLine::getCredentials found credentials for realm: <%s>", matchRealm.data());
+#endif
       credential->getUserId(userID);
       credential->getPasswordToken(&userPassword);
       credentialsFound = TRUE;
@@ -318,12 +338,21 @@ UtlBoolean SipLine::getCredentials(const UtlString& type /*[in]*/,
       credential = (SipLineCredentials*) mCredentials.find(&emptyRealm);
       if (credential)
       {
+#ifdef TEST_PRINT
+          OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipLine::getCredentials found credentials for realm: <%s>", emptyRealm.data());
+#endif
           credential->getUserId(userID);
           credential->getPasswordToken(&userPassword);
           credentialsFound = TRUE;
           credential = NULL;
           HttpMessage::buildMd5UserPasswordDigest(userID->data(), realm.data(), userPassword.data(), *MD5_token);
       }
+#ifdef TEST_PRINT
+      else
+      {
+          OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipLine::getCredentials found no credentials");
+      }
+#endif
    }
 
    return  credentialsFound ;
