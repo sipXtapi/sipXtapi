@@ -69,7 +69,9 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
      fi
   fi          
 
-  AC_PATH_PROG(CPPUNIT_CONFIG, cppunit-config, no)
+  if test "$CPPUNIT_CONFIG" = "" ; then
+    AC_PATH_PROG(CPPUNIT_CONFIG, cppunit-config, no)
+  fi
   cppunit_version_min=$1
 
   AC_MSG_CHECKING(for Cppunit - version >= $cppunit_version_min)
