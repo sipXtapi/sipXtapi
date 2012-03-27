@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -45,6 +44,8 @@
 
 #define UNREGISTER_CSEQ_NUMBER   2146483648   // 2^31 - 1,000,000
 #define MIN_REFRESH_TIME_SECS       20 // Floor for re-subscribes/re-registers
+
+//#define REMOVE_TO_TAG_IN_REREGISTER
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -582,6 +583,14 @@ SipRefreshMgr::sendRequest (
     UtlBoolean   bIsUnregOrUnsub ;           // Is this an unregister or unsubscribe?
    
     // Reset the transport data and the via fields
+#ifdef REMOVE_TO_TAG_IN_REREGISTER
+    UtlString requestMethod;
+    request.getRequestMethod(&requestMethod);
+    if(requestMethod.compareTo(SIP_REGISTER_METHOD) == 0)
+    {
+        request.removeToFieldTag();
+    }
+#endif
     request.resetTransport();
     request.removeLastVia();
     request.setDateField();
@@ -1361,6 +1370,12 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
     {
         SipMessage* sipMsg = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage();
         int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
+
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG, "SipRefreshMgr::handleMessage messageType: %d",
+            messageType);
+#endif
+
         UtlString callid;
         int cseq;
         sipMsg->getCallIdField(&callid);
@@ -1967,6 +1982,9 @@ SipRefreshMgr::addToRegisterList(SipMessage *message)
     else
     {
         SipMessage *msg = new SipMessage (*message);
+
+        // Remove the To tag so that does not interfer with the matching
+        msg->removeToFieldTag();
 
 #ifdef TEST_PRINT
         osPrintf("**********************************************\n");
