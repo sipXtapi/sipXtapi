@@ -1537,8 +1537,9 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
 
 #ifdef VIDEO
       // Start sending RTP if destination address is present.
-      if ( !mediaConnection->mRtpVideoSendHostAddress.isNull()
-         && mediaConnection->mRtpVideoSendHostAddress.compareTo("0.0.0.0"))
+      if ( mediaConnection->mRtpVideoSendHostPort > 0 &&
+         !mediaConnection->mRtpVideoSendHostAddress.isNull() &&
+         mediaConnection->mRtpVideoSendHostAddress.compareTo("0.0.0.0"))
       {
          // Do the same for video
          // Note: temporarily use MprDecode message for video encode as we want full list of
