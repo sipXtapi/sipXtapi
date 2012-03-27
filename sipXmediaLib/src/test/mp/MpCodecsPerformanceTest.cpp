@@ -1,9 +1,8 @@
 //  
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//  
 // Copyright (C) 2006-2010 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -39,6 +38,7 @@ static UtlString sCodecPaths[] = {
                                   "../../../../bin",
                                   "../../../bin",
                                   "../../bin",
+//                                  "/usr/local/sipx/share/sipxmedialib",
 #else
 #                                 error "Unknown platform"
 #endif
@@ -112,7 +112,11 @@ public:
          unsigned     codecFmtpsNum;
          codecFmtpsNum = pCodecInfo[j]->fmtpsNum;
          pCodecFmtps = pCodecInfo[j]->fmtps;
-         if (codecFmtpsNum == 0)
+         if(strcmp(pCodecInfo[j]->mimeSubtype, MIME_SUBTYPE_H264) == 0)
+         {
+             printf("Skipping codec: %s\n", pCodecInfo[j]->mimeSubtype);
+         }
+         else if (codecFmtpsNum == 0)
          {
             testOneCodecPreformance(pCodecFactory,
                                     pCodecInfo[j]->mimeSubtype,
@@ -155,6 +159,8 @@ protected:
       int            maxPacketSamples = (MAX_PACKET_TIME*sampleRate)/1000;
       int            frameSize = (sampleRate*FRAME_MS)/1000;
       int            codecFrameSamples;
+      UtlString contextMessage;
+      contextMessage.appendFormat("While testing codec: %s fmtp: %s sample rate: %d", codecMime.data(), codecFmtp.data(), sampleRate);
 
       // Allocate buffer for raw audio data
       pOriginal = new MpAudioSample[frameSize];
@@ -175,7 +181,7 @@ protected:
       CPPUNIT_ASSERT(pDecoder);
 
       OsStatus initDecodeStatus = pDecoder->initDecode();
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, initDecodeStatus);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(contextMessage.data(), OS_SUCCESS, initDecodeStatus);
                            
       // Could not test speed of signaling codec
       if (pDecoder->getInfo() == NULL || pDecoder->getInfo()->isSignalingCodec())
@@ -184,6 +190,10 @@ protected:
          delete pDecoder;
          return;
       }
+
+      printf("codec: %s sample rate: %d frame size: %d\n",
+         codecMime.data(), sampleRate, pDecoder->getInfo()->getNumSamplesPerFrame());
+
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            pCodecFactory->createEncoder(codecMime, codecFmtp,
                                                         sampleRate, numChannels,
@@ -208,6 +218,7 @@ protected:
          assert(!"Unknown codec type!");
       }
 
+      unsigned char* rtpDataStart = NULL;
 
       for (int i=0; i<NUM_PACKETS_TO_TEST; i++)
       {
@@ -223,9 +234,20 @@ protected:
          OsTime         stop;
          OsTime         diff;
 
+         if(rtpDataStart == NULL)
+         {
+             rtpDataStart = pRtpPayloadPtr;
+         }
+
          // Encode frames until we get tmpSendNow set or reach packet size limit.
          do 
          {
+            if(pRtpPayloadPtr != rtpDataStart)
+            {
+               printf("WARNING: rtpDataStart: %p pRtpPayloadPtr: %p\n",
+                   rtpDataStart, pRtpPayloadPtr);
+            }
+
             // Encode one frame and measure time it took.
             UtlBoolean setMarkerBit;
             OsStatus result;
@@ -251,11 +273,21 @@ protected:
             payloadSize += tmpEncodedSize;
             pRtpPayloadPtr += tmpEncodedSize;
             samplesInPacket += tmpSamplesConsumed;
-            CPPUNIT_ASSERT(payloadSize <= ENCODED_FRAME_MAX_SIZE);
+            CPPUNIT_ASSERT_MESSAGE(contextMessage.data(), payloadSize <= ENCODED_FRAME_MAX_SIZE);
+            if(payloadSize > ENCODED_FRAME_MAX_SIZE)
+            {
+                printf("payloadSize: %d ENCODED_FRAME_MAX_SIZE: %d\n",
+                    payloadSize, ENCODED_FRAME_MAX_SIZE);
+            }
             encodeFrameNum++;
+            printf("payloadSize: %d tmpIsPacketReady: %s samplesInPacket: %d codecFrameSamples: %d maxPacketSamples: %d tmpEncodedSize: %d\n",
+                payloadSize, tmpIsPacketReady ? "true" : "false", samplesInPacket, codecFrameSamples, maxPacketSamples, tmpEncodedSize);
          } while( (payloadSize == 0)
                 ||( (tmpIsPacketReady != TRUE) &&
                     (samplesInPacket+codecFrameSamples <= maxPacketSamples)));
+
+         printf("packet samples: %d\n", samplesInPacket);
+
          pRtpPacket->setPayloadSize(payloadSize);
 
          // Decode frame, measure time and verify, that we decoded same number of samples.
@@ -264,7 +296,10 @@ protected:
                                                pDecoded);
          OsDateTime::getCurTime(stop);
          CPPUNIT_ASSERT_EQUAL(samplesInPacket, tmpSamplesConsumed);
-            
+
+         printf("RTP payload first byte: %x payload size: %d\n",
+             *(pRtpPacket->getDataPtr()), pRtpPacket->getPayloadSize());
+ 
          // Print timing in TSV format
          diff = stop - start;
          printf("decode %s/%d/%d %s;%d;%ld.%06ld;%ld.%06ld\n",
