@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -666,13 +668,13 @@ SipLineMgr::getLineforAuthentication(
    if (line == NULL)
    {
       // Log the failure
-      OsSysLog::add(FAC_AUTH, PRI_ERR, "line manager is unable to find auth credentials:\nuser=%s\nrealm=%s\nlineid=%s",
+      OsSysLog::add(FAC_AUTH, PRI_ERR, "line manager is unable to find line for auth \nuser=%s\nrealm=%s\nlineid=%s",
             userId.data(), realm.data(), lineId.data()) ;
    }
    else
    {
       // Log the SUCCESS
-      OsSysLog::add(FAC_AUTH, PRI_INFO, "line manager found matching auth credentials:\nuser=%s\nrealm=%s\nlineid=%s",
+      OsSysLog::add(FAC_AUTH, PRI_INFO, "line manager found matching line for auth \nuser=%s\nrealm=%s\nlineid=%s",
             userId.data(), realm.data(), lineId.data()) ;
    }
 
@@ -806,7 +808,16 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
         {
             if(line->getCredentials(scheme, realm, &userID, &passToken))
             {
+                OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                              "SipLineMgr::buildAuthenticatedRequest line->getCredentials(scheme=%s, realm=%s, userID=%s, passToken=%s)",
+                              scheme.data(), realm.data(), userID.data(), passToken.isNull() ? "" : "*****");
                 credentialFound = TRUE;
+            }
+            else
+            {
+                OsSysLog::add(FAC_AUTH, PRI_INFO, 
+                              "SipLineMgr::buildAuthenticatedRequest line->getCredentials(scheme=%s, realm=%s, ....) failed to find userID and passToken",
+                              scheme.data(), realm.data());
             }
         }
     }
@@ -828,8 +839,9 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
             int timesSent = newAuthRequest->getTimesSent();
             int transportProtocol = newAuthRequest->getSendProtocol(); //OsSocket::UNKNOWN;
             int mFirstSent = newAuthRequest->isFirstSend();
-            osPrintf( "LineMgr::BuildAuthenticated response transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d\n",
-                      transportTimeStamp, lastResendDuration, timesSent, transportProtocol, mFirstSent);
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                          "LineMgr::BuildAuthenticated response transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d\n",
+                          transportTimeStamp, lastResendDuration, timesSent, transportProtocol, mFirstSent);
 #endif
             newAuthRequest->resetTransport();
 
@@ -839,8 +851,9 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
             timesSent = newAuthRequest->getTimesSent();
             transportProtocol = newAuthRequest->getSendProtocol(); //OsSocket::UNKNOWN;
             mFirstSent = newAuthRequest->isFirstSend();
-            osPrintf("LineMgr::BuildAuthenticated response transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d\n",
-                     transportTimeStamp, lastResendDuration, timesSent, transportProtocol, mFirstSent);
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                         "LineMgr::BuildAuthenticated response transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d\n",
+                         transportTimeStamp, lastResendDuration, timesSent, transportProtocol, mFirstSent);
 #endif
 
             // Get rid of the via as another will be added.
@@ -953,27 +966,34 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
                fromUri.data(), callId.data(), scheme.data(), method.data(), sequenceNum, realm.data()) ;
         }
     }
-    line = NULL;
-
-#ifdef TEST_PRINT
-    osPrintf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
-    UtlString authBytes;
-    int authBytesLen;
-    newAuthRequest->getBytes(&authBytes, &authBytesLen);
-    osPrintf("Auth. message:\n%s", authBytes.data());
-    osPrintf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
-#endif
 
     // Else we already tried to provide authentication
     // Or we do not have a userId and password for this uri
     // Let this error message throught to the application
-#ifdef TEST
+#ifdef TEST_PRINT
     else
     {
-        osPrintf("Giving up on entity %d authorization, line: \"%s\"\n", authorizationEntity, fromUri.data());
-        osPrintf("authorization failed previously sent: %d\n", request->getAuthorizationField(&authField, authorizationEntity));
+        UtlString authField;
+        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                      "Giving up on entity %d authorization, line: \"%s\" alreadyTriedOnce: %d credentialFound: %d",
+                      authorizationEntity, fromUri.data(), alreadyTriedOnce, credentialFound);
+        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                      "authorization failed previously sent: %d\n", 
+                      request->getAuthorizationField(&authField, authorizationEntity));
     }
 #endif
+
+#ifdef TEST_PRINT
+    UtlString authBytes;
+    int authBytesLen;
+    newAuthRequest->getBytes(&authBytes, &authBytesLen);
+    OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                  "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAuth. message:\n%s^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+                  authBytes.data());
+#endif
+
+    line = NULL;
+
     return( createdResponse );
 }
 
