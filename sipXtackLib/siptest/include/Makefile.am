@@ -8,6 +8,7 @@ nobase_include_HEADERS =  \
     siptest/HelpCommand.h \
     siptest/HistoryCommand.h \
     siptest/HttpGetCommand.h \
+    siptest/RegisterCommand.h \
     siptest/RespondCommand.h \
     siptest/RespondTemplate.h \
     siptest/SipLogCommand.h \

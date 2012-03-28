@@ -19,6 +19,7 @@ siptest_SOURCES =  \
     HelpCommand.cpp \
     HistoryCommand.cpp \
     HttpGetCommand.cpp \
+    RegisterCommand.cpp \
     RespondCommand.cpp \
     RespondTemplate.cpp \
     sipdrive.cpp \

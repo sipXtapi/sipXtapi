@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -35,6 +37,8 @@
 #include <siptest/RespondTemplate.h>
 #include <siptest/SipLogCommand.h>
 #include <siptest/AuthCommand.h>
+#include <siptest/RegisterCommand.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -142,6 +146,11 @@ int main(int argc, char* argv[])
    int proxyTlsPort;
    OsConfigDb configDb;
 
+   // Enable log system
+   OsSysLog::initialize(100, "siptest");
+   OsSysLog::setOutputFile(0, "siptest.log");
+   OsSysLog::setLoggingPriority(PRI_DEBUG);
+
    // siptest uses osPrintf for output, so we have to un-suppress it.
    enableConsoleOutput(TRUE);
 
@@ -172,9 +181,7 @@ int main(int argc, char* argv[])
 
    SipLineMgr*    lineMgr = new SipLineMgr();
    SipRefreshMgr* refreshMgr = new SipRefreshMgr();
-
-   lineMgr->StartLineMgr();
-   lineMgr->initializeRefreshMgr( refreshMgr );
+   refreshMgr->setLineMgr(lineMgr);
 
    SipUserAgent*  sipUA = new SipUserAgent( proxyTcpPort
                                             ,proxyUdpPort
@@ -201,7 +208,10 @@ int main(int argc, char* argv[])
    sipUA->startMessageLog();
    osPrintf( "SIP logging Started\n" );
 
-   refreshMgr->init( sipUA );
+   lineMgr->start();
+   lineMgr->initializeRefreshMgr(refreshMgr);
+   refreshMgr->init(sipUA, sipUA->getTcpPort(), sipUA->getUdpPort());
+   refreshMgr->StartRefreshMgr();
 
    CommandMsgProcessor* msgProc = new CommandMsgProcessor(sipUA);
    msgProc->start();
@@ -217,6 +227,7 @@ int main(int argc, char* argv[])
    processor.registerCommand("rrespond", new ResendResponse(msgProc));
    processor.registerCommand("log", new SipLogCommand(*sipUA));
    processor.registerCommand("auth", new AuthCommand(lineMgr));
+   processor.registerCommand("register", new RegisterCommand(lineMgr));
    processor.registerCommand("sleep", new SleepCommand());
    processor.registerCommand("quit", new ExitCommand());
    processor.registerCommand("exit", new ExitCommand());
@@ -249,6 +260,9 @@ int main(int argc, char* argv[])
 
    delete msgProc;
    delete sipUA;
+
+   OsSysLog::flush();
+   OsSysLog::shutdown();
 
    return CommandProcessor::COMMAND_SUCCESS_EXIT != commandStatus;
 }
