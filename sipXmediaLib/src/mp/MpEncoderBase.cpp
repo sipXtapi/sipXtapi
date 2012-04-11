@@ -1,6 +1,5 @@
 //  
 // Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -13,6 +12,7 @@
 
 
 #include <mp/MpEncoderBase.h>
+//#define TEST_PRINT
 #ifdef TEST_PRINT
 #   include <os/OsSysLog.h>
 #endif
@@ -126,8 +126,8 @@ OsStatus MpEncoderBase::encode(const MpAudioSample* pAudioSamples,
 
 #ifdef TEST_PRINT
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-      "MpEncoderBase::encode end codec: %s",
-      mCodecInfo.getCodecName());
+      "MpEncoderBase::encode end codec: %s samples consumed: %d %s",
+      mCodecInfo.getCodecName(), rSamplesConsumed, isPacketReady ? "send packet" : "packet not ready");
 #endif
    return OS_SUCCESS;
 }
