@@ -53,7 +53,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define TEST_PRINT
+//#define TEST_PRINT
 
 // STATIC VARIABLE INITIALIZATIONS
    // At 10 ms each, 10 seconds.  We will send an RTP packet to each active
