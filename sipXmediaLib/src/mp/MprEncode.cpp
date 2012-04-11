@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -28,19 +27,19 @@
 #include <string.h>
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "mp/MpMisc.h"
-#include "mp/MpBuf.h"
-#include "mp/MprEncode.h"
-#include "mp/MprToNet.h"
-#include "mp/MpEncoderBase.h"
-#include "mp/dmaTask.h"
-#include "mp/MpMediaTask.h"
-#include "mp/MpCodecFactory.h"
-#include "mp/MpFlowGraphBase.h"
-#include "mp/MprnRtpStreamActivityMsg.h"
-#include "mp/MprDecodeSelectCodecsMsg.h"
-#include "mp/MpIntResourceMsg.h"
+#include <os/OsDefs.h>
+#include <mp/MpMisc.h>
+#include <mp/MpBuf.h>
+#include <mp/MprEncode.h>
+#include <mp/MprToNet.h>
+#include <mp/MpEncoderBase.h>
+#include <mp/dmaTask.h>
+#include <mp/MpMediaTask.h>
+#include <mp/MpCodecFactory.h>
+#include <mp/MpFlowGraphBase.h>
+#include <mp/MprnRtpStreamActivityMsg.h>
+#include <mp/MprDecodeSelectCodecsMsg.h>
+#include <mp/MpIntResourceMsg.h>
 
 // DEFINES
 #define DEBUG_DTMF_SEND
@@ -54,6 +53,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define TEST_PRINT
+
 // STATIC VARIABLE INITIALIZATIONS
    // At 10 ms each, 10 seconds.  We will send an RTP packet to each active
    // destination at least this often, even when muted.
@@ -508,6 +509,18 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
    //        the new frame of data. Then on decoder side we have a piece of old
    //        data at the beginning of new data which may produce an audible click.
 
+#ifdef ALWAYS_SEND_SILENCE
+   if(! in.isValid())
+   {
+      in = MpMisc.mpFgSilence;
+#  ifdef TEST_PRINT
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MprEncode::doPrimaryCodec MpMisc.mpFgSilence contains %d samples",
+         in->getSamplesNumber());
+#  endif
+   }
+#endif
+
    if (mpPrimaryCodec == NULL || !in.isValid())
    {
       if (mMarkNext1 == FALSE)
@@ -529,6 +542,11 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
          mCurrentTimestamp += mpFlowGraph->getSamplesPerFrame();
       }
 
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MprEncode::doPrimaryCodec invalid input buffer");
+#endif
+
       return;
    }
 
@@ -539,7 +557,17 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
       mpResampler->resample(0,
                             in->getSamplesPtr(), in->getSamplesNumber(), samplesConsumed,
                             mpResampleBuf, mResampleBufLen, numSamplesIn);
-      assert(samplesConsumed == in->getSamplesNumber());
+
+      // If we are using silence, we do not care if we drop stuff on the floor.
+      // TODO: optimize and don't resample silence.
+      if(in != MpMisc.mpFgSilence)
+      {
+         OsSysLog::add(FAC_MP, PRI_ERR,
+            "MprEncode::doPrimaryCodec should be equal samplesConsumed = %d in->getSamplesNumber() = %d",
+            samplesConsumed, in->getSamplesNumber());
+         OsSysLog::flush();
+         assert(samplesConsumed == in->getSamplesNumber());
+      }
       pSamplesIn = mpResampleBuf;
    }
    else
@@ -617,6 +645,11 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
                               mPayloadBytesUsed,
                               mStartTimestamp1,
                               NULL);
+
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MprEncode::doPrimaryCodec called writeRtp\n");
+#endif
 
             if (mMarkNext1 == TRUE)
             {
@@ -736,6 +769,12 @@ UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
    MpBufPtr in;
 
    mConsecutiveUnsentFrames1++;
+
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MprEncode::doProcessFrame inBufsSize: %d isEnabled: %s",
+      inBufsSize, isEnabled ? "true" : "false");
+#endif
 
    if (inBufsSize == 0)
       return FALSE;
