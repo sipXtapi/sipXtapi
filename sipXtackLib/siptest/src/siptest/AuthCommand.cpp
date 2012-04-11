@@ -1,4 +1,6 @@
 //
+// Copyright C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -133,13 +135,13 @@ int AuthCommand::execute(int argc, char* argv[])
 
         NetMd5Codec::encode( cred_input.data(), cred_digest );
 
-        printf("Adding identity '%s': user='%s' realm='%s' password='%s'\n"
+        printf("Adding identity '%s': user='%s' realm='%s' password='%s' (%d chars)\n"
                "                      H(A1)='%s'\n"
                ,identity.toString().data(), user.data(), realm.data()
-               ,password.data(), cred_digest.data()
+               ,password.data(),  password.length(),  cred_digest.data()
                );
 
-        commandStatus = (   mLineMgr.addCredentialForLine( identity, realm, user, cred_digest
+        commandStatus = (   mLineMgr.addCredentialForLine( identity, realm, user, password
                                                           ,HTTP_DIGEST_AUTHENTICATION
                                                           )
                          )
