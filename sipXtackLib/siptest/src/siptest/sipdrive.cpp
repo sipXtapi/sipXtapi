@@ -163,8 +163,14 @@ int main(int argc, char* argv[])
       configDb.set("SIP_TEST_UDP_PORT", "3000");
       configDb.set("SIP_TEST_TCP_PORT", "3000");
       configDb.set("SIP_TEST_TLS_PORT", "3001");
+      configDb.set("SIP_TEST_USE_SYMETRIC", "TRUE");
+      configDb.set("SIP_TEST_USE_RPORT_MAPPING", "FALSE");
 
       if(configDb.storeToFile(configFileName) == OS_SUCCESS)
+      {
+         osPrintf("Created config file: %s\n", configFileName);
+      }
+      else
       {
          osPrintf("Could not write config file: %s\n", configFileName);
       }
@@ -173,6 +179,12 @@ int main(int argc, char* argv[])
    proxyUdpPort = configDb.getPort("SIP_TEST_UDP_PORT") ;
    proxyTcpPort = configDb.getPort("SIP_TEST_TCP_PORT") ;
    proxyTlsPort = configDb.getPort("SIP_TEST_TLS_PORT") ;
+   UtlString useSymetricString;
+   configDb.get("SIP_TEST_USE_SYMETRIC", useSymetricString);
+   UtlBoolean useSymetric = (useSymetricString.compareTo("TRUE", UtlString::ignoreCase) == 0);
+   UtlString useRportMappingString;
+   configDb.get("SIP_TEST_USE_RPORT_MAPPING", useRportMappingString);
+   UtlBoolean useRportMapping = (useRportMappingString.compareTo("TRUE", UtlString::ignoreCase) == 0);
 
    UtlBoolean commandStatus = CommandProcessor::COMMAND_SUCCESS;
    char buffer[1024];
@@ -199,9 +211,17 @@ int main(int argc, char* argv[])
                                             ,NULL         // default authorizePasswords
                                             ,lineMgr
       );
+
+   sipUA->setUseRport(useSymetric);
+   printf("%s rport and symmetic UDP for SIP\n", useSymetric ? "Using" : "Not using");
+   sipUA->setUseRportMapping(useRportMapping);
+   printf("%s rport mapping in SIP contacts\n", useRportMapping ? "Using" : "Not using");
+
    sipUA->allowMethod(SIP_REGISTER_METHOD);
    sipUA->allowMethod(SIP_SUBSCRIBE_METHOD);
    sipUA->allowMethod(SIP_NOTIFY_METHOD);
+
+   sipUA->allowExtension(SIP_REPLACES_EXTENSION);
 
    sipUA->start();
 
