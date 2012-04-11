@@ -770,6 +770,9 @@ public:
                          int maxSessionExpiresSeconds,
                          const char* localContact = NULL);
 
+    // Copy INVITE Record-Route headers to 200 OK Route headers, returns Route count
+    int setInviteOkRoutes(const SipMessage& inviteRequest);
+
     void setByeErrorData(const SipMessage* byeRequest);
 
     void setReferOkData(const SipMessage* referRequest);

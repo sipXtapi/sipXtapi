@@ -917,14 +917,7 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
 
         setViaFromRequest(inviteRequest);
 
-        UtlString recordRouteField;
-        int recordRouteIndex = 0;
-        while(inviteRequest->getRecordRouteField(recordRouteIndex,
-                &recordRouteField))
-        {
-            setRecordRouteField(recordRouteField.data(), recordRouteIndex);
-            recordRouteIndex++;
-        }
+        setInviteOkRoutes(*inviteRequest);
 
         int inviteSessionExpires;
         UtlString refresher ;
@@ -950,6 +943,21 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
             setSessionExpires(inviteSessionExpires, SIP_REFRESHER_UAC);
         }
    }
+}
+
+int SipMessage::setInviteOkRoutes(const SipMessage& inviteRequest)
+{
+    UtlString recordRouteField;
+    int recordRouteIndex = 0;
+
+    while(inviteRequest.getRecordRouteField(recordRouteIndex,
+          &recordRouteField))
+    {
+        setRecordRouteField(recordRouteField.data(), recordRouteIndex);
+        recordRouteIndex++;
+    }
+
+    return(recordRouteIndex);
 }
 
 void SipMessage::setOkResponseData(const SipMessage* request,
