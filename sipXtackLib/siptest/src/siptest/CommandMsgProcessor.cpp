@@ -76,64 +76,74 @@ CommandMsgProcessor::operator=(const CommandMsgProcessor& rhs)
 
 UtlBoolean CommandMsgProcessor::handleMessage(OsMsg& eventMessage)
 {
-        int msgType = eventMessage.getMsgType();
-        // int msgSubType = eventMessage.getMsgSubType();
+    int msgType = eventMessage.getMsgType();
+    // int msgSubType = eventMessage.getMsgSubType();
 
-        if(msgType == OsMsg::PHONE_APP)
-        // && msgSubType == CP_SIP_MESSAGE)
+    if(msgType == OsMsg::PHONE_APP)
+    // && msgSubType == CP_SIP_MESSAGE)
+    {
+        osPrintf("CommandMsgProcessor::handleMessage Got a message\n");
+        int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
+
+        const SipMessage* sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
+        UtlString callId;
+        if(sipMsg)
         {
-                osPrintf("CommandMsgProcessor::handleMessage Got a message\n");
-                int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
-
-                const SipMessage* sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
-                UtlString callId;
-                if(sipMsg)
+            osPrintf("numRespondToMessages: %d isResponse: %d messageType: %d TransErro: %d\n",
+                     numRespondToMessages, sipMsg->isResponse(), messageType,
+                     SipMessageEvent::TRANSPORT_ERROR);
+            if((numRespondToMessages == -1 || numRespondToMessages > 0) &&
+               !sipMsg->isResponse() && messageType != SipMessageEvent::TRANSPORT_ERROR)
+            {
+                osPrintf("valid message\n");
+                if(numRespondToMessages > 0)
                 {
-                        osPrintf("numRespondToMessages: %d isResponse: %d messageType: %d TransErro: %d\n",
-                                numRespondToMessages, sipMsg->isResponse(), messageType,
-                                SipMessageEvent::TRANSPORT_ERROR);
-                        if((numRespondToMessages == -1 || numRespondToMessages > 0) &&
-                                !sipMsg->isResponse() && messageType != SipMessageEvent::TRANSPORT_ERROR)
-                        {
-                                osPrintf("valid message\n");
-                                if(numRespondToMessages > 0)
-                                {
-                                        numRespondToMessages--;
-                                }
+                    numRespondToMessages--;
+                }
 
-                                SipMessage response;
+                SipMessage response;
                 if(mpResponseMessage)
                 {
                     response = *mpResponseMessage;
                 }
+
+                // Copy To, From, CallId, Via(s), CSeq from request
                 response.setResponseData(sipMsg, responseStatusCode, responseStatusText.data());
 
-            UtlString address;
-            int port;
-            UtlString protocol;
-            UtlString tag;
+                // If this is an INVITE 200 response, we need to set the Route headers
+                UtlString method;
+                sipMsg->getRequestMethod(&method);
+                if(method.compareTo(SIP_INVITE_METHOD) == 0 && responseStatusCode >= 200 && responseStatusCode < 300)
+                {
+                    response.setInviteOkRoutes(*sipMsg);
+                }
 
-            sipMsg->getToAddress(&address,
-               &port,
-               &protocol,
-               NULL,
-               NULL,
-               &tag) ;
+                UtlString address;
+                int port;
+                UtlString protocol;
+                UtlString tag;
 
-            if( tag.isNull())
-            {
-               int tagNum = rand();
-                                   char tag[100];
-                                   sprintf(tag, "%d", tagNum);
-               UtlString tagWithDot(tag);
-               tagWithDot.append(".34756498567498567");
-                                   response.setToFieldTag(tagWithDot);
-            }
+                sipMsg->getToAddress(&address,
+                   &port,
+                   &protocol,
+                   NULL,
+                   NULL,
+                   &tag);
 
-                                UtlString msgBytes;
-                                int msgLen;
-                                response.getBytes(&msgBytes, &msgLen);
-                                osPrintf("%s",msgBytes.data());
+                if( tag.isNull())
+                {
+                    int tagNum = rand();
+                    char tag[100];
+                    sprintf(tag, "%d", tagNum);
+                    UtlString tagWithDot(tag);
+                    tagWithDot.append(".34756498567498567");
+                                      response.setToFieldTag(tagWithDot);
+                }
+ 
+                UtlString msgBytes;
+                int msgLen;
+                response.getBytes(&msgBytes, &msgLen);
+                osPrintf("%s",msgBytes.data());
 
                 if(mpLastResponseMessage)
                 {
@@ -143,18 +153,18 @@ UtlBoolean CommandMsgProcessor::handleMessage(OsMsg& eventMessage)
                 // Keep a copy of the last response sent
                 mpLastResponseMessage = new SipMessage(response);
 
-                                if(userAgent->send(response))
-                                {
-                                        osPrintf("Sent response\n");
-                                }
-                                else
-                                {
-                                        osPrintf("Send failed\n");
-                                }
-                        }
+                if(userAgent->send(response))
+                {
+                    osPrintf("Sent response\n");
                 }
+                else
+                {
+                    osPrintf("Send failed\n");
+                }
+            }
         }
-        return(TRUE);
+    }
+    return(TRUE);
 }
 
 /* ============================ ACCESSORS ================================= */
