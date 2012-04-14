@@ -1,6 +1,5 @@
 //  
 // Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -333,6 +332,49 @@ UtlBoolean SdpBody::getMediaRtcpPort(int mediaIndex, int* port) const
     }
 
     return bFound ;
+}
+
+UtlBoolean SdpBody::getMediaStreamDirection(int mediaIndex, SessionDirection& direction) const
+{
+    UtlBoolean found = FALSE;
+    direction = Unknown;
+    UtlString mediaType;
+
+    if(getMediaType(mediaIndex, &mediaType))
+    {
+        UtlSListIterator iterator(*sdpFields);
+        NameValuePair* sdpAttribute = positionFieldInstance(mediaIndex, &iterator, "m");
+        if(sdpAttribute)
+        {
+            while ((sdpAttribute = findFieldNameBefore(&iterator, "a", "m")))
+            {
+                UtlString directionToken = sdpAttribute->getValue();
+
+                if (directionToken.compareTo("inactive", UtlString::ignoreCase) == 0)
+                {
+                    direction = Inactive;
+                    found = TRUE;
+                }
+                else if (directionToken.compareTo("sendonly", UtlString::ignoreCase) == 0)
+                {
+                    direction = SendOnly;
+                    found = TRUE;
+                }
+                else if (directionToken.compareTo("recvonly", UtlString::ignoreCase) == 0)
+                {
+                    direction = RecvOnly;
+                    found = TRUE;
+                }
+                else if (directionToken.compareTo("sendrecv", UtlString::ignoreCase) == 0)
+                {
+                    direction = SendRecv;
+                    found = TRUE;
+                }
+            }
+        }
+    }
+
+    return(found);
 }
 
 UtlBoolean SdpBody::getMediaProtocol(int mediaIndex, UtlString* transportProtocol) const

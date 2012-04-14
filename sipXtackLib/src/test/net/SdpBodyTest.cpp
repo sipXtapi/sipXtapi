@@ -1,6 +1,5 @@
 //
 // Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -40,6 +39,7 @@ class SdpBodyTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testH264CodecCandidate);
     CPPUNIT_TEST(testPtime);
     CPPUNIT_TEST(testGetCodecsInCommon);
+    CPPUNIT_TEST(testDirectionAttribute);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -1441,6 +1441,80 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
 
         }
     }
+
+    void testDirectionAttribute()
+    {
+        const char* videoSdpOfferBytes = 
+            "v=0\r\n"
+            "o=polycomdme 1493339645 0 IN IP4 172.22.2.119\r\n"
+            "s=-\r\n"
+            "c=IN IP4 172.22.2.119\r\n"
+            "b=AS:512\r\n"
+            "t=0 0\r\n"
+            "m=audio 49160 RTP/AVP 115 102 9 15 0 8 18 101\r\n"
+            "a=rtpmap:115 G7221/32000\r\n"
+            "a=fmtp:115 bitrate=48000\r\n"
+            "a=rtpmap:102 G7221/16000\r\n"
+            "a=fmtp:102 bitrate=32000\r\n"
+            "a=rtpmap:9 G722/8000\r\n"
+            "a=rtpmap:15 G728/8000\r\n"
+            "a=rtpmap:0 PCMU/8000\r\n"
+            "a=rtpmap:8 PCMA/8000\r\n"
+            "a=rtpmap:18 G729/8000\r\n"
+            "a=fmtp:18 annexb=no\r\n"
+            "a=rtpmap:101 telephone-event/8000\r\n"
+            "a=fmtp:101 0-15\r\n"
+            "a=sendrecv\r\n"
+            "m=audio 49160 RTP/AVP 9\r\n"
+            "a=rtpmap:9 G722/8000\r\n"
+            "a=inactive\r\n"
+            "m=video 49162 RTP/AVP 109 110 111 112 96 34 31\r\n"
+            "b=TIAS:512000\r\n"
+            "a=rtpmap:109 H264/90000\r\n"
+            "a=fmtp:109 profile-level-id=428016; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
+            "a=rtpmap:110 H264/90000\r\n"
+            "a=fmtp:110 profile-level-id=42E016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
+            "a=rtpmap:111 H264/90000\r\n"
+            "a=fmtp:111 profile-level-id=640016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
+            "a=rtpmap:112 H264/90000\r\n"
+            "a=fmtp:112 profile-level-id=44E016; packetization-mode=1; max-mbps=216000; max-fs=3600; max-br=5120; sar=13\r\n"
+            "a=rtpmap:96 H263-1998/90000\r\n"
+            "a=fmtp:96 CIF4=2;CIF=1;QCIF=1;SQCIF=1;CUSTOM=352,240,1;CUSTOM=704,480,2;J;T\r\n"
+            "a=rtpmap:34 H263/90000\r\n"
+            "a=fmtp:34 CIF4=2;CIF=1;QCIF=1;SQCIF=1\r\n"
+            "a=rtpmap:31 H261/90000\r\n"
+            "a=fmtp:31 CIF=1;QCIF=1\r\n"
+            "a=rtcp-fb:* ccm fir tmmbr\r\n"
+            "a=sendonly\r\n"
+            "m=application 49164 RTP/AVP 100\r\n"
+            "a=rtpmap:100 H224/4800\r\n"
+            "a=sendrecv\r\n"
+            "m=foo 12345 RTP/AVP 111\r\n"
+            "a=recvonly\r\n"
+            "m=foo 54321 RTP/AVP 111\r\n";
+
+        SdpBody body(videoSdpOfferBytes);
+
+        SdpBody::SessionDirection direction;
+        body.getMediaStreamDirection(0, direction);
+        CPPUNIT_ASSERT_EQUAL(SdpBody::SendRecv, direction);
+
+        body.getMediaStreamDirection(1, direction);
+        CPPUNIT_ASSERT_EQUAL(SdpBody::Inactive, direction);
+
+        body.getMediaStreamDirection(2, direction);
+        CPPUNIT_ASSERT_EQUAL(SdpBody::SendOnly, direction);
+
+        body.getMediaStreamDirection(3, direction);
+        CPPUNIT_ASSERT_EQUAL(SdpBody::SendRecv, direction);
+
+        body.getMediaStreamDirection(4, direction);
+        CPPUNIT_ASSERT_EQUAL(SdpBody::RecvOnly, direction);
+
+        body.getMediaStreamDirection(5, direction);
+        CPPUNIT_ASSERT_EQUAL(SdpBody::Unknown, direction);
+    }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SdpBodyTest);

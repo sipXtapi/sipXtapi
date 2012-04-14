@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -90,6 +89,15 @@ class SdpBody : public HttpBody
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
+
+   typedef enum 
+   {
+      Unknown,
+      Inactive,
+      SendOnly,
+      RecvOnly,
+      SendRecv
+   } SessionDirection;
 
 /** 
  * @name ====================== Constructors and Destructors
@@ -356,6 +364,10 @@ class SdpBody : public HttpBody
    // Get the rtcp port number of the indicated media stream.
    UtlBoolean getMediaRtcpPort(int mediaIndex, ///< which media description set to read
                                int* port) const ;
+
+   // Get the stream direction or activity state
+   UtlBoolean getMediaStreamDirection(int mediaIndex, ///< which media description set to read
+                                      SessionDirection& direction) const;
 
    /// Get the number of port pairs in media stream.
    UtlBoolean getMediaPortCount(int mediaIndex, ///< which media description set to read
