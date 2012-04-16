@@ -50,10 +50,13 @@
   static inline void dprintf(...) {};
 #endif
 
+//#define TEST_PRINT
+
+//#define ALWAYS_SEND_SILENCE
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-//#define TEST_PRINT
 
 // STATIC VARIABLE INITIALIZATIONS
    // At 10 ms each, 10 seconds.  We will send an RTP packet to each active
@@ -510,6 +513,11 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
    //        data at the beginning of new data which may produce an audible click.
 
 #ifdef ALWAYS_SEND_SILENCE
+   // We get null audio buffers if there are no active inputs mixed at the bridge/upstream resource.
+   // This forces there to be silence audio samples to be encoded and a RTP packet to be created
+   // for silence.
+   // TODO: this should be runtime configurable and ideally we should be able to state that a silence
+   // packet should be sent periodically.
    if(! in.isValid())
    {
       in = MpMisc.mpFgSilence;
