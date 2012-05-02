@@ -28,6 +28,7 @@
 class SipMessageTest : public SIPX_UNIT_BASE_CLASS
 {
       CPPUNIT_TEST_SUITE(SipMessageTest);
+      CPPUNIT_TEST(testStrictRoute);
       CPPUNIT_TEST(testGetVia);
       CPPUNIT_TEST(testGetViaShort);
       CPPUNIT_TEST(testGetAddrVia);
@@ -56,9 +57,30 @@ class SipMessageTest : public SIPX_UNIT_BASE_CLASS
 
       public:
 
+   void testStrictRoute()
+   {
+      const char* multiRouteMessage =
+         "INFO sip:54009@205.168.62.28:5061;transport=tls;epv=%3Csip%3A54009%40avaya.com%3Bgr%3Dde97ff28b067f9489be1e5c84657e79e%3E SIP/2.0\n"
+         "From: <sip:54003@205.168.62.18>;tag=1843869851\n"
+         "To: \"54009, one-XC (Mike)\"<sip:54009@avaya.com>;tag=80e2edf86d90e118b444f9d5d8300\n"
+         "Call-Id: 80e2edf86d90e118c444f9d5d8300\n"
+         "Cseq: 58947 INFO\n"
+         "Contact: <sip:54003@72.93.243.20:5060;LINEID=2485b91b6e74>\n"
+         "Content-Length: 0\n"
+         "Route: <sip:67d943c@205.168.62.18;transport=udp;lr>,<sip:205.168.62.17:15060;lr;sap=-302606298*1*016asm-callprocessing.sar289253325~1335468981657~-1796222065~1>,<sip:67d943c@205.168.62.18;transport=tls;lr>,<sip:205.168.62.28:5061;transport=tls;lr>\n";
+
+      SipMessage request(multiRouteMessage);
+      UtlString firstRoute;
+      request.getRouteUri(0, &firstRoute);
+
+      CPPUNIT_ASSERT_EQUAL(firstRoute, "<sip:67d943c@205.168.62.18;transport=udp;lr>");
+      CPPUNIT_ASSERT(! request.isClientMsgStrictRouted());
+
+   };
+
    void testGetVia()
       {
-         const char* SimpleMessage =
+         const char*simpleMessage =
             "REGISTER sip:sipx.local SIP/2.0\r\n"
             "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
             "To: sip:sipx.local\r\n"
@@ -72,7 +94,7 @@ class SipMessageTest : public SIPX_UNIT_BASE_CLASS
             "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
-         SipMessage testMsg( SimpleMessage, strlen( SimpleMessage ) );
+         SipMessage testMsg(simpleMessage, strlen(simpleMessage));
 
          UtlString viaAddress;
          int viaPort;
