@@ -957,7 +957,20 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
                 UtlString requestUri;
                 newAuthRequest->getRequestUri(&requestUri);
                 newAuthRequest->addRouteUri(requestUri);
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipLineMgr::buildAuthenticatedRequest strict routed request, pushing URI: \"%s\" onto route stack",
+                    requestUri.data());
             }
+            else
+            {
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipLineMgr::buildAuthenticatedRequest loose routed request");
+            }
+#else
+            }
+#endif // TEST_PRINT
+
             createdResponse = TRUE;
         }
         else
