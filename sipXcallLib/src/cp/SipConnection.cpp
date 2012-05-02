@@ -1,6 +1,5 @@
 //
 // Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1042,20 +1041,22 @@ UtlBoolean SipConnection::sendInfo(UtlString contentType, UtlString sContent)
     UtlString fromAddress;
     UtlString toAddress;
     UtlString callId;
-    UtlString uri ;
     int       iCSeq ;
 
     mCSeqMgr.startTransaction(CSEQ_ID_INFO, iCSeq) ;
 
-    Url remoteUrl(mRemoteContact);
-    remoteUrl.getUri(uri);
     getFromField(&fromAddress);
     getRemoteAddress(&toAddress);
     getCallId(&callId);
-    sipInfoMessage.setRequestData(SIP_INFO_METHOD, uri, fromAddress, toAddress, callId);
+    sipInfoMessage.setRequestData(SIP_INFO_METHOD, mRemoteContact, fromAddress, toAddress, callId);
     sipInfoMessage.setContactField(mLocalContact.data());
     sipInfoMessage.setContentType(contentType.data());
     sipInfoMessage.setContentLength(sContent.length());
+    if(! mRouteField.isNull())
+    {
+        // set route
+        sipInfoMessage.setRouteField(mRouteField);
+    }
     HttpBody* pBody = new HttpBody(sContent.data(), sContent.length());
     sipInfoMessage.setBody(pBody);
     sipInfoMessage.setCSeqField(iCSeq, SIP_INFO_METHOD);
@@ -1392,6 +1393,8 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
 
                             if(remoteRtpPort > 0)
                             {
+                                // TODO: Answering, should also check if remote audio and video is actively receiving
+
                                 mpMediaInterface->startRtpSend(mConnectionId,
                                     numEncoderCodecs, encoderCodecs);
                             }
@@ -1622,6 +1625,8 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
 
                     if(remoteRtpPort > 0)
                     {
+                        // TODO: Accepting, should also check to see if remote streams are actively receiving
+
                         mpMediaInterface->startRtpSend(mConnectionId,
                                                        numEncoderCodecs, 
                                                        encoderCodecs);
@@ -2514,7 +2519,15 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage)
 #endif
         UtlBoolean messageIsResponse = sipMsg->isResponse();
         UtlString method;
-        if(!messageIsResponse) sipMsg->getRequestMethod(&method);
+        int sequenceNum;
+        if(!messageIsResponse)
+        {
+            sipMsg->getRequestMethod(&method);
+        }
+        else
+        {
+            sipMsg->getCSeqField(&sequenceNum, &method);
+        }
 
         // This is a request which failed to get sent
         if(messageType == SipMessageEvent::TRANSPORT_ERROR)
@@ -2645,6 +2658,13 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage)
         {
             if(sipMsg->isResponse())
             {
+                UtlString cseqId(method);
+                if(method.compareTo(SIP_BYE_METHOD) == 0 ||
+                   method.compareTo(SIP_CANCEL_METHOD) == 0)
+                {
+                    cseqId = CSEQ_ID_INVITE;
+                }
+
                 // If this was the INVITE we need to update the
                 // cached invite so that its cseq is up to date
                 if(inviteMsg && sipMsg->isResponseTo(inviteMsg))
@@ -2655,14 +2675,34 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage)
                     inviteMsg->setCSeqField(iCSeq,
                         SIP_INVITE_METHOD);
                 }
-#ifdef TEST_PRINT
+                // BYE, INFO, NOTIFY, OPTIONS and REFER can get challenged for authentication also.
+                // Need to update cseq for them as well to account for resend with incremented cseq.
+                else if(method.compareTo(SIP_INVITE_METHOD) &&
+                        sequenceNum == mCSeqMgr.getCSeqNumber(cseqId))
+                {
+                    mCSeqMgr.endTransaction(cseqId);
+                    int newCseq;
+                    mCSeqMgr.startTransaction(cseqId, newCseq);
+                    if(sequenceNum + 1 != newCseq)
+                    {
+                        OsSysLog::add(FAC_CP, PRI_ERR,
+                            "SipConnection conflicting CSeq for auth. retry %s request retry CSeq: %d CSeqMgr CSeq: %d",
+                            method.data(), sequenceNum + 1, newCseq);
+                    }
+                    else
+                    {
+                        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                            "SipConnection updated CSeqMgr for auth retry %s new CSeq: %d",
+                            method.data(), newCseq);
+                    }
+                }
                 else
                 {
-                    osPrintf("SipConnection::processMessage Authentication failure does not match last invite\n");
+                    OsSysLog::add(FAC_CP, PRI_ERR,
+                        "SipConnection auth retry for %s CSeq: %d does not match outstanding transaction CSeq: %d",
+                        method.data(), sequenceNum, mCSeqMgr.getCSeqNumber(cseqId));
                 }
 
-                osPrintf("SipConnection::processMessage incrementing lastSequeneceNumber\n");
-#endif
                 // If this was the INVITE we need to update the
                 // cached invite so that its cseq is up to date
 
@@ -3232,6 +3272,8 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
                     mpMediaInterface->startRtpReceive(mConnectionId,
                         numDecoderCodecs, decoderCodecs);
                     fireAudioStartEvents(MEDIA_CAUSE_UNHOLD) ;
+
+                    // TODO: reINVITE, should also check to see if remote streams are actively receiving
 
                     mpMediaInterface->startRtpSend(mConnectionId,
                         numEncoderCodecs, encoderCodecs);
@@ -3997,6 +4039,8 @@ void SipConnection::processAckRequest(const SipMessage* request)
             osPrintf("RTP SENDING address: %s port: %d\n", remoteRtpAddress.data(), remoteRtpPort);
 #endif
 
+            // TODO: received ACK with SDP, should also check if remote streams are actively receiving
+
             mpMediaInterface->startRtpSend(mConnectionId,
                 numEncoderCodecs, encoderCodecs);
             fireAudioStartEvents() ;
@@ -4659,6 +4703,8 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
                         decoderCodecs);
                     fireAudioStartEvents() ;
 
+                    // TODO: 18X early media, should also check to see if remote is actively receiving
+
                     mpMediaInterface->startRtpSend(mConnectionId,
                         numEncoderCodecs,
                         encoderCodecs);
@@ -5219,6 +5265,8 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
                         numDecoderCodecs,
                         decoderCodecs);
                 fireAudioStartEvents() ;
+
+                // TODO: Initial INVITE, should also check to see that remote side is receiving
 
                 mpMediaInterface->startRtpSend(mConnectionId,
                         numEncoderCodecs,
