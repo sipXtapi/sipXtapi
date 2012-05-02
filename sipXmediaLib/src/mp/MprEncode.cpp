@@ -568,7 +568,8 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
 
       // If we are using silence, we do not care if we drop stuff on the floor.
       // TODO: optimize and don't resample silence.
-      if(in != MpMisc.mpFgSilence)
+      if(in != MpMisc.mpFgSilence &&
+         samplesConsumed != in->getSamplesNumber())
       {
          OsSysLog::add(FAC_MP, PRI_ERR,
             "MprEncode::doPrimaryCodec should be equal samplesConsumed = %d in->getSamplesNumber() = %d",
