@@ -1543,6 +1543,7 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
    {
       if( inviteRequest->getContactUri(0, &requestContact))
       {
+// TODO:  I think this is incorrect.  requestContact I think can be a name-addr
          Url contactUrl(requestContact, true) ;
          contactUrl.includeAngleBrackets() ;
          contactUrl.toString(requestContact) ;
@@ -3726,15 +3727,19 @@ void SipMessage::addRecordRouteUri(const char* recordRouteUri)
 UtlBoolean SipMessage::isClientMsgStrictRouted() const
 {
     UtlBoolean result;
-    UtlString routeField;
-
-    if ( getRouteField( &routeField ) )
+    UtlString routeUriString;
+    // If this message was loose routed, the first route must contain the lr parameter.
+    // Get the first route
+    if(getRouteUri(0, &routeUriString))
     {
-        Url routeUrl( routeField, TRUE );
+        //OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+        //    "SipMessage::isClientMsgStrictRouted got first route: \"%s\"",
+        //    routeUriString.data());
+        Url routeUrl(routeUriString, FALSE);
         UtlString valueIgnored;
 
         // there is a route header, so see if it is loose routed or not
-        result = ! routeUrl.getUrlParameter( "lr", valueIgnored );
+        result = ! routeUrl.getUrlParameter("lr", valueIgnored);
     }
     else
     {
