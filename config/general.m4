@@ -1314,7 +1314,7 @@ AC_DEFUN([CHECK_SPANDSP],
 
     # Check for libspansdp.{so,a} in the specified lib directory if any, and a
     # number of other likely places.
-    for dir in $libval /usr/local/lib /usr/lib /sw/lib; do
+    for dir in $libval /usr/local/lib /usr/lib /usr/lib64 /sw/lib; do
         if test -f "$dir/libspandsp.so" -o -f "$dir/libspandsp.la"; then
             found_spandsp_lib="yes";
             libval=$dir
@@ -1352,11 +1352,27 @@ AC_DEFUN([CHECK_SPANDSP],
                 ac_libspandsp_newstyle=true,
                 ac_libspandsp_newstyle=false)
             
+            if test "$ac_libspandsp_newstyle" = false; then
+                AC_TRY_COMPILE([
+                        #include <stdint.h>
+                        #include <spandsp/telephony.h>
+                        #include <spandsp/g722.h>
+                        #include <spandsp/g726.h>
+                    ],[
+                        void* p = g726_init(0, 16000, G726_ENCODING_LINEAR, G726_PACKING_LEFT);
+                        void* q = g722_encode_init(0, 64000, 0);
+                        return p!=q;
+                    ],
+                    ac_libspandsp_newstyle=true,
+                    ac_libspandsp_newstyle=false)
+             fi
+            
                 CFLAGS=$OLD_CFLAGS
                 LDFLAGS=$OLD_LDFLAGS
 
             if test "$ac_libspandsp_newstyle" = false; then
 
+                AC_MSG_WARN(ac_libspandsp_newstyle == false)
                 OLD_CFLAGS=$CFLAGS
                 OLD_LDFLAGS=$LDFLAGS
                 CFLAGS+=" -I$includeval"
@@ -1373,9 +1389,11 @@ AC_DEFUN([CHECK_SPANDSP],
                     ],
                     ac_libspandsp_oldstyle=true,
                     ac_libspandsp_oldstyle=false)
-                
+
                 CFLAGS=$OLD_CFLAGS
                 LDFLAGS=$OLD_LDFLAGS
+                
+                AC_MSG_WARN(ac_libspandsp_oldstyle = $ac_libspandsp_oldstyle)
 
                 if test "$ac_libspandsp_oldstyle" = true; then
                     AC_DEFINE(HAVE_OLD_LIBSPANDSP, [1], [Have old version of libspandsp])
