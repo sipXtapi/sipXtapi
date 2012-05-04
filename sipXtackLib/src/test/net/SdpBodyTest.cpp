@@ -1267,8 +1267,11 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
             encoderPayloadId = codecArrayForEncoder[codecIndex]->getCodecPayloadFormat();
             decoderPayloadId = codecArrayForDecoder[codecIndex]->getCodecPayloadFormat();
 
-            // decoder codecs keep the payload Id of the factory
-            CPPUNIT_ASSERT_EQUAL(-1, decoderPayloadId);
+            // We are providing the answer in the SDP offer/answer case.  So we now do the
+            // friendly thing of using the payload ID of the remote side.
+            UtlString assertMsg;
+            assertMsg.appendFormat("codecIndex = %d", codecIndex);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(assertMsg.data(), encoderPayloadId, decoderPayloadId);
 
             switch(encoderPayloadId)
             {
@@ -1405,28 +1408,40 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
                  codecArrayForEncoder[codecIndex]->getPacketLength());
               CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForDecoder[codecIndex]->getPacketLength());
-              CPPUNIT_ASSERT_EQUAL((int)SdpCodec::SDP_CODEC_PCMU, decoderPayloadId);
+              // We are providing the answer in the SDP offer/answer case.  So we now do the
+              // friendly thing of using the payload ID of the remote side.
+              //CPPUNIT_ASSERT_EQUAL((int)SdpCodec::SDP_CODEC_PCMU, decoderPayloadId);
+              CPPUNIT_ASSERT_EQUAL(96, decoderPayloadId);
               break;
            case 97:
               CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForEncoder[codecIndex]->getPacketLength());
               CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForDecoder[codecIndex]->getPacketLength());
-              CPPUNIT_ASSERT_EQUAL((int)SdpCodec::SDP_CODEC_PCMA, decoderPayloadId);
+              // We are providing the answer in the SDP offer/answer case.  So we now do the
+              // friendly thing of using the payload ID of the remote side.
+              //CPPUNIT_ASSERT_EQUAL((int)SdpCodec::SDP_CODEC_PCMA, decoderPayloadId);
+              CPPUNIT_ASSERT_EQUAL(97, decoderPayloadId);
               break;
            case 98:
               CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForEncoder[codecIndex]->getPacketLength());
               CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForDecoder[codecIndex]->getPacketLength());
-              CPPUNIT_ASSERT_EQUAL(102, decoderPayloadId);
+              // We are providing the answer in the SDP offer/answer case.  So we now do the
+              // friendly thing of using the payload ID of the remote side.
+              //CPPUNIT_ASSERT_EQUAL(102, decoderPayloadId);
+              CPPUNIT_ASSERT_EQUAL(98, decoderPayloadId);
               break;
            case 99:
               CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForEncoder[codecIndex]->getPacketLength());
               CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForDecoder[codecIndex]->getPacketLength());
-              CPPUNIT_ASSERT_EQUAL(103, decoderPayloadId);
+              // We are providing the answer in the SDP offer/answer case.  So we now do the
+              // friendly thing of using the payload ID of the remote side.
+              //CPPUNIT_ASSERT_EQUAL(103, decoderPayloadId);
+              CPPUNIT_ASSERT_EQUAL(99, decoderPayloadId);
               break;
 
            case 100:
