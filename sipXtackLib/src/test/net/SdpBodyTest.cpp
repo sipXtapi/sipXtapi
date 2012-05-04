@@ -32,7 +32,7 @@ class SdpBodyTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testTimeHeaders);
     CPPUNIT_TEST(testGetMediaSetCount);
     CPPUNIT_TEST(testGetMediaAddress);
-    //CPPUNIT_TEST(testCandidateParsing);
+    CPPUNIT_TEST(testCandidateParsing);
     CPPUNIT_TEST(testRtcpPortParsing);
     // CPPUNIT_TEST(testCryptoParsing);
     CPPUNIT_TEST(testVideoCodecSelection);
@@ -40,6 +40,7 @@ class SdpBodyTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testPtime);
     CPPUNIT_TEST(testGetCodecsInCommon);
     CPPUNIT_TEST(testDirectionAttribute);
+    CPPUNIT_TEST(testMlineOrder);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -637,11 +638,11 @@ public:
 
         bRC = body2.getCandidateAttribute(0, -1, candidateId, transportId, 
                 transportType, qValue, candidateIp, candidatePort) ;
-        CPPUNIT_ASSERT(bRC == FALSE) ;
+        CPPUNIT_ASSERT_EQUAL(bRC, FALSE);
 
         bRC = body2.getCandidateAttribute(0, 0, candidateId, transportId, 
                 transportType, qValue, candidateIp, candidatePort) ;
-        CPPUNIT_ASSERT(bRC == TRUE) ;
+        CPPUNIT_ASSERT_EQUAL(bRC, TRUE);
         CPPUNIT_ASSERT(candidateId == 0) ;
         ASSERT_STR_EQUAL("tid1", transportId.data()) ;
         ASSERT_STR_EQUAL("UDP", transportType.data()) ;
@@ -678,7 +679,7 @@ public:
         CPPUNIT_ASSERT(bRC == TRUE) ;
         CPPUNIT_ASSERT(candidateId == 0) ;
         ASSERT_STR_EQUAL("tid1", transportId.data()) ;
-        ASSERT_STR_EQUAL("UDP", transportType.data()) ;
+        ASSERT_STR_EQUAL("TCP", transportType.data()) ;
         CPPUNIT_ASSERT(qValue == 0.4) ;
         ASSERT_STR_EQUAL("10.1.1.104", candidateIp.data()) ;
         CPPUNIT_ASSERT(candidatePort == 9999) ;
@@ -688,7 +689,7 @@ public:
         CPPUNIT_ASSERT(bRC == TRUE) ;
         CPPUNIT_ASSERT(candidateId == 1) ;
         ASSERT_STR_EQUAL("tid2", transportId.data()) ;
-        ASSERT_STR_EQUAL("UDP", transportType.data()) ;
+        ASSERT_STR_EQUAL("TCP", transportType.data()) ;
         CPPUNIT_ASSERT(qValue == 0.5) ;
         ASSERT_STR_EQUAL("10.1.1.104", candidateIp.data()) ;
         CPPUNIT_ASSERT(candidatePort == 10000) ;
@@ -698,7 +699,7 @@ public:
         CPPUNIT_ASSERT(bRC == TRUE) ;
         CPPUNIT_ASSERT(candidateId == 2) ;
         ASSERT_STR_EQUAL("tid3", transportId.data()) ;
-        ASSERT_STR_EQUAL("UDP", transportType.data()) ;
+        ASSERT_STR_EQUAL("TCP", transportType.data()) ;
         CPPUNIT_ASSERT(qValue == 0.6) ;
         ASSERT_STR_EQUAL("10.1.1.105", candidateIp.data()) ;
         CPPUNIT_ASSERT(candidatePort == 9999) ;
@@ -833,18 +834,22 @@ public:
             "c=IN IP4 10.1.1.30\r\n"
             "t=0 0\r\n"
             "m=audio 8700 RTP/AVP 99\r\n"
+            "a=control:trackID=1\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
             "a=ptime:20\r\n"
             "m=audio 18700 TCP/RTP/AVP 99\r\n"
+            "a=control:trackID=1\r\n"
             "c=IN IP4 10.1.1.30\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
             "a=ptime:20\r\n"
             "m=video 8801 TCP/RTP/AVP 100\r\n"
+            "a=control:trackID=2\r\n"
             "c=IN IP4 10.1.1.31\r\n"
             "a=rtcp:8802\r\n"
             "a=rtpmap:100 supervideo/8000/1\r\n"
             "a=fmtp:100 size:QCIF\r\n"
             "m=audio 8900 TCP/RTP/AVP 101\r\n"
+            "a=control:trackID=1\r\n"
             "c=IN IP4 10.1.1.32\r\n" 
             "a=rtcp:8999\r\n"
             "a=rtpmap:101 superapp/8000/1\r\n";
@@ -1513,6 +1518,91 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
 
         body.getMediaStreamDirection(5, direction);
         CPPUNIT_ASSERT_EQUAL(SdpBody::Unknown, direction);
+    }
+
+    void testMlineOrder()
+    {
+        const char* multiMediaLineSdpString =
+            "v=0\r\n"
+            "o=- 1335371328 1 IN IP4 205.168.62.28\r\n"
+            "s=-\r\n"
+            "c=IN IP4 205.168.62.106\r\n"
+            "b=CT:1000\r\n"
+            "t=0 0\r\n"
+            "m=audio 60802 RTP/AVP 0 18 101\r\n"
+            "a=rtpmap:0 PCMU/8000\r\n"
+            "a=rtpmap:18 G729/8000\r\n"
+            "a=fmtp:18 annexb=no\r\n"
+            "a=rtpmap:101 telephone-event/8000\r\n"
+            "m=video 60804 RTP/AVP 96 97 34\r\n"
+            "b=TIAS:910000\r\n"
+            "a=rtpmap:96 H264/90000\r\n"
+            "a=fmtp:96 profile-level-id=42801f;max-mbps=108000;max-fs=3840\r\n"
+            "a=rtpmap:97 H263-1998/90000\r\n"
+            "a=fmtp:97 CIF4=1;CIF=1;QCIF=1\r\n"
+            "a=rtpmap:34 H263/90000\r\n"
+            "a=fmtp:34 CIF4=1;CIF=1;QCIF=1\r\n"
+            "a=content:main\r\n"
+            "a=rtcp-fb:* ccm fir\r\n"
+            "a=rtcp-fb:* nack pli\r\n"
+            "a=rtcp-fb:* ccm tmmbr\r\n"
+            "m=application 60806 RTP/AVP 100\r\n"
+            "a=rtpmap:100 H224/4800\r\n"
+            "m=control 60808 RTP/AVP 96\r\n"
+            "a=inactive\r\n"
+            "a=rtpmap:96 H264/90000\r\n"
+            "a=fmtp:96 profile-level-id=42801f;max-mbps=108000;max-fs=3840\r\n"
+            "a=rtcp-fb:* ccm fir\r\n"
+            "a=rtcp-fb:* nack pli\r\n"
+            "a=rtcp-fb:* ccm tmmbr\r\n"
+            "m=application 60812 TCP/BFCP *\r\n"
+            "a=connection:new\r\n"
+            "a=setup:active\r\n"
+            "a=floorctrl:c-only\r\n";
+
+        printf("Offer:\n%s", multiMediaLineSdpString);
+
+        SdpBody sdpOffer(multiMediaLineSdpString);
+        SdpBody sdpAnswer;
+        UtlString hostAddress("12.34.56.78");
+        int rtpAudioPort = 44066;
+        int rtcpAudioPort = 44067;
+        int rtpVideoPort = 44068;
+        int rtcpVideoPort = 44069;
+        RTP_TRANSPORT transportType = RTP_TRANSPORT_UDP;
+        int numCodecs = 0;
+        SdpCodec** codecArray = NULL;
+        SdpSrtpParameters srtpParameters;
+        memset(&srtpParameters, 0, sizeof(SdpSrtpParameters));
+        int videoBandwidth = 0;
+        int videoFramerate = 0;
+
+        // Setup some codecs
+        SdpCodecList codecList;
+        codecList.addCodecs("G722 AAC_LC_32000 PCMU H264_CIF_256 H264_PM1_CIF_256");
+        codecList.bindPayloadTypes();
+        codecList.getCodecs(numCodecs, codecArray);
+
+        sdpAnswer.setStandardHeaderFields("call", NULL, NULL, hostAddress);
+
+        sdpAnswer.addCodecsAnswer(1,
+                                  &hostAddress,
+                                  &rtpAudioPort,
+                                  &rtcpAudioPort,
+                                  &rtpVideoPort,
+                                  &rtcpVideoPort,
+                                  &transportType,
+                                  numCodecs,
+                                  codecArray,
+                                  srtpParameters,
+                                  videoBandwidth,
+                                  videoFramerate,
+                                  &sdpOffer);
+
+        UtlString answerString;
+        int answerLength;
+        sdpAnswer.getBytes(&answerString, &answerLength);
+        printf("Answer:\n%s", answerString.data());
     }
 
 };
