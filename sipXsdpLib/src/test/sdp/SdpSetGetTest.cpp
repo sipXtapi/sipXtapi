@@ -43,6 +43,13 @@ class SdpSetGetTest : public SIPX_UNIT_BASE_CLASS
 private:
     Sdp mSdp;
 public:
+    virtual void setUp()
+    {
+        Sdp defaultSdp;
+        // Reset member before each test is run
+        mSdp = defaultSdp;
+    }
+
     void testOriginatorInfo()
     {
         mSdp.setSdpVersion(1);
@@ -305,29 +312,29 @@ public:
         mediaLine->addCandidate("id2", 1, SdpCandidate::CANDIDATE_TRANSPORT_TYPE_UDP, 100, "127.0.0.1", 6001, SdpCandidate::CANDIDATE_TYPE_HOST);
         CPPUNIT_ASSERT(mediaLine->getCandidates().entries() == 4);
         // Note:  this list is ordered
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->getPriority() == 101);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(1))->getPriority() == 100);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(2))->getPriority() == 100);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(3))->getPriority() == 50);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->getFoundation() == "id2");
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(1))->getFoundation() == "id1");
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(2))->getFoundation() == "id2");
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(3))->getFoundation() == "id1");
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->getId() == 1);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->getTransport() == SdpCandidate::CANDIDATE_TRANSPORT_TYPE_UDP);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->getConnectionAddress() == "192.168.1.2");
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->getPort() == 5060);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->getCandidateType() == SdpCandidate::CANDIDATE_TYPE_RELAY);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->getRelatedAddress() == "127.0.0.3");
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->getRelatedPort() == 5080);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->getExtensionAttributes().entries() == 0);   
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(1))->getRelatedAddress() == "");
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(1))->getRelatedPort() == 0);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(0))->isInUse() == false);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(1))->isInUse() == true);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(2))->isInUse() == true);
-        CPPUNIT_ASSERT(((SdpCandidate*)mediaLine->getCandidates().at(3))->isInUse() == true);
-        CPPUNIT_ASSERT(mediaLine->isIceSupported() == true);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->getPriority(), 101);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(1))->getPriority(), 100);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(2))->getPriority(), 100);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(3))->getPriority(), 50);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->getFoundation(), "id2");
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(1))->getFoundation(), "id1");
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(2))->getFoundation(), "id2");
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(3))->getFoundation(), "id1");
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->getId(), 1);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->getTransport(), SdpCandidate::CANDIDATE_TRANSPORT_TYPE_UDP);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->getConnectionAddress(), "192.168.1.2");
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->getPort(), 5060);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->getCandidateType(), SdpCandidate::CANDIDATE_TYPE_RELAY);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->getRelatedAddress(), "127.0.0.3");
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->getRelatedPort(), 5080);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->getExtensionAttributes().entries(), 0);   
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(1))->getRelatedAddress(), "");
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(1))->getRelatedPort(), 0);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(0))->isInUse(), false);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(1))->isInUse(), true);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(2))->isInUse(), true);
+        CPPUNIT_ASSERT_EQUAL(((SdpCandidate*)mediaLine->getCandidates().at(3))->isInUse(), true);
+        CPPUNIT_ASSERT_EQUAL(mediaLine->isIceSupported(), true);
 
         mSdp.addMediaLine(mediaLine);
         CPPUNIT_ASSERT(mSdp.getMediaLines().entries() == 1);
