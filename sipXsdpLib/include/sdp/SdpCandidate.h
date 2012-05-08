@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2012 SIPez LLC.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -144,6 +143,7 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
+   virtual UtlBoolean isInstanceOf(const UtlContainableType type) const;
    const UtlString& getFoundation() const { return mFoundation; }
    unsigned int getId() const { return mId; }
    SdpCandidateTransportType getTransport() const { return mTransport; }
