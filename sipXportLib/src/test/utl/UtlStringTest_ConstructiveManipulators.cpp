@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -645,24 +644,24 @@ public:
         a = "aaa";
         aPtr = a.data();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory",
-               dataPtr, aPtr);
+               (void*)dataPtr, (void*)aPtr);
 
         dataPtr = a.data();
         a.append("bbbb");
         aPtr = a.data();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory",
-              dataPtr, aPtr);
+              (void*)dataPtr, (void*)aPtr);
 
         dataPtr = a.data();
         a.insert(0, "zzz");
         aPtr = a.data();
         KNOWN_BUG("char assign does not reuse memory", "XPL-51");
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory", dataPtr, aPtr);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory", (void*)dataPtr, (void*)aPtr);
 
         dataPtr = a.data();
         a.remove(0);
         aPtr = a.data();
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("remove does not reuse memory", dataPtr, aPtr);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("remove does not reuse memory", (void*)dataPtr, (void*)aPtr);
 
         UtlString b;
         b.append("ABC");
@@ -671,7 +670,7 @@ public:
         b.append("34567890123456789");
         aPtr = b.data();
         KNOWN_BUG("char assign does not reuse memory", "XPL-51");
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory", dataPtr, aPtr);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("char assign does not reuse memory", (void*)dataPtr, (void*)aPtr);
      }
 
     /** test the += char* operator. This operator is exactly the same as
