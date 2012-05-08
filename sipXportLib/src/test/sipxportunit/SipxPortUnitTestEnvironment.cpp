@@ -1,11 +1,7 @@
 // 
 // 
-// Copyright (C) 2010-2011 SIPez LLC  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2010-2012 SIPez LLC  All rights reserved.
 // 
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
 // $$
 // Author: Daniel Petrie
 //         dpetrie AT SIPez DOT com
@@ -371,7 +367,7 @@ void SipxPortUnitTestEnvironment::printOut(const char* messageText)
     }
 }
 
-bool SipxPortUnitTestEnvironment::areEqual(int arg1, int arg2)
+bool SipxPortUnitTestEnvironment::areEqual(long arg1, long arg2)
 {
    return(arg1 == arg2);
 }
@@ -379,6 +375,21 @@ bool SipxPortUnitTestEnvironment::areEqual(int arg1, int arg2)
 bool SipxPortUnitTestEnvironment::areEqual(const UtlString& arg1, const UtlString& arg2)
 {
    return(arg1.compareTo(arg2) == 0);
+}
+
+bool SipxPortUnitTestEnvironment::areEqual(const UtlContainable& arg1, const UtlContainable& arg2)
+{
+   return(arg1.isEqual(&arg2));
+}
+
+bool SipxPortUnitTestEnvironment::areEqual(const UtlContainable* arg1, const UtlContainable* arg2)
+{
+   return(arg1 == arg2 || (arg1 && arg2 && arg1->isEqual(arg2)));
+}
+
+bool SipxPortUnitTestEnvironment::areEqual(void* arg1, void* arg2)
+{
+   return(arg1 == arg2);
 }
 
 void SipxPortUnitTestEnvironment::makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, 

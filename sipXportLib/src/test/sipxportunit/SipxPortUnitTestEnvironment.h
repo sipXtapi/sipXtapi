@@ -1,10 +1,6 @@
 // 
 //
-// Copyright (C) 2010-2011 SIPez LLC  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2010-2012 SIPez LLC  All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -103,9 +99,15 @@ public:
 
     static void defaultPrintOut(const char* messageText);
 
-    static bool areEqual(int arg1, int arg2);
+    static bool areEqual(long arg1, long arg2);
 
     static bool areEqual(const UtlString& arg1, const UtlString& arg2);
+
+    static bool areEqual(const UtlContainable& arg1, const UtlContainable& arg2);
+
+    static bool areEqual(const UtlContainable* arg1, const UtlContainable* arg2);
+
+    static bool areEqual(void* arg1, void* arg2);
 
     static void makeAssertNotEqualMessage(char* messageBuffer, const char* notEqualMessage, const char* arg1String, const char* arg2String,
                     const char* fileName, const char* className, const char* methodName, int testPoint, int lineNum, 
