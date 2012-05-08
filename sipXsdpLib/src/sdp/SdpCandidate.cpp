@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -20,6 +19,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlSListIterator.h>
 #include <sdp/SdpCandidate.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -166,6 +166,10 @@ int SdpCandidate::compareTo(UtlContainable const *rhs) const
    }
    else
    {
+      OsSysLog::add(FAC_SDP, PRI_ERR,
+          "SdpCandidate::compareTo argument instance of: %s not instance of: %s",
+          rhs->getContainableType(), SdpCandidate::TYPE);
+
       result = INT_MAX ; 
    }
 
@@ -204,6 +208,13 @@ void SdpCandidate::toString(UtlString& sdpCandidateString) const
 }
 
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean SdpCandidate::isInstanceOf(const UtlContainableType type) const
+{
+    // Check if it is my type and then defer parent type comparisons to parent
+    return(areSameTypes(type, SdpCandidate::TYPE) ||
+           UtlCopyableContainable::isInstanceOf(type));
+}
 
 SdpCandidate::SdpCandidateTransportType 
 SdpCandidate::getCandidateTransportTypeFromString(const char * type)
