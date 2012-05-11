@@ -140,7 +140,7 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
   if test "x$no_cppunit" = x ; then
      ifelse([$2], , :, [$2])
   else
-     CPPUNIT_CFLAGS=" -DNO_CPPUNIT -I\$(sipx_abs_srcdir)/src/test/sipxportunit "
+     CPPUNIT_CFLAGS=" -DNO_CPPUNIT -I\$(sipx_abs_srcdir)/../sipXportLib/src/test/sipxportunit "
      CPPUNIT_LIBS=""
      SIPX_UNIT_TARGET="sipxportunit"
      AC_MSG_WARN(Using sipx portable unit test framework.)
