@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2011 SIPez LLC  All rights reserved.
+// Copyright (C) 2007-2012 SIPez LLC  All rights reserved.
 //
 //
 // $$
@@ -33,6 +33,7 @@ void beginLogHook(const char* testClassName)
 void endLogHook(const char* testClassName)
 {
     OsSysLog::flush();
+    OsSysLog::shutdown();
 }
 
 
