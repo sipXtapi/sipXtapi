@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -53,7 +55,7 @@ l: 0 \n\r
 #define MAX_UDP_PACKET_SIZE (1024 * 64)
 
 // STATIC VARIABLE INITIALIZATIONS
-//#define TEST_PRINT
+#define TEST_PRINT
 //#define LOG_TIME
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -115,7 +117,7 @@ SipClient::~SipClient()
         // a read on the clientSocket.  This should also
         // cause the run method to exit.
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient 0%x socket 0%x closing %s socket",
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient %p socket %p closing %s socket",
            this, clientSocket, OsSocket::ipProtocolString(mSocketType));
 
         osPrintf("SipClient::~SipClient closing socket\n");
@@ -142,7 +144,7 @@ SipClient::~SipClient()
 
 #ifdef TEST_PRINT
         osPrintf("SipClient::~SipClient shutDown\n");
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient 0%x socket 0%x deleting socket",
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient %p socket %p deleting socket",
             this, clientSocket);
 #endif
 
@@ -256,14 +258,16 @@ int SipClient::run(void* runArg)
                        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                  "SipClient::run %p socket %p host: %s "
                                  "sock addr: %s via addr: %s rcv addr: %s "
-                                    "sock type: %s read ready %s",
+                                    "sock type: %s read ready %s, socket: %s numFailures: %d",
                                  this, clientSocket,
                                  mRemoteHostName.data(),
                                  mRemoteSocketAddress.data(),
                                  mRemoteViaAddress.data(),
                                  mReceivedAddress.data(),
                                     OsSocket::ipProtocolString(clientSocket->getIpProtocol()),
-                                 isReadyToRead() ? "READY" : "NOT READY"
+                                 isReadyToRead() ? "READY" : "NOT READY",
+                                 clientSocket->isOk() ? "OK" : "NOT OK",
+                                 numFailures
                                  );
                    }
 #ifdef LOG_TIME
@@ -272,6 +276,9 @@ int SipClient::run(void* runArg)
                     message->setFromThisSide(false);
                     bytesRead = message->read(clientSocket, readBufferSize, &buffer);
 
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                 "SipClient::run HttpMessage::read returned: %d message size(bytesRead)",
+                                  bytesRead);
                 }
                 else
                 {
@@ -309,7 +316,12 @@ int SipClient::run(void* runArg)
             if(clientSocket // This second check is in case there is
                 // some sort of race with the destructor.  This should
                 // not actually ever happen.
-               && (bytesRead < 0 || !clientSocket->isOk()))
+               && (bytesRead < 0 || // Framed sockets (e.g. UDP) can get zero byte reads when STUN or TURN packets come in, ignore these
+                   // Not sure why non-Framed (e.g. TCP) sockets get into a mode of reading zero bytes and yet poll
+                   // says there is no error and the socket is open, probably due to some connection error.  Need to figure this out
+                   // at some point and trap the error.
+                   (!clientSocket->isFramed(clientSocket->getIpProtocol()) && bytesRead == 0) || 
+                    !clientSocket->isOk()))
             {
                 numFailures++;
                 readAMessage = FALSE;
@@ -367,6 +379,9 @@ int SipClient::run(void* runArg)
                        OsSysLog::add(FAC_SIP_INCOMING, PRI_INFO, "%s", logMessage.data());
                     }
 
+#ifdef DEBUG_POLL_NO_BYTES
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+#endif
                     // Set the date field if not present
                     long epochDate;
                     if(!message->getDateField(&epochDate))
@@ -374,6 +389,9 @@ int SipClient::run(void* runArg)
                         message->setDateField();
                     }
 
+#ifdef DEBUG_POLL_NO_BYTES
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+#endif
                     message->setSendProtocol(mSocketType);
                     message->setTransportTime(touchedTime);
                     clientSocket->getRemoteHostIp(&socketRemoteHost);
@@ -391,6 +409,9 @@ int SipClient::run(void* runArg)
                         mRemoteReceivedPort = fromPort;
                     }
 
+#ifdef DEBUG_POLL_NO_BYTES
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+#endif
                     // If this is a request
                     if(!message->isResponse())
                     {
@@ -441,15 +462,26 @@ int SipClient::run(void* runArg)
                     message->getCallIdField(&callId);
                     message->getFromField(&fromField);
                     message->getToField(&toField);
-
+#ifdef DEBUG_POLL_NO_BYTES
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+                    OsSysLog::flush();
+#endif
                     if(!(   callId.isNull()
                          || fromField.isNull()
                          || toField.isNull()))
                     {
+#ifdef DEBUG_POLL_NO_BYTES
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+                        OsSysLog::flush();
+#endif
 #ifdef LOG_TIME
                         eventTimes.addEvent("dispatching");
 #endif
                         sipUserAgent->dispatch(message);
+#ifdef DEBUG_POLL_NO_BYTES
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+                        OsSysLog::flush();
+#endif
 #ifdef LOG_TIME
                         eventTimes.addEvent("dispatched");
 #endif
@@ -458,6 +490,10 @@ int SipClient::run(void* runArg)
                     }
                     else
                     {
+#ifdef DEBUG_POLL_NO_BYTES
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+                        OsSysLog::flush();
+#endif
                        // Only bother processing if the logs are enabled
                        if (sipUserAgent->isMessageLoggingEnabled())
                        {
@@ -468,6 +504,10 @@ int SipClient::run(void* runArg)
                                     msgBytes.append("++++++++++++++++++++END++++++++++++++++++++\n");
                                     sipUserAgent->logMessage(msgBytes.data(), msgBytes.length());
                        }
+#ifdef DEBUG_POLL_NO_BYTES
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+                        OsSysLog::flush();
+#endif
 
                        delete message;
                        message = NULL;
@@ -499,6 +539,10 @@ int SipClient::run(void* runArg)
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::run time log: %s",
                 timeString.data());
 #endif
+#ifdef DEBUG_POLL_NO_BYTES
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+            OsSysLog::flush();
+#endif
             if(message)
             {
                 delete message;
@@ -511,7 +555,15 @@ int SipClient::run(void* runArg)
                         this);
             yield();  // I do not know why this yield is here
                 }
+#ifdef DEBUG_POLL_NO_BYTES
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+            OsSysLog::flush();
+#endif
         } // while this client is ok
+#ifdef DEBUG_POLL_NO_BYTES
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient line: %d", __LINE__);
+        OsSysLog::flush();
+#endif
 
     return(0);
 }
@@ -690,7 +742,7 @@ void SipClient::signalNextAvailableForWrite()
     if(mWaitingList)
     {
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalNextAvailableForWrite 0x%x",
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalNextAvailableForWrite %p",
                     this);
 #endif
 
@@ -701,7 +753,7 @@ void SipClient::signalNextAvailableForWrite()
         {
             OsEvent* waitingEvent = (OsEvent*) eventNode->getValue();
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalNextAvailableForWrite 0x%x signaling: 0x%x",
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalNextAvailableForWrite %p signaling: %p",
                     this, waitingEvent);
 #endif
             if(waitingEvent)
@@ -726,7 +778,7 @@ void SipClient::signalAllAvailableForWrite()
     if(mWaitingList)
     {
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalAllAvailableForWrite 0x%x",
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalAllAvailableForWrite %p",
                     this);
 #endif
 
@@ -738,7 +790,7 @@ void SipClient::signalAllAvailableForWrite()
             {
                 OsEvent* waitingEvent = (OsEvent*) eventNode->getValue();
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalAllAvailableForWrite 0x%x signaling: 0x%x",
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::signalAllAvailableForWrite %p signaling: %p",
                     this, waitingEvent);
 #endif
                 if(waitingEvent)
@@ -813,7 +865,7 @@ void SipClient::touch()
    OsTime time;
    OsDateTime::getCurTimeSinceBoot(time);
    touchedTime = time.seconds();
-   //OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::touch client: 0x%x time: %d\n",
+   //OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::touch client: %p time: %d\n",
    //             this, touchedTime);
 }
 
