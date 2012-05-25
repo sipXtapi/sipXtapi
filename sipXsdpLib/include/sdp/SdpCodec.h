@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -27,6 +26,7 @@
 // Mime major types
 #define MIME_TYPE_AUDIO "audio"
 #define MIME_TYPE_VIDEO "video"
+#define MIME_TYPE_APPLICATION "application"
 
 // Mime Sub types
 #define MIME_SUBTYPE_PCMU "PCMU"
@@ -77,7 +77,8 @@
 #define SDP_VIDEO_FORMAT_EDTV        0x0080
 #define SDP_VIDEO_FORMAT_QHD         0x0100
 #define SDP_VIDEO_FORMAT_HD720       0x0200
-#define SDP_VIDEO_FORMAT_HD1088      0x0400
+#define SDP_VIDEO_FORMAT_16CIF       0x0400
+#define SDP_VIDEO_FORMAT_HD1088      0x0800
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -339,10 +340,29 @@ public:
    */
 
    /// Get the named parameter in the format field (fmtp parameter)
-   virtual UtlBoolean getFmtpParameter(const UtlString& parameterName, UtlString& parameterValue) const;
+   virtual UtlBoolean getFmtpParameter(const UtlString& parameterName, UtlString& parameterValue, char nameValueSeperator = '=') const;
 
    /// Get the named parameter from the given format field (fmtp parameter)
-   static UtlBoolean getFmtpParameter(const UtlString& fmtpField, const UtlString& parameterName, UtlString& parameterValue);
+   static UtlBoolean getFmtpParameter(const UtlString& fmtpField, const UtlString& parameterName, UtlString& parameterValue, char nameValueSeperator = '=');
+   /**
+    *  Assumes the "a=fmtp:<payloadType>" of the fmtp field has be stripped off
+    * "a=fmtp:<payloadType> <fmtpdata>"
+    */
+
+   /// Get the named parameter from the given format field (fmtp parameter)
+   static UtlBoolean getFmtpParameter(const UtlString& fmtpField, const UtlString& parameterName, int& parameterValue,
+           char nameValueSeperator = '=');
+   /**
+    *  Assumes the "a=fmtp:<payloadType>" of the fmtp field has be stripped off
+    * "a=fmtp:<payloadType> <fmtpdata>"
+    */
+
+   /// Get the video video sizes from the FMTP parameter
+   static OsStatus getVideoSizes(const UtlString& fmtpField, int maxSizes, int& numSizes, int videoSizes[]);
+   /**
+    *  Assumes the "a=fmtp:<payloadType>" of the fmtp field has be stripped off
+    * "a=fmtp:<payloadType> <fmtpdata>"
+    */
 
    /// Get the media type for the codec
    void getMediaType(UtlString& mimeMajorType) const;
@@ -403,39 +423,59 @@ public:
 ///@name Inquiry
 //@{
 
-   /// Returns TRUE if this codec is the same definition as the given codec
-   UtlBoolean isSameDefinition(const SdpCodec& codec) const;
-   /**<
-   *  That is the encoding type and its characteristics, not the payload type.
-   */
-
-   /// Returns TRUE if the named fmtp parameters are the same in this and the given codec
-   UtlBoolean isFmtpParameterSame(const SdpCodec& codec, const UtlString& fmtpParameterName, const UtlString& fmtpParameterDefaultValue) const;
-   /*
-    * @param codec - codec to compare fmpt parameter with this codec's
-    * @param fmtpParameterName - name of the parameter in the fmtp to compare
-    * @param fmtpParameterDefaultValue - default value of the parameter to assume if it is not set
+    /// Returns TRUE if this codec is the same definition as the given codec
+    UtlBoolean isSameDefinition(const SdpCodec& codec) const;
+    /**<
+    *  That is the encoding type and its characteristics, not the payload type.
     */
 
-   /// Returns TRUE if the named fmtp parameters are the same in this and the given fmtp field string
-   UtlBoolean isFmtpParameterSame(const UtlString& fmtp, const UtlString& fmtpParameterName, const UtlString& fmtpParameterDefaultValue) const;
-   /*
-    * @param fmpt = SDP fmpt field value string containing zero or more parameters and values
-    * @param fmtpParameterName - name of the parameter in the fmtp to compare
-    * @param fmtpParameterDefaultValue - default value of the parameter to assume if it is not set
-    */
+    /// Returns TRUE if the named fmtp parameters are the same in this and the given codec
+    UtlBoolean isFmtpParameterSame(const SdpCodec& codec, const UtlString& fmtpParameterName, const UtlString& fmtpParameterDefaultValue, const char nameValueSeperater = '=') const;
+    /*
+     * @param codec - codec to compare fmpt parameter with this codec's
+     * @param fmtpParameterName - name of the parameter in the fmtp to compare
+     * @param fmtpParameterDefaultValue - default value of the parameter to assume if it is not set
+     */
 
-   // Not sure where else to put these.  We don't have codec specializations beyond this class.  Not sure
-   // it makes sense to drevive from SdpCodec for this stuff anyway.
+    /// Returns TRUE if the named fmtp parameters are the same in this and the given fmtp field string
+    UtlBoolean isFmtpParameterSame(const UtlString& fmtp, const UtlString& fmtpParameterName, const UtlString& fmtpParameterDefaultValue, const char nameValueSeperater = '=') const;
+    /*
+     * @param fmpt = SDP fmpt field value string containing zero or more parameters and values
+     * @param fmtpParameterName - name of the parameter in the fmtp to compare
+     * @param fmtpParameterDefaultValue - default value of the parameter to assume if it is not set
+     */
 
-   /// Returns TRUE if this H264 codec is a lower config profile than the given codec.
-   UtlBoolean isLowerH264Profile(const SdpCodec& codec);
-   /*
-    * Assumes both codecs have Mime subtype=H264, but does not check.
-    * Looks at the fmtp config parameter.
-    *
-    * @param codec - codec to check if its profile level is lower.
-    */
+    static UtlBoolean isFmtpParameterSame(const UtlString& fmtp1, const UtlString& fmtp2, const UtlString& fmtpParameterName, const UtlString& fmtpParameterDefaultValue, const char nameValueSeperater = '=');
+
+    // Check fmtp parameters for specific mime type to see if they are equivalent
+    UtlBoolean compareFmtp(const SdpCodec& codec, int& compares) const;
+    /**
+     *  @param compares greater than, equal or less than zero based upon how the fmtp
+     *       parameters compare
+     *  @returns TRUE/FALSE if the codecs are compatible
+     */
+
+    // Check fmtp parameters for specific mime type to see if they are equivalent
+    UtlBoolean compareFmtp(const UtlString& fmtp, int& compares) const;
+    /**
+     *  Assumes mime type of provided fmtp string is same as this.
+     *
+     *  @param compares greater than, equal or less than zero based upon how the fmtp
+     *       parameters compare
+     *  @returns TRUE/FALSE if the codecs are compatible
+     */
+
+    // Check fmtp parameters for specific mime type to see if they are equivalent
+    static UtlBoolean compareFmtp(const UtlString& mimeType, const UtlString& mimeSubtype, const UtlString& fmpt1, const UtlString& fmtp2, int& compares);
+    /**
+     *  @param mimeType - Mime major type
+     *  @param mimeSubtype - Mime sub type
+     *  @param fmpt1 - fmtp string from 1st codec (Must have "a:fmtp <payloadId>" removed)
+     *  @param fmpt2 - fmtp string from 2nd codec (Must have "a:fmtp <payloadId>" removed)
+     *  @param compares greater than, equal or less than zero based upon how the fmtp
+     *       parameters compare
+     *  @returns TRUE/FALSE if the codecs are compatible
+     */
 
 //@}
 

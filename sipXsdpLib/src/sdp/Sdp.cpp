@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -15,6 +14,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsIntTypes.h>
 #include <sdp/Sdp.h>
 #include <sdp/SdpMediaLine.h>
 #include <utl/UtlHashMapIterator.h>
@@ -25,12 +25,14 @@
 // STATIC VARIABLE INITIALIZATIONS
 const char* Sdp::SdpNetTypeString[] = 
 {
+    // WARNING: this array MUST stay in synch with the SdpNetType enum
    "NONE",
    "IN"
 };
 
 const char* Sdp::SdpAddressTypeString[] =
 {
+    // WARNING: this array MUST stay in sync. with the SdpAddressType enum
    "NONE",
    "IP4",
    "IP6"
@@ -347,7 +349,7 @@ void Sdp::toString(UtlString& sdpString) const
       SdpTime* sdpTime;
       while((sdpTime = (SdpTime*) it()))
       {
-         sprintf(stringBuffer, "Time: start=%" FORMAT_INTLL "d, stop=%" FORMAT_INTLL "d\n", sdpTime->getStartTime(), sdpTime->getStopTime());
+         sprintf(stringBuffer, "Time: start=%" FORMAT_INTLL "u, stop=%" FORMAT_INTLL "u\n", sdpTime->getStartTime(), sdpTime->getStopTime());
          timesString += stringBuffer;
 
          // Add repeats
@@ -377,7 +379,7 @@ void Sdp::toString(UtlString& sdpString) const
       SdpTimeZone* sdpTimeZone;
       while((sdpTimeZone = (SdpTimeZone*) it()))
       {
-         sprintf(stringBuffer, "TimeZone: adjustment time=%" FORMAT_INTLL "d, offset=%" FORMAT_INTLL "d\n", sdpTimeZone->getAdjustmentTime(), sdpTimeZone->getOffset());
+         sprintf(stringBuffer, "TimeZone: adjustment time=%" FORMAT_INTLL "u, offset=%" FORMAT_INTLL "u\n", sdpTimeZone->getAdjustmentTime(), sdpTimeZone->getOffset());
          timeZonesString += stringBuffer;
       }
    }
@@ -406,8 +408,8 @@ void Sdp::toString(UtlString& sdpString) const
    sprintf(stringBuffer,"Sdp:\n"
       "SdpVersion: %d\n"
       "OrigUserName: \'%s'\n"
-      "OrigSessionId: %" FORMAT_INTLL "d\n"
-      "OrigSessionVersion: %" FORMAT_INTLL "d\n"
+      "OrigSessionId: %" FORMAT_INTLL "u\n"
+      "OrigSessionVersion: %" FORMAT_INTLL "u\n"
       "OrigNetType: %s\n"
       "OrigAddressType: %s\n"
       "OrigUnicastAddr: \'%s\'\n"
@@ -490,7 +492,7 @@ UtlString Sdp::getLocalFoundationId(SdpCandidate::SdpCandidateType candidateType
    else
    {
       char foundationId[15];
-      sprintf(foundationId, "%d", mFoundationIds.entries() + 1);
+      sprintf(foundationId, "%d", (int)mFoundationIds.entries() + 1);
       UtlString* ret = new UtlString(foundationId);
       mFoundationIds.insertKeyAndValue(sdpFoundation, ret);
       return *ret;

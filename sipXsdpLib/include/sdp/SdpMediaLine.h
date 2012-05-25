@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -27,6 +26,7 @@
 
 #include <sdp/Sdp.h>
 #include <sdp/SdpCodec.h>
+#include <sdp/SdpCodecList.h>
 #include <sdp/SdpCandidate.h>
 #include <sdp/SdpCandidatePair.h>
 
@@ -52,6 +52,7 @@ public:
 
    typedef enum 
    {
+       // WARNING: this enum must stay in synch. with SdpMediaTypeString
       MEDIA_TYPE_NONE,
       MEDIA_TYPE_AUDIO,          // "audio" - RFC4566
       MEDIA_TYPE_VIDEO,          // "video" - RFC4566
@@ -63,6 +64,7 @@ public:
 
    typedef enum 
    {
+       // WARNING: this enum must stay in synch. with SdpTransportProtocolTypeString
       PROTOCOL_TYPE_NONE,
       PROTOCOL_TYPE_UDP,         // "udp" - RFC4566
       PROTOCOL_TYPE_RTP_AVP,     // "RTP/AVP" - RFC4566
@@ -100,9 +102,11 @@ public:
       // Accessors
       void setNetType(Sdp::SdpNetType netType) { mNetType = netType; }
       Sdp::SdpNetType getNetType() const { return mNetType; }
+      const char* getNetTypeToken() const { return(Sdp::SdpNetTypeString[mNetType]); }
 
       void setAddressType(Sdp::SdpAddressType addressType) { mAddressType = addressType; }
       Sdp::SdpAddressType getAddressType() const { return mAddressType; }
+      const char* getAddressTypeToken() const { return(Sdp::SdpAddressTypeString[mAddressType]); }
 
       void setAddress(const char * address) { mAddress = address; }
       const UtlString& getAddress() const { return mAddress; }
@@ -547,8 +551,9 @@ public:
    void setMediaType(SdpMediaType mediaType) { mMediaType = mediaType; }
    void setTransportProtocolType(SdpTransportProtocolType transportProtocolType) { mTransportProtocolType = transportProtocolType; }
 
-   void addCodec(SdpCodec* codec) { mCodecs.insert(codec); }
-   void clearCodecs() { mCodecs.destroyAll(); }
+   void addCodec(SdpCodec* codec) { mCodecs.addCodec(*codec); delete codec;}
+   void clearCodecs() { mCodecs.clearCodecs(); }
+   void setCodecs(const SdpCodecList& codecs) { mCodecs.clearCodecs(); mCodecs = codecs; }
 
    void setTitle(const char * title) { mTitle = title; }
 
@@ -633,72 +638,86 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual UtlContainableType getContainableType() const { static char type[] = "SdpMediaLine"; return type;}
-   virtual unsigned hash() const { return directHash(); }
-   virtual int compareTo(UtlContainable const *) const { return 0; }  // not implemented
+    // Get the SdpMediaType enum for the Mime type of this SdpMediaLine
+    SdpMediaType getMediaType() const { return mMediaType; }
 
-   void toString(UtlString& sdpMediaLineString) const;
+    // Get SdpMediaType enum for Mime type string
+    static SdpMediaLine::SdpMediaType getMediaTypeFromString(const UtlString& type);
+
+    // Get Mime type for SdpMediaType
+    static const char* getStringForMediaType(SdpMediaType type);
+
+    // Get the enum for the media line transport protocol
+    SdpTransportProtocolType getTransportProtocolType() const { return mTransportProtocolType; }
+
+    // Convert the tranport protocol string token from the m line to enum
+    static SdpTransportProtocolType getTransportProtocolTypeFromString(const UtlString& type);
+
+    // Get the m line transport protocol string token for the given enum
+    static const char* getStringForTransportProtocolType(SdpTransportProtocolType type);
+
+    const SdpCodecList* getCodecs() const { return &mCodecs; }
+    const UtlString& getTitle() const  { return mTitle; }
+    const UtlCopyableSList& getConnections() const { return mConnections; }
+    const UtlCopyableSList& getRtcpConnections() const { return mRtcpConnections; }
+    const UtlCopyableSList& getBandwidths() const { return mBandwidths; }
+    SdpEncryptionMethod getEncryptionMethod() const { return mEncryptionMethod; }
+    const UtlString& getEncryptionKey() const { return mEncryptionKey; }   
+    SdpDirectionType getDirection() const { return mDirection; }
+    unsigned int getPacketTime() const { return mPacketTime; }
+    unsigned int getMaxPacketTime() const { return mMaxPacketTime; }
+    SdpOrientationType getOrientation() const { return mOrientation; }
+    static SdpOrientationType getOrientationTypeFromString(const char * type);
+    const UtlString& getDescriptionLanguage() const { return mDescriptionLanguage; }
+    const UtlString& getLanguage() const { return mLanguage; }
+    unsigned int getFrameRate() const { return mFrameRate; }
+    unsigned int getQuality() const { return mQuality; }
+    SdpTcpSetupAttribute getTcpSetupAttribute() const { return mTcpSetupAttribute; }
+    static SdpTcpSetupAttribute getTcpSetupAttributeFromString(const char * attrib);
+    SdpTcpConnectionAttribute getTcpConnectionAttribute() const { return mTcpConnectionAttribute; }
+    static SdpTcpConnectionAttribute getTcpConnectionAttributeFromString(const char * attrib);
+    const UtlCopyableSList& getCryptos() const { return mCryptos; }
+    static SdpCryptoSuiteType getCryptoSuiteTypeFromString(const char * type);
+    static SdpCryptoKeyMethod getCryptoKeyMethodFromString(const char * type);
+    SdpFingerPrintHashFuncType getFingerPrintHashFunction() const { return mFingerPrintHashFunction; }
+    static SdpFingerPrintHashFuncType getFingerPrintHashFuncTypeFromString(const char * type);
+    const UtlString& getFingerPrint() const { return mFingerPrint; }
+    SdpKeyManagementProtocolType getKeyManagementProtocol() const { return mKeyManagementProtocol; }
+    static SdpKeyManagementProtocolType getKeyManagementProtocolTypeFromString(const char * type);
+    const UtlString& getKeyManagementData() const { return mKeyManagementData; }
+    const UtlCopyableSList& getPreConditionCurrentStatus() const { return mPreConditionCurrentStatus; }
+    const UtlCopyableSList& getPreConditionConfirmStatus() const { return mPreConditionConfirmStatus; }
+    const UtlCopyableSList& getPreConditionDesiredStatus() const { return mPreConditionDesiredStatus; }
+    static SdpPreConditionType getPreConditionTypeFromString(const char * type);
+    static SdpPreConditionStatusType getPreConditionStatusTypeFromString(const char * type);
+    static SdpPreConditionDirectionType getPreConditionDirectionTypeFromString(const char * type);
+    static SdpPreConditionStrengthType getPreConditionStrengthTypeFromString(const char * type);
+    double getMaximumPacketRate() const { return mMaximumPacketRate; }
+    const UtlString& getLabel() const { return mLabel; }
+    const UtlString& getIdentificationTag() const { return mIdentificationTag; }
+    const UtlString& getIceUserFrag() const { return mIceUserFrag; }
+    const UtlString& getIcePassword() const { return mIcePassword; }
+    const UtlCopyableSList& getRemoteCandidates() const { return mRemoteCandidates; }
+    const UtlCopyableSortedList& getCandidates() const { return mCandidates; }
+
+    const UtlCopyableSortedList& getCandidatePairs() const { return mCandidatePairs; }
+    UtlCopyableSortedList& getCandidatePairs() { return mCandidatePairs; }  // non-const version for manipulation
+
+    const UtlCopyableSList& getPotentialMediaViews() const { return mPotentialMediaViews; }
+    const UtlString& getPotentialMediaViewString() const { return mPotentialMediaViewString; }
+
+    // UtlContainable stuff
+    virtual UtlContainableType getContainableType() const { static char type[] = "SdpMediaLine"; return type;}
+    virtual unsigned hash() const { return directHash(); }
+    virtual int compareTo(UtlContainable const *) const { return 0; }  // not implemented
+
+    void toString(UtlString& sdpMediaLineString) const;
 
 /* ============================ INQUIRY =================================== */
-   
-   SdpMediaType getMediaType() const { return mMediaType; }
-   static SdpMediaType getMediaTypeFromString(const char * type);
-   SdpTransportProtocolType getTransportProtocolType() const { return mTransportProtocolType; }
-   static SdpTransportProtocolType getTransportProtocolTypeFromString(const char * type);
-   const UtlCopyableSList& getCodecs() const { return mCodecs; }
-   const UtlString& getTitle() const  { return mTitle; }
-   const UtlCopyableSList& getConnections() const { return mConnections; }
-   const UtlCopyableSList& getRtcpConnections() const { return mRtcpConnections; }
-   const UtlCopyableSList& getBandwidths() const { return mBandwidths; }
-   SdpEncryptionMethod getEncryptionMethod() const { return mEncryptionMethod; }
-   const UtlString& getEncryptionKey() const { return mEncryptionKey; }   
-   SdpDirectionType getDirection() const { return mDirection; }
-   unsigned int getPacketTime() const { return mPacketTime; }
-   unsigned int getMaxPacketTime() const { return mMaxPacketTime; }
-   SdpOrientationType getOrientation() const { return mOrientation; }
-   static SdpOrientationType getOrientationTypeFromString(const char * type);
-   const UtlString& getDescriptionLanguage() const { return mDescriptionLanguage; }
-   const UtlString& getLanguage() const { return mLanguage; }
-   unsigned int getFrameRate() const { return mFrameRate; }
-   unsigned int getQuality() const { return mQuality; }
-   SdpTcpSetupAttribute getTcpSetupAttribute() const { return mTcpSetupAttribute; }
-   static SdpTcpSetupAttribute getTcpSetupAttributeFromString(const char * attrib);
-   SdpTcpConnectionAttribute getTcpConnectionAttribute() const { return mTcpConnectionAttribute; }
-   static SdpTcpConnectionAttribute getTcpConnectionAttributeFromString(const char * attrib);
-   const UtlCopyableSList& getCryptos() const { return mCryptos; }
-   static SdpCryptoSuiteType getCryptoSuiteTypeFromString(const char * type);
-   static SdpCryptoKeyMethod getCryptoKeyMethodFromString(const char * type);
-   SdpFingerPrintHashFuncType getFingerPrintHashFunction() const { return mFingerPrintHashFunction; }
-   static SdpFingerPrintHashFuncType getFingerPrintHashFuncTypeFromString(const char * type);
-   const UtlString& getFingerPrint() const { return mFingerPrint; }
-   SdpKeyManagementProtocolType getKeyManagementProtocol() const { return mKeyManagementProtocol; }
-   static SdpKeyManagementProtocolType getKeyManagementProtocolTypeFromString(const char * type);
-   const UtlString& getKeyManagementData() const { return mKeyManagementData; }
-   const UtlCopyableSList& getPreConditionCurrentStatus() const { return mPreConditionCurrentStatus; }
-   const UtlCopyableSList& getPreConditionConfirmStatus() const { return mPreConditionConfirmStatus; }
-   const UtlCopyableSList& getPreConditionDesiredStatus() const { return mPreConditionDesiredStatus; }
-   static SdpPreConditionType getPreConditionTypeFromString(const char * type);
-   static SdpPreConditionStatusType getPreConditionStatusTypeFromString(const char * type);
-   static SdpPreConditionDirectionType getPreConditionDirectionTypeFromString(const char * type);
-   static SdpPreConditionStrengthType getPreConditionStrengthTypeFromString(const char * type);
-   double getMaximumPacketRate() const { return mMaximumPacketRate; }
-   const UtlString& getLabel() const { return mLabel; }
-   const UtlString& getIdentificationTag() const { return mIdentificationTag; }
-   const UtlString& getIceUserFrag() const { return mIceUserFrag; }
-   const UtlString& getIcePassword() const { return mIcePassword; }
-   const UtlCopyableSList& getRemoteCandidates() const { return mRemoteCandidates; }
-   const UtlCopyableSortedList& getCandidates() const { return mCandidates; }
-
    const bool isRtcpEnabled() const { return mRtcpConnections.entries() > 0; }
    const bool isRtpCandidatePresent() const { return mRtpCandidatePresent; }
    const bool isRtcpCandidatePresent() const { return mRtcpCandidatePresent; }
    const bool isIceSupported() const { return  mRtpCandidatePresent && (!isRtcpEnabled() || mRtcpCandidatePresent); }
-
-   const UtlCopyableSortedList& getCandidatePairs() const { return mCandidatePairs; }
-   UtlCopyableSortedList& getCandidatePairs() { return mCandidatePairs; }  // non-const version for manipulation
-
-   const UtlCopyableSList& getPotentialMediaViews() const { return mPotentialMediaViews; }
-   const UtlString& getPotentialMediaViewString() const { return mPotentialMediaViewString; }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -708,7 +727,7 @@ private:
    // m=  Note:  port is stored in each connection
    SdpMediaType   mMediaType;
    SdpTransportProtocolType mTransportProtocolType;
-   UtlCopyableSList mCodecs;
+   SdpCodecList mCodecs;
 
    // i=
    UtlString      mTitle;

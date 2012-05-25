@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -97,6 +96,10 @@ public:
      /// the codecArray to the matching codec in this factory.
    void copyPayloadTypes(int numCodecs, const SdpCodec* codecArray[]);
 
+     /// @brief For all matching codecs, copy the payload type from
+     /// the given codecList to the matching codec in this factory.
+   void copyPayloadTypes(const SdpCodecList& codecList);
+
    /// @brief Remove any codecs in this list that are not equivalent to those in the given list
    void limitCodecs(const SdpCodecList& includeOnlyCodecList);
 
@@ -119,39 +122,39 @@ public:
 //@{
 
      /// Get a codec given an internal codec id.
-   const SdpCodec* getCodec(SdpCodec::SdpCodecTypes internalCodecId);
+   const SdpCodec* getCodec(SdpCodec::SdpCodecTypes internalCodecId) const;
 
      /// Get a codec given the payload type id.
-   const SdpCodec* getCodecByType(int payloadTypeId, UtlBoolean shouldLock = TRUE);
+   const SdpCodec* getCodecByType(int payloadTypeId, UtlBoolean shouldLock = TRUE) const;
 
      /// Get a codec given the MIME type, subtype and other parameters.
    const SdpCodec* getCodec(const char* MIMEType, 
                             const char* MIMESubType,
                             int sampleRate,
                             int numChannels,
-                            const UtlString &fmtp);
+                            const UtlString &fmtp) const;
 
      /// Get the number of codecs.
-   int getCodecCount();
+   int getCodecCount() const;
 
      /// Get the number of codecs by MIME type.
-   int getCodecCount(const char* MIMEType);
+   int getCodecCount(const char* MIMEType) const;
 
      /// Get codecs from this list, taking into account maximum CPU cost.
    void getCodecs(int& numCodecs,
-                  SdpCodec**& codecArray);
+                  SdpCodec**& codecArray) const;
 
      /// @brief Get codecs from this list, taking into account maximum CPU cost
      /// and given MIME type.
    void getCodecs(int& numCodecs,
                   SdpCodec**& codecArray,
-                  const char* MIMEType);
+                  const char* MIMEType) const;
 
      /// Returns a copy of all the codecs.
    void getCodecs(int& numCodecs, 
                   SdpCodec**& codecArray,
                   const char* MIMEType,
-                  const char* subMimeType);
+                  const char* subMimeType) const;
 
     /// Frees up codecs and codec pointer array
     static void freeArray(int arraySize, SdpCodec**& codecArray);
@@ -163,7 +166,7 @@ public:
    void toString(UtlString& serializedFactory) const;
 
      /// Gets the codec CPU limit level.
-   int getCodecCPULimit();
+   int getCodecCPULimit() const;
 
 //@}
 

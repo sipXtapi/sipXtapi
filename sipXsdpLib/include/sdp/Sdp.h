@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -52,6 +51,7 @@ public:
 
    typedef enum 
    {
+       // WARNING: this enum must stay in synch. with SdpNetTypeString
       NET_TYPE_NONE,
       NET_TYPE_IN             // "IN" - Internet - RFC4566
    } SdpNetType;
@@ -59,6 +59,7 @@ public:
 
    typedef enum 
    {
+       // WARNING: this enum MUST stay in synch with SdpAddressTypeString
       ADDRESS_TYPE_NONE,
       ADDRESS_TYPE_IP4,       // "IP4" - RFC4566
       ADDRESS_TYPE_IP6        // "IP6" - RFC4566

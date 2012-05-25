@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
@@ -22,16 +24,18 @@
 // STATIC VARIABLE INITIALIZATIONS
 const char* SdpMediaLine::SdpMediaTypeString[] =
 {
-   "NONE",
-   "AUDIO",
-   "VIDEO",
-   "TEXT",
-   "APPLICATION",
-   "MESSAGE"
+    // WARNING: this array must stay in synch. with the enum SdpMediaType
+   "none",
+   "audio",
+   "video",
+   "text",
+   "application",
+   "message"
 };
 
 const char* SdpMediaLine::SdpTransportProtocolTypeString[] =
 {
+    // WARNING: this array must stay in synch. with the enum SdpTransportProtocolType
    "NONE",
    "UDP",
    "RTP/AVP",
@@ -334,17 +338,9 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
    UtlString remoteCandidatesString;
    UtlString candidatePairsString;
 
+
    // Build Codecs String
-   {
-      UtlString tempString;
-      UtlSListIterator it(mCodecs);
-      SdpCodec* sdpCodec;
-      while((sdpCodec = (SdpCodec*) it()))
-      {
-         sdpCodec->toString(tempString);
-         codecsString += tempString;
-      }
-   }
+   mCodecs.toString(codecsString);
 
    // Build Connections String
    {
@@ -605,42 +601,31 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
 
 /* ============================ INQUIRY =================================== */
 
-SdpMediaLine::SdpMediaType 
-SdpMediaLine::getMediaTypeFromString(const char * type)
+SdpMediaLine::SdpMediaType SdpMediaLine::getMediaTypeFromString(const UtlString& typeString)
 {
-   UtlString stringType(type);
+    SdpMediaType type = MEDIA_TYPE_NONE;
 
-   if(stringType.compareTo("audio", UtlString::ignoreCase) == 0)
-   {
-      return MEDIA_TYPE_AUDIO;
-   }
-   else if(stringType.compareTo("video", UtlString::ignoreCase) == 0)
-   {
-      return MEDIA_TYPE_VIDEO;
-   }
-   else if(stringType.compareTo("text", UtlString::ignoreCase) == 0)
-   {
-      return MEDIA_TYPE_TEXT;
-   }
-   else if(stringType.compareTo("application", UtlString::ignoreCase) == 0)
-   {
-      return MEDIA_TYPE_APPLICATION;
-   }
-   else if(stringType.compareTo("message", UtlString::ignoreCase) == 0)
-   {
-      return MEDIA_TYPE_MESSAGE;
-   }
-   else
-   {
-      return MEDIA_TYPE_NONE;
-   }
+    for(int typeIndex = MEDIA_TYPE_NONE + 1; 
+        typeIndex < (int)(sizeof(SdpMediaTypeString) / sizeof(char*)); 
+        typeIndex++)
+    {
+        if(typeString.compareTo(SdpMediaTypeString[typeIndex], UtlString::ignoreCase) == 0)
+        {
+            type = (SdpMediaType)typeIndex;
+        }
+    }
+
+    return(type);
+}
+
+const char* SdpMediaLine::getStringForMediaType(SdpMediaType type)
+{
+    return(SdpMediaTypeString[type]);
 }
 
 SdpMediaLine::SdpTransportProtocolType 
-SdpMediaLine::getTransportProtocolTypeFromString(const char * type)
+SdpMediaLine::getTransportProtocolTypeFromString(const UtlString& stringType)
 {
-   UtlString stringType(type);
-
    if(stringType.compareTo("udp", UtlString::ignoreCase) == 0)
    {
       return PROTOCOL_TYPE_UDP;
@@ -693,6 +678,11 @@ SdpMediaLine::getTransportProtocolTypeFromString(const char * type)
    {
       return PROTOCOL_TYPE_NONE;
    }
+}
+
+const char* SdpMediaLine::getStringForTransportProtocolType(SdpTransportProtocolType type)
+{
+    return(SdpTransportProtocolTypeString[type]);
 }
 
 SdpMediaLine::SdpOrientationType 

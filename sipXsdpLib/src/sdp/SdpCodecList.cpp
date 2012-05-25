@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -22,6 +21,7 @@
 #include <utl/UtlDListIterator.h>
 #include <os/OsWriteLock.h>
 #include <os/OsReadLock.h>
+#include <os/OsSysLog.h>
 
 #define VERBOSE_CODEC_FACTORY
 #undef VERBOSE_CODEC_FACTORY
@@ -268,6 +268,8 @@ void SdpCodecList::copyPayloadType(const SdpCodec& codec)
     {
         if(codecFound->isSameDefinition(codec))
         {
+            // This is all supposed to be done in isSameDefinition now
+#if 0
             // If this is H.264 we need to have the exact same level_idc or we should not
             // use the same payload ID
             UtlString mimeSubtype;
@@ -296,6 +298,7 @@ void SdpCodecList::copyPayloadType(const SdpCodec& codec)
                 }
             }
             else
+#endif
             {
                 newPayloadType = codec.getCodecPayloadFormat();
                 // Unbind any codecs already using this payload ID
@@ -313,6 +316,16 @@ void SdpCodecList::copyPayloadTypes(int numCodecs,
     for(index = 0; index < numCodecs; index++)
     {
         copyPayloadType(*(codecArray[index]));
+    }
+}
+
+void SdpCodecList::copyPayloadTypes(const SdpCodecList& codecList)
+{
+    const SdpCodec* aCodec = NULL;
+    UtlDListIterator iterator(codecList.mCodecs);
+    while((aCodec = (const SdpCodec*) iterator()))
+    {
+        copyPayloadType(*aCodec);
     }
 }
 
@@ -356,10 +369,11 @@ void SdpCodecList::setCodecCPULimit(int iLimit)
 
 /* ============================ ACCESSORS ================================= */
 
-const SdpCodec* SdpCodecList::getCodec(SdpCodec::SdpCodecTypes internalCodecId)
+const SdpCodec* SdpCodecList::getCodec(SdpCodec::SdpCodecTypes internalCodecId) const
 {
     UtlInt codecToMatch(internalCodecId);
-    OsReadLock lock(mReadWriteMutex);
+    // Cheat to allow this to be const
+    OsReadLock lock((OsRWMutex&)mReadWriteMutex);
     const SdpCodec* codecFound = (SdpCodec*) mCodecs.find(&codecToMatch);
 
 #ifdef TEST_PRINT
@@ -381,12 +395,13 @@ const SdpCodec* SdpCodecList::getCodec(SdpCodec::SdpCodecTypes internalCodecId)
     return(codecFound);
 }
 
-const SdpCodec* SdpCodecList::getCodecByType(int payloadTypeId, UtlBoolean shouldLock)
+const SdpCodec* SdpCodecList::getCodecByType(int payloadTypeId, UtlBoolean shouldLock) const
 {
     const SdpCodec* codecFound = NULL;
     if(shouldLock)
     {
-        mReadWriteMutex.acquireRead();
+        // Cheat to allow this to be const
+        ((OsRWMutex&)mReadWriteMutex).acquireRead();
     }
 
     UtlDListIterator iterator(mCodecs);
@@ -404,7 +419,8 @@ const SdpCodec* SdpCodecList::getCodecByType(int payloadTypeId, UtlBoolean shoul
 
     if(shouldLock)
     {
-        mReadWriteMutex.releaseRead();
+        // Cheat to allow this to be const
+        ((OsRWMutex&)mReadWriteMutex).releaseRead();
     }
 
     return(codecFound);
@@ -414,8 +430,14 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
                                        const char* mimeSubType,
                                        int sampleRate,
                                        int numChannels,
-                                       const UtlString &fmtp)
+                                       const UtlString &fmtp) const
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_SDP, PRI_DEBUG,
+            "SdpCodecList::getCodec(%s, %s, %d, %d, %s)",
+            mimeType, mimeSubType, sampleRate, numChannels, fmtp.data());
+#endif
+    const SdpCodec* bestCodecFound = NULL;
     const SdpCodec* codecFound = NULL;
     UtlString foundMimeType;
     UtlString foundMimeSubType;
@@ -424,23 +446,73 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
     mimeTypeString.toLower();
     UtlString mimeSubTypeString(mimeSubType ? mimeSubType : "");
     mimeSubTypeString.toLower();
-    OsReadLock lock(mReadWriteMutex);
+    // Cheat to allow this to be const
+    OsReadLock lock((OsRWMutex&)mReadWriteMutex);
     UtlDListIterator iterator(mCodecs);
+    int compares;
+    int bestCodecCompares;
 
     while((codecFound = (SdpCodec*) iterator()))
     {
         // If the mime type matches
         codecFound->getMediaType(foundMimeType);
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SDP, PRI_DEBUG,
+                "SdpCodecList::getCodec codecFound: %s", foundMimeType.data());
+#endif
         if(foundMimeType.compareTo(mimeTypeString, UtlString::ignoreCase) == 0)
         {
+#ifdef TEST_PRINT
+            UtlString codecDump;
+            codecFound->toString(codecDump);
+            OsSysLog::add(FAC_SDP, PRI_DEBUG,
+                    "SdpCodecList::getCodec codecFound matches mime type, codecFound:\n%s",
+                    codecDump.data());
+#endif
             // and if the mime subtype, sample rate, number of channels
             // and fmtp match.
             codecFound->getEncodingName(foundMimeSubType);
             if(  (foundMimeSubType.compareTo(mimeSubTypeString, UtlString::ignoreCase) == 0)
               && (sampleRate == -1 || codecFound->getSampleRate() == sampleRate)
               && (numChannels == -1 || codecFound->getNumChannels() == numChannels)
-              && (codecFound->getCPUCost() <= mCodecCPULimit))
+              && (codecFound->getCPUCost() <= mCodecCPULimit) 
+              && codecFound->compareFmtp(fmtp, compares))
             {
+#if 1
+                if(bestCodecFound)
+                {
+                    // The prior match is an exact match
+                    if(bestCodecCompares == 0)
+                    {
+                        // Keep the prior match
+                    }
+                    else
+                    {
+                        int newBestCompares;
+                        bestCodecFound->compareFmtp(*codecFound, newBestCompares);
+                        // Looking for the closest match
+                        // Either:
+                        // A)  fmtp > codecFound > bestCodecFound
+                        // or
+                        // B)  bestCodecFound < codecFound < fmtp
+                        if(
+                           (bestCodecCompares > 0 && newBestCompares > 0 && compares > 0) || // case A
+                           (bestCodecCompares < 0 && newBestCompares < 0 && compares < 0)
+                          )
+                        {
+                            bestCodecFound = codecFound;
+                            bestCodecCompares = compares;
+                        }
+                    }
+                }
+                else
+                {
+                    bestCodecFound = codecFound;
+                    bestCodecCompares = compares;
+                }
+
+
+#else
                 // TODO:: checking for fmtp match must be made intelligent, e.g. by
                 //        defining isCompatible(fmtp) method for SdpCodec. Checking
                 //        by string comparison leads to errors when there are two
@@ -449,6 +521,7 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
                 if (fmtp.compareTo(foundFmtp, UtlString::ignoreCase) == 0)
                 {
                     // we found a match
+                    bestCodecFound = codecFound;
                     break;
                 }
                 else
@@ -463,6 +536,7 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
                            && (foundFmtp.isNull() || foundFmtp == "0-15"))
                         {
                             // we found a match
+                            bestCodecFound = codecFound;
                             break;
                         }
 #else // SDP_RFC4733_STRICT_FMTP_CHECK ][
@@ -473,30 +547,33 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
                         // everything and ignore unknown codes later.
                         // Examples of fmtp strings seen in the field:
                         // "0-16" (e.g. Snom phones), "0-11".
+                        bestCodecFound = codecFound;
                         break;
 #endif // !SDP_RFC4733_STRICT_FMTP_CHECK ]
                     }
                 }
+#endif
             }
         }
     }
 
 #ifdef TEST_PRINT
-    if(codecFound)
+    if(bestCodecFound)
     {
         UtlString codecDump;
-        codecFound->toString(codecDump);
+        bestCodecFound->toString(codecDump);
         osPrintf("SdpCodecList::getCodec found:\n%s",
             codecDump.data());
     }
 #endif
 
-    return(codecFound);
+    return(bestCodecFound);
 }
 
-int SdpCodecList::getCodecCount()
+int SdpCodecList::getCodecCount() const
 {
-    OsReadLock lock(mReadWriteMutex);
+    // Cheat to allow this to be const
+    OsReadLock lock((OsRWMutex&)mReadWriteMutex);
     SdpCodec* codecFound = NULL;
     
     // Find all codecs, where the CPU cost is tolerable.
@@ -513,9 +590,10 @@ int SdpCodecList::getCodecCount()
     return iCount;
 }
 
-int SdpCodecList::getCodecCount(const char* mimetype)
+int SdpCodecList::getCodecCount(const char* mimetype) const
 {
-    OsReadLock lock(mReadWriteMutex);
+    // Cheat to allow this to be const
+    OsReadLock lock((OsRWMutex&)mReadWriteMutex);
     SdpCodec* codecFound = NULL;
     UtlString foundMimeType;
     
@@ -537,10 +615,11 @@ int SdpCodecList::getCodecCount(const char* mimetype)
 
 
 void SdpCodecList::getCodecs(int& numCodecs, 
-                             SdpCodec**& codecArray)
+                             SdpCodec**& codecArray) const
 {
     const SdpCodec* codecFound = NULL;
-    OsReadLock lock(mReadWriteMutex);
+    // Cheat to allow this to be const
+    OsReadLock lock((OsRWMutex&)mReadWriteMutex);
     int arrayMaximum = mCodecs.entries();
     codecArray = new SdpCodec*[arrayMaximum];
     UtlDListIterator iterator(mCodecs);
@@ -561,10 +640,11 @@ void SdpCodecList::getCodecs(int& numCodecs,
 
 void SdpCodecList::getCodecs(int& numCodecs, 
                              SdpCodec**& codecArray,
-                             const char* mimeType)
+                             const char* mimeType) const
 {
     const SdpCodec* codecFound = NULL;
-    OsReadLock lock(mReadWriteMutex);
+    // Cheat to allow this to be const
+    OsReadLock lock((OsRWMutex&)mReadWriteMutex);
     int arrayMaximum = mCodecs.entries();
     codecArray = new SdpCodec*[arrayMaximum];
     UtlDListIterator iterator(mCodecs);
@@ -587,12 +667,13 @@ void SdpCodecList::getCodecs(int& numCodecs,
 }
 
 void SdpCodecList::getCodecs(int& numCodecs, 
-                                SdpCodec**& codecArray,
-                                const char* mimeType,
-                                const char* subMimeType)
+                             SdpCodec**& codecArray,
+                             const char* mimeType,
+                             const char* subMimeType) const
 {
     const SdpCodec* codecFound = NULL;
-    OsReadLock lock(mReadWriteMutex);
+    // Cheat to allow this to be const
+    OsReadLock lock((OsRWMutex&)mReadWriteMutex);
     int arrayMaximum = mCodecs.entries();
     codecArray = new SdpCodec*[arrayMaximum];
     UtlDListIterator iterator(mCodecs);
@@ -651,7 +732,7 @@ void SdpCodecList::toString(UtlString& serializedFactory) const
 }
 
 // Gets the codec CPU limit level
-int SdpCodecList::getCodecCPULimit()
+int SdpCodecList::getCodecCPULimit() const
 {
    return mCodecCPULimit;
 }
