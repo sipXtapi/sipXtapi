@@ -281,14 +281,12 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
             {
                 int numMatchingCodecs = 0;
                 SdpCodec** encoderCodecs = NULL;
-                SdpCodec** decoderCodecs = NULL;
                 SdpSrtpParameters srtpParamsPlaceholder;
                 memset(&srtpParamsPlaceholder, 0, sizeof(srtpParamsPlaceholder));
 
                 bodyPtr->getBestAudioCodecs(*codecFactory,
                                             numMatchingCodecs,
                                             encoderCodecs,
-                                            decoderCodecs,
                                             rtpAddress,
                                             rtpPort,
                                             rtcpPort,
@@ -318,7 +316,6 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
 
                 // Free up the codec copies and pointer array
                 SdpCodecList::freeArray(numMatchingCodecs, encoderCodecs);
-                SdpCodecList::freeArray(numMatchingCodecs, decoderCodecs);
             }
 
             // Assume that SDP will be sent in ACK
@@ -4274,12 +4271,10 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
 #ifdef TEST_PRINT
       osPrintf("SDP body in INVITE, finding best codec\n");
 #endif
-      SdpCodec** commonCodecsForDecoder = NULL;
-
       sdpBody->getBestAudioCodecs(supportedCodecsArray,
                                   numCodecsInCommon,
                                   commonCodecsForEncoder,
-                                  commonCodecsForDecoder,
+                                  //commonCodecsForDecoder,
                                   remoteAddress,
                                   remotePort,
                                   remoteRtcpPort,
@@ -4295,10 +4290,6 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
       // We do not care what the subset of codecs that are enabled locally
       // and supported remotely.  We must be prepared for all the codecs that
       // are enabled.
-      if(commonCodecsForDecoder)
-      {
-          SdpCodecList::freeArray(numCodecsInCommon, commonCodecsForDecoder);
-      }
           
       mpMediaInterface->setSrtpParams(matchingSrtpParams);
 
@@ -6654,7 +6645,7 @@ void SipConnection::setMediaDestination(const char*    hostAddress,
             int         candidateIds[MAX_ADDRESS_CANDIDATES] ;
             UtlString   transportIds[MAX_ADDRESS_CANDIDATES] ;
             UtlString   transportTypes[MAX_ADDRESS_CANDIDATES] ;
-            double      qValues[MAX_ADDRESS_CANDIDATES] ;
+            uint64_t    qValues[MAX_ADDRESS_CANDIDATES];
             UtlString   candidateIps[MAX_ADDRESS_CANDIDATES] ;
             int         candidatePorts[MAX_ADDRESS_CANDIDATES] ;
             int         nCandidates = 0 ;
@@ -6681,7 +6672,7 @@ void SipConnection::setMediaDestination(const char*    hostAddress,
                         {
                             if (mpMediaInterface->addAudioRtpConnectionDestination(
                                     mConnectionId,
-                                    (int) (qValues[i] * 100),
+                                    qValues[i],
                                     candidateIps[i],
                                     candidatePorts[i]) != OS_SUCCESS)
                             {
@@ -6696,7 +6687,7 @@ void SipConnection::setMediaDestination(const char*    hostAddress,
                         {
                             if (mpMediaInterface->addAudioRtcpConnectionDestination(
                                     mConnectionId,
-                                    (int) (qValues[i] * 100),
+                                    qValues[i],
                                     candidateIps[i],
                                     candidatePorts[i]) != OS_SUCCESS)
                             {
@@ -6733,7 +6724,7 @@ void SipConnection::setMediaDestination(const char*    hostAddress,
                         {
                             if (mpMediaInterface->addVideoRtpConnectionDestination(
                                     mConnectionId,
-                                    (int) (qValues[i] * 100),
+                                    qValues[i],
                                     candidateIps[i],
                                     candidatePorts[i]) != OS_SUCCESS)
                             {
@@ -6748,7 +6739,7 @@ void SipConnection::setMediaDestination(const char*    hostAddress,
                         {
                             if (mpMediaInterface->addVideoRtcpConnectionDestination(
                                     mConnectionId,
-                                    (int) (qValues[i] * 100),
+                                    qValues[i],
                                     candidateIps[i],
                                     candidatePorts[i]) != OS_SUCCESS)
                             {
