@@ -988,7 +988,7 @@ class SipMessageTest : public SIPX_UNIT_BASE_CLASS
             sprintf(&agent_expected[strlen(agent_expected)], ":%d", port);
          }
          // Check the agent value.
-         ASSERT_STR_EQUAL(agent_expected, agent);
+         ASSERT_STR_EQUAL((const UtlString&)agent_expected, agent);
       }
 
  void testSdpParse()
