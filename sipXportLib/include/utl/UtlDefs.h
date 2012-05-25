@@ -55,7 +55,11 @@ typedef int UtlBoolean ;
 #if defined(_WIN32)
 #  define   FORMAT_INTLL   "I64"
 #elif defined(__pingtel_on_posix__)
-#  define   FORMAT_INTLL   "ll"
+#  if __WORDSIZE == 64
+#    define   FORMAT_INTLL   "l"
+#  else
+#    define   FORMAT_INTLL   "ll"
+#  endif
 #else
 #  error Unsupported target platform.
 #endif
