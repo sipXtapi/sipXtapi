@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2008 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2008-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -57,7 +56,7 @@ SdpHelper::convertCryptoSuiteType(int sdpBodyType)
    }
 }
 
-Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
+Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody, const SdpCodecList* codecFactory)
 {
    bool rtcpEnabled = true;
    Sdp* sdp = new Sdp();
@@ -78,173 +77,251 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
    {
       bool rtcpEnabledForMedia = rtcpEnabled;  // Default to Session setting
       SdpMediaLine* mediaLine = new SdpMediaLine();
-  
-      UtlString utlString;  // Temp String
-      UtlString mediaType;
-      int mediaPort=0;
-      int mediaNumPorts=0;
-      UtlString mediaTransportType;
-      int numPayloadTypes=0;
-      int payloadTypes[MAXIMUM_MEDIA_TYPES];
-      sdpBody.getMediaData(i, &mediaType, &mediaPort, &mediaNumPorts, &mediaTransportType, MAXIMUM_MEDIA_TYPES, &numPayloadTypes, payloadTypes);
 
-      mediaLine->setMediaType(SdpMediaLine::getMediaTypeFromString(mediaType.data()));
-      mediaLine->setTransportProtocolType(SdpMediaLine::getTransportProtocolTypeFromString(mediaTransportType.data()));
+      // Get data out of SdpBody and stuff it into SdpMediaLine for the i'th
+      // media line in the SdpBody.
+      getMediaLine(sdpBody, i, *mediaLine, codecFactory);
 
-      // Get PTime for media line to assign to codecs
-      unsigned int ptime=20; // default  !slg! this default should be dependant on codec type - ie. G723 should be 30, etc.
+      // Add the media line to the sdp
+      sdp->addMediaLine(mediaLine);
+   }
 
-      // Iterate Through Codecs
-      {
-         int typeIndex;
+   return sdp;
+}
 
-         for(typeIndex = 0; typeIndex < numPayloadTypes; typeIndex++)
-         {
+UtlBoolean SdpHelper::getMediaLine(const SdpBody& sdpBody, int mediaLineIndex, SdpMediaLine& mediaLine,
+                                   const SdpCodecList* codecFactory)
+{
+    UtlString utlString;  // Temp String
+    UtlString mediaType;
+    int mediaPort=0;
+    int mediaNumPorts=0;
+    UtlString mediaTransportType;
+    int numPayloadTypes=0;
+    int payloadTypes[MAXIMUM_MEDIA_TYPES];
+    UtlBoolean foundMline =
+        sdpBody.getMediaData(mediaLineIndex, &mediaType, &mediaPort, &mediaNumPorts, 
+                &mediaTransportType, MAXIMUM_MEDIA_TYPES, &numPayloadTypes, payloadTypes);
+
+    mediaLine.setMediaType(SdpMediaLine::getMediaTypeFromString(mediaType.data()));
+    mediaLine.setTransportProtocolType(SdpMediaLine::getTransportProtocolTypeFromString(mediaTransportType.data()));
+
+    // Get PTime for media line to assign to codecs
+    int mediaLinePtime=0;
+    sdpBody.getPtime(mediaLineIndex, mediaLinePtime);
+
+    // Iterate Through Codecs
+    {
+        int typeIndex;
+
+        for(typeIndex = 0; typeIndex < numPayloadTypes; typeIndex++)
+        {
             UtlString mimeSubType;
             UtlString payloadFormat;
-            int sampleRate=8000;
-            int numChannels=1;
+            int sampleRate = 0;
+            int numChannels = 0;
+            const SdpCodec* matchingCodec = NULL;
+            int ptime;
+            int numVideoSizes = MAXIMUM_VIDEO_SIZES;
+            int videoSizes[MAXIMUM_VIDEO_SIZES];
+            sdpBody.getPayloadFormat(payloadTypes[typeIndex], payloadFormat);
+            SdpCodec::getVideoSizes(payloadFormat, MAXIMUM_VIDEO_SIZES, numVideoSizes, videoSizes);
+
             if(!sdpBody.getPayloadRtpMap(payloadTypes[typeIndex], mimeSubType, sampleRate, numChannels))
             {
-               // static codecs as defined in RFC 3551
-               switch(payloadTypes[typeIndex])
+
+               if(codecFactory == NULL)
                {
-               case 0:
-                  mimeSubType = "PCMU";
-                  sampleRate = 8000;
-                  break;
-               case 3:
-                  mimeSubType = "GSM";
-                  sampleRate = 8000;
-                  break;
-               case 4:
-                  mimeSubType = "G723";
-                  sampleRate = 8000;
-                  ptime = 30;
-                  break;
-               case 5:
-                  mimeSubType = "DVI4";
-                  sampleRate = 8000;
-                  break;
-               case 6:
-                  mimeSubType = "DVI4";
-                  sampleRate = 16000;
-                  break;
-               case 7:
-                  mimeSubType = "LPC";
-                  sampleRate = 8000;
-                  break;
-               case 8:
-                  mimeSubType = "PCMA";
-                  sampleRate = 8000;
-                  break;
-               case 9:
-                  mimeSubType = "G722";
-                  sampleRate = 16000;
-                  break;
-               case 10:
-                  mimeSubType = "L16";
-                  sampleRate = 44100;
-                  numChannels = 2;
-                  break;
-               case 11:
-                  mimeSubType = "L16";
-                  sampleRate = 44100;
-                  break;
-               case 12:
-                  mimeSubType = "QCELP";
-                  sampleRate = 8000;
-                  break;
-               case 13:
-                  mimeSubType = "CN";
-                  sampleRate = 8000;
-                  break;
-               case 14:
-                  mimeSubType = "MPA";
-                  sampleRate = 90000;
-                  break;
-               case 15:
-                  mimeSubType = "G728";
-                  sampleRate = 8000;
-                  break;
-               case 16:
-                  mimeSubType = "DVI4";
-                  sampleRate = 11025;
-                  break;
-               case 17:
-                  mimeSubType = "DVI4";
-                  sampleRate = 22050;
-                  break;
-               case 18:
-                  mimeSubType = "G729";
-                  sampleRate = 8000;
-                  break;
-               case 25:
-                  mimeSubType = "CelB";
-                  sampleRate = 90000;
-                  break;
-               case 26:
-                  mimeSubType = "JPEG";
-                  sampleRate = 90000;
-                  break;
-               case 28:
-                  mimeSubType = "nv";
-                  sampleRate = 90000;
-                  break;
-               case 31:
-                  mimeSubType = "H261";
-                  sampleRate = 90000;
-                  break;
-               case 32:
-                  mimeSubType = "MPV";
-                  sampleRate = 90000;
-                  break;
-               case 33:
-                  mimeSubType = "MP2T";
-                  sampleRate = 90000;
-                  break;
-               case 34:
-                  mimeSubType = "H263";
-                  sampleRate = 90000;
-                  break;
+                   // static codecs as defined in RFC 3551
+                   switch(payloadTypes[typeIndex])
+                   {
+                   case 0:
+                      mimeSubType = "PCMU";
+                      sampleRate = 8000;
+                      break;
+                   case 3:
+                      mimeSubType = "GSM";
+                      sampleRate = 8000;
+                      break;
+                   case 4:
+                      mimeSubType = "G723";
+                      sampleRate = 8000;
+                      ptime = 30;
+                      break;
+                   case 5:
+                      mimeSubType = "DVI4";
+                      sampleRate = 8000;
+                      break;
+                   case 6:
+                      mimeSubType = "DVI4";
+                      sampleRate = 16000;
+                      break;
+                   case 7:
+                      mimeSubType = "LPC";
+                      sampleRate = 8000;
+                      break;
+                   case 8:
+                      mimeSubType = "PCMA";
+                      sampleRate = 8000;
+                      break;
+                   case 9:
+                      mimeSubType = "G722";
+                      sampleRate = 16000;
+                      break;
+                   case 10:
+                      mimeSubType = "L16";
+                      sampleRate = 44100;
+                      numChannels = 2;
+                      break;
+                   case 11:
+                      mimeSubType = "L16";
+                      sampleRate = 44100;
+                      break;
+                   case 12:
+                      mimeSubType = "QCELP";
+                      sampleRate = 8000;
+                      break;
+                   case 13:
+                      mimeSubType = "CN";
+                      sampleRate = 8000;
+                      break;
+                   case 14:
+                      mimeSubType = "MPA";
+                      sampleRate = 90000;
+                      break;
+                   case 15:
+                      mimeSubType = "G728";
+                      sampleRate = 8000;
+                      break;
+                   case 16:
+                      mimeSubType = "DVI4";
+                      sampleRate = 11025;
+                      break;
+                   case 17:
+                      mimeSubType = "DVI4";
+                      sampleRate = 22050;
+                      break;
+                   case 18:
+                      mimeSubType = "G729";
+                      sampleRate = 8000;
+                      break;
+                   case 25:
+                      mimeSubType = "CelB";
+                      sampleRate = 90000;
+                      break;
+                   case 26:
+                      mimeSubType = "JPEG";
+                      sampleRate = 90000;
+                      break;
+                   case 28:
+                      mimeSubType = "nv";
+                      sampleRate = 90000;
+                      break;
+                   case 31:
+                      mimeSubType = "H261";
+                      sampleRate = 90000;
+                      break;
+                   case 32:
+                      mimeSubType = "MPV";
+                      sampleRate = 90000;
+                      break;
+                   case 33:
+                      mimeSubType = "MP2T";
+                      sampleRate = 90000;
+                      break;
+                   case 34:
+                      mimeSubType = "H263";
+                      sampleRate = 90000;
+                      break;
+                   }
+               }
+               else
+               {
+                   if(payloadTypes[typeIndex] <= SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC)
+                   {
+                      matchingCodec = codecFactory->getCodecByType(payloadTypes[typeIndex]);
+                   }
                }
             }
             else
             {
-               if(numChannels == -1) // Note:  SdpBody returns -1 if no numChannels is specified - default should be one
-               {
-                  numChannels = 1;
-               }
+                // TODO: A lot of this should probably go in a codec factory method
+
+                // Workaround RFC bug with G.722 samplerate.
+                // Read RFC 3551 Section 4.5.2 "G722" for details.
+                if (mimeSubType.compareTo(MIME_SUBTYPE_G722, UtlString::ignoreCase) == 0)
+                {
+                   sampleRate = 16000;
+                }
+
+                else if(mimeSubType.compareTo(MIME_SUBTYPE_ILBC, UtlString::ignoreCase) == 0)
+                {
+                    // TODO: move this to SdpCodec
+                    /*
+                    if(fmtpMode == 0)
+                    {
+                        fmtpMode = 20;
+                    }
+                    if(fmtpMode == 20 || fmtpMode == 30)
+                    {
+                        ptime = fmtpMode;
+                    }
+
+                    else if(codecFactory)
+                    {
+                        // Other iLBC framing not supported, prevent match
+                        mimeSubType = "";
+                    }
+                    */
+                }
+
+                if(numChannels == -1) // Note:  SdpBody returns -1 if no numChannels is specified - default should be one
+                {
+                    numChannels = 1;
+                }
+
+                if(codecFactory)
+                {
+                    // Find a match in the factory to the given codec parameters
+                    matchingCodec = codecFactory->getCodec(mediaType.data(),
+                                                       mimeSubType.data(),
+                                                       sampleRate,
+                                                       numChannels,
+                                                       payloadFormat);
+                }
+
             }
 
-            // Workaround RFC bug with G.722 samplerate.
-            // Read RFC 3551 Section 4.5.2 "G722" for details.
-            if (mimeSubType.compareTo("g722", UtlString::ignoreCase) == 0)
+            if(codecFactory == NULL)
             {
-               sampleRate = 16000;
+                SdpCodec* codec = new SdpCodec(payloadTypes[typeIndex], 
+                                               mediaType.data(), 
+                                               mimeSubType.data(), 
+                                               sampleRate, 
+                                               ptime * 1000, 
+                                               numChannels, 
+                                               payloadFormat);
+                mediaLine.addCodec(codec);
             }
-
-
-            int videoFmtp;
-            int numVideoSizes = MAXIMUM_VIDEO_SIZES;
-            int videoSizes[MAXIMUM_VIDEO_SIZES];
-            sdpBody.getPayloadFormat(payloadTypes[typeIndex], payloadFormat, videoFmtp, numVideoSizes, videoSizes);
-
-            SdpCodec* codec = new SdpCodec(payloadTypes[typeIndex], 
-                                           mediaType.data(), 
-                                           mimeSubType.data(), 
-                                           sampleRate, 
-                                           ptime * 1000, 
-                                           numChannels, 
-                                           payloadFormat);
-             mediaLine->addCodec(codec);
+            else
+            {
+                if(matchingCodec)
+                {
+                    SdpCodec* codecToAdd = new SdpCodec(*matchingCodec);
+                    // Need to use payload ID of remote side, not that set in codec factory
+                    codecToAdd->setCodecPayloadFormat(payloadTypes[typeIndex]);
+                    codecToAdd->setPacketSize((ptime ? ptime : mediaLinePtime) * 1000);
+                    mediaLine.addCodec(codecToAdd);
+                }
+            }
          }
       }
 
       // Add Connection
       UtlString mediaAddress;
-      sdpBody.getMediaAddress(i, &mediaAddress);
-      //sdpBody.getMediaNetworkType(i, &utlString);  !slg! not implemented in SdpBody
+      sdpBody.getMediaAddress(mediaLineIndex, &mediaAddress);
+      // TODO:
+      //sdpBody.getMediaNetworkType(mediaLineIndex, &utlString);  !slg! not implemented in SdpBody
       //Sdp::SdpAddressType addrType = Sdp::getAddressTypeFromString(utlString.data());
       Sdp::SdpAddressType addrType = Sdp::ADDRESS_TYPE_IP4;
       if(mediaPort != 0)
@@ -252,19 +329,19 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
          int j;
          for(j = 0; j < mediaNumPorts; j++)
          {
-            mediaLine->addConnection(Sdp::NET_TYPE_IN, addrType, mediaAddress.data(), mediaPort + (2 * j));
+            mediaLine.addConnection(Sdp::NET_TYPE_IN, addrType, mediaAddress.data(), mediaPort + (2 * j));
          }
       }
 
       // Add Rtcp Connection
       int rtcpPort = 0;
-      sdpBody.getMediaRtcpPort(i, &rtcpPort);
+      sdpBody.getMediaRtcpPort(mediaLineIndex, &rtcpPort);
       if(rtcpPort != 0)
       {
          int j;
          for(j = 0; j < mediaNumPorts; j++)
          {
-            mediaLine->addRtcpConnection(Sdp::NET_TYPE_IN, addrType, mediaAddress.data(), rtcpPort + (2 * j));
+            mediaLine.addRtcpConnection(Sdp::NET_TYPE_IN, addrType, mediaAddress.data(), rtcpPort + (2 * j));
          }
       }      
 
@@ -287,21 +364,21 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
       {
          direction = SdpMediaLine::DIRECTION_TYPE_INACTIVE;
       }
-      mediaLine->setDirection(direction);
+      mediaLine.setDirection(direction);
 
       int frameRate;
-      if(sdpBody.getFramerateField(i, frameRate))
+      if(sdpBody.getFramerateField(mediaLineIndex, frameRate))
       {
-         mediaLine->setFrameRate((unsigned int)frameRate);
+         mediaLine.setFrameRate((unsigned int)frameRate);
       }
 
       // TCP Setup Attribute - !slg! SdpBody currently does not support getting this for a particular media line
-      mediaLine->setTcpSetupAttribute(SdpMediaLine::getTcpSetupAttributeFromString(sdpBody.getRtpTcpRole().data()));
+      mediaLine.setTcpSetupAttribute(SdpMediaLine::getTcpSetupAttributeFromString(sdpBody.getRtpTcpRole().data()));
 
       // Get the SRTP Crypto Settings
       SdpSrtpParameters srtpParameters;
       int index=1;
-      while(sdpBody.getSrtpCryptoField(i, index, srtpParameters))
+      while(sdpBody.getSrtpCryptoField(mediaLineIndex, index, srtpParameters))
       {
          SdpMediaLine::SdpCrypto* sdpCrypto = new SdpMediaLine::SdpCrypto;
          sdpCrypto->setTag(index);
@@ -311,7 +388,7 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
          sdpCrypto->addCryptoKeyParam(SdpMediaLine::CRYPTO_KEY_METHOD_INLINE, encodedKey.data()); 
          sdpCrypto->setEncryptedSrtp((srtpParameters.securityLevel & SRTP_ENCRYPTION) != 0);
          sdpCrypto->setAuthenticatedSrtp((srtpParameters.securityLevel & SRTP_AUTHENTICATION) != 0);
-         mediaLine->addCryptoSettings(sdpCrypto); 
+         mediaLine.addCryptoSettings(sdpCrypto); 
          index++;
       }
 
@@ -320,36 +397,33 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
       int candidateIds[MAXIMUM_CANDIDATES];
       UtlString transportIds[MAXIMUM_CANDIDATES];
       UtlString transportTypes[MAXIMUM_CANDIDATES];
-      double qvalues[MAXIMUM_CANDIDATES];
+      uint64_t qvalues[MAXIMUM_CANDIDATES];
       UtlString candidateIps[MAXIMUM_CANDIDATES];
       int candidatePorts[MAXIMUM_CANDIDATES];
       int numCandidates;
 
-      if(sdpBody.getCandidateAttributes(i, MAXIMUM_CANDIDATES, candidateIds, transportIds, transportTypes, qvalues, candidateIps, candidatePorts, numCandidates))
+      if(sdpBody.getCandidateAttributes(mediaLineIndex, MAXIMUM_CANDIDATES, candidateIds, transportIds, transportTypes, qvalues, candidateIps, candidatePorts, numCandidates))
       {
          UtlString userFrag;  // !slg! Currently no way to retrieve these
          UtlString password;
 
-         //mediaLine->setIceUserFrag(userFrag.data());
-         //mediaLine->setIcePassword(password.data());
+         // TODO:
+         //mediaLine.setIceUserFrag(userFrag.data());
+         //mediaLine.setIcePassword(password.data());
          int idx;
          for(idx = 0; idx < numCandidates; idx++)
          {
-            mediaLine->addCandidate(transportIds[idx].data(), 
+            mediaLine.addCandidate(transportIds[idx].data(), 
                                     candidateIds[idx], 
                                     SdpCandidate::getCandidateTransportTypeFromString(transportTypes[idx].data()), 
-                                    (uint64_t)qvalues[idx], 
+                                    qvalues[idx], 
                                     candidateIps[idx].data(), 
                                     candidatePorts[idx], 
                                     SdpCandidate::CANDIDATE_TYPE_NONE); 
          }
       }
 
-      // Add the media line to the sdp
-      sdp->addMediaLine(mediaLine);
-   }
-
-   return sdp;
+    return(foundMline);
 }
 
 

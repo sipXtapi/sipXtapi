@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
@@ -45,7 +47,13 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
    static SdpMediaLine::SdpCryptoSuiteType convertCryptoSuiteType(int sdpBodyType);
-   static Sdp* createSdpFromSdpBody(SdpBody& sdpBody);
+
+   static Sdp* createSdpFromSdpBody(SdpBody& sdpBody, const SdpCodecList* codecFactory);
+
+   // Fill in the SdpMediaLine container for the indicated media line in the given SdpBody
+   static UtlBoolean getMediaLine(const SdpBody& sdpBody, int mediaLineIndex, 
+                                  SdpMediaLine& mediaLine,
+                                  const SdpCodecList* codecFactory);
 
 /* ============================ ACCESSORS ================================= */
 

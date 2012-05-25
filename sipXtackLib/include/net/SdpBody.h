@@ -63,6 +63,7 @@ typedef struct SdpSrtpParameters
 
 // FORWARD DECLARATIONS
 class SdpCodecList;
+class SdpMediaLine;
 
 /// Container for MIME type application/sdp.
 /**
@@ -140,7 +141,7 @@ class SdpBody : public HttpBody
 
 /**
  * @name ====================== Header Setting Interfaces
- *
+
  * These methods set the standard header fields (the ones not in a media set)
  *
  * @{
@@ -177,9 +178,13 @@ class SdpBody : public HttpBody
                    unsigned long ntpEndTime = 0
                    );
 
+   // Get the stream direction or activity state (i.e. sendrecv, sendonly, recvonly, inactive)
+   UtlBoolean getMediaStreamDirection(int mediaIndex, ///< which media description set to read
+                                      SessionDirection& direction) const;
+
    // set all media attributes to either a=setup:actpass, a=setup:active, or a=setup:passive
    void setRtpTcpRole(RtpTcpRoles role);                   
-   UtlString getRtpTcpRole();
+   UtlString getRtpTcpRole() const;
 
 ///@}
 
@@ -232,7 +237,8 @@ class SdpBody : public HttpBody
     * to a SdpBody send from the other side
     */
 
-
+   // Create an answer SDP in this for the given media streams and SDP offer
+   void addMediaLinesAnswer(int numMediaLines, const SdpMediaLine* mediaLines[], const SdpBody& offer);
 
    /// Create a new media set for SDP message.
    void addMediaData(const char* mediaType, ///< "audio", "video", "application", "data", "control"
@@ -249,8 +255,7 @@ class SdpBody : public HttpBody
 
    void addCodecParameters(int numRtpCodecs,
                            SdpCodec* rtpCodecs[],
-                           const char* szMimeType = "audio",
-                           const int videoFramerate = 0
+                           const char* szMimeType = "audio"
                            );
 
    /// Set address.
@@ -301,7 +306,7 @@ class SdpBody : public HttpBody
     void addCandidateAttribute(int         candidateId, 
                                const char* transportId, 
                                const char* transportType,
-                               double      qValue, 
+                               uint64_t    qValue, 
                                const char* candidateIp, 
                                int         candidatePort) ;
 
@@ -365,10 +370,6 @@ class SdpBody : public HttpBody
    UtlBoolean getMediaRtcpPort(int mediaIndex, ///< which media description set to read
                                int* port) const ;
 
-   // Get the stream direction or activity state
-   UtlBoolean getMediaStreamDirection(int mediaIndex, ///< which media description set to read
-                                      SessionDirection& direction) const;
-
    /// Get the number of port pairs in media stream.
    UtlBoolean getMediaPortCount(int mediaIndex, ///< which media description set to read
                                 int* numPorts) const;
@@ -391,7 +392,7 @@ class SdpBody : public HttpBody
                                   ) const;
 
    /// Get the ptime field for the given media set
-   UtlBoolean getPtime(int mediaInded, int& ptime) const;
+   UtlBoolean getPtime(int mediaIndex, int& ptime) const;
 
    /// Media field accessor utility.
    UtlBoolean getMediaSubfield(int mediaIndex,
@@ -408,10 +409,10 @@ class SdpBody : public HttpBody
 
    // Get the fmtp parameter
    UtlBoolean getPayloadFormat(int payloadType,
-                               UtlString& fmtp,
-                               int& valueFmtp,
-                               int& numVideoSizes,
-                               int videoSizes[]) const;
+                               UtlString& fmtp) const;
+   /**
+    * See SdpCodec for utilities to parse the fmtp field (e.g. getFmtpParameter and getVideoSizes)
+    */
 
    // Get the crypto field for SRTP
    UtlBoolean getSrtpCryptoField(int mediaIndex,                  ///< mediaIndex of crypto field
@@ -430,6 +431,7 @@ class SdpBody : public HttpBody
     */
 
 
+#if 0
    /// Find the send and receive codecs from the rtpCodecs array which are compatible with this SdpBody..
    void getBestAudioCodecs(int numRtpCodecs,
                            SdpCodec rtpCodecs[],
@@ -438,14 +440,14 @@ class SdpBody : public HttpBody
                            int* sendCodecIndex,
                            int* receiveCodecIndex) const;
    ///< It is assumed that the best matches are first in the body
-
+#endif
 
 
    /// Find the send and receive codecs from the rtpCodecs array which are compatible with this SdpBody.
    void getBestAudioCodecs(SdpCodecList& localRtpCodecs,
                            int& numCodecsInCommon,
                            SdpCodec**& commonCodecsForEncoder,
-                           SdpCodec**& commonCodecsForDecoder,
+                           //SdpCodec**& commonCodecsForDecoder,
                            UtlString& rtpAddress, 
                            int& rtpPort,
                            int& rtcpPort,
@@ -470,6 +472,31 @@ class SdpBody : public HttpBody
                           SdpCodec* commonCodecsForEncoder[],
                           SdpCodec* commonCodecsForDecoder[]) const;
 
+   ///< For local capabilities, get remote media line and supported local codecs
+   int getCodecsInCommon(const SdpMediaLine& localMediaLine,
+                         int remoteMediaLineIndex,
+                         SdpMediaLine& remoteMediaLine,
+                         SdpCodecList& localDecodeCodecs) const;
+   /**
+    *  Assumes this SDP is the SDP offer and the localMediaLine is the capabilities for
+    *  the offer.
+    *
+    *  @param localMediaLine - local capabilities (codecs, ports, addresses, etc.)
+    *  @param remoteMediaLineIndex - index to m line in this SDP offer to which the local
+    *                                capabilities are to be matched.
+    *  @param remoteMediaLine - gets filled in with remote capabilities per indexed m line
+    *  @param localDecodeCodecs - codecs that this side should offer with payload IDs matched
+    *                             where possible.
+    *
+    * @returns number of matched codecs.
+    */
+
+   // Reads the indexed m line from this SDP into the given SdpMediaLine container.
+   UtlBoolean getMediaLine(int remoteMediaLineIndex, SdpMediaLine& mediaLine, const SdpCodecList* codecFactory) const;
+
+   // Add a SdpMediaLine object to this SdpBody
+   void addMediaLine(const SdpMediaLine& mediaLine, SdpBody& sdpBody);
+
    // Find common encryption suites
    void getEncryptionInCommon(SdpSrtpParameters& audioParams,
                               SdpSrtpParameters& remoteParams,
@@ -493,7 +520,7 @@ class SdpBody : public HttpBody
                                      int& rCandidateId,
                                      UtlString& rTransportId,
                                      UtlString& rTransportType,
-                                     double& rQvalue, 
+                                     uint64_t& rQvalue, 
                                      UtlString& rCandidateIp, 
                                      int& rCandidatePort) const ;
 
@@ -503,7 +530,7 @@ class SdpBody : public HttpBody
                                      int         candidateIds[],
                                      UtlString   transportIds[],
                                      UtlString   transportTypes[],
-                                     double      qvalues[], 
+                                     uint64_t    qvalues[], 
                                      UtlString   candidateIps[], 
                                      int         candidatePorts[],
                                      int&        nActualAddresses) const ;
@@ -513,7 +540,7 @@ class SdpBody : public HttpBody
                                      int         candidateIds[],
                                      UtlString   transportIds[],
                                      UtlString   transportTypes[],
-                                     double      qvalues[], 
+                                     uint64_t    qvalues[], 
                                      UtlString   candidateIps[], 
                                      int         candidatePorts[],
                                      int&        nActualAddresses) const ;
