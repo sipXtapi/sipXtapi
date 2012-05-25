@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2011 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 //
 // $$
@@ -16,10 +15,124 @@
 class SdpCodecTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(SdpCodecTest);
+    CPPUNIT_TEST(testFmtpParsing);
     CPPUNIT_TEST(testH264SameTest);
     CPPUNIT_TEST_SUITE_END();
 
 public:
+
+    void testFmtpParsing()
+    {
+        const char* fmtpData = "profile-level-id=428016; max-mbps=216000; max-fs=3600; max-br=5120; sar=13";
+        UtlString value;
+        SdpCodec::getFmtpParameter(fmtpData, "profile-level-id", value);
+        CPPUNIT_ASSERT_EQUAL("428016", value);
+
+        SdpCodec::getFmtpParameter(fmtpData, "max-mbps", value);
+        CPPUNIT_ASSERT_EQUAL("216000", value);
+
+        SdpCodec::getFmtpParameter(fmtpData, "max-fs", value);
+        CPPUNIT_ASSERT_EQUAL("3600", value);
+
+        SdpCodec::getFmtpParameter(fmtpData, "max-br", value);
+        CPPUNIT_ASSERT_EQUAL("5120", value);
+
+        SdpCodec::getFmtpParameter(fmtpData, "sar", value);
+        CPPUNIT_ASSERT_EQUAL("13", value);
+
+        // This format for size was found in SdpBodyTest.  Not sure if that
+        // was a bug in the unit test or if this is actually found in real SDP from
+        // some source.
+        //  Most RFCs use "=" as the name/value separator for fmtp parameters.
+        // Note: size":" not size"="
+        fmtpData = "size:QCIF\r\n";
+        SdpCodec::getFmtpParameter(fmtpData, "size", value, ':');
+        CPPUNIT_ASSERT_EQUAL("QCIF", value);
+        int videoSizes[100];
+        int numSizes;
+        OsStatus status = SdpCodec::getVideoSizes(fmtpData, 100, numSizes, videoSizes);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, status);
+        CPPUNIT_ASSERT_EQUAL(1, numSizes);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_QCIF, videoSizes[0]);
+
+        fmtpData = "size:QVGA/SQCIF/QCIF\r\n";
+        status = SdpCodec::getVideoSizes(fmtpData, 2, numSizes, videoSizes);
+        CPPUNIT_ASSERT_EQUAL(OS_LIMIT_REACHED, status);
+        CPPUNIT_ASSERT_EQUAL(2, numSizes);
+
+        status = SdpCodec::getVideoSizes(fmtpData, 100, numSizes, videoSizes);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, status);
+        CPPUNIT_ASSERT_EQUAL(3, numSizes);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_QVGA, videoSizes[0]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_SQCIF, videoSizes[1]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_QCIF, videoSizes[2]);
+
+        // This size format is used in SdpDefaultCodecFactory, not sure if it is used
+        // out in the wild.  Could not find an RFC for this.
+        fmtpData = "size=QCIF/CIF";
+        status = SdpCodec::getVideoSizes(fmtpData, 10, numSizes, videoSizes);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, status);
+        CPPUNIT_ASSERT_EQUAL(2, numSizes);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_QCIF, videoSizes[0]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_CIF, videoSizes[1]);
+
+        fmtpData = "size=SQCIF/QCIF/CIF/QVGA/VGA/CIF4/CIF16";
+        status = SdpCodec::getVideoSizes(fmtpData, 10, numSizes, videoSizes);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, status);
+        CPPUNIT_ASSERT_EQUAL(7, numSizes);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_SQCIF, videoSizes[0]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_QCIF, videoSizes[1]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_CIF, videoSizes[2]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_QVGA, videoSizes[3]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_VGA, videoSizes[4]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_4CIF, videoSizes[5]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_16CIF, videoSizes[6]);
+
+        // RFC 4629 size format for H.261 and H.263
+        fmtpData = "CIF4=2;CIF=1;QCIF=1;SQCIF=1;CUSTOM=352,240,1;CUSTOM=704,480,2;J;T";
+        status = SdpCodec::getVideoSizes(fmtpData, 10, numSizes, videoSizes);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, status);
+        CPPUNIT_ASSERT_EQUAL(4, numSizes);
+        // It is not clear if order should matter here
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_4CIF, videoSizes[3]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_CIF, videoSizes[2]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_QCIF, videoSizes[1]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_SQCIF, videoSizes[0]);
+
+        // RFC 4629 size format for H.261 and H.263
+        fmtpData = "VGA=2;QVGA;CIF;SQCIF=1;CIF16;CUSTOM=352,240,1;CUSTOM=704,480,2;J;T";
+        status = SdpCodec::getVideoSizes(fmtpData, 10, numSizes, videoSizes);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, status);
+        CPPUNIT_ASSERT_EQUAL(5, numSizes);
+        // It is not clear if order should matter here
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_16CIF, videoSizes[4]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_VGA, videoSizes[3]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_QVGA, videoSizes[2]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_CIF, videoSizes[1]);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_SQCIF, videoSizes[0]);
+
+        // This size format was found in SdpBodyTest, not sure it is valid
+        // Note: size":" as opposed to size"="
+        //fmtpData = "size:QVGA/SQCIF/QCIF";
+
+        // Not sure the source of this size format
+        // Possibly iChat???
+        fmtpData = "imagesize 0 rules 20:640:480:640:480:20:";
+        status = SdpCodec::getVideoSizes(fmtpData, 10, numSizes, videoSizes);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, status);
+        CPPUNIT_ASSERT_EQUAL(1, numSizes);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_QCIF, videoSizes[0]);
+
+        // Not sure the source of this size format
+        // Possibly iChat???
+        fmtpData = "imagesize 1 rules 30:352:288";
+        status = SdpCodec::getVideoSizes(fmtpData, 10, numSizes, videoSizes);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, status);
+        CPPUNIT_ASSERT_EQUAL(1, numSizes);
+        CPPUNIT_ASSERT_EQUAL(SDP_VIDEO_FORMAT_CIF, videoSizes[0]);
+
+        // TODO: test getFmtpParameter for iLBC mode parameter
+    }
 
     void testH264SameTest()
     {

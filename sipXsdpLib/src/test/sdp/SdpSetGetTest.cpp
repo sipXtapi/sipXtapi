@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -15,6 +14,7 @@
 #include <utl/UtlSListIterator.h>
 
 #include <sdp/SdpCodec.h>
+#include <sdp/SdpCodecList.h>
 #include <sdp/Sdp.h>
 #include <sdp/SdpMediaLine.h>
 #include <sdp/SdpHelperResip.h>
@@ -349,7 +349,7 @@ public:
         codec->getSdpFmtpField(fmtData);
         CPPUNIT_ASSERT(fmtData == "annexb=no");
         mediaLine->addCodec(codec);
-        CPPUNIT_ASSERT(mediaLine->getCodecs().entries() == 1);
+        CPPUNIT_ASSERT(mediaLine->getCodecs()->getCodecCount() == 1);
 
         SdpCandidate* sdpLocalCandidate = new SdpCandidate("f1", 1, SdpCandidate::CANDIDATE_TRANSPORT_TYPE_UDP, 100, "192.168.1.1", 6000, SdpCandidate::CANDIDATE_TYPE_HOST);
         SdpCandidate* sdpRemoteCandidate = new SdpCandidate("a1", 1, SdpCandidate::CANDIDATE_TRANSPORT_TYPE_UDP, 55, "192.168.1.1", 2345, SdpCandidate::CANDIDATE_TYPE_HOST);
