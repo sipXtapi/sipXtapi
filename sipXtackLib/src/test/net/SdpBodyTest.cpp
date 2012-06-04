@@ -831,6 +831,10 @@ public:
         // TODO: there is a bug in addCodecsOffer.  The last m line (the one
         // generated for pAppCodec) should be of app media type.  In the SDB
         // string below the last m line is of audio media type.
+
+        // SDP Mime Subtype canonical case is lower case
+        // Depends upon SDP_MIME_SUBTYPE_TO_CASE
+#if 0
         const char* testBodyExpected = 
             "v=0\r\n"
             "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
@@ -858,6 +862,38 @@ public:
             "a=rtcp:8999\r\n"
             "a=rtpmap:101 superapp/8000/1\r\n";
 
+
+        // SDP Mime Subtype canonical case is upper case
+        // Depends upon SDP_MIME_SUBTYPE_TO_CASE
+#else
+        const char* testBodyExpected = 
+            "v=0\r\n"
+            "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
+            "s=foo\r\n"
+            "c=IN IP4 10.1.1.30\r\n"
+            "t=0 0\r\n"
+            "m=audio 8700 RTP/AVP 99\r\n"
+            "a=control:trackID=1\r\n"
+            "a=rtpmap:99 SUPERAUDIO/8000/1\r\n"
+            "a=ptime:20\r\n"
+            "m=audio 18700 TCP/RTP/AVP 99\r\n"
+            "a=control:trackID=1\r\n"
+            "c=IN IP4 10.1.1.30\r\n"
+            "a=rtpmap:99 SUPERAUDIO/8000/1\r\n"
+            "a=ptime:20\r\n"
+            "m=video 8801 TCP/RTP/AVP 100\r\n"
+            "a=control:trackID=2\r\n"
+            "c=IN IP4 10.1.1.31\r\n"
+            "a=rtcp:8802\r\n"
+            "a=rtpmap:100 SUPERVIDEO/8000/1\r\n"
+            "a=fmtp:100 size:QCIF\r\n"
+            "m=audio 8900 TCP/RTP/AVP 101\r\n"
+            "a=control:trackID=1\r\n"
+            "c=IN IP4 10.1.1.32\r\n" 
+            "a=rtcp:8999\r\n"
+            "a=rtpmap:101 SUPERAPP/8000/1\r\n";
+
+#endif
         UtlString address ;
         int port ;
 
@@ -1124,7 +1160,9 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
                 message.appendFormat("encode index: %d", codecIndex);
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(message.data(), encodec->getCodecPayloadFormat(), encodePayloadIds[codecIndex]);
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(message.data(), encodec->getCodecType(), codecIds[codecIndex]);
-                CPPUNIT_ASSERT_EQUAL_MESSAGE(message.data(), mimeSubtype, (const UtlString) mimeSubtypes[codecIndex]);
+                UtlString mimeSubtypeString(mimeSubtypes[codecIndex]);
+                mimeSubtypeString.SDP_MIME_SUBTYPE_TO_CASE();
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(message.data(), mimeSubtype, mimeSubtypeString);
             }
         }
     };
@@ -1798,7 +1836,10 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         CPPUNIT_ASSERT_EQUAL(rtcpPort, rtcpAudioPort);
         // Tones should assume the payload ID of the offer: 101
         CPPUNIT_ASSERT_EQUAL(sdpAnswer.getPayloadRtpMap(101, mimeSubtype, sampleRate, numChannels), TRUE);
-        CPPUNIT_ASSERT_EQUAL(mimeSubtype, MIME_SUBTYPE_DTMF_TONES);
+        mimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
+        UtlString refMimeSubtype(MIME_SUBTYPE_DTMF_TONES);
+        refMimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
+        CPPUNIT_ASSERT_EQUAL(mimeSubtype, refMimeSubtype);
 
         sdpAnswer.getMediaData(1, &mediaType, &mediaPort, &numMediaPortPairs, &answerTransportType,
             maxPayloadTypes, &numPayloads, payloadIds);
@@ -2024,7 +2065,9 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         CPPUNIT_ASSERT_EQUAL(rtcpPort, rtcpAudioPort);
         // Tones should assume the payload ID of the offer: 119
         CPPUNIT_ASSERT_EQUAL(sdpAnswer.getPayloadRtpMap(119, mimeSubtype, sampleRate, numChannels), TRUE);
-        CPPUNIT_ASSERT_EQUAL(mimeSubtype, MIME_SUBTYPE_DTMF_TONES);
+        UtlString refMimeSubtype(MIME_SUBTYPE_DTMF_TONES);
+        refMimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
+        CPPUNIT_ASSERT_EQUAL(mimeSubtype, refMimeSubtype);
 
         sdpAnswer.getMediaData(1, &mediaType, &mediaPort, &numMediaPortPairs, &answerTransportType,
             maxPayloadTypes, &numPayloads, payloadIds);
@@ -2188,7 +2231,9 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         CPPUNIT_ASSERT_EQUAL(rtcpPort, rtcpAudioPort);
         // Tones should assume the payload ID of the offer: 101
         CPPUNIT_ASSERT_EQUAL(sdpAnswer.getPayloadRtpMap(101, mimeSubtype, sampleRate, numChannels), TRUE);
-        CPPUNIT_ASSERT_EQUAL(mimeSubtype, MIME_SUBTYPE_DTMF_TONES);
+        UtlString refMimeSubtype(MIME_SUBTYPE_DTMF_TONES);
+        refMimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
+        CPPUNIT_ASSERT_EQUAL(mimeSubtype, refMimeSubtype);
         CPPUNIT_ASSERT_EQUAL(numPayloads, 4);
         CPPUNIT_ASSERT_EQUAL(payloadIds[0], 96); // AAC
         CPPUNIT_ASSERT_EQUAL(payloadIds[1], 9); // G722
