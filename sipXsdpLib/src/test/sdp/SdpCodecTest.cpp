@@ -17,6 +17,7 @@ class SdpCodecTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST_SUITE(SdpCodecTest);
     CPPUNIT_TEST(testFmtpParsing);
     CPPUNIT_TEST(testH264SameTest);
+    CPPUNIT_TEST(testMimeCase);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -161,6 +162,64 @@ public:
         CPPUNIT_ASSERT(sipXH264CodecMode1.isFmtpParameterSame(h264Codec2, "packetization-mode", "0"));
         CPPUNIT_ASSERT(!sipXH264CodecMode0.isFmtpParameterSame(h264Codec3, "packetization-mode", "0"));
         CPPUNIT_ASSERT(sipXH264CodecMode1.isFmtpParameterSame(h264Codec3, "packetization-mode", "0"));
+    }
+
+    void testMimeCase()
+    {
+        SdpCodec codec(SdpCodec::SDP_CODEC_PCMU,
+                     SdpCodec::SDP_CODEC_PCMU,
+                     MIME_TYPE_AUDIO,
+                     MIME_SUBTYPE_PCMU,
+                     8000,
+                     20000,
+                     1,
+                     "",
+                     SdpCodec::SDP_CODEC_CPU_LOW,
+                     SDP_CODEC_BANDWIDTH_NORMAL);
+
+        UtlString mimeType(MIME_TYPE_AUDIO);
+        UtlString mimeSubtype(MIME_SUBTYPE_PCMU);
+
+        // Put token in canonical case
+        mimeType.SDP_MIME_TO_CASE();
+        mimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
+
+        UtlString gotMimeTime;
+        UtlString gotMimeSubtype;
+
+        codec.getMediaType(gotMimeTime);
+        codec.getEncodingName(gotMimeSubtype);
+
+        // NOTE: case sensative compare
+        CPPUNIT_ASSERT_EQUAL(gotMimeTime, mimeType);
+        CPPUNIT_ASSERT_EQUAL(gotMimeSubtype, mimeSubtype);
+
+        SdpCodec codecMixedCase(SdpCodec::SDP_CODEC_PCMU,
+                     SdpCodec::SDP_CODEC_PCMU,
+                     "AuDiO", //MIME_TYPE_AUDIO,
+                     "pCmU", //MIME_SUBTYPE_PCMU,
+                     8000,
+                     20000,
+                     1,
+                     "",
+                     SdpCodec::SDP_CODEC_CPU_LOW,
+                     SDP_CODEC_BANDWIDTH_NORMAL);
+
+        codecMixedCase.getMediaType(gotMimeTime);
+        codecMixedCase.getEncodingName(gotMimeSubtype);
+
+        // NOTE: case sensative compare
+        CPPUNIT_ASSERT_EQUAL(gotMimeTime, mimeType);
+        CPPUNIT_ASSERT_EQUAL(gotMimeSubtype, mimeSubtype);
+
+        mimeType = "aUdIo";
+        mimeSubtype = "PcMu";
+        mimeType.SDP_MIME_TO_CASE();
+        mimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
+
+        // NOTE: case sensative compare
+        CPPUNIT_ASSERT_EQUAL(gotMimeTime, mimeType);
+        CPPUNIT_ASSERT_EQUAL(gotMimeSubtype, mimeSubtype);
     }
 
 };

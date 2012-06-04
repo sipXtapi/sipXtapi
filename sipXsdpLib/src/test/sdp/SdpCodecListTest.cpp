@@ -65,6 +65,10 @@ public:
         matchCodec = sdpFactory.getCodec(MIME_TYPE_AUDIO, "superaudio", 8000, 1, "");
         CPPUNIT_ASSERT(matchCodec);
 
+        // Mixed case match
+        matchCodec = sdpFactory.getCodec("AudIO" /*MIME_TYPE_AUDIO*/, "sUperAUDIO", 8000, 1, "");
+        CPPUNIT_ASSERT(matchCodec);
+
         SdpCodec* pSuperDuperCodec = new SdpCodec((SdpCodec::SdpCodecTypes)334,
                                             SdpCodec::SDP_CODEC_UNKNOWN,
                                             MIME_TYPE_AUDIO,
