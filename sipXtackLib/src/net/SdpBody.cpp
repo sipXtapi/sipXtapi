@@ -473,7 +473,7 @@ UtlBoolean SdpBody::getPayloadRtpMap(int payloadType,
       UtlNameValueTokenizer::getSubField(value, 0,
                                       " \t:/", // separators
                                       &aFieldType);
-      if(aFieldType.compareTo("rtpmap") == 0)
+      if(aFieldType.compareTo("rtpmap", UtlString::ignoreCase) == 0)
       {
          // If this is the rtpmap for the requested payload type
          UtlNameValueTokenizer::getSubField(value, 1,
@@ -542,7 +542,7 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
       UtlNameValueTokenizer::getSubField(value, 0,
                                       " \t:/", // separators
                                       &aFieldType);
-      if(aFieldType.compareTo("fmtp") == 0)
+      if(aFieldType.compareTo("fmtp", UtlString::ignoreCase) == 0)
       {
          UtlNameValueTokenizer::getSubField(value, 1,
                                          " \t:/", // separators
@@ -596,7 +596,7 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
         UtlNameValueTokenizer::getSubField(value, 0,
                                         " \t:/", // separators
                                         &aFieldType);
-        if(aFieldType.compareTo("crypto") == 0)
+        if(aFieldType.compareTo("crypto", UtlString::ignoreCase) == 0)
         {
             UtlNameValueTokenizer::getSubField(value, 1,
                                             " \t:/", // separators
@@ -612,15 +612,15 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                                                 " \t:/", // separators
                                                 &cryptoSuite);
                 // Check the crypto suite 
-                if (cryptoSuite.compareTo("AES_CM_128_HMAC_SHA1_80") == 0)
+                if (cryptoSuite.compareTo("AES_CM_128_HMAC_SHA1_80", UtlString::ignoreCase) == 0)
                 {
                     params.cipherType = AES_CM_128_HMAC_SHA1_80;
                 }
-                else if (cryptoSuite.compareTo("AES_CM_128_HMAC_SHA1_32") == 0)
+                else if (cryptoSuite.compareTo("AES_CM_128_HMAC_SHA1_32", UtlString::ignoreCase) == 0)
                 {
                     params.cipherType = AES_CM_128_HMAC_SHA1_32;
                 }
-                else if (cryptoSuite.compareTo("F8_128_HMAC_SHA1_80") == 0)
+                else if (cryptoSuite.compareTo("F8_128_HMAC_SHA1_80", UtlString::ignoreCase) == 0)
                 {
                     params.cipherType = F8_128_HMAC_SHA1_80;
                 }
@@ -653,11 +653,11 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                                                                  &temp);
                     if (foundField)
                     {
-                        if (temp.compareTo("UNENCRYPTED_SRTP") == 0)
+                        if (temp.compareTo("UNENCRYPTED_SRTP", UtlString::ignoreCase) == 0)
                         {
                             params.securityLevel &= ~SRTP_ENCRYPTION;
                         }
-                        if (temp.compareTo("UNAUTHENTICATED_SRTP") == 0)
+                        if (temp.compareTo("UNAUTHENTICATED_SRTP", UtlString::ignoreCase) == 0)
                         {
                             params.securityLevel &= ~SRTP_AUTHENTICATION;
                         }
@@ -693,7 +693,7 @@ UtlBoolean SdpBody::getFramerateField(int mediaIndex,
         UtlNameValueTokenizer::getSubField(value, 0,
                                         " \t:/", // separators
                                         &aFieldType);
-        if(aFieldType.compareTo("framerate") == 0)
+        if(aFieldType.compareTo("framerate", UtlString::ignoreCase) == 0)
         {
             UtlNameValueTokenizer::getSubField(value, 1,
                                             " \t:/", // separators
@@ -728,7 +728,7 @@ UtlBoolean SdpBody::getBandwidthField(int& bandwidth) const
       UtlNameValueTokenizer::getSubField(value, 0,
                                       " \t:/", // separators
                                         &aFieldModifier);
-      if(aFieldModifier.compareTo("CT") == 0)
+      if(aFieldModifier.compareTo("CT", UtlString::ignoreCase) == 0)
       {
             UtlNameValueTokenizer::getSubField(value, 1,
                                             " \t:/", // separators
@@ -951,7 +951,7 @@ UtlBoolean SdpBody::getPtime(int mediaIndex, int& pTime) const
                                       " \t:/", // separators
                                       &aParameterName);
                 // See if this is a ptime parameter
-                if(aParameterName.compareTo("ptime") == 0)
+                if(aParameterName.compareTo("ptime", UtlString::ignoreCase) == 0)
                 {
                      // get the ptime value
                     UtlNameValueTokenizer::getSubField(value, 1,
@@ -1363,7 +1363,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
    UtlString mediaType;
    while(getMediaType(mediaSetIndex, &mediaType))
    {
-       if(mediaType.compareTo(MIME_TYPE_AUDIO) == 0)
+       if(mediaType.compareTo(MIME_TYPE_AUDIO, UtlString::ignoreCase) == 0)
        {
            if(getPtime(mediaSetIndex, defaultPtime) &&
                defaultPtime > 0)
@@ -1765,7 +1765,7 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
         codecIndex++)
     {
         rtpCodecs[codecIndex]->getMediaType(mimeType);
-        if (mimeType.compareTo(SDP_AUDIO_MEDIA_TYPE) == 0 || mimeType.compareTo(SDP_VIDEO_MEDIA_TYPE) != 0)
+        if (mimeType.compareTo(SDP_AUDIO_MEDIA_TYPE, UtlString::ignoreCase) == 0 || mimeType.compareTo(SDP_VIDEO_MEDIA_TYPE, UtlString::ignoreCase) != 0)
         {
             seenMimeType = mimeType;
             ++numAudioCodecs;
@@ -1883,14 +1883,14 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
             mimeSubType.data(), mimeType.data(), rtpCodecs[codecIndex]->getCodecPayloadFormat());
 //#endif
 
-        if (mimeType.compareTo(SDP_VIDEO_MEDIA_TYPE) == 0)
+        if (mimeType.compareTo(SDP_VIDEO_MEDIA_TYPE, UtlString::ignoreCase) == 0)
         {
             // printf("found video codec\n");
             rtpCodecs[codecIndex]->getEncodingName(mimeSubType);
 
             //  Cannot combine H264 fmtp strings as they will conflict
             // Not even sure this makes sense for other video codecs either
-            if ((mimeSubType.compareTo(prevMimeSubType) == 0) && (mimeSubType.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase) != 0))
+            if ((mimeSubType.compareTo(prevMimeSubType, UtlString::ignoreCase) == 0) && (mimeSubType.compareTo(MIME_SUBTYPE_H264, UtlString::ignoreCase) != 0))
             {
                 // printf("duplicate mime subtype\n");
                 // If we still have the same mime type only change format. We're depending on the
@@ -2055,7 +2055,7 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
    {
       codec = rtpCodecs[codecIndex];
       rtpCodecs[codecIndex]->getMediaType(mimeType);
-      if(codec && mimeType.compareTo(szMimeType) == 0)
+      if(codec && mimeType.compareTo(szMimeType, UtlString::ignoreCase) == 0)
       {
          codec->getEncodingName(mimeSubtype);
          sampleRate = codec->getSampleRate();
@@ -2411,7 +2411,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
          else
          {
             sdpRequest->getSrtpCryptoField(mediaIndex, 1, receivedSrtpParams);
-            if (mediaType.compareTo(SDP_AUDIO_MEDIA_TYPE) == 0)
+            if (mediaType.compareTo(SDP_AUDIO_MEDIA_TYPE, UtlString::ignoreCase) == 0)
             {
                 audioPort = mediaPort;
                 audioPortPairs = mediaPortPairs;
@@ -2470,7 +2470,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
             payloadIndex++)
         {
             codecsInCommon[payloadIndex]->getMediaType(mediaType);
-            if (mediaType.compareTo(SDP_AUDIO_MEDIA_TYPE) == 0)
+            if (mediaType.compareTo(SDP_AUDIO_MEDIA_TYPE, UtlString::ignoreCase) == 0)
             {
                 supportedPayloadTypes[destIndex++] =
                         codecsInCommon[payloadIndex]->getCodecPayloadFormat();
@@ -2552,7 +2552,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
                 payloadIndex, mediaType.data(), codecsInCommon[payloadIndex]->getCodecPayloadFormat(), codecsInCommon[payloadIndex]->getCodecType());
 //#endif
 
-            if (mediaType.compareTo(SDP_VIDEO_MEDIA_TYPE) == 0)
+            if (mediaType.compareTo(SDP_VIDEO_MEDIA_TYPE, UtlString::ignoreCase) == 0)
             {
                 // We've found at least one common video codec
                 commonVideo = TRUE;
@@ -2960,7 +2960,7 @@ UtlBoolean SdpBody::getCandidateAttribute(int mediaIndex,
             {
                 aFieldType.toLower() ;
                 aFieldType.strip(UtlString::both, ' ') ;
-                if(aFieldType.compareTo("candidate") == 0)
+                if(aFieldType.compareTo("candidate", UtlString::ignoreCase) == 0)
                 {
                     if (aFieldIndex == candidateIndex)
                     {
