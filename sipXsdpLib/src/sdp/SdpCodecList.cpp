@@ -443,9 +443,9 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
     UtlString foundMimeSubType;
     UtlString foundFmtp;
     UtlString mimeTypeString(mimeType ? mimeType : "");
-    mimeTypeString.toLower();
+    mimeTypeString.SDP_MIME_TO_CASE();
     UtlString mimeSubTypeString(mimeSubType ? mimeSubType : "");
-    mimeSubTypeString.toLower();
+    mimeSubTypeString.SDP_MIME_SUBTYPE_TO_CASE();
     // Cheat to allow this to be const
     OsReadLock lock((OsRWMutex&)mReadWriteMutex);
     UtlDListIterator iterator(mCodecs);
