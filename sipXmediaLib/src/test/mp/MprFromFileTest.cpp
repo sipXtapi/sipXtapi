@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2008-2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2008-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -190,7 +189,7 @@ public:
       // a different sample rate than the detector, thus indicating a bug in 
       // wideband support in FromFile.
       char detectedDTMF = dtmfDetector.getLastDetectedDTMF();
-      CPPUNIT_ASSERT_EQUAL('5', detectedDTMF);
+      CPPUNIT_ASSERT_EQUAL((int)'5', (int)detectedDTMF);
 
       // Stop flowgraph
       haltFramework();
