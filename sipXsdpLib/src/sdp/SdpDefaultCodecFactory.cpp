@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -94,24 +93,24 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_MPEG4_GENERIC_AAC_LC_48000,  "mpeg4-generic", 48000, 1,  "streamtype=5; profile-level-id=15; mode=AAC-hbr; config=1188; SizeLength=13; IndexLength=3; IndexDeltaLength=3; Profile=1" }, 
 
    // Video
-   { SdpCodec::SDP_CODEC_H264_CIF_256,         "h264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=396;packetization-mode=0" },
-   { SdpCodec::SDP_CODEC_H264_NTSC_256,        "h264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=330;packetization-mode=0" },
-   { SdpCodec::SDP_CODEC_H264_4CIF_512,        "h264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1584;packetization-mode=0" },
-   { SdpCodec::SDP_CODEC_H264_EDTV_512,        "h264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1320;packetization-mode=0" },
-   { SdpCodec::SDP_CODEC_H264_QHD_1024,        "h264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=2040;packetization-mode=0" },
-   { SdpCodec::SDP_CODEC_H264_HD720_1024,      "h264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=3600;packetization-mode=0" },
-   { SdpCodec::SDP_CODEC_H264_HD720_2048,      "h264", 90000, 1, "profile-level-id=428020;max-mbps=216000;max-fs=3600;packetization-mode=0" },
-   { SdpCodec::SDP_CODEC_H264_HD1088_2048,     "h264", 90000, 1, "profile-level-id=428028;max-mbps=245760;max-fs=8160;packetization-mode=0" },
-   { SdpCodec::SDP_CODEC_H264_HD1088_4096,     "h264", 90000, 1, "profile-level-id=42802A;max-mbps=522240;max-fs=8160;packetization-mode=0" },
-   { SdpCodec::SDP_CODEC_H264_PM1_CIF_256,     "h264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=396;packetization-mode=1" },
-   { SdpCodec::SDP_CODEC_H264_PM1_NTSC_256,    "h264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=330;packetization-mode=1" },
-   { SdpCodec::SDP_CODEC_H264_PM1_4CIF_512,    "h264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1584;packetization-mode=1" },
-   { SdpCodec::SDP_CODEC_H264_PM1_EDTV_512,    "h264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1320;packetization-mode=1" },
-   { SdpCodec::SDP_CODEC_H264_PM1_QHD_1024,    "h264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=2040;packetization-mode=1" },
-   { SdpCodec::SDP_CODEC_H264_PM1_HD720_1024,  "h264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=3600;packetization-mode=1" },
-   { SdpCodec::SDP_CODEC_H264_PM1_HD720_2048,  "h264", 90000, 1, "profile-level-id=428020;max-mbps=216000;max-fs=3600;packetization-mode=1" },
-   { SdpCodec::SDP_CODEC_H264_PM1_HD1088_2048, "h264", 90000, 1, "profile-level-id=428028;max-mbps=245760;max-fs=8160;packetization-mode=1" },
-   { SdpCodec::SDP_CODEC_H264_PM1_HD1088_4096, "h264", 90000, 1, "profile-level-id=42802A;max-mbps=522240;max-fs=8160;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_CIF_256,         "H264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=396;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_NTSC_256,        "H264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=330;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_4CIF_512,        "H264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1584;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_EDTV_512,        "H264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1320;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_QHD_1024,        "H264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=2040;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_HD720_1024,      "H264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=3600;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_HD720_2048,      "H264", 90000, 1, "profile-level-id=428020;max-mbps=216000;max-fs=3600;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_HD1088_2048,     "H264", 90000, 1, "profile-level-id=428028;max-mbps=245760;max-fs=8160;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_HD1088_4096,     "H264", 90000, 1, "profile-level-id=42802A;max-mbps=522240;max-fs=8160;packetization-mode=0" },
+   { SdpCodec::SDP_CODEC_H264_PM1_CIF_256,     "H264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=396;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_NTSC_256,    "H264", 90000, 1, "profile-level-id=42800D;max-mbps=11880;max-fs=330;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_4CIF_512,    "H264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1584;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_EDTV_512,    "H264", 90000, 1, "profile-level-id=42801E;max-mbps=40500;max-fs=1320;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_QHD_1024,    "H264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=2040;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD720_1024,  "H264", 90000, 1, "profile-level-id=42801F;max-mbps=108000;max-fs=3600;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD720_2048,  "H264", 90000, 1, "profile-level-id=428020;max-mbps=216000;max-fs=3600;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD1088_2048, "H264", 90000, 1, "profile-level-id=428028;max-mbps=245760;max-fs=8160;packetization-mode=1" },
+   { SdpCodec::SDP_CODEC_H264_PM1_HD1088_4096, "H264", 90000, 1, "profile-level-id=42802A;max-mbps=522240;max-fs=8160;packetization-mode=1" },
 };
 #define SIZEOF_MIME_INFO_MAP     \
    (sizeof(sgMimeInfoMap) / sizeof(sgMimeInfoMap[0]))
