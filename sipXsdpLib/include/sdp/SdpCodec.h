@@ -59,6 +59,10 @@
 #define MIME_SUBTYPE_H263 "H263"
 #define MIME_SUBTYPE_H264 "H264"
 
+// Canonical internal case represation
+#define SDP_MIME_TO_CASE toLower
+#define SDP_MIME_SUBTYPE_TO_CASE toUpper
+
 // Bandwidth requirements for SDP Codecs
 #define SDP_CODEC_BANDWIDTH_VARIABLE 0
 #define SDP_CODEC_BANDWIDTH_LOW      1

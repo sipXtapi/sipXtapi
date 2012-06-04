@@ -67,8 +67,8 @@ SdpCodec::SdpCodec(enum SdpCodecTypes sdpCodecType,
    mVideoFormat(videoFormat),
    mVideoFmtp(videoFmtp)
 {
-   mMimeSubtype.toLower();
-   mMimeType.toLower();
+   mMimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
+   mMimeType.SDP_MIME_TO_CASE();
    setValue(sdpCodecType);
 }
 
@@ -91,33 +91,33 @@ SdpCodec::SdpCodec(int payloadFormat,
    mVideoFormat(SDP_VIDEO_FORMAT_QCIF),
    mVideoFmtp(0)
 {
-   mMimeSubtype.toLower();
-   mMimeType.toLower();
+   mMimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
+   mMimeType.SDP_MIME_TO_CASE();
 
    // !slg! Note:  CPU and BW Costs copied from SdpCodecFactory
-   if(mMimeType.compareTo("audio") == 0)
+   if(mMimeType.compareTo("audio", UtlString::ignoreCase) == 0)
    {
-      if(mMimeSubtype.compareTo("pcmu") == 0)
+      if(mMimeSubtype.compareTo("pcmu", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_PCMU);
       }
-      else if(mMimeSubtype.compareTo("pcma") == 0)
+      else if(mMimeSubtype.compareTo("pcma", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_PCMA);
       }
-      else if(mMimeSubtype.compareTo("gsm") == 0)
+      else if(mMimeSubtype.compareTo("gsm", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_GSM);
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_LOW;
       }
-      else if(mMimeSubtype.compareTo("g723") == 0)
+      else if(mMimeSubtype.compareTo("g723", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_G723);
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_LOW;
       }
-      else if(mMimeSubtype.compareTo("l16") == 0)
+      else if(mMimeSubtype.compareTo("l16", UtlString::ignoreCase) == 0)
       {
          if(mNumChannels == 2)
          {
@@ -154,13 +154,13 @@ SdpCodec::SdpCodec(int payloadFormat,
             }
          }
       }
-      else if(mMimeSubtype.compareTo("G729a") == 0)
+      else if(mMimeSubtype.compareTo("G729a", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_G729ACISCO7960);
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_LOW;
       }
-      else if(mMimeSubtype.compareTo("g729") == 0)
+      else if(mMimeSubtype.compareTo("g729", UtlString::ignoreCase) == 0)
       {
          if(mFormatSpecificData.compareTo("annexb=no", UtlString::ignoreCase) == 0)
          {
@@ -175,33 +175,33 @@ SdpCodec::SdpCodec(int payloadFormat,
             mBWCost = SDP_CODEC_BANDWIDTH_LOW;
          }
       }
-      else if(mMimeSubtype.compareTo("telephone-event") == 0)
+      else if(mMimeSubtype.compareTo("telephone-event", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_TONES);
          mBWCost = SDP_CODEC_BANDWIDTH_LOW;
       }
-      else if(mMimeSubtype.compareTo("g7221") == 0)
+      else if(mMimeSubtype.compareTo("g7221", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_G7221);
       }
-      else if(mMimeSubtype.compareTo("g7231") == 0)
+      else if(mMimeSubtype.compareTo("g7231", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_G7231);
       }
-      else if(mMimeSubtype.compareTo("eg711a") == 0)
+      else if(mMimeSubtype.compareTo("eg711a", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_GIPS_IPCMA);
       }
-      else if(mMimeSubtype.compareTo("eg711u") == 0)
+      else if(mMimeSubtype.compareTo("eg711u", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_GIPS_IPCMU);
       }
-      else if(mMimeSubtype.compareTo("ipcmwb") == 0)
+      else if(mMimeSubtype.compareTo("ipcmwb", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_GIPS_IPCMWB);
          mBWCost = SDP_CODEC_BANDWIDTH_HIGH;
       }
-      else if(mMimeSubtype.compareTo("ilbc") == 0)
+      else if(mMimeSubtype.compareTo("ilbc", UtlString::ignoreCase) == 0)
       {
          if(mFormatSpecificData.compareTo("mode=20", UtlString::ignoreCase) == 0)
          {
@@ -214,33 +214,33 @@ SdpCodec::SdpCodec(int payloadFormat,
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_LOW;
       }
-      else if(mMimeSubtype.compareTo("isac") == 0)
+      else if(mMimeSubtype.compareTo("isac", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_GIPS_ISAC);
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_VARIABLE;
       }
-      else if(mMimeSubtype.compareTo("g726-16") == 0)
+      else if(mMimeSubtype.compareTo("g726-16", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_G726_16);
       }
-      else if(mMimeSubtype.compareTo("g726-24") == 0)
+      else if(mMimeSubtype.compareTo("g726-24", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_G726_24);
       }
-      else if(mMimeSubtype.compareTo("g726-32") == 0)
+      else if(mMimeSubtype.compareTo("g726-32", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_G726_32);
       }
-      else if(mMimeSubtype.compareTo("g726-40") == 0)
+      else if(mMimeSubtype.compareTo("g726-40", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_G726_40);
       }
-      else if(mMimeSubtype.compareTo("g722") == 0)
+      else if(mMimeSubtype.compareTo("g722") == 0, UtlString::ignoreCase)
       {
          setValue(SDP_CODEC_G722);
       }
-      else if(mMimeSubtype.compareTo("speex") == 0)
+      else if(mMimeSubtype.compareTo("speex") == 0, UtlString::ignoreCase)
       {
          if (mSampleRate == 8000)
          {
@@ -320,7 +320,7 @@ SdpCodec::SdpCodec(int payloadFormat,
             setValue(SDP_CODEC_UNKNOWN);
          }
       }
-      else if(mMimeSubtype.compareTo("amr") == 0)
+      else if(mMimeSubtype.compareTo("amr", UtlString::ignoreCase) == 0)
       {
          if (mFormatSpecificData.compareTo("octet-align=1", UtlString::ignoreCase) == 0)
          {
@@ -333,7 +333,7 @@ SdpCodec::SdpCodec(int payloadFormat,
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
       }
-      else if(mMimeSubtype.compareTo("amr-wb") == 0)
+      else if(mMimeSubtype.compareTo("amr-wb", UtlString::ignoreCase) == 0)
       {
          if (mFormatSpecificData.compareTo("octet-align=1", UtlString::ignoreCase) == 0)
          {
@@ -351,7 +351,7 @@ SdpCodec::SdpCodec(int payloadFormat,
          setValue(SDP_CODEC_UNKNOWN);
       }
    }
-   else if(mMimeType.compareTo("video") == 0)
+   else if(mMimeType.compareTo("video", UtlString::ignoreCase) == 0)
    {
        unsigned int index = 0;
        unsigned int start = 0;
@@ -400,7 +400,7 @@ SdpCodec::SdpCodec(int payloadFormat,
           }
        }  
 
-      if(mMimeSubtype.compareTo("vp71") == 0)
+      if(mMimeSubtype.compareTo("vp71", UtlString::ignoreCase) == 0)
       {
          switch(mVideoFormat)
          {
@@ -422,7 +422,7 @@ SdpCodec::SdpCodec(int payloadFormat,
          }
          mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
       }
-      else if(mMimeSubtype.compareTo("iyuv") == 0)
+      else if(mMimeSubtype.compareTo("iyuv", UtlString::ignoreCase) == 0)
       {
          switch(mVideoFormat)
          {
@@ -444,7 +444,7 @@ SdpCodec::SdpCodec(int payloadFormat,
          }
          mBWCost = SDP_CODEC_BANDWIDTH_HIGH;
       }
-      else if(mMimeSubtype.compareTo("i420") == 0)
+      else if(mMimeSubtype.compareTo("i420", UtlString::ignoreCase) == 0)
       {
          switch(mVideoFormat)
          {
@@ -466,7 +466,7 @@ SdpCodec::SdpCodec(int payloadFormat,
          }
          mBWCost = SDP_CODEC_BANDWIDTH_HIGH;
       }
-      else if(mMimeSubtype.compareTo("rgb24") == 0)
+      else if(mMimeSubtype.compareTo("rgb24", UtlString::ignoreCase) == 0)
       {
          switch(mVideoFormat)
          {
@@ -488,7 +488,7 @@ SdpCodec::SdpCodec(int payloadFormat,
          }
          mBWCost = SDP_CODEC_BANDWIDTH_HIGH;
       }
-      else if(mMimeSubtype.compareTo("h263") == 0)
+      else if(mMimeSubtype.compareTo("h263", UtlString::ignoreCase) == 0)
       {
          switch(mVideoFormat)
          {
@@ -722,31 +722,31 @@ OsStatus SdpCodec::getVideoSizes(const UtlString& fmtpField, int maxSizes, int& 
                 break;
             }
 
-            if (sizeToken.compareTo("SQCIF") == 0)
+            if (sizeToken.compareTo("SQCIF", UtlString::ignoreCase) == 0)
             {
                 ADD_VIDEO_SIZE(maxSizes, numSizes, videoSizes, SDP_VIDEO_FORMAT_SQCIF, status);
             }
-            else if (sizeToken.compareTo("QCIF") == 0)
+            else if (sizeToken.compareTo("QCIF", UtlString::ignoreCase) == 0)
             {
                 ADD_VIDEO_SIZE(maxSizes, numSizes, videoSizes, SDP_VIDEO_FORMAT_QCIF, status);
             }
-            else if (sizeToken.compareTo("CIF") == 0)
+            else if (sizeToken.compareTo("CIF", UtlString::ignoreCase) == 0)
             {
                 ADD_VIDEO_SIZE(maxSizes, numSizes, videoSizes, SDP_VIDEO_FORMAT_CIF, status);
             }
-            else if (sizeToken.compareTo("QVGA") == 0)
+            else if (sizeToken.compareTo("QVGA", UtlString::ignoreCase) == 0)
             {
                 ADD_VIDEO_SIZE(maxSizes, numSizes, videoSizes, SDP_VIDEO_FORMAT_QVGA, status);
             }
-            else if (sizeToken.compareTo("VGA") == 0)
+            else if (sizeToken.compareTo("VGA", UtlString::ignoreCase) == 0)
             {
                 ADD_VIDEO_SIZE(maxSizes, numSizes, videoSizes, SDP_VIDEO_FORMAT_VGA, status);
             }
-            else if (sizeToken.compareTo("CIF4") == 0)
+            else if (sizeToken.compareTo("CIF4", UtlString::ignoreCase) == 0)
             {
                 ADD_VIDEO_SIZE(maxSizes, numSizes, videoSizes, SDP_VIDEO_FORMAT_4CIF, status);
             }
-            else if (sizeToken.compareTo("CIF16") == 0)
+            else if (sizeToken.compareTo("CIF16", UtlString::ignoreCase) == 0)
             {
                 ADD_VIDEO_SIZE(maxSizes, numSizes, videoSizes, SDP_VIDEO_FORMAT_16CIF, status);
             }
