@@ -51,6 +51,7 @@
 #define SDP_NETWORK_TYPE "IN"
 #define SDP_IP4_ADDRESS_TYPE "IP4"
 #define NTP_TO_EPOCH_DELTA 2208988800UL
+#define PRIORITY_OFFSET (10000000100ULL)
 
 #define USE_SDP_MEDIA_LINE
 
@@ -1850,7 +1851,7 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
                 {
                     szTransportType = SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE;
                 }            
-                uint64_t priority = (iNumAddresses-i) + 10000000100;
+                uint64_t priority = (iNumAddresses-i) + PRIORITY_OFFSET;
 
                 assert(mediaAddresses[i].length() > 0) ;
                 if (rtpAudioPorts[0] && rtpAudioPorts[i] && mediaAddresses[i])
@@ -1991,7 +1992,7 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
 
             for (int i=0; i<iNumAddresses; i++)
             {
-                uint64_t priority = (iNumAddresses-i) + 10000000100;
+                uint64_t priority = (iNumAddresses-i) + PRIORITY_OFFSET;
 
                 if ((transportTypes[0] & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
                 {
@@ -2222,7 +2223,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
     {
         for(int candidateIndex = 0; candidateIndex < iNumAddresses; candidateIndex++)
         {
-            uint64_t priority = (iNumAddresses - candidateIndex) + 10000000100;
+            uint64_t priority = (iNumAddresses - candidateIndex) + PRIORITY_OFFSET;
 
             SdpCandidate* candidate = new SdpCandidate("t", candidateIndex, 
                 SdpCandidate::CANDIDATE_TRANSPORT_TYPE_UDP, priority, 
@@ -2281,7 +2282,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
     {
         for(int candidateIndex = 0; candidateIndex < iNumAddresses; candidateIndex++)
         {
-            uint64_t priority = (iNumAddresses - candidateIndex) + 10000000100;
+            uint64_t priority = (iNumAddresses - candidateIndex) + PRIORITY_OFFSET;
 
             SdpCandidate* candidate = new SdpCandidate("t", candidateIndex, 
                 SdpCandidate::CANDIDATE_TRANSPORT_TYPE_UDP, priority, 
@@ -2520,7 +2521,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
             {
                 for (int i=0; i<iNumAddresses; i++)
                 {
-                    uint64_t priority = (iNumAddresses-i) + 10000000100;
+                    uint64_t priority = (iNumAddresses-i) + PRIORITY_OFFSET;
 
                     assert(hostAddresses[i].length() > 0) ;
                     if (rtpAudioPorts[0] && rtpAudioPorts[i] && hostAddresses[i])
@@ -2624,7 +2625,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
             {
                 for (int i=0; i<iNumAddresses; i++)
                 {
-                    uint64_t priority = (iNumAddresses-i) + 10000000100;
+                    uint64_t priority = (iNumAddresses-i) + PRIORITY_OFFSET;
 
                     assert(hostAddresses[i].length() > 0) ;
                     if (rtpVideoPorts[0] && rtpVideoPorts[i] && hostAddresses[i])
