@@ -934,6 +934,10 @@
 				>
 			</File>
 			<File
+				RelativePath="interface\MiStringNotf.cpp"
+				>
+			</File>
+			<File
 				RelativePath="sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp"
 				>
 			</File>
@@ -996,6 +1000,10 @@
 			</File>
 			<File
 				RelativePath="interface\mi\MiRtpStreamActivityNotf.h"
+				>
+			</File>
+			<File
+				RelativePath="interface\mi\MiStringNotf.h"
 				>
 			</File>
 			<File

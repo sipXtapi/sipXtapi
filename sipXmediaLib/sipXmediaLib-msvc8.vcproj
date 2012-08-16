@@ -1228,6 +1228,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MprnStringMsg.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MprNull.cpp"
 					>
 				</File>
@@ -1886,6 +1890,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MprnRtpStreamActivityMsg.h"
+					>
+				</File>				
+				<File
+					RelativePath=".\include\mp\MprnStringMsg.h"
 					>
 				</File>				
 				<File
