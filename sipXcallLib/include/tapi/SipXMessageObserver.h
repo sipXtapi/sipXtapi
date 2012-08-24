@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -57,7 +59,7 @@ public:
     
 private:
     bool handleIncomingInfoMessage(SipMessage* pMessage);
-    bool handleIncomingInfoStatus(SipMessage* pMessage);
+    bool handleIncomingInfoStatus(SipMessage* pMessage, int messageType);
     bool handleStunOutcome(OsEventMsg* pMsg) ;
 
     /** 

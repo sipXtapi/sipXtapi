@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC.   All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.   All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -717,18 +716,26 @@ SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type, const
     SIPX_INFO_DATA* pRC ;
 
     pRC = (SIPX_INFO_DATA*) gpInfoHandleMap->findHandle(hInfo) ;
-    switch (type)
+    if(pRC && pRC->pMutex)
     {
-    case SIPX_LOCK_READ:
-        // TODO: What happens if this fails?
-        pRC->pMutex->acquireRead() ;
-        break ;
-    case SIPX_LOCK_WRITE:
-        // TODO: What happens if this fails?
-        pRC->pMutex->acquireWrite() ;
-        break ;
-    default:
-        break ;
+        switch (type)
+        {
+        case SIPX_LOCK_READ:
+            // TODO: What happens if this fails?
+            pRC->pMutex->acquireRead() ;
+            break ;
+        case SIPX_LOCK_WRITE:
+            // TODO: What happens if this fails?
+            pRC->pMutex->acquireWrite() ;
+            break ;
+        default:
+            break ;
+        }
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Invalid INFO handle: %d yielded info pointer: %p mutex: %p",
+                hInfo, pRC, pRC->pMutex);
     }
 
     return pRC ;

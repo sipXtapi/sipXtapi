@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -88,8 +90,10 @@ UtlBoolean SipXMessageObserver::handleMessage(OsMsg& rMsg)
         
         if (pSipMessage && pSipMessage->isResponse())
         {
+            int messageType = ((SipMessageEvent&)rMsg).getMessageStatus();
+
             // ok, the phone has received a response to a sent INFO message.
-            bRet = handleIncomingInfoStatus(pSipMessage);
+            bRet = handleIncomingInfoStatus(pSipMessage, messageType);
         }
         else if (pSipMessage && !pSipMessage->isResponse())
         {
@@ -208,7 +212,7 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
     return bRet;
 }
 
-bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
+bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage, int messageType)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "SipXMessageObserver::handleIncomingInfoStatus");
 
@@ -234,8 +238,13 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
         int statusCode = pSipMessage->getResponseStatusCode();
         if (statusCode < 400)
         {
-        infoStatus.status = SIPX_MESSAGE_OK;
+            infoStatus.status = SIPX_MESSAGE_OK;
         }
+        // May want to add special case for authentication
+        //else if(statusCode == HTTP_PROXY_UNAUTHORIZED_CODE || statusCode == HTTP_UNAUTHORIZED_CODE)
+        //{
+        //    infoStatus.status = 
+        //}
         else if (statusCode < 500)
         {
             infoStatus.status = SIPX_MESSAGE_FAILURE;
@@ -264,13 +273,21 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
                 pData->pCallbackProc(EVENT_CATEGORY_INFO_STATUS, &infoStatus, pData->pUserData);
             }
         }
-        
+
+        // I think the following is incorrect.  I think this is not added as a global mssage observer, only
+        // as an obsever to individual transactions when the INFO is sent.  So this is not needed.
         pInfoData->pInst->pSipUserAgent->removeMessageObserver(*(this->getMessageQueue()), (void*)hInfo);
         
         // release lock
         sipxInfoReleaseLock(pInfoData, SIPX_LOCK_READ, stackLogger);
-        // info message has been handled, so go ahead and delete the object    
-        sipxInfoObjectFree(hInfo);
+
+        // If an INFO was resent with auth credentials, don't remove the INFO object.  Wait
+        // for the response to the resend.
+        if(messageType == SipMessageEvent::AUTHENTICATION_RETRY)
+        {
+            // info message has been handled, so go ahead and delete the object    
+            sipxInfoObjectFree(hInfo);
+        }
      }
      return true;
 }
