@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -90,7 +89,7 @@ public:
     {
         SdpBody sdpBody(mSdpInitConfigStr, mSdpInitConfigStr.length());
         UtlString sdpString;
-        Sdp* convSdp = SdpHelper::createSdpFromSdpBody(sdpBody);
+        Sdp* convSdp = SdpHelper::createSdpFromSdpBody(sdpBody, NULL);
         
         if(convSdp)
         {
@@ -115,8 +114,8 @@ public:
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getMediaType() == SdpMediaLine::MEDIA_TYPE_AUDIO);
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getMediaType() == SdpMediaLine::MEDIA_TYPE_VIDEO);
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getTransportProtocolType() == SdpMediaLine::PROTOCOL_TYPE_RTP_AVP);
-            assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs().entries() == 2);
-            assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCodecs().entries() == 1);
+            assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs()->getCodecCount() == 2);
+            assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCodecs()->getCodecCount() == 1);
             assert(((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs().at(0))->getCodecType() == SdpCodec::SDP_CODEC_PCMU);
             assert(((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs().at(1))->getCodecType() == SdpCodec::SDP_CODEC_TONES);
             assert(((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCodecs().at(0))->getCodecType() == SdpCodec::SDP_CODEC_VP71_CIF);

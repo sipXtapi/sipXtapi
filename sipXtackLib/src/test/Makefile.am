@@ -29,6 +29,7 @@ testsuite_LDADD = \
 
 testsuite_SOURCES = \
     ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
+    SdpHelperTest.cpp \
     net/HttpBodyTest.cpp \
     net/HttpMessageTest.cpp \
     net/NameValuePairInsensitiveTest.cpp \
@@ -64,4 +65,4 @@ sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
     ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
-    net/UrlTest.cpp
+    net/SdpBodyTest.cpp
