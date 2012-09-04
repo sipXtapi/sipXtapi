@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -226,7 +225,7 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
    //////////////////////////////////////////////////////
 
    char *pBuf;
-   int numBytesSent;
+   unsigned int numBytesSent;
    MpUdpBufPtr pUdpPacket;
 
    // Allocate UDP packet
@@ -269,15 +268,34 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
    }
 #endif /* INCLUDE_RTCP ] */
 
+   const char* writeBytes = pUdpPacket->getDataPtr();
+   int packetSize = pUdpPacket->getPacketSize();
+
 #ifdef DROP_SOME_PACKETS /* [ */
    if (dropCount++ == dropLimit) {
       dropCount = 0;
       numBytesSent = pUdpPacket->getPacketSize();
-   } else {
-      numBytesSent = mpRtpSocket->write(pUdpPacket->getDataPtr(), pUdpPacket->getPacketSize());
+   } 
+   // Socket can get set asynchronously to NULL when RTP send is stopped.  So check immediately before accessing socket.
+   else if(mpRtpSocket)
+   {
+      numBytesSent = mpRtpSocket->write(writeBytes, packetSize);
+   }
+   else
+   {
+       numBytesSent = 0;
    }
 #else /* DROP_SOME_PACKETS ] [*/
-   numBytesSent = mpRtpSocket->write(pUdpPacket->getDataPtr(), pUdpPacket->getPacketSize());
+
+   // Socket can get set asynchronously to NULL when RTP send is stopped.  So check immediately before accessing socket.
+   if(mpRtpSocket)
+   {
+      numBytesSent = mpRtpSocket->write(writeBytes, packetSize);
+   }
+   else
+   {
+       numBytesSent = 0;
+   }
 #endif /* DROP_SOME_PACKETS ] */
 
 #ifdef TEST_PRINT
