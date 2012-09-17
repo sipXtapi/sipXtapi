@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -102,9 +101,15 @@ CODEC_API void *PLG_INIT_V1_2(g722)(const char* fmtp, int isDecoder,
 CODEC_API int PLG_FREE_V1(g722)(void* handle, int isDecoder)
 {
    if (isDecoder)
+   {
       g722_decode_release((g722_decode_state_t *)handle);
+      g722_decode_free((g722_decode_state_t *)handle);
+   }
    else
+   {
       g722_encode_release((g722_encode_state_t *)handle);
+      g722_encode_free((g722_encode_state_t *)handle);
+   }
    return RPLG_SUCCESS;
 }
 
