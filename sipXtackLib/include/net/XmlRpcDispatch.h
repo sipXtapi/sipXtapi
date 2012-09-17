@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -104,6 +103,12 @@ public:
    /// Parse a value in the XML-RPC request
    static bool parseValue(TiXmlNode* valueNode, int index, UtlSList& params);
 
+   /// Clean up the memory in a struct
+   static void cleanUp(UtlHashMap* members);
+   
+   /// Clean up the memory in an array
+   static void cleanUp(UtlSList* array);
+   
 /* ============================ ACCESSORS ================================= */
 
    /// Add a method to the RPC dispatch
@@ -137,12 +142,6 @@ private:
    /// Parse a struct in the XML-RPC request
    static bool parseStruct(TiXmlNode* valueNode, UtlHashMap*& memebers);
 
-   /// Clean up the memory in a struct
-   void cleanUp(UtlHashMap* members);
-   
-   /// Clean up the memory in an array
-   void cleanUp(UtlSList* array);
-   
    /// Http server for handling the HTTP POST request  
    HttpServer* mpHttpServer;
    
