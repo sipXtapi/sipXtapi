@@ -735,7 +735,7 @@ SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type, const
     else
     {
         OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Invalid INFO handle: %d yielded info pointer: %p mutex: %p",
-                hInfo, pRC, pRC->pMutex);
+                hInfo, pRC, pRC ? pRC->pMutex : NULL);
     }
 
     return pRC ;
