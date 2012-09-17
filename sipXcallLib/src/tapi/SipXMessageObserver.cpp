@@ -283,7 +283,7 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage, int 
 
         // If an INFO was resent with auth credentials, don't remove the INFO object.  Wait
         // for the response to the resend.
-        if(messageType == SipMessageEvent::AUTHENTICATION_RETRY)
+        if(messageType != SipMessageEvent::AUTHENTICATION_RETRY)
         {
             // info message has been handled, so go ahead and delete the object    
             sipxInfoObjectFree(hInfo);
