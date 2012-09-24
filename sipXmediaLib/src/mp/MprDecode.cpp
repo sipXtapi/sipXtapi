@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -107,6 +106,9 @@ MprDecode::MprDecode(const UtlString& rName,
 // Destructor
 MprDecode::~MprDecode()
 {
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+                  "MprDecode::~MprDecode %s flowgraph: %p", data(), mpFlowGraph);
+
    // Release our codecs (if any), and the array of pointers to them.
    handleDeselectCodecs();
 
@@ -122,6 +124,31 @@ MprDecode::~MprDecode()
       delete mpMyDJ;
    }
 
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MprDecode::~MprDecode %s flowgraph: %p mNumCurrentCodecs: %d mpCurrentCodecs: %p mNumPrevCodecs: %d mpPrevCodecs: %p",
+                 data(), mpFlowGraph, mNumCurrentCodecs, mpCurrentCodecs, mNumPrevCodecs, mpPrevCodecs);
+
+   // Generally should not be current codecs as the decoder should be deactivated first
+   if(mNumCurrentCodecs > 0)
+   {
+       OsSysLog::add(FAC_MP, PRI_ERR, 
+           "MprDecode::~MprDecode invoked with %d active codecs.  Decoder %s (flowgraph: %p) should have been stopped first.",
+           mNumCurrentCodecs, data(), mpFlowGraph);
+
+       for (int codecIndex = 0; codecIndex < mNumCurrentCodecs; codecIndex++)
+       {
+           mpCurrentCodecs[codecIndex]->freeDecode();
+           delete mpCurrentCodecs[codecIndex];
+           mpCurrentCodecs[codecIndex] = NULL;
+       }
+
+       OsSysLog::add(FAC_MP, PRI_DEBUG,
+                     "MprDecode::~MprDecode deleting mpCurrentCodecs: %p %s flowgraph: %p", 
+                     mpCurrentCodecs, data(), mpFlowGraph);
+       delete[] mpCurrentCodecs;
+       mpCurrentCodecs = NULL;
+   }
+
    // Delete the list of codecs used in the past.
    if (mNumPrevCodecs > 0)
    {
@@ -129,9 +156,19 @@ MprDecode::~MprDecode()
       {
          mpPrevCodecs[i]->freeDecode();
          delete mpPrevCodecs[i];
+         mpPrevCodecs[i] = NULL;
       }
+
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprDecode::~MprDecode deleting mpPrevCodecs: %p %s flowgraph: %p", 
+                    mpPrevCodecs, data(), mpFlowGraph);
       delete[] mpPrevCodecs;
+      mpPrevCodecs = NULL;
    }
+
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MprDecode::~MprDecode exit %s flowgraph: %p",
+                 data(), mpFlowGraph);
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -223,7 +260,8 @@ OsStatus MprDecode::pushPacket(MpRtpBufPtr &pRtp)
       // No decoder for this packet - just return error.
       dprintf(" No decoder for payload type %d!\n", pt);
       OsSysLog::add(FAC_MP, PRI_DEBUG,
-                    "MprDecode::pushPacket() dropping RTP packet, no decoder for payload type %d", pt);
+                    "MprDecode::pushPacket() dropping RTP packet, no decoder for payload type %d %s flowgraph: %p",
+                    pt, data(), mpFlowGraph);
       return OS_NOT_FOUND;
    }
    const MpCodecInfo* pDecoderInfo = pDecoder->getInfo();
@@ -266,8 +304,8 @@ OsStatus MprDecode::pushPacket(MpRtpBufPtr &pRtp)
       {
          OsSysLog::add(FAC_MP, PRI_DEBUG,
                        "MprDecode::pushPacket() dropping RTP packet, "
-                       "dynamic samplerate change is not supported. pt=%d, rate=%d, stream rate=%d",
-                       pt, pDecoderInfo->getSampleRate(), mStreamState.sampleRate);
+                       "dynamic samplerate change is not supported. pt=%d, rate=%d, stream rate=%d %s flowgraph: %p",
+                       pt, pDecoderInfo->getSampleRate(), mStreamState.sampleRate, data(), mpFlowGraph);
          return OS_SUCCESS;
       }
 
@@ -643,10 +681,12 @@ OsStatus MprDecode::setFlowGraph(MpFlowGraphBase* pFlowGraph)
    {
       if (pFlowGraph != NULL)
       {
+         mpJB->setFlowGraph(pFlowGraph);
          mpMyDJ->setFlowgrapName(pFlowGraph->getFlowgraphName());
       }
       else
       {
+         mpJB->setFlowGraph(NULL);
          mpMyDJ->setFlowgrapName("None");
       }
    }
@@ -711,9 +751,11 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
          OsSysLog::add(FAC_MP, PRI_DEBUG,
                        "MprDecode::handleSelectCodecs "
                        "pCodecs[%d]->getCodecType() = %d, "
-                       "pCodecs[%d]->getCodecPayloadFormat() = %d",
+                       "pCodecs[%d]->getCodecPayloadFormat() = %d "
+                       "%s flowgraph: %p",
                        i, pCodec->getCodecType(),
-                       i, pCodec->getCodecPayloadFormat());
+                       i, pCodec->getCodecPayloadFormat(),
+                       data(), mpFlowGraph);
             }
    }
 
@@ -765,6 +807,9 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
 
       mNumCurrentCodecs = 0;
       mpCurrentCodecs = new MpDecoderBase*[numCodecs];
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprDecode::handleSelectCodecs allocating mpCurrentCodecs: %p %s flowgraph: %p", 
+                    mpCurrentCodecs, data(), mpFlowGraph);
       UtlString codecMediaType;
 
       for (i=0; i<numCodecs; i++)
@@ -782,7 +827,8 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
                                           payload, pNewDecoder);
             assert(OS_SUCCESS == ret);
             assert(NULL != pNewDecoder);
-            if (pNewDecoder->initDecode() == OS_SUCCESS)
+            OsStatus codecInitStatus = pNewDecoder->initDecode();
+            if (codecInitStatus == OS_SUCCESS)
             {
                // Add this codec to mpConnection's payload type decoding table.
                mDecoderMap.addPayloadType(payload, pNewDecoder);
@@ -797,6 +843,9 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
             }
             else
             {
+               OsSysLog::add(FAC_MP, PRI_ERR,
+                       "MprDecode::handleSelectCodecs codec decoder: %s SDP fmpt: %s payload ID: %d (internal ID: %d) failed to init with status: %d %s flowgraph: %p",
+                       mime.data(), fmtp.data(), payload, pCodec->getCodecType(), codecInitStatus, data(), mpFlowGraph);
                delete pNewDecoder;
             }
          }
@@ -854,6 +903,9 @@ UtlBoolean MprDecode::handleDeselectCodecs(UtlBoolean shouldLock)
 
       newN = mNumCurrentCodecs + mNumPrevCodecs;
       pPrevCodecs = new MpDecoderBase*[newN];
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+              "MprDecode::handleDeselectCodecs allocated pPrevCodecs(to be mpPrevCodecs): %p %s flowgraph: %p", 
+              pPrevCodecs, data(), mpFlowGraph);
 #if 0
       osPrintf("|handleDeselectCodecs(0x%X): (0x%X,%d) -> (0x%X,%d) (+%d)\n",
          (int) this, (int) mpPrevCodecs, mNumPrevCodecs, (int) pPrevCodecs,
@@ -863,6 +915,9 @@ UtlBoolean MprDecode::handleDeselectCodecs(UtlBoolean shouldLock)
          for (i=0; i<mNumPrevCodecs; i++) {
             pPrevCodecs[i] = mpPrevCodecs[i];
          }
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MprDecode::handleDeselectCodecs deleting mpPrevCodecs: %p %s flowgraph: %p", 
+                       mpPrevCodecs, data(), mpFlowGraph);
          delete[] mpPrevCodecs;
       }
 
@@ -876,6 +931,9 @@ UtlBoolean MprDecode::handleDeselectCodecs(UtlBoolean shouldLock)
          pPrevCodecs[i+mNumPrevCodecs] = pCurrentCodecs[i];
          pCurrentCodecs[i] = NULL;
       }
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprDecode::handleDeselectCodecs deleting pCurrentCodecs: %p %s flowgraph: %p", 
+                    pCurrentCodecs, data(), mpFlowGraph);
       delete[] pCurrentCodecs;
       mpPrevCodecs = pPrevCodecs;
       mNumPrevCodecs = newN;
@@ -906,7 +964,15 @@ UtlBoolean MprDecode::handleReset()
    }
 
    mIsStreamInitialized = FALSE;
-   mNumPrevCodecs = 0;
+
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MprDecode::handleReset %s flowgraph: %p",
+                 data(), mpFlowGraph);
+
+   // Not sure why this was here.  mpPrevCodecs is not used and this
+   // caused a huge leak.  If mNumPrevCodecs is to be set to zero, 
+   // mpPrevCodecs needs to be freed up first.
+   //mNumPrevCodecs = 0;
 
    return TRUE;
 }
