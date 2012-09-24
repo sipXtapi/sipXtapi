@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -26,14 +25,18 @@
 //#include "string.h"
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h" // for min macro
-#include "mp/MpJitterBuffer.h"
-#include "mp/MpDecoderPayloadMap.h"
-#include "mp/MpDecoderBase.h"
-#include "mp/MpPlcBase.h"
-#include "mp/MpVadBase.h"
-#include "mp/MpAgcBase.h"
-#include "mp/MpDspUtils.h"
+#include <os/OsDefs.h> // for min macro
+#include <os/OsSysLog.h>
+#include <mp/MpJitterBuffer.h>
+#include <mp/MpDecoderPayloadMap.h>
+#include <mp/MpDecoderBase.h>
+#include <mp/MpPlcBase.h>
+#include <mp/MpVadBase.h>
+#include <mp/MpAgcBase.h>
+#include <mp/MpDspUtils.h>
+// For debug use only
+#include <net/NetBase64Codec.h>
+#include <mp/MpFlowGraphBase.h>
 
 // MACROS
 //#define RTL_ENABLED
@@ -82,6 +85,7 @@ MpJitterBuffer::MpJitterBuffer(MpDecoderPayloadMap *pPayloadMap)
 , mpPlc(NULL)
 , mpVad(NULL)
 , mpAgc(NULL)
+, mpFlowGraph(NULL)
 {
    mpVad = MpVadBase::createVad();
    mpAgc = MpAgcBase::createAgc();
@@ -281,9 +285,26 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       }
       else
       {
-         // Something should be definitely wrong here.
+         // Something is definitely wrong here.
+         OsSysLog::add(FAC_MP, PRI_ERR,
+                 "MpJitterBuffer::pushPacket payload ID: %d decoder: %s returned zero samples for playload size: %d in %s flowgraph: %p frame num: %d",
+                 rtpPacket->getRtpPayloadType(), decoder->getInfo()->getCodecName(), rtpPacket->getPayloadSize(), data(), mpFlowGraph, 
+                 mpFlowGraph ? mpFlowGraph->numFramesProcessed() : -2);
+
+         // Dump the packet so we can see why decode failed
+         // Should not do this in normal cases as this does a new/malloc in the middle of media task runtime sensaive code
+         if(OsSysLog::willLog(FAC_MP, PRI_DEBUG))
+         {
+             UtlString encodedPacket;
+             NetBase64Codec::encode(rtpPacket->getPayloadSize(), rtpPacket->getDataPtr(), encodedPacket);
+             OsSysLog::add(FAC_MP, PRI_ERR,
+                     "MpJitterBuffer::pushPacket decode failed on RTP packet: \n%s",
+                     encodedPacket.data());
+
+             OsSysLog::flush();
+         }
          // But, in release mode we could continue with PLC.
-         assert(!"Decoder returned 0 samples for non-signaling packet!");
+         //assert(!"Decoder returned 0 samples for non-signaling packet!");
       }
    }
    RTL_EVENT("MpJitterBuffer_packet_vad", packetSpeechParams.mSpeechType);
@@ -474,6 +495,12 @@ void MpJitterBuffer::setPlc(const UtlString &plcName)
 }
 
 /* ============================ ACCESSORS ================================= */
+
+void MpJitterBuffer::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+    // Just for debugging
+    mpFlowGraph = pFlowGraph;
+}
 
 /* ============================ INQUIRY =================================== */
 
