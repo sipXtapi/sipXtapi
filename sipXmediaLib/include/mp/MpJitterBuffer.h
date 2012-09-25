@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -34,6 +33,7 @@ class MpDecoderPayloadMap;
 class MpPlcBase;
 class MpVadBase;
 class MpAgcBase;
+class MpFlowGraphBase;
 
 /**
 *  @brief Class for decoding of incoming RTP, resampling it to target
@@ -135,6 +135,9 @@ public:
 ///@name Accessors
 //@{
 
+   /// Set the pointer to the parent flowgraph for debug purposes.
+   void setFlowGraph(MpFlowGraphBase* pFlowgraph);
+
       /// Get number of samples, remaining in buffer.
    inline
    int getSamplesNum() const;
@@ -208,6 +211,7 @@ private:
    MpPlcBase *mpPlc;                ///< Packet Loss Concealer instance.
    MpVadBase *mpVad;                ///< Voice Activity Detector instance.
    MpAgcBase *mpAgc;                ///< Automatic Gain Calculator instance.
+   MpFlowGraphBase* mpFlowGraph;    ///< Parent flowgraph for debugging
 
    /// Copy constructor
    MpJitterBuffer(const MpJitterBuffer& rMpJitterBuffer);
