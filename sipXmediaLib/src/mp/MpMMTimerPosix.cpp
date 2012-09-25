@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2009 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -228,22 +227,25 @@ OsStatus MpMMTimerPosix::setNotification(OsNotification* notification)
 
 void MpMMTimerPosix::callback()
 {
-   int overruns = timer_getoverrun(mTimer);
-   do
+   if(mbTimerStarted)
    {
-      if (mTimerType == Notification)
-      {
-          if(mpNotification != NULL)
+       int overruns = timer_getoverrun(mTimer);
+       do
+       {
+          if (mTimerType == Notification)
           {
-            // Then signal it to indicate a tick.
-            mpNotification->signal((intptr_t)this);
+              if(mpNotification != NULL)
+              {
+                // Then signal it to indicate a tick.
+                mpNotification->signal((intptr_t)this);
+              }
           }
-      }
-      else
-      {
-          sem_post(&mSyncSemaphore);
-      }
-   } while (overruns-- > 0);
+          else
+          {
+              sem_post(&mSyncSemaphore);
+          }
+       } while (overruns-- > 0);
+   }
 }
 
 void* MpMMTimerPosix::threadIoWrapper(void* arg)
