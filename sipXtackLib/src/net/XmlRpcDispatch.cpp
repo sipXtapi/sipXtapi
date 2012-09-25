@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -275,7 +274,10 @@ void XmlRpcDispatch::removeMethod(const char* methodName)
 {
    mLock.acquire();
    UtlString key = methodName;
-   mMethods.remove(&key);
+   if(! mMethods.destroy(&key))
+   {
+       OsSysLog::add(FAC_NET, PRI_ERR, "XmlRpcDispatch::removeMethod key: %s not removed or deleted", methodName);
+   }
    mLock.release();
 }
 
