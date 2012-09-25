@@ -287,8 +287,8 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       {
          // Something is definitely wrong here.
          OsSysLog::add(FAC_MP, PRI_ERR,
-                 "MpJitterBuffer::pushPacket payload ID: %d decoder: %s returned zero samples for playload size: %d in %s flowgraph: %p frame num: %d",
-                 rtpPacket->getRtpPayloadType(), decoder->getInfo()->getCodecName(), rtpPacket->getPayloadSize(), data(), mpFlowGraph, 
+                 "MpJitterBuffer::pushPacket payload ID: %d decoder: %s returned zero samples for playload size: %d from: %s:%d in flowgraph: %p frame num: %d",
+                 rtpPacket->getRtpPayloadType(), decoder->getInfo()->getCodecName(), rtpPacket->getPayloadSize(), rtpPacket->getIP(), rtpPacket->getUdpPort(), mpFlowGraph, 
                  mpFlowGraph ? mpFlowGraph->numFramesProcessed() : -2);
 
          // Dump the packet so we can see why decode failed
