@@ -92,6 +92,7 @@ extern "C" void sipxDestroyMediaFactoryFactory()
       {
          if (spFactory)
          {
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "sipxDestroyMediaFactoryFactory spFactory: %p", spFactory);
             delete spFactory;
             spFactory = NULL;
          }

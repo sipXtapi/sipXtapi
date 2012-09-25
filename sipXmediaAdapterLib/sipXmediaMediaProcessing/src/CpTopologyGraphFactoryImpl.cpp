@@ -335,6 +335,9 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 // Destructor
 CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
 {
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl");
+
    if (mIsLocalAudioEnabled)
    {
 #ifdef USE_DEVICE_ADD_HACK // [
