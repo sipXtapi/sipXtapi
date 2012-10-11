@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -30,6 +29,12 @@ class OsConfigDb;
 #define Nprintf(fmt, a, b, c, d, e, f)
 #define Lprintf(fmt, a, b, c, d, e, f)
 
+extern const char* sMpBufPoolNames[];
+
+extern MpBufPool** sMpBufPools[];
+
+extern int sMpNumBufPools;
+
 /* mpStartUp initializes the MpMisc struct and other MP data, for */
 /*    example, the buffer pools and tables */
 extern OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
@@ -44,6 +49,12 @@ extern OsStatus mpStartTasks(void);
 
 /* mpStopTasks stops the low level MP tasks */
 extern OsStatus mpStopTasks(void);
+
+/* Log to syslog buffer statistics with the given log label */
+void mpLogBufferStats(const char* label);
+
+/* Get buffer pool statistics */
+/* void mpGetBufferPoolStats(int numPools, UtlString poolNames[], int freeCount, int totalCount[]); */
 
 /// This structure contain all static variables
 struct __MpGlobals {

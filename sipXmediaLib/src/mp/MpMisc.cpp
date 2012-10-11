@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2010 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -99,7 +98,37 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 
-    struct __MpGlobals MpMisc;
+struct __MpGlobals MpMisc;
+
+const char* sMpBufPoolNames[] =
+{
+    "RawAudioPool",
+    "AudioHeadersPool",
+    "RtpPool",
+    "RtcpPool",
+    "RtpHeadersPool",
+#ifdef REAL_RTCP
+    "RtcpHeadersPool",
+#endif
+    "UdpPool",
+    "UdpHeadersPool"
+};
+
+int sMpNumBufPools = sizeof(sMpBufPoolNames) / sizeof(char*);
+
+MpBufPool** sMpBufPools[] =
+{
+    &MpMisc.RawAudioPool,
+    &MpMisc.AudioHeadersPool,
+    &MpMisc.RtpPool,
+    &MpMisc.RtcpPool,
+    &MpMisc.RtpHeadersPool,
+#ifdef REAL_RTCP
+    &MpMisc.RtcpHeadersPool,
+#endif
+    &MpMisc.UdpPool,
+    &MpMisc.UdpHeadersPool
+};
 
 #ifdef _VXWORKS /* [ */
 /************************************************************************/
@@ -823,3 +852,16 @@ OsStatus mpStopTasks(void)
    
     return OS_SUCCESS;
 }
+
+void mpLogBufferStats(const char* label)
+{
+    UtlString bufferStatString;
+    for(int poolIndex = 0; poolIndex < sMpNumBufPools; poolIndex++)
+    {
+        MpBufPool** bufferPool = sMpBufPools[poolIndex];
+        bufferStatString.appendFormat("\t%s %d/%d buffers free\n",
+                sMpBufPoolNames[poolIndex], bufferPool[0]->getFreeBufferCount(), bufferPool[0]->getNumBlocks());
+    }
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "%s:]n%s", label, bufferStatString.data());
+} 
+
