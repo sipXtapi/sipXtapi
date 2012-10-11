@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -16,10 +18,12 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "utl/UtlVoidPtr.h"
-#include "utl/UtlInt.h"
-#include "tapi/SipXHandleMap.h"
-#include "utl/UtlHashMapIterator.h"
+#include <os/OsIntTypes.h>
+#include <os/OsSysLog.h>
+#include <utl/UtlVoidPtr.h>
+#include <utl/UtlInt.h>
+#include <tapi/SipXHandleMap.h>
+#include <utl/UtlHashMapIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -146,12 +150,22 @@ const void* SipXHandleMap::removeHandle(SIPXHANDLE handle)
         if (pValue != NULL)
         {
             pRC = pValue->getValue() ;                
-            destroy(&key) ;
+            if(! destroy(&key))
+            {
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                        "SipXHandleMap::removeHandle failed to destroy handle: %d",
+                        handle);
+            }
         }
 
         if (pCount)
         {
-            mLockCountHash.destroy(&key);
+            if(! mLockCountHash.destroy(&key))
+            {
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                        "SipXHandleMap::removeHandle failed to destroy lock count for handle: %d",
+                        handle);
+            }
         }
     }
     
