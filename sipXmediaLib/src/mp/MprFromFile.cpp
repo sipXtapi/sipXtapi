@@ -585,7 +585,8 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
          {
             unsigned int cbIdx = 0;
             int bytesRead = 0;
-            charBuffer = (char*)malloc(filesize);
+            // Extra slop in case the real filesize changed since we checked its size
+            charBuffer = (char*)malloc(filesize + sFromFileReadBufferSize);
             assert(charBuffer != NULL); // Assume malloc succeeds.
 
             // Read in the unknown audio file a chunk at a time.
