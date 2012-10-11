@@ -183,6 +183,7 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
 
    // Allocate new RTP packet.
    pRtpPacket = MpMisc.RtpPool->getBuffer();
+   assert(pRtpPacket.isValid());
 
    // Get rid of packet sequence number.
    mSeqNum++;
