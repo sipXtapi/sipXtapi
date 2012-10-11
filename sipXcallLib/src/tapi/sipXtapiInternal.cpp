@@ -63,8 +63,11 @@ SipXHandleMap* gpTransportHandleMap = new SipXHandleMap(4) ;  /**< Global Map of
 
 UtlDList*  gpSessionList  = new UtlDList() ;    /**< List of sipX sessions (to be replaced 
                                                 by handle map in the future */
-OsMutex*	gpSessionLock = new OsMutex(OsMutex::Q_FIFO);
 OsMutex*	gpCallAccessLock = new OsMutex(OsMutex::Q_FIFO);
+OsMutex*	gpConfAccessLock = new OsMutex(OsMutex::Q_FIFO);
+OsMutex*	gpInfoAccessLock = new OsMutex(OsMutex::Q_FIFO);
+OsMutex*	gpLineAccessLock = new OsMutex(OsMutex::Q_FIFO);
+OsMutex*	gpSessionLock = new OsMutex(OsMutex::Q_FIFO);
 OsMutex gSubscribeAccessLock(OsMutex::Q_FIFO);
 
 static int      gSessions = 0;
@@ -154,6 +157,8 @@ void sipxCallDestroyAll(const SIPX_INST hInst)
 // Remove/Destroy all Conferences
 void sipxConferenceDestroyAll(const SIPX_INST hInst) 
 {
+    // Take global lock while modifing list
+    gpConfAccessLock->acquire();
     gpConfHandleMap->lock() ;
 
     UtlHashMapIterator pubIter(*gpConfHandleMap);
@@ -172,6 +177,7 @@ void sipxConferenceDestroyAll(const SIPX_INST hInst)
     }
 
     gpConfHandleMap->unlock() ;
+    gpConfAccessLock->release();
 }
 
 
@@ -684,6 +690,9 @@ SIPX_LINE_DATA* sipxLineLookup(const SIPX_LINE hLine, SIPX_LOCK_TYPE type, const
     OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxLineLookup", oneBackInStack);
     SIPX_LINE_DATA* pRC ;
 
+    // Global lock for line changes so we don't change it out from under ourselves.
+    gpLineAccessLock->acquire();
+
     pRC = (SIPX_LINE_DATA*) gpLineHandleMap->findHandle(hLine) ;
     if (validLineData(pRC))
     {
@@ -691,11 +700,19 @@ SIPX_LINE_DATA* sipxLineLookup(const SIPX_LINE hLine, SIPX_LOCK_TYPE type, const
         {
         case SIPX_LOCK_READ:
             // TODO: What happens if this fails?
-            pRC->pMutex->acquireRead() ;
+            if(pRC->pMutex->acquireRead() != OS_SUCCESS)
+            {
+                pRC = NULL;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxLineLookup acquireRead failed, this may not be good");
+            }
             break ;
         case SIPX_LOCK_WRITE:
             // TODO: What happens if this fails?
-            pRC->pMutex->acquireWrite() ;
+            if(pRC->pMutex->acquireWrite() != OS_SUCCESS)
+            {
+                pRC = NULL;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxLineLookup acquireWrite failed, this may not be good");
+            }
             break ;
         default:
             break ;
@@ -703,8 +720,12 @@ SIPX_LINE_DATA* sipxLineLookup(const SIPX_LINE hLine, SIPX_LOCK_TYPE type, const
     }
     else
     {
-        pRC = NULL ;
+        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Invalid Line handle: %d yielded line pointer: %p mutex: %p",
+               hLine, pRC, pRC ? pRC->pMutex : NULL);
+        pRC = NULL;
     }
+
+    gpLineAccessLock->release();
 
     return pRC ;
 }
@@ -715,6 +736,9 @@ SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type, const
 
     SIPX_INFO_DATA* pRC ;
 
+    // Take global lock to prevent list from changing out from under us
+    gpInfoAccessLock->acquire();
+
     pRC = (SIPX_INFO_DATA*) gpInfoHandleMap->findHandle(hInfo) ;
     if(pRC && pRC->pMutex)
     {
@@ -722,11 +746,20 @@ SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type, const
         {
         case SIPX_LOCK_READ:
             // TODO: What happens if this fails?
-            pRC->pMutex->acquireRead() ;
+            if(pRC->pMutex->acquireRead() != OS_SUCCESS)
+            {
+                pRC = NULL;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxInfoLookup acquireRead failed, this may not be good");
+            }
+
             break ;
         case SIPX_LOCK_WRITE:
             // TODO: What happens if this fails?
-            pRC->pMutex->acquireWrite() ;
+            if(pRC->pMutex->acquireWrite() != OS_SUCCESS)
+            {
+                pRC = NULL;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxInfoLookup acquireWrite failed, this may not be good");
+            }
             break ;
         default:
             break ;
@@ -735,8 +768,11 @@ SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type, const
     else
     {
         OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Invalid INFO handle: %d yielded info pointer: %p mutex: %p",
-                hInfo, pRC, pRC ? pRC->pMutex : NULL);
+                (int) hInfo, pRC, pRC ? pRC->pMutex : NULL);
+        pRC = NULL;
     }
+
+    gpInfoAccessLock->release();
 
     return pRC ;
 }
@@ -746,21 +782,35 @@ SIPX_TRANSPORT_DATA* sipxTransportLookup(const SIPX_TRANSPORT hTransport, SIPX_L
     SIPX_TRANSPORT_DATA* pRC ;
 
     pRC = (SIPX_TRANSPORT_DATA*) gpTransportHandleMap->findHandle(hTransport) ;
-    if (pRC)
+    if (pRC && pRC->pMutex)
     {
         switch (type)
         {
         case SIPX_LOCK_READ:
             // TODO: What happens if this fails?
-            pRC->pMutex->acquireRead() ;
+            if(pRC->pMutex->acquireRead() != OS_SUCCESS)
+            {
+                pRC = NULL;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxTransportLookup acquireRead failed, this may not be good");
+            }
             break ;
         case SIPX_LOCK_WRITE:
             // TODO: What happens if this fails?
-            pRC->pMutex->acquireWrite() ;
+            if(pRC->pMutex->acquireWrite() != OS_SUCCESS)
+            {
+                pRC = NULL;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxTransportLookup acquireWrite failed, this may not be good");
+            }
             break ;
         default:
             break ;
         }
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Invalid transport handle: %d yielded transport pointer: %p mutex: %p",
+                (int) hTransport, pRC, pRC ? pRC->pMutex : NULL);
+        pRC = NULL;
     }
 
 
@@ -992,6 +1042,10 @@ UtlBoolean validLineData(const SIPX_LINE_DATA* pData)
 void sipxLineObjectFree(const SIPX_LINE hLine)
 {
     OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxLineObjectFree");
+
+    // Global lock so we don't delete it out from under someone
+    gpLineAccessLock->acquire();
+
     SIPX_LINE_DATA* pData = sipxLineLookup(hLine, SIPX_LOCK_WRITE, logItem) ;
 
     if (pData)
@@ -1036,6 +1090,8 @@ void sipxLineObjectFree(const SIPX_LINE hLine)
             sipxLineReleaseLock(pData, SIPX_LOCK_WRITE, logItem) ;
         }
     }
+
+    gpLineAccessLock->release();
 }
 
 
@@ -1043,6 +1099,10 @@ void sipxLineObjectFree(const SIPX_LINE hLine)
 void sipxInfoObjectFree(SIPX_INFO hInfo)
 {
     OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxInfoObjectFree");
+
+    // Take global lock while deleting item from list
+    gpInfoAccessLock->acquire();
+
     SIPX_INFO_DATA* pData = sipxInfoLookup(hInfo, SIPX_LOCK_WRITE, logItem) ;
     if (pData)
     {
@@ -1056,6 +1116,8 @@ void sipxInfoObjectFree(SIPX_INFO hInfo)
             sipxInfoReleaseLock(pData, SIPX_LOCK_WRITE, logItem) ;
         }
     }
+
+    gpInfoAccessLock->release();
 }
 
 void sipxInfoFree(SIPX_INFO_DATA* pData)
@@ -1185,6 +1247,7 @@ SIPX_LINE sipxLineLookupHandle(const char* szLineURI,
 
 SIPX_LINE sipxLineLookupHandleByURI(const char* szURI)
 {
+    gpLineAccessLock->acquire();
     gpLineHandleMap->lock() ;
 
     UtlHashMapIterator iter(*gpLineHandleMap);
@@ -1329,7 +1392,7 @@ SIPX_LINE sipxLineLookupHandleByURI(const char* szURI)
     }
 
     gpLineHandleMap->unlock() ;
-
+    gpLineAccessLock->release();
     return hLine;
 }
 
@@ -1418,6 +1481,8 @@ SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type, const
 {
     OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfLookup", oneBackInStack);
 
+    // Take global lock while accessing list
+    gpConfAccessLock->acquire();
     SIPX_CONF_DATA* pRC = (SIPX_CONF_DATA*) gpConfHandleMap->findHandle(hConf) ;
 
     if (validConfData(pRC))
@@ -1425,12 +1490,22 @@ SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type, const
         switch (type)
         {
         case SIPX_LOCK_READ:
-            // TODO: What happens if this fails?
-            pRC->pMutex->acquireRead() ;
+            // This puts a lot of faith in the lock implementation to gracefully 
+            // fail if the mutex gets deleted in a blocked call to acquire.
+            if(pRC->pMutex->acquireRead() != OS_SUCCESS)
+            {
+                pRC = NULL;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxConfLookup acquireRead failed, this may not be good");
+            }
             break ;
         case SIPX_LOCK_WRITE:
-            // TODO: What happens if this fails?
-            pRC->pMutex->acquireWrite() ;
+            // This puts a lot of faith in the lock implementation to gracefully 
+            // fail if the mutex gets deleted in a blocked call to acquire.
+            if(pRC->pMutex->acquireWrite() != OS_SUCCESS)
+            {
+                pRC = NULL;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxConfLookup acquireWrite failed, this may not be good");
+            }
             break ;
         default:
             break ;
@@ -1438,8 +1513,13 @@ SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type, const
     }
     else
     {
-        pRC = NULL ;
+        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Invalid conference handle: %d yielded conference pointer: %p mutex: %p",
+                (int) hConf, pRC, pRC ? pRC->pMutex : NULL);
+        pRC = NULL;
     }
+
+    gpConfAccessLock->release();
+
     return pRC ;
 }
 
@@ -1469,6 +1549,10 @@ void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type, const OsSta
 void sipxConfFree(const SIPX_CONF hConf) 
 {
     OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfFree");
+
+    // Take global lock while modifying list
+    gpConfAccessLock->acquire();
+
     SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_WRITE, logItem) ;
 
     if (pData)
@@ -1508,6 +1592,8 @@ void sipxConfFree(const SIPX_CONF hConf)
             pInst->pCallManager->drop(callId) ;
         }
     }
+
+    gpConfAccessLock->release();
 }
 
 SIPX_INSTANCE_DATA* findSessionByCallManager(const void* pCallManager)
@@ -1714,9 +1800,19 @@ SIPX_RESULT sipxGetActiveCallIds(SIPX_INST hInst, int maxCalls, int& actualCalls
 SIPX_RESULT sipxFlushHandles()
 {
     gpCallHandleMap->destroyAll() ;
-    gpLineHandleMap->destroyAll() ;
-    gpConfHandleMap->destroyAll() ;
-    gpInfoHandleMap->destroyAll() ;
+
+    gpLineAccessLock->acquire();
+    gpLineHandleMap->destroyAll();
+    gpLineAccessLock->release();
+
+    gpConfAccessLock->acquire();
+    gpConfHandleMap->destroyAll();
+    gpConfAccessLock->release();
+
+    gpInfoAccessLock->acquire();
+    gpInfoHandleMap->destroyAll();
+    gpInfoAccessLock->release();
+
     gpPubHandleMap->destroyAll() ;
     gpSubHandleMap->destroyAll() ;
     gpTransportHandleMap->destroyAll() ;
@@ -2242,21 +2338,33 @@ SIPX_PUBLISH_DATA* sipxPublishLookup(const SIPX_PUB hPub, SIPX_LOCK_TYPE type, c
     SIPX_PUBLISH_DATA* pRC ;    
 
     pRC = (SIPX_PUBLISH_DATA*) gpPubHandleMap->findHandle(hPub) ;
-    if(pRC)
+    if(pRC && pRC->pMutex)
     {
         switch (type)
         {
         case SIPX_LOCK_READ:
-            // TODO: What happens if this fails?
-            pRC->pMutex->acquireRead() ;            
+            if(pRC->pMutex->acquireRead() != OS_SUCCESS)
+            {
+                pRC = NULL;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxPublishLookup acquireRead failed, this may not be good");
+            }
             break ;
         case SIPX_LOCK_WRITE:
-            // TODO: What happens if this fails?
-            pRC->pMutex->acquireWrite() ;
+            if(pRC->pMutex->acquireWrite() != OS_SUCCESS)
+            {
+                pRC = NULL;
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxPublishLookup acquireWrite failed, this may not be good");
+            }
             break ;
         default:
             break ;
         }
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Invalid publish handle: %d yielded publish pointer: %p mutex: %p",
+                (int) hPub, pRC, pRC ? pRC->pMutex : NULL);
+        pRC = NULL;
     }
 
     return pRC ;
@@ -2296,7 +2404,7 @@ SIPX_SUBSCRIPTION_DATA* sipxSubscribeLookup(const SIPX_SUB hSub,
    gSubscribeAccessLock.acquire(); // global lock will enable us to delete mutex safely
 
    pRC = (SIPX_SUBSCRIPTION_DATA*) gpSubHandleMap->findHandle(hSub);
-   if(pRC && type != SIPX_LOCK_NONE)
+   if(pRC && pRC->pMutex && type != SIPX_LOCK_NONE)
    {
       switch (type)
       {
@@ -2311,6 +2419,12 @@ SIPX_SUBSCRIPTION_DATA* sipxSubscribeLookup(const SIPX_SUB hSub,
       default:
          break;
       }
+   }
+   else
+   {
+       OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Invalid subscribe handle: %d yielded subscribe pointer: %p mutex: %p",
+                (int) hSub, pRC, pRC ? pRC->pMutex : NULL);
+       pRC = NULL;
    }
 
    gSubscribeAccessLock.release();
