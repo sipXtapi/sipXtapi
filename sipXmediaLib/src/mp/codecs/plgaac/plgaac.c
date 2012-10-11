@@ -33,6 +33,7 @@ static int sSipxFfmpegCodecInitialized = 0;
 #define SAMPLE_PER_AAC_LC_FRAME 1024
 
 #define SIPX_AAC_ENCODER_BUFFER_SIZE (SAMPLE_PER_AAC_LC_FRAME * 2)
+#define TMP_BUFFER_SIZE 4096
 
 /* TYPEDEFS */
 /* LOCAL DATA TYPES */
@@ -402,7 +403,7 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
         AVPacket ffmpegPacket;
         int decodedSampleBytes;
         /* HACK: FFMpeg wants tmpBuffer to be AVCODEC_MAX_AUDIO_FRAME_SIZE, but that blows our thread stack, so we lie */
-        int16_t tmpBuffer[4096]; 
+        int16_t tmpBuffer[TMP_BUFFER_SIZE + 1]; 
         int decodedBytesConsumed;
         returnValue = RPLG_SUCCESS;
 
@@ -482,8 +483,14 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
            memory allocation and output buffer size estimation.  I would have rather decoded
            directly into pcmAudioBuffer rather than have to use a temp buffer and copy. */
 
+        tmpBuffer[TMP_BUFFER_SIZE] = 0xab;
         decodedBytesConsumed = avcodec_decode_audio3(codecContext, tmpBuffer,
                                                          &decodedSampleBytes, &ffmpegPacket);
+        if(tmpBuffer[TMP_BUFFER_SIZE] != 0xab)
+        {
+            printf("avcodec_decode_audio3 clobbered end of tmpBuffer size: %d\n",
+                    TMP_BUFFER_SIZE);
+        }
         if(decodedBytesConsumed < 0)
         {
             printf("avcodec_decode_audio3 returned: %d sipX buffer size: %d (bytes) AVCODEC_MAX_AUDIO_FRAME_SIZE: %d encodedPacketSize: %d ffmpegPacket.size: %d\n", 
