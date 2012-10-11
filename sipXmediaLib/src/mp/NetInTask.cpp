@@ -540,6 +540,7 @@ int NetInTask::run(void *pNotUsed)
                         }
 #endif
                         // Put this socket pair in the first available array position
+                        UtlBoolean newPairAdded = FALSE;
                         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
                             if (NULL == ppr->fwdTo) {
                                 ppr->pRtpSocket  = msg.pRtpSocket;
@@ -559,10 +560,19 @@ int NetInTask::run(void *pNotUsed)
                                               " *** NetInTask: Add socket Fds:"
                                               " RTP=%p, RTCP=%p, receiver=%p\n",
                                               msg.pRtpSocket, msg.pRtcpSocket, msg.fwdTo);
+                                newPairAdded = TRUE;
                                 break;
                             }
                             ppr++;
                         }
+                        // Could not find an empty slot
+                        if(!newPairAdded)
+                        {
+                            OsSysLog::add(FAC_MP, PRI_ERR, 
+                                    "NetInTask::run no room for more RTP/RTCP (descriptors: %d/%d %p %p) socket pairs in socket array size: %d",
+                                    newRtpFd, newRtcpFd, msg.pRtpSocket, msg.pRtcpSocket, NET_TASK_MAX_FD_PAIRS);
+                        }
+
                         if (NULL != msg.notify) {
                             msg.notify->signal(0);
                         }
