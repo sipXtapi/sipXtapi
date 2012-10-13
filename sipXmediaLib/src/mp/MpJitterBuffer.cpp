@@ -286,9 +286,11 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       else
       {
          // Something is definitely wrong here.
+         UtlString socketIpAddress;
+         OsSocket::inet_ntoa_pt(rtpPacket->getIP(), socketIpAddress);
          OsSysLog::add(FAC_MP, PRI_ERR,
                  "MpJitterBuffer::pushPacket payload ID: %d decoder: %s returned zero samples for playload size: %d from: %s:%d in flowgraph: %p frame num: %d",
-                 rtpPacket->getRtpPayloadType(), decoder->getInfo()->getCodecName(), rtpPacket->getPayloadSize(), rtpPacket->getIP(), rtpPacket->getUdpPort(), mpFlowGraph, 
+                 rtpPacket->getRtpPayloadType(), decoder->getInfo()->getCodecName(), rtpPacket->getPayloadSize(), socketIpAddress.data(), rtpPacket->getUdpPort(), mpFlowGraph, 
                  mpFlowGraph ? mpFlowGraph->numFramesProcessed() : -2);
 
          // Dump the packet so we can see why decode failed
