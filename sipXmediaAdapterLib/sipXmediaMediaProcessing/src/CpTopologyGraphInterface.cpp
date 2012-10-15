@@ -113,12 +113,12 @@ public:
         if(!mIsCustomSockets && mpRtpAudioSocket)
         {
 
-#ifdef TEST_PRINT
+//#ifdef TEST_PRINT
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
             //printf(
                 "~CpTopologyMediaConnection deleting audio RTP socket: %p descriptor: %d",
                 mpRtpAudioSocket, mpRtpAudioSocket->getSocketDescriptor());
-#endif
+//#endif
             delete mpRtpAudioSocket;
             mpRtpAudioSocket = NULL;
         }
@@ -138,12 +138,12 @@ public:
 #ifdef VIDEO
         if(!mIsCustomSockets && mpRtpVideoSocket)
         {
-#ifdef TEST_PRINT
+//#ifdef TEST_PRINT
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
             //printf(
                 "~CpTopologyMediaConnection deleting video RTP socket: %p descriptor: %d",
                 mpRtpVideoSocket, mpRtpVideoSocket->getSocketDescriptor());
-#endif
+//#endif
             delete mpRtpVideoSocket;
             mpRtpVideoSocket = NULL;
         }
@@ -487,6 +487,7 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
    if (retValue != OS_SUCCESS)
    {
       deleteConnection(connectionId);
+      connectionId = -1;
       return retValue;
    }
 
@@ -3389,10 +3390,10 @@ OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
       firstRtpPort = localPort;
    }
 
-#ifdef TEST_PRINT
+//#ifdef TEST_PRINT
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::createRtpSocketPair localPortGiven: %s, localPort: %d firstRtpPort: %d",
        localPortGiven ? "true" : "false", localPort, firstRtpPort);
-#endif
+//#endif
 
    if (isMulticast)
    {
@@ -3437,6 +3438,7 @@ OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
 
             delete rtpSocket;
             delete rtcpSocket;
+
             if (isMulticast)
             {
                rtpSocket = new OsMulticastSocket(
@@ -3671,8 +3673,6 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
 //       mpTopologyGraph->synchronize();
    }
 
-   mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpAudioReceivePort);
-
    if(!mediaConnection->mIsCustomSockets && mediaConnection->mpRtpAudioSocket)
    {
 //#ifdef TEST_PRINT
@@ -3685,6 +3685,9 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
 
       delete mediaConnection->mpRtpAudioSocket;
       mediaConnection->mpRtpAudioSocket = NULL;
+
+      // Let port manager know port is available
+      mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpAudioReceivePort);
    }
    if(!mediaConnection->mIsCustomSockets && mediaConnection->mpRtcpAudioSocket)
    {
@@ -3707,6 +3710,12 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
    {
       delete mediaConnection->mpRtpVideoSocket;
       mediaConnection->mpRtpVideoSocket = NULL;
+
+      // Let port manager know this port is not longer used.
+      // If pass through is enabled, it may be masking the real port of the video socket
+      mpFactoryImpl->releaseRtpPort(!mediaConnection->mVideoPassThroughEnabled ? 
+              mediaConnection->mRtpVideoReceivePort : 
+              mediaConnection->mpRtpVideoSocket->getLocalHostPort());
    }
    if(!mediaConnection->mIsCustomSockets && mediaConnection->mpRtcpVideoSocket)
    {
