@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -268,6 +267,10 @@ static  int flushedLimit = 125;
             } 
             else 
             {
+                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                        "NetInTask::get1Msg read %d from socket: %p descriptor: %d errno: %d",
+                        nRead, pRxpSkt, pRxpSkt->getSocketDescriptor(), errno);
+
                 if (!pRxpSkt->isOk())
                 {
                     Zprintf(" *** get1Msg: read(%d) returned %d, errno=%d=0x%X)\n",
@@ -284,6 +287,13 @@ static  int flushedLimit = 125;
                     " (after %d DMA frames).\n",
                     nRead, errno, (int) pRxpSkt, showFrameCount(1), 0,0);
             }
+            if(nRead < 1)
+            {
+                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                        "NetInTask::get1Msg read %d flushed packet from socket: %p descriptor: %d errno: %d",
+                        nRead, pRxpSkt, pRxpSkt->getSocketDescriptor(), errno);
+            }
+
             if ((nRead < 1) && !pRxpSkt->isOk()) 
             {
                 return OS_NO_MORE_DATA;
@@ -319,20 +329,20 @@ int findPoisonFds(int pipeFD)
         netInTaskMsg* ppr;
 
         if (isFdPoison(pipeFD)) {
-            OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: pipeFd socketDescriptor=%d busted!\n", pipeFD);
+            OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: pipeFd socketDescriptor=%d busted! (poison)\n", pipeFD);
             return -1;
         }
         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             if (ppr->pRtpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%"PRIdPTR"], socket=%p, socketDescriptor=%d\n", ppr-pairs, ppr->pRtpSocket, ppr->pRtpSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%"PRIdPTR"], socket=%p, socketDescriptor=%d (poison)\n", ppr-pairs, ppr->pRtpSocket, ppr->pRtpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtpSocket = NULL;
                 if (NULL == ppr->pRtcpSocket) ppr->fwdTo = NULL;
             }
             if (ppr->pRtcpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtcpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%"PRIdPTR"], socket=%p, socketDescriptor=%d\n", ppr-pairs, ppr->pRtcpSocket, ppr->pRtcpSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%"PRIdPTR"], socket=%p, socketDescriptor=%d (poison)\n", ppr-pairs, ppr->pRtcpSocket, ppr->pRtcpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtcpSocket = NULL;
                 if (NULL == ppr->pRtpSocket) ppr->fwdTo = NULL;
@@ -467,12 +477,16 @@ int NetInTask::run(void *pNotUsed)
             if (FD_ISSET(mpReadSocket->getSocketDescriptor(), fds)) {
                 numReady--;
                 int readBytes;
-                {
-                   OsLock lock(mEventMutex);
-                   readBytes = mpReadSocket->read((char *) &msg, NET_TASK_MAX_MSG_LEN);
-                }
+                
+                getLockObj().acquireWrite();
+                readBytes = mpReadSocket->read((char *) &msg, NET_TASK_MAX_MSG_LEN);
+                getLockObj().releaseWrite();
+
+
                 if (NET_TASK_MAX_MSG_LEN != readBytes) {
-                    osPrintf("NetInTask::run: Invalid request!\n");
+                    OsSysLog::add(FAC_MP, PRI_DEBUG,
+                        "NetInTask::run read %d from mpReadSocket socket: %p descriptor: %d errno: %d",
+                        readBytes, mpReadSocket, mpReadSocket ? mpReadSocket->getSocketDescriptor() : -111, errno);
                 } else if (-2 == (intptr_t) msg.pRtpSocket) {
                     /* request to exit... */
                     Nprintf(" *** NetInTask: closing pipeFd (%d)\n",
@@ -638,6 +652,10 @@ int NetInTask::run(void *pNotUsed)
                 ppr++;
             }
         }
+
+        OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                "NetInTask::run exiting mpReadSocket: %p mpReadSocket->isOk() = %s",
+                mpReadSocket, mpReadSocket ? (mpReadSocket->isOk() ? "true" : "false") : "N/A");
         return 0;
 }
 
@@ -652,7 +670,7 @@ NetInTask* NetInTask::getNetInTask()
 
    // If the task does not yet exist or hasn't been started, then acquire
    // the lock to ensure that only one instance of the task is started
-   getLockObj().acquireRead();
+   getLockObj().acquireWrite();
    if (spInstance == NULL) {
        spInstance = new NetInTask();
    }
@@ -662,7 +680,7 @@ NetInTask* NetInTask::getNetInTask()
       isStarted = spInstance->start();
       assert(isStarted);
    }
-   getLockObj().releaseRead();
+   getLockObj().releaseWrite();
 
    // Synchronize with NetInTask startup
    int numDelays = 0;
@@ -697,6 +715,7 @@ NetInTask::NetInTask(int prio, int options, int stack)
 
     RTL_EVENT("NetInTask::NetInTask", 4);
     mpReadSocket = pBindSocket->accept();
+    mpReadSocket->makeNonblocking();
 
     RTL_EVENT("NetInTask::NetInTask", 5);
     pBindSocket->close();
@@ -727,15 +746,17 @@ OsStatus NetInTask::addNetInputSources(OsSocket* pRtpSocket, OsSocket* pRtcpSock
 
    if (NULL != fwdTo)
    {
-      {
-         OsLock lock(mEventMutex);
-         msg.pRtpSocket = pRtpSocket;
-         msg.pRtcpSocket = pRtcpSocket;
-         msg.fwdTo = fwdTo;
-         msg.notify = notify;
-      }
+      pRtpSocket->makeNonblocking();
+      msg.pRtpSocket = pRtpSocket;
+      pRtcpSocket->makeNonblocking();
+      msg.pRtcpSocket = pRtcpSocket;
+      msg.fwdTo = fwdTo;
+      msg.notify = notify;
 
+      getLockObj().acquireWrite();
       wrote = mpWriteSocket->write((char*)&msg, NET_TASK_MAX_MSG_LEN);
+      getLockObj().releaseWrite();
+
       if (wrote != NET_TASK_MAX_MSG_LEN)
       {
          OsSysLog::add(FAC_MP, PRI_ERR,
@@ -760,14 +781,15 @@ OsStatus NetInTask::removeNetInputSources(MprFromNet* fwdTo, OsNotification* not
 
    if (NULL != fwdTo)
    {
-      {
-         OsLock lock(mEventMutex);
-         msg.pRtpSocket = NULL;
-         msg.pRtcpSocket = NULL;
-         msg.fwdTo = fwdTo;
-         msg.notify = notify;
-      }
+      msg.pRtpSocket = NULL;
+      msg.pRtcpSocket = NULL;
+      msg.fwdTo = fwdTo;
+      msg.notify = notify;
+
+      getLockObj().acquireWrite();
       wrote = mpWriteSocket->write((char*)&msg, NET_TASK_MAX_MSG_LEN);
+      getLockObj().releaseWrite();
+
       if (wrote != NET_TASK_MAX_MSG_LEN)
       {
          OsSysLog::add(FAC_MP, PRI_ERR,
