@@ -642,9 +642,9 @@ int NetInTask::run(void *pNotUsed)
                     stat = get1Msg(ppr->pRtpSocket, ppr->fwdTo, false, ostc);
                     if (OS_SUCCESS != stat) {
                         OsSysLog::add(FAC_MP, PRI_ERR, 
-                            " *** NetInTask: removing RTP#%d pSkt=0x%x due"
+                            " *** NetInTask: removing RTP#%d pSkt=%p due"
                             " to read error.\n", ppr-pairs,
-                            (int) ppr->pRtpSocket, 0,0,0,0);
+                            ppr->pRtpSocket);
                         last = OS_INVALID_SOCKET_DESCRIPTOR;
                         ppr->pRtpSocket = NULL;
                         if (NULL == ppr->pRtcpSocket) ppr->fwdTo = NULL;
@@ -659,9 +659,9 @@ int NetInTask::run(void *pNotUsed)
                     stat = get1Msg(ppr->pRtcpSocket, ppr->fwdTo, true, ostc);
                     if (OS_SUCCESS != stat) {
                         OsSysLog::add(FAC_MP, PRI_ERR, 
-                            " *** NetInTask: removing RTCP#%d pSkt=0x%x due"
+                            " *** NetInTask: removing RTCP#%d pSkt=%p due"
                             " to read error.\n", ppr-pairs,
-                            (int) ppr->pRtcpSocket, 0,0,0,0);
+                            ppr->pRtcpSocket);
                         last = OS_INVALID_SOCKET_DESCRIPTOR;
                         ppr->pRtcpSocket = NULL;
                         if (NULL == ppr->pRtpSocket) ppr->fwdTo = NULL;
