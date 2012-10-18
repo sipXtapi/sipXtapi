@@ -2959,33 +2959,41 @@ SIPXTAPI_API SIPX_RESULT sipxCallSendInfo(SIPX_INFO* phInfo,
             memset((void*) pInfoData, 0, sizeof(SIPX_INFO_DATA));
             SIPX_CALL_DATA* pCall = sipxCallLookup(hCall, SIPX_LOCK_READ, stackLogger); 
 
-            pInfoData->pInst = pInst;
-            // Create Mutex
-            pInfoData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO);
-            pInfoData->infoData.nSize = sizeof(SIPX_INFO_INFO);
-            pInfoData->infoData.hCall = hCall;
-            pInfoData->infoData.hLine = hLine;
-            pInfoData->infoData.szFromURL = strdup(lineId.data());
-            pInfoData->infoData.nContentLength = nContentLength;
-            pInfoData->infoData.szContentType = strdup(szContentType);
-            pInfoData->infoData.pContent = strdup(szContent);
-
-            *phInfo = gpInfoHandleMap->allocHandle(pInfoData) ;
-            assert(*phInfo != 0) ;
-
-            SipSession* pSession = new SipSession(callId, pCall->remoteAddress->data(), pInfoData->infoData.szFromURL);
-            sipxCallReleaseLock(pCall, SIPX_LOCK_READ, stackLogger);
-            
-            pInst->pSipUserAgent->addMessageObserver(*(pInst->pMessageObserver->getMessageQueue()), SIP_INFO_METHOD, 0, 1, 1, 0, 0, pSession, (void*)*phInfo);
-            delete pSession;
-
-            if (pInst->pCallManager->sendInfo(callId, remoteAddress, szContentType, nContentLength, szContent))
+            if(pCall)
             {
-                sr = SIPX_RESULT_SUCCESS ;
+                pInfoData->pInst = pInst;
+                // Create Mutex
+                pInfoData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO);
+                pInfoData->infoData.nSize = sizeof(SIPX_INFO_INFO);
+                pInfoData->infoData.hCall = hCall;
+                pInfoData->infoData.hLine = hLine;
+                pInfoData->infoData.szFromURL = strdup(lineId.data());
+                pInfoData->infoData.nContentLength = nContentLength;
+                pInfoData->infoData.szContentType = strdup(szContentType);
+                pInfoData->infoData.pContent = strdup(szContent);
+
+                *phInfo = gpInfoHandleMap->allocHandle(pInfoData) ;
+                assert(*phInfo != 0) ;
+
+                SipSession* pSession = new SipSession(callId, pCall->remoteAddress->data(), pInfoData->infoData.szFromURL);
+                sipxCallReleaseLock(pCall, SIPX_LOCK_READ, stackLogger);
+                
+                pInst->pSipUserAgent->addMessageObserver(*(pInst->pMessageObserver->getMessageQueue()), SIP_INFO_METHOD, 0, 1, 1, 0, 0, pSession, (void*)*phInfo);
+                delete pSession;
+
+                if (pInst->pCallManager->sendInfo(callId, remoteAddress, szContentType, nContentLength, szContent))
+                {
+                    sr = SIPX_RESULT_SUCCESS ;
+                }
+                else
+                {
+                    sr = SIPX_RESULT_INVALID_STATE ;
+                }
             }
             else
             {
-                sr = SIPX_RESULT_INVALID_STATE ;
+                // Could not find or lock call object
+                sr = SIPX_RESULT_INVALID_ARGS ;
             }
         }
         else
@@ -4606,12 +4614,15 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpSetDestination(const SIPX_CONF hC
     if (pData && !pData->strCallId.isNull())
     {
         UtlString callId = pData->strCallId;
-        OsStatus osStatus = pData->pInst->pCallManager->setRtpDestination(callId, connectionId, cpMediaType,
-            mediaTypeStreamIndex, mediaRecieveAddress, rtpPort, rtcpPort);
-
-        if(osStatus == OS_SUCCESS)
+        if(!callId.isNull())
         {
-            status = SIPX_RESULT_SUCCESS;
+            OsStatus osStatus = pData->pInst->pCallManager->setRtpDestination(callId, connectionId, cpMediaType,
+                mediaTypeStreamIndex, mediaRecieveAddress, rtpPort, rtcpPort);
+
+            if(osStatus == OS_SUCCESS)
+            {
+                status = SIPX_RESULT_SUCCESS;
+            }
         }
     }
     if(pData)
