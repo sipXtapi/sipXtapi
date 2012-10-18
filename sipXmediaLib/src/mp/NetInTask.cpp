@@ -85,6 +85,8 @@ struct netInTaskMsg {
    OsSocket* pRtcpSocket;
    MprFromNet* fwdTo;
    OsNotification* notify;
+   int fdRtp;
+   int fdRtcp;
 };
 
 struct rtpSession {
@@ -149,7 +151,7 @@ private:
 
 
 NetInTaskHelper::NetInTaskHelper(int port)
-: OsTask("NetInTaskHelper-%d", NULL, 25, 0, 16000)
+: OsTask("NetInTaskHelper-%d", NULL, 25, 0, 256*1024)
 , mpSocket(NULL)
 , mPort(port)
 {
@@ -411,6 +413,37 @@ int NetInTask::run(void *pNotUsed)
                        mpReadSocket->getSocketDescriptor(), 0,0,0,0,0);
 
         while (mpReadSocket && mpReadSocket->isOk()) {
+            FD_ZERO(fds);
+            FD_SET((unsigned) mpReadSocket->getSocketDescriptor(), fds);
+            for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
+              if (NULL != ppr->fwdTo) {
+                if (NULL != ppr->pRtpSocket)
+                {
+                  int fd = ppr->pRtpSocket->getSocketDescriptor();
+                  ppr->fdRtp = fd;
+                  if (fd > 0)
+                    FD_SET(fd, fds);
+                   else
+                   {
+                       findPoisonFds(mpReadSocket->getSocketDescriptor());
+                       last = OS_INVALID_SOCKET_DESCRIPTOR;
+                   }
+                }
+                if (NULL != ppr->pRtcpSocket)
+                {
+                  int fd = ppr->pRtcpSocket->getSocketDescriptor();
+                  ppr->fdRtcp = fd;
+                  if (fd > 0)
+                    FD_SET(fd, fds);
+                   else
+                   {
+                       findPoisonFds(mpReadSocket->getSocketDescriptor());
+                       last = OS_INVALID_SOCKET_DESCRIPTOR;
+                   }
+                }
+              }
+              ppr++;
+            }
             if (OS_INVALID_SOCKET_DESCRIPTOR == last) {
                last = mpReadSocket->getSocketDescriptor();
                for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
@@ -422,25 +455,6 @@ int NetInTask::run(void *pNotUsed)
                   }
                   ppr++;
                }
-            }
-            FD_ZERO(fds);
-            FD_SET((unsigned) mpReadSocket->getSocketDescriptor(), fds);
-            for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
-              if (NULL != ppr->fwdTo) {
-                if (NULL != ppr->pRtpSocket)
-                {
-                  int fd = ppr->pRtpSocket->getSocketDescriptor();
-                  if (fd > 0)
-                    FD_SET(fd, fds);
-                }
-                if (NULL != ppr->pRtcpSocket)
-                {
-                  int fd = ppr->pRtcpSocket->getSocketDescriptor();
-                  if (fd > 0)
-                    FD_SET(fd, fds);
-                }
-              }
-              ppr++;
             }
             errno = 0;
             numReady = select(last+1, fds, NULL, NULL, NULL);
@@ -504,11 +518,12 @@ int NetInTask::run(void *pNotUsed)
                 } else if (NULL != msg.fwdTo) {
                     if ((NULL != msg.pRtpSocket) || (NULL != msg.pRtcpSocket)) {
                         /* add a new pair of file descriptors */
-                        last = sipx_max(last,msg.pRtpSocket->getSocketDescriptor());
-                        last = sipx_max(last,msg.pRtcpSocket->getSocketDescriptor());
 
                         int newRtpFd  = (msg.pRtpSocket)  ? msg.pRtpSocket->getSocketDescriptor()  : -1;
                         int newRtcpFd = (msg.pRtcpSocket) ? msg.pRtcpSocket->getSocketDescriptor() : -1;
+
+                        last = sipx_max(last,newRtpFd);
+                        last = sipx_max(last,newRtcpFd);
 
                         OsSysLog::add(FAC_MP, PRI_DEBUG, " *** NetInTask: Adding new RTP/RTCP sockets (RTP:%p,%d, RTCP:%p,%d)\n",
                                       msg.pRtpSocket, newRtpFd, msg.pRtcpSocket, newRtcpFd);
@@ -619,35 +634,40 @@ int NetInTask::run(void *pNotUsed)
             }
             ppr=pairs;
             for (i=0; ((i<NET_TASK_MAX_FD_PAIRS)&&(numReady>0)); i++) {
-                if ((NULL != ppr->pRtpSocket) &&
-                  (FD_ISSET(ppr->pRtpSocket->getSocketDescriptor(), fds))) {
-                    stat = get1Msg(ppr->pRtpSocket, ppr->fwdTo,
-                       false, ostc);
+                int tfd;
+                if (NULL != ppr->pRtpSocket) {
+                  tfd = ppr->pRtpSocket->getSocketDescriptor();
+                  // assert(ppr->fdRtp == tfd);
+                  if ((-1 < tfd) && (FD_ISSET(tfd, fds))) {
+                    stat = get1Msg(ppr->pRtpSocket, ppr->fwdTo, false, ostc);
                     if (OS_SUCCESS != stat) {
-                        Zprintf(" *** NetInTask: removing RTP#%d pSkt=0x%x due"
+                        OsSysLog::add(FAC_MP, PRI_ERR, 
+                            " *** NetInTask: removing RTP#%d pSkt=0x%x due"
                             " to read error.\n", ppr-pairs,
                             (int) ppr->pRtpSocket, 0,0,0,0);
-                        if (last == ppr->pRtpSocket->getSocketDescriptor())
-                           last = OS_INVALID_SOCKET_DESCRIPTOR;
+                        last = OS_INVALID_SOCKET_DESCRIPTOR;
                         ppr->pRtpSocket = NULL;
                         if (NULL == ppr->pRtcpSocket) ppr->fwdTo = NULL;
                     }
                     numReady--;
+                  }
                 }
-                if ((NULL != ppr->pRtcpSocket) &&
-                  (FD_ISSET(ppr->pRtcpSocket->getSocketDescriptor(), fds))) {
-                    stat = get1Msg(ppr->pRtcpSocket, ppr->fwdTo,
-                       true, ostc);
+                if (NULL != ppr->pRtcpSocket) {
+                  tfd = ppr->pRtcpSocket->getSocketDescriptor();
+                  // assert(ppr->fdRtcp == tfd);
+                  if ((-1 < tfd) && (FD_ISSET(tfd, fds))) {
+                    stat = get1Msg(ppr->pRtcpSocket, ppr->fwdTo, true, ostc);
                     if (OS_SUCCESS != stat) {
-                        Zprintf(" *** NetInTask: removing RTCP#%d pSkt=0x%x due"
+                        OsSysLog::add(FAC_MP, PRI_ERR, 
+                            " *** NetInTask: removing RTCP#%d pSkt=0x%x due"
                             " to read error.\n", ppr-pairs,
                             (int) ppr->pRtcpSocket, 0,0,0,0);
-                        if (last == ppr->pRtcpSocket->getSocketDescriptor())
-                           last = OS_INVALID_SOCKET_DESCRIPTOR;
+                        last = OS_INVALID_SOCKET_DESCRIPTOR;
                         ppr->pRtcpSocket = NULL;
                         if (NULL == ppr->pRtpSocket) ppr->fwdTo = NULL;
                     }
                     numReady--;
+                  }
                 }
                 ppr++;
             }
