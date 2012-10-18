@@ -1,8 +1,7 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.  
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2006 SIPfoundry Inc.  
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -23,6 +22,7 @@
 #include "os/OsSysLog.h"
 #include "utl/UtlString.h"
 #include "utl/UtlRegex.h"
+#include <utl/UtlSListIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -88,10 +88,13 @@ void CpMediaInterfaceFactoryImpl::setRtpPortRange(int startRtpPort, int lastRtpP
 #define MAX_PORT_CHECK_WAIT_MS      50
 OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(const char* bindAddress, int &rtpPort) 
 {
-#ifdef TEST_PRINT
+//#ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CpMediaInterfaceFactoryImpl::getNextRtpPort bindAddress=%s start=%d end=%d last=%d",
         bindAddress ? bindAddress : "NULL", miStartRtpPort, miLastRtpPort, miNextRtpPort);
-#endif
+//#endif
+
+    UtlString freePorts;
+    UtlString busyPorts;
 
     OsLock lock(mlockList) ;
     bool bGoodPort = false ;
@@ -150,12 +153,39 @@ OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(const char* bindAddress, in
         rtpPort = 0 ;
     }
     
+    UtlSListIterator freeIterator(mlistFreePorts);
+    UtlInt* freePort = NULL;
+    while((freePort = (UtlInt*) freeIterator()))
+    {
+        freePorts.appendFormat("%d, ", freePort->getValue());
+    }
+
+    UtlSListIterator busyIterator(mlistBusyPorts);
+    UtlInt* busyPort = NULL;
+    while((busyPort = (UtlInt*) busyIterator()))
+    {
+        busyPorts.appendFormat("%d, ", busyPort->getValue());
+    }
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "CpMediaInterfaceFactoryImpl::getNextRtpPort free ports: %s", 
+            freePorts.data());
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "CpMediaInterfaceFactoryImpl::getNextRtpPort busy ports: %s",
+            busyPorts.data());
+
     return OS_SUCCESS ;
 }
 
 
 OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort) 
 {
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "CpMediaInterfaceFactoryImpl::releaseRtpPort(%d)",
+            rtpPort);
+    UtlString freePorts;
+
     OsLock lock(mlockList) ;
 
     // Only bother noting the free port if the next port isn't 0 (OS selects 
@@ -169,7 +199,18 @@ OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
             // Release port to head of list (generally want to reuse ports)
             mlistFreePorts.insert(new UtlInt(rtpPort)) ;
         }
+
+        UtlSListIterator iterator(mlistFreePorts);
+        UtlInt* freePort = NULL;
+        while((freePort = (UtlInt*) iterator()))
+        {
+            freePorts.appendFormat("%d, ", freePort->getValue());
+        }
     }
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "CpMediaInterfaceFactoryImpl::releaseRtpPort free ports: %s", 
+            freePorts.data());
 
     return OS_SUCCESS ;
 }
@@ -247,12 +288,16 @@ UtlBoolean CpMediaInterfaceFactoryImpl::isAddressPortBusy(const char* bindAddres
         {
             if (!pSocket->isOk())
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG, "CpMediaInterfaceFactoryImpl::isAddressPortBusy UDP port not OK");
+                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                        "CpMediaInterfaceFactoryImpl::isAddressPortBusy UDP port %d not OK",
+                        iPort);
                 bBusy = TRUE;
             }
             else if(pSocket->isReadyToRead(checkTimeMS))
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG, "CpMediaInterfaceFactoryImpl::isAddressPortBusy UDP port ready to read");
+                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                        "CpMediaInterfaceFactoryImpl::isAddressPortBusy UDP port %d ready to read",
+                        iPort);
                 bBusy = TRUE;
             }
             pSocket->close() ;
@@ -267,7 +312,9 @@ UtlBoolean CpMediaInterfaceFactoryImpl::isAddressPortBusy(const char* bindAddres
             {
                 if (!pTcpSocket->isOk())
                 {
-                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpMediaInterfaceFactoryImpl::isAddressPortBusy TCP port not OK");
+                    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                            "CpMediaInterfaceFactoryImpl::isAddressPortBusy TCP port %d not OK",
+                            iPort);
                     bBusy = TRUE;
                 }
                 pTcpSocket->close();
