@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -155,17 +157,27 @@ int OsServerTask::run(void* pArg)
    do
    {
       res = receiveMessage((OsMsg*&) pMsg);          // wait for a message
-      assert(res == OS_SUCCESS);
 
-      doShutdown = isShuttingDown();
-      if (!doShutdown)
-      {                                              // comply with shutdown
-         if (!handleMessage(*pMsg))                  // process the message
-            OsServerTask::handleMessage(*pMsg);
+      if(res == OS_SUCCESS)
+      {
+
+          doShutdown = isShuttingDown();
+          if (!doShutdown)
+          {                                              // comply with shutdown
+             if (!handleMessage(*pMsg))                  // process the message
+                OsServerTask::handleMessage(*pMsg);
+          }
+
+          if (!pMsg->getSentFromISR())
+             pMsg->releaseMsg();                         // free the message
       }
+      else
+      {
+          OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerTask receiveMessage returned: %d", res);
+          OsSysLog::flush();
+          //assert(res == OS_SUCCESS);
 
-      if (!pMsg->getSentFromISR())
-         pMsg->releaseMsg();                         // free the message
+      }
    }
    while (!doShutdown);
 
