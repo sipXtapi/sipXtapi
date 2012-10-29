@@ -1,6 +1,5 @@
 //
 // Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2941,8 +2940,6 @@ UtlBoolean CpPeerCall::handleLimitCodecs(OsMsg* pEventMessage)
     pMultiMessage->getString2Data(remoteAddress);
     pMultiMessage->getString3Data(codecNames);
 
-    void* pInstData = NULL;
-
     SdpCodecList limitToCodecList;
     limitToCodecList.addCodecs(codecNames);
 
@@ -2950,7 +2947,13 @@ UtlBoolean CpPeerCall::handleLimitCodecs(OsMsg* pEventMessage)
     // We do this for the case when a call is created, but its media connection is not
     // yet created.  This has the effect that when the call's media connection is created,
     // it will use the media interfaces limited codec set.
-    mpMediaInterface->limitCodecs(mpMediaInterface->getInvalidConnectionId(), limitToCodecList);
+    if(mpMediaInterface)
+    {
+        // use invalid connection ID to indicate default for this media interface
+        mpMediaInterface->limitCodecs(mpMediaInterface->getInvalidConnectionId(), limitToCodecList);
+    }
+
+    CpMediaInterface* mediaInterface = NULL;
     Connection* connection = NULL;
     OsReadLock lock(mConnectionMutex);
     UtlDListIterator iterator(mConnections);
@@ -2964,11 +2967,12 @@ UtlBoolean CpPeerCall::handleLimitCodecs(OsMsg* pEventMessage)
             connectionId = connection->getConnectionId();
             if (connectionId != -1)
             {
-                pInstData = connection->getMediaInterfacePtr();
+                mediaInterface = connection->getMediaInterfacePtr();
 
-                if (pInstData != NULL)
+                if (mediaInterface != NULL)
                 {
-                    ((CpMediaInterface*)pInstData)->limitCodecs(connectionId, limitToCodecList);
+                    // Use specific connection ID to specify that connection only
+                    mediaInterface->limitCodecs(connectionId, limitToCodecList);
                 }
             }
         }
