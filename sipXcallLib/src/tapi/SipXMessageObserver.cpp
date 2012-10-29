@@ -228,58 +228,70 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage, int 
         SIPX_INFOSTATUS_INFO infoStatus;
         
         memset((void*) &infoStatus, 0, sizeof(SIPX_INFOSTATUS_INFO));
-        
-        infoStatus.hInfo = hInfo;
-        SIPX_INFO_DATA* pInfoData = sipxInfoLookup(hInfo, SIPX_LOCK_READ, stackLogger);
         infoStatus.nSize = sizeof(SIPX_INFOSTATUS_INFO);
         infoStatus.responseCode = pSipMessage->getResponseStatusCode();
         infoStatus.event = INFOSTATUS_RESPONSE;
         
-        int statusCode = pSipMessage->getResponseStatusCode();
-        if (statusCode < 400)
-        {
-            infoStatus.status = SIPX_MESSAGE_OK;
-        }
-        // May want to add special case for authentication
-        //else if(statusCode == HTTP_PROXY_UNAUTHORIZED_CODE || statusCode == HTTP_UNAUTHORIZED_CODE)
-        //{
-        //    infoStatus.status = 
-        //}
-        else if (statusCode < 500)
-        {
-            infoStatus.status = SIPX_MESSAGE_FAILURE;
-        }
-        else if (statusCode < 600)
-        {
-            infoStatus.status = SIPX_MESSAGE_SERVER_FAILURE;
-        }
-        else 
-        {
-            infoStatus.status = SIPX_MESSAGE_GLOBAL_FAILURE;
-        }
-        
-        UtlString sResponseText;
-        pSipMessage->getResponseStatusText(&sResponseText);
-        infoStatus.szResponseText = sResponseText.data();
-        
-        UtlVoidPtr* ptr = NULL;
-	    OsLock eventLock(*g_pEventListenerLock) ;
-        UtlSListIterator eventListenerItor(*g_pEventListeners);
-        while ((ptr = (UtlVoidPtr*) eventListenerItor()) != NULL)
-        {
-            EVENT_LISTENER_DATA *pData = (EVENT_LISTENER_DATA*) ptr->getValue();
-            if (pInfoData->pInst == pData->pInst)
-            {
-                pData->pCallbackProc(EVENT_CATEGORY_INFO_STATUS, &infoStatus, pData->pUserData);
-            }
-        }
+        infoStatus.hInfo = hInfo;
+        SIPX_INFO_DATA* pInfoData = sipxInfoLookup(hInfo, SIPX_LOCK_READ, stackLogger);
 
-        // I think the following is incorrect.  I think this is not added as a global mssage observer, only
-        // as an obsever to individual transactions when the INFO is sent.  So this is not needed.
-        pInfoData->pInst->pSipUserAgent->removeMessageObserver(*(this->getMessageQueue()), (void*)hInfo);
-        
-        // release lock
-        sipxInfoReleaseLock(pInfoData, SIPX_LOCK_READ, stackLogger);
+        if(pInfoData)
+        {
+            
+            int statusCode = pSipMessage->getResponseStatusCode();
+            if (statusCode < 400)
+            {
+                infoStatus.status = SIPX_MESSAGE_OK;
+            }
+            // May want to add special case for authentication
+            //else if(statusCode == HTTP_PROXY_UNAUTHORIZED_CODE || statusCode == HTTP_UNAUTHORIZED_CODE)
+            //{
+            //    infoStatus.status = 
+            //}
+            else if (statusCode < 500)
+            {
+                infoStatus.status = SIPX_MESSAGE_FAILURE;
+            }
+            else if (statusCode < 600)
+            {
+                infoStatus.status = SIPX_MESSAGE_SERVER_FAILURE;
+            }
+            else 
+            {
+                infoStatus.status = SIPX_MESSAGE_GLOBAL_FAILURE;
+            }
+            
+            UtlString sResponseText;
+            pSipMessage->getResponseStatusText(&sResponseText);
+            infoStatus.szResponseText = sResponseText.data();
+            
+            UtlVoidPtr* ptr = NULL;
+            OsLock eventLock(*g_pEventListenerLock) ;
+            UtlSListIterator eventListenerItor(*g_pEventListeners);
+            while ((ptr = (UtlVoidPtr*) eventListenerItor()) != NULL)
+            {
+                EVENT_LISTENER_DATA *pData = (EVENT_LISTENER_DATA*) ptr->getValue();
+                if (pData)
+                {
+                    if(pInfoData->pInst == pData->pInst)
+                    {
+                        pData->pCallbackProc(EVENT_CATEGORY_INFO_STATUS, &infoStatus, pData->pUserData);
+                    }
+                }
+                else
+                {
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                            "SipXMessageObserver::handleIncomingInfoStatus NULL pData  in listener");
+                }
+            }
+
+            // I think the following is incorrect.  I think this is not added as a global mssage observer, only
+            // as an obsever to individual transactions when the INFO is sent.  So this is not needed.
+            pInfoData->pInst->pSipUserAgent->removeMessageObserver(*(this->getMessageQueue()), (void*)hInfo);
+            
+            // release lock
+            sipxInfoReleaseLock(pInfoData, SIPX_LOCK_READ, stackLogger);
+        }
 
         // If an INFO was resent with auth credentials, don't remove the INFO object.  Wait
         // for the response to the resend.
