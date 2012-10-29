@@ -4547,20 +4547,30 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceLimitCodecPreferences(const SIPX_CONF hCo
         (hConf != SIPX_CONF_NULL))
     {
         SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_READ, stackLogger) ;
-        if (pData && !pData->strCallId.isNull())
+        if (pData)
         {
             UtlString callId = pData->strCallId ;
-            sipxConfReleaseLock(pData, SIPX_LOCK_READ, stackLogger) ;
+            CallManager* callManager = pData->pInst->pCallManager;
+            sipxConfReleaseLock(pData, SIPX_LOCK_READ, stackLogger);
+            pData = NULL; // Can't touch pData after release lock
 
-            pData->pInst->pCallManager->limitCodecPreferences(callId, audioBandwidth, videoBandwidth, szVideoCodecName) ;
-            pData->pInst->pCallManager->silentRemoteHold(callId) ;
-            pData->pInst->pCallManager->renegotiateCodecsAllTerminalConnections(callId) ;
+           if(callManager && !callId.isNull())
+            {
 
-            sr = SIPX_RESULT_SUCCESS ;
+                callManager->limitCodecPreferences(callId, audioBandwidth, videoBandwidth, szVideoCodecName);
+                callManager->silentRemoteHold(callId);
+                callManager->renegotiateCodecsAllTerminalConnections(callId);
+
+                sr = SIPX_RESULT_SUCCESS ;
+            }
+            else
+            {
+                sr = SIPX_RESULT_INVALID_ARGS ;
+            }
         }
         else
         {
-            sr = SIPX_RESULT_INVALID_ARGS ;
+            sr = SIPX_RESULT_INVALID_ARGS;
         }
     }
     else
@@ -4579,19 +4589,24 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionCreate(const SIPX_CONF hConf,
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxMediaConnectionCreate");
 
     SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_READ, stackLogger);
-    if (pData && !pData->strCallId.isNull())
+    if (pData)
     {
         UtlString callId = pData->strCallId;
-        OsStatus osStatus = pData->pInst->pCallManager->createMediaConnection(callId, connectionId);
-
-        if(osStatus == OS_SUCCESS)
-        {
-            status = SIPX_RESULT_SUCCESS;
-        }
-    }
-    if(pData)
-    {
+        CallManager* callManager = pData->pInst->pCallManager;
+        // We want to release this lock ASAP as createMediaConnection can block for a while
         sipxConfReleaseLock(pData, SIPX_LOCK_READ, stackLogger);
+        pData = NULL; // Can't touch pData after release lock
+
+        // I suppose theoretically the callManger could get deleted out from under us.
+        if(callManager && !callId.isNull())
+        {
+            OsStatus osStatus = callManager->createMediaConnection(callId, connectionId);
+
+            if(osStatus == OS_SUCCESS)
+            {
+                status = SIPX_RESULT_SUCCESS;
+            }
+        }
     }
 
     return(status);
@@ -4611,12 +4626,17 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpSetDestination(const SIPX_CONF hC
     CpMediaInterface::MEDIA_STREAM_TYPE cpMediaType = convertToCpMediaInterfaceMediaType(mediaType);
 
     SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_READ, stackLogger);
-    if (pData && !pData->strCallId.isNull())
+    if (pData)
     {
         UtlString callId = pData->strCallId;
-        if(!callId.isNull())
+        CallManager* callManager = pData->pInst->pCallManager;
+        // We want to release this lock ASAP as createMediaConnection can block for a while
+        sipxConfReleaseLock(pData, SIPX_LOCK_READ, stackLogger);
+        pData = NULL; // Can't touch pData after release lock
+
+        if(callManager && !callId.isNull())
         {
-            OsStatus osStatus = pData->pInst->pCallManager->setRtpDestination(callId, connectionId, cpMediaType,
+            OsStatus osStatus = callManager->setRtpDestination(callId, connectionId, cpMediaType,
                 mediaTypeStreamIndex, mediaRecieveAddress, rtpPort, rtcpPort);
 
             if(osStatus == OS_SUCCESS)
@@ -4624,10 +4644,6 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpSetDestination(const SIPX_CONF hC
                 status = SIPX_RESULT_SUCCESS;
             }
         }
-    }
-    if(pData)
-    {
-        sipxConfReleaseLock(pData, SIPX_LOCK_READ, stackLogger);
     }
 
     return(status);
@@ -4641,25 +4657,29 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStartSend(const SIPX_CONF hConf,
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxMediaConnectionRtpStartSend");
 
     SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_READ, stackLogger);
-    if (pData && !pData->strCallId.isNull())
+    if (pData)
     {
         UtlString callId = pData->strCallId;
-        SdpCodecList codecList;
-        codecList.addCodecs(codecTokens);
-
-        // Make sure the codecs are bound to payload ID.  Codecs with unbound payload IDs are set to -1
-        codecList.bindPayloadTypes();
-
-        OsStatus osStatus = pData->pInst->pCallManager->startRtpSend(callId, connectionId, codecList);
-
-        if(osStatus == OS_SUCCESS)
-        {
-            status = SIPX_RESULT_SUCCESS;
-        }
-    }
-    if(pData)
-    {
+        CallManager* callManager = pData->pInst->pCallManager;
+        // We want to release this lock ASAP as createMediaConnection can block for a while
         sipxConfReleaseLock(pData, SIPX_LOCK_READ, stackLogger);
+        pData = NULL; // Can't touch pData after release lock
+
+        if(callManager && !callId.isNull())
+        {
+            SdpCodecList codecList;
+            codecList.addCodecs(codecTokens);
+
+            // Make sure the codecs are bound to payload ID.  Codecs with unbound payload IDs are set to -1
+            codecList.bindPayloadTypes();
+
+            OsStatus osStatus = callManager->startRtpSend(callId, connectionId, codecList);
+
+            if(osStatus == OS_SUCCESS)
+            {
+                status = SIPX_RESULT_SUCCESS;
+            }
+        }
     }
 
     return(status);
@@ -4672,19 +4692,23 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStopSend(const SIPX_CONF hConf,
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxMediaConnectionRtpStopSend");
 
     SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_READ, stackLogger);
-    if (pData && !pData->strCallId.isNull())
+    if (pData)
     {
         UtlString callId = pData->strCallId;
-        OsStatus osStatus = pData->pInst->pCallManager->stopRtpSend(callId, connectionId);
-
-        if(osStatus == OS_SUCCESS)
-        {
-            status = SIPX_RESULT_SUCCESS;
-        }
-    }
-    if(pData)
-    {
+        CallManager* callManager = pData->pInst->pCallManager;
+        // We want to release this lock ASAP as createMediaConnection can block for a while
         sipxConfReleaseLock(pData, SIPX_LOCK_READ, stackLogger);
+        pData = NULL; // Can't touch pData after release lock
+
+        if(callManager && !callId.isNull())
+        {
+            OsStatus osStatus = callManager->stopRtpSend(callId, connectionId);
+
+            if(osStatus == OS_SUCCESS)
+            {
+                status = SIPX_RESULT_SUCCESS;
+            }
+        }
     }
 
     return(status);
@@ -8231,7 +8255,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoBitrate(const SIPX_INST hInst,
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoBitrate");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConfigSetVideoBitrate hInst=%d, bitRate=%d",
+        "sipxConfigSetVideoBitrate hInst=%p, bitRate=%d",
          hInst, bitRate);
 
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;  
@@ -8254,7 +8278,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFramerate(const SIPX_INST hInst,
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoFramerate");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConfigSetVideoFramerate hInst=%d, frameRate=%d",
+        "sipxConfigSetVideoFramerate hInst=%p, frameRate=%d",
          hInst, frameRate);
 
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;  
