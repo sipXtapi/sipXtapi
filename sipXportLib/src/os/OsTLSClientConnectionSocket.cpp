@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -249,7 +251,6 @@ void OsTLSClientConnectionSocket::NSSInitSocket(int socket, long timeoutInSecs, 
             {
                 mIsConnected = FALSE;
                 OsConnectionSocket::close();
-                socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;          
             }
         }
 TlsFailure:
