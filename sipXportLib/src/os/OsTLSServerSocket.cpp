@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -257,12 +259,6 @@ OsConnectionSocket* OsTLSServerSocket::accept()
 
 void OsTLSServerSocket::close()
 {
-    /*
-    if(socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
-    {
-        OsServerSocket::close();
-    }
-    */
     if (mpMozillaSSLSocket)
     {
         PR_Shutdown(mpMozillaSSLSocket, PR_SHUTDOWN_BOTH);
