@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -333,6 +332,8 @@ int OsSocket::read(char* buffer, int bufferLength,
       // 10038 WSAENOTSOCK not a valid socket descriptor
       if(error)
       {
+         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                  "recvfrom(%d) call failed with error: %d\n", (int)socketDescriptor, error);
 #ifdef _WIN32
          if (error != WSAECONNRESET)
          {
@@ -342,7 +343,6 @@ int OsSocket::read(char* buffer, int bufferLength,
          close();
 #endif
          // perror("OsSocket::read call to recvfrom failed\n");
-         osPrintf("recvfrom call failed with error: %d\n", error);
       }
 
    }
@@ -697,10 +697,13 @@ void OsSocket::close()
     // application problem.  For now close the window where a socket
     // descriptor can be closed twice in two threads at nearly the
     // same time as this seems to be a bad thing.
+
     int tempSocketDescriptor = socketDescriptor;
     socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
         if(tempSocketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
         {
+             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                "OsSocket::close: Closing type: %d, socket: %d\n", getIpProtocol(), tempSocketDescriptor);
 #ifdef TEST_PRINT
                 osPrintf("Closing type: %d socket: %d\n", getIpProtocol(), tempSocketDescriptor);
 #endif
