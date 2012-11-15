@@ -1,9 +1,6 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -32,6 +29,9 @@
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
+// FORWARD DECLARATIONS
+class MpFlowGraphBase;
+
 // CONSTANTS
 // STRUCTS
 
@@ -100,6 +100,11 @@ public:
 ///@name Accessors
 //@{
 
+    void setFlowGraph(MpFlowGraphBase* flowgraph)
+    {
+        mpFlowGraph = flowgraph;
+    };
+
     /// Get buffer type.
     MP_BUFFERS_TREE getType() const {return mType;};
 
@@ -120,6 +125,7 @@ protected:
     MP_BUFFERS_TREE mType;     ///< Buffer class type. Used for type safety.
     int mRefCounter;           ///< Reference counter for use with MpBufPtr.
     MpBufPool* mpPool;         ///< Parent memory pool.
+    MpFlowGraphBase* mpFlowGraph; ///< Debug pointer to flowgraph in which this buf is used
     void (*mpDestroy)(MpBuf*); ///< Pointer to deinitialization method. Used as
                                ///<  virtual destructor.
     void (*mpInitClone)(MpBuf*); ///< Pointer to function that initialize buffer
@@ -327,6 +333,14 @@ public:
             return -1;
         else
             return mpBuffer->mpPool->getBufferNumber(mpBuffer);
+    };
+
+    void setFlowGraph(MpFlowGraphBase* flowgraph)
+    {
+        if(mpBuffer != NULL)
+        {
+            mpBuffer->setFlowGraph(flowgraph);
+        }
     };
 
     /// Return pointer to MpBuf.

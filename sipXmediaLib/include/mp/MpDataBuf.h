@@ -1,9 +1,5 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.   All rights reserved.
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -167,6 +163,15 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
+    void setFlowGraph(MpFlowGraphBase* flowgraph)
+    {
+        if(mpBuffer != NULL)
+        {
+            mpBuffer->setFlowGraph(flowgraph);
+            ((MpDataBuf*)mpBuffer)->mpData.setFlowGraph(flowgraph);
+        }
+    };    
 
     /// Return pointer to MpDataBuf.
     MPBUF_MEMBER_ACCESS_OPERATOR(MpDataBuf)
