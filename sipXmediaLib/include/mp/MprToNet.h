@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -40,6 +39,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MprFromNet;
+class MpFlowGraphBase;
 
 /**
 *  @brief The RTP writer
@@ -105,6 +105,9 @@ public:
 ///@name Accessors
 //@{
 
+   /// Set flowgraph in which this is used for debug purposes
+   OsStatus setFlowGraph(MpFlowGraphBase* flowgraph);
+
    void setSSRC(int iSSRC);
    inline RtpSRC getSSRC() const;
 #ifdef INCLUDE_RTCP /* [ */
@@ -125,6 +128,7 @@ protected:
 private:
 
    MprFromNet*  mpFromNetPal;
+   MpFlowGraphBase* mpFlowGraph; ///< for debug purposes
    int          mRtcpPackets;
    int          mRtcpFrameCount;
    int          mRtcpFrameLimit;

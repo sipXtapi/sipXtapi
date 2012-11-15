@@ -185,6 +185,9 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
    pRtpPacket = MpMisc.RtpPool->getBuffer();
    assert(pRtpPacket.isValid());
 
+   // Label buf so we know which flowgraph is using it
+   pRtpPacket.setFlowGraph(mpFlowGraph);
+
    // Get rid of packet sequence number.
    mSeqNum++;
 
@@ -231,6 +234,10 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
 
    // Allocate UDP packet
    pUdpPacket = MpMisc.UdpPool->getBuffer();
+   
+   // Label buf so we know which flowgraph is using it
+   pUdpPacket.setFlowGraph(mpFlowGraph);
+
    pBuf = pUdpPacket->getDataWritePtr();
 
    // Set size of data to send
@@ -344,6 +351,13 @@ int sTRA(int a, int b, int c) {return setToRtpAdjustment(a,b,c);}
 #endif /* ENABLE_PACKET_HACKING ] */
 
 /* ============================ ACCESSORS ================================= */
+
+OsStatus MprToNet::setFlowGraph(MpFlowGraphBase* flowgraph)
+{
+    mpFlowGraph = flowgraph;
+
+    return(OS_SUCCESS);
+}
 
 OsStatus MprToNet::setRtpPal(MprFromNet* pal)
 {

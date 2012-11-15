@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -48,6 +47,7 @@ class OsSocket;
 class MpResourceMsg;
 class NetInTask;
 class UtlString;
+class MpFlowGraphBase;
 
 /// The "From Network" media processing resource
 class MprFromNet
@@ -126,6 +126,9 @@ public:
    OsStatus getRtcpStats(MprRtcpStats& stats);
 #endif /* INCLUDE_RTCP ] */
 
+   // For debug purposes allow labeling this with the containing flowgraph
+   OsStatus setFlowGraph(MpFlowGraphBase* flowgraph);
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -145,9 +148,11 @@ private:
    MprRtpDispatcher* mpRtpDispatcher;
    UtlBoolean       mDiscardSelectedStream;
    RtpSRC           mDiscardedSSRC;
+   MpFlowGraphBase* mpFlowGraph;
 #ifdef INCLUDE_RTCP /* [ */
    INetDispatch*    mpiRTCPDispatch;
    IRTPDispatch*    mpiRTPDispatch;
+
 #else /* INCLUDE_RTCP ] [ */
    rtpHandle        mInRtpHandle;
    int              mRtcpCount;

@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -170,6 +169,18 @@ void MpRtpOutputConnection::reassignSSRC(int iSSRC)
 #endif /* INCLUDE_RTCP ] */
 
 /* ============================ ACCESSORS ================================= */
+
+OsStatus MpRtpOutputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+    OsStatus status = MpResource::setFlowGraph(pFlowGraph);
+
+    if(mpToNet)
+    {
+        mpToNet->setFlowGraph(pFlowGraph);
+    }
+
+    return(status);
+}
 
 #ifdef INCLUDE_RTCP /* [ */
 IRTCPConnection *MpRtpOutputConnection::getRTCPConnection(void)

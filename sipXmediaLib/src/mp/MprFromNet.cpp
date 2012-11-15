@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -60,6 +59,7 @@ MprFromNet::MprFromNet()
 , mpRtpDispatcher(NULL)
 , mDiscardSelectedStream(FALSE)
 , mDiscardedSSRC(0)
+, mpFlowGraph(NULL)
 #ifdef INCLUDE_RTCP /* [ */
 , mpiRTCPDispatch(NULL)
 , mpiRTPDispatch(NULL)
@@ -248,6 +248,9 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
 
       rtpBuf = parseRtpPacket(udpBuf);
 
+      // Label buf so we know which flowgraph its used in
+      rtpBuf.setFlowGraph(mpFlowGraph);
+
       // Discard requested RTP stream
       if (mDiscardSelectedStream && rtpBuf->getRtpSSRC() == mDiscardedSSRC)
       {
@@ -318,6 +321,13 @@ OsStatus MprFromNet::setRtpDispatcher(MprRtpDispatcher *pRtpDispatcher)
 }
 
 /* ============================ ACCESSORS ================================= */
+
+OsStatus MprFromNet::setFlowGraph(MpFlowGraphBase* flowgraph)
+{
+    mpFlowGraph = flowgraph;
+
+    return(OS_SUCCESS);
+}
 
 /* ============================ INQUIRY =================================== */
 

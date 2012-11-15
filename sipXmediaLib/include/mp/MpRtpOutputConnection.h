@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -99,6 +98,9 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
+     /// @copydoc MpResource::setFlowGraph()
+   OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
 
 #ifdef INCLUDE_RTCP /* [ */
      /// Retrieve the RTCP Connection interface associated with this MpRtpOutputConnection
