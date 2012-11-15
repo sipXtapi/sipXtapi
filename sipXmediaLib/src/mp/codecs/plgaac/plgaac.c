@@ -1,6 +1,5 @@
 /*  
 // Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 //
 // $$
@@ -412,7 +411,7 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
            one for each frame (there could be more than one frame).  Then the minimal AU header is 16 bits the first 13 bits are the
            AU payload size and the last 3 bits are the ddddddddddd index or delta (if there is more than one frame/AU header.
         */
-        short* auHeaderLengthNetwork = encodedData;
+        short* auHeaderLengthNetwork = (short*) encodedData;
         short auHeaderLengthInBits = ntohs(*auHeaderLengthNetwork); /* Generally expect this to be small number (e.g. 16) */
         short* auHeaderNetwork = (auHeaderLengthNetwork) + 1;
         short auDataLength = (ntohs(*auHeaderNetwork) >> 3);
