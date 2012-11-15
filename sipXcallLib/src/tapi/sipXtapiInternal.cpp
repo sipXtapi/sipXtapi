@@ -1481,46 +1481,99 @@ SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type, const
 {
     OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfLookup", oneBackInStack);
 
-    // Take global lock while accessing list
-    gpConfAccessLock->acquire();
-    SIPX_CONF_DATA* pRC = (SIPX_CONF_DATA*) gpConfHandleMap->findHandle(hConf) ;
-
-    if (validConfData(pRC))
+    int lockAttempts = 0;
+    UtlBoolean continueTrying = TRUE;
+    SIPX_CONF_DATA* pRC = NULL;
+    OsStatus acquireStatus = OS_FAILED;
+    // Cannot block in the mutex on the conf handle as we have the global lock.  Need to release global
+    // lock and try again.  This is using a dumb polling approach.  If this is happening with any frequency
+    // or significant number of iterations we potentially would want to put a semaphore on the release of the i
+    // unlock so that we don't spin.
+    while(pRC == NULL && continueTrying)
     {
-        switch (type)
+        if(lockAttempts > 0)
         {
-        case SIPX_LOCK_READ:
-            // This puts a lot of faith in the lock implementation to gracefully 
-            // fail if the mutex gets deleted in a blocked call to acquire.
-            if(pRC->pMutex->acquireRead() != OS_SUCCESS)
-            {
-                pRC = NULL;
-                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxConfLookup acquireRead failed, this may not be good");
-            }
-            break ;
-        case SIPX_LOCK_WRITE:
-            // This puts a lot of faith in the lock implementation to gracefully 
-            // fail if the mutex gets deleted in a blocked call to acquire.
-            if(pRC->pMutex->acquireWrite() != OS_SUCCESS)
-            {
-                pRC = NULL;
-                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxConfLookup acquireWrite failed, this may not be good");
-            }
-            break ;
-        default:
-            break ;
+            OsTask::delay(1);
         }
-    }
-    else
-    {
-        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Invalid conference handle: %d yielded conference pointer: %p mutex: %p",
-                (int) hConf, pRC, pRC ? pRC->pMutex : NULL);
-        pRC = NULL;
+
+        // Take global lock while accessing list
+        gpConfAccessLock->acquire();
+        pRC = (SIPX_CONF_DATA*) gpConfHandleMap->findHandle(hConf);
+
+        if (validConfData(pRC))
+        {
+            switch (type)
+            {
+            case SIPX_LOCK_READ:
+                // This puts a lot of faith in the lock implementation to gracefully 
+                // fail if the mutex gets deleted in a blocked call to acquire.
+                acquireStatus = pRC->pMutex->tryAcquireRead();
+                if(acquireStatus == OS_BUSY)
+                {
+                    pRC = NULL;
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, 
+                            "sipxConfLookup(%d) read lock busy attempt: %d",
+                            (int)hConf, lockAttempts);
+                }
+                else if(acquireStatus != OS_SUCCESS)
+                {
+                    pRC = NULL;
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, 
+                            "sipxConfLookup acquireRead failed, this may not be good");
+                    continueTrying = FALSE;
+                }
+                break ;
+            case SIPX_LOCK_WRITE:
+                // This puts a lot of faith in the lock implementation to gracefully 
+                // fail if the mutex gets deleted in a blocked call to acquire.
+                acquireStatus = pRC->pMutex->tryAcquireWrite();
+                if(acquireStatus == OS_BUSY)
+                {
+                    pRC = NULL;
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, 
+                            "sipxConfLookup(%d) write lock busy attempt: %d",
+                            (int)hConf, lockAttempts);
+                }
+                else if(acquireStatus != OS_SUCCESS)
+                {
+                    pRC = NULL;
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, 
+                            "sipxConfLookup acquireWrite failed, this may not be good");
+                    continueTrying = FALSE;
+                }
+                break ;
+            default:
+                break ;
+            }
+        }
+        else
+        {
+            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, 
+                    "Invalid conference handle: %d yielded conference pointer: %p mutex: %p after %d lock attempts",
+                    (int) hConf, pRC, pRC ? pRC->pMutex : NULL, lockAttempts);
+            pRC = NULL;
+            continueTrying = FALSE;
+        }
+
+        gpConfAccessLock->release();
+        lockAttempts++;
+
+        // Upper limit 5000 attempts is approximately 5 seconds.  Not sure if this should be bigger
+        if(lockAttempts >= 5000)
+        {
+            continueTrying = FALSE;
+            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                    "sipxConfLookup(hConf: %d, lockType: %d) gave up after %d lock attempts",
+                    (int)hConf, type, lockAttempts);
+        }
+
     }
 
-    gpConfAccessLock->release();
+    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, 
+            "sipxConfLookup(hConf: %d, lockType: %d) lock attempts: %d confInfo: %p",
+            (int)hConf, type, lockAttempts, pRC);
 
-    return pRC ;
+    return(pRC);
 }
 
 
