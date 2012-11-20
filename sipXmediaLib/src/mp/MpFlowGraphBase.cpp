@@ -1,6 +1,5 @@
 //  
 // Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -90,6 +89,8 @@ MpFlowGraphBase::~MpFlowGraphBase()
       res = OsTask::delay(msecsPerFrame);
       assert(res == OS_SUCCESS);
    }
+   int NumBadBufs = MpMisc.RtpPool->scanBufPool(this);
+   //assert(0 == NumBadBufs);
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -611,6 +612,7 @@ OsStatus MpFlowGraphBase::stop(void)
    return postMessage(msg);
 }
 
+#define TEST_PRINT
 void MpFlowGraphBase::synchronize(const char* tag, int val1)
 {
    OsTask* ptr = OsTask::getCurrentTask();
@@ -634,7 +636,18 @@ void MpFlowGraphBase::synchronize(const char* tag, int val1)
       OsStatus  res;
       res = postMessage(msg);
       // if (NULL == tag) osPrintf("MpFlowGraphBase::synchronize()\n");
-      event.wait();
+      if (OS_SUCCESS == res) {
+         event.wait();
+      } else {
+#ifdef TEST_PRINT
+         OsSysLog::add(FAC_MP, PRI_ERR,
+            "MpFlowGraphBase::synchronize postMessage failed with res=%d, tag: %s val: %d",
+            res, tag ? tag : "", val1);
+         OsTask::delay(10);
+#endif
+      }
+      assert(OS_SUCCESS == res);
+
    } else {
       osPrintf("Note: synchronize called from within Media Task\n");
    }
