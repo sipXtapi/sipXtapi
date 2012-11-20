@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -548,7 +550,7 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
       }
 
       OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux:doLinuxCreateTask %s default stack size: %d setting to: %d",
-                    pTaskName, stacksize, mStackSize);
+                    pTaskName, (int)stacksize, mStackSize);
       linuxRes = pthread_attr_setstacksize(&attributes, mStackSize);
       if (linuxRes != POSIX_OK)
          OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_attr_setstacksize error, returned %d", linuxRes);
@@ -763,7 +765,7 @@ void * OsTaskLinux::taskEntry(void* arg)
    pthread_mutex_unlock(&pTask->mStartupSyncMutex);
 
    // Log Thread ID for debug purposes
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::taskEntry: Started task %s with lwp=%ld, pid=%d",
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::taskEntry: Started task %s with lwp=%d, pid=%d",
                  pTask->mName.data(), gettid(), getpid());
 
 #ifdef ANDROID // [
@@ -818,6 +820,10 @@ void * OsTaskLinux::taskEntry(void* arg)
    assert(res == OS_SUCCESS);
 
    unsigned int returnCode = pTask->run(pTask->getArg());
+
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+           "OsTaskLinux::taskEntry run method exited with return: %d for task: %s",
+           returnCode, pTask->mName.data());
 
    // After run returns be sure to mark the thread as shut down.
    pTask->ackShutdown();
