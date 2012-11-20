@@ -29,8 +29,6 @@ class OsConfigDb;
 #define Nprintf(fmt, a, b, c, d, e, f)
 #define Lprintf(fmt, a, b, c, d, e, f)
 
-extern const char* sMpBufPoolNames[];
-
 extern MpBufPool** sMpBufPools[];
 
 extern int sMpNumBufPools;

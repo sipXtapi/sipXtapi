@@ -92,7 +92,7 @@
 #define ABSOLUTE_MAX_LOG_MSG_LEN 2048
 #endif /* _VXWORKS ] */
 
-#define RTP_BUFS (MprDejitter::MAX_RTP_PACKETS + 20)
+//#define RTP_BUFS (MprDejitter::MAX_RTP_PACKETS + 20)
 #define RTCP_BUFS 16
 #define UDP_BUFS 10
 
@@ -100,21 +100,6 @@
 
 struct __MpGlobals MpMisc;
 
-const char* sMpBufPoolNames[] =
-{
-    "RawAudioPool",
-    "AudioHeadersPool",
-    "RtpPool",
-    "RtcpPool",
-    "RtpHeadersPool",
-#ifdef REAL_RTCP
-    "RtcpHeadersPool",
-#endif
-    "UdpPool",
-    "UdpHeadersPool"
-};
-
-int sMpNumBufPools = sizeof(sMpBufPoolNames) / sizeof(char*);
 
 MpBufPool** sMpBufPools[] =
 {
@@ -129,6 +114,8 @@ MpBufPool** sMpBufPools[] =
     &MpMisc.UdpPool,
     &MpMisc.UdpHeadersPool
 };
+
+int sMpNumBufPools = sizeof(sMpBufPools) / sizeof(MpBufPool**);
 
 #ifdef _VXWORKS /* [ */
 /************************************************************************/
@@ -476,6 +463,15 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
                    int numAudioBuffers, OsConfigDb* pConfigDb,
                    const size_t numCodecPaths, const UtlString codecPaths[])
 {
+    // TODO:
+    // This should be broken down into separate arguments for:
+    // Max number of flowgraphs
+    // Max number of calls
+    // Max calls/streams per flowgraph
+    // Buffers used/stream or used/flowgraph
+    // Approximate based upon current media interface initialization
+    int maxCalls = numAudioBuffers / 16;
+
 #ifdef _VXWORKS
         int defSilenceSuppressLevel = 10000;
 #else
@@ -525,8 +521,9 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 
         // Create buffer for audio data in mediagraph
         MpMisc.RawAudioPool = new MpBufPool( samplesPerFrame*sizeof(MpAudioSample)
-                                        +MpArrayBuf::getHeaderSize()
-                                      , numAudioBuffers);
+                                        + MpArrayBuf::getHeaderSize(),
+                                      numAudioBuffers,
+                                      "RawAudioPool");
         Nprintf( "mpStartUp: MpMisc.RawAudioPool = 0x%X\n"
                , (int) MpMisc.RawAudioPool, 0,0,0,0,0);
         if (NULL == MpMisc.RawAudioPool) {
@@ -535,7 +532,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 
         // Create buffer for audio headers
         int audioBuffers  = MpMisc.RawAudioPool->getNumBlocks();
-        MpMisc.AudioHeadersPool = new MpBufPool(sizeof(MpAudioBuf), audioBuffers);
+        MpMisc.AudioHeadersPool = new MpBufPool(sizeof(MpAudioBuf), audioBuffers, "AudioHeadersPool");
         Nprintf( "mpStartUp: MpMisc.AudioHeadersPool = 0x%X\n"
                , (int) MpMisc.AudioHeadersPool, 0,0,0,0,0);
         if (NULL == MpMisc.AudioHeadersPool) {
@@ -592,8 +589,13 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         }
 
         // Create buffer for RTP packets
-        MpMisc.RtpPool = new MpBufPool( RTP_MTU+MpArrayBuf::getHeaderSize()
-                                      , RTP_BUFS);
+        // The 50 bufs/call number comes from observation of cases when there is a burst of many
+        // call setups at once.  We see 30-50 RTP buffers getting queued up in the begining of the
+        // call.  There is some other problem there causing this backup.  For now we hide it with
+        // sufficient buffers to backup and then catch up.
+        MpMisc.RtpPool = new MpBufPool( RTP_MTU+MpArrayBuf::getHeaderSize(),
+                                      50 * maxCalls + 70,
+                                      "RtpPool");
         Nprintf("mpStartUp: MpMisc.RtpPool = 0x%X\n",
                 (int) MpMisc.RtpPool, 0,0,0,0,0);
         if (NULL == MpMisc.RtpPool) {
@@ -603,8 +605,9 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         }
 
         // Create buffer for RTCP packets
-        MpMisc.RtcpPool = new MpBufPool( RTCP_MTU+MpArrayBuf::getHeaderSize()
-                                       , RTCP_BUFS);
+        MpMisc.RtcpPool = new MpBufPool( RTCP_MTU+MpArrayBuf::getHeaderSize(),
+                                       maxCalls * RTCP_BUFS,
+                                       "RtcpPool");
         Nprintf("mpStartUp: MpMisc.RtcpPool = 0x%X\n",
                 (int) MpMisc.RtcpPool, 0,0,0,0,0);
         if (NULL == MpMisc.RtcpPool) {
@@ -616,9 +619,10 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         }
 
         // Create buffer for RTP and RTCP headers
-        MpMisc.RtpHeadersPool = new MpBufPool( sizeof(MpRtpBuf)
-                                             , MpMisc.RtpPool->getNumBlocks()
-                                               + MpMisc.RtcpPool->getNumBlocks());
+        MpMisc.RtpHeadersPool = new MpBufPool( sizeof(MpRtpBuf),
+                                             MpMisc.RtpPool->getNumBlocks()
+                                               + MpMisc.RtcpPool->getNumBlocks(),
+                                               "RtpHeadersPool");
         Nprintf( "mpStartUp: MpMisc.RtpHeadersPool = 0x%X\n"
                , (int) MpMisc.RtpHeadersPool, 0,0,0,0,0);
         if (NULL == MpMisc.RtpHeadersPool) {
@@ -628,8 +632,9 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         MpRtpBuf::smpDefaultPool = MpMisc.RtpHeadersPool;
 
         // Create buffer for UDP packets
-        MpMisc.UdpPool = new MpBufPool( UDP_MTU+MpArrayBuf::getHeaderSize()
-                                      , UDP_BUFS);
+        MpMisc.UdpPool = new MpBufPool( UDP_MTU+MpArrayBuf::getHeaderSize(),
+                                      UDP_BUFS,
+                                      "UdpPool");
         Nprintf("mpStartUp: MpMisc.UdpPool = 0x%X\n",
                 (int) MpMisc.UdpPool, 0,0,0,0,0);
         if (NULL == MpMisc.UdpPool) {
@@ -638,8 +643,9 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         }
 
         // Create buffer for UDP packet headers
-        MpMisc.UdpHeadersPool = new MpBufPool( sizeof(MpUdpBuf)
-                                              , MpMisc.UdpPool->getNumBlocks());
+        MpMisc.UdpHeadersPool = new MpBufPool( sizeof(MpUdpBuf),
+                                              MpMisc.UdpPool->getNumBlocks(),
+                                              "UdpHeadersPool");
         Nprintf( "mpStartUp: MpMisc.UdpHeadersPool = 0x%X\n"
                , (int) MpMisc.UdpHeadersPool, 0,0,0,0,0);
         if (NULL == MpMisc.UdpHeadersPool) {
@@ -860,7 +866,7 @@ void mpLogBufferStats(const char* label)
     {
         MpBufPool** bufferPool = sMpBufPools[poolIndex];
         bufferStatString.appendFormat("\t%s %d/%d buffers free\n",
-                sMpBufPoolNames[poolIndex], bufferPool[0]->getFreeBufferCount(), bufferPool[0]->getNumBlocks());
+                bufferPool[0]->getName().data(), bufferPool[0]->getFreeBufferCount(), bufferPool[0]->getNumBlocks());
     }
     OsSysLog::add(FAC_MP, PRI_DEBUG, "%s:]n%s", label, bufferStatString.data());
 } 
