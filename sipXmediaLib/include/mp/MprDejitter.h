@@ -42,7 +42,7 @@ class MprDejitter
 public:
 
    enum {
-      MAX_RTP_PACKETS = 512   ///< Could be any value, power of 2 is desired.
+      MAX_RTP_PACKETS = 256   ///< Could be any value, power of 2 is desired.
    };
 
 /* ============================ CREATORS ================================== */
