@@ -1,9 +1,6 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -21,7 +18,8 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "mp/MpDataBuf.h"
+#include <mp/MpDataBuf.h>
+#include <mp/MpMisc.h>
 
 // DEFINES
 // MACROS
@@ -60,7 +58,14 @@ public:
     /**
     * @see MpArrayBuf::setDataSize() for more details
     */
-    bool setPacketSize(unsigned size) {return mpData->setDataSize(size);}
+    bool setPacketSize(unsigned size) 
+    {
+        if(!mpData.isValid())
+        {
+            MpMisc.UdpPool->profileFlowgraphPoolUsage();
+        }
+        return mpData->setDataSize(size);
+    }
 
     /// Set time code for this packet
     void setTimecode(unsigned timecode) {mTimecode=timecode;}

@@ -1,16 +1,13 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006 SIPez LLC.  All rights reserved.
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "mp/MpUdpBuf.h"
+#include <os/OsIntTypes.h>
+#include <mp/MpUdpBuf.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
