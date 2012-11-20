@@ -1,6 +1,5 @@
 //  
 // Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // Copyright (C) 2006 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
@@ -13,7 +12,8 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "os/OsMutex.h"
+#include <os/OsMutex.h>
+#include <utl/UtlString.h>
 
 // DEFINES
 // MACROS
@@ -25,6 +25,8 @@
 
 struct MpBuf;
 struct MpBufList;
+class MpFlowGraphBase;
+class UtlString;
 
 /// Pool of buffers.
 class MpBufPool {
@@ -36,7 +38,7 @@ public:
 //@{
 
     /// Creates pool with numBlocks in it. Each block have size blockSize.
-    MpBufPool(unsigned blockSize, unsigned numBlocks);
+    MpBufPool(unsigned blockSize, unsigned numBlocks, const UtlString& poolName);
 
     /// Destroys pool.
     virtual
@@ -69,11 +71,21 @@ public:
     /// Return number of blocks in the pool.
     unsigned getNumBlocks() const {return mNumBlocks;};
 
-    /// Return number of the buffer in the pool. Use this for debug ouput.
+    /// Return number of the buffer in the pool. Use this for debug output.
     int getBufferNumber(MpBuf *pBuf) const;
 
     /// Return the number of free buffers
     int getFreeBufferCount();
+
+    /// Scan for orphan buffers
+    int scanBufPool(MpFlowGraphBase *pFG);
+
+    /// Syslog a histigram of buffers used by flowgraph
+    int profileFlowgraphPoolUsage();
+
+    /// Get the name label for this pool
+    const UtlString& getName();
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -93,6 +105,7 @@ protected:
     
     void appendFreeList(MpBuf *pBuf);
 
+    UtlString  mPoolName;      ///< label or name for debug
     unsigned   mBlockSize;     ///< Size of one block in pool (in bytes).
     unsigned   mNumBlocks;     ///< Number of blocks in pool.
     unsigned   mPoolBytes;     ///< Size of all pool in bytes.
@@ -104,7 +117,11 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
+    unsigned   mNumGets;       ///For statistics
+    unsigned   mNumFrees;      ///For statistics
+    unsigned   mNumFree;       ///For statistics
+    unsigned   mMinFree;       ///For statistics
+ 
 };
 
 

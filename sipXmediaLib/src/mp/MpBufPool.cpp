@@ -1,6 +1,5 @@
 //  
 // Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // Copyright (C) 2006 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
@@ -13,9 +12,13 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "mp/MpBufPool.h"
-#include "mp/MpBuf.h"
-#include "os/OsLock.h"
+#include <mp/MpBufPool.h>
+#include <mp/MpBuf.h>
+#include <os/OsSysLog.h>
+#include <os/OsLock.h>
+#include <utl/UtlInt.h>
+#include <utl/UtlVoidPtr.h>
+#include <utl/UtlHashMapIterator.h>
 
 // DEFINES
 #if defined(MPBUF_DEBUG) || defined(_DEBUG) // [
@@ -87,15 +90,21 @@ private:
 
 /* ============================ CREATORS ================================== */
 
-MpBufPool::MpBufPool(unsigned blockSize, unsigned numBlocks)
-: mBlockSize(MP_ALIGN(blockSize,MP_ALIGN_SIZE))
+MpBufPool::MpBufPool(unsigned blockSize, unsigned numBlocks, const UtlString& poolName)
+: mPoolName(poolName)
+,mBlockSize(MP_ALIGN(blockSize,MP_ALIGN_SIZE))
 , mNumBlocks(numBlocks)
 , mPoolBytes(mBlockSize*mNumBlocks)
 , mpPoolData(new char[mPoolBytes])
 , mpFreeList(NULL)
 , mMutex(OsMutex::Q_PRIORITY)
+, mNumGets(0)
+, mNumFrees(0)
+, mNumFree(numBlocks)
+, mMinFree(numBlocks)
 {
     assert(mBlockSize >= sizeof(MpBuf));
+    memset(mpPoolData, 0xff, mPoolBytes);
     
     // Init buffers
     char *pBlock = mpPoolData;
@@ -103,7 +112,7 @@ MpBufPool::MpBufPool(unsigned blockSize, unsigned numBlocks)
         MpBuf *pBuf = (MpBufList *)pBlock;
         pBuf->mRefCounter = 0;
         // Don't set mpPool cause it is used by current implementation of free list
-//        pBuf->mpPool = this;
+        //pBuf->mpPool = this;
 
         // Add buffer to the end of free list
         appendFreeList(pBuf);
@@ -142,7 +151,12 @@ MpBuf *MpBufPool::getBuffer()
     OsLock lock(mMutex);
 
     // No free blocks found.
-    if (mpFreeList == NULL) {
+    if (mpFreeList == NULL) 
+    {
+        profileFlowgraphPoolUsage();
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                "MpBufPool::getBuffer pool: %s is empty.  %d buffers outstanding.",
+                mPoolName.data(), mNumBlocks);
 #ifdef _DEBUG
        osPrintf("!!!! Buffer pool %x is full !!!!\n", this);
 #endif
@@ -152,6 +166,20 @@ MpBuf *MpBufPool::getBuffer()
     MpBuf *pFreeBuffer = mpFreeList;
     mpFreeList = mpFreeList->getNextBuf();
     pFreeBuffer->mpPool = this;
+    pFreeBuffer->mpFlowGraph = NULL;
+    mNumGets++;
+    mNumFree--;
+    if (mNumFree < mMinFree)
+    {
+        mMinFree = mNumFree;
+        if (0 == (0x3f&mNumFree))
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpBufPool::getBuffer pool: %p, NumFree dropped to %d",
+                this, mNumFree); 
+        }
+    }
+
 
 #ifdef MPBUF_DEBUG
     osPrintf("Buffer %d from pool %x have been obtained.\n",
@@ -174,6 +202,9 @@ void MpBufPool::releaseBuffer(MpBuf *pBuffer)
     // See note in MpBuf::detach().
     if (pBuffer->mpPool == this) {
         appendFreeList(pBuffer);
+        pBuffer->mpFlowGraph = NULL;
+        mNumFrees++;
+        mNumFree++;
     } else {
 #ifdef MPBUF_DEBUG
         osPrintf("Error: freeing buffer with wrong pool or freeing buffer twice!");
@@ -198,6 +229,76 @@ int MpBufPool::getFreeBufferCount()
     }
 
     return(count);
+}
+
+int MpBufPool::scanBufPool(MpFlowGraphBase *pFG)
+{
+    char *pBlock = mpPoolData;
+    int bads = 0;
+    for (int i=mNumBlocks; i>0; i--) {
+        MpBuf *pBuf = (MpBuf *)pBlock;
+        if (pBuf->mRefCounter != 0 || pBuf->mpPool == this) {
+            if (pFG == pBuf->mpFlowGraph) {
+                bads++;
+                OsSysLog::add(FAC_MP, PRI_ERR, "Buffer %d from pool %p (flowgraph=%p) was not correctly freed!!!\n",
+                    (int)((pBlock-mpPoolData)/mBlockSize), this, pFG);
+            }
+        }
+        pBlock = getNextBlock(pBlock);
+    }
+    return bads;
+}
+
+int MpBufPool::profileFlowgraphPoolUsage()
+{
+    UtlHashMap flowgraphBufferCount;
+
+    char *pBlock = mpPoolData;
+    for (int i=mNumBlocks; i>0; i--) 
+    {
+        MpBuf *pBuf = (MpBuf *)pBlock;
+        if (pBuf->mRefCounter != 0 || pBuf->mpPool == this)
+        {
+            UtlVoidPtr pointerKey(pBuf->mpFlowGraph);
+            UtlInt* flowgraphCount = (UtlInt*) flowgraphBufferCount.findValue(&pointerKey);
+            if(flowgraphCount)
+            {
+                flowgraphCount->setValue(flowgraphCount->getValue() + 1);
+            }
+            else
+            {
+                flowgraphBufferCount.insertKeyAndValue(new UtlVoidPtr(pBuf->mpFlowGraph), new UtlInt(1));
+            }
+        }
+        pBlock = getNextBlock(pBlock);
+    }
+
+    OsSysLog::add(FAC_MP, PRI_ERR,
+            "MpBufPool::profileFlowgraphPoolUsage pool: %p buffer size: %d used buffer count: %d/%d",
+            this, mBlockSize, mNumFree, mNumBlocks); 
+
+    UtlHashMapIterator iterator(flowgraphBufferCount);
+    UtlInt* countPtr = NULL;
+    UtlVoidPtr* flowgraphPtr = NULL;
+    while((flowgraphPtr = (UtlVoidPtr*) iterator()))
+    {
+        if((countPtr = (UtlInt*) flowgraphBufferCount.findValue(flowgraphPtr)))
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpBufPool::profileFlowgraphPoolUsage flowgraph: %p using %d buffers of size %d in pool %p",
+                    flowgraphPtr->getValue(), countPtr->getValue(), mBlockSize, this);
+        }
+    }
+
+    int flowgraphCount = flowgraphBufferCount.entries();
+    flowgraphBufferCount.destroyAll();
+
+    return(flowgraphCount);
+}
+
+const UtlString& MpBufPool::getName()
+{
+    return(mPoolName);
 }
 
 /* ============================ INQUIRY =================================== */
