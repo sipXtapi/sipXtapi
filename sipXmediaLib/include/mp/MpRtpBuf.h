@@ -1,9 +1,6 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //  
-// Copyright (C) 2006-2007 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -25,6 +22,7 @@
 #include <mp/MpUdpBuf.h>
 //#include <mp/MpTypes.h>
 #include <mp/RtpHeader.h>
+#include <mp/MpMisc.h>
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -65,7 +63,13 @@ public:
     * @see MpArrayBuf::setDataSize() for more details
     */
     bool setPayloadSize(unsigned payloadSize)
-    {return mpData->setDataSize(payloadSize);}
+    {
+        if(!mpData.isValid())
+        {
+            MpMisc.RtpPool->profileFlowgraphPoolUsage();
+        }
+        return mpData->setDataSize(payloadSize);
+    }
 
     /// Set RTP version of this packet.
     /**
@@ -75,28 +79,28 @@ public:
     { mRtpHeader.vpxcc = ( (version<<RTP_V_SHIFT)&RTP_V_MASK)
                          | (mRtpHeader.vpxcc&(~RTP_V_MASK));}
 
-    /// Set padding bit it RTP header.
+    /// Set padding bit in RTP header.
     /**
     *  @see See isRtpPadding() for details.
     */
     void enableRtpPadding()
     { mRtpHeader.vpxcc |= 1<<RTP_P_SHIFT;}
 
-    /// Clear padding bit it RTP header.
+    /// Clear padding bit in RTP header.
     /**
     *  @see See isRtpPadding() for details.
     */
     void disableRtpPadding()
     { mRtpHeader.vpxcc &= ~RTP_P_MASK;}
 
-    /// Set extension bit it RTP header.
+    /// Set extension bit in RTP header.
     /**
     *  @see See isRtpExtension() for details.
     */
     void enableRtpExtension()
     { mRtpHeader.vpxcc |= 1<<RTP_X_SHIFT;}
 
-    /// Clear extension bit it RTP header.
+    /// Clear extension bit in RTP header.
     /**
     *  @see See isRtpExtension() for details.
     */
@@ -111,7 +115,7 @@ public:
     { mRtpHeader.vpxcc = ( (csrcCount<<RTP_CC_SHIFT)&RTP_CC_MASK)
                          | (mRtpHeader.vpxcc&(~RTP_CC_MASK));}
 
-    /// Set marker bit it RTP header.
+    /// Set marker bit in RTP header.
     /**
     *  @see See isRtpMarker() for details.
     */
@@ -119,7 +123,7 @@ public:
     { mRtpHeader.mpt |= 1<<RTP_M_SHIFT;}
 
 
-    /// Clear marker bit it RTP header.
+    /// Clear marker bit in RTP header.
     /**
     *  @see See isRtpMarker() for details.
     */
@@ -268,7 +272,7 @@ public:
 ///@name Inquiry
 //@{
 
-    /// Check padding bit it RTP header.
+    /// Check padding bit in RTP header.
     /**
     *  @note From RFC 3550:
     *  <i>"If the padding bit is set, the packet contains one or more
@@ -282,7 +286,7 @@ public:
     bool isRtpPadding() const
     {return (mRtpHeader.vpxcc&RTP_P_MASK) == (1<<RTP_P_SHIFT);}
 
-    /// Check extension bit it RTP header.
+    /// Check extension bit in RTP header.
     /**
     *  @note From RFC 3550:
     *  <i>"If the extension bit is set, the fixed header MUST be followed by
@@ -291,7 +295,7 @@ public:
     bool isRtpExtension() const
     {return (mRtpHeader.vpxcc&RTP_X_MASK) == (1<<RTP_X_SHIFT);}
 
-    /// Check marker bit it RTP header.
+    /// Check marker bit in RTP header.
     /**
     *  @note From RFC 3550:
     *  <i>"The interpretation of the marker is defined by a profile.  It is
