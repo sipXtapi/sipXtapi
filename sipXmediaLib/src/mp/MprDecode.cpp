@@ -150,6 +150,16 @@ MprDecode::~MprDecode()
    }
 
    // Delete the list of codecs used in the past.
+   deletePriorCodecs();
+
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MprDecode::~MprDecode exit %s flowgraph: %p",
+                 data(), mpFlowGraph);
+}
+
+void MprDecode::deletePriorCodecs()
+{
+   // Delete the list of codecs used in the past.
    if (mNumPrevCodecs > 0)
    {
       for (int i=0; i<mNumPrevCodecs; i++)
@@ -159,16 +169,14 @@ MprDecode::~MprDecode()
          mpPrevCodecs[i] = NULL;
       }
 
+      mNumPrevCodecs = 0;
+
       OsSysLog::add(FAC_MP, PRI_DEBUG,
                     "MprDecode::~MprDecode deleting mpPrevCodecs: %p %s flowgraph: %p", 
                     mpPrevCodecs, data(), mpFlowGraph);
       delete[] mpPrevCodecs;
       mpPrevCodecs = NULL;
    }
-
-   OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "MprDecode::~MprDecode exit %s flowgraph: %p",
-                 data(), mpFlowGraph);
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -899,7 +907,20 @@ UtlBoolean MprDecode::handleDeselectCodecs(UtlBoolean shouldLock)
    {
        mLock.acquire();
    }
-   if (0 < mNumCurrentCodecs) {
+   if (0 < mNumCurrentCodecs) 
+   {
+      // Not sure why previous codecs are kept.  I can think of the following reasons to do so:
+      //  1) There is lag in the RTP change in payloads after a signalling payload renegotiation so
+      //     so the prior codec set could still be in use for a short period of time.  However we are 
+      //     not careful to avoid codec payload ID conflicts in the prior set.
+      //  2) We could and probably should do some optimization here and reuse the codecs if they are the 
+      //     same as the prior set.  In which case we should keep track of the prior payload IDs so that
+      //     we can reuse the codec even if the payload ID changes.
+      //  3) To avoid calling free while in the mediaTask and avoid the malloc/free locking/blocking in
+      //     the realtime loop.
+      //
+      // However we certainly are not yet doing 1) or 2) yet.
+      deletePriorCodecs();
 
       newN = mNumCurrentCodecs + mNumPrevCodecs;
       pPrevCodecs = new MpDecoderBase*[newN];
