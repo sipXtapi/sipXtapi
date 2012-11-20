@@ -1,9 +1,5 @@
 //
-// Copyright (C) 2006 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
-//
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006 SIPez LLC.  All rights reserved.
 //
 // $$
 ////////////////////////////////////////////////////////////////////////////// 
@@ -48,10 +44,12 @@ void MpBuf::detach()
     // If other thread decremented mRefCounter in this execution point then
     // buffer will be freed twice. We try to fix this in the releaseBuffer()
     // code checking is buffer already free or not.
-    if (mRefCounter == 0) {
+    if (mRefCounter == 0) 
+    {
         if (mpDestroy != NULL) {
             mpDestroy(this);
         }
+
         mpPool->releaseBuffer(this);
     }
 }
