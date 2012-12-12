@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2005-2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -196,7 +195,7 @@ int OsTimerTask::run(void* pArg)
          OsTime after;
          OsDateTime::getCurTime(after);
          OsTime t = after - now;
-         if (t >= 1000000 /* 1 second */)
+         if (t.getDouble() >= 0.1 /* seconds */)
          {
             OsSysLog::add(FAC_KERNEL, PRI_WARNING,
                           "OsTimerTask::run firing took %ld.%06ld usecs,"
