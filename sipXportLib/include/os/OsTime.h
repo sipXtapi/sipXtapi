@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -123,6 +125,9 @@ public:
 
    virtual long cvtToMsecs(void) const;
      //:Convert the time interval to milliseconds
+
+   virtual double getDouble() const;
+     //: Return number of seconds (and microseconds) as a double
 
 /* ============================ INQUIRY =================================== */
 

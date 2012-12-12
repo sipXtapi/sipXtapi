@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -269,6 +271,11 @@ bool OsTime::operator<=(const OsTime& rhs) const
 long OsTime::cvtToMsecs(void) const
 {
    return (mSeconds * MSECS_PER_SEC) + (mUsecs / USECS_PER_MSEC);
+}
+
+double OsTime::getDouble() const
+{
+    return(((double) mSeconds) + ((double) mUsecs) / ((double) USECS_PER_SEC));
 }
 
 /* ============================ INQUIRY =================================== */
