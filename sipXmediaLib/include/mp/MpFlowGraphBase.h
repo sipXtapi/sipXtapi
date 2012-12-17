@@ -552,6 +552,13 @@ private:
      *  @retval OS_LOOP_DETECTED - detected a loop in the flow graph.
      */
 
+     /// @brief Find the index of the given resource in the compute order array
+   int getExecOrderIndex(const MpResource* resource) const;
+     /**<
+     *  @param[in] resource pointer to flowgraph resource to find index for
+     *  @retval index of resource in execute order array or -1 if not found
+     */
+
      /// @brief Disconnects all inputs (and the corresponding upstream outputs)
      /// for the indicated resource. 
    UtlBoolean disconnectAllInputs(MpResource* pResource);

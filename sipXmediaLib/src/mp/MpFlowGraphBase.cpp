@@ -29,6 +29,7 @@
 #include "mp/MpMediaTask.h"
 #include <mp/MpMisc.h>
 
+//#define RTL_ENABLED
 #ifdef RTL_ENABLED
 #   include <rtl_macro.h>
 #endif
@@ -421,7 +422,9 @@ OsStatus MpFlowGraphBase::postNotification(const MpResNotificationMsg& msg)
 OsStatus MpFlowGraphBase::processNextFrame(void)
 {
 #ifdef RTL_ENABLED
-    RTL_BLOCK("MpFlowGraphBase.processNextFrame");
+    RTL_CPU_BLOCK("MpFlowGraphBase.processNextFrame");
+    RTL_EVENT("MpFlowGraphBase.processNextFrame.resourceCount", mResourceCnt);
+    RTL_EVENT("MpFlowGraphBase.processNextFrame.queueSize", mMessages.numMsgs());
 #endif
     
     UtlBoolean boolRes;
@@ -443,14 +446,18 @@ OsStatus MpFlowGraphBase::processNextFrame(void)
       res = computeOrder();
       assert(res == OS_SUCCESS);
 
-//#define TEST_PRINT_TOPOLOGY
 #ifdef TEST_PRINT_TOPOLOGY
       for(i=0; i < mResourceCnt; i++)
       {
+           OsSysLog::add(FAC_MP, PRI_DEBUG,
+                   "Resource[%d]: %s",
+                   i, mExecOrder[i]->data());
+
            int outIndex;
            for(outIndex = 0; outIndex < mExecOrder[i]->mMaxOutputs; outIndex++)
            {
-               printf("%s[%d]==>%s[%d]\n",
+               OsSysLog::add(FAC_MP, PRI_DEBUG,
+                   "%s[%d]==>%s[%d]",
                    mExecOrder[i]->data(), outIndex, 
                    mExecOrder[i]->mpOutConns[outIndex].pResource ? mExecOrder[i]->mpOutConns[outIndex].pResource->data() : "",
                    mExecOrder[i]->mpOutConns[outIndex].portIndex);
@@ -468,13 +475,24 @@ OsStatus MpFlowGraphBase::processNextFrame(void)
 
       for (i=0; i < mResourceCnt; i++)
       {
+#ifdef RTL_ENABLED
+         RTL_EVENT("MpFlowGraphBase.processFrame.resource", i + 1);
+#endif
          mpResourceInProcess = mExecOrder[i];
          boolRes = mExecOrder[i]->processFrame();
-         if (!boolRes) {
+         if (!boolRes) 
+         {
+#ifdef RTL_ENABLED
+             RTL_BLOCK("MpFlowGraphBase.processFrame.resourceError");
+#endif
             osPrintf("MpMedia: called %s, which indicated failure\n",
                mpResourceInProcess->data());
          }
       }
+#ifdef RTL_ENABLED
+      RTL_EVENT("MpFlowGraphBase.processFrame.resource", 0);
+#endif
+
    }
 
    mpResourceInProcess = NULL;
@@ -879,6 +897,21 @@ OsStatus MpFlowGraphBase::computeOrder(void)
    return res;
 }
 
+int MpFlowGraphBase::getExecOrderIndex(const MpResource* resource) const
+{
+    int matchIndex = -1;
+    for(int i = 0; i < mResourceCnt; i++)
+    {
+        if(mExecOrder[i] == resource)
+        {
+            matchIndex = i;
+            break;
+        }
+    }
+
+    return(matchIndex);
+}
+    
 // Disconnects all inputs (and the corresponding upstream outputs) for 
 // the indicated resource.  Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpFlowGraphBase::disconnectAllInputs(MpResource* pResource)
@@ -959,6 +992,9 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
    int1 = pMsg->getInt1();
    int2 = pMsg->getInt2();
 
+#ifdef RTL_ENABLED
+   RTL_EVENT("MpFlowGraphBase.handleMessage.message", pMsg->getMsg());
+#endif
    switch (pMsg->getMsg())
    {
    case MpFlowGraphMsg::FLOWGRAPH_ADD_LINK:
@@ -1050,6 +1086,9 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
    default:
       break;
    }
+#ifdef RTL_ENABLED
+   RTL_EVENT("MpFlowGraphBase.handleMessage.message", 0);
+#endif
 
    return retCode;
 }
@@ -1119,9 +1158,9 @@ UtlBoolean MpFlowGraphBase::handleAddLink(MpResource* pFrom, int outPortIdx,
 
       OsSysLog::add(FAC_MP, PRI_ERR, 
          "MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n %s:%d is already connected!\n",
-         pFrom->getName(), outPortIdx,
-         pTo->getName(), inPortIdx,
-         pTo->getName(), inPortIdx);
+         pFrom->getName().data(), outPortIdx,
+         pTo->getName().data(), inPortIdx,
+         pTo->getName().data(), inPortIdx);
       assert(FALSE);
       return FALSE;
    }
@@ -1605,7 +1644,7 @@ OsStatus MpFlowGraphBase::postMessage(const MpFlowGraphMsg& rMsg,
 OsStatus MpFlowGraphBase::processMessages(void)
 {
 #ifdef RTL_ENABLED
-    RTL_BLOCK("MpFlowGraphBase.processMessages");
+    RTL_CPU_BLOCK("MpFlowGraphBase.processMessages");
 #endif
 
    OsWriteLock     lock(mRWMutex);
@@ -1639,7 +1678,9 @@ OsStatus MpFlowGraphBase::processMessages(void)
       res = mMessages.receive(pMsg, OsTime::NO_WAIT_TIME);      
 
       assert(res == OS_SUCCESS);
-      
+#ifdef RTL_ENABLED
+      RTL_EVENT("MpFlowGraphBase.processMessages.type", pMsg->getMsgType());
+#endif
       if (pMsg->getMsgType() == OsMsg::STREAMING_MSG)
       {
          handleMessage(*pMsg);
@@ -1657,7 +1698,13 @@ OsStatus MpFlowGraphBase::processMessages(void)
             // deliver the message if the resource is still part of this graph
             if (pMsgDest->getFlowGraph() == this)
             {
+#ifdef RTL_ENABLED
+               RTL_EVENT("MpFlowGraphBase.processMessages.resource", 1 + getExecOrderIndex(pMsgDest));
+#endif
                handled = pMsgDest->handleMessage(*pFlowgraphMsg);
+#ifdef RTL_ENABLED
+               RTL_EVENT("MpFlowGraphBase.processMessages.resource", 0);
+#endif
                assert(handled);
             }
          }
@@ -1693,7 +1740,13 @@ OsStatus MpFlowGraphBase::processMessages(void)
                int i;
                for(i = 0; i < mResourceCnt; i++)
                {
+#ifdef RTL_ENABLED
+                  RTL_EVENT("MpFlowGraphBase.processMessages.resource", 1 + getExecOrderIndex(mUnsorted[i]));
+#endif
                   handled = mUnsorted[i]->handleMessage(*pResourceMsg);
+#ifdef RTL_ENABLED
+                  RTL_EVENT("MpFlowGraphBase.processMessages.resource", 0);
+#endif
                   assert(handled);
                   if(!handled)
                   {
@@ -1716,7 +1769,13 @@ OsStatus MpFlowGraphBase::processMessages(void)
 
                if (pMsgDest != NULL)
                {
+#ifdef RTL_ENABLED
+                  RTL_EVENT("MpFlowGraphBase.processMessages.resource", 1 + getExecOrderIndex(pMsgDest));
+#endif
                   handled = pMsgDest->handleMessage(*pResourceMsg);
+#ifdef RTL_ENABLED
+                  RTL_EVENT("MpFlowGraphBase.processMessages.resource", 0);
+#endif
                   if(!handled)
                   {
                      OsSysLog::add(FAC_MP, PRI_ERR, "MpFlowGraphBase::processMessages target resource: %s did not handle message: %d",
@@ -1762,6 +1821,10 @@ OsStatus MpFlowGraphBase::processMessages(void)
 
       // We're done with the message, we can release it now.
       pMsg->releaseMsg();
+
+#ifdef RTL_ENABLED
+      RTL_EVENT("MpFlowGraphBase.processMessages.type", 0);
+#endif
    }
 
    return OS_SUCCESS;
