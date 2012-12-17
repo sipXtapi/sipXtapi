@@ -62,6 +62,7 @@
 static int dummy0 = 0;
 #endif /* _VXWORKS ] */
 
+//#define RTL_ENABLED
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
 #else
@@ -265,6 +266,7 @@ static  int flushedLimit = 125;
 
             if (nRead > 0) 
             {
+                RTL_BLOCK("NetInTask.pushPacket");
                 fwdTo->pushPacket(ib, isRtcp);
             } 
             else 
@@ -457,7 +459,9 @@ int NetInTask::run(void *pNotUsed)
                }
             }
             errno = 0;
+            RTL_EVENT("NetInTask.run", 0);
             numReady = select(last+1, fds, NULL, NULL, NULL);
+            RTL_EVENT("NetInTask.run", 1);
             ostc = *pOsTC;
             if (0 > numReady) {
                 OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: select returned %d, errno=%d=0x%X\n",
