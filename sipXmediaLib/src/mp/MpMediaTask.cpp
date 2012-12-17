@@ -1,6 +1,5 @@
 //  
 // Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -20,18 +19,20 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "os/OsLock.h"
-#include "os/OsMsgPool.h"
-#include "mp/MpFlowGraphBase.h"
-#include "mp/MpMisc.h"
-#include "mp/MpMediaTask.h"
-#include "mp/MpMediaTaskMsg.h"
-#include "mp/MpBufferMsg.h"
+#include <os/OsLock.h>
+#include <os/OsMsgPool.h>
+#include <os/OsDateTime.h>
+#include <mp/MpFlowGraphBase.h>
+#include <mp/MpMisc.h>
+#include <mp/MpMediaTask.h>
+#include <mp/MpMediaTaskMsg.h>
+#include <mp/MpBufferMsg.h>
 
 #ifdef __pingtel_on_posix__ // [
 #  include "mp/MpMMTimerPosix.h"
 #endif // ] __pingtel_on_posix__
 
+//#define RTL_ENABLED
 #ifdef RTL_ENABLED // [
 #  include <rtl_macro.h>
 #else // RTL_ENABLED ][
@@ -60,7 +61,9 @@ MpMediaTask* volatile MpMediaTask::spInstance = NULL;
 OsBSem       MpMediaTask::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 int          MpMediaTask::mMaxFlowGraph = 0;
 UtlBoolean   MpMediaTask::mIsBlockingReported = FALSE;
-
+int sSignalStartsMissed = 0;
+int sSignalStartsNotQueued = 0;
+int sSignalStartsQueued = 0;
 
 #ifdef _PROFILE /* [ */
    static long long sSignalTicks; // Time (in microseconds) for the current
@@ -251,8 +254,15 @@ OsStatus MpMediaTask::signalFrameStart(const OsTime &timeout)
    if (spInstance != NULL) {
       pMsg = (MpMediaTaskMsg*) spInstance->mpSignalMsgPool->findFreeMsg();
       if (NULL == pMsg) {
+          sSignalStartsMissed++;
          ret = OS_LIMIT_REACHED;
-      } else {
+      } 
+      else 
+      {
+         OsTime signalTime;
+         OsDateTime::getCurTime(signalTime);
+         pMsg->setInt1(signalTime.seconds());
+         pMsg->setInt2(signalTime.usecs());
 #ifdef _PROFILE /* [ */
          timeval t;
          gettimeofday(&t, NULL);
@@ -276,6 +286,16 @@ OsStatus MpMediaTask::signalFrameStart(const OsTime &timeout)
 #endif /* _PROFILE, __pingtel_on_posix__ ] */
          RTL_EVENT("MpMediaTask::signalFrameStart", 1);
          ret = spInstance->postMessage(*pMsg, timeout);
+         RTL_EVENT("MpMediaTask::signalFrameStart", 0);
+         if(ret == OS_SUCCESS)
+         {
+            sSignalStartsQueued++;
+         }
+         else
+         {
+             sSignalStartsNotQueued++;
+         }
+
       }
    }
    return ret;
@@ -574,7 +594,7 @@ MpMediaTask::MpMediaTask(int maxFlowGraph, UtlBoolean enableLocalAudio)
    {
       MpMediaTaskMsg msg(MpMediaTaskMsg::WAIT_FOR_SIGNAL);
       mpSignalMsgPool = new OsMsgPool("MediaSignals", msg,
-                          2, 2*mMaxFlowGraph, 4*mMaxFlowGraph, 1,
+                          2, 2, 4*mMaxFlowGraph, 1,
                           OsMsgPool::MULTIPLE_CLIENTS);
    }
 
@@ -640,7 +660,7 @@ UtlBoolean MpMediaTask::handleMessage(OsMsg& rMsg)
       start_time = (t.tv_sec * 1000000) + t.tv_usec;
    }
 #endif /* _PROFILE ] */
-   RTL_EVENT("MpMediaTask::handleMessage_start", pMsg->getMsg());
+   RTL_EVENT("MpMediaTask::handleMessage", 1 + pMsg->getMsg());
    switch (pMsg->getMsg())
    {
    case MpMediaTaskMsg::MANAGE:
@@ -681,7 +701,7 @@ UtlBoolean MpMediaTask::handleMessage(OsMsg& rMsg)
       mOtherMessages.tally(end_time - start_time);
    }
 #endif /* _PROFILE ] */
-   RTL_EVENT("MpMediaTask::handleMessage_end", pMsg->getMsg());
+   RTL_EVENT("MpMediaTask::handleMessage", 0);
 
    return handled;
 }
@@ -851,6 +871,9 @@ UtlBoolean MpMediaTask::handleUnmanage(MpFlowGraphBase* pFlowGraph)
 // Returns TRUE if the message was handled, otherwise FALSE.
 UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
 {
+   OsTime startTime;
+   OsDateTime::getCurTime(startTime);
+   OsTime signaledTime(pMsg->getInt1(), pMsg->getInt2());
    int              i;
    MpFlowGraphBase* pFlowGraph;
    OsStatus         res;
@@ -928,6 +951,19 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
       OsSysLog::add(FAC_MP, PRI_DEBUG,
          "MpMediaTask::handleWaitForSignal done with all flowgraphs");
 #endif
+
+   OsTime finishTime;
+   OsDateTime::getCurTime(finishTime);
+   OsTime queueTime = startTime - signaledTime;
+   OsTime processTime = finishTime - startTime;
+   int messagesUsed = mpSignalMsgPool->getNoInUse();
+
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+           "Finished frame queued: %d.%06d processing: %d.%06d queued signals: %d missed: %d not queued: %d queued: %d",
+           // Down cast the following as seconds should be very small and usecs should not exceed 999,999
+           (int)queueTime.seconds(), (int)queueTime.usecs(), (int)processTime.seconds(), (int)processTime.usecs(),
+           messagesUsed,
+           sSignalStartsMissed, sSignalStartsNotQueued, sSignalStartsQueued);
 
 #ifdef _PROFILE /* [ */
    {
