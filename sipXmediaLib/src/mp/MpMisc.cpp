@@ -824,8 +824,8 @@ OsStatus mpShutdown(void)
         OsDateTime curTime;
         char rtl_filename[1024];
         OsDateTime::getCurTime(curTime);
-        sprintf(rtl_filename, "%04u%02u%02u %02u-%02u-%02u.rtl",
-                curTime.getYear(), curTime.getMonth(), curTime.getDay(),
+        sprintf(rtl_filename, "%04u%02u%02u_%02u-%02u-%02u.rtl",
+                curTime.getYear(), 1 + curTime.getMonth(), curTime.getDay() - 1,
                 curTime.getHour(), curTime.getMinute(), curTime.getSecond());
         setExternalRtlCollector(NULL);
         RTL_WRITE(rtl_filename)
