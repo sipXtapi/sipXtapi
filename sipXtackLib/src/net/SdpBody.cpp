@@ -1717,7 +1717,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
 
 
 void SdpBody::addCodecsOffer(int iNumAddresses,
-                             UtlString mediaAddresses[],
+                             const UtlString mediaAddresses[],
                              int rtpAudioPorts[],
                              int rtcpAudioPorts[],
                              int rtpVideoPorts[],

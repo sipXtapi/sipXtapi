@@ -198,7 +198,7 @@ class SdpBody : public HttpBody
 
    /// Create a set of media codec and address entries
    void addCodecsOffer(int iNumAddresses,
-                       UtlString mediaAddresses[],
+                       const UtlString mediaAddresses[],
                        int rtpAudioPorts[],
                        int rtcpAudioPorts[],
                        int rtpVideoPorts[],
