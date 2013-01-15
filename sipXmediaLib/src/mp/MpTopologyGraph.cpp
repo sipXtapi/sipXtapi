@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2006-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -9,6 +11,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Author: Dan Petrie <dpetrie AT SIPez DOT com>
+
+#include "rtcp/RtcpConfig.h"
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -108,6 +112,12 @@ OsStatus MpTopologyGraph::addResources(MpResourceTopology& incrementalTopology,
 
     assert(resourceFactory);
 
+#ifdef INCLUDE_RTCP /* [ */
+    if (MP_INVALID_CONNECTION_ID != resourceInstanceId) {
+        MpFlowGraphBase::createRtcpConnection(resourceInstanceId);
+    }
+#endif /* INCLUDE_RTCP ] */
+
     // Add new resources
     UtlHashBag newResourcesAdded;
     addTopologyResources(incrementalTopology, 
@@ -140,7 +150,6 @@ OsStatus MpTopologyGraph::destroyResources(MpResourceTopology& resourceTopology,
 {
     // Destroy the resources
     int resourceIndex = 0;
-    MpResource* resourcePtr = NULL;
     UtlString resourceName;
     OsStatus result;
     while(resourceTopology.getResource(resourceIndex, resourceName)
@@ -155,6 +164,12 @@ OsStatus MpTopologyGraph::destroyResources(MpResourceTopology& resourceTopology,
     // Remove virtual ports
     removeVirtualInputs(resourceTopology, TRUE, resourceInstanceId);
     removeVirtualOutputs(resourceTopology, TRUE, resourceInstanceId);
+
+#ifdef INCLUDE_RTCP /* [ */
+    if (MP_INVALID_CONNECTION_ID != resourceInstanceId) {
+        MpFlowGraphBase::deleteRtcpConnection(resourceInstanceId);
+    }
+#endif /* INCLUDE_RTCP ] */
 
     return OS_SUCCESS;
 }

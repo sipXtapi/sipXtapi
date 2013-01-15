@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2009 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -26,9 +25,6 @@
 #include "mp/MpStreamMsg.h"
 #include "os/OsProtectEvent.h"
 #include "mp/MprRecorder.h"
-#ifdef INCLUDE_RTCP /* [ */
-#include "rtcp/RTCManager.h"
-#endif /* INCLUDE_RTCP ] */
 
 // DEFINES
 #define DEBUG_POSTPONE
@@ -90,13 +86,7 @@ class MprEncode;
 class MprDecode;
 
 /// Flow graph used to handle a basic call
-#ifdef INCLUDE_RTCP /* [ */
-class MpCallFlowGraph : public MpFlowGraphBase,
-                        public CBaseClass,
-                        public IRTCPNotify
-#else /* INCLUDE_RTCP ] [ */
 class MpCallFlowGraph : public MpFlowGraphBase
-#endif /* INCLUDE_RTCP ] */
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -320,11 +310,6 @@ public:
      /// Returns the type of this flow graph.
    virtual MpFlowGraphBase::FlowGraphType getType();
 
-#ifdef INCLUDE_RTCP /* [ */
-     /// Returns the RTCP Session interface pointer associated with this call's flow graph.
-   IRTCPSession* getRTCPSessionPtr(void);
-#endif /* INCLUDE_RTCP ] */
-
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -334,100 +319,9 @@ public:
      /// Returns TRUE if the indicated codec is supported.
    UtlBoolean isCodecSupported(SdpCodec& rCodec);
 
+//@}
 /* ============================ CALLBACKS ================================= */
-#ifdef INCLUDE_RTCP /* [ */
 
-/**
- *
- * Method Name:  GetEventInterest()
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     unsigned long - Mask of Event Interests
- *
- * Description: The GetEventInterest() event method shall allow the dispatcher
- *              of notifications to access the event interests of a subscriber
- *              and use these wishes to dispatch RTCP event notifications
- *
- * Usage Notes:
- *
- */
-    unsigned long GetEventInterest(void);
-
-/**
- *
- * Method Name:  LocalSSRCCollision()
- *
- *
- * Inputs:      IRTCPConnection *piRTCPConnection - Interface to
- *                                                   associated RTCP Connection
- *              IRTCPSession    *piRTCPSession    - Interface to associated
- *                                                   RTCP Session
- *
- * Outputs:     None
- *
- * Returns:     None
- *
- * Description: The LocalSSRCCollision() event method shall inform the
- *              recipient of a collision between the local SSRC and one
- *              used by one of the remote participants.
- *
- * Usage Notes:
- *
- */
-    void LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
-                            IRTCPSession       *piRTCPSession);
-
-
-/**
- *
- * Method Name:  RemoteSSRCCollision()
- *
- *
- * Inputs:      IRTCPConnection *piRTCPConnection - Interface to associated
- *                                                    RTCP Connection
- *              IRTCPSession    *piRTCPSession    - Interface to associated
- *                                                    RTCP Session
- *
- * Outputs:     None
- *
- * Returns:     None
- *
- * Description: The RemoteSSRCCollision() event method shall inform the
- *              recipient of a collision between two remote participants.
- *              .
- *
- * Usage Notes:
- *
- */
-    void RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,
-                             IRTCPSession       *piRTCPSession);
-
-
-/**
- *
- * Macro Name:  DECLARE_IBASE_M
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     None
- *
- * Description: This implements the IBaseClass functions used and exposed by
- *              derived classes.
- *
- * Usage Notes:
- *
- *
- */
-DECLARE_IBASE_M
-
-#endif /* INCLUDE_RTCP ] */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -483,11 +377,6 @@ private:
    MpRtpOutputConnection* mpOutputConnections[MAX_CONNECTIONS];
    MprEncode*    mpEncoders[MAX_CONNECTIONS];
    UtlBoolean    mToneGenDefocused; ///< disabled during defocused state flag
-#ifdef INCLUDE_RTCP /* [ */
-   IRTCPSession* mpiRTCPSession;
-   /// Event Interest Attribute for RTCP Notifications
-   unsigned long mulEventInterest;
-#endif /* INCLUDE_RTCP ] */
 
    /// these array should really be made into a structure
    /// but for now we'll just use em this way.
@@ -636,37 +525,5 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
-#ifdef INCLUDE_RTCP /* [ */
-inline IRTCPSession *MpCallFlowGraph::getRTCPSessionPtr(void)
-{
-    return(mpiRTCPSession);
-}
-
-
-
-/**
- *
- * Method Name:  GetEventInterest()
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     unsigned long - Mask of Event Interests
- *
- * Description: The GetEventInterest() event method shall allow the dispatcher
- *              of notifications to access the event interests of a subscriber
- *              and use these wishes to dispatch RTCP event notifications
- *
- * Usage Notes:
- *
- */
-inline unsigned long MpCallFlowGraph::GetEventInterest(void)
-{
-
-    return(mulEventInterest);
-}
-#endif /* INCLUDE_RTCP ] */
 
 #endif  // _MpCallFlowGraph_h_

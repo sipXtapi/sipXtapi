@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -54,7 +56,7 @@ public:
  * Method Name:  CRTPHeader() - Constructor
  *
  *
- * Inputs:   unsigned long ulSSRC
+ * Inputs:   ssrc_t ulSSRC
  *           unsigned char* puchHeaderData
  *           unsigned long ulPacketLength - length of buffer content passed
  *
@@ -69,7 +71,7 @@ public:
  *
  *
  */
-    CRTPHeader(unsigned long ulSSRC = 0,
+    CRTPHeader(ssrc_t ulSSRC = 0,
                unsigned char *puchHeaderData=NULL,
                unsigned long ulPacketLength=0);
 
@@ -290,7 +292,7 @@ public:
  *
  * Inputs:   None
  *
- * Outputs:  unsigned long *pulTimestamp    - RTP Packet Timestamp
+ * Outputs:  rtpts_t *pulTimestamp    - RTP Packet Timestamp
  *
  * Returns:  void
  *
@@ -300,7 +302,7 @@ public:
  *
  *
  */
-    void GetRTPTimestamp(unsigned long *pulTimestamp);
+    void GetRTPTimestamp(rtpts_t *pulTimestamp);
 
 /**
  *
@@ -309,7 +311,7 @@ public:
  *
  * Inputs:   None
  *
- * Outputs:  unsigned long *pulTimestamp    - Packet Receive Timestamp
+ * Outputs:  rtpts_t *pulTimestamp    - Packet Receive Timestamp
  *
  * Returns:  void
  *
@@ -319,7 +321,7 @@ public:
  *
  *
  */
-    void GetRecvTimestamp(unsigned long *pulTimestamp);
+    void GetRecvTimestamp(rtpts_t *pulTimestamp);
 
 
 /**
@@ -331,7 +333,7 @@ public:
  *
  * Outputs:  None
  *
- * Returns:  unsigned long - Packet Source Identifier
+ * Returns:  ssrc_t - Packet Source Identifier
  *
  * Description: Returns the SSRC value associated with the RTP packet.
  *
@@ -339,7 +341,7 @@ public:
  *
  *
  */
-    unsigned long GetSSRC(void);
+    ssrc_t GetSSRC(void);
 
 
 /**
@@ -349,7 +351,7 @@ public:
  *
  * Inputs:   bool bNBO - TRUE implies data should be represented in NBO format
  *
- * Outputs:  unsigned long *paulCSRC
+ * Outputs:  ssrc_t *paulCSRC
  *                           - Contributing Source Identifier(s) Array pointer
  *
  * Returns:  unsigned long - Number of Contributing Source Identifier(s)
@@ -360,7 +362,7 @@ public:
  *
  *
  */
-    unsigned long GetCSRC(unsigned long *paulCSRC, bool bNBO=FALSE);
+    unsigned long GetCSRC(ssrc_t *paulCSRC, bool bNBO=FALSE);
 
 /**
  *
@@ -406,7 +408,7 @@ public:
  * Method Name: SetRTPTimestamp
  *
  *
- * Inputs:   unsigned long ulRTPTimestamp - Packet RTP Timestamp
+ * Inputs:   rtpts_t ulRTPTimestamp - Packet RTP Timestamp
  *
  * Outputs:  None
  *
@@ -418,14 +420,14 @@ public:
  *
  *
  */
-    void SetRTPTimestamp(unsigned long ulRTPTimestamp);
+    void SetRTPTimestamp(rtpts_t ulRTPTimestamp);
 
 /**
  *
  * Method Name: SetRecvTimestamp
  *
  *
- * Inputs:   unsigned long ulTimestamp - Packet Receive Timestamp
+ * Inputs:   rtpts_t ulTimestamp - Packet Receive Timestamp
  *
  * Outputs:  None
  *
@@ -437,7 +439,7 @@ public:
  *
  *
  */
-    void SetRecvTimestamp(unsigned long ulTimestamp);
+    void SetRecvTimestamp(rtpts_t ulTimestamp);
 
 /**
  *
@@ -514,7 +516,7 @@ private:        // Protected Data Members
 
 /**
  *
- * Attribute Name:  m_ulPadding
+ * Attribute Name:   m_ulMarker
  *
  * Type:            unsigned long
  *
@@ -565,38 +567,38 @@ private:        // Protected Data Members
  *
  * Attribute Name:  m_ulRTPTimestamp
  *
- * Type:            unsigned long
+ * Type:            rtpts_t
  *
  * Description:     The RTP Timestamp; aka, the timestamp when the FE sent
  *                  the packet
  *
  */
-      unsigned long m_ulRTPTimestamp;
+      rtpts_t m_ulRTPTimestamp;
 
 /**
  *
  * Attribute Name:  m_ulRecvTimestamp
  *
- * Type:            unsigned long
+ * Type:            rtpts_t
  *
  * Description:     The RTP Recv Timestamp; aka, when the RTP pakcet was
  *                  actually received on our system
  *
  */
-      unsigned long m_ulRecvTimestamp;
+      rtpts_t m_ulRecvTimestamp;
 
 
 /**
  *
  * Attribute Name:  m_ulSSRC
  *
- * Type:            unsigned long
+ * Type:            ssrc_t
  *
  * Description:     This member shall store the SSRC ID of the
  *                  associated RTP connection.
  *
  */
-      unsigned long m_ulSSRC;
+      ssrc_t m_ulSSRC;
 
 /**
  *
@@ -618,7 +620,7 @@ private:        // Protected Data Members
  * Description:     The CSRCs contained with an RTP report.
  *
  */
-      unsigned long m_aulCSRC[MAX_CSRCS];
+      ssrc_t m_aulCSRC[MAX_CSRCS];
 
 };
 

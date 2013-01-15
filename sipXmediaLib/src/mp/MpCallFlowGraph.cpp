@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -85,9 +84,6 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 : MpFlowGraphBase(samplesPerFrame, samplesPerSec, pNotifDispatcher)
 , mConnTableLock(OsBSem::Q_FIFO, OsBSem::FULL)
 , mToneIsGlobal(FALSE)
-#ifdef INCLUDE_RTCP /* [ */
-, mulEventInterest(LOCAL_SSRC_COLLISION | REMOTE_SSRC_COLLISION)
-#endif /* INCLUDE_RTCP ] */
 {
    UtlBoolean    boolRes;
    MpMediaTask* pMediaTask;
@@ -308,27 +304,6 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    // input 1 is speaker
    boolRes = mpCallrecMixer->setWeight(1, 1);   assert(boolRes);
 
-#ifdef INCLUDE_RTCP /* [ */
-   // All the Media Resource seemed to have been started successfully.
-   // Let's now create an RTCP Session so that we may be prepared to
-   // report on the RTP connections that shall eventually be associated
-   // with this flow graph
-
-   // Let's get the  RTCP Control interface
-   IRTCPControl *piRTCPControl = CRTCManager::getRTCPControl();
-   assert(piRTCPControl);
-
-   // Create an RTCP Session for this Flow Graph.  Pass the SSRC ID to be
-   // used to identify our audio source uniquely within this RTP/RTCP Session.
-   mpiRTCPSession = piRTCPControl->CreateSession(rand_timer32());
-
-   // Subscribe for Events associated with this Session
-   piRTCPControl->Advise((IRTCPNotify *)this);
-
-   // Release Reference to RTCP Control Interface
-   piRTCPControl->Release();
-#endif /* INCLUDE_RTCP ] */
-
 ////////////////////////////////////////////////////////////////////////////
 //
 //  NOTE:  The following should be a runtime decision, not a compile time
@@ -430,23 +405,6 @@ MpCallFlowGraph::~MpCallFlowGraph()
    MpMediaTask* pMediaTask;
    OsStatus     res;
    int          i;
-
-#ifdef INCLUDE_RTCP /* [ */
-   // Let's terminate the RTCP Session in preparation for call teardown
-
-   // Let's get the  RTCP Control interface
-   IRTCPControl *piRTCPControl = CRTCManager::getRTCPControl();
-   assert(piRTCPControl);
-
-   // Unsubscribe for Events associated with this Session
-   piRTCPControl->Unadvise((IRTCPNotify *)this);
-
-   // Terminate the RTCP Session
-   piRTCPControl->TerminateSession(mpiRTCPSession);
-
-   // Release Reference to RTCP Control Interface
-   piRTCPControl->Release();
-#endif /* INCLUDE_RTCP ] */
 
    // unmanage the flow graph
    pMediaTask = MpMediaTask::getMediaTask();
@@ -1480,131 +1438,7 @@ UtlBoolean MpCallFlowGraph::setAudioNoiseReduction(UtlBoolean bEnable)
 #endif // HAVE_SPEEX ]
    return bReturn;
 }
-
  
-#ifdef INCLUDE_RTCP /* [ */
-
-/* ======================== CALLBACK METHODS ============================= */
-
-/**
- *
- * Method Name:  LocalSSRCCollision()
- *
- *
- * Inputs:      IRTCPConnection *piRTCPConnection - Interface to associated
- *                                                   RTCP Connection
- *              IRTCPSession    *piRTCPSession    - Interface to associated
- *                                                   RTCP Session
- *
- * Outputs:     None
- *
- * Returns:     None
- *              
- * Description: The LocalSSRCCollision() event method shall inform the
- *              recipient of a collision between the local SSRC and one
- *              used by one of the remote participants.
- *              .
- *               
- * Usage Notes: 
- *
- */
-void MpCallFlowGraph::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection, 
-                                         IRTCPSession     *piRTCPSession)
-{
-
-//  Ignore those events that are for a session other than ours
-    if(mpiRTCPSession != piRTCPSession)
-    {
-//      Release Interface References
-        piRTCPConnection->Release();
-        piRTCPSession->Release();
-        return;
-    }
-
-// We have a collision with our local SSRC.  We will remedy this by
-// generating a new SSRC
-    mpiRTCPSession->ReassignSSRC(rand_timer32(),
-                         (unsigned char *)"LOCAL SSRC COLLISION");
-
-// We must inform all connections associated with this session to change their
-// SSRC
-    mConnTableLock.acquire();
-    for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
-    {
-      if (mpOutputConnections[iConnection]->getRTCPConnection()) 
-      {
-//       Set the new SSRC
-         mpOutputConnections[iConnection]->
-                          reassignSSRC((int)mpiRTCPSession->GetSSRC());
-         break;
-      }
-   }
-   mConnTableLock.release();
-
-// Release Interface References
-   piRTCPConnection->Release();
-   piRTCPSession->Release();
-
-   return;
-}
-
-
-/**
- *
- * Method Name:  RemoteSSRCCollision()
- *
- *
- * Inputs:      IRTCPConnection *piRTCPConnection - Interface to associated
- *                                                   RTCP Connection
- *              IRTCPSession    *piRTCPSession    - Interface to associated
- *                                                   RTCP Session
- *
- * Outputs:     None
- *
- * Returns:     None
- *              
- * Description: The RemoteSSRCCollision() event method shall inform the
- *              recipient of a collision between two remote participants.
- *              .
- *               
- * Usage Notes: 
- *
- */
-void MpCallFlowGraph::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection, 
-                                          IRTCPSession     *piRTCPSession)
-{
-
-   // Ignore those events that are for a session other than ours
-   if(mpiRTCPSession != piRTCPSession)
-   {
-      // Release Interface References
-      piRTCPConnection->Release();
-      piRTCPSession->Release();
-      return;
-   }
-
-   // According to standards, we are supposed to ignore remote sites that
-   // have colliding SSRC IDS.
-   mConnTableLock.acquire();
-   for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
-   {
-      if (mpInputConnections[iConnection] &&
-          mpInputConnections[iConnection]->getRTCPConnection() == piRTCPConnection) 
-      {
-         // We are supposed to ignore the media of the latter of two terminals
-         // whose SSRC collides
-         stopReceiveRtp(iConnection);
-         break;
-      }
-   }
-   mConnTableLock.release();
-
-   // Release Interface References
-   piRTCPConnection->Release();
-   piRTCPSession->Release();
-}
-#endif /* INCLUDE_RTCP ] */
-
 /* ============================ ACCESSORS ================================= */
 
 // Returns the type of this flow graph.

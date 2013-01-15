@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -40,6 +42,7 @@ interface IByeReport : IBaseClass
 
 public:
 
+virtual ~IByeReport() {}
 
 /**
  *
@@ -60,7 +63,7 @@ public:
  *              mandated per standard.
  *
  */
-    virtual void SetSSRC(unsigned long ulSSRC) = 0;
+    virtual void SetSSRC(ssrc_t ulSSRC) = 0;
 
 /**
  *
@@ -85,8 +88,7 @@ public:
  *
  *
  */
-    virtual void SetCSRC(unsigned long *paulCSRC, unsigned long ulCSRCCount,
-        bool bNBO)=0;
+    virtual void SetCSRC(ssrc_t *paulCSRC, unsigned long ulCSRCCount, bool bNBO)=0;
 
 /**
  *

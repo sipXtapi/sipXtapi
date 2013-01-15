@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -21,6 +23,8 @@
 #   include <winsock2.h>
 #endif
 
+#include "os/OsSysLog.h"
+
     // Constants
 const int   PAD_MASK            = 0x20;
 const int   VERSION_MASK        = 0xC0;
@@ -33,7 +37,7 @@ const int   VERSION_SHIFT       = 6;
  * Method Name:  CRTCPHeader() - Constructor
  *
  *
- * Inputs:    unsigned long ulSSRC
+ * Inputs:    ssrc_t ulSSRC
  *                              - The the IDentifier for this source
  *            unsigned long ulVersion
  *                              - Version of the RFC Standard being followed
@@ -50,7 +54,7 @@ const int   VERSION_SHIFT       = 6;
  * Usage Notes:
  *
  */
-CRTCPHeader::CRTCPHeader(unsigned long ulSSRC, RTCP_REPORTS_ET etPayloadType,
+CRTCPHeader::CRTCPHeader(ssrc_t ulSSRC, RTCP_REPORTS_ET etPayloadType,
                          unsigned long ulVersion)
             : m_ulPadding(FALSE), m_ulCount(0), m_ulLength(0)
 {
@@ -122,7 +126,7 @@ unsigned long CRTCPHeader::GetHeaderLength(void)
  *
  * Outputs:     Bobe
  *
- * Returns:     unsigned long  - Return the SSRC ID
+ * Returns:     ssrc_t  - Return the SSRC ID
  *
  * Description: Retrieves the SSRC attribute stored within the object.
  *
@@ -130,7 +134,7 @@ unsigned long CRTCPHeader::GetHeaderLength(void)
  *
  *
  */
-unsigned long CRTCPHeader::GetSSRC(void)
+ssrc_t CRTCPHeader::GetSSRC(void)
 {
 
     // Return the SSRC in the argument passed
@@ -237,7 +241,7 @@ unsigned long CRTCPHeader::GetReportLength(void)
 {
 
     // Return Report Length
-    return(m_ulLength ? m_ulLength + sizeof(long) : m_ulLength);
+    return(m_ulLength ? m_ulLength + sizeof(uint32_t) : m_ulLength);
 
 }
 
@@ -274,7 +278,7 @@ RTCP_REPORTS_ET CRTCPHeader::GetPayload(void)
  *
  * Inputs:      None
  *
- * Outputs:     unsigned long ulSSRC  - SSRC ID
+ * Outputs:     ssrc_t ulSSRC  - SSRC ID
  *
  * Returns:     boolean - TRUE => match
  *
@@ -286,7 +290,7 @@ RTCP_REPORTS_ET CRTCPHeader::GetPayload(void)
  *
  *
  */
-bool CRTCPHeader::IsOurSSRC(unsigned long ulSSRC)
+bool CRTCPHeader::IsOurSSRC(ssrc_t ulSSRC)
 {
 
     // Compare the SSRC passed to the one that we have stored.
@@ -300,7 +304,7 @@ bool CRTCPHeader::IsOurSSRC(unsigned long ulSSRC)
  * Method Name:  SetSSRC
  *
  *
- * Inputs:      unsigned long   ulSSRC   - Source ID
+ * Inputs:      ssrc_t   ulSSRC   - Source ID
  *
  * Outputs:     None
  *
@@ -313,7 +317,7 @@ bool CRTCPHeader::IsOurSSRC(unsigned long ulSSRC)
  *
  *
  */
-void CRTCPHeader::SetSSRC(unsigned long ulSSRC)
+void CRTCPHeader::SetSSRC(ssrc_t ulSSRC)
 {
 
     // Store the modified SSRC as an internal attribute
@@ -350,6 +354,8 @@ unsigned long CRTCPHeader::FormatRTCPHeader(unsigned char *puchRTCPBuffer,
 {
 
     unsigned char *puchRTCPHeader = puchRTCPBuffer;
+    unsigned short l;
+    unsigned long ret;
 
     // Report Count goes into the bits 4 - 8 of the first octet
     m_ulCount = ulCount;
@@ -369,14 +375,16 @@ unsigned long CRTCPHeader::FormatRTCPHeader(unsigned char *puchRTCPBuffer,
     // RTCP Report length goes into the third and fourth octet.  This length
     //  is expressed in long words.
     m_ulLength = ulReportLength;
-    *((unsigned short *)puchRTCPHeader) =
-     htons((((unsigned short)ulReportLength) / sizeof(long)) - 1);
+    l = ((((unsigned short)ulReportLength) / sizeof(uint32_t)) - 1);
+    *((unsigned short *)puchRTCPHeader) = htons(l);;
     puchRTCPHeader += sizeof(short);
 
     // SSRC goes into the next 4 octet
-    *((unsigned long *)puchRTCPHeader) = htonl(m_ulSSRC);
+    *((ssrc_t *)puchRTCPHeader) = htonl(m_ulSSRC);
 
-    return(puchRTCPBuffer - puchRTCPBuffer);
+    ret = (puchRTCPBuffer - puchRTCPBuffer);
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPHeader::FormatRTCPHeader(%p, %ld, %ld, %ld), l=%d, ret=%ld", puchRTCPBuffer, ulPadding, ulCount, ulReportLength, l, ret);
+    return ret;
 
 }
 
@@ -431,16 +439,16 @@ bool CRTCPHeader::ParseRTCPHeader(unsigned char *puchRTCPBuffer)
 
     // Extract RTCP Report length and convert from word count to byte count
     m_ulLength = ntohs(*((unsigned short *)puchRTCPHeader)) + 1;
-    m_ulLength *= sizeof(long);
+    m_ulLength *= sizeof(uint32_t);
     puchRTCPHeader += sizeof(short);
 
     // Assign SSRC if one hadn't previously existed
     if(m_ulSSRC == 0)
-        m_ulSSRC = ntohl(*((unsigned long *)puchRTCPHeader));
+        m_ulSSRC = ntohl(*((ssrc_t *)puchRTCPHeader));
 
     // Check SSRC to be sure that the one received corresponds with the one
     //  previously established.
-    else if(ntohl(*((unsigned long *)puchRTCPHeader)) != m_ulSSRC)
+    else if(ntohl(*((ssrc_t *)puchRTCPHeader)) != m_ulSSRC)
     {
 #if RTCP_DEBUG /* [ */
         if(bPingtelDebug)
@@ -449,10 +457,10 @@ bool CRTCPHeader::ParseRTCPHeader(unsigned char *puchRTCPBuffer)
                                                  " SSRC has Changed <<<<<\n");
         }
 #endif /* RTCP_DEBUG ] */
-        m_ulSSRC = ntohl(*((unsigned long *)puchRTCPHeader));
+        m_ulSSRC = ntohl(*((ssrc_t *)puchRTCPHeader));
 
     }
-    puchRTCPHeader += sizeof(long);
+    puchRTCPHeader += sizeof(ssrc_t);
 
     return(TRUE);
 

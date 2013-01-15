@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -17,8 +17,10 @@
 // APPLICATION INCLUDES
 #include "mp/MpRtpOutputConnection.h"
 #include "mp/MprToNet.h"
+#include "mp/MpFlowGraphBase.h"
 #include "mp/MprEncode.h"
 #include "os/OsLock.h"
+#include "os/OsSysLog.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/INetDispatch.h"
 #include "rtcp/IRTPDispatch.h"
@@ -44,52 +46,16 @@ MpRtpOutputConnection::MpRtpOutputConnection(const UtlString& resourceName,
 ,mpToNet(NULL)
 , mOutRtpStarted(FALSE)
 #ifdef INCLUDE_RTCP /* [ */
-, mpiRTCPSession(piRTCPSession)
 , mpiRTCPConnection(NULL)
 #endif /* INCLUDE_RTCP ] */
 {
    // Save connection ID
    mConnectionId = myID;
 
-#ifdef INCLUDE_RTCP /* [ */
-// Let's create an RTCP Connection to accompany the MP Connection just created.
-   if(mpiRTCPSession)
-   {
-       mpiRTCPConnection = mpiRTCPSession->CreateRTCPConnection();
-
-       assert(mpiRTCPConnection != NULL); 
-   }
-
-// Let's use the Connection interface to acquire the constituent interfaces
-// required for dispatching RTP and RTCP packets received from the network as
-// well as the statistics interface tabulating RTP packets going to the network.
-   INetDispatch         *piRTCPDispatch = NULL;
-   IRTPDispatch         *piRTPDispatch = NULL;
-   ISetSenderStatistics *piRTPAccumulator = NULL;
-
-   if(mpiRTCPConnection)
-   {
-       mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch,
-          &piRTPDispatch, &piRTPAccumulator);
-   }
-#endif /* INCLUDE_RTCP ] */
-
    // Create ToNet resource
    mpToNet = new MprToNet();
 
-#ifdef INCLUDE_RTCP /* [ */
-   if(mpiRTCPSession)
-   {
-      // Set the Statistics interface to be used by the RTP stream to increment
-      // packet and octet statistics
-      mpToNet->setRTPAccumulator(piRTPAccumulator);
-
-      // The RTP Stream associated with the MprToNet object must have its SSRC ID
-      // set to the value generated from the Session.
-      mpToNet->setSSRC(mpiRTCPSession->GetSSRC());
-   }
-   else
-#endif /* INCLUDE_RTCP ] */
+#ifndef INCLUDE_RTCP /* [ */
    {
       OsDateTime date;
       OsTime now;
@@ -99,6 +65,7 @@ MpRtpOutputConnection::MpRtpOutputConnection(const UtlString& resourceName,
       ssrc = now.seconds() ^ now.usecs();
       mpToNet->setSSRC(ssrc);
    }
+#endif /* INCLUDE_RTCP ] */
 
    //////////////////////////////////////////////////////////////////////////
    // connect ToNet -> FromNet for RTP synchronization
@@ -110,14 +77,6 @@ MpRtpOutputConnection::~MpRtpOutputConnection()
 {
    if (mpToNet != NULL)
       delete mpToNet;
-
-#ifdef INCLUDE_RTCP /* [ */
-// Let's free our RTCP Connection
-   if(mpiRTCPSession)
-   {
-       mpiRTCPSession->TerminateRTCPConnection(mpiRTCPConnection); 
-   }
-#endif /* INCLUDE_RTCP ] */
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -133,6 +92,7 @@ void MpRtpOutputConnection::setSockets(OsSocket& rRtpSocket,
 // connection to write reports to the network
    if(mpiRTCPConnection)
    {
+       // OsSysLog::add(FAC_MP, PRI_DEBUG, "MpRtpOutputConnection::setSockets: call mpiRTCPConnection->StartRenderer(%p)", &rRtcpSocket);
        mpiRTCPConnection->StartRenderer(rRtcpSocket);
    }
 #endif /* INCLUDE_RTCP ] */
@@ -178,6 +138,35 @@ OsStatus MpRtpOutputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
     {
         mpToNet->setFlowGraph(pFlowGraph);
     }
+
+#ifdef INCLUDE_RTCP /* [ */
+    if (pFlowGraph != NULL)
+    {
+        // Get the RTCP Connection object for this flowgraph connection
+        mpiRTCPConnection = pFlowGraph->getRTCPConnectionPtr(getConnectionId());
+     
+     // Let's use the Connection interface to acquire the constituent interfaces
+     // required for dispatching RTP and RTCP packets received from the network as
+     // well as the statistics interface tabulating RTP packets going to the network.
+        INetDispatch         *piRTCPDispatch = NULL;
+        IRTPDispatch         *piRTPDispatch = NULL;
+        ISetSenderStatistics *piRTPAccumulator = NULL;
+     
+        if(mpiRTCPConnection)
+        {
+            mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch,
+               &piRTPDispatch, &piRTPAccumulator);
+     
+           // Set the Statistics interface to be used by the RTP stream to increment
+           // packet and octet statistics
+           mpToNet->setRTPAccumulator(piRTPAccumulator);
+     
+           // The RTP Stream associated with the MprToNet object must have its SSRC ID
+           // set to the value generated from the Session.
+           mpToNet->setSSRC(pFlowGraph->getRTCPSessionPtr()->GetSSRC());
+        }
+    }
+#endif /* INCLUDE_RTCP ] */
 
     return(status);
 }

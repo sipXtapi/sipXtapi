@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -55,7 +57,10 @@
 #define PINGTEL_PRINTF
 #endif  /* EXCLUDE_RTCP ] */
 
+#include "os/OsIntTypes.h"
 
+typedef uint32_t ssrc_t;
+typedef uint32_t rtpts_t;
 
 
 #endif /* _RTCPCONFIG_H_ ] */

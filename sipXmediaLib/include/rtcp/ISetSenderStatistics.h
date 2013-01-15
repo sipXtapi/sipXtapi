@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -63,7 +65,7 @@ public:
  * Usage Notes:
  *
  */
-    virtual void IncrementCounts(unsigned long ulOctetCount) = 0;
+    virtual void IncrementCounts(uint32_t ulOctetCount) = 0;
 
 /**
  *
@@ -86,8 +88,8 @@ public:
  * Usage Notes:
  *
  */
-    virtual void SetRTPTimestamp(unsigned long ulRandomOffset,
-                     unsigned long ulSamplesPerSecond = SAMPLES_PER_SEC) = 0;
+    virtual void SetRTPTimestamp(uint32_t ulRandomOffset,
+                     uint32_t ulSamplesPerSecond = SAMPLES_PER_SEC) = 0;
 
 };
 

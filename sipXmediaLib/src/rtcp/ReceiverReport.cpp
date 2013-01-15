@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -65,7 +67,7 @@ const int     FIXED_CONVERSION  = 256;
  * Method Name:  CReceiverReport() - Constructor
  *
  *
- * Inputs:       unsigned long ulSSRC     - The Identifier for this source
+ * Inputs:       ssrc_t ulSSRC     - The Identifier for this source
  *               unsigned long ulVersion  - Version of the RFC Standard
  *
  * Outputs:      None
@@ -81,7 +83,7 @@ const int     FIXED_CONVERSION  = 256;
  *               version number to the CRTCPHeader at object construction.
  *
  */
-CReceiverReport::CReceiverReport(unsigned long ulSSRC, unsigned long ulVersion)
+CReceiverReport::CReceiverReport(ssrc_t ulSSRC, unsigned long ulVersion)
      :CRTCPHeader(ulSSRC, etReceiverReport, ulVersion),  // Base class constr
 #ifndef WIN32
      m_csSynchronized(NULL),
@@ -184,7 +186,7 @@ void CReceiverReport::SetRTPStatistics(IRTPHeader *piRTPHeader)
  * Method Name: SetLastRcvdSRTime
  *
  *
- * Inputs:      unsigned long aulNTPTimestamp[]
+ * Inputs:      uint32_t aulNTPTimestamp[]
  *
  * Outputs:     None
  *
@@ -198,7 +200,7 @@ void CReceiverReport::SetRTPStatistics(IRTPHeader *piRTPHeader)
  *
  *
  */
-void CReceiverReport::SetLastRcvdSRTime(unsigned long aulNTPTimestamp[])
+void CReceiverReport::SetLastRcvdSRTime(uint32_t aulNTPTimestamp[])
 {
 
     double  dCurrentSeconds, dCurrentUSeconds;
@@ -265,15 +267,15 @@ void CReceiverReport::SetLastRcvdSRTime(unsigned long aulNTPTimestamp[])
  * Inputs:      None
  *
  * Outputs:
- *     unsigned long  *pulFractionalLoss      - Fractional Packet Loss
- *     unsigned long  *pulCumulativeLoss      - Cumulative Packet Loss
- *     unsigned long  *pulHighestSequenceNo
+ *     uint32_t  *pulFractionalLoss      - Fractional Packet Loss
+ *     uint32_t  *pulCumulativeLoss      - Cumulative Packet Loss
+ *     uint32_t  *pulHighestSequenceNo
  *                                 - Highest Sequence Number Received
- *     unsigned long  *pulInterarrivalJitter
+ *     uint32_t  *pulInterarrivalJitter
  *                                 - Interarrival Packet Variance
- *     unsigned long  *pulSRTimestamp
+ *     uint32_t  *pulSRTimestamp
  *                                 - Timestamp of last Sender Report received
- *     unsigned long  *pulPacketDelay
+ *     uint32_t  *pulPacketDelay
  *                                 - Delay between last Sender Report Received
  *                                   and sending this report
  *
@@ -287,12 +289,12 @@ void CReceiverReport::SetLastRcvdSRTime(unsigned long aulNTPTimestamp[])
  *
  *
  */
-void CReceiverReport::GetReceiverStatistics(unsigned long  *pulFractionalLoss,
-                         unsigned long  *pulCumulativeLoss,
-                         unsigned long  *pulHighestSequenceNo,
-                         unsigned long  *pulInterarrivalJitter,
-                         unsigned long  *pulSRTimestamp,
-                         unsigned long  *pulPacketDelay)
+void CReceiverReport::GetReceiverStatistics(uint32_t  *pulFractionalLoss,
+                         uint32_t  *pulCumulativeLoss,
+                         uint32_t  *pulHighestSequenceNo,
+                         uint32_t  *pulInterarrivalJitter,
+                         uint32_t  *pulSRTimestamp,
+                         uint32_t  *pulPacketDelay)
 {
 
     // Load the output argument passed with the current Receiver
@@ -312,7 +314,7 @@ void CReceiverReport::GetReceiverStatistics(unsigned long  *pulFractionalLoss,
  * Method Name:  SetSSRC
  *
  *
- * Inputs:      unsigned long   ulSSRC   - Source ID
+ * Inputs:      ssrc_t   ulSSRC   - Source ID
  *
  * Outputs:     None
  *
@@ -325,7 +327,7 @@ void CReceiverReport::GetReceiverStatistics(unsigned long  *pulFractionalLoss,
  *
  *
  */
-void CReceiverReport::SetSSRC(unsigned long ulSSRC)
+void CReceiverReport::SetSSRC(ssrc_t ulSSRC)
 {
 
     // Store the modified SSRC as an internal attribute
@@ -359,7 +361,7 @@ void CReceiverReport::SetRemoteSSRC(IRTPHeader *piRTPHeader)
 
     // Let's determine whether the SSRC, either local or remote depending on
     // context of ReceiverReport, has changed and what to do about it.
-    unsigned long ulSSRC = piRTPHeader->GetSSRC();
+    ssrc_t ulSSRC = piRTPHeader->GetSSRC();
 
     // An SSRC collision must have been detected for this to occur.
     // Let's reset our statistics and set the new SSRC.
@@ -413,7 +415,7 @@ unsigned long CReceiverReport::FormatReceiverReport(bool bSRPresent,
                                            unsigned long  ulBufferSize)
 {
     unsigned char   *puchPayloadBuffer;
-    unsigned long    ulReportLength;
+    uint32_t    ulReportLength;
 
     // Check to see whether the Sender Report has been prepended
     if(bSRPresent)
@@ -433,21 +435,21 @@ unsigned long CReceiverReport::FormatReceiverReport(bool bSRPresent,
     EnterCriticalSection (&m_csSynchronized);
 
     // Let's load the Remote SSRC into the Receiver Report
-    puchPayloadBuffer += LoadRemoteSSRC((unsigned long *)puchPayloadBuffer);
+    puchPayloadBuffer += LoadRemoteSSRC((ssrc_t *)puchPayloadBuffer);
 
     // Let's load the Loss Statistic
     puchPayloadBuffer +=
-             LoadLossStatistics((unsigned long *)puchPayloadBuffer);
+             LoadLossStatistics((uint32_t *)puchPayloadBuffer);
 
     // Let's load the Extended Highest Sequence
     puchPayloadBuffer +=
-             LoadExtendedSequence((unsigned long *)puchPayloadBuffer);
+             LoadExtendedSequence((uint32_t *)puchPayloadBuffer);
 
     // Let's load the Jitter Statistics
-    puchPayloadBuffer += LoadJitter((unsigned long *)puchPayloadBuffer);
+    puchPayloadBuffer += LoadJitter((uint32_t *)puchPayloadBuffer);
 
     // Let's load the Report Timestamps
-    puchPayloadBuffer += LoadReportTimes((unsigned long *)puchPayloadBuffer);
+    puchPayloadBuffer += LoadReportTimes((uint32_t *)puchPayloadBuffer);
 
     // Leave Synchronized Area
     LeaveCriticalSection (&m_csSynchronized);
@@ -518,22 +520,22 @@ unsigned long
 
     // Let's extract the  Remote SSRC from the Receiver Report
     puchPayloadBuffer +=
-            ExtractRemoteSSRC((unsigned long *)puchPayloadBuffer);
+            ExtractRemoteSSRC((uint32_t *)puchPayloadBuffer);
 
     // Let's extract the Loss Statistic
     puchPayloadBuffer +=
-            ExtractLossStatistics((unsigned long *)puchPayloadBuffer);
+            ExtractLossStatistics((uint32_t *)puchPayloadBuffer);
 
     // Let's extract the Extended Highest Sequence
     puchPayloadBuffer +=
-            ExtractExtendedSequence((unsigned long *)puchPayloadBuffer);
+            ExtractExtendedSequence((uint32_t *)puchPayloadBuffer);
 
     // Let's extract the Jitter Statistics
-    puchPayloadBuffer += ExtractJitter((unsigned long *)puchPayloadBuffer);
+    puchPayloadBuffer += ExtractJitter((uint32_t *)puchPayloadBuffer);
 
     // Let's extract the Report Timestamps
     puchPayloadBuffer +=
-            ExtractReportTimes((unsigned long *)puchPayloadBuffer);
+            ExtractReportTimes((uint32_t *)puchPayloadBuffer);
 
     return(puchPayloadBuffer - puchReportBuffer);
 
@@ -566,8 +568,8 @@ void CReceiverReport::UpdateJitter(IRTPHeader *piRTPHeader)
 
     // We will determine jitter by calculating the difference in time between
     // the current and last RTP packets send and receive times.
-    unsigned long ulPreviousPacketSendTime    = m_ulLastPacketSendTime;
-    unsigned long ulPreviousPacketReceiveTime = m_ulLastPacketReceiveTime;
+    uint32_t ulPreviousPacketSendTime    = m_ulLastPacketSendTime;
+    uint32_t ulPreviousPacketReceiveTime = m_ulLastPacketReceiveTime;
     double dJitter;
 
     // Let's get the current RTP packet Receive Timestamp
@@ -594,7 +596,7 @@ void CReceiverReport::UpdateJitter(IRTPHeader *piRTPHeader)
     // Let's update the mean interarrival jitter
     dJitter -= (double)m_ulMeanJitter;
     dJitter /= REDUX_RATIO;
-    m_ulMeanJitter += (unsigned long)dJitter;
+    m_ulMeanJitter += (uint32_t)dJitter;
 
     piRTPHeader->Release();
 }
@@ -622,9 +624,9 @@ void CReceiverReport::UpdateJitter(IRTPHeader *piRTPHeader)
  */
 void CReceiverReport::UpdateSequence(IRTPHeader *piRTPHeader)
 {
-    unsigned long ulSequenceNo, ulSeqNoDelta;
-    static unsigned long ulBadSequenceNo = RTP_SEQ_MOD + 1;
-    static unsigned long ulPacketProbation = MIN_SEQUENTIAL;
+    uint32_t ulSequenceNo, ulSeqNoDelta;
+    static uint32_t ulBadSequenceNo = RTP_SEQ_MOD + 1;
+    static uint32_t ulPacketProbation = MIN_SEQUENTIAL;
 
     piRTPHeader->AddRef();
 
@@ -655,7 +657,7 @@ void CReceiverReport::UpdateSequence(IRTPHeader *piRTPHeader)
 
     // This RTP session has survived probation and
     // is being tracked statistically.
-    else if (ulSeqNoDelta < ((unsigned long) (MAX_DROPOUT)));
+    else if (ulSeqNoDelta < ((uint32_t) (MAX_DROPOUT)));
 
     else if (ulSeqNoDelta <= RTP_SEQ_MOD - MAX_MISORDER)
     {
@@ -704,7 +706,7 @@ void CReceiverReport::UpdateSequence(IRTPHeader *piRTPHeader)
  *
  * Method Name:  UpdateSequenceNumbers
  *
- * Inputs:       unsigned long ulSequenceNo
+ * Inputs:       uint32_t ulSequenceNo
  *
  * Outputs:      None
  *
@@ -718,7 +720,7 @@ void CReceiverReport::UpdateSequence(IRTPHeader *piRTPHeader)
  * Usage Notes:
  *
  */
-void CReceiverReport::UpdateSequenceNumbers(unsigned long ulSequenceNo)
+void CReceiverReport::UpdateSequenceNumbers(uint32_t ulSequenceNo)
 {
 
     // Check the sequence number saved to determine whether we are
@@ -733,7 +735,7 @@ void CReceiverReport::UpdateSequenceNumbers(unsigned long ulSequenceNo)
     m_ulLastSequenceNo = ulSequenceNo;
 
  // Create the new highest sequence number
-    unsigned long ulHighestSequenceNo =
+    uint32_t ulHighestSequenceNo =
                          (m_ulSequenceWraps << SEQUENCE_SHIFT) + ulSequenceNo;
     if(ulHighestSequenceNo > m_ulHighestSequenceNo)
         m_ulHighestSequenceNo = ulHighestSequenceNo;
@@ -794,6 +796,8 @@ void CReceiverReport::IncrementPacketCounters(void)
 void CReceiverReport::UpdateLostPackets(void)
 {
 
+ ////  HZM -- Should these be "int32_t" instead of "long"?
+
     // Calculate the fractional packet loss over two reporting periods
     long lExpectedCount    = m_ulHighestSequenceNo - m_ulFirstSequenceNo;
     long lExpectedInterval = lExpectedCount + m_ulLastPeriodExpectedCount;
@@ -807,7 +811,7 @@ void CReceiverReport::UpdateLostPackets(void)
     {
         dLostInterval /= (double)lExpectedInterval;
         dLostInterval *= (double)FIXED_CONVERSION;
-        m_ulFractionalLoss = (unsigned long) dLostInterval;
+        m_ulFractionalLoss = (uint32_t) dLostInterval;
     }
 
 
@@ -817,7 +821,7 @@ void CReceiverReport::UpdateLostPackets(void)
                                        0 : (m_ulCumulativeLoss + lPacketDiff);
 
     // Save last period expected and actual packet counts
-    m_ulLastPeriodExpectedCount = (unsigned long)lExpectedCount;
+    m_ulLastPeriodExpectedCount = (uint32_t)lExpectedCount;
     m_ulLastPeriodPacketCount   = m_ulPeriodPacketCount;
     m_ulFirstSequenceNo         = m_ulHighestSequenceNo;
 
@@ -828,7 +832,7 @@ void CReceiverReport::UpdateLostPackets(void)
  *
  * Method Name:  LoadRemoteSSRC
  *
- * Inputs:    unsigned long *pulPayloadBuffer - Payload buffer for loading data
+ * Inputs:    uint32_t *pulPayloadBuffer - Payload buffer for loading data
  *
  * Outputs:   None
  *
@@ -840,7 +844,7 @@ void CReceiverReport::UpdateLostPackets(void)
  * Usage Notes:
  *
  */
-unsigned long CReceiverReport::LoadRemoteSSRC(unsigned long *pulPayloadBuffer)
+unsigned long CReceiverReport::LoadRemoteSSRC(uint32_t *pulPayloadBuffer)
 {
 
     // Load the Remote SSRC
@@ -854,7 +858,7 @@ unsigned long CReceiverReport::LoadRemoteSSRC(unsigned long *pulPayloadBuffer)
  *
  * Method Name:  LoadLossStatistics
  *
- * Inputs:    unsigned long *pulPayloadBuffer - Payload buffer for loading data
+ * Inputs:    uint32_t *pulPayloadBuffer - Payload buffer for loading data
  *
  * Outputs:   None
  *
@@ -867,7 +871,7 @@ unsigned long CReceiverReport::LoadRemoteSSRC(unsigned long *pulPayloadBuffer)
  *
  */
 unsigned long CReceiverReport::LoadLossStatistics(
-                                           unsigned long *pulPayloadBuffer)
+                                           uint32_t *pulPayloadBuffer)
 {
 
     // These statistics need to be calculated at period end.
@@ -876,7 +880,7 @@ unsigned long CReceiverReport::LoadLossStatistics(
 
     // Load the fractional and cumulative loss statistics
     *pulPayloadBuffer = htonl(
-                    (((unsigned long)m_ulFractionalLoss) & FRACTIONAL_MASK) +
+                    (((uint32_t)m_ulFractionalLoss) & FRACTIONAL_MASK) +
                     ((m_ulCumulativeLoss & CUMULATIVE_MASK) << LOSS_SHIFT));
 
     // Load the values into cached copies so that they will not change
@@ -891,7 +895,7 @@ unsigned long CReceiverReport::LoadLossStatistics(
  *
  * Method Name:  LoadExtendedSequence
  *
- * Inputs:    unsigned long *pulPayloadBuffer - Payload buffer for loading data
+ * Inputs:    uint32_t *pulPayloadBuffer - Payload buffer for loading data
  *
  * Outputs:   None
  *
@@ -906,7 +910,7 @@ unsigned long CReceiverReport::LoadLossStatistics(
  *
  */
 unsigned long CReceiverReport::LoadExtendedSequence(
-                                          unsigned long *pulPayloadBuffer)
+                                          uint32_t *pulPayloadBuffer)
 {
 
     // Load the extended sequence number statistics
@@ -923,7 +927,7 @@ unsigned long CReceiverReport::LoadExtendedSequence(
  *
  * Method Name:  LoadJitter
  *
- * Inputs:    unsigned long *pulPayloadBuffer - Payload buffer for loading data
+ * Inputs:    uint32_t *pulPayloadBuffer - Payload buffer for loading data
  *
  * Outputs:   None
  *
@@ -937,7 +941,7 @@ unsigned long CReceiverReport::LoadExtendedSequence(
  * Usage Notes:
  *
  */
-unsigned long CReceiverReport::LoadJitter(unsigned long *pulPayloadBuffer)
+unsigned long CReceiverReport::LoadJitter(uint32_t *pulPayloadBuffer)
 {
 
     // Load the interarrival jitter calculation
@@ -946,7 +950,7 @@ unsigned long CReceiverReport::LoadJitter(unsigned long *pulPayloadBuffer)
     // Load the statistic into a cached copy
     m_ulCachedMeanJitter = m_ulMeanJitter;
 
-    return(sizeof(unsigned long));
+    return(sizeof(uint32_t));
 
 }
 
@@ -954,7 +958,7 @@ unsigned long CReceiverReport::LoadJitter(unsigned long *pulPayloadBuffer)
  *
  * Method Name:  LoadReportTimes
  *
- * Inputs:    unsigned long *pulPayloadBuffer - Payload buffer for loading data
+ * Inputs:    uint32_t *pulPayloadBuffer - Payload buffer for loading data
  *
  * Outputs:   None
  *
@@ -968,7 +972,7 @@ unsigned long CReceiverReport::LoadJitter(unsigned long *pulPayloadBuffer)
  *
  */
 unsigned long CReceiverReport::LoadReportTimes(
-                                              unsigned long *pulPayloadBuffer)
+                                              uint32_t *pulPayloadBuffer)
 {
     double dRRTransmitTime;
 
@@ -1026,7 +1030,7 @@ unsigned long CReceiverReport::LoadReportTimes(
         // time and the SR receive time expressed in delay units.
         dRRTransmitTime -= m_dLastSRRcvdTimestamp;
         dRRTransmitTime *= DELAY_UNITS;
-        m_ulSRDelay = (unsigned long)dRRTransmitTime;
+        m_ulSRDelay = (uint32_t)dRRTransmitTime;
     }
 
     // Load the delay calculation into the payload buffer. We are expressing
@@ -1047,7 +1051,7 @@ unsigned long CReceiverReport::LoadReportTimes(
  *
  * Method Name:  ExtractRemoteSSRC
  *
- * Inputs:    unsigned long *pulPayloadBuffer - Payload buffer for loading data
+ * Inputs:    uint32_t *pulPayloadBuffer - Payload buffer for loading data
  *
  * Outputs:   None
  *
@@ -1060,7 +1064,7 @@ unsigned long CReceiverReport::LoadReportTimes(
  *
  */
 unsigned long CReceiverReport::ExtractRemoteSSRC(
-                                              unsigned long *pulPayloadBuffer)
+                                              uint32_t *pulPayloadBuffer)
 {
 
     // Store the Remote SSRC from the payload buffer as an attribute
@@ -1074,7 +1078,7 @@ unsigned long CReceiverReport::ExtractRemoteSSRC(
  *
  * Method Name:  ExtractLossStatistics
  *
- * Inputs:    unsigned long *pulPayloadBuffer - Payload buffer for loading data
+ * Inputs:    uint32_t *pulPayloadBuffer - Payload buffer for loading data
  *
  * Outputs:   None
  *
@@ -1087,10 +1091,10 @@ unsigned long CReceiverReport::ExtractRemoteSSRC(
  *
  */
 unsigned long CReceiverReport::ExtractLossStatistics(
-                                             unsigned long *pulPayloadBuffer)
+                                             uint32_t *pulPayloadBuffer)
 {
 
-    unsigned long ulLossStatistics = ntohl(*pulPayloadBuffer);
+    uint32_t ulLossStatistics = ntohl(*pulPayloadBuffer);
 
     // Extract the fractional loss and cumulative loss statistics
     m_ulFractionalLoss = ulLossStatistics & FRACTIONAL_MASK;
@@ -1106,7 +1110,7 @@ unsigned long CReceiverReport::ExtractLossStatistics(
  *
  * Method Name:  ExtractExtendedSequence
  *
- * Inputs:    unsigned long *pulPayloadBuffer - Payload buffer for loading data
+ * Inputs:    uint32_t *pulPayloadBuffer - Payload buffer for loading data
  *
  * Outputs:   None
  *
@@ -1121,7 +1125,7 @@ unsigned long CReceiverReport::ExtractLossStatistics(
  *
  */
 unsigned long CReceiverReport::ExtractExtendedSequence(
-                                              unsigned long *pulPayloadBuffer)
+                                              uint32_t *pulPayloadBuffer)
 {
 
     // Extract the highest sequence number statistics
@@ -1136,7 +1140,7 @@ unsigned long CReceiverReport::ExtractExtendedSequence(
  *
  * Method Name:  ExtractJitter
  *
- * Inputs:    unsigned long *pulPayloadBuffer - Payload buffer for loading data
+ * Inputs:    uint32_t *pulPayloadBuffer - Payload buffer for loading data
  *
  * Outputs:   None
  *
@@ -1150,7 +1154,7 @@ unsigned long CReceiverReport::ExtractExtendedSequence(
  * Usage Notes:
  *
  */
-unsigned long CReceiverReport::ExtractJitter(unsigned long *pulPayloadBuffer)
+unsigned long CReceiverReport::ExtractJitter(uint32_t *pulPayloadBuffer)
 {
 
     // Load the interarrival jitter calculation
@@ -1165,7 +1169,7 @@ unsigned long CReceiverReport::ExtractJitter(unsigned long *pulPayloadBuffer)
  *
  * Method Name:  ExtractReportTimes
  *
- * Inputs:    unsigned long *pulPayloadBuffer - Payload buffer for loading data
+ * Inputs:    uint32_t *pulPayloadBuffer - Payload buffer for loading data
  *
  * Outputs:   None
  *
@@ -1179,7 +1183,7 @@ unsigned long CReceiverReport::ExtractJitter(unsigned long *pulPayloadBuffer)
  *
  */
 unsigned long CReceiverReport::ExtractReportTimes(
-                                               unsigned long *pulPayloadBuffer)
+                                               uint32_t *pulPayloadBuffer)
 {
 
     // Extracted the last SR packet timestamp received from the source

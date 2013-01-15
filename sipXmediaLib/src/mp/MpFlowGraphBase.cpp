@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -14,6 +14,7 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 
+#include "rtcp/RtcpConfig.h"
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
@@ -28,6 +29,8 @@
 #include "mp/MpResourceSortAlg.h"
 #include "mp/MpMediaTask.h"
 #include <mp/MpMisc.h>
+#include "mp/NetInTask.h"
+#include "utl/UtlVoidPtr.h"
 
 //#define RTL_ENABLED
 #ifdef RTL_ENABLED
@@ -62,6 +65,10 @@ MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec,
 , mSamplesPerFrame(samplesPerFrame)
 , mSamplesPerSec(samplesPerSec)
 , mpResourceInProcess(NULL)
+#ifdef INCLUDE_RTCP /* [ */
+, mulEventInterest(LOCAL_SSRC_COLLISION | REMOTE_SSRC_COLLISION)
+, mRtcpConnMap()
+#endif /* INCLUDE_RTCP ] */
 {
    int i;
    for (i=0; i < MAX_FLOWGRAPH_RESOURCES; i++)
@@ -69,6 +76,25 @@ MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec,
       mUnsorted[i] = NULL;
       mExecOrder[i] = NULL;
    }
+#ifdef INCLUDE_RTCP /* [ */
+   // Create an RTCP Session so that we will be prepared to report on the RTP
+   // connections that will eventually be associated with this flow graph
+
+   // Let's get the  RTCP Control interface
+   IRTCPControl *piRTCPControl = CRTCManager::getRTCPControl();
+   assert(piRTCPControl);
+
+   // Create an RTCP Session for this Flow Graph.  Pass the SSRC ID to be
+   // used to identify our audio source uniquely within this RTP/RTCP Session.
+   mpiRTCPSession = piRTCPControl->CreateSession(rand_timer32());
+
+   // Subscribe for Events associated with this Session
+   piRTCPControl->Advise((IRTCPNotify *)this);
+
+   // Release Reference to RTCP Control Interface
+   piRTCPControl->Release();
+#endif /* INCLUDE_RTCP ] */
+
 }
 
 // Destructor
@@ -76,6 +102,24 @@ MpFlowGraphBase::~MpFlowGraphBase()
 {
    int      msecsPerFrame;
    OsStatus res;
+
+#ifdef INCLUDE_RTCP /* [ */
+   // Let's terminate the RTCP Session in preparation for call teardown
+
+   // Let's get the  RTCP Control interface
+   IRTCPControl *piRTCPControl = CRTCManager::getRTCPControl();
+   assert(piRTCPControl);
+
+   // Unsubscribe for Events associated with this Session
+   piRTCPControl->Unadvise((IRTCPNotify *)this);
+
+   // Terminate the RTCP Session
+   piRTCPControl->TerminateSession(mpiRTCPSession);
+   mpiRTCPSession = NULL;
+
+   // Release Reference to RTCP Control Interface
+   piRTCPControl->Release();
+#endif /* INCLUDE_RTCP ] */
 
    // release the flow graph and any resources it contains
    res = destroyResources();
@@ -90,8 +134,14 @@ MpFlowGraphBase::~MpFlowGraphBase()
       res = OsTask::delay(msecsPerFrame);
       assert(res == OS_SUCCESS);
    }
-   int NumBadBufs = MpMisc.RtpPool->scanBufPool(this);
-   //assert(0 == NumBadBufs);
+   // int NumBadBufs = MpMisc.RtpPool->scanBufPool(this);
+   // assert(0 == NumBadBufs);
+
+#ifdef INCLUDE_RTCP /* [ */
+   // OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Conn Map contains %d items", mRtcpConnMap.entries());
+   mRtcpConnMap.destroyAll();
+   // OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Conn Map contains %d items", mRtcpConnMap.entries());
+#endif /* INCLUDE_RTCP ] */
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -676,6 +726,139 @@ void MpFlowGraphBase::synchronize(const char* tag, int val1)
       tag ? tag : "", val1);
 #endif
 }
+ 
+#ifdef INCLUDE_RTCP /* [ */
+
+/* ======================== CALLBACK METHODS ============================= */
+
+/**
+ *
+ * Method Name:  LocalSSRCCollision()
+ *
+ *
+ * Inputs:      IRTCPConnection *piRTCPConnection - Interface to associated
+ *                                                   RTCP Connection
+ *              IRTCPSession    *piRTCPSession    - Interface to associated
+ *                                                   RTCP Session
+ *
+ * Outputs:     None
+ *
+ * Returns:     None
+ *              
+ * Description: The LocalSSRCCollision() event method shall inform the
+ *              recipient of a collision between the local SSRC and one
+ *              used by one of the remote participants.
+ *              .
+ *               
+ * Usage Notes: 
+ *
+ */
+void MpFlowGraphBase::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection, 
+                                         IRTCPSession     *piRTCPSession)
+{
+
+//  Ignore those events that are for a session other than ours
+    if(mpiRTCPSession != piRTCPSession)
+    {
+//      Release Interface References
+        piRTCPConnection->Release();
+        piRTCPSession->Release();
+        return;
+    }
+
+// We have a collision with our local SSRC.  We will remedy this by
+// generating a new SSRC
+    mpiRTCPSession->ReassignSSRC(rand_timer32(),
+                         (unsigned char *)"LOCAL SSRC COLLISION");
+
+#if 0 /* [ */
+// We must inform all connections associated with this session to change their
+// SSRC
+    mConnTableLock.acquire();
+    // ** HZM... Trouble...  We may have to put a dummy virtual reassignSSRC in the
+    //   base MpResource, then override it in the MpOutputConnection class, and loop
+    //   through the unsorted list calling that method.
+    for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
+    {
+      if (mpOutputConnections[iConnection]->getRTCPConnection())  // ** HZM... Trouble...
+      {
+//       Set the new SSRC
+         mpOutputConnections[iConnection]->
+                          reassignSSRC((int)mpiRTCPSession->GetSSRC());
+         break;
+      }
+   }
+   mConnTableLock.release();
+#endif /* ] */
+
+// Release Interface References
+   piRTCPConnection->Release();
+   piRTCPSession->Release();
+
+   return;
+}
+
+
+/**
+ *
+ * Method Name:  RemoteSSRCCollision()
+ *
+ *
+ * Inputs:      IRTCPConnection *piRTCPConnection - Interface to associated
+ *                                                   RTCP Connection
+ *              IRTCPSession    *piRTCPSession    - Interface to associated
+ *                                                   RTCP Session
+ *
+ * Outputs:     None
+ *
+ * Returns:     None
+ *              
+ * Description: The RemoteSSRCCollision() event method shall inform the
+ *              recipient of a collision between two remote participants.
+ *              .
+ *               
+ * Usage Notes: 
+ *
+ */
+void MpFlowGraphBase::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection, 
+                                          IRTCPSession     *piRTCPSession)
+{
+
+   // Ignore those events that are for a session other than ours
+   if(mpiRTCPSession != piRTCPSession)
+   {
+      // Release Interface References
+      piRTCPConnection->Release();
+      piRTCPSession->Release();
+      return;
+   }
+
+#if 0 /* [ */
+   // According to standards, we are supposed to ignore remote sites that
+   // have colliding SSRC IDS.
+   mConnTableLock.acquire();
+   // ** HZM... Trouble...  We may have to put a dummy virtual stopReceiveRtp in the
+   //   base MpResource, then override it in the MpInputConnection class, and loop
+   //   through the unsorted list calling that method...  or maybe not...
+   for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
+   {
+      if (mpInputConnections[iConnection] &&  // ** HZM... Trouble...
+          mpInputConnections[iConnection]->getRTCPConnection() == piRTCPConnection) 
+      {
+         // We are supposed to ignore the media of the latter of two terminals
+         // whose SSRC collides  // ** HZM... What?
+         stopReceiveRtp(iConnection);
+         break;
+      }
+   }
+   mConnTableLock.release();
+#endif /* ] */
+
+   // Release Interface References
+   piRTCPConnection->Release();
+   piRTCPSession->Release();
+}
+#endif /* INCLUDE_RTCP ] */
 
 /* ============================ ACCESSORS ================================= */
 
@@ -1083,6 +1266,12 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
       }
       retCode = TRUE;
       break;
+   case MpFlowGraphMsg::FLOWGRAPH_CREATE_RTCP_CONNECTION:
+      retCode = handleCreateRtcpConnection(int1);
+      break;
+   case MpFlowGraphMsg::FLOWGRAPH_DELETE_RTCP_CONNECTION:
+      retCode = handleDeleteRtcpConnection(int1);
+      break;
    default:
       break;
    }
@@ -1427,6 +1616,8 @@ UtlBoolean MpFlowGraphBase::handleRemoveResource(MpResource* pResource)
    delete pDictKey;          // get rid of the dictionary key for the entry
 
    // remove the resource from the unsorted array of resources for this graph
+#define NEW_WAY
+#ifndef NEW_WAY
    found = FALSE;
    for (i=0; i < mResourceCnt; i++)
    {
@@ -1440,6 +1631,20 @@ UtlBoolean MpFlowGraphBase::handleRemoveResource(MpResource* pResource)
          mUnsorted[i] = NULL;      // clear the entry
       }
    }
+#else /* !NEW_WAY ] [ */
+    // HZM, 20120107: Why not just move the last one down to replace the
+    // one being removed, and stop searching at that point?
+   for (i=0; i < mResourceCnt; i++)
+   {
+      if (mUnsorted[i] == pResource)
+      {
+         mUnsorted[i] = mUnsorted[mResourceCnt-1];
+         mUnsorted[mResourceCnt-1] = NULL;
+         break;
+      }
+   }
+   found = (i < mResourceCnt);
+#endif /* !NEW_WAY ] */
 
    if (!found)
    {
@@ -1829,6 +2034,68 @@ OsStatus MpFlowGraphBase::processMessages(void)
 
    return OS_SUCCESS;
 }
+
+#ifdef INCLUDE_RTCP /* [ */
+IRTCPConnection* MpFlowGraphBase::getRTCPConnectionPtr(MpConnectionID connId)
+{
+   IRTCPConnection* ret = NULL;
+   UtlInt search(connId);
+   UtlVoidPtr *value = (UtlVoidPtr*) mRtcpConnMap.findValue(&search);
+   if (value) {
+      ret = (IRTCPConnection*)(value->getValue());
+   }
+   assert(NULL != ret);
+   return ret;
+}
+
+
+void MpFlowGraphBase::createRtcpConnection(MpConnectionID connId)
+{
+   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_CREATE_RTCP_CONNECTION, NULL, NULL, NULL, connId);
+   postMessage(msg);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::createRtcpConnection(%d)", connId);
+}
+
+void MpFlowGraphBase::deleteRtcpConnection(MpConnectionID connId)
+{
+   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_DELETE_RTCP_CONNECTION, NULL, NULL, NULL, connId);
+   postMessage(msg);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::deleteRtcpConnection(%d)", connId);
+}
+
+UtlBoolean MpFlowGraphBase::handleCreateRtcpConnection(MpConnectionID connId)
+{
+   UtlInt *key;
+   UtlVoidPtr *value;
+   if (getRTCPSessionPtr()) {
+      key = new UtlInt(connId);
+      value = new UtlVoidPtr(getRTCPSessionPtr()->CreateRTCPConnection());
+      // Somebody else's problem if CreateRTCPConnection() is NULL -- always add.
+      mRtcpConnMap.insertKeyAndValue(key, value);
+   }
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleCreateRtcpConnection(%d)->%p", connId, value);
+   return TRUE;
+}
+
+UtlBoolean MpFlowGraphBase::handleDeleteRtcpConnection(MpConnectionID connId)
+{
+   UtlInt search(connId);
+   UtlInt *key = (UtlInt*) mRtcpConnMap.find(&search);
+   UtlContainable *pValue = mRtcpConnMap.findValue(&search);
+   UtlVoidPtr *value = (UtlVoidPtr*) pValue;
+   if (value) {
+      getRTCPSessionPtr()->TerminateRTCPConnection((IRTCPConnection*)(value->getValue()));
+   }
+#if 1
+   mRtcpConnMap.removeKeyAndValue(&search, pValue);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleDeleteRtcpConnection(%d)->%p", connId, value);
+   delete key;
+   delete pValue;
+#endif
+   return TRUE;
+}
+
+#endif /* INCLUDE_RTCP ] */
 
 /* ============================ FUNCTIONS ================================= */
 

@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -63,7 +65,7 @@ public:
  * Method Name:  CRTCPRender() - Constructor
  *
  *
- * Inputs:  unsigned long   ulSSRC          - SSRC ID
+ * Inputs:  ssrc_t   ulSSRC          - SSRC ID
  *          IRTCPNotify    *piRTCPNotify    - RTCP Event Notification Interface
  *          INetworkRender *piNetworkRender
  *                                - Pointer to the Network Render interface
@@ -82,7 +84,7 @@ public:
  *
  *
  */
-    CRTCPRender(unsigned long ulSSRC,
+    CRTCPRender(ssrc_t ulSSRC,
                 IRTCPNotify *piRTCPNotify,
                 ISDESReport *piSDESReport=NULL);
 
@@ -345,7 +347,7 @@ public:
  * Method Name: GenerateByeReport
  *
  *
- * Inputs:   unsigned long aulCSRC[]  - Array of Contributing SRCs
+ * Inputs:   ssrc_t aulCSRC[]  - Array of Contributing SRCs
  *           unsigned long ulCSRCs    - Number of CSRCs contain in array
  *           unsigned char *puchReason
  *                          - Reason for the Bye Report being generated
@@ -362,7 +364,7 @@ public:
  *
  *
  */
-    unsigned long GenerateByeReport(unsigned long aulCSRC[],
+    unsigned long GenerateByeReport(ssrc_t aulCSRC[],
                                     unsigned long ulCSRCs,
                                     unsigned char *puchByeReason);
 
@@ -372,7 +374,7 @@ public:
  * Method Name:  ReassignSSRC
  *
  *
- * Inputs:      unsigned long   ulSSRC   - Source ID
+ * Inputs:      ssrc_t   ulSSRC   - Source ID
  *
  * Outputs:     None
  *
@@ -388,7 +390,7 @@ public:
  *
  *
  */
-    void ReassignSSRC(unsigned long ulSSRC);
+    void ReassignSSRC(ssrc_t ulSSRC);
 
 
 
@@ -401,14 +403,14 @@ public:
  *
  * Outputs:      None
  *
- * Returns:      unsigned long - FE SSRC associated with the connection
+ * Returns:      ssrc_t - FE SSRC associated with the connection
  *
  * Description:  Retrieves the FE SSRC associated with a connection.
  *
  * Usage Notes:
  *
  */
-    unsigned long GetRemoteSSRC(void);
+    ssrc_t GetRemoteSSRC(void);
 
 /**
  *
@@ -565,25 +567,25 @@ private:        // Private Data Members
  *
  * Attribute Name:  m_ulLocalSSRC
  *
- * Type:            unsigned long
+ * Type:            ssrc_t
  *
  * Description:  This member shall store the local SSRC ID of the associated
  *               RTP connection.
  *
  */
-      unsigned long m_ulLocalSSRC;
+      ssrc_t m_ulLocalSSRC;
 
 /**
  *
  * Attribute Name:  m_ulRemoteSSRC
  *
- * Type:            unsigned long
+ * Type:            ssrc_t
  *
  * Description:  This member shall store the remote SSRC ID of the
  *               associated RTP connection.
  *
  */
-      unsigned long m_ulRemoteSSRC;
+      ssrc_t m_ulRemoteSSRC;
 
 /**
  *
@@ -610,14 +612,14 @@ private:        // Private Data Members
  *
  * Outputs:      None
  *
- * Returns:      unsigned long - Sender's SSRC associated with the connection
+ * Returns:      ssrc_t - Sender's SSRC associated with the connection
  *
  * Description:  Retrieves the Sender's SSRC associated with a connection.
  *
  * Usage Notes:
  *
  */
-inline unsigned long CRTCPRender::GetRemoteSSRC(void)
+inline ssrc_t CRTCPRender::GetRemoteSSRC(void)
 {
 
     return(m_ulRemoteSSRC);

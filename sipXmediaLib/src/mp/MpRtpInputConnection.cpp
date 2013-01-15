@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -10,6 +10,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "rtcp/RtcpConfig.h"
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -25,7 +26,6 @@
 #include "mp/MpIntResourceMsg.h"
 #include "os/OsLock.h"
 #ifdef INCLUDE_RTCP /* [ */
-#include "rtcp/RtcpConfig.h"
 #include "rtcp/INetDispatch.h"
 #include "rtcp/IRTPDispatch.h"
 #include "rtcp/ISetSenderStatistics.h"
@@ -46,7 +46,7 @@
 // Constructor
 MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
                                            MpConnectionID myID, 
-                                           IRTCPSession *piRTCPSession,
+                                           IRTCPSession *piRTCPSession, // ignored...
                                            int maxRtpStreams,
                                            MprRtpDispatcher::RtpStreamAffinity rtpStreamAffinity)
 : MpResource(resourceName, 0, 0, 0, maxRtpStreams)
@@ -56,14 +56,18 @@ MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
 , mRtpStreamAffinity(rtpStreamAffinity)
 , mIsRtpStarted(FALSE)
 #ifdef INCLUDE_RTCP /* [ */
-, mpiRTCPSession(piRTCPSession)
+// , mpiRTCPSession(piRTCPSession)
 , mpiRTCPConnection(NULL)
 #endif /* INCLUDE_RTCP ] */
 {
    mConnectionId = myID;
 
-#ifdef INCLUDE_RTCP /* [ */
+#ifdef XXX_INCLUDE_RTCP /* [ */
+// RTCP UPDATE:  This needs to move, probably to overridden setFlowGraph()
 // Let's create an RTCP Connection to accompany the MP Connection just created.
+
+xxxx make sure this is not getting compiled zzzz
+
    if(mpiRTCPSession)
    {
        mpiRTCPConnection = mpiRTCPSession->CreateRTCPConnection();
@@ -107,7 +111,8 @@ MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
    mpFromNet = new MprFromNet();
    mpFromNet->setRtpDispatcher(mpRtpDispatcher);
 
-#ifdef INCLUDE_RTCP /* [ */
+#ifdef XXX_INCLUDE_RTCP /* [ */
+// RTCP UPDATE:  This needs to move, probably to overridden setFlowGraph()
 
 // The MprFromNet object needs the RTP and RTCP Dispatch interfaces of the
 // associated RTCP connection so that RTP and RTCP packets may be forwarded
@@ -127,10 +132,11 @@ MpRtpInputConnection::~MpRtpInputConnection()
 
 #ifdef INCLUDE_RTCP /* [ */
 // Let's free our RTCP Connection
-   if(mpiRTCPSession)
-   {
-       mpiRTCPSession->TerminateRTCPConnection(mpiRTCPConnection); 
-   }
+//  Actually... let's don't...
+// if(mpiRTCPSession)
+// {
+//     mpiRTCPSession->TerminateRTCPConnection(mpiRTCPConnection); 
+// }
 #endif /* INCLUDE_RTCP ] */
 }
 
@@ -161,8 +167,8 @@ void MpRtpInputConnection::setConnectionId(MpConnectionID connectionId)
 {
    // Set connection ID for this resource.
    MpResource::setConnectionId(connectionId);
+
    // Set connection ID to contained resources.
-//   mpFromNet->setConnectionId(connectionId); FromNet does not worry connection ID.
    mpRtpDispatcher->setConnectionId(connectionId);
 }
 
@@ -238,12 +244,34 @@ OsStatus MpRtpInputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
          {
              mpFromNet->setFlowGraph(pFlowGraph);
          }
+#ifdef INCLUDE_RTCP /* [ */
+      // Get the RTCP Connection object for this flowgraph connection
+         mpiRTCPConnection = pFlowGraph->getRTCPConnectionPtr(getConnectionId());
+
+      // Let's use the Connection interface to acquire the constituent interfaces
+      // required for dispatching RTP and RTCP packets received from the network as
+      // well as the statistics interface tabulating RTP packets going to the network.
+         INetDispatch         *piRTCPDispatch = NULL;
+         IRTPDispatch         *piRTPDispatch = NULL;
+         ISetSenderStatistics *piRTPAccumulator = NULL;
+
+         if(mpiRTCPConnection)
+         {
+             mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch,
+                                            &piRTPDispatch, &piRTPAccumulator);
+         }
+      // The MprFromNet object needs the RTP and RTCP Dispatch interfaces of the
+      // associated RTCP connection so that RTP and RTCP packets may be forwarded
+      // to the correct location.
+         mpFromNet->setDispatchers(piRTPDispatch, piRTCPDispatch);
+#endif /* INCLUDE_RTCP ] */
       }
       else
       {
          mpRtpDispatcher->setNotificationDispatcher(NULL);
       }
    }
+
    return stat;
 }
 

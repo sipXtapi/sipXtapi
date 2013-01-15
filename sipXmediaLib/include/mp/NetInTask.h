@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -41,10 +40,6 @@
 #define RTP_DIR_IN  1
 #define RTP_DIR_OUT 2
 #define RTP_DIR_NEW 4
-
-#define RTCP_DIR_IN  1
-#define RTCP_DIR_OUT 2
-#define RTCP_DIR_NEW 4
 
 // MACROS
 // EXTERNAL FUNCTIONS

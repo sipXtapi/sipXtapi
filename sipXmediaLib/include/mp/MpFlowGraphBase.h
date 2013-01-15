@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -17,6 +16,7 @@
 
 // SYSTEM INCLUDES
 
+#include "rtcp/RtcpConfig.h"
 
 // APPLICATION INCLUDES
 #include <utl/UtlHashMap.h>
@@ -30,6 +30,9 @@
 #include "mp/MpResource.h"
 #include "os/OsMsgDispatcher.h"
 #include "mp/MpResNotificationMsg.h"
+#ifdef INCLUDE_RTCP /* [ */
+#include "rtcp/RTCManager.h"
+#endif /* INCLUDE_RTCP ] */
 
 // DEFINES
 // MACROS
@@ -86,6 +89,10 @@ class OsMsg;
 *  reads are assumed to be atomic.
 */
 class MpFlowGraphBase
+#ifdef INCLUDE_RTCP /* [ */
+                      : public CBaseClass,
+                        public IRTCPNotify
+#endif /* INCLUDE_RTCP ] */
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -455,6 +462,16 @@ public:
      *  @see getLatencyForPath()
      */
 
+#ifdef INCLUDE_RTCP /* [ */
+     /// Returns the RTCP Session interface pointer associated with this call's flow graph.
+   IRTCPSession* getRTCPSessionPtr(void);
+
+   IRTCPConnection* getRTCPConnectionPtr(MpConnectionID connId);
+
+#endif /* INCLUDE_RTCP ] */
+
+   
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -470,6 +487,102 @@ public:
     
 //@}
 
+/* ============================ CALLBACKS ================================= */
+#ifdef INCLUDE_RTCP /* [ */
+
+   void createRtcpConnection(MpConnectionID connId);
+   void deleteRtcpConnection(MpConnectionID connId);
+
+/**
+ *
+ * Method Name:  GetEventInterest()
+ *
+ *
+ * Inputs:      None
+ *
+ * Outputs:     None
+ *
+ * Returns:     unsigned long - Mask of Event Interests
+ *
+ * Description: The GetEventInterest() event method shall allow the dispatcher
+ *              of notifications to access the event interests of a subscriber
+ *              and use these wishes to dispatch RTCP event notifications
+ *
+ * Usage Notes:
+ *
+ */
+    unsigned long GetEventInterest(void);
+
+/**
+ *
+ * Method Name:  LocalSSRCCollision()
+ *
+ *
+ * Inputs:      IRTCPConnection *piRTCPConnection - Interface to
+ *                                                   associated RTCP Connection
+ *              IRTCPSession    *piRTCPSession    - Interface to associated
+ *                                                   RTCP Session
+ *
+ * Outputs:     None
+ *
+ * Returns:     None
+ *
+ * Description: The LocalSSRCCollision() event method shall inform the
+ *              recipient of a collision between the local SSRC and one
+ *              used by one of the remote participants.
+ *
+ * Usage Notes:
+ *
+ */
+    void LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
+                            IRTCPSession       *piRTCPSession);
+
+
+/**
+ *
+ * Method Name:  RemoteSSRCCollision()
+ *
+ *
+ * Inputs:      IRTCPConnection *piRTCPConnection - Interface to associated
+ *                                                    RTCP Connection
+ *              IRTCPSession    *piRTCPSession    - Interface to associated
+ *                                                    RTCP Session
+ *
+ * Outputs:     None
+ *
+ * Returns:     None
+ *
+ * Description: The RemoteSSRCCollision() event method shall inform the
+ *              recipient of a collision between two remote participants.
+ *              .
+ *
+ * Usage Notes:
+ *
+ */
+    void RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,
+                             IRTCPSession       *piRTCPSession);
+
+
+/**
+ *
+ * Macro Name:  DECLARE_IBASE_M
+ *
+ *
+ * Inputs:      None
+ *
+ * Outputs:     None
+ *
+ * Returns:     None
+ *
+ * Description: This implements the IBaseClass functions used and exposed by
+ *              derived classes.
+ *
+ * Usage Notes:
+ *
+ *
+ */
+DECLARE_IBASE_M
+#endif /* INCLUDE_RTCP ] */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    OsRWMutex        mRWMutex;      // reader/writer lock for synchronization
@@ -516,6 +629,11 @@ protected:
      *  @retval FALSE otherwise.
      */
 
+#ifdef INCLUDE_RTCP /* [ */
+   UtlBoolean handleCreateRtcpConnection(MpConnectionID connId);
+   UtlBoolean handleDeleteRtcpConnection(MpConnectionID connId);
+#endif /* INCLUDE_RTCP ] */
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -543,6 +661,13 @@ private:
                                ///< resource we are working on in processNextFrame().
    static const OsTime smProcessMessagesTimeout; ///< Timeout for receiving messages
                                ///< from the flowgraph queue.
+#ifdef INCLUDE_RTCP /* [ */
+   IRTCPSession* mpiRTCPSession;
+   /// Event Interest Attribute for RTCP Notifications
+   unsigned long mulEventInterest;
+   UtlHashMap mRtcpConnMap;    ///< map of RTCPConnections by connection IDs
+#endif /* INCLUDE_RTCP ] */
+
 
      /// @brief Computes the execution order for the flow graph by performing a 
      /// topological sort on the resource graph.
@@ -728,5 +853,38 @@ UtlString MpFlowGraphBase::getFlowgraphName() const
    snprintf(tmpStr, sizeof(tmpStr), "FG%d", getFlowgraphNum());
    return tmpStr;
 }
+
+#ifdef INCLUDE_RTCP /* [ */
+inline IRTCPSession *MpFlowGraphBase::getRTCPSessionPtr(void)
+{
+    return(mpiRTCPSession);
+}
+
+
+
+/**
+ *
+ * Method Name:  GetEventInterest()
+ *
+ *
+ * Inputs:      None
+ *
+ * Outputs:     None
+ *
+ * Returns:     unsigned long - Mask of Event Interests
+ *
+ * Description: The GetEventInterest() event method shall allow the dispatcher
+ *              of notifications to access the event interests of a subscriber
+ *              and use these wishes to dispatch RTCP event notifications
+ *
+ * Usage Notes:
+ *
+ */
+inline unsigned long MpFlowGraphBase::GetEventInterest(void)
+{
+
+    return(mulEventInterest);
+}
+#endif /* INCLUDE_RTCP ] */
 
 #endif  // _MpFlowGraphBase_h_

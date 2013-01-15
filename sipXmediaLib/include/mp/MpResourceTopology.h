@@ -1,6 +1,5 @@
-//  
-// Copyright (C) 2006-2011 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2006-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -96,7 +95,7 @@ class UtlHashMapIterator;
 *  @brief MpResourceTopology is used to define a set of resources and how they
 *         are to be connected in a flowgraph.
 *
-*  MpResourceTopology is defines a list of resources to be created and a list of
+*  MpResourceTopology defines a list of resources to be created and a list of
 *  connections defining how the resources are to be connected in a flowgraph.
 *  There are two types of MpResourceTopologies that may be defined:
 *  
@@ -114,7 +113,7 @@ class UtlHashMapIterator;
 *  be created.  The actual creation and linking of resources is performed
 *  by the flowgraph itself.  The flowgraph uses a MpResourceFactory to
 *  create the resources listed in the MpResourceTopology.  The list of
-*  resources in the MpResourceTopology are consist of pairs of a resource
+*  resources in the MpResourceTopology consists of pairs of a resource
 *  type and name.  The type is used by the flowgraph to instruct the
 *  MpResourceFactory to create a specific resource type.  The name is
 *  the name the resource is to assume in the flowgraph.
@@ -255,7 +254,7 @@ public:
                                 UtlBoolean allowExternalResources = FALSE) const;
      /**<
      *  A full topology MUST NOT have connections that reference resources
-     *  outside this topology AND all resource MUST be connected to such that
+     *  outside this topology AND all resources MUST be connected to such that
      *  there are no dangling resources.  An incremental topology MAY have
      *  connections that reference resources outside of this topology AND
      *  all resources in this topology MUST have at least one connection.
@@ -263,7 +262,7 @@ public:
      *  @param[out] firstUnconnectedResourceName - first resource found to not
      *              have any connections.
      *  @param[out] firstDanglingResourceName - first resource found to not be
-     *              connected topologically to the rest of the resources.  The
+     *              connected topologically to the rest of the resources.  This
      *              can only be tested in full topologies.  We do not know the
      *              pre-existing topology in the flowgraph for incremental
      *              topologies.
@@ -275,7 +274,7 @@ public:
    OsStatus validateResourceTypes(MpResourceFactory& resourceFactory,
                                   int& firstInvalidResourceIndex) const;
       /**<
-      *  @param[in]  resourceFactory - resource factory yo test against.
+      *  @param[in]  resourceFactory - resource factory to test against.
       *  @param[out] firstInvalidResourceIndex - index of the first resource
       *              found to lack constructor in the provided factory.
       */
@@ -316,7 +315,7 @@ public:
                           UtlString& inputResourceName,
                           int& inputPortIndex);
 
-     /// Get the next logical port, used when the same port number
+     /// Get the next logical port, used when the same port number ???
    int getNextLogicalPortNumber();
      /**<
      *  Used when more than one connection should refer to the same
@@ -330,7 +329,7 @@ public:
      /// Destroy virtual input ports iterator.
    void freeVirtualInputIterator(VirtualPortIterator &portIter);
 
-     /// Get an virtual input data from an iterator.
+     /// Get virtual input data from an iterator.
    OsStatus getNextVirtualInput(VirtualPortIterator &portIter,
                                 UtlString& realResourceName,
                                 int &realPortIndex,
@@ -339,13 +338,13 @@ public:
      /**<
      *  This method can be called after initVirtualInputIterator() to get first
      *  virtual input data and then again to get next virtual input data and
-     *  so on. Reaching the end of the virtual inputs list method starts return
+     *  so on. On reaching the end of the virtual inputs list method returns
      *  OS_NO_MORE_DATA.
      *
      *  @retval OS_NO_MORE_DATA - No more virtual ports available. Output
      *          parameters are not touched.
      *  @retval OS_SUCCESS - Next virtual port fetched and all output parameters
-     *          are filed with correct values.
+     *          are filled with correct values.
      */
 
      /// Initialize virtual output ports iterator.
@@ -354,7 +353,7 @@ public:
      /// Destroy virtual output ports iterator.
    void freeVirtualOutputIterator(VirtualPortIterator &portIter);
 
-     /// Get an virtual output data from an iterator.
+     /// Get virtual output data from an iterator.
    OsStatus getNextVirtualOutput(VirtualPortIterator &portIter,
                                  UtlString& realResourceName,
                                  int &realPortIndex,
@@ -363,13 +362,13 @@ public:
      /**<
      *  This method can be called after initVirtualOutputIterator() to get first
      *  virtual output data and then again to get next virtual output data and
-     *  so on. Reaching the end of the virtual outputs list method starts return
+     *  so on. On reaching the end of the virtual outputs list method returns
      *  OS_NO_MORE_DATA.
      *
      *  @retval OS_NO_MORE_DATA - No more virtual ports available. Output
      *          parameters are not touched.
      *  @retval OS_SUCCESS - Next virtual port fetched and all output parameters
-     *          are filed with correct values.
+     *          are filled with correct values.
      */
 
     /// Dump resources to debug string

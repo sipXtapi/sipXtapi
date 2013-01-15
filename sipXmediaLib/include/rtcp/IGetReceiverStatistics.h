@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -50,7 +52,7 @@ public:
  *
  * Outputs:      None
  *
- * Returns:     unsigned long - The SSRC of the Bye Report
+ * Returns:     ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
@@ -58,7 +60,7 @@ public:
  *
  *
  */
-    virtual unsigned long GetSSRC(void)=0;
+    virtual ssrc_t GetSSRC(void)=0;
 
 /**
  *
@@ -67,17 +69,17 @@ public:
  *
  * Inputs:   None
  *
- * Outputs:  unsigned long  *pulFractionalLoss
+ * Outputs:  uint32_t  *pulFractionalLoss
  *             Fractional Packet Loss
- *           unsigned long  *pulCumulativeLoss
+ *           uint32_t  *pulCumulativeLoss
  *             Cumulative Packet Loss
- *           unsigned long  *pulHighestSequenceNo
+ *           uint32_t  *pulHighestSequenceNo
  *             Highest Sequence Number Received
- *           unsigned long  *pulInterarrivalJitter
+ *           uint32_t  *pulInterarrivalJitter
  *             Interarrival Packet Variance
- *           unsigned long  *pulSRTimestamp
+ *           uint32_t  *pulSRTimestamp
  *             Timestamp of last Sender Report received
- *           unsigned long  *pulPacketDelay
+ *           uint32_t  *pulPacketDelay
  *             Delay between last Sender Report Received and sending this
  *             report
  *
@@ -91,12 +93,12 @@ public:
  *
  *
  */
-virtual void GetReceiverStatistics(unsigned long   *pulFractionalLoss,
-                                   unsigned long   *pulCumulativeLoss,
-                                   unsigned long   *pulHighestSequenceNo,
-                                   unsigned long   *pulInterarrivalJitter,
-                                   unsigned long   *pulSRTimestamp,
-                                   unsigned long   *pulPacketDelay) = 0;
+virtual void GetReceiverStatistics(uint32_t   *pulFractionalLoss,
+                                   uint32_t   *pulCumulativeLoss,
+                                   uint32_t   *pulHighestSequenceNo,
+                                   uint32_t   *pulInterarrivalJitter,
+                                   uint32_t   *pulSRTimestamp,
+                                   uint32_t   *pulPacketDelay) = 0;
 
 
 

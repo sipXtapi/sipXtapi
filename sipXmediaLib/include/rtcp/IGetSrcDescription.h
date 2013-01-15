@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -153,13 +155,13 @@ public:
  *
  * Outputs:      None
  *
- * Returns:     unsigned long - The SSRC of the Bye Report
+ * Returns:     ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
  * Usage Notes:
  */
-    virtual unsigned long GetSSRC(void)=0;
+    virtual ssrc_t GetSSRC(void)=0;
 
 /**
  *

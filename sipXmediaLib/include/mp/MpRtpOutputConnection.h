@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -21,10 +21,8 @@ class MprDejitter;
 class MprFromNet;
 class OsSocket;
 class SdpCodec;
-#ifdef INCLUDE_RTCP /* [ */
 struct IRTCPSession;
 struct IRTCPConnection;
-#endif /* INCLUDE_RTCP ] */
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -103,6 +101,9 @@ public:
    OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
 
 #ifdef INCLUDE_RTCP /* [ */
+
+//// DO WE STILL NEED THIS?
+
      /// Retrieve the RTCP Connection interface associated with this MpRtpOutputConnection
    IRTCPConnection *getRTCPConnection(void);
 #endif /* INCLUDE_RTCP ] */
@@ -124,7 +125,6 @@ protected:
    UtlBoolean         mOutRtpStarted;  ///< Are we currently sending RTP stream?
 
 #ifdef INCLUDE_RTCP /* [ */
-   IRTCPSession    *mpiRTCPSession;    ///< RTCP Session Interface pointer
    IRTCPConnection *mpiRTCPConnection; ///< RTCP Connection Interface pointer
 
 #endif /* INCLUDE_RTCP ] */

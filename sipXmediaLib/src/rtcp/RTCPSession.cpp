@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -290,7 +292,7 @@ bool CRTCPSession::TerminateRTCPConnection(IRTCPConnection *piRTCPConnection)
 void CRTCPSession::ResetAllConnections(unsigned char *puchReason)
 {
 
-    unsigned long aulCSRC[MAX_CONNECTIONS];
+    ssrc_t aulCSRC[MAX_CONNECTIONS];
     unsigned long ulCSRCs = 0;
     CRTCPConnection *poRTCPConnection;
 
@@ -1386,7 +1388,7 @@ void CRTCPSession::RTCPReportingAlarm(IRTCPConnection     *piRTCPConnection,
 void CRTCPSession::RTCPConnectionStopped(IRTCPConnection *piRTCPConnection,
                                          IRTCPSession    *piRTCPSession)
 {
-    unsigned long aulCSRC[MAX_CONNECTIONS];
+    ssrc_t aulCSRC[MAX_CONNECTIONS];
     unsigned long ulCSRCs = 0;
     CRTCPConnection *poRTCPConnection;
 

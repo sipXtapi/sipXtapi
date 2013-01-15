@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -45,7 +47,7 @@ public:
  * Method Name:  SetSSRC
  *
  *
- * Inputs:      unsigned long   ulSSRC   - Source ID
+ * Inputs:      unsigned ssrc_t   ulSSRC   - Source ID
  *
  * Outputs:     None
  *
@@ -60,7 +62,7 @@ public:
  *
  *
  */
-    virtual void SetSSRC(unsigned long ulSSRC) = 0;
+    virtual void SetSSRC(ssrc_t ulSSRC) = 0;
 
 /**
  *
@@ -88,13 +90,13 @@ public:
  * Method Name:  FormatSenderReport
  *
  *
- * Inputs:      unsigned long ulBufferSize -
+ * Inputs:      uint32_t ulBufferSize -
  *                 Optional size defining the length allocated for the buffer
  *
  * Outputs:     unsigned char *puchReportBuffer -
  *                 Buffer used to store the contents of the Sender Report
  *
- * Returns:     unsigned long -
+ * Returns:     uint32_t -
  *                 Returns the number of octets written into the buffer.
  *
  * Description: Constructs a Sender report using the buffer passed in by the

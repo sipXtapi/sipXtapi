@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -248,7 +250,7 @@ public:
  *
  *
  */
-    virtual void GetRTPTimestamp(unsigned long *pulTimestamp)=0;
+    virtual void GetRTPTimestamp(uint32_t *pulTimestamp)=0;
 
 
 /**
@@ -270,7 +272,7 @@ public:
  *
  *
  */
-    virtual void GetRecvTimestamp(unsigned long *pulTimestamp)=0;
+    virtual void GetRecvTimestamp(uint32_t *pulTimestamp)=0;
 
 
 /**
@@ -290,7 +292,7 @@ public:
  *
  *
  */
-    virtual unsigned long GetSSRC(void)=0;
+    virtual ssrc_t GetSSRC(void)=0;
 
 
 
@@ -315,7 +317,7 @@ public:
  *
  *
  */
-    virtual unsigned long GetCSRC(unsigned long *paulCSRC, bool bNBO)=0;
+    virtual unsigned long GetCSRC(ssrc_t *paulCSRC, bool bNBO)=0;
 
 
 };

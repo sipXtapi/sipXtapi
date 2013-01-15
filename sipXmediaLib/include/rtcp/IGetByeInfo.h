@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -50,7 +52,7 @@ public:
  *
  * Outputs:      None
  *
- * Returns:     unsigned long - The SSRC of the Bye Report
+ * Returns:     ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
@@ -58,7 +60,7 @@ public:
  *
  *
  */
-    virtual unsigned long GetSSRC(void)=0;
+    virtual ssrc_t GetSSRC(void)=0;
 
 
 /**
@@ -93,7 +95,7 @@ public:
  *           Flag identifying whether data should be represented in NBO format
 
  *
- * Outputs: unsigned long *paulCSRC
+ * Outputs: ssrc_t *paulCSRC
  *           Contributing Source Identifier(s) Array pointer
  *
  * Returns: unsigned long - Number of Contributing Source Identifier(s)
@@ -105,7 +107,7 @@ public:
  *
  *
  */
-    virtual unsigned long GetCSRC(unsigned long *paulCSRC, bool bNBO=FALSE)=0;
+    virtual unsigned long GetCSRC(ssrc_t *paulCSRC, bool bNBO=FALSE)=0;
 
 /**
  *

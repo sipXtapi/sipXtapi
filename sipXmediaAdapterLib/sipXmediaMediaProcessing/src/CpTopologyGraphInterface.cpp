@@ -1,6 +1,6 @@
 // 
-// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
-// 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -534,7 +534,7 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
 
       // Not sure why the audio sockets are set upon creation.  Setting the sockets
       // causes them to be read.  It would seem either they should be read all the time and dropped
-      // on the floor or they should only be read when we are recieving.  We currently stop reading
+      // on the floor or they should only be read when we are receiving.  We currently stop reading
       // when we stopRtpReceive.
       //
       // construct and send message to set sockets on video in rtp connection
@@ -1062,6 +1062,12 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
     OsStatus returnCode = OS_NOT_FOUND;
     CpTopologyMediaConnection* pMediaConnection = getMediaConnection(connectionId);
 
+    if (remoteRtcpPort < 1)
+    {
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination called with RTCP port==%d.  Setting to %d", remoteRtcpPort, remoteRtpPort+1);
+        remoteRtcpPort = remoteRtpPort + 1;
+    }
+
     if(pMediaConnection && remoteRtpHostAddress && *remoteRtpHostAddress)
     {
         returnCode = OS_SUCCESS;
@@ -1088,7 +1094,7 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                         OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpAudioSocket;
                         pSocket->readyDestination(remoteRtpHostAddress, remoteRtpPort) ;
                         pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtpPort) ;
-                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote address: %s port: %d",
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote RTP address: %s port: %d",
                             remoteRtpHostAddress, remoteRtpPort);
                     }
                     else
@@ -1106,6 +1112,8 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                         OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpAudioSocket;
                         pSocket->readyDestination(remoteRtpHostAddress, remoteRtcpPort);
                         pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtcpPort);
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote RTCP address: %s port: %d",
+                            remoteRtpHostAddress, remoteRtcpPort);
                     }
                     else
                     {
@@ -1138,6 +1146,8 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                     OsNatDatagramSocket *pRtpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpVideoSocket;
                     pRtpSocket->readyDestination(remoteRtpHostAddress, remoteRtpPort);
                     pRtpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtpPort);
+                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote Video RTP address: %s port: %d",
+                        remoteRtpHostAddress, remoteRtpPort);
                 }
                 else
                 {
@@ -1154,6 +1164,8 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                        OsNatDatagramSocket *pRctpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpVideoSocket;
                        pRctpSocket->readyDestination(remoteRtpHostAddress, remoteRtcpPort);
                        pRctpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtcpPort);
+                       OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote Video RTCP address: %s port: %d",
+                           remoteRtpHostAddress, remoteRtcpPort);
                     }
                     else
                     {

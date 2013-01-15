@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -62,7 +64,7 @@ const int   HEADER_LENGTH       = 12;
  *
  *
  */
-CRTPHeader::CRTPHeader(unsigned long ulSSRC,
+CRTPHeader::CRTPHeader(ssrc_t ulSSRC,
           unsigned char *puchHeaderData, unsigned long ulPacketLength) :
         m_ulVersion(2),
         m_ulPadding(0),
@@ -175,12 +177,12 @@ unsigned long CRTPHeader::ParseRTPHeader(unsigned char *puchRTPBuffer,
     puchRTPHeader += sizeof(short);
 
     // Extract RTP Timestamp
-    m_ulRTPTimestamp = ntohl(*((unsigned long *)puchRTPHeader));
-    puchRTPHeader += sizeof(long);
+    m_ulRTPTimestamp = ntohl(*((uint32_t *)puchRTPHeader));
+    puchRTPHeader += sizeof(uint32_t);
 
 
     // Check for valid SSRC if set
-    unsigned long ulSSRC = ntohl(*((unsigned long *)puchRTPHeader));
+    ssrc_t ulSSRC = ntohl(*((ssrc_t *)puchRTPHeader));
     if(m_ulSSRC && ulSSRC != m_ulSSRC)
     {
         osPrintf("**** FAILURE **** CRTPHeader::ParseRTPHeader()"
@@ -190,10 +192,10 @@ unsigned long CRTPHeader::ParseRTPHeader(unsigned char *puchRTPBuffer,
 
     // Load SSRC
     m_ulSSRC = ulSSRC;
-    puchRTPHeader += sizeof(long);
+    puchRTPHeader += sizeof(ssrc_t);
 
     // Load CSRC
-    unsigned long *paulCSRCs = ((unsigned long *)puchRTPHeader);
+    ssrc_t *paulCSRCs = ((ssrc_t *)puchRTPHeader);
     for(unsigned long ulCount = 0;
         ulCount < MAX_CSRCS && ulCount < m_ulCSRCCount;
         ulCount++)
@@ -260,12 +262,12 @@ unsigned long CRTPHeader::FormatRTPHeader(unsigned char *puchRTPBuffer,
     puchRTPHeader    += sizeof(unsigned short);
 
     // Load RTP Timestamp
-    *((unsigned long *)puchRTPHeader) = htonl(m_ulRTPTimestamp);
-    puchRTPHeader    += sizeof(unsigned long);
+    *((rtpts_t *)puchRTPHeader) = htonl(m_ulRTPTimestamp);
+    puchRTPHeader    += sizeof(rtpts_t);
 
     // Load SSRC
-    *((unsigned long *)puchRTPHeader) = htonl(m_ulSSRC);
-    puchRTPHeader    += sizeof(unsigned long);
+    *((ssrc_t *)puchRTPHeader) = htonl(m_ulSSRC);
+    puchRTPHeader    += sizeof(ssrc_t);
 
     // Load CSRC
     // unsigned long *paulCSRCs = (unsigned long *)puchRTPHeader;
@@ -273,8 +275,8 @@ unsigned long CRTPHeader::FormatRTPHeader(unsigned char *puchRTPBuffer,
     for(unsigned long ulCount = 0;
                     ulCount < MAX_CSRCS && ulCount < m_ulCSRCCount; ulCount++)
     {
-        *((unsigned long *)puchRTPHeader) = htonl(m_aulCSRC[ulCount]); // $$$$
-        puchRTPHeader += sizeof(unsigned long);
+        *((ssrc_t *)puchRTPHeader) = htonl(m_aulCSRC[ulCount]); // $$$$
+        puchRTPHeader += sizeof(ssrc_t);
     }
 
     return(puchRTPHeader - puchRTPBuffer);
@@ -302,7 +304,7 @@ unsigned long CRTPHeader::GetHeaderLength(void)
 {
 
     // Return the header length
-    return(HEADER_LENGTH + (m_ulCSRCCount * sizeof(long)));
+    return(HEADER_LENGTH + (m_ulCSRCCount * sizeof(ssrc_t)));
 
 }
 
@@ -469,7 +471,7 @@ unsigned long CRTPHeader::GetSequenceNo(void)
  *
  * Inputs:      None
  *
- * Outputs:     unsigned long *pulTimestamp    - RTP Packet Timestamp
+ * Outputs:     uint32_t *pulTimestamp    - RTP Packet Timestamp
  *
  * Returns:     void
  *
@@ -479,7 +481,7 @@ unsigned long CRTPHeader::GetSequenceNo(void)
  *
  *
  */
-void CRTPHeader::GetRTPTimestamp(unsigned long *pulTimestamp)
+void CRTPHeader::GetRTPTimestamp(uint32_t *pulTimestamp)
 {
 
     // Return RTP Timestamp
@@ -494,7 +496,7 @@ void CRTPHeader::GetRTPTimestamp(unsigned long *pulTimestamp)
  *
  * Inputs:      None
  *
- * Outputs:     unsigned long *pulTimestamp    - Packet Receive Timestamp
+ * Outputs:     uint32_t *pulTimestamp    - Packet Receive Timestamp
  *
  * Returns:     void
  *
@@ -504,7 +506,7 @@ void CRTPHeader::GetRTPTimestamp(unsigned long *pulTimestamp)
  *
  *
  */
-void CRTPHeader::GetRecvTimestamp(unsigned long *pulRecvTimestamp)
+void CRTPHeader::GetRecvTimestamp(rtpts_t *pulRecvTimestamp)
 {
 
     // Return RTP Receive Timestamp
@@ -523,7 +525,7 @@ void CRTPHeader::GetRecvTimestamp(unsigned long *pulRecvTimestamp)
  *
  * Outputs:     None
  *
- * Returns:     unsigned long - Packet Source Identifier
+ * Returns:     ssrc_t - Packet Source Identifier
  *
  * Description: Returns the SSRC value from the RTP packet.
  *
@@ -531,7 +533,7 @@ void CRTPHeader::GetRecvTimestamp(unsigned long *pulRecvTimestamp)
  *
  *
  */
-unsigned long CRTPHeader::GetSSRC(void)
+ssrc_t CRTPHeader::GetSSRC(void)
 {
 
     // Return SSRC
@@ -547,7 +549,7 @@ unsigned long CRTPHeader::GetSSRC(void)
  *
  * Inputs:   None
  *
- * Outputs:  unsigned long *paulCSRC
+ * Outputs:  ssrc_t *paulCSRC
  *                          - Contributing Source Identifier(s) Array pointer
  *           bool bNBO      - TRUE => data should be represented in NBO format
  *
@@ -559,7 +561,7 @@ unsigned long CRTPHeader::GetSSRC(void)
  *
  *
  */
-unsigned long CRTPHeader::GetCSRC(unsigned long *paulCSRC, bool bNBO)
+unsigned long CRTPHeader::GetCSRC(ssrc_t *paulCSRC, bool bNBO)
 {
 
     // Loop through the list of CSRCs
@@ -646,7 +648,7 @@ void CRTPHeader::SetSequenceNo(unsigned long ulSequenceNo)
  *
  *
  */
-void CRTPHeader::SetRTPTimestamp(unsigned long ulRTPTimestamp)
+void CRTPHeader::SetRTPTimestamp(rtpts_t ulRTPTimestamp)
 {
 
     // Set RTP Timestamp
@@ -672,7 +674,7 @@ void CRTPHeader::SetRTPTimestamp(unsigned long ulRTPTimestamp)
  *
  *
  */
-void CRTPHeader::SetRecvTimestamp(unsigned long ulRecvTimestamp)
+void CRTPHeader::SetRecvTimestamp(rtpts_t ulRecvTimestamp)
 {
 
     // Set Receive Timestamp

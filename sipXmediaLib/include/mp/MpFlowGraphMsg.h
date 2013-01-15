@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2009 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -39,7 +38,7 @@ public:
    /// Phone set message types
    typedef enum
    {
-      FLOWGRAPH_ADD_LINK,
+      FLOWGRAPH_ADD_LINK = 0,
       FLOWGRAPH_ADD_RESOURCE,
       FLOWGRAPH_DESTROY_RESOURCES,
       FLOWGRAPH_DISABLE,
@@ -60,10 +59,13 @@ public:
       FLOWGRAPH_STOP_PLAY,
       FLOWGRAPH_STOP_TONE,
       FLOWGRAPH_STOP_RECORD,
-      
+
       FLOWGRAPH_SYNCHRONIZE,
 
       FLOWGRAPH_GET_LATENCY_FOR_PATH,
+
+      FLOWGRAPH_CREATE_RTCP_CONNECTION,
+      FLOWGRAPH_DELETE_RTCP_CONNECTION,
 
       RESOURCE_SPECIFIC_START = 100     ///< start of resource-specific messages
    } MpFlowGraphMsgType;

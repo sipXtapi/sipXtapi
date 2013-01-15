@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -12,6 +14,7 @@
 
     // Includes
 #include "rtcp/RTCPRender.h"
+// #include "os/OsSysLog.h"
 #ifdef INCLUDE_RTCP /* [ */
 
 
@@ -40,7 +43,7 @@ const int MAX_BUFFER_SIZE = 1500;
  *
  *
  */
-CRTCPRender::CRTCPRender(unsigned long ulSSRC,
+CRTCPRender::CRTCPRender(ssrc_t ulSSRC,
           IRTCPNotify *piRTCPNotify, ISDESReport *piSDESReport):
           m_piNetworkRender(NULL),
           m_ulReportCount(0),
@@ -226,7 +229,7 @@ void CRTCPRender::GetReceiveStatInterface(
  * Returns:      void
  *
  * Description:  This method returns the Sender Interface used to set
- *               statistics in the Sedner Report object.
+ *               statistics in the Sender Report object.
  *
  * Usage Notes:
  *
@@ -461,8 +464,8 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
 
     // During this reporting cycle, we shall generate RTCP Sender (if
     //  necessary), Receiver, and SDES Report.
-    unsigned long ulReportMask   = 0;
-    unsigned long ulReportLength = 0;
+    uint32_t ulReportMask   = 0;
+    uint32_t ulReportLength = 0;
     unsigned char uchRTCPReport[MAX_BUFFER_SIZE];
 
 
@@ -507,6 +510,7 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
         ulReportLength += ulAppendLength;
     }
 
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP: sending report (size is %d) thru %p", ulReportLength, m_piNetworkRender);
 
     // Let's take the formatted octet string and transmit it to a deserving
     // recipient through use of the Network Render object's service interface.
@@ -544,7 +548,7 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
  *
  *
  */
-unsigned long CRTCPRender::GenerateByeReport(unsigned long aulCSRC[],
+unsigned long CRTCPRender::GenerateByeReport(ssrc_t aulCSRC[],
                           unsigned long ulCSRCs, unsigned char *puchByeReason)
 
 {
@@ -595,7 +599,7 @@ unsigned long CRTCPRender::GenerateByeReport(unsigned long aulCSRC[],
  *
  *
  */
-void CRTCPRender::ReassignSSRC(unsigned long ulSSRC)
+void CRTCPRender::ReassignSSRC(ssrc_t ulSSRC)
 {
 
     // Reset the locally stored SSRC ID

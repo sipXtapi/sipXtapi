@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -64,7 +63,7 @@ public:
  * Method Name:  CSourceDescription() - Constructor
  *
  *
- * Inputs:      unsigned long   ulSSRC       - SSRC ID
+ * Inputs:      ssrc_t   ulSSRC       - SSRC ID
  *              unsigned char  *puchName     - NAME field
  *              unsigned char  *puchEmail    - EMAIL field
  *              unsigned char  *puchPhone    - PHONE field
@@ -87,7 +86,7 @@ public:
  *              list.
  *
  */
-    CSourceDescription(unsigned long ulSSRC=0,
+    CSourceDescription(ssrc_t ulSSRC=0,
                        unsigned char *puchName=NULL,
                        unsigned char *puchEmail=NULL,
                        unsigned char *puchPhone=NULL,
@@ -272,7 +271,7 @@ public:
  *
  * Outputs:      None
  *
- * Returns:     unsigned long - The SSRC of the Bye Report
+ * Returns:     ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
@@ -280,14 +279,14 @@ public:
  *
  *
  */
-    virtual unsigned long GetSSRC(void);
+    virtual ssrc_t GetSSRC(void);
 
 /**
  *
  * Method Name:  SetSSRC
  *
  *
- * Inputs:      unsigned long   ulSSRC   - Source ID
+ * Inputs:      ssrc_t   ulSSRC   - Source ID
  *
  * Outputs:     None
  *
@@ -300,7 +299,7 @@ public:
  *
  *
  */
-    virtual void SetSSRC(unsigned long ulSSRC);
+    virtual void SetSSRC(ssrc_t ulSSRC);
 
 
 /**
@@ -1296,7 +1295,7 @@ inline IGetSrcDescription *CSourceDescription::GetAccessInterface(void)
  *
  * Outputs:      None
  *
- * Returns:     unsigned long - The SSRC of the Bye Report
+ * Returns:     ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
@@ -1304,7 +1303,7 @@ inline IGetSrcDescription *CSourceDescription::GetAccessInterface(void)
  *
  *
  */
-inline unsigned long CSourceDescription::GetSSRC(void)
+inline ssrc_t CSourceDescription::GetSSRC(void)
 {
 
     return(CRTCPHeader::GetSSRC());

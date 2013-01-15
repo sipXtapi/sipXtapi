@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -57,7 +59,7 @@ public:
  *
  *
  */
-    virtual unsigned long GetSSRC(void)=0;
+    virtual ssrc_t GetSSRC(void)=0;
 
 /**
  *
@@ -78,8 +80,8 @@ public:
  *
  *
  */
-    virtual void GetSenderStatistics(unsigned long *ulPacketCount,
-        unsigned long *ulOctetCount) = 0;
+    virtual void GetSenderStatistics(uint32_t *ulPacketCount,
+        uint32_t *ulOctetCount) = 0;
 
 };
 

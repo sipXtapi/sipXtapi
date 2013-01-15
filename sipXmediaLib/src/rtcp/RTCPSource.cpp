@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -69,7 +71,7 @@ bool SDESSsrcComparitor(CSourceDescription *poReceiverReport, void *pvArgument)
  *               Sender objects associated with an inbound RTP connection.
  *
  */
-CRTCPSource::CRTCPSource(unsigned long ulSSRC, IRTCPNotify *piRTCPNotify,
+CRTCPSource::CRTCPSource(ssrc_t ulSSRC, IRTCPNotify *piRTCPNotify,
                          ISetReceiverStatistics *piSetStatistics)
               :m_poSenderReport(NULL), m_poByeReport(NULL)
 {
@@ -712,7 +714,7 @@ unsigned long CRTCPSource::ProcessSDESReport(unsigned char *puchRTCPReport)
     unsigned long       ulEventMask      = 0;
     unsigned long       ulSDESLength     = 0;
     unsigned long       ulReportCount    = 0;
-    unsigned long       ulSenderSSRC     = 0;
+    ssrc_t       ulSenderSSRC     = 0;
     unsigned long       ulReportSize     = GetReportLength(puchRTCPReport);
     CSourceDescription *poSDESReport     = NULL;
 
