@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -69,6 +69,9 @@ public:
      /**<
      *  @returns Number of unknown codecs in the list. Zero for full success.
      */
+
+     /// Add codecs specified by array of codec token names and assign given payload ID
+   int addCodecs(int numTokens, const char* codecTokens[], int payloadIds[]);
 
      /// Add specified codecs to the list.
    int addCodecs(int codecCount, SdpCodec::SdpCodecTypes codecTypes[]);

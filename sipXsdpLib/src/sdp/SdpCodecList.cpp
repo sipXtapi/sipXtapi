@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -171,6 +171,46 @@ int SdpCodecList::addCodecs(const UtlString &codecList)
    return numRejected;
 }
 #endif/* !_VXWORKS ] */
+
+int SdpCodecList::addCodecs(int numTokens, const char* codecTokens[], int payloadIds[])
+{
+    UtlString oneToken;
+    int numRejected = 0;
+    SdpCodec::SdpCodecTypes codecs[1];
+    SdpCodec::SdpCodecTypes internalCodecId;
+
+    for(int tokenIndex = 0; tokenIndex < numTokens; tokenIndex++)
+    {
+        oneToken = codecTokens[tokenIndex];
+        oneToken.strip(UtlString::both);
+
+        if(! oneToken.isNull())
+        {
+            internalCodecId = SdpDefaultCodecFactory::getCodecType(oneToken.data());
+            if (internalCodecId != SdpCodec::SDP_CODEC_UNKNOWN)
+            {
+                codecs[0] = internalCodecId;
+                numRejected += addCodecs(1, codecs);
+
+                // Force to be non-const so that we can set the payload ID
+                SdpCodec* codecAdded = (SdpCodec*) getCodec(internalCodecId);
+                if(codecAdded)
+                {
+                    codecAdded->setCodecPayloadFormat(payloadIds[tokenIndex]);
+                }
+            }
+            else
+            {
+                numRejected++;
+                OsSysLog::add(FAC_SDP, PRI_ERR, 
+                              "SdpCodecList::addCodecs token: %d Invalid codec token: %s",
+                              tokenIndex, oneToken.data());
+            }
+        }
+    }
+
+    return(numRejected);
+}
 
 int SdpCodecList::addCodecs(int codecCount, SdpCodec::SdpCodecTypes codecTypes[])
 {
