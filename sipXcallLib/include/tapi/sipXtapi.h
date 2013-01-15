@@ -2549,12 +2549,16 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpSetDestination(const SIPX_CONF hC
  *  @param[in] hConf - conference handle indicating which media interface the connection
  *       belongs.
  *  @param[in] connectionId - handle/id for media connection
- *  @param[in] codecTokens - space delimited list of codec names.
+ *  @param[in] numTokens - number of codec tokens in codecTokens array
+ *  @param[in] codecTokens - array of codec names
+ *  @param[in] payloadIds - payload ID to use for corresponding codec in codecTokens array
  *
  */
 SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStartSend(const SIPX_CONF hConf,
                                                          int connectionId,
-                                                         const char* codecTokens);
+                                                         int numTokens,
+                                                         const char* codecTokens[],
+                                                         int payloadIds[]);
 
 /**
  *  Stop sending RTP/RTCP

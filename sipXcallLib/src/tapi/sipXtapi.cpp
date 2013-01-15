@@ -4651,7 +4651,9 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpSetDestination(const SIPX_CONF hC
 
 SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStartSend(const SIPX_CONF hConf,
                                                          int connectionId,
-                                                         const char* codecTokens)
+                                                         int numTokens,
+                                                         const char* codecTokens[],
+                                                         int payloadIds[])
 {
     SIPX_RESULT status = SIPX_RESULT_INVALID_ARGS;
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxMediaConnectionRtpStartSend");
@@ -4668,7 +4670,7 @@ SIPXTAPI_API SIPX_RESULT sipxMediaConnectionRtpStartSend(const SIPX_CONF hConf,
         if(callManager && !callId.isNull())
         {
             SdpCodecList codecList;
-            codecList.addCodecs(codecTokens);
+            codecList.addCodecs(numTokens, codecTokens, payloadIds);
 
             // Make sure the codecs are bound to payload ID.  Codecs with unbound payload IDs are set to -1
             codecList.bindPayloadTypes();
