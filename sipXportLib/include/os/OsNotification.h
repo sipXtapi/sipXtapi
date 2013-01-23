@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -17,6 +19,7 @@
 // APPLICATION INCLUDES
 #include <os/OsStatus.h>
 #include <os/OsIntTypes.h>
+#include <os/OsTime.h>
 
 // DEFINES
 // MACROS
@@ -36,8 +39,10 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsNotification() { };
-     //:Default constructor
+   //:Default constructor
+   OsNotification() :
+      mSignalTimeout(OsTime::OS_INFINITY)
+    { };
 
    virtual
       ~OsNotification() { };
@@ -48,12 +53,19 @@ public:
    virtual OsStatus signal(const intptr_t eventData) = 0;
      //:Signal the occurrence of the event
 
+   /// Set timeout to use when signalling if supported by derived class
+   virtual void setTimeout(const OsTime& signalTimeout)
+   {
+       mSignalTimeout = signalTimeout;
+   };
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   OsTime mSignalTimeout;   ///< Used by derived classes that support a timeout on signal
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
