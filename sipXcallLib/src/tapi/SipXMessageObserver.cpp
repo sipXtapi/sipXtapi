@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -160,49 +160,42 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
                 // we are unaware of the call context
             }
             
-            SIPX_INFO_DATA* pInfoData = new SIPX_INFO_DATA;
+            SIPX_INFO_INFO infoData;
             
-            memset((void*)pInfoData, 0, sizeof(SIPX_INFO_DATA));
-            pInfoData->infoData.nSize = sizeof(SIPX_INFO_INFO);
-            pInfoData->infoData.hCall = hCall;
-            pInfoData->infoData.hLine = hLine;
+            infoData.nSize = sizeof(SIPX_INFO_INFO);
+            infoData.hCall = hCall;
+            infoData.hLine = hLine;
             Url fromUrl;
             
-            pInfoData->infoData.szFromURL = lineId.data();
-            pInfoData->infoData.nContentLength = pMessage->getContentLength();
+            infoData.szFromURL = lineId.data();
+            infoData.nContentLength = pMessage->getContentLength();
             
             // get and set the content type
             UtlString contentType;
             pMessage->getContentType(&contentType) ;
-            pInfoData->infoData.szContentType = strdup(contentType.data());
+            infoData.szContentType = contentType.data();
             
             // get the user agent
             UtlString userAgent;
             pMessage->getUserAgentField(&userAgent);
-            pInfoData->infoData.szUserAgent = strdup(userAgent.data());
+            infoData.szUserAgent = userAgent.data();
             
             // get the content
             UtlString body;
             int dummyLength = pMessage->getContentLength();
             const HttpBody* pBody = pMessage->getBody();
             pBody->getBytes(&body, &dummyLength);    
-            pInfoData->infoData.pContent = body.data();
+            infoData.pContent = body.data();
             
-            // set the Instance
-            pInfoData->pInst = pInst;
-            
-            // Create Mutex
-            pInfoData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO);
-
             UtlVoidPtr* ptr = NULL;
 	        OsLock eventLock(*g_pEventListenerLock) ;
             UtlSListIterator eventListenerItor(*g_pEventListeners);
             while ((ptr = (UtlVoidPtr*) eventListenerItor()) != NULL)
             {
                 EVENT_LISTENER_DATA *pData = (EVENT_LISTENER_DATA*) ptr->getValue();
-                if (pData->pInst == pInfoData->pInst)
+                if (pData->pInst == pInst)
                 {
-                    pData->pCallbackProc(EVENT_CATEGORY_INFO, &(pInfoData->infoData), pData->pUserData);
+                    pData->pCallbackProc(EVENT_CATEGORY_INFO, &infoData, pData->pUserData);
                 }
             }
             
