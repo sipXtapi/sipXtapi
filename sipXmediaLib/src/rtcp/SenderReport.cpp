@@ -14,6 +14,8 @@
 
 // Includes
 
+#include "os/OsIntTypes.h"
+
 #include <assert.h>
 
 #ifdef WIN32

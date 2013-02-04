@@ -10,6 +10,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <os/OsIntTypes.h>
 #include "mp/MpDecoderPayloadMap.h"
 #include <os/OsSysLog.h>
 

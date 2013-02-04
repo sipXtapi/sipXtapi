@@ -14,6 +14,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <os/OsIntTypes.h>
+
 #if defined(_WIN32)
 #       include "resparse/wnt/sysdep.h"
 #       include <resparse/wnt/netinet/in.h>

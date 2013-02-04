@@ -11,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <os/OsIntTypes.h>
 #include <os/OsFS.h>
 #include <os/OsTask.h>
 #include <sipxunittests.h>

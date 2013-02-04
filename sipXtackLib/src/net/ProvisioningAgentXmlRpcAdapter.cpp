@@ -10,6 +10,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <os/OsIntTypes.h>
 #include <os/OsSysLog.h>
 #include "net/XmlRpcRequest.h"
 #include "net/XmlRpcResponse.h"

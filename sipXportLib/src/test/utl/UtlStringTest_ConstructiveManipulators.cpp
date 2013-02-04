@@ -10,6 +10,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <os/OsIntTypes.h>
 #include <utl/UtlStringTest.h>
 #include <string.h>
 #include <utl/UtlString.h>

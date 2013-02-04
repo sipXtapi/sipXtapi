@@ -13,6 +13,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <os/OsIntTypes.h>
 #include <os/OsSysLog.h>
 #include <utl/XmlContent.h>
 #include <net/SipDialogEvent.h>

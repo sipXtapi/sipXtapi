@@ -10,6 +10,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <os/OsIntTypes.h>
 #include <xmlparser/tinyxml.h>
 #include <os/OsSysLog.h>
 #include "net/Url.h"
