@@ -466,7 +466,7 @@ public:
      /// Returns the RTCP Session interface pointer associated with this call's flow graph.
    IRTCPSession* getRTCPSessionPtr(void);
 
-   IRTCPConnection* getRTCPConnectionPtr(MpConnectionID connId);
+   IRTCPConnection* getRTCPConnectionPtr(MpConnectionID connId, int mediaType, int streamId);
 
 #endif /* INCLUDE_RTCP ] */
 
@@ -490,8 +490,8 @@ public:
 /* ============================ CALLBACKS ================================= */
 #ifdef INCLUDE_RTCP /* [ */
 
-   void createRtcpConnection(MpConnectionID connId);
-   void deleteRtcpConnection(MpConnectionID connId);
+   // void createRtcpConnection(MpConnectionID connId, int mediaType, int streamId);
+   // void deleteRtcpConnection(MpConnectionID connId, int mediaType, int streamId);
 
 /**
  *
@@ -629,11 +629,6 @@ protected:
      *  @retval FALSE otherwise.
      */
 
-#ifdef INCLUDE_RTCP /* [ */
-   UtlBoolean handleCreateRtcpConnection(MpConnectionID connId);
-   UtlBoolean handleDeleteRtcpConnection(MpConnectionID connId);
-#endif /* INCLUDE_RTCP ] */
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -661,10 +656,15 @@ private:
                                ///< resource we are working on in processNextFrame().
    static const OsTime smProcessMessagesTimeout; ///< Timeout for receiving messages
                                ///< from the flowgraph queue.
+
 #ifdef INCLUDE_RTCP /* [ */
+   UtlBoolean createRtcpConnection(MpConnectionID connId, int mediaType, int streamId);
+   UtlBoolean deleteRtcpConnection(MpConnectionID connId, int mediaType, int streamId);
+
    IRTCPSession* mpiRTCPSession;
    /// Event Interest Attribute for RTCP Notifications
    unsigned long mulEventInterest;
+   OsMutex mRtcpConnMutex;
    UtlHashMap mRtcpConnMap;    ///< map of RTCPConnections by connection IDs
 #endif /* INCLUDE_RTCP ] */
 

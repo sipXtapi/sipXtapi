@@ -14,6 +14,8 @@
     // Includes
 #include "rtcp/RTPHeader.h"
 
+#include "os/OsSysLog.h"
+
 #ifdef __pingtel_on_posix__
 #include <netinet/in.h>
 #endif
@@ -652,6 +654,7 @@ void CRTPHeader::SetRTPTimestamp(rtpts_t ulRTPTimestamp)
 {
 
     // Set RTP Timestamp
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTPHeader::SetRTPTimestamp(%d=0x%X)", ulRTPTimestamp, ulRTPTimestamp);
     m_ulRTPTimestamp = ulRTPTimestamp;
 
 }

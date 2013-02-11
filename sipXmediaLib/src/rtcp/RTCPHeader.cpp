@@ -124,7 +124,7 @@ unsigned long CRTCPHeader::GetHeaderLength(void)
  *
  * Inputs:      None
  *
- * Outputs:     Bobe
+ * Outputs:     None
  *
  * Returns:     ssrc_t  - Return the SSRC ID
  *
@@ -137,7 +137,7 @@ unsigned long CRTCPHeader::GetHeaderLength(void)
 ssrc_t CRTCPHeader::GetSSRC(void)
 {
 
-    // Return the SSRC in the argument passed
+    // Return the SSRC
     return(m_ulSSRC);
 
 }
@@ -383,7 +383,7 @@ unsigned long CRTCPHeader::FormatRTCPHeader(unsigned char *puchRTCPBuffer,
     *((ssrc_t *)puchRTCPHeader) = htonl(m_ulSSRC);
 
     ret = (puchRTCPBuffer - puchRTCPBuffer);
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPHeader::FormatRTCPHeader(%p, %ld, %ld, %ld), l=%d, ret=%ld", puchRTCPBuffer, ulPadding, ulCount, ulReportLength, l, ret);
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPHeader::FormatRTCPHeader(%p, %ld, %ld, %ld), l=%d, ret=%ld, SSRC=0x%08X", puchRTCPBuffer, ulPadding, ulCount, ulReportLength, l, ret, GetSSRC());
     return ret;
 
 }

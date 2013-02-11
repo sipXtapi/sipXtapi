@@ -332,7 +332,7 @@ public:
  * Usage Notes:
  *
  */
-    virtual unsigned long GetSSRC(void)=0;
+    virtual ssrc_t GetSSRC(int, int, int)=0;
 
 /**
  *

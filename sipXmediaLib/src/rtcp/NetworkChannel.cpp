@@ -375,6 +375,24 @@ int  CNetworkChannel::Send(unsigned char *puchDataBuffer,
     return(iSent);
 }
 
+int CNetworkChannel::getSocketDescriptor(void)
+{
+#ifdef PINGTEL_OSSOCKET
+    return m_rOsSocket.getSocketDescriptor();
+#else
+    return m_hSocket;
+#endif
+}
+
+int CNetworkChannel::getSocketPort(void)
+{
+#ifdef PINGTEL_OSSOCKET
+    return m_rOsSocket.getLocalHostPort();
+#else
+    return -1;
+#endif
+}
+
 
 /*|><|************************************************************************
  Name:          CNetworkChannel::Receive
@@ -614,7 +632,7 @@ void  CNetworkChannel :: SetRemoteAddress( SOCKADDR_IN *lpAddr )
  Name:          CNetworkChannel::GetNewPort
 
  Description:   A private method that generates a new port ID from a pool
-                reserved for communication.  The pool starts ar ID 5000
+                reserved for communication.  The pool starts at ID 5000
                 and continues to 7000.  When 7000 is reached, it wraps
                 back to 5000.
 

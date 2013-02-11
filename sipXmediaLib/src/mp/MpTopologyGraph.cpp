@@ -112,7 +112,7 @@ OsStatus MpTopologyGraph::addResources(MpResourceTopology& incrementalTopology,
 
     assert(resourceFactory);
 
-#ifdef INCLUDE_RTCP /* [ */
+#ifdef ZZZ_INCLUDE_RTCP /* [ */
     if (MP_INVALID_CONNECTION_ID != resourceInstanceId) {
         MpFlowGraphBase::createRtcpConnection(resourceInstanceId);
     }
@@ -165,7 +165,7 @@ OsStatus MpTopologyGraph::destroyResources(MpResourceTopology& resourceTopology,
     removeVirtualInputs(resourceTopology, TRUE, resourceInstanceId);
     removeVirtualOutputs(resourceTopology, TRUE, resourceInstanceId);
 
-#ifdef INCLUDE_RTCP /* [ */
+#ifdef ZZZ_INCLUDE_RTCP /* [ */
     if (MP_INVALID_CONNECTION_ID != resourceInstanceId) {
         MpFlowGraphBase::deleteRtcpConnection(resourceInstanceId);
     }

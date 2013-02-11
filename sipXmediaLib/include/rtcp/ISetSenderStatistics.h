@@ -65,7 +65,7 @@ public:
  * Usage Notes:
  *
  */
-    virtual void IncrementCounts(uint32_t ulOctetCount) = 0;
+    virtual void IncrementCounts(uint32_t ulOctetCount, rtpts_t RTPTimestampBase, rtpts_t RTPTimestamp, ssrc_t ssrc) = 0;
 
 /**
  *
@@ -88,7 +88,7 @@ public:
  * Usage Notes:
  *
  */
-    virtual void SetRTPTimestamp(uint32_t ulRandomOffset,
+    virtual void CSR_SetRTPTimestamp(uint32_t ulRandomOffset,
                      uint32_t ulSamplesPerSecond = SAMPLES_PER_SEC) = 0;
 
 };

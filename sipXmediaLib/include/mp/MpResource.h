@@ -267,7 +267,10 @@ static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
      *  @warning This method directly modifies resource structure.
      */
 
-   /// Receive buffer asyncrhonously from resource at given input port
+     /// Get the ID of a stream within the connection this resource belongs to.
+   virtual int getStreamId(void);
+
+   /// Receive buffer asynchronously from resource at given input port
    virtual OsStatus pushBuffer(int inputPort, MpBufPtr& inputBuffer);
 
 //@}

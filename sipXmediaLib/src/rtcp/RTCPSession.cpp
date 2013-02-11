@@ -80,7 +80,7 @@ CRTCPSession::CRTCPSession(unsigned long ulSSRC,
 {
 
     // Store Local SSRC
-    m_ulSSRC = ulSSRC;
+    m_ulSSRC_XXX = ulSSRC;
 
     // Store RTCP Notification Interface
     m_piRTCPNotify = piRTCPNotify;
@@ -160,7 +160,7 @@ IRTCPConnection * CRTCPSession::CreateRTCPConnection(void)
     CRTCPConnection *poRTCPConnection;
     // Create The RTCP Connection object
     poRTCPConnection =
-           new CRTCPConnection(m_ulSSRC, (IRTCPNotify *)this, m_piSDESReport);
+           new CRTCPConnection(m_ulSSRC_XXX, (IRTCPNotify *)this, m_piSDESReport);
     if (poRTCPConnection == NULL)
     {
         osPrintf("**** FAILURE ***** CRTCPSession::CreateRTCPConnection() -"
@@ -437,7 +437,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
     ResetAllConnections(puchReason);
 
     // Set new Session SSRC
-    m_ulSSRC = ulSSRC;
+    m_ulSSRC_XXX = ulSSRC;
 
     // Check the each entry of the connection list
     CRTCPConnection *poRTCPConnection = GetFirstEntry();
@@ -479,7 +479,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
  *
  * Returns:     void
  *
- * Description: Check that our local SSRC is not colliding with one fo the
+ * Description: Check that our local SSRC is not colliding with one of the
  *              SSRCs of a participating site.
  *
  * Usage Notes:
@@ -487,6 +487,13 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
  *
  *
  */
+
+/******************************************************************
+ *
+ *  THIS NEEDS SERIOUS REVISING, IN THE NEXT ROUND OF CHECKINS.
+ *
+ *****************************************************************/
+
 void CRTCPSession::CheckLocalSSRCCollisions(void)
 {
 
@@ -501,13 +508,13 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
 
         // Get the SSRC ID of the connection to determine whether it is
         //  conflicting with ours
-        if(poRTCPConnection->GetRemoteSSRC() == m_ulSSRC)
+        if(poRTCPConnection->GetRemoteSSRC() == m_ulSSRC_XXX)
         {
             // A collision has been detected.
             // Let's reset all the connections.
             ResetAllConnections((unsigned char *)"SSRC Collision");
 
-            // Let's inform the RTC Manager and its subscribing client's of
+            // Let's inform the RTC Manager and its subscribing clients of
             //  this occurence.
             poRTCPConnection->AddRef();
             ((IRTCPSession *)this)->AddRef();
@@ -1073,6 +1080,37 @@ void CRTCPSession::ByeReportReceived(IGetByeInfo     *piGetByeInfo,
 #endif /* RTCP_DEBUG ] */
 
 }
+
+/**
+ *
+ * Method Name:  GetSSRC()
+ *
+ *
+ * Inputs:       integer triple, identifying the stream
+ *
+ * Outputs:      None
+ *
+ * Returns:      ssrc_t - Local SSRC associated with the session
+ *
+ * Description:  Retrieves the SSRC associated with a session.
+ *
+ * Usage Notes:
+ *
+ */
+
+/******************************************************************
+ *
+ *  THIS IS A QUICK HACK, TO ALLOW OTHER FIXES TO WORK.
+ *  THIS IS TO BE FIXED IN THE NEXT ROUND OF CHECKINS.
+ *
+ *****************************************************************/
+ssrc_t CRTCPSession::GetSSRC(int connID, int mediaType, int streamID)
+{
+    int low = (connID ^ mediaType ^ streamID) & 0xFF;
+    return((m_ulSSRC_XXX & (~0xFF)) | low);
+}
+
+
 
 /**
  *

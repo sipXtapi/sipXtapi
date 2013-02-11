@@ -67,6 +67,7 @@ MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec,
 , mpResourceInProcess(NULL)
 #ifdef INCLUDE_RTCP /* [ */
 , mulEventInterest(LOCAL_SSRC_COLLISION | REMOTE_SSRC_COLLISION)
+, mRtcpConnMutex(OsMutex::Q_FIFO)
 , mRtcpConnMap()
 #endif /* INCLUDE_RTCP ] */
 {
@@ -1266,12 +1267,14 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
       }
       retCode = TRUE;
       break;
+#if 0 /* [ */
    case MpFlowGraphMsg::FLOWGRAPH_CREATE_RTCP_CONNECTION:
       retCode = handleCreateRtcpConnection(int1);
       break;
    case MpFlowGraphMsg::FLOWGRAPH_DELETE_RTCP_CONNECTION:
       retCode = handleDeleteRtcpConnection(int1);
       break;
+#endif /* ] */
    default:
       break;
    }
@@ -2036,62 +2039,77 @@ OsStatus MpFlowGraphBase::processMessages(void)
 }
 
 #ifdef INCLUDE_RTCP /* [ */
-IRTCPConnection* MpFlowGraphBase::getRTCPConnectionPtr(MpConnectionID connId)
+IRTCPConnection* MpFlowGraphBase::getRTCPConnectionPtr(MpConnectionID connId, int mediaType, int streamId)
 {
+   int index = (connId<<16) + (mediaType<<8) + streamId;
    IRTCPConnection* ret = NULL;
-   UtlInt search(connId);
+   UtlInt search(index);
    UtlVoidPtr *value = (UtlVoidPtr*) mRtcpConnMap.findValue(&search);
    if (value) {
       ret = (IRTCPConnection*)(value->getValue());
+   } else {
+      mRtcpConnMutex.acquire();
+      value = (UtlVoidPtr*) mRtcpConnMap.findValue(&search); // see if someone beat us to it...
+      if (value) {
+         ret = (IRTCPConnection*)(value->getValue());
+      } else {
+         createRtcpConnection(connId, mediaType, streamId);
+         value = (UtlVoidPtr*) mRtcpConnMap.findValue(&search);
+         ret = (IRTCPConnection*)(value->getValue());
+      }
+      mRtcpConnMutex.release();
    }
    assert(NULL != ret);
    return ret;
 }
 
-
-void MpFlowGraphBase::createRtcpConnection(MpConnectionID connId)
+#if 0 /* [ */
+void MpFlowGraphBase::createRtcpConnection(MpConnectionID connId, int mediaType, int streamId)
 {
-   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_CREATE_RTCP_CONNECTION, NULL, NULL, NULL, connId);
+   int key = (connId<<16) + (mediaType<<8) + streamId;
+   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_CREATE_RTCP_CONNECTION, NULL, NULL, NULL, key);
    postMessage(msg);
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::createRtcpConnection(%d)", connId);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::createRtcpConnection(%d, %d, %d), key=0x%06X", connId, mediaType, streamId, key);
 }
 
-void MpFlowGraphBase::deleteRtcpConnection(MpConnectionID connId)
+void MpFlowGraphBase::deleteRtcpConnection(MpConnectionID connId, int mediaType, int streamId)
 {
-   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_DELETE_RTCP_CONNECTION, NULL, NULL, NULL, connId);
+   int key = (connId<<16) + (mediaType<<8) + streamId;
+   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_DELETE_RTCP_CONNECTION, NULL, NULL, NULL, key);
    postMessage(msg);
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::deleteRtcpConnection(%d)", connId);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::deleteRtcpConnection(%d, %d, %d), key=0x%06X", connId, mediaType, streamId, key);
 }
+#endif /* ] */
 
-UtlBoolean MpFlowGraphBase::handleCreateRtcpConnection(MpConnectionID connId)
+UtlBoolean MpFlowGraphBase::createRtcpConnection(MpConnectionID connId, int mediaType, int streamId)
 {
+   int index = (connId<<16) + (mediaType<<8) + streamId;
    UtlInt *key;
    UtlVoidPtr *value;
    if (getRTCPSessionPtr()) {
-      key = new UtlInt(connId);
+      key = new UtlInt(index);
       value = new UtlVoidPtr(getRTCPSessionPtr()->CreateRTCPConnection());
       // Somebody else's problem if CreateRTCPConnection() is NULL -- always add.
       mRtcpConnMap.insertKeyAndValue(key, value);
    }
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleCreateRtcpConnection(%d)->%p", connId, value);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleCreateRtcpConnection(%d, %d, %d)->%p", connId, mediaType, streamId, value);
    return TRUE;
 }
 
-UtlBoolean MpFlowGraphBase::handleDeleteRtcpConnection(MpConnectionID connId)
+UtlBoolean MpFlowGraphBase::deleteRtcpConnection(MpConnectionID connId, int mediaType, int streamId)
 {
-   UtlInt search(connId);
+   int index = (connId<<16) + (mediaType<<8) + streamId;
+   UtlInt search(index);
    UtlInt *key = (UtlInt*) mRtcpConnMap.find(&search);
    UtlContainable *pValue = mRtcpConnMap.findValue(&search);
    UtlVoidPtr *value = (UtlVoidPtr*) pValue;
    if (value) {
       getRTCPSessionPtr()->TerminateRTCPConnection((IRTCPConnection*)(value->getValue()));
    }
-#if 1
    mRtcpConnMap.removeKeyAndValue(&search, pValue);
    OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleDeleteRtcpConnection(%d)->%p", connId, value);
    delete key;
    delete pValue;
-#endif
    return TRUE;
 }
 

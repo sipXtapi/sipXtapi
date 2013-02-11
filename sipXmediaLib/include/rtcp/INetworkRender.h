@@ -54,6 +54,8 @@ public:
     virtual int  Send(unsigned char * puchDataBuffer,
                       unsigned long ulBytesToSend) = 0;
 
+    virtual int getSocketDescriptor(void) = 0;
+    virtual int getSocketPort(void) = 0;
 
 };
 

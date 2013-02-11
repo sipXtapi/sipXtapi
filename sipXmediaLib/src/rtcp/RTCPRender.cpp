@@ -14,7 +14,7 @@
 
     // Includes
 #include "rtcp/RTCPRender.h"
-// #include "os/OsSysLog.h"
+#include "os/OsSysLog.h"
 #ifdef INCLUDE_RTCP /* [ */
 
 
@@ -467,6 +467,7 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
     uint32_t ulReportMask   = 0;
     uint32_t ulReportLength = 0;
     unsigned char uchRTCPReport[MAX_BUFFER_SIZE];
+    int sendRet = 0;
 
 
     // Generate Sender Report
@@ -479,6 +480,9 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
         ulReportLength = m_poSenderReport->FormatSenderReport(uchRTCPReport,
                                                              MAX_BUFFER_SIZE);
         ulReportMask |= RTCP_SR_SENT;
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: Created SR, len=%d, mask=0x%X, SSRC=0x%08X, SenderReport=%p", ulReportLength, ulReportMask, m_poSenderReport->GetSSRC(), m_poSenderReport);
+    } else {
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: NOT creating SR, SSRC=0x%08X", m_poSenderReport->GetSSRC());
     }
 
     // Now we will prepare to formulate a reception report.  This report will
@@ -491,7 +495,7 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
 
 
     // Generate SDES Report
-    // Let's increment the report count.  This increases monatonically over
+    // Let's increment the report count.  This increases monotonically over
     //  each reporting period and is used to determine the content of
     //  SDES reports.
     m_ulReportCount++;
@@ -508,6 +512,7 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
         memcpy(uchRTCPReport + ulReportLength,
                                             puchAppendReport, ulAppendLength);
         ulReportLength += ulAppendLength;
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: Appending %d bytes of report", (int) ulAppendLength);
     }
 
     // OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP: sending report (size is %d) thru %p", ulReportLength, m_piNetworkRender);
@@ -515,12 +520,21 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
     // Let's take the formatted octet string and transmit it to a deserving
     // recipient through use of the Network Render object's service interface.
     if(m_piNetworkRender &&
-                      !m_piNetworkRender->Send(uchRTCPReport, ulReportLength))
+                      !(sendRet=m_piNetworkRender->Send(uchRTCPReport, ulReportLength)))
+    
     {
         // Log a meaningful error
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: could not send or Send failed: %p, %d, %d", m_piNetworkRender, sendRet, ulReportLength);
         return(0);
     }
 
+    int sockFD = -1;
+    int sockPort = -1;
+    if (ulReportLength == sendRet) {
+        sockFD = m_piNetworkRender->getSocketDescriptor();
+        sockPort = m_piNetworkRender->getSocketPort();
+    }
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: (this=%p, pSR=%p) returning 0x%X, reportLen=%d, sendRet=%d, socket FD = %d, socket port = %d", this, m_poSenderReport, ulReportMask, ulReportLength, sendRet, sockFD, sockPort);
     return(ulReportMask);
 }
 

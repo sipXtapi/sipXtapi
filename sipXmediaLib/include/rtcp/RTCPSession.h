@@ -357,18 +357,18 @@ public:
  * Method Name:  GetSSRC()
  *
  *
- * Inputs:   None
+ * Inputs:   integer triple, identifying the stream
  *
  * Outputs:  None
  *
- * Returns:  unsigned long - Local SSRC associated with the session
+ * Returns:  ssrc_t - Local SSRC associated with the session
  *
  * Description:  Retrieves the SSRC associated with a session.
  *
  * Usage Notes:
  *
  */
-    unsigned long GetSSRC(void);
+    ssrc_t GetSSRC(int, int, int);
 
 /**
  *
@@ -844,7 +844,7 @@ private:        // Private Data Members
  * Description:  This member shall store the SSRC associated with this session
  *
  */
-      unsigned long m_ulSSRC;
+      unsigned long m_ulSSRC_XXX;
 
 /**
  *
@@ -906,28 +906,6 @@ private:        // Private Data Members
       ISDESReport *m_piSDESReport;
 
 };
-
-
-/**
- *
- * Method Name:  GetSSRC()
- *
- *
- * Inputs:       None
- *
- * Outputs:      None
- *
- * Returns:      unsigned long - Local SSRC associated with the session
- *
- * Description:  Retrieves the SSRC associated with a session.
- *
- * Usage Notes:
- *
- */
-inline unsigned long CRTCPSession::GetSSRC(void)
-{
-    return(m_ulSSRC);
-}
 
 
 /**

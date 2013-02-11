@@ -143,28 +143,28 @@ OsStatus MpRtpOutputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
     if (pFlowGraph != NULL)
     {
         // Get the RTCP Connection object for this flowgraph connection
-        mpiRTCPConnection = pFlowGraph->getRTCPConnectionPtr(getConnectionId());
-     
-     // Let's use the Connection interface to acquire the constituent interfaces
-     // required for dispatching RTP and RTCP packets received from the network as
-     // well as the statistics interface tabulating RTP packets going to the network.
+        mpiRTCPConnection = pFlowGraph->getRTCPConnectionPtr(getConnectionId(), 'A', getStreamId());
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "MpRtpOutConn::setFlowGraph(0x%p) CID=%d, TC=0x%p", pFlowGraph, getConnectionId(), mpiRTCPConnection);
+
+        // Let's use the Connection interface to acquire the constituent interfaces
+        // required for dispatching RTP and RTCP packets received from the network as
+        // well as the statistics interface tabulating RTP packets going to the network.
         INetDispatch         *piRTCPDispatch = NULL;
         IRTPDispatch         *piRTPDispatch = NULL;
         ISetSenderStatistics *piRTPAccumulator = NULL;
-     
+
         if(mpiRTCPConnection)
         {
-            mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch,
-               &piRTPDispatch, &piRTPAccumulator);
-     
-           // Set the Statistics interface to be used by the RTP stream to increment
-           // packet and octet statistics
-           mpToNet->setRTPAccumulator(piRTPAccumulator);
-     
-           // The RTP Stream associated with the MprToNet object must have its SSRC ID
-           // set to the value generated from the Session.
-           mpToNet->setSSRC(pFlowGraph->getRTCPSessionPtr()->GetSSRC());
+           mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch, &piRTPDispatch, &piRTPAccumulator);
         }
+
+        // Set the Statistics interface to be used by the RTP stream to increment
+        // packet and octet statistics
+        mpToNet->setRTPAccumulator(piRTPAccumulator);
+
+        // The RTP Stream associated with the MprToNet object must have its SSRC ID
+        // set to the value generated from the Session.
+        mpToNet->setSSRC(pFlowGraph->getRTCPSessionPtr()->GetSSRC(getConnectionId(), 'A', getStreamId()));
     }
 #endif /* INCLUDE_RTCP ] */
 

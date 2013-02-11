@@ -167,6 +167,8 @@ public:
     virtual int  Send(unsigned char * puchDataBuffer,
                                                unsigned long ulBytesToSend);
 
+    virtual int getSocketDescriptor(void);
+    virtual int getSocketPort(void);
 /*|><|***********************************************************************
  Name:          Close
 

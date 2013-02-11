@@ -108,7 +108,7 @@ public:
    /// Set flowgraph in which this is used for debug purposes
    OsStatus setFlowGraph(MpFlowGraphBase* flowgraph);
 
-   void setSSRC(int iSSRC);
+   void setSSRC(ssrc_t iSSRC);
    inline RtpSRC getSSRC() const;
 #ifdef INCLUDE_RTCP /* [ */
    void   setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator);

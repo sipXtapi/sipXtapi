@@ -221,6 +221,11 @@ void MpResource::setStreamId(int streamId)
    mStreamId = streamId;
 }
 
+int MpResource::getStreamId(void)
+{
+   return mStreamId;
+}
+
 OsStatus MpResource::pushBuffer(int inputPort, MpBufPtr& inputBuffer)
 {
    return(OS_NOT_YET_IMPLEMENTED);

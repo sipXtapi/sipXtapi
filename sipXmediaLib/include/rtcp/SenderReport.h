@@ -125,7 +125,7 @@ public:
  * Usage Notes:
  *
  */
-    void IncrementCounts(uint32_t ulOctetCount);
+    void IncrementCounts(uint32_t ulOctetCount, rtpts_t RTPTimestampBase, rtpts_t RTPTimestamp, ssrc_t ssrc);
 
 /**
  *
@@ -146,7 +146,7 @@ public:
  * Usage Notes:
  *
  */
-    void SetRTPTimestamp(uint32_t ulRandomOffset,
+    void CSR_SetRTPTimestamp(uint32_t ulRandomOffset,
                          uint32_t ulSamplesPerSecond = SAMPLES_PER_SEC);
 
 
@@ -214,7 +214,9 @@ public:
  *
  *
  */
+#if 1 /* [ */
     virtual void SetSSRC(ssrc_t ulSSRC);
+#endif /* ] */
 
 /**
  *
@@ -520,6 +522,7 @@ private:        // Private Data Members
       uint32_t m_ulSamplesPerSecond;
 
 
+#if 0 /* [ */
 /**
  *
  * Attribute Name:  m_ulRandomOffset
@@ -530,8 +533,20 @@ private:        // Private Data Members
  *               established for the RTP Stream.
  *
  */
-    double          m_ulRandomOffset;
+    double          mXXX_ulRandomOffset;
 
+#endif /* ] */
+
+/**
+ *
+ * These are used to save the NTP time and the RTP timestamp of the last
+ *   two outgoing RTP packets with DIFFERENT timestamps.
+ */
+
+    rtpts_t m_ulRTPTimestampBase;
+    rtpts_t m_ulRTPTimestamps[2];
+    uint32_t m_ulNTPSeconds[2];
+    uint32_t m_ulNTPuSecs[2];
 };
 
 

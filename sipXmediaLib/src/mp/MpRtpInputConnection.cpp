@@ -25,6 +25,7 @@
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpIntResourceMsg.h"
 #include "os/OsLock.h"
+#include "os/OsSysLog.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/INetDispatch.h"
 #include "rtcp/IRTPDispatch.h"
@@ -246,24 +247,26 @@ OsStatus MpRtpInputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
          }
 #ifdef INCLUDE_RTCP /* [ */
       // Get the RTCP Connection object for this flowgraph connection
-         mpiRTCPConnection = pFlowGraph->getRTCPConnectionPtr(getConnectionId());
+         mpiRTCPConnection = pFlowGraph->getRTCPConnectionPtr(getConnectionId(), 'A', getStreamId());
+         OsSysLog::add(FAC_MP, PRI_DEBUG, " MpRtpInConn::setFlowGraph(0x%p) CID=%d, TC=0x%p", pFlowGraph, getConnectionId(), mpiRTCPConnection);
 
-      // Let's use the Connection interface to acquire the constituent interfaces
-      // required for dispatching RTP and RTCP packets received from the network as
-      // well as the statistics interface tabulating RTP packets going to the network.
+         // Let's use the Connection interface to acquire the constituent interfaces
+         // required for dispatching RTP and RTCP packets received from the network as
+         // well as the statistics interface tabulating RTP packets going to the network.
          INetDispatch         *piRTCPDispatch = NULL;
          IRTPDispatch         *piRTPDispatch = NULL;
          ISetSenderStatistics *piRTPAccumulator = NULL;
 
          if(mpiRTCPConnection)
          {
-             mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch,
-                                            &piRTPDispatch, &piRTPAccumulator);
+             mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch, &piRTPDispatch, &piRTPAccumulator);
          }
-      // The MprFromNet object needs the RTP and RTCP Dispatch interfaces of the
-      // associated RTCP connection so that RTP and RTCP packets may be forwarded
-      // to the correct location.
+
+         // The MprFromNet object needs the RTP and RTCP Dispatch interfaces of the
+         // associated RTCP connection so that RTP and RTCP packets may be forwarded
+         // to the correct location.
          mpFromNet->setDispatchers(piRTPDispatch, piRTCPDispatch);
+
 #endif /* INCLUDE_RTCP ] */
       }
       else
