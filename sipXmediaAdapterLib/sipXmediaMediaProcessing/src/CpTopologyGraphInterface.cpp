@@ -1041,12 +1041,14 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                                                          int remoteVideoRtcpPort)
 {
 
+    // OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination[1](%d, '%s', A: %d, %d, V: %d, %d)", connectionId, remoteRtpHostAddress, remoteAudioRtpPort, remoteAudioRtcpPort, remoteVideoRtpPort, remoteVideoRtcpPort);
     OsStatus status = setConnectionDestination(connectionId, AUDIO_STREAM, 0, remoteRtpHostAddress, remoteAudioRtpPort, remoteAudioRtcpPort);
 
     if(status == OS_SUCCESS)
     {
         status = setConnectionDestination(connectionId, VIDEO_STREAM, 0, remoteRtpHostAddress, remoteVideoRtpPort, remoteVideoRtcpPort);
     }
+    // OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination([1]) returning %d", status);
 
     return(status);
 }
@@ -1058,6 +1060,7 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                                                             int remoteRtpPort,
                                                             int remoteRtcpPort)
 {
+    // OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination[2](%d, %d, %d, '%s', %d, %d)", connectionId, mediaType, streamindex, remoteRtpHostAddress, remoteRtpPort, remoteRtcpPort);
     assert(streamindex == 0);
     OsStatus returnCode = OS_NOT_FOUND;
     CpTopologyMediaConnection* pMediaConnection = getMediaConnection(connectionId);
@@ -1188,6 +1191,7 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
         }
     }
 
+   // OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination([2]) returning %d", returnCode);
    return(returnCode);
 }
 
