@@ -18,6 +18,7 @@
  *              4. Network Byte Order
  ****************************************************************************/
 
+#include <os/OsIntTypes.h>
 
     // Includes
 #ifdef WIN32
