@@ -490,9 +490,6 @@ public:
 /* ============================ CALLBACKS ================================= */
 #ifdef INCLUDE_RTCP /* [ */
 
-   // void createRtcpConnection(MpConnectionID connId, int mediaType, int streamId);
-   // void deleteRtcpConnection(MpConnectionID connId, int mediaType, int streamId);
-
 /**
  *
  * Method Name:  GetEventInterest()
@@ -658,6 +655,7 @@ private:
                                ///< from the flowgraph queue.
 
 #ifdef INCLUDE_RTCP /* [ */
+   int hashRtcpConnection(MpConnectionID connId, int mediaType, int streamId);
    UtlBoolean createRtcpConnection(MpConnectionID connId, int mediaType, int streamId);
    UtlBoolean deleteRtcpConnection(MpConnectionID connId, int mediaType, int streamId);
 
