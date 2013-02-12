@@ -268,6 +268,16 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
       // This is the logic that forwards RTP packets to the RTCP subsystem
       // for Receiver Report calculations.
 
+
+/**************************************************************************
+ *
+ *  This is broken.  Not really sure what it should be doing, but this is
+ *   doing some calculation based on (1) 8000 Hz sample rate, and (2) the
+ *   StrongARM crystal counter.
+ *  Worse, the getTimecode() method will always return 0 (I believe).
+ *
+ *************************************************************************/
+
       // Set RTP Header Received Timestamp
       {
          unsigned long t = (unsigned long)udpBuf->getTimecode();

@@ -383,7 +383,7 @@ unsigned long CRTCPHeader::FormatRTCPHeader(unsigned char *puchRTCPBuffer,
     *((ssrc_t *)puchRTCPHeader) = htonl(m_ulSSRC);
 
     ret = (puchRTCPBuffer - puchRTCPBuffer);
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPHeader::FormatRTCPHeader(%p, %ld, %ld, %ld), l=%d, ret=%ld, SSRC=0x%08X", puchRTCPBuffer, ulPadding, ulCount, ulReportLength, l, ret, GetSSRC());
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPHeader::FormatRTCPHeader(%p, %ld, %ld, %ld), l=%d, ret=%ld, SSRC=0x%08X", puchRTCPBuffer, ulPadding, ulCount, ulReportLength, l, ret, GetSSRC());
     return ret;
 
 }

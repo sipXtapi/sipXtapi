@@ -214,9 +214,7 @@ public:
  *
  *
  */
-#if 1 /* [ */
     virtual void SetSSRC(ssrc_t ulSSRC);
-#endif /* ] */
 
 /**
  *
@@ -507,40 +505,14 @@ private:        // Private Data Members
  *               when a Sender Report was sent.
  *
  */
-      uint32_t m_ulRTPTimestamp;
-
-/**
- *
- * Attribute Name:  m_ulSamplesPerSecond
- *
- * Type:            uint32_t
- *
- * Description:  This member shall store the number of samples of media output
- *               per second.
- *
- */
-      uint32_t m_ulSamplesPerSecond;
-
-
-#if 0 /* [ */
-/**
- *
- * Attribute Name:  m_ulRandomOffset
- *
- * Type:            unsigned long (??????????????????)
- *
- * Description:  This member shall store the random timestamp offset
- *               established for the RTP Stream.
- *
- */
-    double          mXXX_ulRandomOffset;
-
-#endif /* ] */
+      rtpts_t m_ulRTPTimestamp;
 
 /**
  *
  * These are used to save the NTP time and the RTP timestamp of the last
- *   two outgoing RTP packets with DIFFERENT timestamps.
+ *   two outgoing RTP packets with DIFFERENT timestamps.  These are then
+ *   used when creating the next SR, to extrapolate to the current RTP
+ *   timestamp corresponding to the NTP time when the SR is sent.
  */
 
     rtpts_t m_ulRTPTimestampBase;

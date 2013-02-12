@@ -80,7 +80,7 @@ CRTCPSession::CRTCPSession(unsigned long ulSSRC,
 {
 
     // Store Local SSRC
-    m_ulSSRC_XXX = ulSSRC;
+    m_ulSSRC = ulSSRC;
 
     // Store RTCP Notification Interface
     m_piRTCPNotify = piRTCPNotify;
@@ -160,7 +160,7 @@ IRTCPConnection * CRTCPSession::CreateRTCPConnection(void)
     CRTCPConnection *poRTCPConnection;
     // Create The RTCP Connection object
     poRTCPConnection =
-           new CRTCPConnection(m_ulSSRC_XXX, (IRTCPNotify *)this, m_piSDESReport);
+           new CRTCPConnection(m_ulSSRC, (IRTCPNotify *)this, m_piSDESReport);
     if (poRTCPConnection == NULL)
     {
         osPrintf("**** FAILURE ***** CRTCPSession::CreateRTCPConnection() -"
@@ -437,7 +437,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
     ResetAllConnections(puchReason);
 
     // Set new Session SSRC
-    m_ulSSRC_XXX = ulSSRC;
+    m_ulSSRC = ulSSRC;
 
     // Check the each entry of the connection list
     CRTCPConnection *poRTCPConnection = GetFirstEntry();
@@ -508,7 +508,7 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
 
         // Get the SSRC ID of the connection to determine whether it is
         //  conflicting with ours
-        if(poRTCPConnection->GetRemoteSSRC() == m_ulSSRC_XXX)
+        if(poRTCPConnection->GetRemoteSSRC() == m_ulSSRC)
         {
             // A collision has been detected.
             // Let's reset all the connections.
@@ -1107,7 +1107,7 @@ void CRTCPSession::ByeReportReceived(IGetByeInfo     *piGetByeInfo,
 ssrc_t CRTCPSession::GetSSRC(int connID, int mediaType, int streamID)
 {
     int low = (connID ^ mediaType ^ streamID) & 0xFF;
-    return((m_ulSSRC_XXX & (~0xFF)) | low);
+    return((m_ulSSRC & (~0xFF)) | low);
 }
 
 

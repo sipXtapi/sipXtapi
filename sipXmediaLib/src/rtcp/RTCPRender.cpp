@@ -480,9 +480,9 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
         ulReportLength = m_poSenderReport->FormatSenderReport(uchRTCPReport,
                                                              MAX_BUFFER_SIZE);
         ulReportMask |= RTCP_SR_SENT;
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: Created SR, len=%d, mask=0x%X, SSRC=0x%08X, SenderReport=%p", ulReportLength, ulReportMask, m_poSenderReport->GetSSRC(), m_poSenderReport);
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: Created SR, len=%d, mask=0x%X, SSRC=0x%08X, SenderReport=%p", ulReportLength, ulReportMask, m_poSenderReport->GetSSRC(), m_poSenderReport);
     } else {
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: NOT creating SR, SSRC=0x%08X", m_poSenderReport->GetSSRC());
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: NOT creating SR, SSRC=0x%08X", m_poSenderReport->GetSSRC());
     }
 
     // Now we will prepare to formulate a reception report.  This report will
@@ -512,7 +512,7 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
         memcpy(uchRTCPReport + ulReportLength,
                                             puchAppendReport, ulAppendLength);
         ulReportLength += ulAppendLength;
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: Appending %d bytes of report", (int) ulAppendLength);
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: Appending %d bytes of report", (int) ulAppendLength);
     }
 
     // OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP: sending report (size is %d) thru %p", ulReportLength, m_piNetworkRender);
@@ -528,13 +528,16 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
         return(0);
     }
 
+#if 0 /* DEBUG [ */
     int sockFD = -1;
     int sockPort = -1;
     if (ulReportLength == sendRet) {
+        // Only do this if the Send worked...
         sockFD = m_piNetworkRender->getSocketDescriptor();
         sockPort = m_piNetworkRender->getSocketPort();
     }
     OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: (this=%p, pSR=%p) returning 0x%X, reportLen=%d, sendRet=%d, socket FD = %d, socket port = %d", this, m_poSenderReport, ulReportMask, ulReportLength, sendRet, sockFD, sockPort);
+#endif /* ] */
     return(ulReportMask);
 }
 

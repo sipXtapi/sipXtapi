@@ -64,9 +64,6 @@ public:
 
       FLOWGRAPH_GET_LATENCY_FOR_PATH,
 
-      // FLOWGRAPH_CREATE_RTCP_CONNECTION,
-      // FLOWGRAPH_DELETE_RTCP_CONNECTION,
-
       RESOURCE_SPECIFIC_START = 100     ///< start of resource-specific messages
    } MpFlowGraphMsgType;
 

@@ -844,7 +844,7 @@ private:        // Private Data Members
  * Description:  This member shall store the SSRC associated with this session
  *
  */
-      unsigned long m_ulSSRC_XXX;
+      ssrc_t m_ulSSRC;
 
 /**
  *
