@@ -633,31 +633,6 @@ void CRTPHeader::SetSequenceNo(unsigned long ulSequenceNo)
 
 }
 
-/**
- *
- * Method Name: SetRTPTimestamp
- *
- *
- * Inputs:      unsigned long ulRTPTimestamp - Packet RTP Timestamp
- *
- * Outputs:     None
- *
- * Returns:     void
- *
- * Description: Sets the sRTP timestamp value associated with the RTP packet.
- *
- * Usage Notes:
- *
- *
- */
-void CRTPHeader::SetRTPTimestamp(rtpts_t ulRTPTimestamp)
-{
-
-    // Set RTP Timestamp
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTPHeader::SetRTPTimestamp(%d=0x%X)", ulRTPTimestamp, ulRTPTimestamp);
-    m_ulRTPTimestamp = ulRTPTimestamp;
-
-}
 
 /**
  *

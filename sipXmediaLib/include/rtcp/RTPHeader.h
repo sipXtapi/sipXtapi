@@ -405,25 +405,6 @@ public:
 
 /**
  *
- * Method Name: SetRTPTimestamp
- *
- *
- * Inputs:   rtpts_t ulRTPTimestamp - Packet RTP Timestamp
- *
- * Outputs:  None
- *
- * Returns:  void
- *
- * Description: Sets the sRTP timestamp value associated with the RTP packet.
- *
- * Usage Notes:
- *
- *
- */
-    void SetRTPTimestamp(rtpts_t ulRTPTimestamp);
-
-/**
- *
  * Method Name: SetRecvTimestamp
  *
  *
