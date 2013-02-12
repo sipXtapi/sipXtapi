@@ -133,12 +133,12 @@ OsStatus MprToNet::resetSockets(void)
 
 void MprToNet::setSSRC(ssrc_t iSSRC)
 {
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToNet::setSSRC(0x%08X)", iSSRC);
    mSSRC = iSSRC;
    mSeqNum = rand_timer32() | 0xfc00;
    mTimestampDelta = rand_timer32();
 #ifdef INCLUDE_RTCP /* [ */
    if (mpiRTPAccumulator) {
-       // mpiRTPAccumulator->SetSSRC(iSSRC);
        mpiRTPAccumulator->CSR_SetRTPTimestamp(mTimestampDelta);
    }
 #endif /* INCLUDE_RTCP ] */
@@ -147,6 +147,7 @@ void MprToNet::setSSRC(ssrc_t iSSRC)
 #ifdef INCLUDE_RTCP /* [ */
 void MprToNet::setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator)
 {
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToNet::setRTPAccumulator(%p), TSD=%d=0x%08X", piRTPAccumulator, mTimestampDelta, mTimestampDelta);
    mpiRTPAccumulator = piRTPAccumulator;
    if(mpiRTPAccumulator)
    {
