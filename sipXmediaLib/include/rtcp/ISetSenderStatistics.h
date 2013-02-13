@@ -91,6 +91,25 @@ public:
     virtual void CSR_SetRTPTimestamp(uint32_t ulRandomOffset,
                      uint32_t ulSamplesPerSecond = SAMPLES_PER_SEC) = 0;
 
+/**
+ *
+ * Method Name:  SetSRAdjustUSecs
+ *
+ *
+ * Inputs:       int iUSecs - signed # of microseconds of skew adjustment
+ *
+ * Outputs:      None
+ *
+ * Returns:      void
+ *
+ * Description:  The SetSRAdjustUSecs method sets an adjustment for skew, in
+ *               microseconds, for the RTP time in the SR Report.
+ *
+ * Usage Notes:
+ *
+ */
+    virtual void SetSRAdjustUSecs(int iUSecs = 0) = 0;
+
 };
 
 #endif

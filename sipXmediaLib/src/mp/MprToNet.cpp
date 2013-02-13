@@ -84,6 +84,7 @@ MprToNet::MprToNet()
 #ifdef INCLUDE_RTCP /* [ */
 ,  mpiRTPAccumulator(NULL)
 #endif /* INCLUDE_RTCP ] */
+,  mSRAdjustUSecs(0)
 
 {
 }
@@ -140,6 +141,7 @@ void MprToNet::setSSRC(ssrc_t iSSRC)
 #ifdef INCLUDE_RTCP /* [ */
    if (mpiRTPAccumulator) {
        mpiRTPAccumulator->CSR_SetRTPTimestamp(mTimestampDelta);
+       mpiRTPAccumulator->SetSRAdjustUSecs(mSRAdjustUSecs);
    }
 #endif /* INCLUDE_RTCP ] */
 }
@@ -152,6 +154,7 @@ void MprToNet::setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator)
    if(mpiRTPAccumulator)
    {
        mpiRTPAccumulator->CSR_SetRTPTimestamp(mTimestampDelta);
+       mpiRTPAccumulator->SetSRAdjustUSecs(mSRAdjustUSecs);
    }
 }
 
@@ -355,6 +358,18 @@ int setToRtpAdjustment(int ssrc, int seq, int ts)
 
 int sTRA(int a, int b, int c) {return setToRtpAdjustment(a,b,c);}
 #endif /* ENABLE_PACKET_HACKING ] */
+
+
+void MprToNet::setSRAdjustUSecs(int iUSecs)
+{
+   mSRAdjustUSecs = iUSecs;
+#ifdef INCLUDE_RTCP /* [ */
+   if(mpiRTPAccumulator)
+   {
+       mpiRTPAccumulator->SetSRAdjustUSecs(iUSecs);
+   }
+#endif /* INCLUDE_RTCP ] */
+}
 
 /* ============================ ACCESSORS ================================= */
 

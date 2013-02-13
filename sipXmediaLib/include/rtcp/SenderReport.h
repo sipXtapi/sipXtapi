@@ -153,6 +153,26 @@ public:
 
 /**
  *
+ * Method Name:  SetSRAdjustUSecs
+ *
+ *
+ * Inputs:       int iUSecs - signed # of microseconds of skew adjustment
+ *
+ * Outputs:      None
+ *
+ * Returns:      void
+ *
+ * Description:  The SetSRAdjustUSecs method sets an adjustment for skew, in
+ *               microseconds, for the RTP time in the SR Report.
+ *
+ * Usage Notes:
+ *
+ */
+    virtual void SetSRAdjustUSecs(int iUSecs = 0);
+
+
+/**
+ *
  * Method Name:  GetSenderStatistics
  *
  *
@@ -519,33 +539,20 @@ private:        // Private Data Members
     rtpts_t m_ulRTPTimestamps[2];
     uint32_t m_ulNTPSeconds[2];
     uint32_t m_ulNTPuSecs[2];
+
+    int m_iTSCollectState;
+
+/*
+ * And this is a fudge-factor to be applied to the RTP timestamp
+ *  calculation in the SR generation.  It is the (signed) number of
+ *  microseconds to adjust the clock time by when extrapolating the
+ *  RTP timestamp, to compensate for delay in the MpMedia system.
+ * Yes, it is a bit of a hack...
+ */
+
+    int m_iUSecAdjust;
 };
 
-
-/**
- *
- * Method Name:  WasMediaSent
- *
- *
- * Inputs:   None
- *
- * Outputs:  None
- *
- * Returns:  bool
- *
- * Description:  A method to determine whether media has been sent out since
- *               the last reporting period.  This will determine whether a
- *               Sender Report or Receiver Report is in order.
- *
- * Usage Notes:
- *
- */
-inline bool CSenderReport::WasMediaSent(void)
-{
-
-    return(m_bMediaSent);
-
-}
 
 /**
  *

@@ -99,6 +99,8 @@ public:
       const unsigned char* payloadData, int payloadOctets, unsigned int timestamp,
       void* csrcList);
 
+   void setSRAdjustUSecs(int iUSecs);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -153,6 +155,8 @@ private:
    /// Allow outbound RTP stream to accumulate RTP packet statistics
    ISetSenderStatistics *mpiRTPAccumulator;
 #endif /* INCLUDE_RTCP ] */
+
+   int mSRAdjustUSecs;
 
      /// Copy constructor (not implemented for this class)
    MprToNet(const MprToNet& rMprToNet);

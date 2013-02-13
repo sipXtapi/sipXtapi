@@ -88,6 +88,8 @@ CSenderReport::CSenderReport(ssrc_t ulSSRC,
           m_ulOctetCount(0),
           m_bMediaSent(FALSE),
           m_ulRTPTimestamp(0)
+          , m_iUSecAdjust(0)
+          , m_iTSCollectState(0)
 {
 
 
@@ -142,6 +144,29 @@ CSenderReport::~CSenderReport(void)
 
 /**
  *
+ * Method Name:  WasMediaSent
+ *
+ *
+ * Inputs:   None
+ *
+ * Outputs:  None
+ *
+ * Returns:  bool
+ *
+ * Description:  A method to determine whether media has been sent out since
+ *               the last reporting period.  This will determine whether a
+ *               Sender Report or Receiver Report is in order.
+ *
+ * Usage Notes:
+ *
+ */
+bool CSenderReport::WasMediaSent(void)
+{
+    return(m_bMediaSent && (m_iTSCollectState == 3));
+}
+
+/**
+ *
  * Method Name:  IncrementCounts
  *
  *
@@ -191,16 +216,37 @@ void CSenderReport::IncrementCounts(uint32_t ulOctetCount, rtpts_t RTPTimestampB
     m_ulPacketCount++;
     m_ulOctetCount += ulOctetCount;
 
-    if (m_ulRTPTimestamps[1] != RTPTimestamp) {
-      // if input is different from new...
-      // copy most recent into older
-        m_ulRTPTimestamps[0] = m_ulRTPTimestamps[1];
-        m_ulNTPSeconds[0] = m_ulNTPSeconds[1];
-        m_ulNTPuSecs[0] = m_ulNTPuSecs[1];
-      // save input into most recent
-        m_ulRTPTimestamps[1] = RTPTimestamp;
-        m_ulNTPSeconds[1] = ntp_secs;
-        m_ulNTPuSecs[1] = ntp_usec;
+    switch (m_iTSCollectState)
+    {
+    case 0: // Initial state, save first values
+        m_ulRTPTimestamps[0] = RTPTimestamp;
+        m_ulNTPSeconds[0] = ntp_secs;
+        m_ulNTPuSecs[0] = ntp_usec;
+        m_iTSCollectState = 1;
+        break;
+
+    case 1: // Second state, wait for first value to change
+        if (m_ulRTPTimestamps[0] != RTPTimestamp) {
+            m_ulRTPTimestamps[1] = RTPTimestamp; // needed for state #2
+            m_ulRTPTimestamps[0] = RTPTimestamp;
+            m_ulNTPSeconds[0] = ntp_secs;
+            m_ulNTPuSecs[0] = ntp_usec;
+            m_iTSCollectState = 2;
+        }
+        break;
+
+    case 2: // Save last values for the first time
+    case 3: // Steady state, save last values, allow SR construction
+        if (m_ulRTPTimestamps[1] != RTPTimestamp) {
+            m_ulRTPTimestamps[1] = RTPTimestamp;
+            m_ulNTPSeconds[1] = ntp_secs;
+            m_ulNTPuSecs[1] = ntp_usec;
+            m_iTSCollectState = 3;
+        }
+        break;
+
+    default:
+        assert(0);
     }
 
     // Set the Media Sent flag so that we know to transmit a Sender
@@ -500,8 +546,32 @@ void CSenderReport::ResetStatistics(void)
     m_ulPacketCount = m_ulOctetCount = 0;
     m_ulRTPTimestampBase = m_ulRTPTimestamps[0] = m_ulRTPTimestamps[1] = 0;
     m_ulNTPSeconds[0] = m_ulNTPSeconds[1] = m_ulNTPuSecs[0] = m_ulNTPuSecs[1] = 0;
+    m_bMediaSent = FALSE;
+    m_iTSCollectState = 0;
 }
 
+
+/**
+ *
+ * Method Name:  SetSRAdjustUSecs
+ *
+ *
+ * Inputs:       int iUSecs - signed # of microseconds of skew adjustment
+ *
+ * Outputs:      None
+ *
+ * Returns:      void
+ *
+ * Description:  The SetSRAdjustUSecs method sets an adjustment for skew, in
+ *               microseconds, for the RTP time in the SR Report.
+ *
+ * Usage Notes:
+ *
+ */
+void CSenderReport::SetSRAdjustUSecs(int iUSecs)
+{
+    m_iUSecAdjust = iUSecs;
+}
 
 /**
  *
@@ -529,6 +599,8 @@ unsigned long CSenderReport::LoadTimestamps(uint32_t *aulTimestamps)
     double dTimestampFrac;  // dTimestampUSec as a fixed point fraction, ie. dTimestampUSec * 2**32
     double dNow, dFirst, dSecond;
     double dExtrap = 1.0; // the extrapolation factor for the RTP timestamp
+    double dSkewAdjust = 0.0;
+    double dSampleRate = -1.0;
     unsigned long ret = 0;
     uint32_t ntp_secs;
     uint32_t ulRTPDelta1 = 0;
@@ -583,15 +655,16 @@ unsigned long CSenderReport::LoadTimestamps(uint32_t *aulTimestamps)
     dNow = (double) ntp_secs + dTimestampUSec;
     dFirst =  (double) m_ulNTPSeconds[0] + (((double) m_ulNTPuSecs[0]) / ((double) MICRO2SEC));
     dSecond = (double) m_ulNTPSeconds[1] + (((double) m_ulNTPuSecs[1]) / ((double) MICRO2SEC));
+    dSkewAdjust = (((double) m_iUSecAdjust) / ((double) MICRO2SEC));
     if (m_ulRTPTimestamps[0]) {
         ulRTPDelta1 = (m_ulRTPTimestamps[1] - m_ulRTPTimestamps[0]);
-        dExtrap = ((dNow - dFirst) / (dSecond - dFirst));
+        dExtrap = ((dNow + dSkewAdjust - dFirst) / (dSecond - dFirst));
+        dSampleRate = (double) ulRTPDelta1 / (dSecond - dFirst);
         ulRTPDelta2 = (uint32_t) (((double)ulRTPDelta1) * dExtrap);
     }
     m_ulRTPTimestamp = m_ulRTPTimestampBase + m_ulRTPTimestamps[0] + ulRTPDelta2;
 
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps: dFirst=%.6f, dSecond=%.6f, dNow=%.6f, dExtrap=%.4f, ts0=%d, ts1=%d, dTS1=%d, dTS2=%d, TSB=%d",
-       dFirst, dSecond, dNow, dExtrap, m_ulRTPTimestamps[0], m_ulRTPTimestamps[1], ulRTPDelta1 , ulRTPDelta2, m_ulRTPTimestampBase);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps:@dFirst=%.6f, dSecond=%.6f, dNow=%.6f, dSkewAdjust=%.4f, dExtrap=%.4f,@ts0=%d, ts1=%d, dTS1=%d, dTS2=%d, TSB=%d, uSec=%d, SampleRate=%.2f", dFirst, dSecond, dNow, dSkewAdjust, dExtrap, m_ulRTPTimestamps[0], m_ulRTPTimestamps[1], ulRTPDelta1 , ulRTPDelta2, m_ulRTPTimestampBase, m_iUSecAdjust, dSampleRate);
 
     // Adjust to 1900-based from 1970-based.
     m_aulNTPTimestamp[0] = ntp_secs + WALLTIMEOFFSET;
@@ -643,6 +716,7 @@ unsigned long  CSenderReport::LoadSenderStats(uint32_t *aulSenderStats)
     // Reset the Media Sent flag to so that we can determine whether a Sender
     // Report is necessary.
     m_bMediaSent = FALSE;
+    m_iTSCollectState = 0;
     // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadSenderStats: this=%p, P=%d, C=%d, ret=%d", this, m_ulPacketCount, m_ulOctetCount, (int)(sizeof(m_ulPacketCount) + sizeof(m_ulOctetCount)));
 
     return(sizeof(m_ulPacketCount) + sizeof(m_ulOctetCount));

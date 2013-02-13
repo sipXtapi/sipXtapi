@@ -28,6 +28,7 @@ struct IRTCPConnection;
 // APPLICATION INCLUDES
 #include <os/OsMutex.h>
 #include <mp/MpResource.h>
+#include <mp/MpResourceMsg.h>
 #include <mp/MpTypes.h>
 #include <mp/MprToNet.h>
 
@@ -91,6 +92,9 @@ public:
    void reassignSSRC(int iSSRC);
 #endif /* INCLUDE_RTCP ] */
 
+   // set the # of microseconds of skew to add to the RTCP SR timestamps
+   OsStatus setSRAdjustUSecs(const UtlString& namedResource, OsMsgQ& fgQ, int adjustUSecs);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -137,6 +141,13 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+   typedef enum
+   {
+      MPRM_SET_SR_ADJUST_USECS = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+   } AddlResMsgTypes;
+
+   UtlBoolean handleMessage(MpResourceMsg& message);
 
      /// Default constructor
    MpRtpOutputConnection();

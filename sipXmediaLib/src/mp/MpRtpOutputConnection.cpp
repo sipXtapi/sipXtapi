@@ -19,6 +19,7 @@
 #include "mp/MprToNet.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MprEncode.h"
+#include "mp/MpIntResourceMsg.h"
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #ifdef INCLUDE_RTCP /* [ */
@@ -54,6 +55,8 @@ MpRtpOutputConnection::MpRtpOutputConnection(const UtlString& resourceName,
 
    // Create ToNet resource
    mpToNet = new MprToNet();
+
+   mpToNet->setSRAdjustUSecs(12345): // DEBUG: just to test/demo this, set to 12.345 milliseconds
 
 #ifndef INCLUDE_RTCP /* [ */
    {
@@ -127,6 +130,29 @@ void MpRtpOutputConnection::reassignSSRC(int iSSRC)
 
 }
 #endif /* INCLUDE_RTCP ] */
+
+UtlBoolean MpRtpOutputConnection::handleMessage(MpResourceMsg& message)
+{
+    UtlBoolean handled = FALSE;
+
+    switch (message.getMsg())
+    {
+    case MPRM_SET_SR_ADJUST_USECS:
+    {
+        handled = TRUE;
+        MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&message;
+        mpToNet->setSRAdjustUSecs(pMsg->getData());
+
+    }
+    break;
+
+    default:
+        handled = MpResource::handleMessage(message);
+    }
+
+    return(handled);
+}
+
 
 /* ============================ ACCESSORS ================================= */
 
@@ -202,6 +228,14 @@ UtlBoolean MpRtpOutputConnection::connectInput(MpResource& rFrom,
    }
    return res;
 }
+
+OsStatus MpRtpOutputConnection::setSRAdjustUSecs(const UtlString& namedResource, OsMsgQ& fgQ, int adjustUSecs)
+{
+   MpIntResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_SET_SR_ADJUST_USECS,
+                        namedResource, adjustUSecs);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
