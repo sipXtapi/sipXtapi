@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -13,6 +12,8 @@
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
+
+#include <os/OsIntTypes.h>
 
 #if defined(_WIN32)
 #       include "resparse/wnt/sysdep.h"
