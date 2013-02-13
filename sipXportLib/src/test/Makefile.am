@@ -19,6 +19,7 @@ testsuite_CXXFLAGS = \
 	@PCRE_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	@CPPUNIT_CFLAGS@ \
+    -I$(SIPXUNITINC) \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DTEST_DIR=\"@abs_builddir@\" \
 	-fno-gcse -O0
@@ -101,7 +102,7 @@ sandbox_LDADD = $(testsuite_LDADD)
 
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
-    os/OsEventTest.cpp \
+    os/OsConfigDbTest.cpp \
     utl/PluginHooksTest.cpp
 
 # Performance test of UtlList

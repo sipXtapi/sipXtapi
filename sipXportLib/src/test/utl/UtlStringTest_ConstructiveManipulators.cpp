@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -10,6 +10,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <os/OsIntTypes.h>
 #include <utl/UtlStringTest.h>
 #include <string.h>
 #include <utl/UtlString.h>
