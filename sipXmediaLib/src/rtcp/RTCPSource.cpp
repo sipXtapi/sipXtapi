@@ -500,7 +500,7 @@ unsigned long CRTCPSource::ProcessSenderReport(unsigned char *puchRTCPReport)
         return(GetReportLength(puchRTCPReport));
     }
 
-    // A Sender object exists to processes this report.  Let's delegate to its
+    // A Sender object exists to process this report.  Let's delegate to its
     //  parsing methods to complete this report's processing.
     if((ulBytesProcessed =
                     m_poSenderReport->ParseSenderReport(puchRTCPReport)) == 0)
