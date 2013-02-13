@@ -240,7 +240,7 @@ void CReceiverReport::SetLastRcvdSRTime(uint32_t aulNTPTimestamp[])
     // Make a call to VxWorks to get this timestamp
     if (clock_gettime(CLOCK_REALTIME, &stLocalTime) == ERROR)
     {
-        osPrintf("**** FAILURE **** LoadTimestamps() - clock_gettime failure\n");
+        osPrintf("**** FAILURE **** SetLastRcvdSRTime() - clock_gettime failure\n");
         stLocalTime.tv_sec = 0;
         stLocalTime.tv_nsec = 0;
     }
@@ -1013,7 +1013,7 @@ unsigned long CReceiverReport::LoadReportTimes(
         // Make a call to VxWorks to get this timestamp
         if (clock_gettime (CLOCK_REALTIME, &stLocalTime) == ERROR)
         {
-            osPrintf("**** FAILURE **** LoadTimestamps() - clock_gettime failure\n");
+            osPrintf("**** FAILURE **** LoadReportTimes() - clock_gettime failure\n");
             stLocalTime.tv_sec = 0;
             stLocalTime.tv_nsec = 0;
         }
