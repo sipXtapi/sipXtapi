@@ -264,9 +264,9 @@ public:
  * Method Name:  IsOurSSRC
  *
  *
- * Inputs:      None
+ * Inputs:      ssrc_t ulSSRC  - SSRC ID
  *
- * Outputs:     ssrc_t ulSSRC  - SSRC ID
+ * Outputs:     None
  *
  * Returns:     boolean
  *
