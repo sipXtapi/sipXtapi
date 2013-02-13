@@ -56,7 +56,7 @@ MpRtpOutputConnection::MpRtpOutputConnection(const UtlString& resourceName,
    // Create ToNet resource
    mpToNet = new MprToNet();
 
-   mpToNet->setSRAdjustUSecs(12345): // DEBUG: just to test/demo this, set to 12.345 milliseconds
+   mpToNet->setSRAdjustUSecs(12345); // DEBUG: just to test/demo this, set to 12.345 milliseconds
 
 #ifndef INCLUDE_RTCP /* [ */
    {
