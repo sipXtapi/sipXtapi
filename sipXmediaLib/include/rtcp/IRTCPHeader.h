@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -50,6 +52,7 @@ interface IRTCPHeader
 //  Public Methods
 public:
 
+virtual ~IRTCPHeader() {}
 
 /**
  *
@@ -196,7 +199,7 @@ public:
  *
  * Inputs:      None
  *
- * Outputs:     unsigned long ulSSRC  - SSRC ID
+ * Outputs:     ssrc_t ulSSRC  - SSRC ID
  *
  * Returns:     boolean
  *
@@ -208,7 +211,7 @@ public:
  *
  *
  */
-    virtual bool IsOurSSRC(unsigned long ulSSRC)=0;
+    virtual bool IsOurSSRC(ssrc_t ulSSRC)=0;
 
 
 

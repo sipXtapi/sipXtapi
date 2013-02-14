@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -267,6 +267,16 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
 #ifdef INCLUDE_RTCP /* [ */
       // This is the logic that forwards RTP packets to the RTCP subsystem
       // for Receiver Report calculations.
+
+
+/**************************************************************************
+ *
+ *  This is broken.  Not really sure what it should be doing, but this is
+ *   doing some calculation based on (1) 8000 Hz sample rate, and (2) the
+ *   StrongARM crystal counter.
+ *  Worse, the getTimecode() method will always return 0 (I believe).
+ *
+ *************************************************************************/
 
       // Set RTP Header Received Timestamp
       {

@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -179,7 +181,7 @@ public:
  * Method Name: GenerateByeReport
  *
  *
- * Inputs:   unsigned long aulCSRC[]    - Array of Contributing SRCs
+ * Inputs:   ssrc_t aulCSRC[]    - Array of Contributing SRCs
  *           unsigned long ulCSRCs      - Number of CSRCs contain in array
  *           unsigned char *puchReason  -
  *                             A Reason for the Bye Report being generated
@@ -198,7 +200,7 @@ public:
  *
  */
     virtual unsigned long
-        GenerateByeReport(unsigned long aulCSRC[], unsigned long ulCSRCs,
+        GenerateByeReport(ssrc_t aulCSRC[], unsigned long ulCSRCs,
                           unsigned char *puchByeReason) = 0;
 
 /**
@@ -210,21 +212,21 @@ public:
  *
  * Outputs:      None
  *
- * Returns:      unsigned long - FE SSRC associated with the connection
+ * Returns:      ssrc_t - FE SSRC associated with the connection
  *
  * Description:  Retrieves the FE SSRC associated with a connection.
  *
  * Usage Notes:
  *
  */
-    virtual unsigned long GetRemoteSSRC(void)=0;
+    virtual ssrc_t GetRemoteSSRC(void)=0;
 
 /**
  *
  * Method Name:  ReassignSSRC
  *
  *
- * Inputs:      unsigned long   ulSSRC   - Source ID
+ * Inputs:      ssrc_t   ulSSRC   - Source ID
  *
  * Outputs:     None
  *
@@ -240,7 +242,7 @@ public:
  *
  *
  */
-    virtual void ReassignSSRC(unsigned long ulSSRC) = 0;
+    virtual void ReassignSSRC(ssrc_t ulSSRC) = 0;
 
 
 };

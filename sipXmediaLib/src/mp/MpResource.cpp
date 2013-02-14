@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -212,9 +211,19 @@ void MpResource::setConnectionId(MpConnectionID connectionId)
    mConnectionId = connectionId;
 }
 
+MpConnectionID MpResource::getConnectionId(void) const
+{
+   return mConnectionId;
+}
+
 void MpResource::setStreamId(int streamId)
 {
    mStreamId = streamId;
+}
+
+int MpResource::getStreamId(void)
+{
+   return mStreamId;
 }
 
 OsStatus MpResource::pushBuffer(int inputPort, MpBufPtr& inputBuffer)

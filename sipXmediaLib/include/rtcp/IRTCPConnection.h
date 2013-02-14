@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -151,7 +153,7 @@ public:
  *
  *
  * Inputs:   unsigned char *puchByeReason  - Reason for terminating Connection
- *           unsigned long aulCSRC[]       - Array of contributing sources
+ *           ssrc_t aulCSRC[]       - Array of contributing sources
  *           unsigned long ulCSRCs         - Number of contributing sources
  *
  * Outputs:  None
@@ -169,7 +171,7 @@ public:
  *
  */
     virtual void GenerateRTCPReports(unsigned char *puchByeReason = NULL,
-                                     unsigned long aulCSRC[] = NULL,
+                                     ssrc_t aulCSRC[] = NULL,
                                      unsigned long ulCSRCs = 0)=0;
 
 };

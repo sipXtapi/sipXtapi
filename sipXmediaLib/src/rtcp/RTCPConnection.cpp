@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -12,6 +14,8 @@
 // Includes
 #include "rtcp/RTCPConnection.h"
 #ifdef INCLUDE_RTCP /* [ */
+
+// #include "os/OsSysLog.h"
 
 // Constants
 #define DEBUGGING_RTCP_REPORTS
@@ -312,6 +316,7 @@ bool CRTCPConnection::StartRenderer(INetworkRender *piRTCPNetworkRender)
 {
 
 #ifdef PINGTEL_OSSOCKET
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::StartRenderer(OsSocket& %p)", &rRtcpSocket);
     // Create a wrapper object for the OSSocket reference passed.  This allows
     //  us to use this resource without changing the internals of the code.
     m_piRTCPNetworkRender = (INetworkRender *)new CNetworkChannel(rRtcpSocket);
@@ -323,6 +328,7 @@ bool CRTCPConnection::StartRenderer(INetworkRender *piRTCPNetworkRender)
         return(FALSE);
     }
 #else
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::StartRenderer(INetworkRender *%p)", piRTCPNetworkRender);
     // Load the Netwok Render object internally and bump the reference count
     m_piRTCPNetworkRender = piRTCPNetworkRender;
     m_piRTCPNetworkRender->AddRef();
@@ -378,7 +384,7 @@ bool CRTCPConnection::StartRenderer(INetworkRender *piRTCPNetworkRender)
  *
  */
 void CRTCPConnection::GenerateRTCPReports(unsigned char *puchByeReason,
-                                          unsigned long aulCSRC[],
+                                          ssrc_t aulCSRC[],
                                           unsigned long ulCSRCs)
 {
     IGetSrcDescription     *piGetSrcDescription;
@@ -468,6 +474,7 @@ void CRTCPConnection::GenerateRTCPReports(unsigned char *puchByeReason,
  */
 bool CRTCPConnection::StopRenderer(void)
 {
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::StopRenderer()");
 
     // Check that the initialization had successfully completed
     if(!m_bInitialized)

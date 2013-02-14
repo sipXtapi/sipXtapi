@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -25,7 +27,6 @@
 #include "IGetSenderStatistics.h"
 #include "ISetSenderStatistics.h"
 #include "ISetReceiverStatistics.h"
-
 
 
 /**
@@ -61,7 +62,7 @@ public:
  * Method Name:  CSenderReport() - Constructor
  *
  *
- * Inputs:   unsigned long          ulSSRC    - The Identifier for this source
+ * Inputs:   ssrc_t          ulSSRC    - The Identifier for this source
  *           ISetReceiverStatistics *piSetStatistics
  *                                      - Interface for setting receiver stats
  *
@@ -79,7 +80,7 @@ public:
  *               receiver report.
  *
  */
-    CSenderReport(unsigned long ulSSRC,
+    CSenderReport(ssrc_t ulSSRC,
                   ISetReceiverStatistics *piSetStatistics=NULL);
 
 
@@ -110,7 +111,7 @@ public:
  * Method Name:  IncrementCounts
  *
  *
- * Inputs:   unsigned long  ulOctetCount    -   RTP Octets Sent
+ * Inputs:   uint32_t  ulOctetCount    -   RTP Octets Sent
  *
  * Outputs:  None
  *
@@ -124,15 +125,15 @@ public:
  * Usage Notes:
  *
  */
-    void IncrementCounts(unsigned long ulOctetCount);
+    void IncrementCounts(uint32_t ulOctetCount, rtpts_t RTPTimestampBase, rtpts_t RTPTimestamp, ssrc_t ssrc);
 
 /**
  *
  * Method Name:  SetRTPTimestamp
  *
  *
- * Inputs:   unsigned long  ulRandomOffset  -  Random Offset for RTP Timestamp
- *           unsigned long  ulSamplesPerSecond  -  Number of sample per second
+ * Inputs:   uint32_t  ulRandomOffset  -  Random Offset for RTP Timestamp
+ *           uint32_t  ulSamplesPerSecond  -  Number of sample per second
  *
  * Outputs:  None
  *
@@ -145,9 +146,29 @@ public:
  * Usage Notes:
  *
  */
-    void SetRTPTimestamp(unsigned long ulRandomOffset,
-                         unsigned long ulSamplesPerSecond = SAMPLES_PER_SEC);
+    void CSR_SetRTPTimestamp(uint32_t ulRandomOffset,
+                         uint32_t ulSamplesPerSecond = SAMPLES_PER_SEC);
 
+
+
+/**
+ *
+ * Method Name:  SetSRAdjustUSecs
+ *
+ *
+ * Inputs:       int iUSecs - signed # of microseconds of skew adjustment
+ *
+ * Outputs:      None
+ *
+ * Returns:      void
+ *
+ * Description:  The SetSRAdjustUSecs method sets an adjustment for skew, in
+ *               microseconds, for the RTP time in the SR Report.
+ *
+ * Usage Notes:
+ *
+ */
+    virtual void SetSRAdjustUSecs(int iUSecs = 0);
 
 
 /**
@@ -157,8 +178,8 @@ public:
  *
  * Inputs:   None
  *
- * Outputs:  unsigned long   *ulPacketCount   - Sender Packet Count
- *           unsigned long   *ulOctetCount    - Sender Octet Count
+ * Outputs:  uint32_t   *ulPacketCount   - Sender Packet Count
+ *           uint32_t   *ulOctetCount    - Sender Octet Count
  *
  * Returns:  void
  *
@@ -169,8 +190,8 @@ public:
  *
  *
  */
-    void GetSenderStatistics(unsigned long *ulPacketCount,
-                             unsigned long *ulOctetCount);
+    void GetSenderStatistics(uint32_t *ulPacketCount,
+                             uint32_t *ulOctetCount);
 
 /**
  *
@@ -182,7 +203,7 @@ public:
  *
  * Outputs:  None
  *
- * Returns:  unsigned long - The SSRC of the Bye Report
+ * Returns:  unsigned ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
@@ -190,7 +211,7 @@ public:
  *
  *
  */
-    unsigned long GetSSRC(void);
+    ssrc_t GetSSRC(void);
 
 
 /**
@@ -198,7 +219,7 @@ public:
  * Method Name:  SetSSRC
  *
  *
- * Inputs:   unsigned long   ulSSRC   - Source ID
+ * Inputs:   unsigned ssrc_t   ulSSRC   - Source ID
  *
  * Outputs:  None
  *
@@ -213,7 +234,7 @@ public:
  *
  *
  */
-    virtual void SetSSRC(unsigned long ulSSRC);
+    virtual void SetSSRC(ssrc_t ulSSRC);
 
 /**
  *
@@ -241,13 +262,13 @@ public:
  * Method Name:  FormatSenderReport
  *
  *
- * Inputs:   unsigned long  ulBufferSize
+ * Inputs:   uint32_t  ulBufferSize
  *                                - Optional length allocated for the buffer
  *
  * Outputs:  unsigned char *puchReportBuffer
  *                                - Buffer to hold the Sender Report
  *
- * Returns:  unsigned long  - number of octets written into the buffer.
+ * Returns:  uint32_t  - number of octets written into the buffer.
  *
  * Description: Constructs a Sender report using the buffer passed in by the
  *              caller.  The Sender Report object shall keep track of the
@@ -273,7 +294,7 @@ public:
  *
  * Outputs:  None
  *
- * Returns:  unsigned long
+ * Returns:  uint32_t
  *
  * Description: Extracts the contents of an Sender report using the buffer
  *              passed in by the caller.  The Sender Report object shall store
@@ -340,19 +361,19 @@ private:        // Private Methods
  *
  * Inputs:   None
  *
- * Outputs:  unsigned long *aulTimeStamps - Long word array in which to load
+ * Outputs:  uint32_t *aulTimeStamps - Long word array in which to load
  *              the NTP/RTP timestamp
  *
- * Returns:  unsigned long                - Size of the data loaded
+ * Returns:  uint32_t                - Size of the data loaded
  *
  * Description: This method shall load the 64 bit NTP timestamp and the 32-bit
- *              RTP timestamp into the long word array passed as an argument
+ *              RTP timestamp into the int32_t word array passed as an argument
  *              to this call.
  *
  * Usage Notes:
  *
  */
-    unsigned long LoadTimestamps(unsigned long *paulTimeStamps);
+    unsigned long LoadTimestamps(uint32_t *paulTimeStamps);
 
 
 
@@ -363,17 +384,17 @@ private:        // Private Methods
  *
  * Inputs:   None
  *
- * Outputs:  unsigned long *aulSenderStats
+ * Outputs:  uint32_t *aulSenderStats
  *                          - Long word array in which to load the statistics
  *
- * Returns:  unsigned long                 - Amount of data loaded
+ * Returns:  uint32_t                 - Amount of data loaded
  *
  * Description:  This method shall retrieve the packet and octet counts.
  *
  * Usage Notes:
  *
  */
-    unsigned long  LoadSenderStats(unsigned long *paulSenderStats);
+    unsigned long  LoadSenderStats(uint32_t *paulSenderStats);
 
 
 /**
@@ -381,12 +402,12 @@ private:        // Private Methods
  * Method Name:  ExtractTimestamps
  *
  *
- * Inputs:   unsigned long *paulTimestamps
+ * Inputs:   uint32_t *paulTimestamps
  *                             - Array containing the NTP/RTP Timestamps
  *
  * Outputs:  None
  *
- * Returns:  unsigned long                 - Size of the data extracted
+ * Returns:  uint32_t                 - Size of the data extracted
  *
  * Description:  This method shall extract the 64 bits of NTP time information
  *               and the 32-bits of RTP timestamp and store them both in
@@ -395,7 +416,7 @@ private:        // Private Methods
  * Usage Notes:
  *
  */
-    unsigned long ExtractTimestamps(unsigned long *paulTimestamps);
+    unsigned long ExtractTimestamps(uint32_t *paulTimestamps);
 
 
 /**
@@ -403,12 +424,12 @@ private:        // Private Methods
  * Method Name:  ExtractSenderStats
  *
  *
- * Inputs:   unsigned long *aulSenderStats
+ * Inputs:   uint32_t *aulSenderStats
  *                           - Long word array in which to load the statistics
  *
  * Outputs:  None
  *
- * Returns:  unsigned long                 - Amount of data extracted
+ * Returns:  uint32_t                 - Amount of data extracted
  *
  * Description:  This method shall extract the packet and octet counts from the
  *               Sender Report.
@@ -416,7 +437,7 @@ private:        // Private Methods
  * Usage Notes:
  *
  */
-    unsigned long  ExtractSenderStats(unsigned long *aulSenderStats);
+    unsigned long  ExtractSenderStats(uint32_t *aulSenderStats);
 
 
 
@@ -440,23 +461,23 @@ private:        // Private Data Members
  *
  * Attribute Name:  m_ulPacketCount
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the cumlative sender packet count.
  *
  */
-      unsigned long m_ulPacketCount;
+      uint32_t m_ulPacketCount;
 
 /**
  *
  * Attribute Name:  m_ulOctetCount
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the cumlative sender octet count.
  *
  */
-      unsigned long m_ulOctetCount;
+      uint32_t m_ulOctetCount;
 
 /**
  *
@@ -474,90 +495,64 @@ private:        // Private Data Members
  *
  * Attribute Name:  m_aulNTPTimestamp
  *
- * Type:            unsigned long [2]
+ * Type:            uint32_t [2]
  *
  * Description:  This member shall store the 64 bit Network TimeStamp.
  *
  */
-      unsigned long m_aulNTPTimestamp[2];
+      uint32_t m_aulNTPTimestamp[2];
 
 
 /**
  *
  * Attribute Name:  m_aulNTPStartTime
  *
- * Type:            unsigned long [2]
+ * Type:            uint32_t [2]
  *
  * Description:  This member shall store the 64 bit Network Starting TimeStamp
  *               for the RTP Stream.
  *
  */
-      unsigned long m_aulNTPStartTime[2];
+      uint32_t m_aulNTPStartTime[2];
 
 /**
  *
  * Attribute Name:  m_ulRTPTimestamp
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:  This member shall store the 32 bit RTP TimeStamp identifying
  *               when a Sender Report was sent.
  *
  */
-      unsigned long m_ulRTPTimestamp;
+      rtpts_t m_ulRTPTimestamp;
 
 /**
  *
- * Attribute Name:  m_ulSamplesPerSecond
- *
- * Type:            unsigned long
- *
- * Description:  This member shall store the number of samples of media output
- *               per second.
- *
+ * These are used to save the NTP time and the RTP timestamp of the last
+ *   two outgoing RTP packets with DIFFERENT timestamps.  These are then
+ *   used when creating the next SR, to extrapolate to the current RTP
+ *   timestamp corresponding to the NTP time when the SR is sent.
  */
-      unsigned long m_ulSamplesPerSecond;
 
+    rtpts_t m_ulRTPTimestampBase;
+    rtpts_t m_ulRTPTimestamps[2];
+    uint32_t m_ulNTPSeconds[2];
+    uint32_t m_ulNTPuSecs[2];
 
-/**
- *
- * Attribute Name:  m_ulRandomOffset
- *
- * Type:            unsigned long
- *
- * Description:  This member shall store the random timestamp offset
- *               established for the RTP Stream.
- *
+    int m_iTSCollectState;
+
+/*
+ * And this is a fudge-factor to be applied to the RTP timestamp
+ *  calculation in the SR generation.  It is the (signed) number of
+ *  microseconds to adjust the clock time by when extrapolating the
+ *  RTP timestamp, to compensate for delay in the MpMedia system.
+ * Yes, it is a bit of a hack...
  */
-    double          m_ulRandomOffset;
 
+    int m_iUSecAdjust;
 };
 
-
-/**
- *
- * Method Name:  WasMediaSent
- *
- *
- * Inputs:   None
- *
- * Outputs:  None
- *
- * Returns:  bool
- *
- * Description:  A method to determine whether media has been sent out since
- *               the last reporting period.  This will determine whether a
- *               Sender Report or Receiver Report is in order.
- *
- * Usage Notes:
- *
- */
-inline bool CSenderReport::WasMediaSent(void)
-{
-
-    return(m_bMediaSent);
-
-}
 
 /**
  *
@@ -569,7 +564,7 @@ inline bool CSenderReport::WasMediaSent(void)
  *
  * Outputs:  None
  *
- * Returns:  unsigned long - The SSRC of the Bye Report
+ * Returns:  ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
@@ -577,7 +572,7 @@ inline bool CSenderReport::WasMediaSent(void)
  *
  *
  */
-inline unsigned long CSenderReport::GetSSRC(void)
+inline ssrc_t CSenderReport::GetSSRC(void)
 {
 
     return(CRTCPHeader::GetSSRC());

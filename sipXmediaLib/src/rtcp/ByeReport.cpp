@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -20,6 +22,8 @@
 
 #ifdef INCLUDE_RTCP /* [ */
 
+#include "os/OsSysLog.h"
+
 /**
  *
  * Method Name:  CByeReport() - Constructor
@@ -39,7 +43,7 @@
  *               participating FE.
  *
  */
-CByeReport::CByeReport(unsigned long ulSSRC)
+CByeReport::CByeReport(ssrc_t ulSSRC)
            :CRTCPHeader(ulSSRC, etByeReport),  // Base class construction
             m_ulReasonLength(0), m_ulCSRCCount(0)
 {
@@ -101,15 +105,17 @@ unsigned long CByeReport::FormatByeReport(unsigned char *puchReportBuffer,
 {
     unsigned long  ulReportLength, ulCSRCCount = 0;
     unsigned char *puchPayloadBuffer;
+    unsigned long l;
 
     // Let's offset into the Formatting buffer enough to
     // start depositing payload
-    puchPayloadBuffer = puchReportBuffer + GetHeaderLength();
+    puchPayloadBuffer = puchReportBuffer + (l = GetHeaderLength());
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CByeReport::FormatByeReport: GetHeaderLength() = %ld", l);
 
     // Let's load the field information based upon the period.
     // Conversion to NBO done in GetCSRC().
-    ulCSRCCount = GetCSRC((unsigned long *)puchPayloadBuffer, TRUE);
-    puchPayloadBuffer += (ulCSRCCount * sizeof(long));
+    ulCSRCCount = GetCSRC((ssrc_t *)puchPayloadBuffer, TRUE);
+    puchPayloadBuffer += (ulCSRCCount * sizeof(ssrc_t));
 
     // Let's load the field information based upon the period
     unsigned long ulReasonLength = GetReason(puchPayloadBuffer+1);
@@ -175,8 +181,8 @@ unsigned long CByeReport::ParseByeReport(unsigned char *puchReportBuffer)
     // Let's store the CSRCs from the Bye Report
     unsigned long ulCSRCCount = GetReportCount() ? GetReportCount() - 1 : 0;
 
-    SetCSRC((unsigned long *)puchPayloadBuffer, ulCSRCCount, TRUE);
-    puchPayloadBuffer += (sizeof(unsigned long) * ulCSRCCount);
+    SetCSRC((ssrc_t *)puchPayloadBuffer, ulCSRCCount, TRUE);
+    puchPayloadBuffer += (sizeof(ssrc_t) * ulCSRCCount);
 
     // Let's determine whether there is an optional Reason field associated
     // with this Bye Report.  We can surmise this through comparing the
@@ -184,7 +190,7 @@ unsigned long CByeReport::ParseByeReport(unsigned char *puchReportBuffer)
 
     if(puchPayloadBuffer - puchReportBuffer < (long)GetReportLength())
     {
-        unsigned long ulReasonLength = (unsigned long)*puchPayloadBuffer++;
+        uint32_t ulReasonLength = (uint32_t)*puchPayloadBuffer++;
         SetReason(puchPayloadBuffer, ulReasonLength);
         puchPayloadBuffer += ulReasonLength;
 
@@ -298,7 +304,7 @@ unsigned long CByeReport::GetReason(unsigned char *puchReason)
  *
  *
  */
-unsigned long CByeReport::GetCSRC(unsigned long *paulCSRC, bool bNBO)
+unsigned long CByeReport::GetCSRC(ssrc_t *paulCSRC, bool bNBO)
 {
 
     // Loop through the list of CSRCs
@@ -337,7 +343,7 @@ unsigned long CByeReport::GetCSRC(unsigned long *paulCSRC, bool bNBO)
  *
  *
  */
-void CByeReport::SetCSRC(unsigned long *paulCSRC,
+void CByeReport::SetCSRC(ssrc_t *paulCSRC,
                          unsigned long ulCSRCCount, bool bNBO)
 {
 
@@ -397,7 +403,7 @@ IByeReport * CByeReport::GetByeInterface(void)
  *
  *
  */
-void CByeReport::SetSSRC(unsigned long ulSSRC)
+void CByeReport::SetSSRC(ssrc_t ulSSRC)
 {
 
     // Store the modified SSRC as an internal attribute
@@ -466,7 +472,6 @@ unsigned long CByeReport::LoadPadding(unsigned char *puchReportBuffer,
     while(((unsigned long)puchPayloadBuffer) % 4)
     {
         *puchPayloadBuffer++ = 0; //NULL
-        *pbPadded = TRUE;
     }
 
     return(puchPayloadBuffer - puchReportBuffer);

@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -54,6 +56,8 @@ public:
     virtual int  Send(unsigned char * puchDataBuffer,
                       unsigned long ulBytesToSend) = 0;
 
+    virtual int getSocketDescriptor(void) = 0;
+    virtual int getSocketPort(void) = 0;
 
 };
 

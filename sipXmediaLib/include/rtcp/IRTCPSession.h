@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -332,7 +331,7 @@ public:
  * Usage Notes:
  *
  */
-    virtual unsigned long GetSSRC(void)=0;
+    virtual ssrc_t GetSSRC(int, int, int)=0;
 
 /**
  *

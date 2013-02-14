@@ -1,14 +1,12 @@
 //  
-// Copyright (C) 2006-2008 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2006-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
 // Author: Dan Petrie <dpetrie AT SIPez DOT com>
+
+#include "rtcp/RtcpConfig.h"
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -140,7 +138,6 @@ OsStatus MpTopologyGraph::destroyResources(MpResourceTopology& resourceTopology,
 {
     // Destroy the resources
     int resourceIndex = 0;
-    MpResource* resourcePtr = NULL;
     UtlString resourceName;
     OsStatus result;
     while(resourceTopology.getResource(resourceIndex, resourceName)

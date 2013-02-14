@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -21,15 +21,14 @@ class MprDejitter;
 class MprFromNet;
 class OsSocket;
 class SdpCodec;
-#ifdef INCLUDE_RTCP /* [ */
 struct IRTCPSession;
 struct IRTCPConnection;
-#endif /* INCLUDE_RTCP ] */
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <os/OsMutex.h>
 #include <mp/MpResource.h>
+#include <mp/MpResourceMsg.h>
 #include <mp/MpTypes.h>
 #include <mp/MprToNet.h>
 
@@ -93,6 +92,9 @@ public:
    void reassignSSRC(int iSSRC);
 #endif /* INCLUDE_RTCP ] */
 
+   // set the # of microseconds of skew to add to the RTCP SR timestamps
+   OsStatus setSRAdjustUSecs(const UtlString& namedResource, OsMsgQ& fgQ, int adjustUSecs);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -103,6 +105,9 @@ public:
    OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
 
 #ifdef INCLUDE_RTCP /* [ */
+
+//// DO WE STILL NEED THIS?
+
      /// Retrieve the RTCP Connection interface associated with this MpRtpOutputConnection
    IRTCPConnection *getRTCPConnection(void);
 #endif /* INCLUDE_RTCP ] */
@@ -124,7 +129,6 @@ protected:
    UtlBoolean         mOutRtpStarted;  ///< Are we currently sending RTP stream?
 
 #ifdef INCLUDE_RTCP /* [ */
-   IRTCPSession    *mpiRTCPSession;    ///< RTCP Session Interface pointer
    IRTCPConnection *mpiRTCPConnection; ///< RTCP Connection Interface pointer
 
 #endif /* INCLUDE_RTCP ] */
@@ -137,6 +141,13 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+   typedef enum
+   {
+      MPRM_SET_SR_ADJUST_USECS = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+   } AddlResMsgTypes;
+
+   UtlBoolean handleMessage(MpResourceMsg& message);
 
      /// Default constructor
    MpRtpOutputConnection();

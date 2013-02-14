@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -14,6 +13,11 @@
 
 
 // Includes
+
+#include "os/OsIntTypes.h"
+
+#include <assert.h>
+
 #ifdef WIN32
 #   ifndef WINCE
 #       include <sys/timeb.h>
@@ -31,6 +35,8 @@
 #   include <winsock2.h>
 #endif
 
+#include "os/OsSysLog.h"
+
 // Constants
 // Difference between LocalTime and Wall Time:
         const unsigned long WALLTIMEOFFSET  = 2208992400UL;
@@ -43,15 +49,21 @@
 
 // Millisecond to MicroSecond Conversion
         const int           MILLI2MICRO     = 1000;
+        const int           MICRO2NANO      = 1000;
 
 // Receiver Report Length:
         const int           RR_LENGTH       = 24;
+
+
+//  A lock to protect access to timestamp members
+OsBSem SR_sMultiThreadLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
+
 /**
  *
  * Method Name:  CSenderReport() - Constructor
  *
  *
- * Inputs:   unsigned long           ulSSRC  - The Identifier for this source
+ * Inputs:   ssrc_t           ulSSRC  - The Identifier for this source
  *           ISetReceiverStatistics *piSetStatistics
  *                                     - Interface for setting receiver stats
  *
@@ -69,15 +81,15 @@
  *               receiver report.
  *
  */
-CSenderReport::CSenderReport(unsigned long ulSSRC,
+CSenderReport::CSenderReport(ssrc_t ulSSRC,
                              ISetReceiverStatistics *piSetStatistics) :
           CRTCPHeader(ulSSRC, etSenderReport),  // Base class construction
           m_ulPacketCount(0),
           m_ulOctetCount(0),
           m_bMediaSent(FALSE),
-          m_ulRTPTimestamp(0),
-          m_ulSamplesPerSecond(SAMPLES_PER_SEC),
-          m_ulRandomOffset(0)
+          m_ulRTPTimestamp(0)
+          , m_iUSecAdjust(0)
+          , m_iTSCollectState(0)
 {
 
 
@@ -93,6 +105,8 @@ CSenderReport::CSenderReport(unsigned long ulSSRC,
     m_aulNTPTimestamp[1]      = 0;
     m_aulNTPStartTime[0]      = 0;
     m_aulNTPStartTime[1]      = 0;
+
+    ResetStatistics();
 }
 
 
@@ -130,6 +144,29 @@ CSenderReport::~CSenderReport(void)
 
 /**
  *
+ * Method Name:  WasMediaSent
+ *
+ *
+ * Inputs:   None
+ *
+ * Outputs:  None
+ *
+ * Returns:  bool
+ *
+ * Description:  A method to determine whether media has been sent out since
+ *               the last reporting period.  This will determine whether a
+ *               Sender Report or Receiver Report is in order.
+ *
+ * Usage Notes:
+ *
+ */
+bool CSenderReport::WasMediaSent(void)
+{
+    return(m_bMediaSent && (m_iTSCollectState == 3));
+}
+
+/**
+ *
  * Method Name:  IncrementCounts
  *
  *
@@ -147,15 +184,72 @@ CSenderReport::~CSenderReport(void)
  * Usage Notes:
  *
  */
-void CSenderReport::IncrementCounts(unsigned long ulOctetCount)
+void CSenderReport::IncrementCounts(uint32_t ulOctetCount, rtpts_t RTPTimestampBase, rtpts_t RTPTimestamp, ssrc_t ssrc)
 {
+    uint32_t ntp_secs;
+    uint32_t ntp_usec;
+
+#if defined(__pingtel_on_posix__)
+    {
+        struct timeval tv;
+
+        gettimeofday(&tv, NULL);
+        // Load Most Significant word with Wall time seconds
+        ntp_secs = tv.tv_sec;
+
+        // Load Least Significant word with Wall time microseconds
+        ntp_usec = tv.tv_usec;
+    }
+
+#endif
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::IncrementCounts: this=%p, NTP = {%2d.%06d}, octets=%04d, rtpTSBase=%u=0x%08X, rtpTS=%u=0x%08X, SSRC=0x%08X,0x%08X", this, (ntp_secs&0x3F), ntp_usec, ulOctetCount, RTPTimestampBase, RTPTimestampBase, RTPTimestamp, RTPTimestamp, ssrc, GetSSRC());
+
+    OsLock lock(SR_sMultiThreadLock);
+
+    if ((m_ulRTPTimestampBase != RTPTimestampBase) || ((0xFFFFFFFF & GetSSRC()) != (0xFFFFFFFF & ssrc))) {
+        SetSSRC(ssrc); // NOTE: Calls ResetStatistics()
+        m_ulRTPTimestampBase = RTPTimestampBase;
+    }
 
     // We will increment the packet count by 1 and the Octet count by the
     //  number specified within the octet count
     m_ulPacketCount++;
     m_ulOctetCount += ulOctetCount;
 
-    // Set the Media Sent flag to so that we know to transmit a Sender
+    switch (m_iTSCollectState)
+    {
+    case 0: // Initial state, save first values
+        m_ulRTPTimestamps[0] = RTPTimestamp;
+        m_ulNTPSeconds[0] = ntp_secs;
+        m_ulNTPuSecs[0] = ntp_usec;
+        m_iTSCollectState = 1;
+        break;
+
+    case 1: // Second state, wait for first value to change
+        if (m_ulRTPTimestamps[0] != RTPTimestamp) {
+            m_ulRTPTimestamps[1] = RTPTimestamp; // needed for state #2
+            m_ulRTPTimestamps[0] = RTPTimestamp;
+            m_ulNTPSeconds[0] = ntp_secs;
+            m_ulNTPuSecs[0] = ntp_usec;
+            m_iTSCollectState = 2;
+        }
+        break;
+
+    case 2: // Save last values for the first time
+    case 3: // Steady state, save last values, allow SR construction
+        if (m_ulRTPTimestamps[1] != RTPTimestamp) {
+            m_ulRTPTimestamps[1] = RTPTimestamp;
+            m_ulNTPSeconds[1] = ntp_secs;
+            m_ulNTPuSecs[1] = ntp_usec;
+            m_iTSCollectState = 3;
+        }
+        break;
+
+    default:
+        assert(0);
+    }
+
+    // Set the Media Sent flag so that we know to transmit a Sender
     // Report in the next reporting period.
     m_bMediaSent = TRUE;
 
@@ -173,20 +267,28 @@ void CSenderReport::IncrementCounts(unsigned long ulOctetCount)
  *
  * Returns:  void
  *
- * Description:  The SetRTPTimestamp method shall initialized values that are
- *               used to determine the RTP Timestamp value to be sent out in
- *               an SR Report.
+ * Description:  The SetRTPTimestamp method shall initialize the values
+ *               that are used to determine the RTP Timestamp value to be
+ *               sent out in an SR Report.
  *
  * Usage Notes:
  *
  */
-void CSenderReport::SetRTPTimestamp(unsigned long ulRandomOffset,
-                                    unsigned long ulSamplesPerSecond)
+
+/*****************************************************************************
+ * Feb 11, 2013 (hzm)
+ * IMHO, this is garbage.  Much like ExtractTimestamps...
+ * Also, ulSamplesPerSecond is not used -- this may explain part of the
+ *   bogosity of ExtractTimestamps.
+ ****************************************************************************/
+
+void CSenderReport::CSR_SetRTPTimestamp(uint32_t ulRandomOffset,
+                                    uint32_t ulSamplesPerSecond)
 {
 
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::SetRTPTimestamp(%d=0x%X, %d=0x%X)", ulRandomOffset, ulRandomOffset, ulSamplesPerSecond, ulSamplesPerSecond);
+
     // Set Timestamp Information
-    m_ulRandomOffset     = ulRandomOffset;
-    m_ulSamplesPerSecond = ulSamplesPerSecond;
 
     // Let's check whether an initial NTP timestamp has been established.
     //  If so, ignore.
@@ -201,7 +303,7 @@ void CSenderReport::SetRTPTimestamp(unsigned long ulRandomOffset,
         _ftime(&stLocalTime);
 
         // Load Most Significant word with Wall time seconds
-        m_aulNTPStartTime[0] = (unsigned long)stLocalTime.time + WALLTIMEOFFSET;
+        m_aulNTPStartTime[0] = (uint32_t)stLocalTime.time + WALLTIMEOFFSET;
 
         // Load Least Significant word with Wall time microseconds
         dTimestamp = stLocalTime.millitm * MILLI2MICRO;
@@ -211,6 +313,8 @@ void CSenderReport::SetRTPTimestamp(unsigned long ulRandomOffset,
         struct timeval tv;
 
         gettimeofday(&tv, NULL);
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::SetRTPTimestamp: tv = {%ld.%06ld}, sizes = %ld+%ld = %ld = %ld",
+            tv.tv_sec, tv.tv_usec, sizeof(tv.tv_sec), sizeof(tv.tv_usec), sizeof(tv), sizeof(struct timeval));
         // Load Most Significant word with Wall time seconds
         m_aulNTPStartTime[0] = tv.tv_sec + WALLTIMEOFFSET;
 
@@ -239,7 +343,7 @@ void CSenderReport::SetRTPTimestamp(unsigned long ulRandomOffset,
 #endif
 
         // Store microsecond portion of NTP
-        m_aulNTPStartTime[1] = (unsigned long)dTimestamp;
+        m_aulNTPStartTime[1] = (uint32_t)dTimestamp;
 
     }
 }
@@ -263,13 +367,14 @@ void CSenderReport::SetRTPTimestamp(unsigned long ulRandomOffset,
  *
  *
  */
-void CSenderReport::GetSenderStatistics(unsigned long *pulPacketCount,
-                                        unsigned long *pulOctetCount)
+void CSenderReport::GetSenderStatistics(uint32_t *pulPacketCount,
+                                        uint32_t *pulOctetCount)
 {
 
     // Pass back the current packet and octet counts
     *pulPacketCount = m_ulPacketCount;
     *pulOctetCount  = m_ulOctetCount;
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::GetSenderStatistics: Packets=%d, Octets=%d", m_ulPacketCount, m_ulOctetCount);
 
 }
 
@@ -294,8 +399,9 @@ void CSenderReport::GetSenderStatistics(unsigned long *pulPacketCount,
  *
  *
  */
-void CSenderReport::SetSSRC(unsigned long ulSSRC)
+void CSenderReport::SetSSRC(ssrc_t ulSSRC)
 {
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::SetSSRC(0x%8X) ", ulSSRC);
 
     // An SSRC collision must have been detected for this to occur.
     // Let's reset our statistics.
@@ -341,11 +447,13 @@ unsigned long CSenderReport::FormatSenderReport(
     //  start depositing payload
     unsigned char *puchPayloadBuffer = puchReportBuffer + GetHeaderLength();
 
+    OsLock lock(SR_sMultiThreadLock);
+
     // Let's load the NTP and RTP timestamps into the Sender Report
-    puchPayloadBuffer += LoadTimestamps((unsigned long *)puchPayloadBuffer);
+    puchPayloadBuffer += LoadTimestamps((uint32_t *)puchPayloadBuffer);
 
     // Let's load the Sender Statistics
-    puchPayloadBuffer += LoadSenderStats((unsigned long *)puchPayloadBuffer);
+    puchPayloadBuffer += LoadSenderStats((uint32_t *)puchPayloadBuffer);
 
     // Set the sender report length
     ulReportLength = puchPayloadBuffer - puchReportBuffer;
@@ -400,10 +508,10 @@ unsigned long CSenderReport::ParseSenderReport(unsigned char *puchReportBuffer)
     puchPayloadBuffer += GetHeaderLength();
 
     // Let's extract the NTP and RTP timestamps from the Sender Report
-    puchPayloadBuffer += ExtractTimestamps((unsigned long *)puchPayloadBuffer);
+    puchPayloadBuffer += ExtractTimestamps((uint32_t *)puchPayloadBuffer);
 
     // Let's extract the Sender Statistics
-    puchPayloadBuffer += ExtractSenderStats((unsigned long*)puchPayloadBuffer);
+    puchPayloadBuffer += ExtractSenderStats((uint32_t *)puchPayloadBuffer);
 
     return(puchPayloadBuffer - puchReportBuffer);
 
@@ -434,11 +542,36 @@ void CSenderReport::ResetStatistics(void)
 {
 
     // We must set both the packet and octet counts to 0
-    m_ulPacketCount = 0;
-    m_ulOctetCount = 0;
-
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::ResetStatistics: SSRC=0x%8X", CRTCPHeader::GetSSRC());
+    m_ulPacketCount = m_ulOctetCount = 0;
+    m_ulRTPTimestampBase = m_ulRTPTimestamps[0] = m_ulRTPTimestamps[1] = 0;
+    m_ulNTPSeconds[0] = m_ulNTPSeconds[1] = m_ulNTPuSecs[0] = m_ulNTPuSecs[1] = 0;
+    m_bMediaSent = FALSE;
+    m_iTSCollectState = 0;
 }
 
+
+/**
+ *
+ * Method Name:  SetSRAdjustUSecs
+ *
+ *
+ * Inputs:       int iUSecs - signed # of microseconds of skew adjustment
+ *
+ * Outputs:      None
+ *
+ * Returns:      void
+ *
+ * Description:  The SetSRAdjustUSecs method sets an adjustment for skew, in
+ *               microseconds, for the RTP time in the SR Report.
+ *
+ * Usage Notes:
+ *
+ */
+void CSenderReport::SetSRAdjustUSecs(int iUSecs)
+{
+    m_iUSecAdjust = iUSecs;
+}
 
 /**
  *
@@ -447,7 +580,7 @@ void CSenderReport::ResetStatistics(void)
  *
  * Inputs:   None
  *
- * Outputs:  unsigned long *aulTimestamps - Long word array in which to load
+ * Outputs:  uint32_t *aulTimestamps - Long word array in which to load
  *                                          the NTP and RTP timestamps
  *                                          (WHAT FORMAT???)
  *
@@ -460,10 +593,20 @@ void CSenderReport::ResetStatistics(void)
  * Usage Notes:
  *
  */
-unsigned long CSenderReport::LoadTimestamps(unsigned long *aulTimestamps)
+unsigned long CSenderReport::LoadTimestamps(uint32_t *aulTimestamps)
 {
-    double dTimestamp;
+    double dTimestampUSec;  // # uSec, 0..999999 as a double, then converted to a fraction between 0.0 and 0.999999
+    double dTimestampFrac;  // dTimestampUSec as a fixed point fraction, ie. dTimestampUSec * 2**32
+    double dNow, dFirst, dSecond;
+    double dExtrap = 1.0; // the extrapolation factor for the RTP timestamp
+    double dSkewAdjust = 0.0;
+    double dSampleRate = -1.0;
+    unsigned long ret = 0;
+    uint32_t ntp_secs;
+    uint32_t ulRTPDelta1 = 0;
+    uint32_t ulRTPDelta2 = 0;
 
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps");
 #ifdef WIN32
     struct _timeb stLocalTime;
 
@@ -471,22 +614,21 @@ unsigned long CSenderReport::LoadTimestamps(unsigned long *aulTimestamps)
     _ftime(&stLocalTime);
 
     // Load Most Significant word with Wall time seconds
-    m_aulNTPTimestamp[0] = (unsigned long)stLocalTime.time + WALLTIMEOFFSET;
+    ntp_secs = = (unsigned long)stLocalTime.time;
 
     // Load Least Significant word with Wall time microseconds
-    dTimestamp = stLocalTime.millitm * MILLI2MICRO;
-    dTimestamp *= (double)(FOUR_GIGABYTES/MICRO2SEC);
+    dTimestampUSec = stLocalTime.millitm * MILLI2MICRO;
 
 #elif defined(__pingtel_on_posix__)
-        struct timeval tv;
+    struct timeval tv;
 
-        gettimeofday(&tv, NULL);
-        // Load Most Significant word with Wall time seconds
-        m_aulNTPStartTime[0] = tv.tv_sec + WALLTIMEOFFSET;
+    gettimeofday(&tv, NULL);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps: tv = {%ld.%06ld}", tv.tv_sec, tv.tv_usec);
+    // Load Most Significant word with Wall time seconds
+    ntp_secs = tv.tv_sec;
 
-        // Load Least Significant word with Wall time microseconds
-        dTimestamp = (double) tv.tv_usec / MILLI2MICRO;
-        dTimestamp *= (double) (FOUR_GIGABYTES / MICRO2SEC);
+    // Load Least Significant word with Wall time microseconds
+    dTimestampUSec = (double) tv.tv_usec;
 
 #else
     struct timespec stLocalTime;
@@ -500,53 +642,51 @@ unsigned long CSenderReport::LoadTimestamps(unsigned long *aulTimestamps)
     }
 
     // Load Most Significant word with Wall time seconds
-    m_aulNTPTimestamp[0] = stLocalTime.tv_sec + WALLTIMEOFFSET;
+    ntp_secs = stLocalTime.tv_sec;
 
     // Load Least Significant word with Wall time microseconds
-    dTimestamp = (double)stLocalTime.tv_nsec / MILLI2MICRO;
-    dTimestamp *= (double)(FOUR_GIGABYTES / MICRO2SEC);
+    dTimestampUSec = (double)stLocalTime.tv_nsec / MICRO2NANO;
 
 
 #endif
 
+    dTimestampUSec = dTimestampUSec / ((double) MICRO2SEC);  // convert to fraction
+    dTimestampFrac = dTimestampUSec * ((double) FOUR_GIGABYTES); // convert to fixed point 32-bit fraction
+    dNow = (double) ntp_secs + dTimestampUSec;
+    dFirst =  (double) m_ulNTPSeconds[0] + (((double) m_ulNTPuSecs[0]) / ((double) MICRO2SEC));
+    dSecond = (double) m_ulNTPSeconds[1] + (((double) m_ulNTPuSecs[1]) / ((double) MICRO2SEC));
+    dSkewAdjust = (((double) m_iUSecAdjust) / ((double) MICRO2SEC));
+    if (m_ulRTPTimestamps[0]) {
+        ulRTPDelta1 = (m_ulRTPTimestamps[1] - m_ulRTPTimestamps[0]);
+        dExtrap = ((dNow + dSkewAdjust - dFirst) / (dSecond - dFirst));
+        dSampleRate = (double) ulRTPDelta1 / (dSecond - dFirst);
+        ulRTPDelta2 = (uint32_t) (((double)ulRTPDelta1) * dExtrap);
+    }
+    m_ulRTPTimestamp = m_ulRTPTimestampBase + m_ulRTPTimestamps[0] + ulRTPDelta2;
+
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps:@dFirst=%.6f, dSecond=%.6f, dNow=%.6f, dSkewAdjust=%.4f, dExtrap=%.4f,@ts0=%d, ts1=%d, dTS1=%d, dTS2=%d, TSB=%d, uSec=%d, SampleRate=%.2f", dFirst, dSecond, dNow, dSkewAdjust, dExtrap, m_ulRTPTimestamps[0], m_ulRTPTimestamps[1], ulRTPDelta1 , ulRTPDelta2, m_ulRTPTimestampBase, m_iUSecAdjust, dSampleRate);
+
+    // Adjust to 1900-based from 1970-based.
+    m_aulNTPTimestamp[0] = ntp_secs + WALLTIMEOFFSET;
+
     // Store microsecond portion of NTP
-    m_aulNTPTimestamp[1] = (unsigned long)dTimestamp;
+    m_aulNTPTimestamp[1] = (uint32_t)dTimestampFrac;
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps: m_aulNTPTimestamp={%u.%10u}", m_aulNTPTimestamp[0], m_aulNTPTimestamp[1]);
 
     // Assign NTP Time to Sender Report Buffer
-    *aulTimestamps = htonl(m_aulNTPTimestamp[0]);
-    aulTimestamps++;
-    *aulTimestamps = htonl(m_aulNTPTimestamp[1]);
-    aulTimestamps++;
+    aulTimestamps[0] = htonl(m_aulNTPTimestamp[0]);
+    aulTimestamps[1] = htonl(m_aulNTPTimestamp[1]);
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps: m_aulNTPTimestamp = {0x%08X,0x%08X}, aulTimestamps = {0x%08X,0x%08X}", m_aulNTPTimestamp[0], m_aulNTPTimestamp[1], aulTimestamps[0], aulTimestamps[1]);
+    aulTimestamps += 2;
 
-    // Calculate RTP Timestamp by taking the difference between the current
-    //  and starting NTP timestamps
-    double dSecondsElapsed  =
-                        (double)(m_aulNTPTimestamp[0] - m_aulNTPStartTime[0]);
-    double dUSecondsElapsed =
-                        (double)(m_aulNTPTimestamp[1] - m_aulNTPStartTime[1]);
-
-    // Round Seconds down if Microsecond difference is less that 0.
-    while (dUSecondsElapsed < 0)
-    {
-        dSecondsElapsed--;
-        dUSecondsElapsed += MICRO2SEC;
-    }
-
-    // Express in fractions of seconds
-    dUSecondsElapsed /= MICRO2SEC;
-
-    // Express total elapsed time in sample Units per second
-    double dElapsedUnits = (dSecondsElapsed + dUSecondsElapsed) /
-                                     ((1.0) / ((double)m_ulSamplesPerSecond));
-
-    // Adjust by random offset and format in Network Byte Order
-    m_ulRTPTimestamp = (unsigned long) (dElapsedUnits + m_ulRandomOffset);
     *aulTimestamps =  htonl(m_ulRTPTimestamp);
 
-    return(sizeof(m_aulNTPTimestamp) + sizeof(m_ulRTPTimestamp));
+    ret += sizeof(m_aulNTPTimestamp);
+    ret += sizeof(m_ulRTPTimestamp);
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps: sizeof(m_aulNTPTimestamp) = %ld, sizeof(m_ulRTPTimestamp) = %ld, ret = %ld", sizeof(m_aulNTPTimestamp), sizeof(m_ulRTPTimestamp), ret);
+    return (ret);
 
 }
-
 
 
 /**
@@ -556,7 +696,7 @@ unsigned long CSenderReport::LoadTimestamps(unsigned long *aulTimestamps)
  *
  * Inputs:   None
  *
- * Outputs:  unsigned long *aulSenderStats - Long word array in which
+ * Outputs:  uint32_t *aulSenderStats - Long word array in which
  *                                           to load the statistics
  *
  * Returns:  unsigned long - Amount of data loaded
@@ -566,7 +706,7 @@ unsigned long CSenderReport::LoadTimestamps(unsigned long *aulTimestamps)
  * Usage Notes:
  *
  */
-unsigned long  CSenderReport::LoadSenderStats(unsigned long *aulSenderStats)
+unsigned long  CSenderReport::LoadSenderStats(uint32_t *aulSenderStats)
 {
 
     // The RTP timestamp shall be based on the NTP timestamp
@@ -576,6 +716,8 @@ unsigned long  CSenderReport::LoadSenderStats(unsigned long *aulSenderStats)
     // Reset the Media Sent flag to so that we can determine whether a Sender
     // Report is necessary.
     m_bMediaSent = FALSE;
+    m_iTSCollectState = 0;
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadSenderStats: this=%p, P=%d, C=%d, ret=%d", this, m_ulPacketCount, m_ulOctetCount, (int)(sizeof(m_ulPacketCount) + sizeof(m_ulOctetCount)));
 
     return(sizeof(m_ulPacketCount) + sizeof(m_ulOctetCount));
 
@@ -587,7 +729,7 @@ unsigned long  CSenderReport::LoadSenderStats(unsigned long *aulSenderStats)
  * Method Name:  ExtractTimestamps
  *
  *
- * Inputs:   unsigned long *paulTimestamps
+ * Inputs:   uint32_t *paulTimestamps
  *                                   - Array containing the NTP/RTP Timestamps
  *
  * Outputs:  None
@@ -601,11 +743,26 @@ unsigned long  CSenderReport::LoadSenderStats(unsigned long *aulSenderStats)
  * Usage Notes:
  *
  */
-unsigned long CSenderReport::ExtractTimestamps(unsigned long *paulTimestamps)
+
+/*****************************************************************************
+ * Feb 11, 2013 (hzm)
+ * IMHO, this is garbage.
+ * In the pingtel_on_posix case it seems to do an extra divide by 1000.
+ * I do not see where it gets any notion of samples per second for the
+ *   SECOND assignment to m_ulRTPTimestamp (the FIRST seems to be only
+ *   for practice, since it is never used...).
+ * The separate host cases should just extract the current time as seconds
+ *   and microseconds, then do all the adjustments after the #endif.  Better,
+ *   use the portable OsTime abstraction!
+ *
+ * The good news is that it does not appear that anything uses the results...
+ ****************************************************************************/
+
+unsigned long CSenderReport::ExtractTimestamps(uint32_t *paulTimestamps)
 {
 
     unsigned long aulCurrentNTPTime[2];
-    double        dTimestamp;
+    double        dTimestamp; // only the FRACTIONAL part?
 
     // Load the two long word into NTP timestamp array
     m_aulNTPTimestamp[0] = ntohl(*paulTimestamps);
@@ -665,7 +822,7 @@ unsigned long CSenderReport::ExtractTimestamps(unsigned long *paulTimestamps)
 #endif
 
     // Store microsecond portion of NTP
-    aulCurrentNTPTime[1] = (unsigned long)dTimestamp;
+    aulCurrentNTPTime[1] = (uint32_t)dTimestamp;
 
 
     // Calculate Current RTP Timestamp by taking the difference
@@ -686,7 +843,7 @@ unsigned long CSenderReport::ExtractTimestamps(unsigned long *paulTimestamps)
     dUSecondsElapsed /= MICRO2SEC;
 
     // Express total elapsed time in sample Units per seond
-    m_ulRTPTimestamp = (unsigned long)(dSecondsElapsed + dUSecondsElapsed);
+    m_ulRTPTimestamp = (uint32_t)(dSecondsElapsed + dUSecondsElapsed);
 
 
     // Use the CReceiverReport's ISetReceiverStatistics Interface to timestamp
@@ -702,7 +859,7 @@ unsigned long CSenderReport::ExtractTimestamps(unsigned long *paulTimestamps)
  * Method Name:  ExtractSenderStats
  *
  *
- * Inputs:   unsigned long *aulSenderStats
+ * Inputs:   uint32_t *aulSenderStats
  *                           - Long word array in which to load the statistics
  *
  * Outputs:  None
@@ -715,7 +872,7 @@ unsigned long CSenderReport::ExtractTimestamps(unsigned long *paulTimestamps)
  * Usage Notes:
  *
  */
-unsigned long  CSenderReport::ExtractSenderStats(unsigned long *aulSenderStats)
+unsigned long  CSenderReport::ExtractSenderStats(uint32_t *aulSenderStats)
 {
 
     // The RTP timestamp shall be based on the NTP timestamp

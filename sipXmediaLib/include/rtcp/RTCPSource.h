@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -62,7 +64,7 @@ public:
  * Method Name:  CRTCPSource() - Constructor
  *
  *
- * Inputs:   unsigned long          ulSSRC
+ * Inputs:   ssrc_t          ulSSRC
  *                                    - The the Identifier for this source
  *           IRTCPNotify            *piRTCPNotify
  *                                    - RTCP Event Notification Interface
@@ -82,7 +84,7 @@ public:
  *               Sender objects associated with an inbound RTP connection.
  *
  */
-    CRTCPSource(unsigned long ulSSRC, IRTCPNotify *piRTCPNotify,
+    CRTCPSource(ssrc_t ulSSRC, IRTCPNotify *piRTCPNotify,
                 ISetReceiverStatistics *piSetStatistics);
 
 
@@ -416,7 +418,7 @@ private:        // Private Methods
  *
  * Outputs:  None
  *
- * Returns:  unsigned long                   - Returns Sender's SSRC
+ * Returns:  ssrc_t                   - Returns Sender's SSRC
  *
  * Description: Returns the Sender's SSRC.
  *
@@ -424,7 +426,7 @@ private:        // Private Methods
  *
  *
  */
-    unsigned long GetSenderSSRC(bool bHeader, unsigned char *puchRTCPBuffer);
+    ssrc_t GetSenderSSRC(bool bHeader, unsigned char *puchRTCPBuffer);
 
 
 /**
@@ -437,7 +439,7 @@ private:        // Private Methods
  *
  * Outputs:  None
  *
- * Returns:  unsigned long       - Returns Receiver's SSRC
+ * Returns:  ssrc_t       - Returns Receiver's SSRC
  *
  * Description: Returns the Receiver's SSRC.
  *
@@ -445,7 +447,7 @@ private:        // Private Methods
  *
  *
  */
-    unsigned long GetReceiverSSRC(bool bRTCPHeader,
+    ssrc_t GetReceiverSSRC(bool bRTCPHeader,
                                   unsigned char *puchRTCPBuffer);
 
 /**
@@ -494,13 +496,13 @@ private:        // Private Data Members
  *
  * Attribute Name:  m_ulSSRC
  *
- * Type:            unsigned long
+ * Type:            ssrc_t
  *
  * Description:  This member shall store the SSRC ID of the associated RTP
  *               connection.
  *
  */
-      unsigned long m_ulSSRC;
+      ssrc_t m_ulSSRC;
 
 
 /**
@@ -622,7 +624,7 @@ inline RTCP_REPORTS_ET
  *
  * Outputs:     None
  *
- * Returns:     unsigned long                   - Returns Sender's SSRC
+ * Returns:     ssrc_t                   - Returns Sender's SSRC
  *
  * Description: Returns the Sender's SSRC.
  *
@@ -630,8 +632,7 @@ inline RTCP_REPORTS_ET
  *
  *
  */
-inline unsigned long
-    CRTCPSource::GetSenderSSRC(bool bRTCPHeader, unsigned char *puchRTCPBuffer)
+inline ssrc_t CRTCPSource::GetSenderSSRC(bool bRTCPHeader, unsigned char *puchRTCPBuffer)
 {
 
 //  Advance over RTCP Header if one exists
@@ -639,7 +640,7 @@ inline unsigned long
         puchRTCPBuffer += SSRC_OFFSET;
 
 //  Return Sender SSRC
-    return(ntohl(*((unsigned long *)puchRTCPBuffer)));
+    return(ntohl(*((ssrc_t *)puchRTCPBuffer)));
 
 }
 
@@ -654,7 +655,7 @@ inline unsigned long
  *
  * Outputs:  None
  *
- * Returns:  unsigned long         - Returns Receiver's SSRC
+ * Returns:  ssrc_t         - Returns Receiver's SSRC
  *
  * Description: Returns the Receiver's SSRC.
  *
@@ -662,8 +663,7 @@ inline unsigned long
  *
  *
  */
-inline unsigned long
-    CRTCPSource::GetReceiverSSRC(bool bRTCPHeader,
+inline ssrc_t CRTCPSource::GetReceiverSSRC(bool bRTCPHeader,
                                  unsigned char *puchRTCPBuffer)
 {
 
@@ -672,7 +672,7 @@ inline unsigned long
         puchRTCPBuffer += HEADER_LENGTH;
 
 //  Return Receiver SSRC
-    return(ntohl(*((unsigned long *)puchRTCPBuffer)));
+    return(ntohl(*((ssrc_t *)puchRTCPBuffer)));
 
 }
 
@@ -725,7 +725,7 @@ inline unsigned long CRTCPSource::GetReportLength(unsigned char *puchRTCPBuffer)
     unsigned long ulReportLength =
                ntohs(*((unsigned short *)(puchRTCPBuffer + LENGTH_OFFSET))) + 1;
 
-    return(ulReportLength * sizeof(long));
+    return(ulReportLength * sizeof(uint32_t));
 
 }
 #endif

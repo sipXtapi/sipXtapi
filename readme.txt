@@ -19,11 +19,11 @@ Linux Build Hints
 The Linux build has been tested on Fedora Core 6 and Ubuntu 6.10 (Edgy).  Automake and autoconf should do the trick for you.  If you find any missing components, you will need to install those.  See the INSTALL doc in sipXportLib for more info on these dependences.
 
 Under FC6: 'yum install pcre-devel cppunit-devel'
-Under Ubunutu: 'apt-get install libpcre3-dev libcppunit-dev'.
+Under Ubuntu: 'apt-get install libpcre3-dev libcppunit-dev'.
 
 In order to build with GSM and Speex codec support you will need to install libgsm (version >= 1.0.10) and libspeex (version >= 1.1) development libraries.  Their presence will be detected during 'configure' stage automatically.  If do NOT want include GSM or Speex support even if appropriate libraries are present, use "--disable-codec-gsm" and "--disable-codec-speex" switch when configuring sipXtackLib, sipXmediaLib and sipXmediaAdapterLib.
 
-Under Ubunutu: 'apt-get install libspeex-dev libgsm1-dev' to install libgsm and libspeex.
+Under Ubuntu: 'apt-get install libspeex-dev libgsm1-dev' to install libgsm and libspeex.
 Under FC6: 'yum install speex-devel gsm-devel'
    note: you may need to add the linva repository: 
    'rpm -ivh http://rpm.livna.org/livna-release-6.rpm'

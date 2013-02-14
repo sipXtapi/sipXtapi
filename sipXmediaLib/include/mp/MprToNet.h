@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -99,6 +99,8 @@ public:
       const unsigned char* payloadData, int payloadOctets, unsigned int timestamp,
       void* csrcList);
 
+   void setSRAdjustUSecs(int iUSecs);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -108,7 +110,7 @@ public:
    /// Set flowgraph in which this is used for debug purposes
    OsStatus setFlowGraph(MpFlowGraphBase* flowgraph);
 
-   void setSSRC(int iSSRC);
+   void setSSRC(ssrc_t iSSRC);
    inline RtpSRC getSSRC() const;
 #ifdef INCLUDE_RTCP /* [ */
    void   setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator);
@@ -153,6 +155,8 @@ private:
    /// Allow outbound RTP stream to accumulate RTP packet statistics
    ISetSenderStatistics *mpiRTPAccumulator;
 #endif /* INCLUDE_RTCP ] */
+
+   int mSRAdjustUSecs;
 
      /// Copy constructor (not implemented for this class)
    MprToNet(const MprToNet& rMprToNet);

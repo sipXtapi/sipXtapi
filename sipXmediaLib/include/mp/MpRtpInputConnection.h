@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -37,10 +36,8 @@
 class MprFromNet;
 class MprRtpDispatcher;
 class OsSocket;
-#ifdef INCLUDE_RTCP /* [ */
 struct IRTCPSession;
 struct IRTCPConnection;
-#endif /* INCLUDE_RTCP ] */
 
 /**
 *  @brief Connection container for the inbound and outbound network paths to a
@@ -113,6 +110,9 @@ public:
 //@{
 
 #ifdef INCLUDE_RTCP /* [ */
+
+//// DO WE STILL NEED THIS?
+
      /// Retrieve the RTCP Connection interface associated with this MpRtpInputConnection
    IRTCPConnection *getRTCPConnection();
 #endif /* INCLUDE_RTCP ] */
@@ -142,7 +142,6 @@ protected:
    UtlBoolean         mIsRtpStarted;   ///< Are we currently receiving RTP stream?
 
 #ifdef INCLUDE_RTCP /* [ */
-   IRTCPSession    *mpiRTCPSession;    ///< RTCP Session Interface pointer
    IRTCPConnection *mpiRTCPConnection; ///< RTCP Connection Interface pointer
 #endif /* INCLUDE_RTCP ] */
 

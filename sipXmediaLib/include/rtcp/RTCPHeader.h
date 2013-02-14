@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -75,7 +77,7 @@ public:
  * Usage Notes:
  *
  */
-    CRTCPHeader(unsigned long ulSSRC,
+    CRTCPHeader(ssrc_t ulSSRC,
                 RTCP_REPORTS_ET etPayloadType,
                 unsigned long ulVersion=2);
 
@@ -235,7 +237,7 @@ public:
  *
  *
  */
-    virtual unsigned long GetSSRC(void);
+    virtual ssrc_t GetSSRC(void);
 
 /**
  *
@@ -255,16 +257,16 @@ public:
  *
  *
  */
-    virtual void SetSSRC(unsigned long ulSSRC);
+    virtual void SetSSRC(ssrc_t ulSSRC);
 
 /**
  *
  * Method Name:  IsOurSSRC
  *
  *
- * Inputs:      None
+ * Inputs:      ssrc_t ulSSRC  - SSRC ID
  *
- * Outputs:     unsigned long ulSSRC  - SSRC ID
+ * Outputs:     None
  *
  * Returns:     boolean
  *
@@ -276,7 +278,7 @@ public:
  *
  *
  */
-    virtual bool IsOurSSRC(unsigned long ulSSRC);
+    virtual bool IsOurSSRC(ssrc_t ulSSRC);
 
 protected:   // Protected Methods
 

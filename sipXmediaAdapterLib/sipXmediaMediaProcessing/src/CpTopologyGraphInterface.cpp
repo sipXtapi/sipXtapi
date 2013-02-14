@@ -1,6 +1,6 @@
 // 
-// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
-// 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -534,7 +534,7 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
 
       // Not sure why the audio sockets are set upon creation.  Setting the sockets
       // causes them to be read.  It would seem either they should be read all the time and dropped
-      // on the floor or they should only be read when we are recieving.  We currently stop reading
+      // on the floor or they should only be read when we are receiving.  We currently stop reading
       // when we stopRtpReceive.
       //
       // construct and send message to set sockets on video in rtp connection
@@ -1041,12 +1041,14 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                                                          int remoteVideoRtcpPort)
 {
 
+    // OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination[1](%d, '%s', A: %d, %d, V: %d, %d)", connectionId, remoteRtpHostAddress, remoteAudioRtpPort, remoteAudioRtcpPort, remoteVideoRtpPort, remoteVideoRtcpPort);
     OsStatus status = setConnectionDestination(connectionId, AUDIO_STREAM, 0, remoteRtpHostAddress, remoteAudioRtpPort, remoteAudioRtcpPort);
 
     if(status == OS_SUCCESS)
     {
         status = setConnectionDestination(connectionId, VIDEO_STREAM, 0, remoteRtpHostAddress, remoteVideoRtpPort, remoteVideoRtcpPort);
     }
+    // OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination([1]) returning %d", status);
 
     return(status);
 }
@@ -1058,9 +1060,16 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                                                             int remoteRtpPort,
                                                             int remoteRtcpPort)
 {
+    // OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination[2](%d, %d, %d, '%s', %d, %d)", connectionId, mediaType, streamindex, remoteRtpHostAddress, remoteRtpPort, remoteRtcpPort);
     assert(streamindex == 0);
     OsStatus returnCode = OS_NOT_FOUND;
     CpTopologyMediaConnection* pMediaConnection = getMediaConnection(connectionId);
+
+    if (remoteRtcpPort < 1)
+    {
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination called with RTCP port==%d.  Setting to %d", remoteRtcpPort, remoteRtpPort+1);
+        remoteRtcpPort = remoteRtpPort + 1;
+    }
 
     if(pMediaConnection && remoteRtpHostAddress && *remoteRtpHostAddress)
     {
@@ -1088,7 +1097,7 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                         OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpAudioSocket;
                         pSocket->readyDestination(remoteRtpHostAddress, remoteRtpPort) ;
                         pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtpPort) ;
-                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote address: %s port: %d",
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote RTP address: %s port: %d",
                             remoteRtpHostAddress, remoteRtpPort);
                     }
                     else
@@ -1106,6 +1115,8 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                         OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpAudioSocket;
                         pSocket->readyDestination(remoteRtpHostAddress, remoteRtcpPort);
                         pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtcpPort);
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote RTCP address: %s port: %d",
+                            remoteRtpHostAddress, remoteRtcpPort);
                     }
                     else
                     {
@@ -1138,6 +1149,8 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                     OsNatDatagramSocket *pRtpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpVideoSocket;
                     pRtpSocket->readyDestination(remoteRtpHostAddress, remoteRtpPort);
                     pRtpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtpPort);
+                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote Video RTP address: %s port: %d",
+                        remoteRtpHostAddress, remoteRtpPort);
                 }
                 else
                 {
@@ -1154,6 +1167,8 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                        OsNatDatagramSocket *pRctpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpVideoSocket;
                        pRctpSocket->readyDestination(remoteRtpHostAddress, remoteRtcpPort);
                        pRctpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteRtcpPort);
+                       OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination setting remote Video RTCP address: %s port: %d",
+                           remoteRtpHostAddress, remoteRtcpPort);
                     }
                     else
                     {
@@ -1176,6 +1191,7 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
         }
     }
 
+   // OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::setConnectionDestination([2]) returning %d", returnCode);
    return(returnCode);
 }
 

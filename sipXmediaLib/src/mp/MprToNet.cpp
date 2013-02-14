@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -84,6 +84,7 @@ MprToNet::MprToNet()
 #ifdef INCLUDE_RTCP /* [ */
 ,  mpiRTPAccumulator(NULL)
 #endif /* INCLUDE_RTCP ] */
+,  mSRAdjustUSecs(0)
 
 {
 }
@@ -131,20 +132,29 @@ OsStatus MprToNet::resetSockets(void)
    return OS_SUCCESS;
 }
 
-void MprToNet::setSSRC(int iSSRC)
+void MprToNet::setSSRC(ssrc_t iSSRC)
 {
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToNet::setSSRC(0x%08X)", iSSRC);
    mSSRC = iSSRC;
    mSeqNum = rand_timer32() | 0xfc00;
    mTimestampDelta = rand_timer32();
+#ifdef INCLUDE_RTCP /* [ */
+   if (mpiRTPAccumulator) {
+       mpiRTPAccumulator->CSR_SetRTPTimestamp(mTimestampDelta);
+       mpiRTPAccumulator->SetSRAdjustUSecs(mSRAdjustUSecs);
+   }
+#endif /* INCLUDE_RTCP ] */
 }
 
 #ifdef INCLUDE_RTCP /* [ */
 void MprToNet::setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator)
 {
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToNet::setRTPAccumulator(%p), TSD=%d=0x%08X", piRTPAccumulator, mTimestampDelta, mTimestampDelta);
    mpiRTPAccumulator = piRTPAccumulator;
    if(mpiRTPAccumulator)
    {
-       mpiRTPAccumulator->SetRTPTimestamp(mTimestampDelta);
+       mpiRTPAccumulator->CSR_SetRTPTimestamp(mTimestampDelta);
+       mpiRTPAccumulator->SetSRAdjustUSecs(mSRAdjustUSecs);
    }
 }
 
@@ -272,39 +282,38 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
    // to the originating site
    if(mpiRTPAccumulator)
    {
-       mpiRTPAccumulator->IncrementCounts(payloadOctets);
+       mpiRTPAccumulator->IncrementCounts(payloadOctets, mTimestampDelta, timestamp, mSSRC);
    }
 #endif /* INCLUDE_RTCP ] */
 
    const char* writeBytes = pUdpPacket->getDataPtr();
    int packetSize = pUdpPacket->getPacketSize();
 
+   // Socket can get set asynchronously to NULL when RTP send is stopped.  So check immediately before accessing socket.
+   //  -- Well... if that's the case, save the value of mpRtpSocket in a temporary.  Then
+   //      check the temp for NULL, and then dereference the temp only if it is not NULL.
+   // The original code only made the race condition less likely to cause trouble, and so
+   //    just made it more obscure and harder to find -- without actually fixing it...
+   OsSocket*    pRtpSocket = mpRtpSocket;
+
 #ifdef DROP_SOME_PACKETS /* [ */
    if (dropCount++ == dropLimit) {
       dropCount = 0;
-      numBytesSent = pUdpPacket->getPacketSize();
+      numBytesSent = packetSize;
+      packetSize = 0;
    } 
-   // Socket can get set asynchronously to NULL when RTP send is stopped.  So check immediately before accessing socket.
-   else if(mpRtpSocket)
-   {
-      numBytesSent = mpRtpSocket->write(writeBytes, packetSize);
-   }
-   else
-   {
-       numBytesSent = 0;
-   }
-#else /* DROP_SOME_PACKETS ] [*/
-
-   // Socket can get set asynchronously to NULL when RTP send is stopped.  So check immediately before accessing socket.
-   if(mpRtpSocket)
-   {
-      numBytesSent = mpRtpSocket->write(writeBytes, packetSize);
-   }
-   else
-   {
-       numBytesSent = 0;
-   }
 #endif /* DROP_SOME_PACKETS ] */
+   if(!pRtpSocket) {
+      packetSize = 0;  // prevent dereference if NULL socket.
+   }
+   if(packetSize)
+   {
+      numBytesSent = pRtpSocket->write(writeBytes, packetSize);
+   }
+   else
+   {
+       numBytesSent = 0;
+   }
 
 #ifdef TEST_PRINT
    UtlString remoteIp("null socket");
@@ -349,6 +358,18 @@ int setToRtpAdjustment(int ssrc, int seq, int ts)
 
 int sTRA(int a, int b, int c) {return setToRtpAdjustment(a,b,c);}
 #endif /* ENABLE_PACKET_HACKING ] */
+
+
+void MprToNet::setSRAdjustUSecs(int iUSecs)
+{
+   mSRAdjustUSecs = iUSecs;
+#ifdef INCLUDE_RTCP /* [ */
+   if(mpiRTPAccumulator)
+   {
+       mpiRTPAccumulator->SetSRAdjustUSecs(iUSecs);
+   }
+#endif /* INCLUDE_RTCP ] */
+}
 
 /* ============================ ACCESSORS ================================= */
 

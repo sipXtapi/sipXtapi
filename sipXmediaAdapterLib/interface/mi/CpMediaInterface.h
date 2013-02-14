@@ -1,6 +1,6 @@
 // 
-// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
-// 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -132,7 +132,7 @@ public:
                const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP) = 0 ;
      /**<
      *  One instance of the CpMediaInterface exists for each call, however, 
-     *  each leg of the call requires in individual connection.
+     *  each leg of the call requires an individual connection.
      *
      *  @param[out] connectionId - A newly allocated connection id returned via 
      *              this call.  The connection passed to many other media 
@@ -329,7 +329,7 @@ public:
      *  @see CpMediaInterface::addAudioRtpConnectionDestination
      */
 
-   /// @brief copies payload IDs for matching codecs to intefaces codec list
+   /// @brief copies payload IDs for matching codecs to interfaces codec list
    virtual OsStatus copyPayloadIds(int connectionId, int numCodecs, SdpCodec* remoteCodecs[]) = 0;
    /* Generally this is used when we recieve an SDP offer so that our answer will
     * use the same payload IDs as the remote side for the codecs in common.  This

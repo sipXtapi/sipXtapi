@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -63,7 +65,7 @@ public:
  * Usage Notes:
  *
  */
-    virtual void IncrementCounts(unsigned long ulOctetCount) = 0;
+    virtual void IncrementCounts(uint32_t ulOctetCount, rtpts_t RTPTimestampBase, rtpts_t RTPTimestamp, ssrc_t ssrc) = 0;
 
 /**
  *
@@ -86,8 +88,27 @@ public:
  * Usage Notes:
  *
  */
-    virtual void SetRTPTimestamp(unsigned long ulRandomOffset,
-                     unsigned long ulSamplesPerSecond = SAMPLES_PER_SEC) = 0;
+    virtual void CSR_SetRTPTimestamp(uint32_t ulRandomOffset,
+                     uint32_t ulSamplesPerSecond = SAMPLES_PER_SEC) = 0;
+
+/**
+ *
+ * Method Name:  SetSRAdjustUSecs
+ *
+ *
+ * Inputs:       int iUSecs - signed # of microseconds of skew adjustment
+ *
+ * Outputs:      None
+ *
+ * Returns:      void
+ *
+ * Description:  The SetSRAdjustUSecs method sets an adjustment for skew, in
+ *               microseconds, for the RTP time in the SR Report.
+ *
+ * Usage Notes:
+ *
+ */
+    virtual void SetSRAdjustUSecs(int iUSecs = 0) = 0;
 
 };
 

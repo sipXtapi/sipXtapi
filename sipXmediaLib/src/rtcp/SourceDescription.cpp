@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -24,6 +26,7 @@
 
 #ifdef INCLUDE_RTCP /* [ */
 
+#include "os/OsSysLog.h"
 
     // Constants
 
@@ -109,7 +112,7 @@ CSourceDescription *CSourceDescription::GetLocalSDES(void)
  * Method Name:  CSourceDescription() - Constructor
  *
  *
- * Inputs:      unsigned long   ulSSRC       - SSRC ID
+ * Inputs:      ssrc_t   ulSSRC       - SSRC ID
  *              unsigned char  *puchName     - NAME field
  *              unsigned char  *puchEmail    - EMAIL field
  *              unsigned char  *puchPhone    - PHONE field
@@ -132,7 +135,7 @@ CSourceDescription *CSourceDescription::GetLocalSDES(void)
  *              list.
  *
  */
-CSourceDescription::CSourceDescription(unsigned long ulSSRC,
+CSourceDescription::CSourceDescription(ssrc_t ulSSRC,
             unsigned char *puchName, unsigned char *puchEmail,
             unsigned char *puchPhone, unsigned char *puchLocation,
             unsigned char *puchAppName, unsigned char *puchNotes,
@@ -388,7 +391,7 @@ void CSourceDescription::GetAllComponents(unsigned char *puchName,
  * Method Name:  SetSSRC
  *
  *
- * Inputs:      unsigned long   ulSSRC   - Source ID
+ * Inputs:      ssrc_t   ulSSRC   - Source ID
  *
  * Outputs:     None
  *
@@ -401,7 +404,7 @@ void CSourceDescription::GetAllComponents(unsigned char *puchName,
  *
  *
  */
-void CSourceDescription::SetSSRC(unsigned long ulSSRC)
+void CSourceDescription::SetSSRC(ssrc_t ulSSRC)
 {
 
     // Store the modified SSRC as an internal attribute
@@ -1140,7 +1143,9 @@ unsigned long CSourceDescription::FormatSDESReport(bool bIncludeHeader,
 {
     unsigned char   *puchPayloadBuffer;
     unsigned long    ulReportLength;
+    unsigned long l;
 
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: %s header", bIncludeHeader ? "With": "Without");
     // Check whether the CNAME has been calculate yet.
     // If not, we shall do this as our first act.
     if(!m_bCNameSet)
@@ -1161,20 +1166,27 @@ unsigned long CSourceDescription::FormatSDESReport(bool bIncludeHeader,
         puchPayloadBuffer = puchReportBuffer;
 
         // Let's load the SSRC into the SDES Report
-        *((unsigned long *)puchPayloadBuffer) = htonl(GetSSRC());
-        puchPayloadBuffer += sizeof(unsigned long);
+        *((ssrc_t *)puchPayloadBuffer) = htonl(GetSSRC());
+        puchPayloadBuffer += sizeof(ssrc_t);
     }
 
 
     // Let's load the field information based upon the content mask
-    puchPayloadBuffer += LoadFieldInfo(puchPayloadBuffer, lContentMask);
+    // puchPayloadBuffer += LoadFieldInfo(puchPayloadBuffer, lContentMask);
+    l = LoadFieldInfo(puchPayloadBuffer, lContentMask);
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: LoadFieldInfo->%ld", l);
+    puchPayloadBuffer += l;
 
     // Let's load padding onto the end of the packet to insure 4 byte alignment
     bool bPadded;
-    puchPayloadBuffer += TerminateNPad(puchPayloadBuffer, &bPadded);
+    // puchPayloadBuffer += TerminateNPad(puchPayloadBuffer, &bPadded);
+    l = TerminateNPad(puchPayloadBuffer, &bPadded);
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: TerminateNPad->%ld, bPadded: %s", l, bPadded?"TRUE":"FALSE");
+    puchPayloadBuffer += l;
 
     // Set the report length
     ulReportLength = puchPayloadBuffer - puchReportBuffer;
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: ulReportLength: %ld", ulReportLength);
 
     // Let's check to see whether we need to prepend a header to this Receiver
     //  Report.  If so, let's call the RTCP Header base class's formatter.
@@ -1817,6 +1829,7 @@ unsigned long
 
     // Add the terminating NULL octet
     *puchPayloadBuffer++ = 0;
+    *pbPadded = FALSE;
 
     // Add padding as needed to get us aligned on a 4 byte boundary
     numPadBytes = (unsigned char) ((4 - (((unsigned long)puchPayloadBuffer) % 4)) % 4);
@@ -1826,11 +1839,9 @@ unsigned long
     case 2:
         *puchPayloadBuffer++ = 0;
     case 1:
-        *puchPayloadBuffer++ = numPadBytes;
-        *pbPadded = TRUE;
+        *puchPayloadBuffer++ = 0;
         break;
     case 0:
-        *pbPadded = FALSE;
         break;
     }
 

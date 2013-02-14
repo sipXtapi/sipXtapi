@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -61,8 +63,8 @@ public:
  * Method Name:  CReceiverReport() - Constructor
  *
  *
- * Inputs:       unsigned long ulSSRC     - The the Identifier for this source
- *               unsigned long ulVersion  -
+ * Inputs:       ssrc_t ulSSRC     - The the Identifier for this source
+ *               uint32_t ulVersion  -
  *                                  Version of the RFC Standard being followed
  *
  *
@@ -79,7 +81,7 @@ public:
  *               version number to the CRTCPHeader at object construction.
  *
  */
-    CReceiverReport(unsigned long ulSSRC=0, unsigned long ulVersion=2);
+    CReceiverReport(ssrc_t ulSSRC=0, unsigned long ulVersion=2);
 
 
 /**
@@ -131,7 +133,7 @@ public:
  * Method Name: SetLastRcvdSRTime
  *
  *
- * Inputs:      unsigned long aulNTPTimestamp[]
+ * Inputs:      uint32_t aulNTPTimestamp[]
  *
  * Outputs:     None
  *
@@ -145,7 +147,7 @@ public:
  *
  *
  */
-    void SetLastRcvdSRTime(unsigned long aulNTPTimestamp[]);
+    void SetLastRcvdSRTime(uint32_t aulNTPTimestamp[]);
 
 
 /**
@@ -155,17 +157,17 @@ public:
  *
  * Inputs:      None
  *
- * Outputs:     unsigned long  *pulFractionalLoss
+ * Outputs:     uint32_t  *pulFractionalLoss
  *                                - Fractional Packet Loss
- *              unsigned long  *pulCumulativeLoss
+ *              uint32_t  *pulCumulativeLoss
  *                                - Cumulative Packet Loss
- *              unsigned long  *pulHighestSequenceNo
+ *              uint32_t  *pulHighestSequenceNo
  *                                - Highest Sequence Number Received
- *              unsigned long  *pulInterarrivalJitter
+ *              uint32_t  *pulInterarrivalJitter
  *                                - Interarrival Packet Variance
- *              unsigned long  *pulSRTimestamp
+ *              uint32_t  *pulSRTimestamp
  *                                - Timestamp of last Sender Report received
- *              unsigned long  *pulPacketDelay
+ *              uint32_t  *pulPacketDelay
  *                                - 1/65536 granular Delay between last Sender
  *                                  Report Received and sending this report
  *
@@ -179,12 +181,12 @@ public:
  *
  *
  */
-    void GetReceiverStatistics(unsigned long  *pulFractionalLoss,
-                               unsigned long  *pulCumulativeLoss,
-                               unsigned long  *pulHighestSequenceNo,
-                               unsigned long  *pulInterarrivalJitter,
-                               unsigned long  *pulSRTimestamp,
-                               unsigned long  *pulPacketDelay);
+    void GetReceiverStatistics(uint32_t  *pulFractionalLoss,
+                               uint32_t  *pulCumulativeLoss,
+                               uint32_t  *pulHighestSequenceNo,
+                               uint32_t  *pulInterarrivalJitter,
+                               uint32_t  *pulSRTimestamp,
+                               uint32_t  *pulPacketDelay);
 
 
 
@@ -263,7 +265,7 @@ public:
  *
  * Outputs:      None
  *
- * Returns:     unsigned long - The SSRC of the Bye Report
+ * Returns:     ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
@@ -271,14 +273,14 @@ public:
  *
  *
  */
-    unsigned long GetSSRC(void);
+    ssrc_t GetSSRC(void);
 
 /**
  *
  * Method Name:  SetSSRC
  *
  *
- * Inputs:      unsigned long   ulSSRC   - Source ID
+ * Inputs:      ssrc_t   ulSSRC   - Source ID
  *
  * Outputs:     None
  *
@@ -291,7 +293,7 @@ public:
  *
  *
  */
-    virtual void SetSSRC(unsigned long ulSSRC);
+    virtual void SetSSRC(ssrc_t ulSSRC);
 
 
 /**
@@ -400,7 +402,7 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    void UpdateSequenceNumbers(unsigned long ulSequenceNo);
+    void UpdateSequenceNumbers(ssrc_t ulSequenceNo);
 
 /**
  *
@@ -445,7 +447,7 @@ DECLARE_IBASE_M
  *
  * Method Name:  LoadRemoteSSRC
  *
- * Inputs:       unsigned long *pulPayloadBuffer
+ * Inputs:       ssrc_t *pulPayloadBuffer
  *                                    - Payload buffer for loading data
  *
  * Outputs:      None
@@ -459,13 +461,13 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    unsigned long LoadRemoteSSRC(unsigned long *pulPayloadBuffer);
+    unsigned long LoadRemoteSSRC(ssrc_t *pulPayloadBuffer);
 
 /**
  *
  * Method Name:  LoadLossStatistics
  *
- * Inputs:       unsigned long *pulPayloadBuffer
+ * Inputs:       uint32_t *pulPayloadBuffer
  *                                    - Payload buffer for loading data
  *
  * Outputs:      None
@@ -479,13 +481,13 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    unsigned long LoadLossStatistics(unsigned long *pulPayloadBuffer);
+    unsigned long LoadLossStatistics(uint32_t *pulPayloadBuffer);
 
 /**
  *
  * Method Name:  LoadExtendedSequence
  *
- * Inputs:       unsigned long *pulPayloadBuffer
+ * Inputs:       uint32_t *pulPayloadBuffer
  *                                    - Payload buffer for loading data
  *
  * Outputs:      None
@@ -501,13 +503,13 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    unsigned long LoadExtendedSequence(unsigned long *pulPayloadBuffer);
+    unsigned long LoadExtendedSequence(uint32_t *pulPayloadBuffer);
 
 /**
  *
  * Method Name:  LoadJitter
  *
- * Inputs:       unsigned long *pulPayloadBuffer
+ * Inputs:       uint32_t *pulPayloadBuffer
  *                                    - Payload buffer for loading data
  *
  * Outputs:      None
@@ -523,13 +525,13 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    unsigned long LoadJitter(unsigned long *pulPayloadBuffer);
+    unsigned long LoadJitter(uint32_t *pulPayloadBuffer);
 
 /**
  *
  * Method Name:  LoadReportTimes
  *
- * Inputs:       unsigned long *pulPayloadBuffer
+ * Inputs:       uint32_t *pulPayloadBuffer
  *                                    - Payload buffer for loading data
  *
  * Outputs:      None
@@ -545,13 +547,13 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    unsigned long LoadReportTimes(unsigned long *pulPayloadBuffer);
+    unsigned long LoadReportTimes(uint32_t *pulPayloadBuffer);
 
 /**
  *
  * Method Name:  ExtractRemoteSSRC
  *
- * Inputs:       unsigned long *pulPayloadBuffer
+ * Inputs:       uint32_t *pulPayloadBuffer
  *                                    - Payload buffer for loading data
  *
  * Outputs:      None
@@ -565,13 +567,13 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    unsigned long ExtractRemoteSSRC(unsigned long *pulPayloadBuffer);
+    unsigned long ExtractRemoteSSRC(uint32_t *pulPayloadBuffer);
 
 /**
  *
  * Method Name:  ExtractLossStatistics
  *
- * Inputs:       unsigned long *pulPayloadBuffer
+ * Inputs:       uint32_t *pulPayloadBuffer
  *                                    - Payload buffer for loading data
  *
  * Outputs:      None
@@ -585,13 +587,13 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    unsigned long ExtractLossStatistics(unsigned long *pulPayloadBuffer);
+    unsigned long ExtractLossStatistics(uint32_t *pulPayloadBuffer);
 
 /**
  *
  * Method Name:  ExtractExtendedSequence
  *
- * Inputs:       unsigned long *pulPayloadBuffer
+ * Inputs:       uint32_t *pulPayloadBuffer
  *                                    - Payload buffer for loading data
  *
  * Outputs:      None
@@ -607,13 +609,13 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    unsigned long ExtractExtendedSequence(unsigned long *pulPayloadBuffer);
+    unsigned long ExtractExtendedSequence(uint32_t *pulPayloadBuffer);
 
 /**
  *
  * Method Name:  ExtractJitter
  *
- * Inputs:       unsigned long *pulPayloadBuffer
+ * Inputs:       uint32_t *pulPayloadBuffer
  *                                    - Payload buffer for loading data
  *
  * Outputs:      None
@@ -629,13 +631,13 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    unsigned long ExtractJitter(unsigned long *pulPayloadBuffer);
+    unsigned long ExtractJitter(uint32_t *pulPayloadBuffer);
 
 /**
  *
  * Method Name:  ExtractReportTimes
  *
- * Inputs:       unsigned long *pulPayloadBuffer
+ * Inputs:       uint32_t *pulPayloadBuffer
  *                                    - Payload buffer for loading data
  *
  * Outputs:      None
@@ -650,7 +652,7 @@ DECLARE_IBASE_M
  * Usage Notes:
  *
  */
-    unsigned long ExtractReportTimes(unsigned long *pulPayloadBuffer);
+    unsigned long ExtractReportTimes(uint32_t *pulPayloadBuffer);
 
 
 /**
@@ -717,7 +719,7 @@ DECLARE_IBASE_M
  *                  engaged in an RTP connection.
  *
  */
-      unsigned long m_ulRemoteSSRC;
+      ssrc_t m_ulRemoteSSRC;
 
 /**
  *
@@ -729,174 +731,174 @@ DECLARE_IBASE_M
  *                  since the start of the inbound RTP connection.
  *
  */
-      unsigned long m_ulTotalPacketCount;
+      uint32_t m_ulTotalPacketCount;
 
 /**
  *
  * Attribute Name:  m_ulPeriodPacketCount
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the number of packets received
  *                  over the reporting period.
  *
  */
-      unsigned long m_ulPeriodPacketCount;
+      uint32_t m_ulPeriodPacketCount;
 
 /**
  *
  * Attribute Name:  m_ulPeriodPacketLoss
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the number of packets lost over
  *                  the reporting period.
  *
  */
-      unsigned long m_ulPeriodPacketLoss;
+      uint32_t m_ulPeriodPacketLoss;
 
 /**
  *
  * Attribute Name:  m_ulFractionalLoss
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description: This member shall store the Fractional Packet Loss express as
  *       m_ulPeriodPacketLoss / m_ulPeriodPacketCount + m_ulPeriodPacketLoss
  *
  */
-      unsigned long m_ulFractionalLoss;
+      uint32_t m_ulFractionalLoss;
 
 
 /**
  *
  * Attribute Name:  m_ulCumulativeLoss
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the cumulative packet loss since
  *                  the start of the inbound RTP connection.
  *
  */
-      unsigned long m_ulCumulativeLoss;
+      uint32_t m_ulCumulativeLoss;
 
 /**
  *
  * Attribute Name:  m_ulFirstSequenceNo
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the first sequence number received
  *                  in an inbound RTP data packet.
  */
-     unsigned long m_ulFirstSequenceNo;
+     uint32_t m_ulFirstSequenceNo;
 
 /**
  *
  * Attribute Name:  m_ulLastSequenceNo
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the last sequence number received
  *                  in an inbound RTP data packet.
  */
-     unsigned long m_ulLastSequenceNo;
+     uint32_t m_ulLastSequenceNo;
 
 /**
  *
  * Attribute Name:  m_ulSequenceWraps
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the number of time the sequence
  *                  number has wrapped given its 16 bit resolution.
  */
-     unsigned long m_ulSequenceWraps;
+     uint32_t m_ulSequenceWraps;
 
 
 /**
  *
  * Attribute Name:  m_ulHighestSequenceNo
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the highest sequence number
  *                  received in an inbound RTP data packet in the low 16 bits
  *                  and the corresponding count of sequence number cycles in
  *                  the most significant 16 bits.
  */
-     unsigned long m_ulHighestSequenceNo;
+     uint32_t m_ulHighestSequenceNo;
 
 /**
  *
  * Attribute Name:  m_ulLastPeriodExpectedCount
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the number of packets expected for
  *                  the last reporting period.  This calculation is based on
  *                  the highest and first sequence numbers acquired for that
  *                  period.
  */
-     unsigned long m_ulLastPeriodExpectedCount;
+     uint32_t m_ulLastPeriodExpectedCount;
 
 
 /**
  *
  * Attribute Name:  m_ulLastPeriodPacketCount
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the number of actual packets
  *                  received over the previous reporting period.
  */
-     unsigned long m_ulLastPeriodPacketCount;
+     uint32_t m_ulLastPeriodPacketCount;
 
 /**
  *
  * Attribute Name:  m_ulLastPacketSendTime
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the RTP timestamp associated with
  *                  the last RTP packet received.
  */
-     unsigned long m_ulLastPacketSendTime;
+     uint32_t m_ulLastPacketSendTime;
 
 /**
  *
  * Attribute Name:  m_ulLastPacketReceiveTime
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the receive timestamp associated
  *                  with the last RTP packet received.
  */
-     unsigned long m_ulLastPacketReceiveTime;
+     uint32_t m_ulLastPacketReceiveTime;
 
 
 /**
  *
  * Attribute Name:  m_ulMeanJitter
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the mean interarrival jitter.
  */
-     unsigned long  m_ulMeanJitter;
+     uint32_t  m_ulMeanJitter;
 
 
 /**
  *
  * Attribute Name:  m_ulLastSRTimestamp
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the timestamp for the last Send
  *                  Report sent by the FE.  This is the middle 32 bits of
  *                  the NTP timestamp of the SR.
  */
-     unsigned long m_ulLastSRTimestamp;
+     uint32_t m_ulLastSRTimestamp;
 
 /**
  *
@@ -915,19 +917,19 @@ DECLARE_IBASE_M
  *
  * Attribute Name:  m_ulSRDelay
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     This member shall store the delay between the formation
  *                  of this Receiver Report and the last Send Report received
  *                  for this RTP connection.
  */
-     unsigned long  m_ulSRDelay;
+     uint32_t  m_ulSRDelay;
 
 /**
  *
  * Attribute Name:  m_ulCached....
  *
- * Type:            unsigned long
+ * Type:            uint32_t
  *
  * Description:     These member shall store the statistics from the last
  *                  reporting period so that they may be viewed by interested
@@ -935,12 +937,12 @@ DECLARE_IBASE_M
  *                  addressed through creating a copy of the Receiver Report
  *                  object after the reporting period has expired.
  */
-     unsigned long  m_ulCachedFractionalLoss;
-     unsigned long  m_ulCachedCumulativeLoss;
-     unsigned long  m_ulCachedHighestSequenceNo;
-     unsigned long  m_ulCachedMeanJitter;
-     unsigned long  m_ulCachedLastSRTimestamp;
-     unsigned long  m_ulCachedSRDelay;
+     uint32_t  m_ulCachedFractionalLoss;
+     uint32_t  m_ulCachedCumulativeLoss;
+     uint32_t  m_ulCachedHighestSequenceNo;
+     uint32_t  m_ulCachedMeanJitter;
+     uint32_t  m_ulCachedLastSRTimestamp;
+     uint32_t  m_ulCachedSRDelay;
 
      int mTotalPackets;
      int mTotalWarnings;
@@ -957,7 +959,7 @@ DECLARE_IBASE_M
  *
  * Outputs:      None
  *
- * Returns:     unsigned long - The SSRC of the Bye Report
+ * Returns:     ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
@@ -965,7 +967,7 @@ DECLARE_IBASE_M
  *
  *
  */
-inline unsigned long CReceiverReport::GetSSRC(void)
+inline ssrc_t CReceiverReport::GetSSRC(void)
 {
 
     return(CRTCPHeader::GetSSRC());

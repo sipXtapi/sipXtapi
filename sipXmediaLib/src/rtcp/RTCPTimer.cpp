@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -108,7 +110,7 @@ bool CRTCPTimer::Initialize(void)
         return(FALSE);
     }
 
-#elif defined(_VXWORKS) /* [ */
+#elif defined(_VXWORKS) /* ] [ */
     // Create VxWorks Timer
     if(timer_create(CLOCK_REALTIME, NULL, &m_tTimer) == ERROR)
     {
@@ -134,7 +136,7 @@ bool CRTCPTimer::Initialize(void)
             " ERROR, errno = %d = 0x%X\n", errno);
         return(FALSE);
     }
-#elif defined(__pingtel_on_posix__)
+#elif defined(__pingtel_on_posix__) /* ] [ */
     /* use OSAL like all well-behaved Pingtel code should */
     if(m_pTimeout != NULL)
         delete m_pTimeout;
@@ -227,7 +229,7 @@ bool CRTCPTimer::Shutdown( void )
 }
 
 
-#ifdef WIN32
+#ifdef WIN32 /* [ */
 /**
  *
  * Method Name: CRTCPTimer::CreateTimerThread
@@ -336,7 +338,7 @@ unsigned int __stdcall CRTCPTimer::TimerThreadProc(void * lpParameter)
     return 0;
 }
 
-#elif defined(_VXWORKS)
+#elif defined(_VXWORKS) /* ] [ */
 /**
  *
  * Method Name: CRTCPTimer::ReportingAlarm
@@ -364,23 +366,23 @@ void  CRTCPTimer::ReportingAlarm(timer_t tTimer, intptr_t iArgument)
     // Call the overloaded RTCP Reporting event notification method
     poRTCPTimer->RTCPReportingAlarm();
 }
-#elif defined(__pingtel_on_posix__)
+#elif defined(__pingtel_on_posix__) /* ] [ */
 
-#ifdef RTCP_LINUX_DEBUG
+#ifdef RTCP_LINUX_DEBUG /* [ */
 #include <sys/time.h>
-#endif
+#endif /* ] */
 
 void CRTCPTimer::ReportingAlarm(const intptr_t userData, const intptr_t eventData)
 {
-#ifdef RTCP_LINUX_DEBUG
+#ifdef RTCP_LINUX_DEBUG /* [ */
     struct timeval tv;
     gettimeofday(&tv, NULL);
     osPrintf("DEBUG: RTCP Timer expired! (64-second time = %02d.06%d)\n", tv.tv_sec & 63, tv.tv_usec);
-#endif
+#endif /* ] */
     /* see comments in VXWORKS version of this call */
     CRTCPTimer * poRTCPTimer = (CRTCPTimer *) userData;
     poRTCPTimer->RTCPReportingAlarm();
 }
 
-#endif
+#endif /* ] */
 #endif /* INCLUDE_RTCP ] */

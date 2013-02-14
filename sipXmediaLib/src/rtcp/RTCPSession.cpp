@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -290,7 +292,7 @@ bool CRTCPSession::TerminateRTCPConnection(IRTCPConnection *piRTCPConnection)
 void CRTCPSession::ResetAllConnections(unsigned char *puchReason)
 {
 
-    unsigned long aulCSRC[MAX_CONNECTIONS];
+    ssrc_t aulCSRC[MAX_CONNECTIONS];
     unsigned long ulCSRCs = 0;
     CRTCPConnection *poRTCPConnection;
 
@@ -477,7 +479,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
  *
  * Returns:     void
  *
- * Description: Check that our local SSRC is not colliding with one fo the
+ * Description: Check that our local SSRC is not colliding with one of the
  *              SSRCs of a participating site.
  *
  * Usage Notes:
@@ -485,6 +487,13 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
  *
  *
  */
+
+/******************************************************************
+ *
+ *  THIS NEEDS SERIOUS REVISING, IN THE NEXT ROUND OF CHECKINS.
+ *
+ *****************************************************************/
+
 void CRTCPSession::CheckLocalSSRCCollisions(void)
 {
 
@@ -505,7 +514,7 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
             // Let's reset all the connections.
             ResetAllConnections((unsigned char *)"SSRC Collision");
 
-            // Let's inform the RTC Manager and its subscribing client's of
+            // Let's inform the RTC Manager and its subscribing clients of
             //  this occurence.
             poRTCPConnection->AddRef();
             ((IRTCPSession *)this)->AddRef();
@@ -1074,6 +1083,37 @@ void CRTCPSession::ByeReportReceived(IGetByeInfo     *piGetByeInfo,
 
 /**
  *
+ * Method Name:  GetSSRC()
+ *
+ *
+ * Inputs:       integer triple, identifying the stream
+ *
+ * Outputs:      None
+ *
+ * Returns:      ssrc_t - Local SSRC associated with the session
+ *
+ * Description:  Retrieves the SSRC associated with a session.
+ *
+ * Usage Notes:
+ *
+ */
+
+/******************************************************************
+ *
+ *  THIS IS A QUICK HACK, TO ALLOW OTHER FIXES TO WORK.
+ *  THIS IS TO BE FIXED IN THE NEXT ROUND OF CHECKINS.
+ *
+ *****************************************************************/
+ssrc_t CRTCPSession::GetSSRC(int connID, int mediaType, int streamID)
+{
+    int low = (connID ^ mediaType ^ streamID) & 0xFF;
+    return((m_ulSSRC & (~0xFF)) | low);
+}
+
+
+
+/**
+ *
  * Method Name:  SDESReportSent()
  *
  *
@@ -1386,7 +1426,7 @@ void CRTCPSession::RTCPReportingAlarm(IRTCPConnection     *piRTCPConnection,
 void CRTCPSession::RTCPConnectionStopped(IRTCPConnection *piRTCPConnection,
                                          IRTCPSession    *piRTCPSession)
 {
-    unsigned long aulCSRC[MAX_CONNECTIONS];
+    ssrc_t aulCSRC[MAX_CONNECTIONS];
     unsigned long ulCSRCs = 0;
     CRTCPConnection *poRTCPConnection;
 

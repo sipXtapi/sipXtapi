@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -54,7 +56,7 @@ public:
  * Method Name:  CByeReport() - Constructor
  *
  *
- * Inputs:       unsigned long ulSSRC     - The the Identifier for this source
+ * Inputs:       ssrc_t ulSSRC     - The the Identifier for this source
  *
  * Outputs:      None
  *
@@ -68,7 +70,7 @@ public:
  *               a particiapting FE.
  *
  */
-    CByeReport(unsigned long ulSSRC=0);
+    CByeReport(ssrc_t ulSSRC=0);
 
 
 
@@ -151,7 +153,7 @@ public:
  *
  * Outputs:      None
  *
- * Returns:     unsigned long - The SSRC of the Bye Report
+ * Returns:     ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
@@ -159,14 +161,14 @@ public:
  *
  *
  */
-    unsigned long GetSSRC(void);
+    ssrc_t GetSSRC(void);
 
 /**
  *
  * Method Name:  SetSSRC
  *
  *
- * Inputs:      unsigned long   ulSSRC   - Source ID
+ * Inputs:      ssrc_t   ulSSRC   - Source ID
  *
  * Outputs:     None
  *
@@ -179,7 +181,7 @@ public:
  *
  *
  */
-    virtual void SetSSRC(unsigned long ulSSRC);
+    virtual void SetSSRC(ssrc_t ulSSRC);
 
 
 /**
@@ -191,7 +193,7 @@ public:
  *           Flag identifying whether data should be represented in NBO format
 
  *
- * Outputs:  unsigned long *paulCSRC
+ * Outputs:  ssrc_t *paulCSRC
  *           Contributing Source Identifier(s) Array pointer
  *
  * Returns:  unsigned long
@@ -204,14 +206,14 @@ public:
  *
  *
  */
-    unsigned long GetCSRC(unsigned long *paulCSRC, bool bNBO=FALSE);
+    unsigned long GetCSRC(ssrc_t *paulCSRC, bool bNBO=FALSE);
 
 /**
  *
  * Method Name: SetCSRC
  *
  *
- * Inputs:    unsigned long *paulCSRC
+ * Inputs:    ssrc_t *paulCSRC
  *              - Contributing Source Identifier(s) Array pointer
  *            unsigned long ulCSRCCount
  *              - Number of Contributing Source Identifier(s)
@@ -228,7 +230,7 @@ public:
  *
  *
  */
-    void SetCSRC(unsigned long *paulCSRC, unsigned long ulCSRCCount,
+    void SetCSRC(ssrc_t *paulCSRC, unsigned long ulCSRCCount,
         bool bNBO=FALSE);
 
 
@@ -410,12 +412,12 @@ private:        // Private Data Members
  *
  * Attribute Name:  m_aulCSRC
  *
- * Type:            unsigned long
+ * Type:            ssrc_t
  *
  * Description:     The CSRCs contained with an RTP report.
  *
  */
-      unsigned long m_aulCSRC[MAX_CSRCS];
+      ssrc_t m_aulCSRC[MAX_CSRCS];
 
 };
 
@@ -429,7 +431,7 @@ private:        // Private Data Members
  *
  * Outputs:      None
  *
- * Returns:     unsigned long - The SSRC of the Bye Report
+ * Returns:     ssrc_t - The SSRC of the Bye Report
  *
  * Description: Returns the SSRC Associated with the Bye Report.
  *
@@ -437,7 +439,7 @@ private:        // Private Data Members
  *
  *
  */
-inline unsigned long CByeReport::GetSSRC(void)
+inline ssrc_t CByeReport::GetSSRC(void)
 {
 
     return(CRTCPHeader::GetSSRC());

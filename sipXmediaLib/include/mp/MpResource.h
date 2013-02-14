@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -268,7 +267,10 @@ static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
      *  @warning This method directly modifies resource structure.
      */
 
-   /// Receive buffer asyncrhonously from resource at given input port
+     /// Get the ID of a stream within the connection this resource belongs to.
+   virtual int getStreamId(void);
+
+   /// Receive buffer asynchronously from resource at given input port
    virtual OsStatus pushBuffer(int inputPort, MpBufPtr& inputBuffer);
 
 //@}
@@ -340,6 +342,9 @@ static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
 
      /// Returns the number of resource outputs that are currently connected.
    int numOutputs() const;
+
+     /// Get the ID of a connection this resource belongs to.
+   virtual MpConnectionID getConnectionId(void) const;
 
      /// Find the first unconnected input port and reserve it
    int reserveFirstUnconnectedInput();
