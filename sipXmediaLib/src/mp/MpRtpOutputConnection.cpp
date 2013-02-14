@@ -137,7 +137,7 @@ UtlBoolean MpRtpOutputConnection::handleMessage(MpResourceMsg& message)
 
     switch (message.getMsg())
     {
-    case MPRM_SET_SR_ADJUST_USECS:
+    case MprToNet::MPRM_SET_SR_ADJUST_USECS:
     {
         handled = TRUE;
         MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&message;
@@ -228,14 +228,6 @@ UtlBoolean MpRtpOutputConnection::connectInput(MpResource& rFrom,
    }
    return res;
 }
-
-OsStatus MpRtpOutputConnection::setSRAdjustUSecs(const UtlString& namedResource, OsMsgQ& fgQ, int adjustUSecs)
-{
-   MpIntResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_SET_SR_ADJUST_USECS,
-                        namedResource, adjustUSecs);
-   return fgQ.send(msg, sOperationQueueTimeout);
-}
-
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

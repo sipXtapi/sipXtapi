@@ -26,6 +26,7 @@
 // APPLICATION INCLUDES
 #include "os/OsSocket.h"
 #include "mp/NetInTask.h"
+#include "mp/MpResourceMsg.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/ISetSenderStatistics.h"
 #endif /* INCLUDE_RTCP ] */
@@ -53,6 +54,10 @@ public:
              ///< 76 =    4 for encryption prefix +<br>
              ///<        12 for basic packet header +<br>
              ///<      15*4 for CSRC list
+   };
+
+   enum {
+      MPRM_SET_SR_ADJUST_USECS = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
    };
 
 #ifdef ENABLE_PACKET_HACKING /* [ */
@@ -99,7 +104,11 @@ public:
       const unsigned char* payloadData, int payloadOctets, unsigned int timestamp,
       void* csrcList);
 
+    // set the # of microseconds of skew to add to the RTCP SR timestamps
    void setSRAdjustUSecs(int iUSecs);
+    // send a message via flowgraph to set the # of microseconds of skew
+    // the namedResource will be one of the Connections (e.g. MpRtpOutputConnection).
+   static OsStatus setSRAdjustUSecs(const UtlString& namedResource, OsMsgQ& fgQ, int adjustUSecs);
 
 //@}
 
