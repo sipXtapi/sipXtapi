@@ -44,6 +44,7 @@
 #include "mp/MprToNet.h"
 #include "mp/NetInTask.h"
 #include "mp/MprFromNet.h"
+#include "mp/MpIntResourceMsg.h"
 #include "mp/dmaTask.h"
 
 // EXTERNAL FUNCTIONS
@@ -370,6 +371,14 @@ void MprToNet::setSRAdjustUSecs(int iUSecs)
    }
 #endif /* INCLUDE_RTCP ] */
 }
+
+OsStatus MprToNet::setSRAdjustUSecs(const UtlString& namedResource, OsMsgQ& fgQ, int adjustUSecs)
+{
+   MpIntResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_SET_SR_ADJUST_USECS, namedResource, adjustUSecs);
+   return fgQ.send(msg);
+}
+
+
 
 /* ============================ ACCESSORS ================================= */
 
