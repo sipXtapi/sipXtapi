@@ -460,6 +460,7 @@ bool CRTCManager::TerminateSession(IRTCPSession *piSession)
  */
 bool CRTCManager::ProcessMessage(CMessage *poMessage)
 {
+    static const int WANT_FORWARDING = 0;
 
     // Determine the type of message taken from the queue
     unsigned long   ulMsgType     = poMessage->GetMsgType();
@@ -487,7 +488,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
         // Check whether the Session is acting as an audio mixer.
         // If so, we are obligated by standard to forward the SDES Report
         // to other parties within the session.
-        if(piSession->GetMixerMode() == MIXER_ENABLED)
+        if (WANT_FORWARDING && (piSession->GetMixerMode() == MIXER_ENABLED))
         {
             // Forward the SDES report under the assistance of the
             // Session object
@@ -504,7 +505,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
         // Check whether the Session is acting as an audio mixer.
         // If so, we are obligated by standard to forward the Bye Report
         // received to other parties within the session.
-        if(piSession->GetMixerMode() == MIXER_ENABLED)
+        if (WANT_FORWARDING && (piSession->GetMixerMode() == MIXER_ENABLED))
         {
           // Forward the Bye report under the assistance of the Session object
             if (piSession->CheckConnection(piConnection))
