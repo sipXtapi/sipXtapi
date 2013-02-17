@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -706,6 +706,9 @@ public:
     const UtlCopyableSList& getPotentialMediaViews() const { return mPotentialMediaViews; }
     const UtlString& getPotentialMediaViewString() const { return mPotentialMediaViewString; }
 
+    void setControlTrackId(const UtlString& trackId) {mControlTrackId = trackId; }
+    const char* getControlTrackId() { return(mControlTrackId); }
+
     // UtlContainable stuff
     virtual UtlContainableType getContainableType() const { static char type[] = "SdpMediaLine"; return type;}
     virtual unsigned hash() const { return directHash(); }
@@ -752,6 +755,7 @@ private:
    UtlString      mLanguage;              // a=lang:<language tag> - RFC4566
    unsigned int   mFrameRate;             // a=framerate:<frame rate> in video frames/sec - RFC4566
    unsigned int   mQuality;               // a=quality:<quality> 0-10 for vidoe (0 is worst, 10 is best) - RFC4566
+   UtlString      mControlTrackId;       // a=control:trackId=<trackId>
 
    SdpTcpSetupAttribute mTcpSetupAttribute;// a=setup:<setup attribute> - RFC4145
    SdpTcpConnectionAttribute mTcpConnectionAttribute; // a=connection:<conn attribute> - RFC4145
