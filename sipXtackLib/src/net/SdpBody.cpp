@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -337,6 +337,46 @@ UtlBoolean SdpBody::getMediaRtcpPort(int mediaIndex, int* port) const
     }
 
     return bFound ;
+}
+
+UtlBoolean SdpBody::getControlTrackId(int mediaIndex, UtlString& trackId) const
+{
+    UtlBoolean trackIdFound = FALSE;
+    UtlSListIterator iterator(*sdpFields);
+    if(positionFieldInstance(mediaIndex, &iterator, "m"))
+    {
+        NameValuePair* sdpAttribute = NULL;
+        while ((sdpAttribute = findFieldNameBefore(&iterator, "a", "m")))
+        {
+            UtlString value = sdpAttribute->getValue();
+            printf("value: \"%s\"\n", value.data());
+            UtlString valueLowered(value);
+            valueLowered.toLower();
+            UtlString token("control:trackid");
+            int tokenIndex = valueLowered.index(token);
+            if(tokenIndex >=0)
+            {
+                value.remove(0, tokenIndex + token.length());
+                printf("value(tokenRemoved): \"%s\"\n", value.data());
+                tokenIndex = value.index('=');
+                if(tokenIndex >= 0)
+                {
+                    value.remove(0, tokenIndex + 1);
+
+                    UtlNameValueTokenizer::getSubField(value, 0,
+                                      " \t:=/", // separators
+                                      &trackId);
+                    printf("trackId: \"%s\"\n", trackId.data());
+                    if(!trackId.isNull())
+                    {
+                        trackIdFound = TRUE;
+                    }
+                }
+            }
+        }
+    }
+
+   return(trackIdFound); 
 }
 
 UtlBoolean SdpBody::getMediaStreamDirection(int mediaIndex, SessionDirection& direction) const

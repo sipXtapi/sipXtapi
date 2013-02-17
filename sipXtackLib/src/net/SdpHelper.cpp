@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2008-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2008-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -365,6 +365,12 @@ UtlBoolean SdpHelper::getMediaLine(const SdpBody& sdpBody, int mediaLineIndex, S
          direction = SdpMediaLine::DIRECTION_TYPE_INACTIVE;
       }
       mediaLine.setDirection(direction);
+
+      UtlString trackId;
+      if(sdpBody.getControlTrackId(mediaLineIndex, trackId))
+      {
+          mediaLine.setControlTrackId(trackId);
+      }
 
       int frameRate;
       if(sdpBody.getFramerateField(mediaLineIndex, frameRate))

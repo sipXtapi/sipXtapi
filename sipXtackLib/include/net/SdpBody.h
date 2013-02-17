@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -418,6 +418,9 @@ class SdpBody : public HttpBody
    UtlBoolean getSrtpCryptoField(int mediaIndex,                  ///< mediaIndex of crypto field
                                  int index,                       ///< Index inside of media type
                                  SdpSrtpParameters& params) const;
+
+   // Get the a=control;trackId= value
+   UtlBoolean getControlTrackId(int mediaLineIndex, UtlString& trackId) const;
 
    // Get the framerate field if there
    UtlBoolean getFramerateField(int mediaIndex,

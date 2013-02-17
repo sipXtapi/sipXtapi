@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -53,6 +53,7 @@ public:
             "c=IN IP6 FF15::101/3\r\n"
             "k=clear:base64clearkey\r\n"
             "a=fmtp:101 0-11\r\n"
+            "a=control:trackId=3\r\n"
             "a=ptime:20\r\n"
             "a=fmtp:0 annexb=no\r\n"
             "a=maxptime:40\r\n"
@@ -69,6 +70,7 @@ public:
             "a=key-mgmt:mikey thisissomebase64data\r\n"
             "a=curr:qos e2e sendrecv\r\n"
             "a=curr:qos local send\r\n"
+            "a=control:trackId=1\r\n"
             "a=des:qos mandatory e2e sendrecv\r\n"
             "a=des:qos optional local send\r\n"
             "a=conf:qos e2e none\r\n"
@@ -116,12 +118,29 @@ public:
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getTransportProtocolType() == SdpMediaLine::PROTOCOL_TYPE_RTP_AVP);
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs()->getCodecCount() == 2);
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCodecs()->getCodecCount() == 1);
-            assert(((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs().at(0))->getCodecType() == SdpCodec::SDP_CODEC_PCMU);
-            assert(((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs().at(1))->getCodecType() == SdpCodec::SDP_CODEC_TONES);
-            assert(((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCodecs().at(0))->getCodecType() == SdpCodec::SDP_CODEC_VP71_CIF);
+
+            CPPUNIT_ASSERT_EQUAL(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getControlTrackId(), "3");
+            CPPUNIT_ASSERT_EQUAL(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getControlTrackId(), "1");
+
+            const SdpCodecList* codecList = ((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs();
+            int numCodecs = 0;
+            SdpCodec** codecArray = NULL;
+
+            codecList->getCodecs(numCodecs, codecArray);
+            CPPUNIT_ASSERT_EQUAL(codecArray[0]->getCodecType(), SdpCodec::SDP_CODEC_PCMU);
+            CPPUNIT_ASSERT_EQUAL(codecArray[1]->getCodecType(), SdpCodec::SDP_CODEC_TONES);
             UtlString fmtp;
-            ((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs().at(1))->getSdpFmtpField(fmtp);
-            assert(fmtp == "0-11");
+            codecArray[1]->getSdpFmtpField(fmtp);
+            CPPUNIT_ASSERT_EQUAL(fmtp, "0-11");
+            SdpCodecList::freeArray(numCodecs, codecArray);
+            codecArray = NULL;
+
+            codecList = ((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCodecs();
+            codecList->getCodecs(numCodecs, codecArray);
+            CPPUNIT_ASSERT_EQUAL(codecArray[0]->getCodecType(), SdpCodec::SDP_CODEC_VP71_CIF);
+            SdpCodecList::freeArray(numCodecs, codecArray);
+            codecArray = NULL;
+
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getConnections().entries() == 6);
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getConnections().entries() == 1);
             //assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getRtcpConnections().entries() == 0);
