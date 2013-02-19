@@ -56,7 +56,7 @@ SdpHelper::convertCryptoSuiteType(int sdpBodyType)
    }
 }
 
-Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody, const SdpCodecList* codecFactory)
+Sdp* SdpHelper::createSdpFromSdpBody(const SdpBody& sdpBody, const SdpCodecList* codecFactory)
 {
    bool rtcpEnabled = true;
    Sdp* sdp = new Sdp();
