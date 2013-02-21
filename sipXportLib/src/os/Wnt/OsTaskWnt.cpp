@@ -307,6 +307,16 @@ OsTaskWnt* OsTaskWnt::getCurrentTask(void)
    return OsTaskWnt::getTaskById(threadId);
 }
 
+// I am adding this code at the same time as I add the same code to OsTaskLinux
+// It fixes a bug on 64-bit hosts (find the commented out calls to this, below).
+
+//*** BETTER: // Convert a taskId into a UtlString
+//*** BETTER: void OsTaskLinux::getIdString(UtlString &dest, DWORD tid)
+//*** BETTER: {
+//*** BETTER:    dest.appendFormat("%ld", tid);
+//*** BETTER: }
+
+
 // Return the Id of the currently executing task
 OsStatus OsTaskWnt::getCurrentTaskId(int &rid)
 {
@@ -337,11 +347,13 @@ OsTaskWnt* OsTaskWnt::getTaskByName(const UtlString& taskName)
 // Return NULL is there is no task object with that id.
 OsTaskWnt* OsTaskWnt::getTaskById(const int taskId)
 {
-   char     idString[15];
+   char     idString[30];
+   //*** BETTER: UtlString idString;
    OsStatus res;
    intptr_t val;
 
    itoa((int) taskId, idString, 10);   // convert the id to a string
+   //*** BETTER: getIdString(idString, mThreadId);   // convert the id to a string
    res = OsUtil::lookupKeyValue(TASKID_PREFIX, idString, &val);
    assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
 
@@ -442,7 +454,8 @@ UtlBoolean OsTaskWnt::isSuspended(void)
 UtlBoolean OsTaskWnt::doWntCreateTask(void)
 {
    //  JEP - TODO - implement this...
-   char  idString[15];
+   char  idString[30];
+   //*** BETTER: UtlString idString;
    unsigned int threadId;
 
 //   mThreadH = (void *)_beginthreadex(
@@ -463,6 +476,7 @@ UtlBoolean OsTaskWnt::doWntCreateTask(void)
       // Enter the thread id into the global name database so that given the
       // thread id we will be able to find the corresponding OsTask object
       itoa((int) mThreadId, idString, 10);  // convert the id to a string
+      //*** BETTER: getIdString(idString, mThreadId);   // convert the id to a string
       OsUtil::insertKeyValue(TASKID_PREFIX, idString, (intptr_t) this);
 
       mState = STARTED;
@@ -482,7 +496,8 @@ UtlBoolean OsTaskWnt::doWntCreateTask(void)
 // The mDataGuard lock should be held upon entry into this method.
 void OsTaskWnt::doWntTerminateTask(UtlBoolean force)
 {
-   char      idString[15];
+   char      idString[30];
+   //*** BETTER: UtlString idString;
    BOOL      ntResult;
    OsStatus  res;
 
@@ -504,6 +519,7 @@ void OsTaskWnt::doWntTerminateTask(UtlBoolean force)
    {
      // Remove the key from the internal task list, before terminating it
      itoa((int) mThreadId, idString, 10);   // convert the id to a string
+     //*** BETTER: getIdString(idString, mThreadId);   // convert the id to a string
      res = OsUtil::deleteKeyValue(TASKID_PREFIX, idString);
 
     //before we go ahead and kill the thread, lets make sure it's still running

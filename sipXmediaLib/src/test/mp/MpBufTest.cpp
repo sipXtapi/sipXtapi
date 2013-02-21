@@ -40,11 +40,11 @@ public:
    void setUp()
    {
       // Create pool for data buffers
-      mpPool = new MpBufPool(BUFFER_SIZE, BUFFER_NUM);
+      mpPool = new MpBufPool(BUFFER_SIZE, BUFFER_NUM, "MpBufTest");
       CPPUNIT_ASSERT(mpPool != NULL);
 
       // Create pool for buffer headers
-      mpHeadersPool = new MpBufPool(sizeof(MpAudioBuf), BUFFER_NUM);
+      mpHeadersPool = new MpBufPool(sizeof(MpAudioBuf), BUFFER_NUM, "MpBufTestHeaders");
       CPPUNIT_ASSERT(mpHeadersPool != NULL);
 
       // Set mpHeadersPool as default pool for audio and data pools.

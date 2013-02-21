@@ -59,11 +59,11 @@ public:
    void setUp()
    {
       // Create pool for data buffers
-      mpPool = new MpBufPool(ENCODED_FRAME_MAX_SIZE + MpArrayBuf::getHeaderSize(), 1);
+      mpPool = new MpBufPool(ENCODED_FRAME_MAX_SIZE + MpArrayBuf::getHeaderSize(), 1, "MpCodecsPerformanceTest");
       CPPUNIT_ASSERT(mpPool != NULL);
 
       // Create pool for buffer headers
-      mpHeadersPool = new MpBufPool(sizeof(MpRtpBuf), 1);
+      mpHeadersPool = new MpBufPool(sizeof(MpRtpBuf), 1, "MpCodecsPerformanceTestHeaders");
       CPPUNIT_ASSERT(mpHeadersPool != NULL);
 
       // Set mpHeadersPool as default pool for audio and data pools.

@@ -190,7 +190,7 @@ public:
      //:Return a pointer to the OsTask object corresponding to the named task
      // Return NULL if there is no task object with that name.
 
-   static OsTaskLinux* getTaskById(const int taskId);
+   static OsTaskLinux* getTaskById(const pthread_t taskId);
      //:Return a pointer to the OsTask object corresponding to taskId
      // Return NULL is there is no task object with that id.
 
@@ -209,6 +209,9 @@ public:
      // task. The task is usually not the calling task, which can get its
      // private value by directly accessing the variable. This routine is
      // provided primarily for debugging purposes.
+
+   static void getIdString(UtlString&, pthread_t);
+     //: Relatively portable way to do what was being done wrong before.
 
 /* ============================ INQUIRY =================================== */
 

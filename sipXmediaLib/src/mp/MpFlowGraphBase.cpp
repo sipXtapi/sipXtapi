@@ -31,6 +31,7 @@
 #include <mp/MpMisc.h>
 #include "mp/NetInTask.h"
 #include "utl/UtlVoidPtr.h"
+#include <utl/UtlHashMapIterator.h>
 
 //#define RTL_ENABLED
 #ifdef RTL_ENABLED
@@ -139,9 +140,23 @@ MpFlowGraphBase::~MpFlowGraphBase()
    // assert(0 == NumBadBufs);
 
 #ifdef INCLUDE_RTCP /* [ */
-   // OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Conn Map contains %d items", mRtcpConnMap.entries());
+   // OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Conn Map contains %ld items", mRtcpConnMap.entries());
+   {
+      IRTCPConnection *pConn;
+      UtlHashMapIterator it(mRtcpConnMap);
+      UtlInt *key;
+      UtlVoidPtr *value;
+      int refCount;
+      while ((key = (UtlInt*) it())) {
+         value = (UtlVoidPtr*) mRtcpConnMap.findValue(key);
+         pConn = (IRTCPConnection*) value->getValue();
+         refCount = pConn->Release();
+         OsSysLog::add(FAC_MP, PRI_DEBUG, "(IRTCPConnection*)%p->Release() returned %d", pConn, refCount);
+         value->setValue(NULL);
+      }
+   }
    mRtcpConnMap.destroyAll();
-   // OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Conn Map contains %d items", mRtcpConnMap.entries());
+   // OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Conn Map contains %ld items", mRtcpConnMap.entries());
 #endif /* INCLUDE_RTCP ] */
 }
 

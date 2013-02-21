@@ -207,6 +207,9 @@ public:
      // private value by directly accessing the variable. This routine is
      // provided primarily for debugging purposes.
 
+   static void getIdString(UtlString&, DWORD);
+     //:See the linux version...
+
 /* ============================ INQUIRY =================================== */
 
    virtual OsStatus id(int& rId);

@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <pthread.h>
 
 #ifdef ANDROID
 #  include <android/log.h>
@@ -363,6 +364,11 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
          {
             taskName = pBase->getName() ;
             pBase->id(taskId) ;
+         } else {
+            char buff[100];
+            OsTaskLinux::getCurrentTaskId(taskId );
+            sprintf(buff, "TID#%d", taskId);
+            taskName = buff;
          }
 
          rc = vadd(taskName.data(), taskId, facility, priority, format, ap);         
@@ -438,7 +444,7 @@ OsStatus OsSysLog::vadd(const char*            taskName,
              if ( pOsSysLogTask != NULL &&
                   pOsSysLogTask->postMessage(msg, timeout) != OS_SUCCESS)
              {
-                 printf("OsSysLog jamed: %s\n", szPtr) ;
+                 printf("OsSysLog jammed: %s\n", szPtr) ;
                  free(szPtr) ;
                  OsTask::yield() ;
               }
