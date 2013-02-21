@@ -384,6 +384,13 @@ OsTaskLinux* OsTaskLinux::getCurrentTask(void)
    return OsTaskLinux::getTaskById(taskId);
 }
 
+
+// Convert a taskId into a UtlString
+void OsTaskLinux::getIdString(UtlString &dest, pthread_t tid)
+{
+   dest.appendFormat("%ld", tid);
+}
+
 // Return an Id of the currently executing task
 OsStatus OsTaskLinux::getCurrentTaskId(int &rid)
 {
@@ -412,13 +419,13 @@ OsTaskLinux* OsTaskLinux::getTaskByName(const UtlString& taskName)
 
 // Return a pointer to the OsTask object corresponding to taskId
 // Return NULL is there is no task object with that id.
-OsTaskLinux* OsTaskLinux::getTaskById(const int taskId)
+OsTaskLinux* OsTaskLinux::getTaskById(const pthread_t taskId)
 {
-   char     idString[15];
+   UtlString idString;
    OsStatus res;
    intptr_t val;
 
-   sprintf(idString, "%d", taskId);   // convert the id to a string
+   getIdString(idString, taskId);   // convert the id to a string
    res = OsUtil::lookupKeyValue(TASKID_PREFIX, idString, &val);
    assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
 
@@ -525,7 +532,7 @@ UtlBoolean OsTaskLinux::isSuspended(void)
 UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
 {
    int                       linuxRes;
-   char                      idString[15];
+   UtlString                 idString;
    pthread_attr_t            attributes;
    timeval                   threadStartTime;
    timespec                  threadStartTimeout;
@@ -623,7 +630,8 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
 
    // Enter the thread id into the global name database so that given the
    // thread id we will be able to find the corresponding OsTask object
-   sprintf(idString, "%d", (int)mTaskId);   // convert the id to a string
+   getIdString(idString, mTaskId);   // convert the id to a string
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::doLinuxCreateTask, task ID: %ld/'%s'/0x%lX", mTaskId, idString.data(), mTaskId);
    OsUtil::insertKeyValue(TASKID_PREFIX, idString, (intptr_t) this);
 
    mState = STARTED;
@@ -841,12 +849,12 @@ void * OsTaskLinux::taskEntry(void* arg)
 void OsTaskLinux::taskUnregister(void)
 {
    OsStatus res;
-   char     idString[15];
+   UtlString idString;
    
    if ( 0 != (int)mTaskId )
    {
       // Remove the key from the internal task list, before terminating it
-      sprintf(idString, "%d", (int)mTaskId);    // convert the id to a string
+      getIdString(idString, mTaskId);   // convert the id to a string
       res = OsUtil::deleteKeyValue(TASKID_PREFIX, idString);
    }
    else
@@ -858,7 +866,7 @@ void OsTaskLinux::taskUnregister(void)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux::doLinuxTerminateTask, failed to delete"
                     " mTaskId = 0x%08x, key '%s', returns %d",
-                    (int) mTaskId, idString, res);
+                    (int) mTaskId, idString.data(), res);
    }
    mTaskId = 0;
 
