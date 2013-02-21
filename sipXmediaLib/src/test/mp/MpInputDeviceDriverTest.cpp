@@ -58,11 +58,11 @@ public:
       mpBufPool = 
          new MpBufPool(MIDDT_SAMPLES_PER_FRAME * sizeof(MpAudioSample)
                        + MpArrayBuf::getHeaderSize(), 
-                       MIDDT_NBUFS);
+                       MIDDT_NBUFS, "MpInputDeviceDriverTest");
       CPPUNIT_ASSERT(mpBufPool != NULL);
 
       // Create pool for buffer headers
-      mpHeadersPool = new MpBufPool(sizeof(MpAudioBuf), MIDDT_NBUFS);
+      mpHeadersPool = new MpBufPool(sizeof(MpAudioBuf), MIDDT_NBUFS, "MpInputDeviceDriverTestHeaders");
       CPPUNIT_ASSERT(mpHeadersPool != NULL);
 
       // Set mpHeadersPool as default pool for audio and data pools.
