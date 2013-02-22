@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -42,6 +42,8 @@ class SdpBodyTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testDirectionAttribute);
     CPPUNIT_TEST(testUseRemotePayloadIds);
     CPPUNIT_TEST(testMlineOrder);
+    CPPUNIT_TEST(testVideoInCommon1);
+    CPPUNIT_TEST(testVideoInCommon2);
     CPPUNIT_TEST(testCryptoParser);
     CPPUNIT_TEST(test3Mlines);
     CPPUNIT_TEST(test5Mlines);
@@ -1009,14 +1011,16 @@ public:
         int numVideoSizes;
         int videoSizes[10];
 
-        CPPUNIT_ASSERT_EQUAL(local.getPayloadFormat(100, fmtp), TRUE);
+        CPPUNIT_ASSERT_EQUAL(local.getPayloadFormat(1, 100, fmtp), TRUE);
+        CPPUNIT_ASSERT_EQUAL(fmtp, "size:QVGA/SQCIF/QCIF");
         CPPUNIT_ASSERT_EQUAL(SdpCodec::getVideoSizes(fmtp, 10, numVideoSizes, videoSizes), OS_SUCCESS);
         CPPUNIT_ASSERT_EQUAL(numVideoSizes, 3);
         CPPUNIT_ASSERT_EQUAL(videoSizes[0], SDP_VIDEO_FORMAT_QVGA);
         CPPUNIT_ASSERT_EQUAL(videoSizes[1], SDP_VIDEO_FORMAT_SQCIF);
         CPPUNIT_ASSERT_EQUAL(videoSizes[2], SDP_VIDEO_FORMAT_QCIF);
 
-        CPPUNIT_ASSERT_EQUAL(remote.getPayloadFormat(100, fmtp), TRUE);
+        CPPUNIT_ASSERT_EQUAL(remote.getPayloadFormat(1, 100, fmtp), TRUE);
+        CPPUNIT_ASSERT_EQUAL(fmtp, "size:QCIF/SQCIF");
         CPPUNIT_ASSERT_EQUAL(SdpCodec::getVideoSizes(fmtp, 10, numVideoSizes, videoSizes), OS_SUCCESS);
         CPPUNIT_ASSERT_EQUAL(numVideoSizes, 2);
         CPPUNIT_ASSERT_EQUAL(videoSizes[0], SDP_VIDEO_FORMAT_QCIF);
@@ -1025,17 +1029,19 @@ public:
         int audioPayloads[5] = {99,0,0,0,0};
         int videoPayloads[5] = {100,0,0,0,0};
         int numInCommon;
-        SdpCodec* codecsInCommonForEncoder[5];
-        SdpCodec* codecsInCommonForDecoder[5];
+        SdpCodec* codecsInCommonForEncoder[5] = {NULL, NULL, NULL, NULL, NULL};
+        SdpCodec* codecsInCommonForDecoder[5] = {NULL, NULL, NULL, NULL, NULL};
 
-        remote.getCodecsInCommon(1, 1, audioPayloads, videoPayloads, 8801, fac,
+        int audioMediaIndex = 0;
+        int videoMediaIndex = 1;
+        remote.getCodecsInCommon(audioMediaIndex, videoMediaIndex, 1, 1, audioPayloads, videoPayloads, 8801, fac,
                      numInCommon, codecsInCommonForEncoder, codecsInCommonForDecoder);
         CPPUNIT_ASSERT_EQUAL(numInCommon, 2);
 
-        CPPUNIT_ASSERT(codecsInCommonForEncoder[0]->getVideoFormat() == SDP_VIDEO_FORMAT_QCIF);
-        CPPUNIT_ASSERT(codecsInCommonForEncoder[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
-        CPPUNIT_ASSERT(codecsInCommonForDecoder[0]->getVideoFormat() == SDP_VIDEO_FORMAT_QCIF);
-        CPPUNIT_ASSERT(codecsInCommonForDecoder[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
+        CPPUNIT_ASSERT_EQUAL(codecsInCommonForEncoder[0] ? codecsInCommonForEncoder[0]->getVideoFormat() : -1 , SDP_VIDEO_FORMAT_QCIF);
+        CPPUNIT_ASSERT_EQUAL(codecsInCommonForEncoder[1] ? codecsInCommonForEncoder[1]->getVideoFormat() : -1 , SDP_VIDEO_FORMAT_SQCIF);
+        CPPUNIT_ASSERT_EQUAL(codecsInCommonForDecoder[0] ? codecsInCommonForDecoder[0]->getVideoFormat() : -1 , SDP_VIDEO_FORMAT_QCIF);
+        CPPUNIT_ASSERT_EQUAL(codecsInCommonForDecoder[1] ? codecsInCommonForDecoder[1]->getVideoFormat() : -1 , SDP_VIDEO_FORMAT_SQCIF);
     };
 
     void testH264CodecCandidate()
@@ -1241,39 +1247,39 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         UtlString mimeSubtype;
         int sampleRate;
         int numChannels;
-        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadRtpMap(96, mimeSubtype, sampleRate, numChannels), TRUE);
+        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadRtpMap(0, 96, mimeSubtype, sampleRate, numChannels), TRUE);
         CPPUNIT_ASSERT_EQUAL(mimeSubtype, "pcmu");
         CPPUNIT_ASSERT_EQUAL(sampleRate, 8000);
         CPPUNIT_ASSERT_EQUAL(numChannels, 1);
 
-        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadRtpMap(97, mimeSubtype, sampleRate, numChannels), TRUE);
+        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadRtpMap(0, 97, mimeSubtype, sampleRate, numChannels), TRUE);
         CPPUNIT_ASSERT_EQUAL(mimeSubtype, "pcma");
         CPPUNIT_ASSERT_EQUAL(sampleRate, 8000);
         CPPUNIT_ASSERT_EQUAL(numChannels, 1);
 
-        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadRtpMap(98, mimeSubtype, sampleRate, numChannels), TRUE);
+        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadRtpMap(1, 98, mimeSubtype, sampleRate, numChannels), TRUE);
         CPPUNIT_ASSERT_EQUAL(mimeSubtype, "superaudio");
         CPPUNIT_ASSERT_EQUAL(sampleRate, 8000);
         CPPUNIT_ASSERT_EQUAL(numChannels, 1);
 
-        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadRtpMap(99, mimeSubtype, sampleRate, numChannels), TRUE);
+        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadRtpMap(1, 99, mimeSubtype, sampleRate, numChannels), TRUE);
         CPPUNIT_ASSERT_EQUAL(mimeSubtype, "superduperaudio");
         CPPUNIT_ASSERT_EQUAL(sampleRate, 8000);
         CPPUNIT_ASSERT_EQUAL(numChannels, 1);
 
-        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadRtpMap(100, mimeSubtype, sampleRate, numChannels), TRUE);
+        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadRtpMap(2, 100, mimeSubtype, sampleRate, numChannels), TRUE);
         CPPUNIT_ASSERT_EQUAL(mimeSubtype, "vp71");
         CPPUNIT_ASSERT_EQUAL(sampleRate, 9000);
         CPPUNIT_ASSERT_EQUAL(numChannels, 1);
 
         UtlString fmtp;
         int codecMode = 256;
-        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadFormat(96, fmtp), FALSE);
+        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadFormat(0, 96, fmtp), FALSE);
         CPPUNIT_ASSERT_EQUAL(fmtp, "");
         CPPUNIT_ASSERT_EQUAL(SdpCodec::getFmtpParameter(fmtp, "mode", codecMode), FALSE);
         CPPUNIT_ASSERT_EQUAL(codecMode, -1);
 
-        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadFormat(100, fmtp), TRUE);
+        CPPUNIT_ASSERT_EQUAL(sloppyPtimeSdpBody.getPayloadFormat(2, 100, fmtp), TRUE);
         CPPUNIT_ASSERT_EQUAL(fmtp, "size:QCIF/SQCIF");
         CPPUNIT_ASSERT_EQUAL(SdpCodec::getFmtpParameter(fmtp, "mode", codecMode), FALSE);
         CPPUNIT_ASSERT_EQUAL(codecMode, -1);
@@ -1350,10 +1356,12 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         // the body so that I can get the codecs which contain the payloads
         int audioPayloads[4] = {96, 97, 98, 99};
         int videoPayloads[1] = {100};
-        sloppyPtimeSdpBody.getCodecsInCommon(4, 1, audioPayloads, videoPayloads,
+        int audioMediaIndex = 0;
+        int videoMediaIndex = 2;
+        sloppyPtimeSdpBody.getCodecsInCommon(audioMediaIndex, videoMediaIndex, 4, 1, audioPayloads, videoPayloads,
             videoRtpPort, sdpFactory, numCodecsInCommon, codecArrayForEncoder,
             codecArrayForDecoder);
-        CPPUNIT_ASSERT_EQUAL(5, numCodecsInCommon);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Known issue with getCodecsInCommon broken for multiple audio medialines", 5, numCodecsInCommon);
 
         int codecIndex;
         int encoderPayloadId;
@@ -1367,6 +1375,8 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
             // friendly thing of using the payload ID of the remote side.
             UtlString assertMsg;
             assertMsg.appendFormat("codecIndex = %d", codecIndex);
+            printf("codec[%d] encoderPayloadId: %d decoderPayloadId: %d\n",
+                   codecIndex, encoderPayloadId, decoderPayloadId);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(assertMsg.data(), encoderPayloadId, decoderPayloadId);
             if(encoderPayloadId != decoderPayloadId)
             {
@@ -1491,10 +1501,12 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         // the body so that I can get the codecs which contain the payloads
         int audioPayloads[4] = {96, 97, 98, 99};
         int videoPayloads[1] = {100};
-        sloppyPtimeSdpBody.getCodecsInCommon(4, 1, audioPayloads, videoPayloads,
+        int audioMediaIndex = 0;
+        int videoMediaIndex = 2;
+        sloppyPtimeSdpBody.getCodecsInCommon(audioMediaIndex, videoMediaIndex, 4, 1, audioPayloads, videoPayloads,
            videoRtpPort, sdpFactory, numCodecsInCommon, codecArrayForEncoder,
            codecArrayForDecoder);
-        CPPUNIT_ASSERT_EQUAL(5, numCodecsInCommon);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Known issue with getCodecsInCommon broken for multiple audio medialines", 5, numCodecsInCommon);
 
         int codecIndex;
         int encoderPayloadId;
@@ -1503,7 +1515,8 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         {
            encoderPayloadId = codecArrayForEncoder[codecIndex]->getCodecPayloadFormat();
            decoderPayloadId = codecArrayForDecoder[codecIndex]->getCodecPayloadFormat();
-
+           printf("codec[%d] encoderPayloadId: %d decoderPayloadId: %d \n",
+                   codecIndex, encoderPayloadId, decoderPayloadId);
            // decoder codecs keep the payload Id of the factory
 
            switch(encoderPayloadId)
@@ -1719,6 +1732,247 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         CPPUNIT_ASSERT_EQUAL(decodeTonesCodec->getCodecPayloadFormat(), 101);
     }
 
+    void testVideoInCommon1()
+    {
+        // Polycom Group Series 500
+        const char* sdpBytes =
+            "v=0\r\n"
+            "o=GroupSeries 88424642 0 IN IP4 132.177.252.157\r\n"
+            "s=MRD=MRE MRC-V=1.0.0\r\n"
+            "c=IN IP4 132.177.252.157\r\n"
+            "b=AS:1024\r\n"
+            "t=0 0\r\n"
+            "m=audio 49242 RTP/AVP 115 102 9 15 0 8 18 101\r\n"
+            "a=rtpmap:115 G7221/32000\r\n"
+            "a=fmtp:115 bitrate=48000\r\n"
+            "a=rtpmap:102 G7221/16000\r\n"
+            "a=fmtp:102 bitrate=32000\r\n"
+            "a=rtpmap:9 G722/8000\r\n"
+            "a=rtpmap:15 G728/8000\r\n"
+            "a=rtpmap:0 PCMU/8000\r\n"
+            "a=rtpmap:8 PCMA/8000\r\n"
+            "a=rtpmap:18 G729/8000\r\n"
+            "a=fmtp:18 annexb=no\r\n"
+            "a=rtpmap:101 telephone-event/8000\r\n"
+            "a=fmtp:101 0-15\r\n"
+            "a=sendrecv\r\n"
+            "m=video 49244 RTP/AVP 116 109 110 111 96 34 31\r\n"
+            "b=TIAS:1024000\r\n"
+            "a=rtpmap:116 vnd.polycom.lpr/9000\r\n"
+            "a=fmtp:116 V=1;minPP=0;PP=150;RS=52;RP=10;PS=1400\r\n"
+            "a=rtpmap:109 H264/90000\r\n"
+            "a=fmtp:109 profile-level-id=428020; max-mbps=245000; max-fs=8192; sar-supported=13; sar=13\r\n"
+            "a=rtpmap:110 H264/90000\r\n"
+            "a=fmtp:110 profile-level-id=428020; packetization-mode=1; max-mbps=245000; max-fs=8192; sar-supported=13; sar=13\r\n"
+            "a=rtpmap:111 H264/90000\r\n"
+            "a=fmtp:111 profile-level-id=640020; packetization-mode=1;\r\n"
+            "max-mbps=245000; max-fs=8192; sar-supported=13; sar=13\r\n"
+            "a=rtpmap:96 H263-1998/90000 \r\n"
+            "a=fmtp:96 CIF4=1;CIF=1;QCIF=1;SQCIF=1;CUSTOM=352,240,1;CUST\r\n"
+            "OM=704,480,1;CUSTOM=848,480,1;CUSTOM=640,368,1;CUSTOM=432,240,1\r\n"
+            "a=rtpmap:34 H263/90000\r\n"
+            "a=fmtp:34 CIF4=1;CIF=1;QCIF=1;SQCIF=1\r\n"
+            "a=rtpmap:31 H26\r\n"
+            "1/90000\r\n"
+            "a=fmtp:31 CIF=1;QCIF=1\r\n"
+            "a=sendrecv\r\n"
+            "a=rtcp-fb:* ccm fir\r\n"
+            "m=application 49248 RTP/AVP 100\r\n"
+            "a=rtpmap:100 H224/4800\r\n"
+            "a=sendrecv\r\n"
+            "m=application 38660 UDP/BFCP *\r\n"
+            "a=floorctrl:c-s\r\n"
+            "a=setup:actpass\r\n"
+            "a=connection:new\r\n";
+
+        SdpBody sdpOffer(sdpBytes);
+
+        // Setup some codecs
+        SdpCodecList codecList;
+        codecList.addCodecs("G722 AAC_LC_32000 PCMU telephone-event H264_HD1088_4096");
+        CPPUNIT_ASSERT_EQUAL(codecList.getCodecCount(), 5);
+        // TODO: test if video codecs get filtered out
+        //codecList.addCodecs("G722 AAC_LC_32000 PCMU H264_CIF_256 H264_PM1_CIF_256 telephone-event");
+        codecList.bindPayloadTypes();
+        int numRtpCodecs = 0;
+        SdpCodec** localRtpCodecs = NULL;
+        codecList.getCodecs(numRtpCodecs, localRtpCodecs);
+        CPPUNIT_ASSERT_EQUAL(numRtpCodecs, 5);
+
+        // Test if we read the mediaLine out correctly
+        SdpMediaLine testVideoMediaLine;
+        CPPUNIT_ASSERT_EQUAL(sdpOffer.getMediaLine(1, testVideoMediaLine, &codecList), TRUE);
+        CPPUNIT_ASSERT_EQUAL(testVideoMediaLine.getMediaType(), SdpMediaLine::MEDIA_TYPE_VIDEO);
+        const SdpCodecList* mediaLineCodecList = testVideoMediaLine.getCodecs();
+        CPPUNIT_ASSERT_EQUAL(mediaLineCodecList->getCodecCount(), 1);
+        int numVideoCodecs = 0;
+        SdpCodec** videoCodecArray = NULL;
+        mediaLineCodecList->getCodecs(numVideoCodecs, videoCodecArray, SDP_VIDEO_MEDIA_TYPE, MIME_SUBTYPE_H264);
+        CPPUNIT_ASSERT(videoCodecArray);
+        CPPUNIT_ASSERT_EQUAL(numVideoCodecs, 1);
+
+        // Build local mediaLine
+        UtlString localHost("44.33.22.11");
+        int localRtpPort = 4444;
+        int localRtcpPort = localRtpPort + 1;
+        SdpMediaLine localMediaLine;
+        SdpBody::buildMediaLine(SdpMediaLine::MEDIA_TYPE_VIDEO,
+                               0,
+                               1,
+                               &localHost,
+                               &localRtpPort,
+                               &localRtcpPort,
+                               numRtpCodecs,
+                               localRtpCodecs,
+                               localMediaLine);
+
+        printf("testVideo line: %d\n", __LINE__);
+
+        SdpMediaLine remoteMediaLine;
+        SdpCodecList localDecodeCodecs;
+        // Match remote mediaLine and extract SdpBody data into mediaLine container
+        sdpOffer.getCodecsInCommon(localMediaLine,
+                                   1, // index of remote mediaLine in sdpOffer
+                                   remoteMediaLine,
+                                   localDecodeCodecs);
+
+        const SdpCodecList* remoteCodecs = remoteMediaLine.getCodecs();
+        CPPUNIT_ASSERT_EQUAL(remoteCodecs->getCodecCount(), 1);
+        CPPUNIT_ASSERT_EQUAL(localDecodeCodecs.getCodecCount(), 1);
+
+        int numEncodeH264Codecs = 0;
+        SdpCodec** encodeH264CodecArray = NULL;
+        remoteCodecs->getCodecs(numEncodeH264Codecs, encodeH264CodecArray, SDP_VIDEO_MEDIA_TYPE, MIME_SUBTYPE_H264);
+        CPPUNIT_ASSERT_EQUAL(numEncodeH264Codecs, 1);
+        CPPUNIT_ASSERT(encodeH264CodecArray);
+        CPPUNIT_ASSERT_EQUAL(encodeH264CodecArray[0]->getCodecPayloadFormat(), 109);
+    }
+
+    void testVideoInCommon2()
+    {
+        // Teluu/Pjsip
+        const char* sdpBytes =
+            "v=0\r\n"
+            "o=- 3570486035 3570486035 IN IP4 132.177.252.51\r\n"
+            "s=pjmedia\r\n"
+            "b=AS:352\r\n"
+            "t=0 0\r\n"
+            "a=X-nat:0\r\n"
+            "m=audio 40000 RTP/AVP 98 97 99 104 3 0 8 9 105 106 18 4 110 2 15 100 102 96\r\n"
+            "c=IN IP4 132.177.252.51\r\n"
+            "b=TIAS:64000\r\n"
+            "a=rtcp:40001 IN IP4 132.177.252.51\r\n"
+            "a=sendrecv\r\n"
+            "a=rtpmap:98 speex/16000\r\n"
+            "a=rtpmap:97 speex/8000\r\n"
+            "a=rtpmap:99 speex/32000\r\n"
+            "a=rtpmap:104 iLBC/8000\r\n"
+            "a=fmtp:104 mode=30\r\n"
+            "a=rtpmap:3 GSM/8000\r\n"
+            "a=rtpmap:0 PCMU/8000\r\n"
+            "a=rtpmap:8 PCMA/8000\r\n"
+            "a=rtpmap:9 G722/8000\r\n"
+            "a=rtpmap:105 AMR/8000\r\n"
+            "a=fmtp:105 octet-align=1\r\n"
+            "a=rtpmap:106 AMR-WB/16000\r\n"
+            "a=fmtp:106 octet-align=1\r\n"
+            "a=rtpmap:18 G729/8000\r\n"
+            "a=rtpmap:4 G723/8000\r\n"
+            "a=rtpmap:110 G726-32/8000\r\n"
+            "a=rtpmap:2 G721/8000\r\n"
+            "a=rtpmap:15 G728/8000\r\n"
+            "a=rtpmap:100 SILK/8000\r\n"
+            "a=fmtp:100 useinbandfec=0\r\n"
+            "a=rtpmap:102 SILK/16000\r\n"
+            "a=fmtp:102 useinbandfec=0\r\n"
+            "a=rtpmap:96 telephone-event/8000\r\n"
+            "a=fmtp:96 0-15\r\n"
+            "m=video 40002 RTP/AVP 97 96\r\n"
+            "c=IN IP4 132.177.252.51\r\n"
+            "b=TIAS:256000\r\n"
+            "a=rtcp:40003 IN IP4 132.177.252.51\r\n"
+            "a=sendrecv\r\n"
+            "a=rtpmap:97 H264/90000\r\n"
+            "a=fmtp:97 profile-level-id=42e01e; packetization-mode=1\r\n"
+            "a=rtpmap:96 H263-1998/90000\r\n"
+            "a=fmtp:96 CIF=1;QCIF=1\r\n";
+
+        SdpBody sdpOffer(sdpBytes);
+
+        // Setup some codecs
+        SdpCodecList codecList;
+        codecList.addCodecs("G722 AAC_LC_32000 PCMU telephone-event H264_PM1_HD1088_4096");
+        CPPUNIT_ASSERT_EQUAL(codecList.getCodecCount(), 5);
+        // TODO: test if video codecs get filtered out
+        //codecList.addCodecs("G722 AAC_LC_32000 PCMU H264_CIF_256 H264_PM1_CIF_256 telephone-event");
+        codecList.bindPayloadTypes();
+        int numRtpCodecs = 0;
+        SdpCodec** localRtpCodecs = NULL;
+        codecList.getCodecs(numRtpCodecs, localRtpCodecs);
+        CPPUNIT_ASSERT_EQUAL(numRtpCodecs, 5);
+
+        // Test if we read the mediaLine out correctly
+        SdpMediaLine testVideoMediaLine;
+        CPPUNIT_ASSERT_EQUAL(sdpOffer.getMediaLine(1, testVideoMediaLine, NULL), TRUE);
+        CPPUNIT_ASSERT_EQUAL(testVideoMediaLine.getMediaType(), SdpMediaLine::MEDIA_TYPE_VIDEO);
+        const SdpCodecList* mediaLineCodecList = testVideoMediaLine.getCodecs();
+        CPPUNIT_ASSERT_EQUAL(mediaLineCodecList->getCodecCount(), 2);
+        int numVideoCodecs = 0;
+        SdpCodec** videoCodecArray = NULL;
+        mediaLineCodecList->getCodecs(numVideoCodecs, videoCodecArray);
+        CPPUNIT_ASSERT_EQUAL(numVideoCodecs, 2);
+        UtlString mimeSubtype;
+        UtlString mimeType;
+        videoCodecArray[0]->getEncodingName(mimeSubtype);
+        CPPUNIT_ASSERT_EQUAL(mimeSubtype, MIME_SUBTYPE_H264);
+        videoCodecArray[0]->getMediaType(mimeType);
+        CPPUNIT_ASSERT_EQUAL(mimeType, SDP_VIDEO_MEDIA_TYPE);
+        videoCodecArray[1]->getEncodingName(mimeSubtype);
+        CPPUNIT_ASSERT_EQUAL(mimeSubtype, MIME_SUBTYPE_H263_1998);
+        videoCodecArray[1]->getMediaType(mimeType);
+        CPPUNIT_ASSERT_EQUAL(mimeType, SDP_VIDEO_MEDIA_TYPE);
+
+        mediaLineCodecList->getCodecs(numVideoCodecs, videoCodecArray, SDP_VIDEO_MEDIA_TYPE, MIME_SUBTYPE_H264);
+        CPPUNIT_ASSERT(videoCodecArray);
+        CPPUNIT_ASSERT_EQUAL(numVideoCodecs, 1);
+
+        // Build local mediaLine
+        UtlString localHost("44.33.22.11");
+        int localRtpPort = 4444;
+        int localRtcpPort = localRtpPort + 1;
+        SdpMediaLine localMediaLine;
+        SdpBody::buildMediaLine(SdpMediaLine::MEDIA_TYPE_VIDEO,
+                               0,
+                               1,
+                               &localHost,
+                               &localRtpPort,
+                               &localRtcpPort,
+                               numRtpCodecs,
+                               localRtpCodecs,
+                               localMediaLine);
+
+        printf("testVideo line: %d\n", __LINE__);
+
+        SdpMediaLine remoteMediaLine;
+        SdpCodecList localDecodeCodecs;
+        // Match remote mediaLine and extract SdpBody data into mediaLine container
+        sdpOffer.getCodecsInCommon(localMediaLine,
+                                   1, // index of remote mediaLine in sdpOffer
+                                   remoteMediaLine,
+                                   localDecodeCodecs);
+
+        const SdpCodecList* remoteCodecs = remoteMediaLine.getCodecs();
+        CPPUNIT_ASSERT_EQUAL(remoteCodecs->getCodecCount(), 1);
+        CPPUNIT_ASSERT_EQUAL(localDecodeCodecs.getCodecCount(), 1);
+
+        int numEncodeH264Codecs = 0;
+        SdpCodec** encodeH264CodecArray = NULL;
+        remoteCodecs->getCodecs(numEncodeH264Codecs, encodeH264CodecArray, SDP_VIDEO_MEDIA_TYPE, MIME_SUBTYPE_H264);
+        CPPUNIT_ASSERT_EQUAL(numEncodeH264Codecs, 1);
+        CPPUNIT_ASSERT(encodeH264CodecArray);
+        CPPUNIT_ASSERT_EQUAL(encodeH264CodecArray[0]->getCodecPayloadFormat(), 97);
+    }
+
     void testMlineOrder()
     {
         const char* multiMediaLineSdpString =
@@ -1835,7 +2089,7 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         CPPUNIT_ASSERT_EQUAL(sdpAnswer.getMediaRtcpPort(0, &rtcpPort), TRUE);
         CPPUNIT_ASSERT_EQUAL(rtcpPort, rtcpAudioPort);
         // Tones should assume the payload ID of the offer: 101
-        CPPUNIT_ASSERT_EQUAL(sdpAnswer.getPayloadRtpMap(101, mimeSubtype, sampleRate, numChannels), TRUE);
+        CPPUNIT_ASSERT_EQUAL(sdpAnswer.getPayloadRtpMap(0, 101, mimeSubtype, sampleRate, numChannels), TRUE);
         mimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
         UtlString refMimeSubtype(MIME_SUBTYPE_DTMF_TONES);
         refMimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
@@ -2064,7 +2318,7 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         CPPUNIT_ASSERT_EQUAL(sdpAnswer.getMediaRtcpPort(0, &rtcpPort), TRUE);
         CPPUNIT_ASSERT_EQUAL(rtcpPort, rtcpAudioPort);
         // Tones should assume the payload ID of the offer: 119
-        CPPUNIT_ASSERT_EQUAL(sdpAnswer.getPayloadRtpMap(119, mimeSubtype, sampleRate, numChannels), TRUE);
+        CPPUNIT_ASSERT_EQUAL(sdpAnswer.getPayloadRtpMap(0, 119, mimeSubtype, sampleRate, numChannels), TRUE);
         UtlString refMimeSubtype(MIME_SUBTYPE_DTMF_TONES);
         refMimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
         CPPUNIT_ASSERT_EQUAL(mimeSubtype, refMimeSubtype);
@@ -2230,7 +2484,7 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         CPPUNIT_ASSERT_EQUAL(sdpAnswer.getMediaRtcpPort(0, &rtcpPort), TRUE);
         CPPUNIT_ASSERT_EQUAL(rtcpPort, rtcpAudioPort);
         // Tones should assume the payload ID of the offer: 101
-        CPPUNIT_ASSERT_EQUAL(sdpAnswer.getPayloadRtpMap(101, mimeSubtype, sampleRate, numChannels), TRUE);
+        CPPUNIT_ASSERT_EQUAL(sdpAnswer.getPayloadRtpMap(0, 101, mimeSubtype, sampleRate, numChannels), TRUE);
         UtlString refMimeSubtype(MIME_SUBTYPE_DTMF_TONES);
         refMimeSubtype.SDP_MIME_SUBTYPE_TO_CASE();
         CPPUNIT_ASSERT_EQUAL(mimeSubtype, refMimeSubtype);
