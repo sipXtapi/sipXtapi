@@ -124,10 +124,10 @@ UtlBoolean SdpHelper::getMediaLine(const SdpBody& sdpBody, int mediaLineIndex, S
             int ptime;
             int numVideoSizes = MAXIMUM_VIDEO_SIZES;
             int videoSizes[MAXIMUM_VIDEO_SIZES];
-            sdpBody.getPayloadFormat(payloadTypes[typeIndex], payloadFormat);
+            sdpBody.getPayloadFormat(mediaLineIndex, payloadTypes[typeIndex], payloadFormat);
             SdpCodec::getVideoSizes(payloadFormat, MAXIMUM_VIDEO_SIZES, numVideoSizes, videoSizes);
 
-            if(!sdpBody.getPayloadRtpMap(payloadTypes[typeIndex], mimeSubType, sampleRate, numChannels))
+            if(!sdpBody.getPayloadRtpMap(mediaLineIndex, payloadTypes[typeIndex], mimeSubType, sampleRate, numChannels))
             {
 
                if(codecFactory == NULL)

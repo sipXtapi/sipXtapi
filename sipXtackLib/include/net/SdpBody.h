@@ -16,12 +16,12 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "utl/UtlDefs.h"
-#include "utl/UtlSListIterator.h"
-#include "os/OsSocket.h"
-#include "os/OsNatConnectionSocket.h"
+#include <utl/UtlDefs.h>
+#include <utl/UtlSListIterator.h>
+#include <os/OsSocket.h>
+#include <os/OsNatConnectionSocket.h>
 #include <tapi/sipXtapiEvents.h>
-
+#include <sdp/SdpMediaLine.h>
 #include <net/HttpBody.h>
 #include <net/NameValuePair.h>
 #include <sdp/SdpCodec.h>
@@ -217,6 +217,17 @@ class SdpBody : public HttpBody
     * to a SdpBody send from the other side
     */
 
+   // Build a MediaLine (for local capabilities for using in addMediaLinesAnswer)
+   static void buildMediaLine(SdpMediaLine::SdpMediaType mediaType,
+                              int totalBandwidth,
+                              int iNumAddresses,
+                              UtlString hostAddresses[],
+                              int rtpPorts[],
+                              int rtcpPorts[],
+                              int numRtpCodecs,
+                              SdpCodec* rtpCodecs[],
+                              SdpMediaLine& mediaLine);
+
    /// Create a response to a set of media codec and address entries.
    void addCodecsAnswer(int iNumAddresses,
                        UtlString mediaAddresses[],
@@ -401,14 +412,16 @@ class SdpBody : public HttpBody
                                ) const;
 
    /// Get the subfields of the rtpmap field.
-   UtlBoolean getPayloadRtpMap(int payloadType,        ///< which rtp map to read
+   UtlBoolean getPayloadRtpMap(int mediaIndex,         ///< index to which m line contains rtpmap
+                               int payloadType,        ///< which rtp map to read
                                UtlString& mimeSubtype, ///< the codec name (mime subtype)
                                int& sampleRate,        ///< the number of samples/sec. (-1 if not set)
                                int& numChannels        ///< the number of channels (-1 if not set)
                                ) const;
 
    // Get the fmtp parameter
-   UtlBoolean getPayloadFormat(int payloadType,
+   UtlBoolean getPayloadFormat(int mediaIndex,         ///< index to which m line contains rtpmap
+                               int payloadType,
                                UtlString& fmtp) const;
    /**
     * See SdpCodec for utilities to parse the fmtp field (e.g. getFmtpParameter and getVideoSizes)
@@ -464,8 +477,11 @@ class SdpBody : public HttpBody
                            int& matchingVideoFramerate) const;
              
    ///< It is assumed that the best are matches are first in the body.
-
-   void getCodecsInCommon(int audioPayloadIdCount,
+   // TODO: This interface is total broken and needs to be eliminated
+   // It munges the codecs and payload types accross all of the m lines
+   void getCodecsInCommon(int audioMediaSetIndex,
+                          int videoMediaSetIndex,
+                          int audioPayloadIdCount,
                           int videoPayloadIdCount,
                           int audioPayloadTypes[],
                           int videoPayloadTypes[],
