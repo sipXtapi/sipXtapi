@@ -37,8 +37,7 @@ CMessage::CMessage(unsigned long dwMsgType, void *pvArgument1,
 #ifdef __pingtel_on_posix__
          OsMsg('R', 'C'), /* Arbitrary values: R for RTCP and C for CMessage */
 #endif
-         m_dwMsgType(UNASSIGNED),   // Default Initializers
-         m_wArgIndex(0)
+         m_dwMsgType(UNASSIGNED)   // Default Initializers
 {
 
 //  Store the contents of the message
@@ -158,37 +157,6 @@ void CMessage::GetContents(unsigned long *pdwMsgType, void **ppvArgument1,
      *ppvArgument3 = m_pvArgument[2];
      *ppvArgument4 = m_pvArgument[3];
      *ppvArgument5 = m_pvArgument[4];
-
-}
-/*|><|************************************************************************
-*
-* Method Name:  RemoveContents
-*
-*
-* Inputs:       None
-*
-* Outputs:      None
-*
-* Returns:      None
-*
-* Logic Notes:
-*
-* Caveats:
-*
-************************************************************************|<>|*/
-void CMessage::RemoveContents(void)
-{
-
-//  Clear Message Type and Arguments
-    m_dwMsgType = UNASSIGNED;
-    m_pvArgument[0] = (void *)0;
-    m_pvArgument[1] = (void *)0;
-    m_pvArgument[2] = (void *)0;
-    m_pvArgument[3] = (void *)0;
-    m_pvArgument[4] = (void *)0;
-
-//  Reset Argument Index
-    m_wArgIndex = 0;
 
 }
 
