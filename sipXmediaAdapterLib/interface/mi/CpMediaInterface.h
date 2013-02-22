@@ -436,6 +436,32 @@ public:
      *             failure codes to expect, etc. -- kkyzivat 20070801 >>
      */
 
+
+     /// @brief Set an offset to the NTP time provided in the RTCP SR
+   virtual OsStatus setRtcpTimeOffset(int connectionId,
+                                      CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                      int streamIndex,
+                                      int timeOffset) = 0;
+     /**
+     *  Allows the RTCP synchronization time to be offset from the local wall clock
+     *  time (NTP time).  This does not efect the RTP timestamps in the RTP packets.
+     *  It only effects the synchronization time in the RTCP sender report by offsetting
+     *  the calculation of the RTP timestamp in the RTCP sender report for the current
+     *  wall clock time in the RTCP sender report.  This has the effect of adding a 
+     *  syncrhonization offset from other RTP streams (for receiving end points that
+     *  use the RTCP sender report for synchronization).
+     *
+     *  @param[in] connectionId - connection in which the RTP stream to be offset is
+     *             contained.
+     *  @param[in] mediaType - media time of the stream to be offset (e.g. video or audio)
+     *  @param[in] streamIndex - index to specific RTP stream of the give media type in 
+     *             the given connection.
+     *  @param[in] timeOffset - offset to apply to the stream synchronization time in milliseconds
+     *
+     *  @retval
+     */
+
+
    virtual OsStatus startChannelTone(int connectiondId,
                                      int toneId, 
                                      UtlBoolean local, 

@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -149,6 +149,12 @@ public:
 
    virtual OsStatus startTone(int toneId, UtlBoolean local, UtlBoolean remote);
    virtual OsStatus stopTone();
+
+     /// @copydoc CpMediaInterface::setRtcpTimeOffset()
+   virtual OsStatus setRtcpTimeOffset(int connectionId,
+                                      CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                      int streamIndex,
+                                      int timeOffset);
 
    virtual OsStatus startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote);
    virtual OsStatus stopChannelTone(int connectionId);

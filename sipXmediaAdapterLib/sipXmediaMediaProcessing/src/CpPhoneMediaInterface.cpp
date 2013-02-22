@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2005-2011 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2013 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1552,6 +1551,14 @@ OsStatus CpPhoneMediaInterface::stopTone()
    }
 
    return(returnCode);
+}
+
+OsStatus CpPhoneMediaInterface::setRtcpTimeOffset(int connectionId,
+                                                  CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                                  int streamIndex,
+                                                  int timeOffset)
+{
+    return(OS_NOT_YET_IMPLEMENTED);
 }
 
 OsStatus CpPhoneMediaInterface::startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote) 
