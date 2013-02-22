@@ -646,7 +646,7 @@ int NetInTask::run(void *pNotUsed)
                     stat = get1Msg(ppr->pRtpSocket, ppr->fwdTo, false, ostc);
                     if (OS_SUCCESS != stat) {
                         OsSysLog::add(FAC_MP, PRI_ERR, 
-                            " *** NetInTask: removing RTP#%d pSkt=%p due"
+                            " *** NetInTask: removing RTP#%ld pSkt=%p due"
                             " to read error.\n", ppr-pairs,
                             ppr->pRtpSocket);
                         last = OS_INVALID_SOCKET_DESCRIPTOR;
@@ -663,7 +663,7 @@ int NetInTask::run(void *pNotUsed)
                     stat = get1Msg(ppr->pRtcpSocket, ppr->fwdTo, true, ostc);
                     if (OS_SUCCESS != stat) {
                         OsSysLog::add(FAC_MP, PRI_ERR, 
-                            " *** NetInTask: removing RTCP#%d pSkt=%p due"
+                            " *** NetInTask: removing RTCP#%ld pSkt=%p due"
                             " to read error.\n", ppr-pairs,
                             ppr->pRtcpSocket);
                         last = OS_INVALID_SOCKET_DESCRIPTOR;
@@ -766,6 +766,7 @@ OsStatus NetInTask::addNetInputSources(OsSocket* pRtpSocket, OsSocket* pRtcpSock
                                        MprFromNet* fwdTo, OsNotification* notify)
 {
    netInTaskMsg msg;
+   bzero(&msg, NET_TASK_MAX_MSG_LEN);
    int wrote = 0;
 
    if (NULL != fwdTo)

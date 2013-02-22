@@ -32,7 +32,7 @@
 // FORWARD DECLARATIONS
 
 /**
- * UtlContainer defines and abstract container designed to hold UtlContainable 
+ * UtlContainer defines an abstract container designed to hold UtlContainable 
  * derived objects.
  */
 class UtlContainer : public UtlContainable

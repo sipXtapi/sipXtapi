@@ -184,7 +184,7 @@ protected:
             if(mpExtendedInputsInfo[extendedInput].mRefCounter <= 0)
             {
                OsSysLog::add(FAC_MP, PRI_DEBUG,
-                  "ExtendedInputs::setGain(in=%d, out=%d, gain=%f) mRefCounter: %d",
+                  "ExtendedInputs::setGain(in=%d, out=%d, gain=%d) mRefCounter: %d",
                   input, output, gain, mpExtendedInputsInfo[extendedInput].mRefCounter);
                OsSysLog::flush();
             }
