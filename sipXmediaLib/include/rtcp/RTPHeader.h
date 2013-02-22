@@ -19,7 +19,6 @@
 #include "rtcp/RtcpConfig.h"
 
 //  Includes
-#include "BaseClass.h"
 #include "IRTPHeader.h"
 
 //  Defines
@@ -44,8 +43,7 @@
  *              Initialization and reference counting support.
  *
  */
-class CRTPHeader: public CBaseClass, // Inherits the CBaseClass implementation
-                  public IRTPHeader  // RTP Header Interface
+class CRTPHeader: public IRTPHeader  // RTP Header Interface
  {
 
 //  Public Methods
@@ -421,26 +419,6 @@ public:
  *
  */
     void SetRecvTimestamp(rtpts_t ulTimestamp);
-
-/**
- *
- * Macro Name:  DECLARE_IBASE_M
- *
- *
- * Inputs:   None
- *
- * Outputs:  None
- *
- * Returns:  None
- *
- * Description: This implements the IBaseClass functions used and exposed by
- *              derived classes.
- *
- * Usage Notes:
- *
- *
- */
-DECLARE_IBASE_M
 
 
 private:   // Private Methods
