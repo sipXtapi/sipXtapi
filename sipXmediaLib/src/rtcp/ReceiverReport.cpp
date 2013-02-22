@@ -654,13 +654,13 @@ void CReceiverReport::UpdateSequence(IRTPHeader *piRTPHeader)
 
     else if (ulSeqNoDelta <= RTP_SEQ_MOD - MAX_MISORDER)
     {
-/*
-        if (mTotalWarnings++ < 60)
-            osPrintf(" UpdateSequence() ==> ulSeqNoDelta"
-                             " <= RTP_SEQ_MOD - MAX_MISORDER\n"
-                             "     // %lu <= (%d - %d)\n",
-                             ulSeqNoDelta, RTP_SEQ_MOD, MAX_MISORDER);
-*/
+//***/*
+//***        if (mTotalWarnings++ < 60)
+//***            osPrintf(" UpdateSequence() ==> ulSeqNoDelta"
+//***                             " <= RTP_SEQ_MOD - MAX_MISORDER\n"
+//***                             "     // %lu <= (%d - %d)\n",
+//***                             ulSeqNoDelta, RTP_SEQ_MOD, MAX_MISORDER);
+//****/
         // The sequence number made a very large jump
         if (ulSequenceNo == ulBadSequenceNo)
         {
