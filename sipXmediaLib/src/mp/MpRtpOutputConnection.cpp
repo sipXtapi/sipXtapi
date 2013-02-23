@@ -170,7 +170,7 @@ OsStatus MpRtpOutputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
     {
         // Get the RTCP Connection object for this flowgraph connection
         mpiRTCPConnection = pFlowGraph->getRTCPConnectionPtr(getConnectionId(), 'A', getStreamId());
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "MpRtpOutConn::setFlowGraph(0x%p) CID=%d, TC=0x%p", pFlowGraph, getConnectionId(), mpiRTCPConnection);
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "MpRtpOutConn::setFlowGraph(%p) CID=%d, TC=%p", pFlowGraph, getConnectionId(), mpiRTCPConnection);
 
         // Let's use the Connection interface to acquire the constituent interfaces
         // required for dispatching RTP and RTCP packets received from the network as

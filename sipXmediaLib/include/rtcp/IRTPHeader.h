@@ -37,7 +37,7 @@
  * Notes:
  *
  */
-interface IRTPHeader : public IBaseClass
+interface IRTPHeader
  {
 
 //  Public Methods

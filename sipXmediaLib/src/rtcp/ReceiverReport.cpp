@@ -163,7 +163,6 @@ void CReceiverReport::SetRTPStatistics(IRTPHeader *piRTPHeader)
 
     // Recalculate Receiver Report Statistics based upon the most recent RTP
     // Packet Header received
-    piRTPHeader->AddRef();
 
     // Update the jitter statistics
     UpdateJitter(piRTPHeader);
@@ -174,7 +173,6 @@ void CReceiverReport::SetRTPStatistics(IRTPHeader *piRTPHeader)
     // Position the packet within the sequence list
     UpdateSequence(piRTPHeader);
 
-    piRTPHeader->Release();
 
     // Leave Synchronized Area
     LeaveCriticalSection (&m_csSynchronized);
@@ -358,7 +356,6 @@ void CReceiverReport::SetSSRC(ssrc_t ulSSRC)
 void CReceiverReport::SetRemoteSSRC(IRTPHeader *piRTPHeader)
 {
 
-    piRTPHeader->AddRef();
 
     // Let's determine whether the SSRC, either local or remote depending on
     // context of ReceiverReport, has changed and what to do about it.
@@ -378,7 +375,6 @@ void CReceiverReport::SetRemoteSSRC(IRTPHeader *piRTPHeader)
     // Let's set the new SSRC ID
     m_ulRemoteSSRC = ulSSRC;
 
-    piRTPHeader->Release();
 }
 
 
@@ -565,7 +561,6 @@ unsigned long
 void CReceiverReport::UpdateJitter(IRTPHeader *piRTPHeader)
 {
 
-    piRTPHeader->AddRef();
 
     // We will determine jitter by calculating the difference in time between
     // the current and last RTP packets send and receive times.
@@ -580,7 +575,6 @@ void CReceiverReport::UpdateJitter(IRTPHeader *piRTPHeader)
     // Do not make the calculation if this is the first run through
     if(ulPreviousPacketSendTime == 0 && ulPreviousPacketReceiveTime == 0)
     {
-        piRTPHeader->Release();
         return;
     }
 
@@ -599,7 +593,6 @@ void CReceiverReport::UpdateJitter(IRTPHeader *piRTPHeader)
     dJitter /= REDUX_RATIO;
     m_ulMeanJitter += (uint32_t)dJitter;
 
-    piRTPHeader->Release();
 }
 
 /**
@@ -629,7 +622,6 @@ void CReceiverReport::UpdateSequence(IRTPHeader *piRTPHeader)
     static uint32_t ulBadSequenceNo = RTP_SEQ_MOD + 1;
     static uint32_t ulPacketProbation = MIN_SEQUENTIAL;
 
-    piRTPHeader->AddRef();
 
     // Get the Sequence Number from the header
     ulSequenceNo = piRTPHeader->GetSequenceNo();
@@ -662,13 +654,13 @@ void CReceiverReport::UpdateSequence(IRTPHeader *piRTPHeader)
 
     else if (ulSeqNoDelta <= RTP_SEQ_MOD - MAX_MISORDER)
     {
-/*
-        if (mTotalWarnings++ < 60)
-            osPrintf(" UpdateSequence() ==> ulSeqNoDelta"
-                             " <= RTP_SEQ_MOD - MAX_MISORDER\n"
-                             "     // %lu <= (%d - %d)\n",
-                             ulSeqNoDelta, RTP_SEQ_MOD, MAX_MISORDER);
-*/
+//***/*
+//***        if (mTotalWarnings++ < 60)
+//***            osPrintf(" UpdateSequence() ==> ulSeqNoDelta"
+//***                             " <= RTP_SEQ_MOD - MAX_MISORDER\n"
+//***                             "     // %lu <= (%d - %d)\n",
+//***                             ulSeqNoDelta, RTP_SEQ_MOD, MAX_MISORDER);
+//****/
         // The sequence number made a very large jump
         if (ulSequenceNo == ulBadSequenceNo)
         {
@@ -683,7 +675,6 @@ void CReceiverReport::UpdateSequence(IRTPHeader *piRTPHeader)
         else
         {
             ulBadSequenceNo = (ulSequenceNo + 1) & (RTP_SEQ_MOD-1);
-            piRTPHeader->Release();
             return;
         }
     }
@@ -698,7 +689,6 @@ void CReceiverReport::UpdateSequence(IRTPHeader *piRTPHeader)
     // Increment Packet Counts
     IncrementPacketCounters();
 
-    piRTPHeader->Release();
 
     return;
 }

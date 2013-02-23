@@ -276,7 +276,6 @@ void CRTCPRender::ForwardRTPHeader(IRTPHeader *piRTPHeader)
     unsigned long ulRemoteSSRC = piRTPHeader->GetSSRC();
 
     // Bump refernece count of RTP Header interface
-    piRTPHeader->AddRef();
 
     // Check to see whether this is the first packet establishing our FE SSRC
     if(m_iRemoteSSRCFound == 0)
@@ -314,7 +313,6 @@ void CRTCPRender::ForwardRTPHeader(IRTPHeader *piRTPHeader)
     m_poReceiverReport->SetRTPStatistics(piRTPHeader);
 
     // Release the reference to RTP Header interface
-    piRTPHeader->Release();
 
 }
 

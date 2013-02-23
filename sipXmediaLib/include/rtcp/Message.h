@@ -147,26 +147,6 @@ class CMessage
 
 /*|><|************************************************************************
 *
-* Method Name:  RemoveContents
-*
-*
-* Inputs:       None
-*
-* Outputs:      None
-*
-* Returns:      None
-*
-* Logic Notes:
-*
-* Caveats:
-*
-************************************************************************|<>|*/
-    void RemoveContents(void);
-
-
-
-/*|><|************************************************************************
-*
 * Method Name:  GetMsgType
 *
 *
@@ -302,18 +282,6 @@ class CMessage
 *
 ************************************************************************|<>|*/
     void *m_pvArgument[MAX_ARGUMENTS];
-
-/*|><|************************************************************************
-*
-* Attribute Name:   m_wArgIndex
-*
-* Type:             unsigned short
-*
-* Description:      An internal index used to identify the next argument to be
-*                   retrieved by a caller.
-*
-************************************************************************|<>|*/
-    unsigned short m_wArgIndex;
 
 };
 

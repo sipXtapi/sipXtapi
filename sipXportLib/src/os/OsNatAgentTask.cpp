@@ -67,7 +67,7 @@ OsNatAgentTask::~OsNatAgentTask()
     
     // Clear Context map
     UtlHashMapIterator iterator(mContextMap);
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         mContextMap.destroy(pKey) ;
@@ -77,7 +77,7 @@ OsNatAgentTask::~OsNatAgentTask()
 
     // Clear Timers 
     UtlSListIterator listIterator(mTimerPool);
-    while (pKey = (UtlVoidPtr*)listIterator())
+    while ((pKey = (UtlVoidPtr*)listIterator()))
     {
         OsTimer* pTimer = (OsTimer*) pKey->getValue() ;
         mTimerPool.destroy(pKey) ;        
@@ -88,7 +88,7 @@ OsNatAgentTask::~OsNatAgentTask()
     OsWriteLock bindingLock(mExternalBindingMutex);
 
     UtlSListIterator itor(mExternalBindingsList);
-    while (pKey = (UtlVoidPtr*)itor())
+    while ((pKey = (UtlVoidPtr*)itor()))
     {
        NAT_AGENT_EXTERNAL_CONTEXT* pContext = (NAT_AGENT_EXTERNAL_CONTEXT*)pKey->getValue();
        mExternalBindingsList.destroy(pKey);
@@ -1148,7 +1148,7 @@ UtlBoolean OsNatAgentTask::removeCrLfKeepAlive(IStunSocket* pSocket,
     OsLock lock(mMapsLock) ;
 
     UtlHashMapIterator iterator(mContextMap);
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {        
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
@@ -1267,7 +1267,7 @@ UtlBoolean OsNatAgentTask::removeStunKeepAlive(IStunSocket* pSocket,
     OsLock lock(mMapsLock) ;
 
     UtlHashMapIterator iterator(mContextMap);
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {        
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
@@ -1307,7 +1307,7 @@ UtlBoolean OsNatAgentTask::removeKeepAlives(IStunSocket* pSocket)
     OsLock lock(mMapsLock) ;
 
     UtlHashMapIterator iterator(mContextMap);
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {        
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
@@ -1339,7 +1339,7 @@ UtlBoolean OsNatAgentTask::removeStunProbes(IStunSocket* pSocket)
     OsLock lock(mMapsLock) ;
 
     UtlHashMapIterator iterator(mContextMap);
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {        
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
@@ -1389,7 +1389,7 @@ UtlBoolean OsNatAgentTask::areProbesOutstanding(IStunSocket* pSocket, int priori
     OsLock lock(mMapsLock) ;
 
     UtlHashMapIterator iterator(mContextMap);
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {        
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
@@ -1422,7 +1422,7 @@ UtlBoolean OsNatAgentTask::doesBindingExist(IStunSocket*   pSocket,
     OsLock lock(mMapsLock) ;
 
     UtlHashMapIterator iterator(mContextMap);
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {        
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
@@ -1472,7 +1472,7 @@ UtlBoolean OsNatAgentTask::findContactAddress(const UtlString& destHost,
 
             mMapsLock.acquire() ;
             UtlHashMapIterator iterator(mContextMap);
-            while (pKey = (UtlVoidPtr*)iterator())
+            while ((pKey = (UtlVoidPtr*)iterator()))
             {        
                 NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
 
@@ -1765,7 +1765,7 @@ NAT_AGENT_CONTEXT* OsNatAgentTask::getBinding(IStunSocket* pSocket, NAT_AGENT_BI
     UtlHashMapIterator iterator(mContextMap);
     UtlVoidPtr* pKey;
 
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {        
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         if ((pContext->pSocket == pSocket) && (pContext->type == type))
@@ -1784,7 +1784,7 @@ NAT_AGENT_CONTEXT* OsNatAgentTask::getBinding(NAT_AGENT_CONTEXT* pBinding)
     UtlHashMapIterator iterator(mContextMap);
     UtlVoidPtr* pKey;
 
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         if (pBinding == pContext)
@@ -1804,7 +1804,7 @@ NAT_AGENT_CONTEXT* OsNatAgentTask::getBinding(STUN_TRANSACTION_ID* pId)
     UtlHashMapIterator iterator(mContextMap);
     UtlVoidPtr* pKey;
 
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         if (memcmp(&pId->id[0], &pContext->transactionId.id[0], sizeof(STUN_TRANSACTION_ID)) == 0)
@@ -1834,7 +1834,7 @@ void OsNatAgentTask::destroyBinding(NAT_AGENT_CONTEXT* pBinding)
     UtlHashMapIterator iterator(mContextMap);
     UtlVoidPtr* pKey;   
     
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {
         NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
         if (pContext == pBinding)
