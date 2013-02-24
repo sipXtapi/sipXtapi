@@ -74,8 +74,8 @@ public:
 protected:
    int mOptions;  ///< options specified at time of binary semaphore creation
 
-   int mTaskId;   ///< if OS_SYNC_DEBUG is enabled, we use this variable to
-                  ///< store the ID of the task currently holding the semaphore
+   int mTaskId;   ///< if OS_SYNC_DEBUG is enabled, ONLY ON WNT, we use this
+      ///< variable to store the ID of the task currently holding the semaphore 
 
      /// Default constructor
    OsBSemBase()  {  };
