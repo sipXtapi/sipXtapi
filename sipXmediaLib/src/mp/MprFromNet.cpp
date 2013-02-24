@@ -53,7 +53,8 @@
 /* ============================ CREATORS ================================== */
 
 MprFromNet::MprFromNet()
-: mMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
+: mDiscardCtlMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
+, mRegistrationSyncMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
 , mNetInTask(NetInTask::getNetInTask())
 , mRegistered(FALSE)
 , mpRtpDispatcher(NULL)
@@ -123,7 +124,7 @@ OsStatus MprFromNet::setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket)
 
    // We should release mutex before blocking on notify event to avoid deadlock.
    {
-      OsLock lock(mMutex);
+      OsLock lock(mRegistrationSyncMutex);
 
       resetSocketsInternal();
       res = mNetInTask->addNetInputSources(&rRtpSocket, &rRtcpSocket, this, &notify);
@@ -150,7 +151,7 @@ OsStatus MprFromNet::resetSockets()
 
    // We should release mutex before blocking on notify event to avoid deadlock.
    {
-      OsLock lock(mMutex);
+      OsLock lock(mRegistrationSyncMutex);
       needWait = resetSocketsInternal(&notify);
    }
 
@@ -232,7 +233,7 @@ OsStatus MprFromNet::rtcpStats(struct RtpHeader* rtpH)
 
 OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
 {
-   OsLock lock(mMutex);
+   OsLock lock(mDiscardCtlMutex);
    MpRtpBufPtr rtpBuf;
    OsStatus ret = OS_SUCCESS;
 
@@ -315,7 +316,7 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
 
 OsStatus MprFromNet::enableSsrcDiscard(UtlBoolean enable, RtpSRC ssrc)
 {
-   OsLock lock(mMutex);
+   OsLock lock(mDiscardCtlMutex);
    mDiscardSelectedStream = enable;
    mDiscardedSSRC = ssrc;
  
