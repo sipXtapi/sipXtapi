@@ -151,11 +151,14 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
       // See what we get...
       switch (ret) {
       case OS_WAIT_TIMEOUT: /* one-shot tone completed */
+        ////////////////////////////////////////////////////////////////////////
+        // This is the only reason this file needs MpCallFlowGraph.h
           if(getFlowGraph()->getType() == MpFlowGraphBase::CALL_FLOWGRAPH)
           {
             ((MpCallFlowGraph*)getFlowGraph())->stopTone();
           }
           else
+        ////////////////////////////////////////////////////////////////////////
           {
              MprToneGen::stopTone(*this, *getFlowGraph()->getMsgQ()); 
           }
