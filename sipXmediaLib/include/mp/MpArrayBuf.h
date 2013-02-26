@@ -72,7 +72,11 @@ public:
     const char *getDataPtr() const {return mpData;}
 
     /// Get size of #MpArrayBuf without data (in bytes).
-    static unsigned getHeaderSize() {return sizeof(MpArrayBuf)-sizeof(char);}
+    static int getHeaderSize() {
+        static MpArrayBuf* foo = NULL;
+        return (unsigned long)(&(foo->mpData[0])) - (unsigned long)(foo);
+    }
+
 
     /// Get maximum allowed payload size (in bytes).
     unsigned getMaxDataSize() const
