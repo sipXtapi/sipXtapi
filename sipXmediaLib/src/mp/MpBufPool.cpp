@@ -92,9 +92,10 @@ private:
 
 MpBufPool::MpBufPool(unsigned blockSize, unsigned numBlocks, const UtlString& poolName)
 : mPoolName(poolName)
-,mBlockSize(MP_ALIGN(blockSize,MP_ALIGN_SIZE))
+, mBlockSize(blockSize)
+, mBlockSpan(MP_ALIGN(blockSize,MP_ALIGN_SIZE))
 , mNumBlocks(numBlocks)
-, mPoolBytes(mBlockSize*mNumBlocks)
+, mPoolBytes(mBlockSpan*mNumBlocks)
 , mpPoolData(new char[mPoolBytes])
 , mpFreeList(NULL)
 , mMutex(OsMutex::Q_PRIORITY)
@@ -133,8 +134,8 @@ MpBufPool::~MpBufPool()
     for (int i=mNumBlocks; i>0; i--) {
         MpBuf *pBuf = (MpBuf *)pBlock;
         if (pBuf->mRefCounter > 0 || pBuf->mpPool == this) {
-            osPrintf( "Buffer %d from pool %x was not correctly freed!!!\n"
-                    , (pBlock-mpPoolData)/mBlockSize
+            osPrintf( "Buffer %d from pool %p was not correctly freed!!!\n"
+                    , getBufferNumber(pBuf)
                     , this);
         }
         pBlock = getNextBlock(pBlock);
@@ -216,7 +217,7 @@ void MpBufPool::releaseBuffer(MpBuf *pBuffer)
 
 int MpBufPool::getBufferNumber(MpBuf *pBuf) const
 {
-    return ((char*)pBuf-mpPoolData)/mBlockSize;
+    return ((char*)pBuf-mpPoolData)/mBlockSpan;
 };
 
 int MpBufPool::getFreeBufferCount()
@@ -241,7 +242,7 @@ int MpBufPool::scanBufPool(MpFlowGraphBase *pFG)
             if (pFG == pBuf->mpFlowGraph) {
                 bads++;
                 OsSysLog::add(FAC_MP, PRI_ERR, "Buffer %d from pool %p (flowgraph=%p) was not correctly freed!!!\n",
-                    (int)((pBlock-mpPoolData)/mBlockSize), this, pFG);
+                    getBufferNumber(pBuf), this, pFG);
             }
         }
         pBlock = getNextBlock(pBlock);
@@ -274,8 +275,8 @@ int MpBufPool::profileFlowgraphPoolUsage()
     }
 
     OsSysLog::add(FAC_MP, PRI_ERR,
-            "MpBufPool::profileFlowgraphPoolUsage pool: %p buffer size: %d used buffer count: %d/%d",
-            this, mBlockSize, mNumFree, mNumBlocks); 
+            "MpBufPool::profileFlowgraphPoolUsage pool: %p, buffer size: %d+%d, free buffer count: %d/%d",
+            this, mBlockSize, mBlockSpan-mBlockSize, mNumFree, mNumBlocks); 
 
     UtlHashMapIterator iterator(flowgraphBufferCount);
     UtlInt* countPtr = NULL;
@@ -285,8 +286,8 @@ int MpBufPool::profileFlowgraphPoolUsage()
         if((countPtr = (UtlInt*) flowgraphBufferCount.findValue(flowgraphPtr)))
         {
             OsSysLog::add(FAC_MP, PRI_DEBUG,
-                    "MpBufPool::profileFlowgraphPoolUsage flowgraph: %p using %d buffers of size %d in pool %p",
-                    flowgraphPtr->getValue(), countPtr->getValue(), mBlockSize, this);
+                    "MpBufPool::profileFlowgraphPoolUsage flowgraph: %p using %d buffers of size %d+%d in pool %p",
+                    flowgraphPtr->getValue(), countPtr->getValue(), mBlockSize, mBlockSpan-mBlockSize, this);
         }
     }
 

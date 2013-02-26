@@ -62,7 +62,7 @@ public:
     /**
     * @see MpArrayBuf::setDataSize() for more details
     */
-    bool setPayloadSize(unsigned payloadSize)
+    bool setPayloadSize(int payloadSize)
     {
         if(!mpData.isValid())
         {

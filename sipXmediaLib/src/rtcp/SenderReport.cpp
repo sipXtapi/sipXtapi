@@ -829,6 +829,8 @@ unsigned long CSenderReport::ExtractTimestamps(uint32_t *paulTimestamps)
     //  between the current and starting NTP timestamps
     double dSecondsElapsed  =
                         (double)(aulCurrentNTPTime[0] - m_aulNTPStartTime[0]);
+// *** rtcp/SenderReport.cpp:831: warning: 'aulCurrentNTPTime[0]' is used uninitialized in this function ***
+
     double dUSecondsElapsed =
                         (double)(aulCurrentNTPTime[1] - m_aulNTPStartTime[1]);
 

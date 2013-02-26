@@ -142,7 +142,8 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   OsMutex          mMutex;
+   OsMutex          mDiscardCtlMutex;
+   OsMutex          mRegistrationSyncMutex;
    NetInTask*       mNetInTask;
    UtlBoolean       mRegistered;
    MprRtpDispatcher* mpRtpDispatcher;

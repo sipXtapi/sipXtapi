@@ -53,7 +53,8 @@
 /* ============================ CREATORS ================================== */
 
 MprFromNet::MprFromNet()
-: mMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
+: mDiscardCtlMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
+, mRegistrationSyncMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
 , mNetInTask(NetInTask::getNetInTask())
 , mRegistered(FALSE)
 , mpRtpDispatcher(NULL)
@@ -123,7 +124,7 @@ OsStatus MprFromNet::setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket)
 
    // We should release mutex before blocking on notify event to avoid deadlock.
    {
-      OsLock lock(mMutex);
+      OsLock lock(mRegistrationSyncMutex);
 
       resetSocketsInternal();
       res = mNetInTask->addNetInputSources(&rRtpSocket, &rRtcpSocket, this, &notify);
@@ -150,7 +151,7 @@ OsStatus MprFromNet::resetSockets()
 
    // We should release mutex before blocking on notify event to avoid deadlock.
    {
-      OsLock lock(mMutex);
+      OsLock lock(mRegistrationSyncMutex);
       needWait = resetSocketsInternal(&notify);
    }
 
@@ -232,7 +233,7 @@ OsStatus MprFromNet::rtcpStats(struct RtpHeader* rtpH)
 
 OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
 {
-   OsLock lock(mMutex);
+   OsLock lock(mDiscardCtlMutex);
    MpRtpBufPtr rtpBuf;
    OsStatus ret = OS_SUCCESS;
 
@@ -247,8 +248,11 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
       mNumPktsRtp++;
 
       rtpBuf = parseRtpPacket(udpBuf);
+      if (!rtpBuf.isValid()) {
+         return OS_INVALID;
+      }
 
-      // Label buf so we know which flowgraph its used in
+      // Label buf so we know which flowgraph it is used in
       rtpBuf.setFlowGraph(mpFlowGraph);
 
       // Discard requested RTP stream
@@ -315,7 +319,7 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
 
 OsStatus MprFromNet::enableSsrcDiscard(UtlBoolean enable, RtpSRC ssrc)
 {
-   OsLock lock(mMutex);
+   OsLock lock(mDiscardCtlMutex);
    mDiscardSelectedStream = enable;
    mDiscardedSSRC = ssrc;
  
@@ -349,6 +353,14 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
    int packetLength;
    int offset;
    int csrcSize;
+   int csrcCount;
+
+   packetLength = buf->getPacketSize();
+   if (packetLength < (int)sizeof(RtpHeader)) {
+      // INVALID: shorter than an RTP packet header.
+      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: packet too short (%d)", packetLength);
+      return rtpBuf; // contained pointer is still NULL
+   }
 
    // Get new RTP buffer
    rtpBuf = MpMisc.RtpPool->getBuffer();
@@ -361,14 +373,22 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
    memcpy(&rtpBuf->getRtpHeader(), buf->getDataPtr(), sizeof(RtpHeader));
    offset = sizeof(RtpHeader);
 
+   if (2 != rtpBuf->getRtpVersion()) {
+      // INVALID: we have only heard of version 2
+      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: RTP version is not 2 (%d)", rtpBuf->getRtpVersion());
+      rtpBuf.release();
+      return rtpBuf;
+   }
+
    // Adjust packet size according to padding
-   packetLength = buf->getPacketSize();
    if (rtpBuf->isRtpPadding()) {
       uint8_t padBytes = *(buf->getDataPtr() + packetLength - 1);
 
-      // Ipse: I'm not sure why we do this... Say me if you know.
-      if ((padBytes & (~3)) != 0) {
-         padBytes = 0;
+      if ((padBytes > 3) || (padBytes == 0)) {
+         // INVALID: padding count is greater than 3.
+         OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: improper RTP padding (%d)", padBytes);
+         rtpBuf.release();
+         return rtpBuf;
       }
 
       packetLength -= padBytes;
@@ -376,8 +396,22 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
    }
 
    // Copy CSRC list to RTP buffer
-   csrcSize = rtpBuf->getRtpCSRCCount() * sizeof(RtpSRC);
-   memcpy(rtpBuf->getRtpCSRCs(), buf->getDataPtr()+offset, csrcSize);
+   csrcCount = rtpBuf->getRtpCSRCCount();
+   csrcSize = csrcCount * sizeof(RtpSRC);
+   if ((offset + csrcSize) > packetLength) {
+      // INVALID: CSRC count indicates more CSRCs than remaining packet data
+      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: packet too short (%d) for CSRC count (%d)", packetLength, csrcCount);
+      rtpBuf.release();
+      return rtpBuf;
+   }
+
+   RtpSRC* pCSRCsrc = (RtpSRC*) buf->getDataPtr()+offset;
+   RtpSRC* pCSRCdst = rtpBuf->getRtpCSRCs();
+   int i;
+   for (i=0; i<csrcCount; i++) {
+      RtpSRC temp = *pCSRCsrc++;
+      *pCSRCdst = ntohl(temp);  // use temp to avoid side effects if ntohl is a macro.
+   }
    offset += csrcSize;
 
    // Check for RTP Header extension
@@ -391,13 +425,20 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
       xLen = ntohs(pXhdr[1]);
 
       // Increment offset by extension header plus extension size
-      offset += (sizeof(int) * (1 + xLen));
+      offset += (sizeof(uint32_t) * (1 + xLen));
+      if (offset > packetLength) {
+         // INVALID: we have moved beyond the end of data before reaching payload
+         OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: packet too short (%d) CSRC count=%d, extLen=%d", packetLength, csrcCount, (int)(sizeof(uint32_t) * (1 + xLen)));
+         rtpBuf.release();
+         return rtpBuf;
+      }
+
    }
 
    if (!rtpBuf->setPayloadSize(packetLength - offset)) {
-      osPrintf( "RTP buffer size is too small: %d (need %d)\n"
-              , rtpBuf->getPayloadSize()
-              , packetLength - offset);
+      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: RTP buffer size is too small: %d (need %d)\n", rtpBuf->getPayloadSize(), packetLength - offset);
+      rtpBuf.release();
+      return rtpBuf;
    }
 
    // Copy payload to RTP buffer.

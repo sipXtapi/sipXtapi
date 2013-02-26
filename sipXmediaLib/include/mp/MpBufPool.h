@@ -98,15 +98,16 @@ public:
 protected:
 
     /// Return pointer to the byte after end of the pool data.
-    void *getPoolDataEnd() {return mpPoolData + mBlockSize*mNumBlocks;}
+    void *getPoolDataEnd() {return mpPoolData + mBlockSpan*mNumBlocks;}
 
     /// Return pointer to the block, next to this.
-    char *getNextBlock(char *pBlock) {return pBlock + mBlockSize;}
+    char *getNextBlock(char *pBlock) {return pBlock + mBlockSpan;}
     
     void appendFreeList(MpBuf *pBuf);
 
     UtlString  mPoolName;      ///< label or name for debug
-    unsigned   mBlockSize;     ///< Size of one block in pool (in bytes).
+    unsigned   mBlockSize;     ///< Requested size of each block in pool (in bytes).
+    unsigned   mBlockSpan;     ///< Actual size of each block.  >= mBlockSize for alignment
     unsigned   mNumBlocks;     ///< Number of blocks in pool.
     unsigned   mPoolBytes;     ///< Size of all pool in bytes.
     char      *mpPoolData;     ///< Pointer to allocated memory.

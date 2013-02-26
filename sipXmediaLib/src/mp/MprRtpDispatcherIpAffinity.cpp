@@ -252,7 +252,7 @@ void MprRtpDispatcherIpAffinity::setPreferredIp(unsigned long address, int port)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-int MprRtpDispatcherIpAffinity::getPrefSsrc()
+RtpSRC MprRtpDispatcherIpAffinity::getPrefSsrc()
 {
    return mRtpStream.getSSRC();
 }
