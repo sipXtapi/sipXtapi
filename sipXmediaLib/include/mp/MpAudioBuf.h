@@ -62,7 +62,7 @@ public:
     * 
     * @see MpArrayBuf::setDataSize() for more details
     */
-    bool setSamplesNumber(unsigned samplesNum)
+    bool setSamplesNumber(int samplesNum)
     {return mpData->setDataSize(samplesNum*sizeof(MpAudioSample));}
 
     /// Set time code for this frame

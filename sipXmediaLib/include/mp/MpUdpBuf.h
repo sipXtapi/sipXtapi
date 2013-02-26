@@ -58,7 +58,7 @@ public:
     /**
     * @see MpArrayBuf::setDataSize() for more details
     */
-    bool setPacketSize(unsigned size) 
+    bool setPacketSize(int size)
     {
         if(!mpData.isValid())
         {

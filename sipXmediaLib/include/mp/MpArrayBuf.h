@@ -49,7 +49,7 @@ public:
 //@{
 
     /// Set current data size
-    bool setDataSize( unsigned size ///< new data size
+    bool setDataSize( int size ///< new data size
                     );
     /**<
      * New data size could not be greater then allocated space (provided by
