@@ -865,7 +865,6 @@ void CMsgQueue::MessageLoop()
 }
 
 #elif defined(__pingtel_on_posix__) /* ] [ */
-    OsMsgQ * m_pMsgQ = NULL;
 
 void CMsgQueue::MessageLoop()
 {
