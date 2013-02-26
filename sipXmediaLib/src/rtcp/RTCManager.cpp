@@ -526,6 +526,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
         piConnection = (IRTCPConnection *)poMessage->GetFirstArgument();
 
         // Set the Base Class pointer to NULL
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ProcessMessage: clearing piBaseClass, line:%d, old:%p", __LINE__, piBaseClass);
         piBaseClass = NULL;
 
         // Call the method that generates the RTCP Reports if the
@@ -564,6 +565,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
         piConnection = (IRTCPConnection *)poMessage->GetFirstArgument();
 
         // Set the Base Class pointer to NULL
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ProcessMessage: clearing piBaseClass, line:%d, old:%p", __LINE__, piBaseClass);
         piBaseClass = NULL;
 
     }
@@ -737,7 +739,7 @@ void CRTCManager::NewSDES(IGetSrcDescription *piGetSrcDescription,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::NewSDES new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::NewSDES: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -794,7 +796,7 @@ void CRTCManager::UpdatedSDES(IGetSrcDescription *piGetSrcDescription,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::UpdatedSDES new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::UpdatedSDES: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -849,7 +851,7 @@ void CRTCManager::SenderReportReceived(
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::SenderReportReceived new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::SenderReportReceived: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -904,7 +906,7 @@ void CRTCManager::ReceiverReportReceived(
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::ReceiverReportReceived new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ReceiverReportReceived: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -958,7 +960,7 @@ void CRTCManager::ByeReportReceived(IGetByeInfo        *piGetByeInfo,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::ByeReportReceived new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ByeReportReceived: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1009,7 +1011,7 @@ void CRTCManager::SDESReportSent(IGetSrcDescription *piGetSrcDescription,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::SDESReportSent new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::SDESReportSent: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1062,7 +1064,7 @@ void CRTCManager::SenderReportSent(IGetSenderStatistics *piGetSenderStatistics,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::SenderReportSent new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::SenderReportSent: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1117,7 +1119,7 @@ void CRTCManager::ReceiverReportSent(
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::ReceiverReportSent new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ReceiverReportSent: &msg=%p", poMessage);
 #endif    
     if(poMessage)
     {
@@ -1171,7 +1173,7 @@ void CRTCManager::ByeReportSent(IGetByeInfo      *piGetByeInfo,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::ByeReportSent new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ByeReportSent: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1227,7 +1229,7 @@ void CRTCManager::LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::LocalSSRCCollision new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::LocalSSRCCollision: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1281,7 +1283,7 @@ void CRTCManager::RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::RemoteSSRCCollision new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::RemoteSSRCCollision: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1328,7 +1330,7 @@ void CRTCManager::RTCPReportingAlarm(IRTCPConnection     *piRTCPConnection,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::RTCPReportingAlarm new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::RTCPReportingAlarm: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
