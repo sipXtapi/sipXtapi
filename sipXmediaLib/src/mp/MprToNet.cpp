@@ -252,7 +252,22 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
    pBuf = pUdpPacket->getDataWritePtr();
 
    // Set size of data to send
-   assert(pUdpPacket->getMaximumPacketSize() >= sizeof(RtpHeader)+payloadOctets+paddingLength);
+   // *** Note that this makes no allowance for a CSRC list...
+   // WAS: assert(pUdpPacket->getMaximumPacketSize() >= sizeof(RtpHeader)+payloadOctets+paddingLength);
+   {
+      size_t lMax, lHeader, lPayload, lPad;
+      lMax = pUdpPacket->getMaximumPacketSize();
+      lHeader = sizeof(RtpHeader);
+      lPayload = payloadOctets;
+      lPad = paddingLength;
+      if (pUdpPacket->getMaximumPacketSize() < sizeof(RtpHeader)+payloadOctets+paddingLength) {
+        // *** Note that this truncates the payload data, I hope the other end can take a joke...
+        //   Maybe we should just "return 0:" and cut our losses.
+         OsSysLog::add(FAC_MP, PRI_ERR, "MprToNet::writeRtp payload length too large: max=%ld < lHdr=%ld + lPayload=%ld + lPad=%ld; adjusting length to %ld-(%ld+%ld) = %ld", lMax, lHeader, lPayload, lPad, lMax, lHeader, lPad, lMax-(lHeader+lPad));
+         payloadOctets = lMax - (lHeader + lPad);
+      }
+   }
+
    pUdpPacket->setPacketSize(sizeof(RtpHeader)+payloadOctets+paddingLength);
 
    // Copy RTP header to UDP packet
@@ -340,6 +355,7 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
       }
 
    }
+   return numBytesSent;
    return (pUdpPacket->getPacketSize() == numBytesSent) ? pUdpPacket->getPacketSize() : numBytesSent;
 }
 
