@@ -113,7 +113,7 @@ protected:
      /// Set SSRC we want to receive.
    int setPrefSsrc(unsigned int newSsrc);
      /// Get SSRC we want to receive.
-   int getPrefSsrc(void);
+   RtpSRC getPrefSsrc(void);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

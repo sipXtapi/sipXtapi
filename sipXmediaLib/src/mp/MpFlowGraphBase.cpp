@@ -2085,8 +2085,8 @@ UtlBoolean MpFlowGraphBase::createRtcpConnection(MpConnectionID connId, int medi
       value = new UtlVoidPtr(getRTCPSessionPtr()->CreateRTCPConnection());
       // Somebody else's problem if CreateRTCPConnection() is NULL -- always add.
       mRtcpConnMap.insertKeyAndValue(key, value);
+      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::createRtcpConnection(%d, %d, %d)->%p", connId, mediaType, streamId, value);
    }
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleCreateRtcpConnection(%d, %d, %d)->%p", connId, mediaType, streamId, value);
    return TRUE;
 }
 

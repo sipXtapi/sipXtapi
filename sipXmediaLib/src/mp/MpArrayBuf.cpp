@@ -27,9 +27,9 @@
 
 bool MpArrayBuf::setDataSize(int size)
 {
-    if ((size < 0) || (size > getMaxDataSize())) {
+    if ((size < 0) || (size > (int) getMaxDataSize())) {
        if (size < 0) OsSysLog::add(FAC_MP, PRI_ERR, "MpArrayBuf::setDataSize(%d) --  invalid:  size < 0", size);
-       if (size > getMaxDataSize()) OsSysLog::add(FAC_MP, PRI_ERR, "MpArrayBuf::setDataSize(%d) --  size too large, max=%ld", size, getMaxDataSize());
+       if (size > (int) getMaxDataSize()) OsSysLog::add(FAC_MP, PRI_ERR, "MpArrayBuf::setDataSize(%d) --  size too large, max=%d", size, getMaxDataSize());
         mDataSize = 0;
         return false;
     } else {
