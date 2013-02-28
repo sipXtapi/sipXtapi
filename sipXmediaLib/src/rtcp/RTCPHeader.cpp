@@ -241,6 +241,9 @@ unsigned long CRTCPHeader::GetReportLength(void)
 {
 
     // Return Report Length
+    if (0 == m_ulLength) {
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPHeader::GetReportLength: m_ulLength is %lu, returning %lu (payload is %d)", m_ulLength, (m_ulLength ? m_ulLength + sizeof(uint32_t) : m_ulLength), GetPayload());
+    }
     return(m_ulLength ? m_ulLength + sizeof(uint32_t) : m_ulLength);
 
 }
@@ -421,21 +424,20 @@ bool CRTCPHeader::ParseRTCPHeader(unsigned char *puchRTCPBuffer)
     m_ulPadding = ((*puchRTCPHeader & PAD_MASK) >> PAD_SHIFT);
 
     // Check for valid Version #
-    if (((*puchRTCPHeader++ & VERSION_MASK) >> VERSION_SHIFT) !=
-                                                            (char)m_ulVersion)
+    if (((*puchRTCPHeader & VERSION_MASK) >> VERSION_SHIFT) != (char)m_ulVersion)
     {
-        osPrintf("**** FAILURE **** CRTCPHeader::ParseRTCPHeader() -"
-                                                        " Invalid Version\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPHeader::ParseRTCPHeader - Invalid Version: %d", ((*puchRTCPHeader & VERSION_MASK) >> VERSION_SHIFT));
         return(FALSE);
     }
+    puchRTCPHeader++;
 
     // Check for valid Payload Type
-    if(*puchRTCPHeader++ != (unsigned char)m_etPayloadType)
+    if(*puchRTCPHeader != (unsigned char)m_etPayloadType)
     {
-        osPrintf("**** FAILURE **** CRTCPHeader::ParseRTCPHeader() -"
-                                                   " Invalid Payload Type\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPHeader::ParseRTCPHeader -  Invalid Payload Type: %d", *puchRTCPHeader);
         return(FALSE);
     }
+    puchRTCPHeader++;
 
     // Extract RTCP Report length and convert from word count to byte count
     m_ulLength = ntohs(*((unsigned short *)puchRTCPHeader)) + 1;

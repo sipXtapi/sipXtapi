@@ -40,6 +40,7 @@
 #endif
 
 #include "rtcp/ReceiverReport.h"
+#include "os/OsSysLog.h"
 #ifdef INCLUDE_RTCP /* [ */
 
    // Constants
@@ -508,8 +509,10 @@ unsigned long
     {
         // Check whether the RTCP Header has been
         // correctly formed (Version, etc...).
-        if(!ParseRTCPHeader(puchReportBuffer))
+        if(!ParseRTCPHeader(puchReportBuffer)) {
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "CReceiverReport::ParseReceiverReport: ParseRTCPHeader() returned FALSE!");
             return(GetReportLength());
+        }
 
         // Good header.  Let's bump the payload pointer and continue.
         puchPayloadBuffer += GetHeaderLength();
