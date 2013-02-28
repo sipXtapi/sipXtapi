@@ -233,11 +233,11 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
         unsigned char *tp = puchDataBuffer;
         unsigned long tl = ulBufferLength;
         int i = 0;
-        char buf[128];
+        char buf[256];
         char* bp = buf;
         OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: begin processing packet at %p, length=%lu", puchDataBuffer, ulBufferLength);
         while(tl > 0) {
-            bp += sprintf(bp, " %02X", *tp++);
+            bp += sprintf(bp, " 0x%02X,", *tp++);
             if (0xf == (0xf & i++)) {
                 OsSysLog::add(FAC_MP, PRI_ERR, "    %s", buf);
                 bp = buf;
