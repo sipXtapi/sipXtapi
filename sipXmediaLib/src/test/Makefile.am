@@ -8,6 +8,7 @@ testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     $(CPPUNIT_LIBS) \
     @SIPXPORT_LIBS@ \
+    @SIPXTACK_LIBS@ \
     @SPEEXDSP_LIBS@ \
     ../libsipXmedia.la \
     $(GIPS_OBJS)
@@ -20,6 +21,8 @@ testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 # NOTE: Several media releated units tests are located in
 ## sipXcallLib because they made references to CallManager
 testsuite_SOURCES = \
+    ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
+    ../../../sipXtackLib/src/net/NetBase64Codec.cpp \
     mp/dtmf5_48khz_16b_signed.h \
     mp/MpAudioBufTest.cpp \
     mp/MpCodecsPerformanceTest.cpp \
@@ -67,8 +70,6 @@ sandbox_LDFLAGS = $(testsuite_LDFLAGS)
 sandbox_LDADD = $(testsuite_LDADD)
 
 sandbox_SOURCES = \
-    mp/dtmf5_48khz_16b_signed.h \
-    mp/MprFromFileTest.cpp \
-    mp/MpTestResource.cpp \
-    mp/MpGenericResourceTest.cpp \
-    mp/MprToneGenTest.cpp 
+    ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
+    ../../../sipXtackLib/src/net/NetBase64Codec.cpp \
+    mp/RtcpParserTest.cpp 
