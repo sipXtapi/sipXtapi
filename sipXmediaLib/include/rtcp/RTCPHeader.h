@@ -105,6 +105,44 @@ public:
 
 /**
  *
+ * Method Name: VetPacket
+ *
+ *
+ * Inputs:   unsigned char *buffer   - Data Buffer received from Network Source
+ *           int           bufferLen - Length of Data Buffer
+ *
+ * Outputs:  OsSysLog messages
+ *
+ * Returns:  int: length of valid RTCP packet; may be 0 (first chunk not valid,
+ *           or any multiple of 4 up to as much as 3 larger than the input length.
+ *           (e.g. 61, 62, or 63 may return 64).
+ *
+ * Description: VetPacket() walks the headers in the report chunks in a received
+ *              RTCP packet applying various sanity checks.  It is to be called
+ *              before calling ProcessPacket so that ProcessPacket (and its
+ *              subsidiaries) can assume a degree of basic correctness.
+ *
+ *              In order to fix up for a relatively harmless deviation from
+ *              the RFC, if the length of the packet as read from the socket
+ *              is not a multiple of 4, this routine will write 0 to the
+ *              1, 2, or 3 bytes following the end of the packet and then
+ *              round the length up to that next multiple of 4 before walking
+ *              the chunks.
+ *
+ *              After making sure that the length is a multiple of 4, the
+ *              headers will be walked.  The checks are
+ *               1.  The first two bits each header must be 0b10 (RTCP ver 2)
+ *               2.  The PT is in the range 200..204; if not, emit warning
+ *               3.  The length indicates that the chunk ends within the packet
+ *                   data, and either 8 or more bytes from the end, or exactly
+ *                   at the end.
+ *
+ */
+
+    static int VetPacket(unsigned char* buffer, int bufferLen);
+
+/**
+ *
  * Method Name:  GetHeaderLength
  *
  *
