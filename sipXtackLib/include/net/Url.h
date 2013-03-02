@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013  SIPez LLC. All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -101,6 +103,7 @@ public:
          FtpUrlScheme,      ///< ftp:    (RFC 1738)
          FileUrlScheme,     ///< file:   (RFC 1738)
          MailtoUrlScheme,   ///< mailto: (RFC 2368)
+         RtspUrlScheme,     ///< rtsp:   (RFC 2326)
          NUM_SUPPORTED_URL_SCHEMES
       }  Scheme;
    /**<
