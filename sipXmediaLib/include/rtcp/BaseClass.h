@@ -13,6 +13,7 @@
 #define _BaseClass_h
 
 #include "rtcp/RtcpConfig.h"
+#include "os/OsSysLog.h"
 
 //  Includes
 #ifdef WIN32 /* [ */
@@ -56,13 +57,13 @@
 
 
 //  Static Declarations
-static unsigned long sulTotalReferenceCount = 0;
+// static unsigned long sulTotalReferenceCount = 0;
 extern bool     bPingtelDebug;
 
 
 #ifndef WIN32 /* [ */
 
-#ifdef __pingtel_on_posix__
+#ifdef __pingtel_on_posix__ /* [ */
 #include <os/OsBSem.h>
 typedef OsBSem * CRITICAL_SECTION;
 #define interface struct
@@ -136,9 +137,7 @@ public:
  * Usage Notes:
  *
  */
-    CBaseClass() {m_ulReferences=1;
-                  m_bInitialized = FALSE;
-                  sulTotalReferenceCount++; } ;
+    CBaseClass CBASECLASS_PROTO_ARGS((const char* pDerivedType = "Unknown", int callLineNum = 0));
 
 
 
@@ -160,7 +159,7 @@ public:
  *
  *
  */
-    virtual ~CBaseClass(void) { sulTotalReferenceCount--; } ;
+    virtual ~CBaseClass(void);
 
 /**
  *
@@ -219,7 +218,7 @@ public:
  *
  *
  */
-    virtual unsigned long AddRef(void);
+    virtual unsigned long AddRef ADD_RELEASE_PROTO_ARGS((int callLineNum));
 
 /**
  *
@@ -238,10 +237,10 @@ public:
  *
  *
  */
-    virtual unsigned long Release(void);
+    virtual unsigned long Release ADD_RELEASE_PROTO_ARGS((int callLineNum));
 
 
-protected:
+// protected:
 /**
  *
  * Attribute Name:  m_bInitialized
@@ -255,7 +254,6 @@ protected:
       bool m_bInitialized;
 
 
-
 /**
  *
  * Attribute Name:  m_ulReferences
@@ -267,6 +265,13 @@ protected:
  *
  */
       unsigned long m_ulReferences;
+
+
+
+#ifdef RTCP_DEBUG_REFCOUNTS /* [ */
+      const char* m_DerivedType;
+      int   m_Line;
+#endif /* RTCP_DEBUG_REFCOUNTS ] */
 
 };
 
@@ -297,6 +302,7 @@ inline bool CBaseClass::Initialize(void)
     return(TRUE);
 
 }
+
 
 /**
  *
@@ -342,17 +348,19 @@ inline bool CBaseClass::IsInitialized(void)
  *
  */
 #define DECLARE_IBASE_M                                 \
-   unsigned long AddRef(void)                           \
+   unsigned long AddRef ADD_RELEASE_PROTO_ARGS((int callLineNum))                       \
    {                                                    \
-      return CBaseClass::AddRef();                      \
-   };                                                   \
-   unsigned long Release (void)                         \
+      if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG,  __FILE__ " %p->AddRef(%d),  count: %ld", this, callLineNum, m_ulReferences); \
+      return CBaseClass::AddRef(ADD_RELEASE_CALL_ARGS(callLineNum));                  \
+   }                                                   \
+   unsigned long Release ADD_RELEASE_PROTO_ARGS((int callLineNum)) \
    {                                                    \
       unsigned long ulRefCount;                         \
-      if((ulRefCount = CBaseClass::Release()) == 0)     \
+      if((ulRefCount = CBaseClass::Release(ADD_RELEASE_CALL_ARGS(callLineNum)) == 0))     \
       {                                                 \
         delete this;                                    \
       }                                                 \
+      if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG,  __FILE__ " %p->Release(%d), count: %ld", this, callLineNum, ulRefCount); \
       return(ulRefCount);                               \
-   };
+   }
 #endif /* ] */

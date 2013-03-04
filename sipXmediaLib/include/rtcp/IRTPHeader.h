@@ -43,6 +43,8 @@ interface IRTPHeader
 //  Public Methods
 public:
 
+   // virtual ~IRTPHeader();
+
 /**
  *
  * Method Name:  ParseRTPHeader

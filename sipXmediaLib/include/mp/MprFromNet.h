@@ -191,14 +191,4 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
-#ifdef INCLUDE_RTCP /* [ */
-inline  void  MprFromNet::setDispatchers(IRTPDispatch *piRTPDispatch, INetDispatch *piRTCPDispatch)
-{
-// Set the dispatch pointers for both RTP and RTCP
-   mpiRTPDispatch   = piRTPDispatch;
-   mpiRTCPDispatch  = piRTCPDispatch;
-}
-
-#endif /* INCLUDE_RTCP ] */
-
 #endif  // _MprFromNet_h_

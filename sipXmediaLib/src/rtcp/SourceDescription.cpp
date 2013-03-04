@@ -90,7 +90,7 @@ CSourceDescription *CSourceDescription::GetLocalSDES(void)
        {
            osPrintf("**** FAILURE **** CSourceDescription::GetLocalSDES()"
                                      " - Unable to Initialize SDES object\n");
-           m_spoLocalSDES->Release();
+           m_spoLocalSDES->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
            m_spoLocalSDES = NULL;
            return(NULL);
        }
@@ -101,7 +101,7 @@ CSourceDescription *CSourceDescription::GetLocalSDES(void)
       // sLock.release();
  
     // Bump the reference count to this object
-    m_spoLocalSDES->AddRef();
+    m_spoLocalSDES->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
  
     return(m_spoLocalSDES);
 
@@ -140,7 +140,8 @@ CSourceDescription::CSourceDescription(ssrc_t ulSSRC,
             unsigned char *puchPhone, unsigned char *puchLocation,
             unsigned char *puchAppName, unsigned char *puchNotes,
             unsigned char *puchPrivate)
-               :CRTCPHeader(ulSSRC, etSDESReport),  // Base class construction
+               :CBaseClass(CBASECLASS_CALL_ARGS("CSourceDescription", __LINE__)),
+                CRTCPHeader(ulSSRC, etSDESReport),  // Base class construction
                 m_bCNameSet(FALSE),
                 m_ulContentMask(0),
                 m_ulCNameLength(0),
@@ -194,7 +195,8 @@ CSourceDescription::CSourceDescription(ssrc_t ulSSRC,
  */
 CSourceDescription::CSourceDescription(bool bIncludeHeader,
                                        unsigned char *puchSDESReport)
-                   :CRTCPHeader(0, etSDESReport),  // Base class construction
+                   : CBaseClass(CBASECLASS_CALL_ARGS("CSourceDescription", __LINE__)),
+                    CRTCPHeader(0, etSDESReport),  // Base class construction
                     m_ulContentMask(0),
                     m_ulChangeMask(0),
                     m_ulCNameLength(0),

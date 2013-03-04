@@ -87,13 +87,13 @@ MprFromNet::~MprFromNet()
 // routing packets to the RTCP component
    if(mpiRTPDispatch)
    {
-      mpiRTPDispatch->Release();
+      mpiRTPDispatch->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
       mpiRTPDispatch = NULL;
    }
 
    if(mpiRTCPDispatch)
    {
-      mpiRTCPDispatch->Release();
+      mpiRTCPDispatch->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
       mpiRTCPDispatch = NULL;
    }
 #else /* INCLUDE_RTCP ] [ */
@@ -333,6 +333,37 @@ OsStatus MprFromNet::setRtpDispatcher(MprRtpDispatcher *pRtpDispatcher)
 
    return OS_SUCCESS;
 }
+
+#ifdef INCLUDE_RTCP /* [ */
+void  MprFromNet::setDispatchers(IRTPDispatch *piRTPDispatch, INetDispatch *piRTCPDispatch)
+{
+#ifdef RTCP_DEBUG /* [ */
+    piRTPDispatch->AddRef(__LINE__);
+    piRTCPDispatch->AddRef(__LINE__);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "MprFromNet::setDispatchers: this=%p, mpiRTPDispatch=%p, mpiRTCPDispatch=%p, piRTPDispatch=%p, piRTCPDispatch=%p, rfs: %ld, %ld", this, mpiRTPDispatch, mpiRTCPDispatch, piRTPDispatch, piRTCPDispatch, piRTPDispatch->Release(__LINE__), piRTCPDispatch->Release(__LINE__));
+// Set the dispatch pointers for both RTP and RTCP
+    if(mpiRTPDispatch)
+    {
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "MprFromNet::setDispatchers: freeing mpiRTPDispatch");
+        mpiRTPDispatch->Release(__LINE__);
+        mpiRTPDispatch = NULL;
+    }
+
+    // Release RTCP Render object
+    if(mpiRTCPDispatch)
+    {
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "MprFromNet::setDispatchers: freeing mpiRTCPDispatch");
+        mpiRTCPDispatch->Release(__LINE__);
+        mpiRTCPDispatch = NULL;
+    }
+#endif /* RTCP_DEBUG ] */
+
+   mpiRTPDispatch   = piRTPDispatch;
+   mpiRTCPDispatch  = piRTCPDispatch;
+}
+
+#endif /* INCLUDE_RTCP ] */
+
 
 /* ============================ ACCESSORS ================================= */
 

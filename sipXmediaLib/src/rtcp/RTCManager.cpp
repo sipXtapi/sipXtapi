@@ -14,6 +14,8 @@
 #include "rtcp/RTCManager.h"
 #include "os/OsSysLog.h"
 
+#define TEST_PRINT
+
 
 #ifdef INCLUDE_RTCP /* [ */
 
@@ -69,12 +71,12 @@ IRTCPControl *CRTCManager::getRTCPControl(void)
         {
             osPrintf("**** FAILURE **** CRTCManager::getRTCPControl() -"
                                       " RTCManager Object Creation Failed\n");
-            piSDESReport->Release();
+            piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
             return(NULL);
         }
 
         // Release Reference to SDES Report
-        piSDESReport->Release();
+        piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
     // Check whether the RTCManager object has been initialized.
@@ -85,7 +87,7 @@ IRTCPControl *CRTCManager::getRTCPControl(void)
        {
            osPrintf("**** FAILURE **** CRTCManager::getRTCPControl() -"
                                " Unable to Initialize RTCManager object\n");
-           m_spoRTCManager->Release();
+           m_spoRTCManager->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
            m_spoRTCManager = NULL;
            return(NULL);
        }
@@ -95,7 +97,7 @@ IRTCPControl *CRTCManager::getRTCPControl(void)
 
      // sLock.release();
     // Bump the reference count to this object
-    m_spoRTCManager->AddRef();
+    m_spoRTCManager->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     return((IRTCPControl *)m_spoRTCManager);
 
@@ -124,7 +126,7 @@ IRTCPControl *CRTCManager::getRTCPControl(void)
  *
  */
 CRTCManager::CRTCManager(ISDESReport *piSDESReport)
-            :m_ulEventInterest(ALL_EVENTS)
+            : CBaseClass(CBASECLASS_CALL_ARGS("CRTCManager", __LINE__)), m_ulEventInterest(ALL_EVENTS)
 
 {
 
@@ -132,7 +134,7 @@ CRTCManager::CRTCManager(ISDESReport *piSDESReport)
     if(piSDESReport)
     {
         m_piSDESReport = piSDESReport;
-        m_piSDESReport->AddRef();
+        m_piSDESReport->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
 }
@@ -172,7 +174,7 @@ CRTCManager::~CRTCManager(void)
 
     // Release Source Description object reference
     if(m_piSDESReport)
-        m_piSDESReport->Release();
+        m_piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     // Iterate through the EventRegistration List and release all references
     // to objects contained therein
@@ -180,7 +182,7 @@ CRTCManager::~CRTCManager(void)
     while (piRTCPNotify != NULL)
     {
         // Release Reference
-        piRTCPNotify->Release();
+        piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Get Next Entry
         piRTCPNotify = m_tRegistrationList.RemoveNextEntry();
@@ -194,7 +196,7 @@ CRTCManager::~CRTCManager(void)
         // Terminate All RTCP Connections
         piRTCPSession->TerminateAllConnections();
 
-        piRTCPSession->Release();
+        piRTCPSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Get Next Entry
         piRTCPSession = m_tSessionList.RemoveNextEntry();
@@ -274,7 +276,7 @@ bool CRTCManager::Advise(IRTCPNotify *piRTCPNotify)
     // the registration collection list
     if(piRTCPNotify)
     {
-        piRTCPNotify->AddRef();
+        piRTCPNotify->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(m_tRegistrationList.AddEntry(piRTCPNotify));
     }
 
@@ -307,7 +309,7 @@ bool CRTCManager::Unadvise(IRTCPNotify *piRTCPNotify)
     // the registration collection list
     if(m_tRegistrationList.RemoveEntry(piRTCPNotify) != NULL)
     {
-        piRTCPNotify->Release();
+        piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
     return(TRUE);
@@ -357,7 +359,7 @@ IRTCPSession * CRTCManager::CreateSession(unsigned long ulSSRC)
         // to be destroyed
         osPrintf("**** FAILURE **** CRTCManager::CreateSession() -"
                                 " Unable to Intialize CRTCPSession object\n");
-        ((IRTCPSession *)poRTCPSession)->Release();
+        ((IRTCPSession *)poRTCPSession)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(NULL);
     }
 
@@ -368,7 +370,7 @@ IRTCPSession * CRTCManager::CreateSession(unsigned long ulSSRC)
         // to be destroyed
         osPrintf("**** FAILURE **** CRTCManager::CreateSession() -"
                         " Unable to add CRTCPSession object to Collection\n");
-        ((IRTCPSession *)poRTCPSession)->Release();
+        ((IRTCPSession *)poRTCPSession)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(NULL);
     }
 
@@ -380,7 +382,7 @@ IRTCPSession * CRTCManager::CreateSession(unsigned long ulSSRC)
     }
 #endif /* INCLUDE_RTCP ] */
 
-    ((IRTCPSession *)poRTCPSession)->AddRef();
+    ((IRTCPSession *)poRTCPSession)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     return((IRTCPSession *)poRTCPSession);
 }
 
@@ -429,13 +431,36 @@ bool CRTCManager::TerminateSession(IRTCPSession *piSession)
         // Release reference twice.  Once for its removal from the collection
         // and once on behalf of the client since this method serves to
         // terminate the session and release the client's reference.
-        ((IRTCPSession *)poRTCPSession)->Release();
-        ((IRTCPSession *)poRTCPSession)->Release();
+        ((IRTCPSession *)poRTCPSession)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+        ((IRTCPSession *)poRTCPSession)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(TRUE);
     }
 
     return(FALSE);
 }
+
+#if 0 /* [ */
+char * getTypeName(int ulMsgType)
+{
+   static char buff[20];
+   switch (ulMsgType) {
+   case LOCAL_SSRC_COLLISION: return "LOCAL_SSRC_COLLISION";
+   case REMOTE_SSRC_COLLISION: return "REMOTE_SSRC_COLLISION";
+   case REPORTING_ALARM: return "REPORTING_ALARM";
+   case RTCP_BYE_RCVD: return "RTCP_BYE_RCVD";
+   case RTCP_BYE_SENT: return "RTCP_BYE_SENT";
+   case RTCP_NEW_SDES: return "RTCP_NEW_SDES";
+   case RTCP_RR_RCVD: return "RTCP_RR_RCVD";
+   case RTCP_RR_SENT: return "RTCP_RR_SENT";
+   case RTCP_SDES_SENT: return "RTCP_SDES_SENT";
+   case RTCP_SDES_UPDATE: return "RTCP_SDES_UPDATE";
+   case RTCP_SR_RCVD: return "RTCP_SR_RCVD";
+   case RTCP_SR_SENT: return "RTCP_SR_SENT";
+   }
+   sprintf(buff, "%d", ulMsgType);
+   return buff;
+}
+#endif /* ] */
 
 /**
  *
@@ -579,17 +604,17 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
     // an interest match
     while(piRTCPNotify != NULL)
     {
-        piRTCPNotify->AddRef();
+        piRTCPNotify->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Retrieve the registered interest of this client and see if it
         // specifies this event
         if(piRTCPNotify->GetEventInterest() & ulMsgType)
         {
             // Bump reference counts
-            piConnection->AddRef();
-            piSession->AddRef();
+            piConnection->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+            piSession->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
             if(piBaseClass)
-                piBaseClass->AddRef();
+                piBaseClass->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
             // Interest match.  Send the event with the corresponding info
             // as determined by the message type.
@@ -680,7 +705,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
         }
 
         // Release RTCP Notify Interface
-        piRTCPNotify->Release();
+        piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Get the next interface from the registration list
         // and perform the same checks
@@ -689,10 +714,10 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
 
     // Decrement reference counts to reflect their removal from
     // the RTCManager's Msg Queue
-    piConnection->Release();
-    piSession->Release();
+    piConnection->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    piSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     if(piBaseClass)
-        piBaseClass->Release();
+        piBaseClass->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     return(TRUE);
 }

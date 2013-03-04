@@ -14,9 +14,73 @@
 // #include <assert.h>
 #include "os/OsBSem.h"
 #include "os/OsLock.h"
+#include "os/OsSysLog.h"
 
 //  Use a lock to protect access to the reference count
 OsBSem sMultiThreadLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
+
+
+static int sulTotalReferenceCount = 0;
+/**
+ *
+ * Method Name:  CBaseClass() - Constructor
+ *
+ *
+ * Inputs:       None
+ *
+ *
+ * Outputs:      None
+ *
+ * Returns:      None
+ *
+ * Description:  The CBaseClass is an abstract class that is initialized by a
+ *               derived object at construction time.
+ *
+ * Usage Notes:
+ *
+ */
+CBaseClass::CBaseClass CBASECLASS_PROTO_ARGS((const char* DerivedType, int callLineNum)) :
+    m_bInitialized(FALSE)
+    , m_ulReferences(1)
+#ifdef RTCP_DEBUG_REFCOUNTS /* [ */
+    , m_DerivedType(DerivedType)
+    , m_Line(callLineNum)
+#endif /* RTCP_DEBUG_REFCOUNTS ] */
+{
+    sulTotalReferenceCount++;
+#ifdef RTCP_DEBUG_REFCOUNTS /* [ */
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CBaseClass::CBaseClass:  this=%p, sRefs=%d, type=%s", this, sulTotalReferenceCount, DerivedType);
+#endif /* RTCP_DEBUG_REFCOUNTS ] */
+}
+
+
+
+/**
+ *
+ * Method Name: ~CBaseClass() - Destructor
+ *
+ *
+ * Inputs:      None
+ *
+ * Outputs:     None
+ *
+ * Returns:     None
+ *
+ * Description: Shall deallocate and/or release all resources which were
+ *              acquired over the course of runtime.
+ *
+ * Usage Notes:
+ *
+ *
+ */
+CBaseClass::~CBaseClass(void)
+{
+    sulTotalReferenceCount--;
+#ifdef RTCP_DEBUG_REFCOUNTS /* [ */
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CBaseClass::~CBaseClass: this=%p, sRefs=%d, m_ulReferences=%ld", this, sulTotalReferenceCount, m_ulReferences);
+#endif /* RTCP_DEBUG_REFCOUNTS ] */
+    assert(0 == m_ulReferences);
+}
 
 /**
  *
@@ -35,7 +99,7 @@ OsBSem sMultiThreadLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
  *
  *
  */
-unsigned long CBaseClass::AddRef(void)
+unsigned long CBaseClass::AddRef CBASECLASS_PROTO_ARGS((int callLineNum))
 {
     
     OsLock lock(sMultiThreadLock);
@@ -43,6 +107,9 @@ unsigned long CBaseClass::AddRef(void)
     //  Increment Reference Count
     m_ulReferences++;
     sulTotalReferenceCount++;
+#ifdef RTCP_DEBUG_REFCOUNTS /* [ */
+    if (callLineNum != -1) OsSysLog::add(FAC_MP, PRI_DEBUG, "BaseClass: %p->AddRef(%d),  count: %2ld", this, callLineNum, m_ulReferences);
+#endif /* RTCP_DEBUG_REFCOUNTS ] */
     return(m_ulReferences);
 
 }
@@ -65,7 +132,7 @@ unsigned long CBaseClass::AddRef(void)
  *
  *
  */
-unsigned long CBaseClass::Release(void)
+unsigned long CBaseClass::Release CBASECLASS_PROTO_ARGS((int callLineNum))
 {
     
     OsLock lock(sMultiThreadLock);
@@ -74,6 +141,7 @@ unsigned long CBaseClass::Release(void)
     sulTotalReferenceCount--;
     m_ulReferences--;
 
+    if (callLineNum != -1) OsSysLog::add(FAC_MP, PRI_DEBUG, "BaseClass: %p->Release(%d), count: %2ld", this, callLineNum, m_ulReferences);
     return(m_ulReferences);
 
 }

@@ -1024,7 +1024,7 @@ inline IRTCPConnection
         IRTCPRender *piRtcpRender = poRTCPConnection->GetRenderInterface();
         if(piRtcpRender)
         {
-            piRtcpRender->Release();
+            piRtcpRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
             return((IRTCPConnection *)poRTCPConnection);
         }
     }

@@ -44,8 +44,11 @@
  *
  */
 CByeReport::CByeReport(ssrc_t ulSSRC)
-           :CRTCPHeader(ulSSRC, etByeReport),  // Base class construction
-            m_ulReasonLength(0), m_ulCSRCCount(0)
+           :  // Base class construction
+             CBaseClass(CBASECLASS_CALL_ARGS("CByeReport", __LINE__))
+           , CRTCPHeader(ulSSRC, etByeReport)
+           , m_ulReasonLength(0)
+           , m_ulCSRCCount(0)
 {
 
 //  Nothing to do
@@ -380,7 +383,7 @@ void CByeReport::SetCSRC(ssrc_t *paulCSRC,
 IByeReport * CByeReport::GetByeInterface(void)
 {
 
-    ((IByeReport *)this)->AddRef();
+    ((IByeReport *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     return((IByeReport *)this);
 
 }

@@ -28,7 +28,7 @@ CNetworkChannel::CNetworkChannel(INetDispatch *piNetDispatch,
     // Store Constructor argument as internal properties
     m_piNetDispatch             = piNetDispatch;
     if(m_piNetDispatch)
-        m_piNetDispatch->AddRef();
+        m_piNetDispatch->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     // Initialize Local IP Address
     m_ipLocal.sin_family        = AF_INET;
@@ -71,7 +71,7 @@ CNetworkChannel::CNetworkChannel(INetDispatch *piNetDispatch,
  Returns:       None.
  ***********************************************************************|><|*/
 CNetworkChannel::CNetworkChannel(OsSocket & rOsSocket)
-                : m_piNetDispatch(NULL), m_rOsSocket(rOsSocket)
+                : CBaseClass(CBASECLASS_CALL_ARGS("CNetworkChannell", __LINE__)), m_piNetDispatch(NULL), m_rOsSocket(rOsSocket)
 {
 
     // Initialize Local IP Address
@@ -114,7 +114,7 @@ CNetworkChannel :: ~CNetworkChannel(void)
 
     // Release reference to store interfaces
     if(m_piNetDispatch)
-        m_piNetDispatch->Release();
+        m_piNetDispatch->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 }
 
 

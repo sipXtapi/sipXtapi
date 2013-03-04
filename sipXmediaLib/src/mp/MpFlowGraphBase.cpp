@@ -53,7 +53,9 @@ int MpFlowGraphBase::gFgMaxNumber = 0;
 // Constructor
 MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec,
                                  OsMsgDispatcher *pNotifDispatcher)
-: mRWMutex(OsRWMutex::Q_PRIORITY)
+:
+CBaseClass(CBASECLASS_CALL_ARGS("MpFlowGraphBase", __LINE__))
+, mRWMutex(OsRWMutex::Q_PRIORITY)
 , mFgNumber(gFgMaxNumber++)
 , mResourceDict()
 , mCurState(STOPPED)
@@ -94,7 +96,7 @@ MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec,
    piRTCPControl->Advise((IRTCPNotify *)this);
 
    // Release Reference to RTCP Control Interface
-   piRTCPControl->Release();
+   piRTCPControl->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 #endif /* INCLUDE_RTCP ] */
 
 }
@@ -120,7 +122,7 @@ MpFlowGraphBase::~MpFlowGraphBase()
    mpiRTCPSession = NULL;
 
    // Release Reference to RTCP Control Interface
-   piRTCPControl->Release();
+   piRTCPControl->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 #endif /* INCLUDE_RTCP ] */
 
    // release the flow graph and any resources it contains
@@ -140,7 +142,7 @@ MpFlowGraphBase::~MpFlowGraphBase()
    // assert(0 == NumBadBufs);
 
 #ifdef INCLUDE_RTCP /* [ */
-   // OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Conn Map contains %ld items", mRtcpConnMap.entries());
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Conn Map contains %ld items", mRtcpConnMap.entries());
    {
       IRTCPConnection *pConn;
       UtlHashMapIterator it(mRtcpConnMap);
@@ -150,13 +152,13 @@ MpFlowGraphBase::~MpFlowGraphBase()
       while ((key = (UtlInt*) it())) {
          value = (UtlVoidPtr*) mRtcpConnMap.findValue(key);
          pConn = (IRTCPConnection*) value->getValue();
-         refCount = pConn->Release();
+         refCount = pConn->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
          OsSysLog::add(FAC_MP, PRI_DEBUG, "(IRTCPConnection*)%p->Release() returned %d", pConn, refCount);
          value->setValue(NULL);
       }
    }
    mRtcpConnMap.destroyAll();
-   // OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Conn Map contains %ld items", mRtcpConnMap.entries());
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Conn Map contains %ld items", mRtcpConnMap.entries());
 #endif /* INCLUDE_RTCP ] */
 }
 
@@ -777,8 +779,8 @@ void MpFlowGraphBase::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection,
     if(mpiRTCPSession != piRTCPSession)
     {
 //      Release Interface References
-        piRTCPConnection->Release();
-        piRTCPSession->Release();
+        piRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+        piRTCPSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return;
     }
 
@@ -808,8 +810,8 @@ void MpFlowGraphBase::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection,
 #endif /* ] */
 
 // Release Interface References
-   piRTCPConnection->Release();
-   piRTCPSession->Release();
+   piRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+   piRTCPSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
    return;
 }
@@ -844,8 +846,8 @@ void MpFlowGraphBase::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection,
    if(mpiRTCPSession != piRTCPSession)
    {
       // Release Interface References
-      piRTCPConnection->Release();
-      piRTCPSession->Release();
+      piRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+      piRTCPSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
       return;
    }
 
@@ -871,8 +873,8 @@ void MpFlowGraphBase::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection,
 #endif /* ] */
 
    // Release Interface References
-   piRTCPConnection->Release();
-   piRTCPSession->Release();
+   piRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+   piRTCPSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 }
 #endif /* INCLUDE_RTCP ] */
 
@@ -2085,8 +2087,8 @@ UtlBoolean MpFlowGraphBase::createRtcpConnection(MpConnectionID connId, int medi
       value = new UtlVoidPtr(getRTCPSessionPtr()->CreateRTCPConnection());
       // Somebody else's problem if CreateRTCPConnection() is NULL -- always add.
       mRtcpConnMap.insertKeyAndValue(key, value);
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::createRtcpConnection(%d, %d, %d)->%p", connId, mediaType, streamId, value);
    }
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::handleCreateRtcpConnection(%d, %d, %d)->%p", connId, mediaType, streamId, value);
    return TRUE;
 }
 

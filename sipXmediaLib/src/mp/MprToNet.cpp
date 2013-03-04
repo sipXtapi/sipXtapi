@@ -99,7 +99,7 @@ MprToNet::~MprToNet()
 //  RTP outbound stream statistics
     if(mpiRTPAccumulator)
     {
-        mpiRTPAccumulator->Release();
+        mpiRTPAccumulator->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         mpiRTPAccumulator = NULL;
     }
 #endif /* INCLUDE_RTCP ] */
