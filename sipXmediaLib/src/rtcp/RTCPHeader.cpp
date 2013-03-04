@@ -140,7 +140,7 @@ int CRTCPHeader::VetPacket(unsigned char* buffer, int bufferLen)
     // Special rule for LifeSize box and its non-compliant APP packets...
     if ((63 == bufferLen) && ('L' == buffer[44]) && ('S' == buffer[45])) {
         // Silently fix it... we know it is happening, don't nag
-        buffer[63] = 0;
+        buffer[bufferLen++] = 0;
     }
     if (bufferLen > 7) {
         if (0 != (bufferLen % 4)) {
