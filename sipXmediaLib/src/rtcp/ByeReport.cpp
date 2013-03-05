@@ -105,12 +105,12 @@ unsigned long CByeReport::FormatByeReport(unsigned char *puchReportBuffer,
 {
     unsigned long  ulReportLength, ulCSRCCount = 0;
     unsigned char *puchPayloadBuffer;
-    unsigned long l;
+    unsigned long l = GetHeaderLength();
 
     // Let's offset into the Formatting buffer enough to
     // start depositing payload
-    puchPayloadBuffer = puchReportBuffer + (l = GetHeaderLength());
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CByeReport::FormatByeReport: GetHeaderLength() = %ld", l);
+    puchPayloadBuffer = puchReportBuffer + l;
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CByeReport::FormatByeReport: GetHeaderLength() = %ld", l);
 
     // Let's load the field information based upon the period.
     // Conversion to NBO done in GetCSRC().

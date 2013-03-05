@@ -209,7 +209,7 @@ CRTCPSource::~CRTCPSource(void)
 #define DEBUG_RTCP_PACKETS
 
 #ifdef DEBUG_RTCP_PACKETS /* [ */
-static int numPacketsToDump = 1000000;
+static int numPacketsToDump = 1;
 int showRtcp(int count) {
     int save = numPacketsToDump;
     numPacketsToDump = count;

@@ -286,7 +286,7 @@ void CSenderReport::CSR_SetRTPTimestamp(uint32_t ulRandomOffset,
                                     uint32_t ulSamplesPerSecond)
 {
 
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::SetRTPTimestamp(%d=0x%X, %d=0x%X)", ulRandomOffset, ulRandomOffset, ulSamplesPerSecond, ulSamplesPerSecond);
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::SetRTPTimestamp(%d=0x%X, %d=0x%X)", ulRandomOffset, ulRandomOffset, ulSamplesPerSecond, ulSamplesPerSecond);
 
     // Set Timestamp Information
 
@@ -313,8 +313,7 @@ void CSenderReport::CSR_SetRTPTimestamp(uint32_t ulRandomOffset,
         struct timeval tv;
 
         gettimeofday(&tv, NULL);
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::SetRTPTimestamp: tv = {%ld.%06ld}, sizes = %ld+%ld = %ld = %ld",
-            tv.tv_sec, tv.tv_usec, sizeof(tv.tv_sec), sizeof(tv.tv_usec), sizeof(tv), sizeof(struct timeval));
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::SetRTPTimestamp: tv = {%ld.%06ld}, sizes = %ld+%ld = %ld = %ld", tv.tv_sec, tv.tv_usec, sizeof(tv.tv_sec), sizeof(tv.tv_usec), sizeof(tv), sizeof(struct timeval));
         // Load Most Significant word with Wall time seconds
         m_aulNTPStartTime[0] = tv.tv_sec + WALLTIMEOFFSET;
 
@@ -606,7 +605,7 @@ unsigned long CSenderReport::LoadTimestamps(uint32_t *aulTimestamps)
     uint32_t ulRTPDelta1 = 0;
     uint32_t ulRTPDelta2 = 0;
 
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps");
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps");
 #ifdef WIN32
     struct _timeb stLocalTime;
 
@@ -623,7 +622,7 @@ unsigned long CSenderReport::LoadTimestamps(uint32_t *aulTimestamps)
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps: tv = {%ld.%06ld}", tv.tv_sec, tv.tv_usec);
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps: tv = {%ld.%06ld}", tv.tv_sec, tv.tv_usec);
     // Load Most Significant word with Wall time seconds
     ntp_secs = tv.tv_sec;
 
@@ -664,14 +663,14 @@ unsigned long CSenderReport::LoadTimestamps(uint32_t *aulTimestamps)
     }
     m_ulRTPTimestamp = m_ulRTPTimestampBase + m_ulRTPTimestamps[0] + ulRTPDelta2;
 
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps:@dFirst=%.6f, dSecond=%.6f, dNow=%.6f, dSkewAdjust=%.4f, dExtrap=%.4f,@ts0=%d, ts1=%d, dTS1=%d, dTS2=%d, TSB=%d, uSec=%d, SampleRate=%.2f", dFirst, dSecond, dNow, dSkewAdjust, dExtrap, m_ulRTPTimestamps[0], m_ulRTPTimestamps[1], ulRTPDelta1 , ulRTPDelta2, m_ulRTPTimestampBase, m_iUSecAdjust, dSampleRate);
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps:@dFirst=%.6f, dSecond=%.6f, dNow=%.6f, dSkewAdjust=%.4f, dExtrap=%.4f,@ts0=%d, ts1=%d, dTS1=%d, dTS2=%d, TSB=%d, uSec=%d, SampleRate=%.2f", dFirst, dSecond, dNow, dSkewAdjust, dExtrap, m_ulRTPTimestamps[0], m_ulRTPTimestamps[1], ulRTPDelta1 , ulRTPDelta2, m_ulRTPTimestampBase, m_iUSecAdjust, dSampleRate);
 
     // Adjust to 1900-based from 1970-based.
     m_aulNTPTimestamp[0] = ntp_secs + WALLTIMEOFFSET;
 
     // Store microsecond portion of NTP
     m_aulNTPTimestamp[1] = (uint32_t)dTimestampFrac;
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps: m_aulNTPTimestamp={%u.%10u}", m_aulNTPTimestamp[0], m_aulNTPTimestamp[1]);
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::LoadTimestamps: m_aulNTPTimestamp={%u.%10u}", m_aulNTPTimestamp[0], m_aulNTPTimestamp[1]);
 
     // Assign NTP Time to Sender Report Buffer
     aulTimestamps[0] = htonl(m_aulNTPTimestamp[0]);

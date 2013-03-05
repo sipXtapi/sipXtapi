@@ -26,7 +26,7 @@
 
 #ifdef INCLUDE_RTCP /* [ */
 
-#include "os/OsSysLog.h"
+// #include "os/OsSysLog.h"
 
     // Constants
 
@@ -1145,7 +1145,7 @@ unsigned long CSourceDescription::FormatSDESReport(bool bIncludeHeader,
     unsigned long    ulReportLength;
     unsigned long l;
 
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: %s header", bIncludeHeader ? "With": "Without");
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: %s header", bIncludeHeader ? "With": "Without");
     // Check whether the CNAME has been calculate yet.
     // If not, we shall do this as our first act.
     if(!m_bCNameSet)
@@ -1174,19 +1174,19 @@ unsigned long CSourceDescription::FormatSDESReport(bool bIncludeHeader,
     // Let's load the field information based upon the content mask
     // puchPayloadBuffer += LoadFieldInfo(puchPayloadBuffer, lContentMask);
     l = LoadFieldInfo(puchPayloadBuffer, lContentMask);
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: LoadFieldInfo->%ld", l);
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: LoadFieldInfo->%ld", l);
     puchPayloadBuffer += l;
 
     // Let's load padding onto the end of the packet to insure 4 byte alignment
     bool bPadded;
     // puchPayloadBuffer += TerminateNPad(puchPayloadBuffer, &bPadded);
     l = TerminateNPad(puchPayloadBuffer, &bPadded);
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: TerminateNPad->%ld, bPadded: %s", l, bPadded?"TRUE":"FALSE");
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: TerminateNPad->%ld, bPadded: %s", l, bPadded?"TRUE":"FALSE");
     puchPayloadBuffer += l;
 
     // Set the report length
     ulReportLength = puchPayloadBuffer - puchReportBuffer;
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: ulReportLength: %ld", ulReportLength);
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSourceDescription::FormatSDESReport: ulReportLength: %ld", ulReportLength);
 
     // Let's check to see whether we need to prepend a header to this Receiver
     //  Report.  If so, let's call the RTCP Header base class's formatter.
