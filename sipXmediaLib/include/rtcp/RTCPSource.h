@@ -132,7 +132,7 @@ public:
  *
  * Returns:  None
  *
- * Description: The ProcessDataPacket() sequentially processes data packets
+ * Description: The ProcessPacket() sequentially processes data packets
  *              received by looking for for header information that describes
  *              the single or composite RTCP report sent.  The RTCP Payload
  *              type of each header found is examined.  A packet or a composite

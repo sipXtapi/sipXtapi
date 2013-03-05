@@ -154,7 +154,7 @@
         if(!sInitialized || \
            sInitializedSignature != SIPX_PORT_UNIT_TEST_SIGNATURE) \
         { \
-            sInitialized == false; \
+            sInitialized = false; \
             sMethodCount = -1; \
             spMethodNames = 0; \
             spMethodStates = 0; \

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -57,6 +57,7 @@
 #define MIME_SUBTYPE_I420 "I420"
 #define MIME_SUBTYPE_RGB24 "RGB24"
 #define MIME_SUBTYPE_H263 "H263"
+#define MIME_SUBTYPE_H263_1998 "H263-1998"
 #define MIME_SUBTYPE_H264 "H264"
 
 // Canonical internal case represation

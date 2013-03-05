@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1206,17 +1206,17 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
             else
             {
                 // Respond with an OK
-    #ifdef TEST_PRINT
+#ifdef TEST_PRINT
                 osPrintf("Sending INVITE OK\n");
-    #endif
+#endif
 
                 // There was no SDP in the INVITE, so give them all of
                 // the codecs we support.
                 if(!sdpBody)
                 {
-    #ifdef TEST_PRINT
+#ifdef TEST_PRINT
                     osPrintf("Sending initial SDP in OK\n");
-    #endif
+#endif
                 }
 
                 // Try to match the payload IDs from the remote side's SDP offer
@@ -1372,14 +1372,25 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
 
                     if (mHoldState == TERMCONNECTION_TALKING)
                     {
+                        // Delayed SDP, none in INVITE
+                        if(sdpBody == NULL && numDecoderCodecs > 0)
+                        {
+                            // Answer case, if the INVITE had SDP we can match the payload IDs of the remote side
+                            // otherwise, we cannot later match the remote payload IDs when we recieve SDP in the ACK
+                            // Need to be prepared to receive RTP once we have advertised codecs.
+                            mpMediaInterface->startRtpReceive(mConnectionId,
+                                    numDecoderCodecs, decoderCodecs);
+                            fireAudioStartEvents();
+                        }
+
                         // if we have a send codec chosen Start sending media
-                        if(numEncoderCodecs > 0)
+                        else if(numEncoderCodecs > 0)
                         {
                             // Answer case, if the INVITE had SDP we can match the payload IDs of the remote side
                             // otherwise, we cannot later match the remote payload IDs when we recieve SDP in the ACK
                             mpMediaInterface->startRtpReceive(mConnectionId,
                                     numDecoderCodecs, decoderCodecs);
-                            fireAudioStartEvents() ;
+                            fireAudioStartEvents();
 
                             setMediaDestination(remoteRtpAddress.data(),
                                 remoteRtpPort,

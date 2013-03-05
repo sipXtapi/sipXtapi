@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -13,9 +15,10 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "os/OsDateTime.h"
-#include "os/OsEventMsg.h"
-#include "os/OsQueuedEvent.h"
+#include <os/OsDateTime.h>
+#include <os/OsEventMsg.h>
+#include <os/OsQueuedEvent.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -93,7 +96,14 @@ OsStatus OsQueuedEvent::doSendEventMsg(const int msgType,
    OsStatus rc;
    if (mpMsgQ)
    {
-      rc = mpMsgQ->send(msg);
+      rc = mpMsgQ->send(msg, mSignalTimeout);
+      if(rc == OS_WAIT_TIMEOUT)
+      {
+          OsSysLog::add(FAC_KERNEL, PRI_ERR,
+              "OsQueuedEvent failed to queue \"%s\" (%p) event %p due to timeout (%d.%6d).  Queue contains %d messages with a max of %d",
+              mpMsgQ->getName().data(), mpMsgQ, this, mSignalTimeout.seconds(), mSignalTimeout.usecs(), 
+              mpMsgQ->numMsgs(), mpMsgQ->maxMsgs());
+      }
    }
    else
    {

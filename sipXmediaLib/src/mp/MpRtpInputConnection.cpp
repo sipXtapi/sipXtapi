@@ -63,33 +63,6 @@ MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
 {
    mConnectionId = myID;
 
-#ifdef XXX_INCLUDE_RTCP /* [ */
-// RTCP UPDATE:  This needs to move, probably to overridden setFlowGraph()
-// Let's create an RTCP Connection to accompany the MP Connection just created.
-
-xxxx make sure this is not getting compiled zzzz
-
-   if(mpiRTCPSession)
-   {
-       mpiRTCPConnection = mpiRTCPSession->CreateRTCPConnection();
-
-       assert(mpiRTCPConnection != NULL);
-   }
-
-// Let's use the Connection interface to acquire the constituent interfaces
-// required for dispatching RTP and RTCP packets received from the network as
-// well as the statistics interface tabulating RTP packets going to the network.
-   INetDispatch         *piRTCPDispatch = NULL;
-   IRTPDispatch         *piRTPDispatch = NULL;
-   ISetSenderStatistics *piRTPAccumulator = NULL;
-
-   if(mpiRTCPConnection)
-   {
-       mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch,
-          &piRTPDispatch, &piRTPAccumulator);
-   }
-#endif /* INCLUDE_RTCP ] */
-
    // Create our resources
    {
       UtlString name = getName() + "-RtpDispatcher";
@@ -111,18 +84,6 @@ xxxx make sure this is not getting compiled zzzz
    }
    mpFromNet = new MprFromNet();
    mpFromNet->setRtpDispatcher(mpRtpDispatcher);
-
-#ifdef XXX_INCLUDE_RTCP /* [ */
-// RTCP UPDATE:  This needs to move, probably to overridden setFlowGraph()
-
-// The MprFromNet object needs the RTP and RTCP Dispatch interfaces of the
-// associated RTCP connection so that RTP and RTCP packets may be forwarded
-// to the correct location.
-   mpFromNet->setDispatchers(piRTPDispatch, piRTCPDispatch);
-
-#else /* INCLUDE_RTCP ] [ */
-
-#endif /* INCLUDE_RTCP ] */
 }
 
 // Destructor

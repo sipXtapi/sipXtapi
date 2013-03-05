@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -116,6 +116,7 @@ OsTimerTask::OsTimerTask(void)
               , 5 // high priority so that we get reasonable clock heartbeats for media
               )
 , mTimerQueue(0)
+, mSignalTimeout(0, 50000)
 {
 }
 
@@ -415,7 +416,25 @@ void OsTimerTask::fireTimer(OsTimer* timer)
    // Call the event routine if we are supposed to.
    if (report)
    {
-      timer->mpNotifier->signal((intptr_t) timer);
+      // Use a timeout when signalling.  Otherwise if the event blocks for a long time
+      // (e.g. a queued event blocks because queue is full) the timer task then blocks
+      // and bad things happen.
+      timer->mpNotifier->setTimeout(mSignalTimeout);
+      OsStatus status =
+          timer->mpNotifier->signal((intptr_t) timer);
+      if(status == OS_WAIT_TIMEOUT)
+      {
+          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                  "OsTimer event %p timed (%d.%6d sec) out during signal.  Timer not fired.",
+                  timer->mpNotifier, (int) mSignalTimeout.seconds(), (int) mSignalTimeout.usecs());
+      }
+      else if(status != OS_SUCCESS)
+      {
+          OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                  "OsTimer event %p returned error: %d from signal",
+                  status);
+      }
+
       timer->mWasFired = TRUE;
    }
 }

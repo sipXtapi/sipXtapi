@@ -91,6 +91,98 @@ CRTCPHeader::~CRTCPHeader(void)
 }
 
 
+/**
+ *
+ * Method Name: VetPacket -- static
+ *
+ *
+ * Inputs:   unsigned char *buffer   - Data Buffer received from Network Source
+ *           int           bufferLen - Length of Data Buffer
+ *
+ * Outputs:  OsSysLog messages
+ *
+ * Returns:  int: length of valid RTCP packet; may be 0 (first chunk not valid,
+ *           or any multiple of 4 up to as much as 3 larger than the input length.
+ *           (e.g. 61, 62, or 63 may return 64).
+ *
+ * Description: VetPacket() walks the headers in the report chunks in a received
+ *              RTCP packet applying various sanity checks.  It is to be called
+ *              before calling ProcessPacket so that ProcessPacket (and its
+ *              subsidiaries) can assume a degree of basic correctness.
+ *
+ *              In order to fix up for a relatively harmless deviation from
+ *              the RFC, if the length of the packet as read from the socket
+ *              is not a multiple of 4, this routine will write 0 to the
+ *              1, 2, or 3 bytes following the end of the packet and then
+ *              round the length up to that next multiple of 4 before walking
+ *              the chunks.
+ *
+ *              After making sure that the length is a multiple of 4, the
+ *              headers will be walked.  The checks are
+ *               1.  The first two bits each header must be 0b10 (RTCP ver 2)
+ *               2.  The PT is in the range 200..204; if not, emit warning
+ *               3.  The length indicates that the chunk ends within the packet
+ *                   data, and either 8 or more bytes from the end, or exactly
+ *                   at the end.
+ *
+ */
+
+
+int CRTCPHeader::VetPacket(unsigned char* buffer, int bufferLen)
+{
+    int okLen = 0;
+    int nRemain = -1;
+    int rt;
+    uint16_t tShort;
+    int nOctets;
+    int originalLen = bufferLen;
+
+    // Special rule for LifeSize box and its non-compliant APP packets...
+    if ((63 == bufferLen) && ('L' == buffer[44]) && ('S' == buffer[45])) {
+        // Silently fix it... we know it is happening, don't nag
+        buffer[bufferLen++] = 0;
+    }
+    if (bufferLen > 7) {
+        if (0 != (bufferLen % 4)) {
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::VetPacket: packet length, %d, is not a multiple of 4; padding and adjusting", bufferLen);
+            while (0 != (bufferLen % 4)) buffer[bufferLen++] = 0;
+        }
+        nRemain = bufferLen;
+
+        while (nRemain > 7) {
+           // Is the first byte reasonable (we only know that the top 2 bits should be 0b10)
+            if (0x80 != (buffer[okLen] & 0xc0)) break;
+            // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::VetPacket: header at offset %d, RTCP version OK", okLen);
+           // Now, see if the report type is one of SR, RR, SDES, BYE, or APP (200..204, resp)
+            rt = buffer[okLen+1];
+            if ((rt < 200) || (rt > 204)) {
+               // Only warn if not, if everything else is OK, let the parser deal with it.
+                OsSysLog::add(FAC_MP, PRI_WARNING, "CRTCPSource::VetPacket: report type, %d, is not in one defined in RFC-3550", rt);
+            }
+           // Now, check the length.  It is
+            tShort = *((unsigned short*)(buffer+okLen+2));
+            nOctets = (ntohs(tShort) + 1) * 4;
+            // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::VetPacket: tShort=%d, nOctets=%d, nRemain=%d", tShort, nOctets, nRemain);
+            if (nRemain < nOctets) break;
+            nRemain -= nOctets;
+            okLen += nOctets;
+        }
+    }
+    if (nRemain > 0) {
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::VetPacket: packet failed sanity check. Original len=%d, nRemain=%d", originalLen, nRemain);
+        UtlString buf;
+        unsigned char *tp = buffer;
+        int tl = originalLen;
+        while(tl > 0) {
+            buf.appendFormat(" 0x%02X,", *tp++);
+            tl--;
+        }
+        buf.strip(UtlString::trailing, ',');
+        OsSysLog::add(FAC_MP, PRI_ERR, "RTCP Packet:    %s", buf.data());
+    }
+    return okLen;
+}
+
 
 /**
  *
@@ -241,6 +333,9 @@ unsigned long CRTCPHeader::GetReportLength(void)
 {
 
     // Return Report Length
+    if (0 == m_ulLength) {
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPHeader::GetReportLength: m_ulLength is %lu, returning %lu (payload is %d)", m_ulLength, (m_ulLength ? m_ulLength + sizeof(uint32_t) : m_ulLength), GetPayload());
+    }
     return(m_ulLength ? m_ulLength + sizeof(uint32_t) : m_ulLength);
 
 }
@@ -421,21 +516,20 @@ bool CRTCPHeader::ParseRTCPHeader(unsigned char *puchRTCPBuffer)
     m_ulPadding = ((*puchRTCPHeader & PAD_MASK) >> PAD_SHIFT);
 
     // Check for valid Version #
-    if (((*puchRTCPHeader++ & VERSION_MASK) >> VERSION_SHIFT) !=
-                                                            (char)m_ulVersion)
+    if (((*puchRTCPHeader & VERSION_MASK) >> VERSION_SHIFT) != (char)m_ulVersion)
     {
-        osPrintf("**** FAILURE **** CRTCPHeader::ParseRTCPHeader() -"
-                                                        " Invalid Version\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPHeader::ParseRTCPHeader - Invalid Version: %d", ((*puchRTCPHeader & VERSION_MASK) >> VERSION_SHIFT));
         return(FALSE);
     }
+    puchRTCPHeader++;
 
     // Check for valid Payload Type
-    if(*puchRTCPHeader++ != (unsigned char)m_etPayloadType)
+    if(*puchRTCPHeader != (unsigned char)m_etPayloadType)
     {
-        osPrintf("**** FAILURE **** CRTCPHeader::ParseRTCPHeader() -"
-                                                   " Invalid Payload Type\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPHeader::ParseRTCPHeader -  Invalid Payload Type: %d", *puchRTCPHeader);
         return(FALSE);
     }
+    puchRTCPHeader++;
 
     // Extract RTCP Report length and convert from word count to byte count
     m_ulLength = ntohs(*((unsigned short *)puchRTCPHeader)) + 1;

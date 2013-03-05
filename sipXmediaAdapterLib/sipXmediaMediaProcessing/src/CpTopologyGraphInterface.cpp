@@ -43,6 +43,7 @@
 #include <mp/MprFromNet.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpCodecFactory.h>
+#include <mp/MprToNet.h>
 #include <CpTopologyGraphInterface.h>
 #include <CpTopologyGraphFactoryImpl.h>
 
@@ -2070,6 +2071,68 @@ OsStatus CpTopologyGraphInterface::stopTone()
       stat = OS_NOT_FOUND;
    }
    return stat;
+}
+
+OsStatus CpTopologyGraphInterface::setRtcpTimeOffset(int connectionId,
+                                                     CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                                     int streamIndex,
+                                                     int timeOffset) // Milliseconds
+{
+
+    // Get the connection just to validate the connectionId
+    CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+    OsStatus status = OS_INVALID_ARGUMENT;
+    if(streamIndex != 0)
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR,
+            "CpTopologyGraphInterface::setRtcpTimeOffset invalid stream index: %d",
+            streamIndex);
+        OsSysLog::flush();
+        assert(streamIndex == 0);
+
+    }
+    else if(mediaConnection)
+    {
+        // Construct name of  resource
+        UtlString outConnectionName;
+        if(mediaType == CpMediaInterface::AUDIO_STREAM)
+        {
+            outConnectionName = DEFAULT_RTP_OUTPUT_RESOURCE_NAME;
+        }
+        else if(mediaType == CpMediaInterface::VIDEO_STREAM)
+        {
+            outConnectionName = DEFAULT_VIDEO_RTP_OUTPUT_RESOURCE_NAME;
+        }
+        else
+        {
+            OsSysLog::add(FAC_CP, PRI_ERR,
+                "CpTopologyGraphInterface::setRtcpTimeOffset invalid stream type: %d",
+                mediaType);
+            OsSysLog::flush();
+            assert(0);
+        }
+        MpResourceTopology::replaceNumInName(outConnectionName, connectionId);
+
+        // Post message to set offset for stream
+        if(mpTopologyGraph)
+        {
+            // Convert milliseconds to microseconds
+            MprToNet::setSRAdjustUSecs(outConnectionName, *(mpTopologyGraph->getMsgQ()), timeOffset * 1000);
+            status = OS_SUCCESS;
+        }
+        else
+        {
+            status = OS_NOT_FOUND;
+        }
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR,
+                "CpTopologyGraphInterface::setRtcpTimeOffset connection %d not found",
+                connectionId);
+    }
+
+    return(status);
 }
 
 OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,

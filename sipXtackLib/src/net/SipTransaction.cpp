@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1067,8 +1066,8 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             resendDuration = 0;
             resendTime = userAgent.getReliableTransportTimeout() * 1000;
         }
-    else
-    {
+        else
+        {
             resendTime = userAgent.getFirstResendTimeout() * 1000;
             resendDuration = userAgent.getFirstResendTimeout();
         }
@@ -3762,6 +3761,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
         if(relationship == MESSAGE_PROVISIONAL &&
             !mIsServerTransaction &&
             mIsCanceled &&
+            mpCancel == NULL && // have not already sent CANCEL
             mpRequest &&
             mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0)
         {

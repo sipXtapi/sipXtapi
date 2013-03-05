@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC.   All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.   All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -106,7 +105,7 @@ const RegEx AngleBrackets( SWS "<([^>]+)>" );
  *    Similarly, the Scheme value is used as an index into SchemeName, so the translation
  *    to a string will be wrong if that is not kept correct.
  */
-#define SUPPORTED_SCHEMES "(?i:(sip)|(sips)|(http)|(https)|(ftp)|(file)|(mailto))"
+#define SUPPORTED_SCHEMES "(?i:(sip)|(sips)|(http)|(https)|(ftp)|(file)|(mailto)|(rtsp))"
 const RegEx SupportedScheme( SWS SUPPORTED_SCHEMES SWS ":" );
 const RegEx SupportedSchemeExact( "^" SUPPORTED_SCHEMES "$" );
 const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
@@ -118,7 +117,8 @@ const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
    "https",
    "ftp",
    "file",
-   "mailto"
+   "mailto",
+   "rtsp"
 };
 
 // UsernameAndPassword
@@ -748,6 +748,7 @@ void Url::getUri(UtlString& urlString)
     case FtpUrlScheme:
     case HttpUrlScheme:
     case HttpsUrlScheme:
+    case RtspUrlScheme:
        urlString.append("//",2);
        break;
 
@@ -789,6 +790,7 @@ void Url::getUri(UtlString& urlString)
     case FtpUrlScheme:
     case HttpUrlScheme:
     case HttpsUrlScheme:
+    case RtspUrlScheme:
        if(!mPath.isNull())
        {
           urlString.append(mPath);
@@ -1366,6 +1368,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    case FtpUrlScheme:
    case HttpUrlScheme:
    case HttpsUrlScheme:
+   case RtspUrlScheme:
       if (0==strncmp("//", urlString+workingOffset, 2))
       {
          workingOffset += 2;
@@ -1462,6 +1465,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    case FtpUrlScheme:
    case HttpUrlScheme:
    case HttpsUrlScheme:
+   case RtspUrlScheme:
    {
       // this is an http, https, or ftp URL, so get the path
       LOG_TIME("path   < ");

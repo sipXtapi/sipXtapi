@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -104,6 +106,9 @@ private:
 
    /// The queue of timer requests, ordered by increasing firing time.
    OsTimer* mTimerQueue;
+
+   /// Timeout to use when signalling
+   OsTime mSignalTimeout;
 
    /// Insert a timer into the timer queue.
    void insertTimer(OsTimer* timer);

@@ -184,7 +184,7 @@ CRTCPSource::~CRTCPSource(void)
  *
  * Returns:  None
  *
- * Description: The ProcessDataPacket() sequentially processes data packets
+ * Description: The ProcessPacket() sequentially processes data packets
  *              received by looking for for header information that describes
  *              the single or composite RTCP report sent.  The RTCP Payload
  *              type of each header found is examined.  A packet or a composite
@@ -209,7 +209,7 @@ CRTCPSource::~CRTCPSource(void)
 #define DEBUG_RTCP_PACKETS
 
 #ifdef DEBUG_RTCP_PACKETS /* [ */
-static int numPacketsToDump = 0;
+static int numPacketsToDump = 1000000;
 int showRtcp(int count) {
     int save = numPacketsToDump;
     numPacketsToDump = count;
@@ -232,15 +232,14 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
     if (verbose) {
         unsigned char *tp = puchDataBuffer;
         unsigned long tl = ulBufferLength;
-        int i = 0;
-        osPrintf("CRTCPSource::ProcessPacket(%8p, %lu)\n",
-            puchDataBuffer, ulBufferLength);
+        UtlString buf;
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: begin processing packet at %p, length=%lu", puchDataBuffer, ulBufferLength);
         while(tl > 0) {
-            osPrintf(" %02X", *tp++);
-            if (0xf == (0xf & i++)) osPrintf("\n");
+            buf.appendFormat(" 0x%02X,", *tp++);
             tl--;
         }
-        if (0 != (0xf & i)) osPrintf("\n");
+        buf.strip(UtlString::trailing, ',');
+        OsSysLog::add(FAC_MP, PRI_ERR, "RTCP Packet:    %s", buf.data());
     }
 #endif /* DEBUG_RTCP_PACKETS ] */
 
@@ -259,7 +258,7 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
                 ulBytesProcessed = ProcessSenderReport(puchDataBuffer);
 #ifdef DEBUG_RTCP_PACKETS /* [ */
                 if (verbose) {
-                    osPrintf("  Sender Report (%lu bytes)\n", ulBytesProcessed);
+                    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::ProcessPacket: Processed SR, bytes=%lu", ulBytesProcessed);
                 }
 #endif /* DEBUG_RTCP_PACKETS ] */
                 break;
@@ -269,7 +268,7 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
                 ulBytesProcessed = ProcessReceiverReport(puchDataBuffer);
 #ifdef DEBUG_RTCP_PACKETS /* [ */
                 if (verbose) {
-                    osPrintf("  Recvr Report (%lu bytes)\n", ulBytesProcessed);
+                    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::ProcessPacket: Processed RR, bytes=%lu", ulBytesProcessed);
                 }
 #endif /* DEBUG_RTCP_PACKETS ] */
                 break;
@@ -279,7 +278,7 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
                 ulBytesProcessed = ProcessSDESReport(puchDataBuffer);
 #ifdef DEBUG_RTCP_PACKETS /* [ */
                 if (verbose) {
-                    osPrintf("  SDES Report (%lu bytes)\n", ulBytesProcessed);
+                    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::ProcessPacket: Processed SDES, bytes=%lu", ulBytesProcessed);
                 }
 #endif /* DEBUG_RTCP_PACKETS ] */
                 break;
@@ -289,7 +288,7 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
                 ulBytesProcessed = ProcessByeReport(puchDataBuffer);
 #ifdef DEBUG_RTCP_PACKETS /* [ */
                 if (verbose) {
-                    osPrintf("  Bye Report (%lu bytes)\n", ulBytesProcessed);
+                    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::ProcessPacket: Processed BYE, bytes=%lu", ulBytesProcessed);
                 }
 #endif /* DEBUG_RTCP_PACKETS ] */
                 break;
@@ -299,7 +298,7 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
                 ulBytesProcessed = ProcessAppReport(puchDataBuffer);
 #ifdef DEBUG_RTCP_PACKETS /* [ */
                 if (verbose) {
-                    osPrintf("  App Report (%lu bytes)\n", ulBytesProcessed);
+                    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::ProcessPacket: Processed APP, bytes=%lu", ulBytesProcessed);
                 }
 #endif /* DEBUG_RTCP_PACKETS ] */
                 break;
@@ -307,28 +306,13 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
             // Unrecognized Report
             default:
                 {
-                   int count, i;
-
-                   osPrintf("** TROUBLE ** CRTCPSource::ProcessPacket()"
-                       " - Unrecognized RTCP Report Type of %d\n",
-                       GetPayloadType(puchDataBuffer));
-                   osPrintf(" - Remaining buffer length of %lu",
-                       ulBufferLength);
-                   count = ulBufferLength > 0 ? ulBufferLength : 0;
-                   count = count < 100 ? count : 100;
-                   if (count > 0) osPrintf(" containing\n==>");
-                   for (i=0; i<count; i++) {
-                       if (15 == (15 & i))
-                          osPrintf(" %02X\n   ", *puchDataBuffer);
-                       else
-                          osPrintf(" %02X", *puchDataBuffer);
-                       puchDataBuffer++;
-                   }
-                   osPrintf("\n");
+                   OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: Unknown report type %d", GetPayloadType(puchDataBuffer));
+                   OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: Remaining buffer length of %lu", ulBufferLength);
                 }
                 if (!verbose) {
                     ProcessPacket(SAVEpuchDataBuffer, SAVEulBufferLength, 1);
                 }
+                OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: Returning (error)");
                 return;
         }
 
@@ -351,6 +335,11 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
         ulBufferLength -= ulBytesProcessed;
 
     }
+#ifdef DEBUG_RTCP_PACKETS /* [ */
+    if (verbose) {
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: Returning, remaining length=%lu", ulBufferLength);
+    }
+#endif /* DEBUG_RTCP_PACKETS ] */
 }
 
 /**
@@ -573,8 +562,8 @@ unsigned long CRTCPSource::ProcessReceiverReport(unsigned char *puchRTCPReport,
     bool             bRTCPHeader      = FALSE;
     unsigned long    ulReceiverSSRC   = 0;
     CReceiverReport *poReceiverReport = NULL;
-    unsigned long    ulBytesProcessed = 0;
-    unsigned long    ulReportSize     = 0;
+    int              ulBytesProcessed = 0;
+    int              ulReportSize     = 0;
 
     // Determine the Receiver Report count if it hasn't already been provided
     //  to us.
@@ -597,7 +586,7 @@ unsigned long CRTCPSource::ProcessReceiverReport(unsigned char *puchRTCPReport,
             //         BETTER IS THE ENEMY OF GOOD!
             //   hzm 16Aug01
             ulReportSize = GetReportLength(puchRTCPReport);
-            osPrintf("ProcessReceiverReport: RR/RC=0, len=%lu\n", ulReportSize);
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessReceiverReport: RR/RC=0, len=%d", ulReportSize);
         }
     }
 
@@ -612,17 +601,19 @@ unsigned long CRTCPSource::ProcessReceiverReport(unsigned char *puchRTCPReport,
         // Has a Receiver Report object been instantiated for this participant?
         // Probably not, if this is the first Receiver Report received in a
         //  session
-        if((poReceiverReport = m_tReceiverReportList.GetEntry(RRSsrcComparitor,
-                                             (void *)ulReceiverSSRC)) != NULL);
+        poReceiverReport = m_tReceiverReportList.GetEntry(RRSsrcComparitor, (void *)ulReceiverSSRC);
+        if (NULL != poReceiverReport) ;
 
   // $$$ IS THE ABOVE LINE, ENDING WITH A SEMICOLON, CORRECT??? - hzm
+  // Why, yes it is!  It sets us up to use all the else-if's that follow!
 
         // Create The Receiver Report object
-        else if((poReceiverReport =
-                                 new CReceiverReport(ulReceiverSSRC)) == NULL)
+        else if((poReceiverReport = new CReceiverReport(ulReceiverSSRC)) == NULL)
         {
-            osPrintf("**** FAILURE **** CRTCPSource::ProcessReceiverReport()"
-                      " - Unable to create Inbound Receiver Report Object\n");
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessReceiverReport() - Unable to create Inbound Receiver Report Object");
+         // BUT WHAT SHOULD WE RETURN?
+         //     If we don't consume this report, we will come right back here... forever...
+            assert(0 != ulReportSize);
             return(ulReportSize);
         }
 
@@ -631,9 +622,11 @@ unsigned long CRTCPSource::ProcessReceiverReport(unsigned char *puchRTCPReport,
         {
             // Release the Receiver Report reference.
             // This should cause the object to be destroyed
-            osPrintf("**** FAILURE **** CRTCPSource::ProcessReceiverReport()"
-                  " - Unable to Initialize Inbound Receiver Report Object\n");
             ((IReceiverReport *)poReceiverReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessReceiverReport() - Unable to Initialize Inbound Receiver Report Object");
+         // BUT WHAT SHOULD WE RETURN?
+         //     If we don't consume this report, we will come right back here... forever...
+            assert(0 != ulReportSize);
             return(ulReportSize);
         }
 
@@ -642,21 +635,24 @@ unsigned long CRTCPSource::ProcessReceiverReport(unsigned char *puchRTCPReport,
         {
             // Release the Receiver Report reference.
             // This should cause the object to be destroyed
-            osPrintf("**** FAILURE **** CRTCPSource::ProcessReceiverReport()"
-           " - Unable to Add Inbound Receiver Report Object to Collection\n");
             ((IReceiverReport *)poReceiverReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessReceiverReport() - Unable to Add Inbound Receiver Report Object to Collection");
+         // BUT WHAT SHOULD WE RETURN?
+         //     If we don't consume this report, we will come right back here... forever...
+            assert(0 != ulReportSize);
             return(ulReportSize);
         }
 
         // A Receiver object exists to process this report.
         // Let's delegate to its parsing methods to complete this report's
         //  processing.
-        if((ulBytesProcessed =
-           poReceiverReport->ParseReceiverReport(bRTCPHeader, puchRTCPReport))
-           == 0)
+        ulBytesProcessed = poReceiverReport->ParseReceiverReport(bRTCPHeader, puchRTCPReport);
+        if (0 == ulBytesProcessed)
         {
-            osPrintf("**** FAILURE **** CRTCPSource::ProcessReceiverReport()"
-                              " - Unable to Parse Inbound Receiver Report\n");
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessReceiverReport() - Unable to Parse Inbound Receiver Report\n");
+         // BUT WHAT SHOULD WE RETURN?
+         //     If we don't consume this report, we will come right back here... forever...
+            assert(0 != ulReportSize);
             return(ulReportSize);
         }
 

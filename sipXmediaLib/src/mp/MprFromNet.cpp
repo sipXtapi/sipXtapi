@@ -35,6 +35,7 @@
 #include <mp/MprRtpDispatcher.h>
 #ifdef INCLUDE_RTCP /* [ */
 #include <rtcp/RTPHeader.h>
+#include <rtcp/RTCPHeader.h>
 #endif /* INCLUDE_RTCP ] */
 #include <os/OsEvent.h>
 #include <os/OsMutex.h>
@@ -308,8 +309,12 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
       // Dispatch the RTCP data packet to the RTCP Source object registered
       if(mpiRTCPDispatch)
       {
-         mpiRTCPDispatch->ProcessPacket((unsigned char *)udpBuf->getDataPtr(),
-                                        (unsigned long)udpBuf->getPacketSize());
+         int nBytes = udpBuf->getPacketSize();
+         unsigned char* pkt = (unsigned char *)udpBuf->getDataPtr();
+         nBytes = CRTCPHeader::VetPacket(pkt, nBytes);
+         if (nBytes > 0) {
+            mpiRTCPDispatch->ProcessPacket(pkt, nBytes);
+         }
       }
    }
 #endif /* INCLUDE_RTCP ] */

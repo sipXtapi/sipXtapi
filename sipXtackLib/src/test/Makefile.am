@@ -65,4 +65,4 @@ sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
     ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
-    net/SdpBodyTest.cpp
+    SdpHelperTest.cpp

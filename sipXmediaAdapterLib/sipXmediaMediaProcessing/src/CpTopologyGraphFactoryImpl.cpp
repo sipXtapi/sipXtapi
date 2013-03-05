@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2010 SIPfoundry Inc. All rights reserved.
 // Licensed by SIPfoundry under the LGPL license.
@@ -206,7 +205,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                  numBufferedFrames,    // number of buffered frames
                                  *MpMisc.RawAudioPool);
 
-    OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl MpInputDeviceManager constructed");
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl MpInputDeviceManager constructed");
     mpOutputDeviceManager =
         new MpOutputDeviceManager(mgrSamplesPerFrame,    // samples per frame
                                   mDefaultSamplesPerSec, // samples per second

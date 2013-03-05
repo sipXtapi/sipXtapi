@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2012 SIPez LLC. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -51,6 +51,8 @@ class UrlTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testHttpWithQuery);
     CPPUNIT_TEST(testHttpWithQueryNameAddr);
     CPPUNIT_TEST(testHttpWithQueryAddrSpec);
+    CPPUNIT_TEST(testRtspBasic);
+    CPPUNIT_TEST(testRtspWithPort);
     CPPUNIT_TEST(testSipBasic); 
     CPPUNIT_TEST(testSipBasicWithPort);
     CPPUNIT_TEST(testIpBasicWithBrackets);
@@ -262,6 +264,33 @@ public:
          ASSERT_STR_EQUAL_MESSAGE(msg, szUrl2, toString(url2));
       }
 
+    void testRtspBasic()
+    {
+        const char* szUrl =  "rtsp://www.example.org/stream1.sdp";        
+
+        Url url(szUrl);
+        char msg[1024];
+        sprintf(msg, "simple rtsp url : %s", szUrl);
+        ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "www.example.org", getHostAddress(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "rtsp", getUrlType(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "/stream1.sdp", getPath(url));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
+    }
+
+    void testRtspWithPort()
+    {
+        const char* szUrl =  "rtsp://www.example.org:5555/stream1.sdp";        
+
+        Url url(szUrl);
+        char msg[1024];
+        sprintf(msg, "simple rtsp url : %s", szUrl);
+        ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "www.example.org", getHostAddress(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "rtsp", getUrlType(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "/stream1.sdp", getPath(url));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 5555, url.getHostPort());
+    }
 
     void testSipBasic()
     {

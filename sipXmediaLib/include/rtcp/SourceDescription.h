@@ -155,7 +155,7 @@ public:
  * Returns:      CSourceDescription *poSourceDescription
  *                       - Pointer to Local Source Description Interface
  *
- * Description:  A static member function used ot obtain an Source Description
+ * Description:  A static member function used to obtain a Source Description
  *               interface.
  *
  * Usage Notes:  This method shall cause the local Source Description Singleton

@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2005-2008 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1760,6 +1759,16 @@ void HttpMessage::cannonizeToken(UtlString& token)
             {
                 capNextChar = TRUE;
             }
+        }
+
+        // Special case CSeq and try to minimize impact of check for CSeq
+        if(len == 4 && 
+           tokenPtr[0] == 'C' &&
+           tokenPtr[1] == 's' &&
+           tokenPtr[2] == 'e' &&
+           tokenPtr[3] == 'q')
+        {
+            token.replaceAt(1, 'S');
         }
     }
 #ifdef TEST_PRINT

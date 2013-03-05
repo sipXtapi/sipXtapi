@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2008-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2008-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -56,7 +56,7 @@ SdpHelper::convertCryptoSuiteType(int sdpBodyType)
    }
 }
 
-Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody, const SdpCodecList* codecFactory)
+Sdp* SdpHelper::createSdpFromSdpBody(const SdpBody& sdpBody, const SdpCodecList* codecFactory)
 {
    bool rtcpEnabled = true;
    Sdp* sdp = new Sdp();
@@ -124,10 +124,10 @@ UtlBoolean SdpHelper::getMediaLine(const SdpBody& sdpBody, int mediaLineIndex, S
             int ptime;
             int numVideoSizes = MAXIMUM_VIDEO_SIZES;
             int videoSizes[MAXIMUM_VIDEO_SIZES];
-            sdpBody.getPayloadFormat(payloadTypes[typeIndex], payloadFormat);
+            sdpBody.getPayloadFormat(mediaLineIndex, payloadTypes[typeIndex], payloadFormat);
             SdpCodec::getVideoSizes(payloadFormat, MAXIMUM_VIDEO_SIZES, numVideoSizes, videoSizes);
 
-            if(!sdpBody.getPayloadRtpMap(payloadTypes[typeIndex], mimeSubType, sampleRate, numChannels))
+            if(!sdpBody.getPayloadRtpMap(mediaLineIndex, payloadTypes[typeIndex], mimeSubType, sampleRate, numChannels))
             {
 
                if(codecFactory == NULL)
@@ -365,6 +365,12 @@ UtlBoolean SdpHelper::getMediaLine(const SdpBody& sdpBody, int mediaLineIndex, S
          direction = SdpMediaLine::DIRECTION_TYPE_INACTIVE;
       }
       mediaLine.setDirection(direction);
+
+      UtlString trackId;
+      if(sdpBody.getControlTrackId(mediaLineIndex, trackId))
+      {
+          mediaLine.setControlTrackId(trackId);
+      }
 
       int frameRate;
       if(sdpBody.getFramerateField(mediaLineIndex, frameRate))
