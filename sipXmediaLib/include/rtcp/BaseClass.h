@@ -201,6 +201,8 @@ public:
  */
     bool IsInitialized(void);
 
+    void setAutomatic(bool);
+
 /**
  *
  * Method Name:  AddRef
@@ -253,6 +255,7 @@ public:
  */
       bool m_bInitialized;
 
+      bool m_bAutomatic;
 
 /**
  *
@@ -327,6 +330,11 @@ inline bool CBaseClass::IsInitialized(void)
 
     return(m_bInitialized);
 
+}
+
+inline void CBaseClass::setAutomatic(bool yesNo)
+{
+    m_bAutomatic = yesNo;
 }
 
 /**

@@ -41,6 +41,7 @@ static int sulTotalReferenceCount = 0;
  */
 CBaseClass::CBaseClass CBASECLASS_PROTO_ARGS((const char* DerivedType, int callLineNum)) :
     m_bInitialized(FALSE)
+    , m_bAutomatic(FALSE)
     , m_ulReferences(1)
 #ifdef RTCP_DEBUG_REFCOUNTS /* [ */
     , m_DerivedType(DerivedType)
@@ -79,6 +80,7 @@ CBaseClass::~CBaseClass(void)
 #ifdef RTCP_DEBUG_REFCOUNTS /* [ */
     OsSysLog::add(FAC_MP, PRI_DEBUG, "CBaseClass::~CBaseClass: this=%p, sRefs=%d, m_ulReferences=%ld", this, sulTotalReferenceCount, m_ulReferences);
 #endif /* RTCP_DEBUG_REFCOUNTS ] */
+    if (m_bAutomatic) m_ulReferences--;
     assert(0 == m_ulReferences);
 }
 

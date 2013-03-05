@@ -97,6 +97,7 @@ CBaseClass(CBASECLASS_CALL_ARGS("MpFlowGraphBase", __LINE__))
 
    // Release Reference to RTCP Control Interface
    piRTCPControl->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+   CBaseClass::setAutomatic(TRUE);
 #endif /* INCLUDE_RTCP ] */
 
 }
