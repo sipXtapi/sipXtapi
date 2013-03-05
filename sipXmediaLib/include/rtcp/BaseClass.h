@@ -364,7 +364,7 @@ inline void CBaseClass::setAutomatic(bool yesNo)
    unsigned long Release ADD_RELEASE_PROTO_ARGS((int callLineNum)) \
    {                                                    \
       unsigned long ulRefCount;                         \
-      if((ulRefCount = CBaseClass::Release(ADD_RELEASE_CALL_ARGS(callLineNum)) == 0))     \
+      if((ulRefCount = CBaseClass::Release(ADD_RELEASE_CALL_ARGS(callLineNum))) == 0)     \
       {                                                 \
         delete this;                                    \
       }                                                 \

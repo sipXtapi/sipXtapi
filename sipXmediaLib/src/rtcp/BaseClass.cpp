@@ -110,7 +110,7 @@ unsigned long CBaseClass::AddRef CBASECLASS_PROTO_ARGS((int callLineNum))
     m_ulReferences++;
     sulTotalReferenceCount++;
 #ifdef RTCP_DEBUG_REFCOUNTS /* [ */
-    if (callLineNum != -1) OsSysLog::add(FAC_MP, PRI_DEBUG, "BaseClass: %p->AddRef(%d),  count: %2ld", this, callLineNum, m_ulReferences);
+    if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG, "BaseClass: %p->AddRef(%d),  count: %2ld", this, callLineNum, m_ulReferences);
 #endif /* RTCP_DEBUG_REFCOUNTS ] */
     return(m_ulReferences);
 
@@ -143,7 +143,7 @@ unsigned long CBaseClass::Release CBASECLASS_PROTO_ARGS((int callLineNum))
     sulTotalReferenceCount--;
     m_ulReferences--;
 
-    if (callLineNum != -1) OsSysLog::add(FAC_MP, PRI_DEBUG, "BaseClass: %p->Release(%d), count: %2ld", this, callLineNum, m_ulReferences);
+    if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG, "BaseClass: %p->Release(%d), count: %2ld", this, callLineNum, m_ulReferences);
     return(m_ulReferences);
 
 }
