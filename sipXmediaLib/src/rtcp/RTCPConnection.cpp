@@ -158,12 +158,10 @@ bool CRTCPConnection::Initialize(void)
     bool                    bInitialized = FALSE;
 
     // Create The RTCP Render object
-    m_poRTCPRender =
-               new CRTCPRender(m_ulSSRC, (IRTCPNotify *)this, m_piSDESReport);
+    m_poRTCPRender = new CRTCPRender(m_ulSSRC, (IRTCPNotify *)this, m_piSDESReport);
     if (m_poRTCPRender == NULL)
     {
-        osPrintf("**** FAILURE **** CRTCPConnection::Initialize() -"
-                                    " Unable to Create CRTCPRender object\n");
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::Initialize - Unable to Create CRTCPRender object");
         return(bInitialized);
     }
 
@@ -177,24 +175,22 @@ bool CRTCPConnection::Initialize(void)
     else
     {
         // Release Transient references
-        osPrintf("**** FAILURE **** CRTCPConnection::CRTCPConnection() -"
-                                " Unable to Initialize CRTCPRender object\n");
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::Initialize - Unable to Initialize CRTCPRender object");
         m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(bInitialized);
     }
 
     // Create The RTCP Source object
-    m_poRTCPSource =
-              new CRTCPSource(m_ulSSRC, (IRTCPNotify *)this, piReceiverStats);
+    m_poRTCPSource = new CRTCPSource(m_ulSSRC, (IRTCPNotify *)this, piReceiverStats);
     if (m_poRTCPSource == NULL)
     {
-        osPrintf("**** FAILURE **** CRTCPConnection::CRTCPConnection() -"
-                                    " Unable to Create CRTCPSource object\n");
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::Initialize - Unable to Create CRTCPSource object");
         m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+        return(bInitialized);
     }
 
-    // Initialize RTCP Source object.  If initialization suceeds, set the
-    //  initialize flag for the connection object to True.
+    // Initialize RTCP Source object.  If initialization succeeds, set the
+    //  initialized flag for the connection object to True.
     else if(m_poRTCPSource->Initialize())
     {
        bInitialized = TRUE;
@@ -204,8 +200,7 @@ bool CRTCPConnection::Initialize(void)
     //  indication of the failure.
     else
     {
-        osPrintf("**** FAILURE **** CRTCPConnection::CRTCPConnection() -"
-                                " Unable to Initialize CRTCPSource object\n");
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::Initialize - Unable to Initialize CRTCPSource object");
         m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_poRTCPSource->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
@@ -333,8 +328,7 @@ bool CRTCPConnection::StartRenderer(INetworkRender *piRTCPNetworkRender)
     if (!(m_piRTCPNetworkRender))
     {
         // Identify source of Error
-        osPrintf("*** FAILURE *** CRTCPConnection::StartRenderer() -"
-                                     " Unable to Create Net Render Object\n");
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::StartRenderer - Unable to Create Net Render Object");
         return(FALSE);
     }
 #else
@@ -350,8 +344,7 @@ bool CRTCPConnection::StartRenderer(INetworkRender *piRTCPNetworkRender)
     // Initialize RTCP Timer object
     if(!CRTCPTimer::Initialize())
     {
-        osPrintf("**** FAILURE **** CRTCPConnection::StartRenderer() -"
-                                " Unable to Start Connection Report Timer\n");
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::StartRenderer - Unable to Start Connection Report Timer");
         // Let's Clear and release the Renderer in light of the recent failure
         m_poRTCPRender->ClearNetworkRender();
         m_piRTCPNetworkRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
