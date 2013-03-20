@@ -14,7 +14,8 @@
 
 // Includes
 
-#include "os/OsIntTypes.h"
+#include <os/OsIntTypes.h>
+#include <os/OsLock.h>
 
 #include <assert.h>
 
