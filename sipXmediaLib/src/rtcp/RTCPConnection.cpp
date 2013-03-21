@@ -535,7 +535,7 @@ bool CRTCPConnection::Terminate()
     // Release RTCP Source object
     if(m_poRTCPSource)
     {
-        // m_poRTCPSource->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__)); // while (m_poRTCPSource->Release(__LINE__));
+        // m_poRTCPSource->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__)); while (m_poRTCPSource->Release(__LINE__));
         m_poRTCPSource->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_poRTCPSource = NULL;
     }
@@ -543,7 +543,7 @@ bool CRTCPConnection::Terminate()
     // Release RTCP Render object
     if(m_poRTCPRender)
     {
-        // m_poRTCPRender->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__)); // while(m_poRTCPRender->Release(__LINE__));
+        // m_poRTCPRender->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__)); while(m_poRTCPRender->Release(__LINE__));
         m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_poRTCPRender = NULL;
     }
