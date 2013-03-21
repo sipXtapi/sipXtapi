@@ -141,44 +141,37 @@ bool CRTCPRender::Initialize(void)
     // Create The Receiver Report class
     if((m_poReceiverReport = new CReceiverReport(m_ulLocalSSRC)) == NULL)
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                                " Unable to create CReceiverReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to create CReceiverReport object");
     }
 
     // Initialize Receiver Report Class
     else if(!m_poReceiverReport->Initialize())
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                            " Unable to initialize CReceiverReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to initialize CReceiverReport object");
     }
 
     // Create The Sender Report class
-    else if((m_poSenderReport = new CSenderReport(m_ulLocalSSRC,
-                       (ISetReceiverStatistics *)m_poReceiverReport)) == NULL)
+    else if((m_poSenderReport = new CSenderReport(m_ulLocalSSRC, (ISetReceiverStatistics *)m_poReceiverReport)) == NULL)
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                                  " Unable to create CSenderReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to create CSenderReport object");
     }
 
     //  Initialize Sender Report Class
     else if(!m_poSenderReport->Initialize())
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                              " Unable to Initialize CSenderReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to Initialize CSenderReport object");
     }
 
     //  Create The Bye Report class
     else if((m_poByeReport = new CByeReport(m_ulLocalSSRC)) == NULL)
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                                     " Unable to Create CByeReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to Create CByeReport object");
     }
 
     // Initialize Bye Report Class
     else if(!m_poByeReport->Initialize())
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                                 " Unable to Initialize CByeReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to Initialize CByeReport object\n");
     }
     else
         return(TRUE);
