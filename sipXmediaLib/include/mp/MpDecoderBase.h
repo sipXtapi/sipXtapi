@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -68,13 +67,6 @@ public:
      /**<
      *  @retval OS_SUCCESS - Success
      *  @retval OS_NO_MEMORY - Memory allocation failure
-     */
-
-     /// Frees all memory allocated to the decoder by <i>initDecode</i>
-   OsStatus freeDecode();
-     /**<
-     *  @retval OS_SUCCESS - Success
-     *  @retval OS_DELETED - Object has already been deleted
      */
 
 //@}
@@ -165,9 +157,12 @@ private:
    MpCodecInfo mCodecInfo;   ///< Info structure for this codec
    const MpCodecCallInfoV1& mCallInfo; ///< Pointers to actual methods of
                              ///< this codec.
-   UtlBoolean mInitialized;  ///< Is codec initialized?
    void* plgHandle;          ///< Codec internal handle.
    const char* mDefaultFmtp; ///< Fmtp to use if not passed to initDecode().
+
+   bool isInitialized() const;  ///< Is codec initialized?
+
+   void freeDecode();
 
      /// Copy constructor
    MpDecoderBase(const MpDecoderBase& rMpDecoderBase);
@@ -177,5 +172,10 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+inline bool MpDecoderBase::isInitialized() const
+{
+   return (NULL != plgHandle);
+}
 
 #endif  // _MpDecoderBase_h_

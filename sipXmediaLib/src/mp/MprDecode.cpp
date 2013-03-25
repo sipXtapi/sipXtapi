@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -137,7 +137,6 @@ MprDecode::~MprDecode()
 
        for (int codecIndex = 0; codecIndex < mNumCurrentCodecs; codecIndex++)
        {
-           mpCurrentCodecs[codecIndex]->freeDecode();
            delete mpCurrentCodecs[codecIndex];
            mpCurrentCodecs[codecIndex] = NULL;
        }
@@ -164,7 +163,6 @@ void MprDecode::deletePriorCodecs()
    {
       for (int i=0; i<mNumPrevCodecs; i++)
       {
-         mpPrevCodecs[i]->freeDecode();
          delete mpPrevCodecs[i];
          mpPrevCodecs[i] = NULL;
       }
