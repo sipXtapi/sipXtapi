@@ -153,6 +153,7 @@ MpFlowGraphBase::~MpFlowGraphBase()
       while ((key = (UtlInt*) it())) {
          value = (UtlVoidPtr*) mRtcpConnMap.findValue(key);
          pConn = (IRTCPConnection*) value->getValue();
+         OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::~(): Calling (IRTCPConnection*)%p->Release()", pConn);
          refCount = pConn->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
          OsSysLog::add(FAC_MP, PRI_DEBUG, "(IRTCPConnection*)%p->Release() returned %d", pConn, refCount);
          value->setValue(NULL);

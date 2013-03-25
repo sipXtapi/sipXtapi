@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -21,6 +23,12 @@ OsBSem sMultiThreadLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 
 static int sulTotalReferenceCount = 0;
+bool CBaseClass::s_bAllowDeletes = false;
+void CBaseClass::s_SetAllowDeletes(int v)
+{
+    s_bAllowDeletes = (v != 0);
+}
+
 /**
  *
  * Method Name:  CBaseClass() - Constructor
@@ -106,6 +114,8 @@ unsigned long CBaseClass::AddRef CBASECLASS_PROTO_ARGS((int callLineNum))
     
     OsLock lock(sMultiThreadLock);
 
+    assert(m_ulReferences > 0);
+
     //  Increment Reference Count
     m_ulReferences++;
     sulTotalReferenceCount++;
@@ -138,6 +148,8 @@ unsigned long CBaseClass::Release CBASECLASS_PROTO_ARGS((int callLineNum))
 {
     
     OsLock lock(sMultiThreadLock);
+
+    assert(m_ulReferences > 0);
 
     //  Decrement Reference Count
     sulTotalReferenceCount--;

@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -241,6 +243,8 @@ public:
  */
     virtual unsigned long Release ADD_RELEASE_PROTO_ARGS((int callLineNum));
 
+static bool AllowDeletes(void);
+static void s_SetAllowDeletes(int v);
 
 // protected:
 /**
@@ -261,20 +265,20 @@ public:
  *
  * Attribute Name:  m_ulReferences
  *
- * Type:            unsigned long
+ * Type:            int
  *
  * Description:     This member shall keep track of the number of references
  *                  to an object.
  *
  */
-      unsigned long m_ulReferences;
-
-
+      int m_ulReferences;
 
 #ifdef RTCP_DEBUG_REFCOUNTS /* [ */
       const char* m_DerivedType;
       int   m_Line;
 #endif /* RTCP_DEBUG_REFCOUNTS ] */
+
+      static bool s_bAllowDeletes;
 
 };
 
@@ -337,6 +341,12 @@ inline void CBaseClass::setAutomatic(bool yesNo)
     m_bAutomatic = yesNo;
 }
 
+inline bool CBaseClass::AllowDeletes(void)
+{
+    return(s_bAllowDeletes);
+}
+
+
 /**
  *
  * Macro Name:  DECLARE_IBASE_M
@@ -355,20 +365,24 @@ inline void CBaseClass::setAutomatic(bool yesNo)
  *
  *
  */
-#define DECLARE_IBASE_M                                 \
-   unsigned long AddRef ADD_RELEASE_PROTO_ARGS((int callLineNum))                       \
-   {                                                    \
-      if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG,  __FILE__ " %p->AddRef(%d),  count: %ld", this, callLineNum, m_ulReferences); \
-      return CBaseClass::AddRef(ADD_RELEASE_CALL_ARGS(callLineNum));                  \
-   }                                                   \
+#define DECLARE_IBASE_M \
+   unsigned long AddRef ADD_RELEASE_PROTO_ARGS((int callLineNum)) \
+   { \
+      if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG,  __FILE__ " %p->AddRef(%d),  count: %d", this, callLineNum, m_ulReferences); \
+      return CBaseClass::AddRef(ADD_RELEASE_CALL_ARGS(callLineNum)); \
+   } \
    unsigned long Release ADD_RELEASE_PROTO_ARGS((int callLineNum)) \
-   {                                                    \
-      unsigned long ulRefCount;                         \
-      if((ulRefCount = CBaseClass::Release(ADD_RELEASE_CALL_ARGS(callLineNum))) == 0)     \
-      {                                                 \
-        delete this;                                    \
-      }                                                 \
-      if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG,  __FILE__ " %p->Release(%d), count: %ld", this, callLineNum, ulRefCount); \
-      return(ulRefCount);                               \
+   { \
+      int ulRefCount; \
+      if((ulRefCount = CBaseClass::Release(ADD_RELEASE_CALL_ARGS(callLineNum))) == 0) \
+      { \
+        if (CBaseClass::AllowDeletes()) { \
+          delete this; \
+        } else { \
+          if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG,  __FILE__ " %p->Release(%d) [would delete this]", this, callLineNum); \
+        } \
+      } \
+      if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG,  __FILE__ " %p->Release(%d), count: %d", this, callLineNum, ulRefCount); \
+      return(ulRefCount); \
    }
 #endif /* ] */

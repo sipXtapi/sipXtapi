@@ -183,7 +183,7 @@ OsStatus MpRtpOutputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
         {
            mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch, &piRTPDispatch, &piRTPAccumulator);
         }
-
+        piRTCPDispatch->Release(ADD_RELEASE_CALL_ARGS(__LINE__)); piRTPDispatch->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         // Set the Statistics interface to be used by the RTP stream to increment
         // packet and octet statistics
         mpToNet->setRTPAccumulator(piRTPAccumulator);

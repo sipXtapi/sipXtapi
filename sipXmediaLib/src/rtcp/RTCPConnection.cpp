@@ -70,7 +70,13 @@ CRTCPConnection::CRTCPConnection(unsigned long ulSSRC,
         m_poRTCPRender(NULL),
         m_poRTCPSource(NULL)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::CRTCPConnection() -> %p", this);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::CRTCPConnection() -> %p, SSRC=0x%lx", this, ulSSRC);
+
+    ////////////////////////////////////////////////////////////////////////////
+    // HACK:  Adding this to compensate for a missing AddRef()... somewhere...
+    //   that results in this being deleted one Release() too soon.
+    AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+    ////////////////////////////////////////////////////////////////////////////
 
     // Cache SSRC
     m_ulSSRC = ulSSRC;

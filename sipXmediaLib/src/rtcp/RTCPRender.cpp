@@ -106,6 +106,13 @@ CRTCPRender::~CRTCPRender(void)
         m_piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     ((ISenderReport *)m_poSenderReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // HACK:  Adding this call to Release() to compensate for a missing one... somewhere...
+    //    to fix that we were leaking these with ref count == 1.
+    ((ISenderReport *)m_poSenderReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    ///////////////////////////////////////////////////////////////////////////////////////
+
     ((IReceiverReport *)m_poReceiverReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     ((IByeReport *)m_poByeReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 

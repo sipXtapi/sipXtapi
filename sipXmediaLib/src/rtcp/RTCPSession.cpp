@@ -382,10 +382,7 @@ void CRTCPSession::TerminateAllConnections(void)
         // Terminate RTCPConnection and release reference
         poRTCPConnection->Terminate();
 
-        // Release reference twice.  Once for its removal from the collection
-        //  and once on behalf fo the client since this method serves to
-        //  terminate the connection and release the client's reference.
-        ((IRTCPConnection *)poRTCPConnection)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+        // Release reference
         ((IRTCPConnection *)poRTCPConnection)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Remove Next Entry

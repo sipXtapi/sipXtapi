@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -21,12 +23,15 @@
 
    // Static Variable Initialization
 CRTCManager *CRTCManager::m_spoRTCManager = NULL;
-#if RTCP_DEBUG /* [ */
+
+#define RTCP_DEBUG
+
+#if PINGTEL_DEBUG /* [ */
 bool        bPingtelDebug = FALSE;
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
 
-#if RTCP_DEBUG /* [ */
+#if PINGTEL_DEBUG /* [ */
     // Global Function used to turn RTCP debugging ON or OFF during runtime
 int SetRTCPDebug(int iFlag)
 {
@@ -37,7 +42,7 @@ int SetRTCPDebug(int iFlag)
 
     return(bPingtelDebug);
 }
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
 /**
  *
@@ -374,13 +379,13 @@ IRTCPSession * CRTCManager::CreateSession(unsigned long ulSSRC)
         return(NULL);
     }
 
-#if RTCP_DEBUG /* [ */
+#if PINGTEL_DEBUG /* [ */
     if(bPingtelDebug)
     {
         osPrintf("*** RTCP SESSION CREATED ****\n");
         osPrintf("\t  SESSION ==> %d\n", poRTCPSession->GetSessionID());
     }
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
     ((IRTCPSession *)poRTCPSession)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     return((IRTCPSession *)poRTCPSession);
@@ -417,13 +422,13 @@ bool CRTCManager::TerminateSession(IRTCPSession *piSession)
     if (poRTCPSession != NULL)
     {
 
-#if RTCP_DEBUG /* [ */
+#if PINGTEL_DEBUG /* [ */
         if(bPingtelDebug)
         {
             osPrintf("*** RTCP SESSION TERMINATED ****\n");
             osPrintf("\t ON SESSION ==> %d\n", poRTCPSession->GetSessionID());
         }
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
         // Terminate All RTCP Connections
         ((IRTCPSession *)poRTCPSession)->TerminateAllConnections();
@@ -439,8 +444,8 @@ bool CRTCManager::TerminateSession(IRTCPSession *piSession)
     return(FALSE);
 }
 
-#if 0 /* [ */
-char * getTypeName(int ulMsgType)
+#ifdef RTCP_DEBUG /* [ */
+const char * getTypeName(int ulMsgType)
 {
    static char buff[20];
    switch (ulMsgType) {
@@ -460,7 +465,7 @@ char * getTypeName(int ulMsgType)
    sprintf(buff, "%d", ulMsgType);
    return buff;
 }
-#endif /* ] */
+#endif /* INCLUDE_RTCP ] */
 
 /**
  *
@@ -487,14 +492,16 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
 {
     static const int WANT_FORWARDING = 0;
 
-    // Determine the type of message taken from the queue
-    unsigned long   ulMsgType     = poMessage->GetMsgType();
-    IRTCPSession    *piSession    =
-                            (IRTCPSession *)poMessage->GetThirdArgument();
-    IRTCPConnection *piConnection =
-                            (IRTCPConnection *)poMessage->GetSecondArgument();
-    IBaseClass      *piBaseClass  =
-                            (IBaseClass *)poMessage->GetFirstArgument();
+    unsigned long   ulMsgType;
+    void *p1, *p2, *p3, *p4, *p5;
+    poMessage->GetContents(&ulMsgType, &p1, &p2, &p3, &p4, &p5);
+#ifdef RTCP_DEBUG /* [ */
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ProcessMessage(%s, %p, %p, %p, %p, %p) START", getTypeName(ulMsgType), p1, p2, p3, p4, p5);
+#endif /* INCLUDE_RTCP ] */
+
+    IRTCPSession    *piSession    = (IRTCPSession *)p3;
+    IRTCPConnection *piConnection = (IRTCPConnection *)p2;
+    IBaseClass      *piBaseClass  = (IBaseClass *)p1;
 
     // Determine whether specific session or connection base processing
     // should occur as the result of this event
@@ -695,9 +702,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
 
                 default:
                     // This is an Error Condition
-                    osPrintf("**** FAILURE **** CRTCManager::ProcessMessage()"
-                         " - An invalid message type was encountered - %lu\n",
-                         ulMsgType);
+                    OsSysLog::add(FAC_MP, PRI_ERR, "CRTCManager::ProcessMessage: Invalid message type was encountered: %lu", ulMsgType);
                     break;
 
             }
@@ -719,6 +724,9 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
     if(piBaseClass)
         piBaseClass->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
+#ifdef RTCP_DEBUG /* [ */
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ProcessMessage(%s, %p, %p, %p, %p, %p) DONE", getTypeName(ulMsgType), p1, p2, p3, p4, p5);
+#endif /* INCLUDE_RTCP ] */
     return(TRUE);
 }
 
@@ -1236,14 +1244,14 @@ void CRTCManager::LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
                                      IRTCPSession       *piRTCPSession)
 {
 
-#if RTCP_DEBUG /* [ */
+#if PINGTEL_DEBUG /* [ */
     if(bPingtelDebug)
     {
          osPrintf("*** LOCAL SSRC COLLISION DETECTED ****\n");
          osPrintf("\t ON SESSION ==> %d\n", piRTCPSession->GetSessionID());
          osPrintf("\t WITH SSRC  ==> %d\n", piRTCPSession->GetSSRC());
     }
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
     // Create a message structure populated with the contents
     // of this event notification
@@ -1290,14 +1298,14 @@ void CRTCManager::LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
 void CRTCManager::RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,
                                      IRTCPSession        *piRTCPSession)
 {
-#if RTCP_DEBUG /* [ */
+#if PINGTEL_DEBUG /* [ */
     if(bPingtelDebug)
     {
          osPrintf("*** REMOTE SSRC COLLISION DETECTED ****\n");
          osPrintf("\t ON SESSION ==> %d\n", piRTCPSession->GetSessionID());
          osPrintf("\t WITH SSRC  ==> %d\n", piRTCPConnection->GetRemoteSSRC());
     }
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
     // Create a message structure populated with the contents
     // of this event notification
