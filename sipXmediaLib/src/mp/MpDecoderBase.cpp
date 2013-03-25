@@ -26,6 +26,7 @@ MpDecoderBase::MpDecoderBase(int payloadType,
 : mPayloadType(payloadType)
 , mCodecInfo(codecInfo) // This fills only first part (non-fmtp) of codec information.
 , mCallInfo(callInfo)
+, plgHandle(NULL)
 , mInitialized(FALSE)
 , mDefaultFmtp(defaultFmtp)
 {
@@ -43,6 +44,9 @@ OsStatus MpDecoderBase::initDecode(const char *fmtp)
 {
    MppCodecFmtpInfoV1_2 fmtpInfo;
 
+   if (plgHandle != NULL) {
+      freeDecode();
+   }
    plgHandle = mCallInfo.mPlgInit(fmtp, CODEC_DECODER, &fmtpInfo);
 
    if (plgHandle == NULL)
@@ -73,6 +77,7 @@ OsStatus MpDecoderBase::freeDecode()
 
    mCallInfo.mPlgFree(plgHandle, CODEC_DECODER);
    mInitialized = FALSE;
+   plgHandle = NULL;
 
    return OS_SUCCESS;
 }
