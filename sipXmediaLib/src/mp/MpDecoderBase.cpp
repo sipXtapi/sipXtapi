@@ -26,32 +26,27 @@ MpDecoderBase::MpDecoderBase(int payloadType,
 : mPayloadType(payloadType)
 , mCodecInfo(codecInfo) // This fills only first part (non-fmtp) of codec information.
 , mCallInfo(callInfo)
-, mInitialized(FALSE)
+, plgHandle(NULL)
 , mDefaultFmtp(defaultFmtp)
 {
 }
 
 MpDecoderBase::~MpDecoderBase()
 {
-   if (mInitialized)
-   {
-      freeDecode();
-   }
+   freeDecode();
 }
 
 OsStatus MpDecoderBase::initDecode(const char *fmtp)
 {
    MppCodecFmtpInfoV1_2 fmtpInfo;
 
+   freeDecode();
    plgHandle = mCallInfo.mPlgInit(fmtp, CODEC_DECODER, &fmtpInfo);
 
    if (plgHandle == NULL)
    {
-      mInitialized = FALSE;
       return OS_INVALID_STATE;
    }
-
-   mInitialized = TRUE;
 
    // Fill in remaining (fmtp) part of codec information
    mCodecInfo = MpCodecInfo((MppCodecInfoV1_1&)mCodecInfo, fmtpInfo);
@@ -64,17 +59,13 @@ OsStatus MpDecoderBase::initDecode()
    return initDecode(mDefaultFmtp);
 }
 
-OsStatus MpDecoderBase::freeDecode()
+void MpDecoderBase::freeDecode()
 {
-   if (!mInitialized)
+   if (isInitialized())
    {
-      return OS_INVALID_STATE;
+      mCallInfo.mPlgFree(plgHandle, CODEC_DECODER);
+      plgHandle = NULL;
    }
-
-   mCallInfo.mPlgFree(plgHandle, CODEC_DECODER);
-   mInitialized = FALSE;
-
-   return OS_SUCCESS;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -92,7 +83,7 @@ int MpDecoderBase::decode(const MpRtpBufPtr &pPacket,
    unsigned decodedSize = 0;
    int res = RPLG_FAILED;
 
-   if (!mInitialized)
+   if (!isInitialized())
    {
 #ifdef TEST_PRINT
    OsSysLog::add(FAC_MP, PRI_DEBUG,
@@ -155,7 +146,7 @@ int MpDecoderBase::decode(const MpRtpBufPtr &pPacket,
 
 const MpCodecInfo* MpDecoderBase::getInfo() const
 {
-   if (mInitialized)
+   if (isInitialized())
    {
       return &mCodecInfo;
    }
@@ -173,7 +164,7 @@ OsStatus MpDecoderBase::getSignalingData(uint8_t &event,
                                          UtlBoolean &isStopped,
                                          uint16_t &duration)
 {
-   if (!mInitialized)
+   if (!isInitialized())
       return OS_INVALID_STATE;
 
    if (!mCodecInfo.isSignalingCodec()) 
@@ -205,3 +196,4 @@ OsStatus MpDecoderBase::getSignalingData(uint8_t &event,
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+

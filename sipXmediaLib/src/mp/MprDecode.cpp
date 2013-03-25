@@ -137,7 +137,6 @@ MprDecode::~MprDecode()
 
        for (int codecIndex = 0; codecIndex < mNumCurrentCodecs; codecIndex++)
        {
-           mpCurrentCodecs[codecIndex]->freeDecode();
            delete mpCurrentCodecs[codecIndex];
            mpCurrentCodecs[codecIndex] = NULL;
        }
@@ -164,7 +163,6 @@ void MprDecode::deletePriorCodecs()
    {
       for (int i=0; i<mNumPrevCodecs; i++)
       {
-         mpPrevCodecs[i]->freeDecode();
          delete mpPrevCodecs[i];
          mpPrevCodecs[i] = NULL;
       }

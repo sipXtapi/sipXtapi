@@ -70,13 +70,6 @@ public:
      *  @retval OS_NO_MEMORY - Memory allocation failure
      */
 
-     /// Frees all memory allocated to the decoder by <i>initDecode</i>
-   OsStatus freeDecode();
-     /**<
-     *  @retval OS_SUCCESS - Success
-     *  @retval OS_DELETED - Object has already been deleted
-     */
-
 //@}
 
 /* ============================ MANIPULATORS ============================== */
@@ -165,9 +158,12 @@ private:
    MpCodecInfo mCodecInfo;   ///< Info structure for this codec
    const MpCodecCallInfoV1& mCallInfo; ///< Pointers to actual methods of
                              ///< this codec.
-   UtlBoolean mInitialized;  ///< Is codec initialized?
    void* plgHandle;          ///< Codec internal handle.
    const char* mDefaultFmtp; ///< Fmtp to use if not passed to initDecode().
+
+   bool isInitialized() const;  ///< Is codec initialized?
+
+   void freeDecode();
 
      /// Copy constructor
    MpDecoderBase(const MpDecoderBase& rMpDecoderBase);
@@ -177,5 +173,10 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+inline bool MpDecoderBase::isInitialized() const
+{
+   return (NULL != plgHandle);
+}
 
 #endif  // _MpDecoderBase_h_
