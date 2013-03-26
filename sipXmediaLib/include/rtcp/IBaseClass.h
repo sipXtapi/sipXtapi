@@ -60,7 +60,7 @@ virtual ~IBaseClass() {}
  *
  *
  */
-    virtual unsigned long AddRef(void)=0;
+    virtual unsigned long AddRef ADD_RELEASE_PROTO_ARGS((int line))=0;
 
 /**
  *
@@ -79,7 +79,7 @@ virtual ~IBaseClass() {}
  *
  *
  */
-    virtual unsigned long Release(void)=0;
+    virtual unsigned long Release ADD_RELEASE_PROTO_ARGS((int line))=0;
 
 
 };

@@ -63,4 +63,19 @@ typedef uint32_t ssrc_t;
 typedef uint32_t rtpts_t;
 
 
+#define RTCP_DEBUG_REFCOUNTS
+#undef RTCP_DEBUG_REFCOUNTS
+#ifdef RTCP_DEBUG_REFCOUNTS /* [ */
+#define ADD_RELEASE_CALL_ARGS(x) (x)
+#define ADD_RELEASE_PROTO_ARGS(x) x
+#define CBASECLASS_CALL_ARGS(x, y) x, y
+#define CBASECLASS_PROTO_ARGS(x) x
+#else /* RTCP_DEBUG_REFCOUNTS ] [ */
+#define ADD_RELEASE_CALL_ARGS(x)
+#define ADD_RELEASE_PROTO_ARGS(x) (void)
+#define CBASECLASS_CALL_ARGS(x, y)
+#define CBASECLASS_PROTO_ARGS(x) ()
+#define callLineNum 0
+#endif /* RTCP_DEBUG_REFCOUNTS ] */
+
 #endif /* _RTCPCONFIG_H_ ] */

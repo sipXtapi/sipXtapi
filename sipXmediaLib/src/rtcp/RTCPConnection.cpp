@@ -15,7 +15,7 @@
 #include "rtcp/RTCPConnection.h"
 #ifdef INCLUDE_RTCP /* [ */
 
-// #include "os/OsSysLog.h"
+#include "os/OsSysLog.h"
 
 // Constants
 #define DEBUGGING_RTCP_REPORTS
@@ -64,11 +64,19 @@ const int REPORT_PERIOD_MS =   5000;   // 5 Seconds
  */
 CRTCPConnection::CRTCPConnection(unsigned long ulSSRC,
     IRTCPNotify *piRTCPNotify, ISDESReport *piSDESReport) :
+        CBaseClass(CBASECLASS_CALL_ARGS("CRTCPConnection", __LINE__)),
         CRTCPTimer(REPORT_PERIOD_MS),
         m_piRTCPNetworkRender(NULL),
         m_poRTCPRender(NULL),
         m_poRTCPSource(NULL)
 {
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::CRTCPConnection() -> %p, SSRC=0x%lx", this, ulSSRC);
+
+    ////////////////////////////////////////////////////////////////////////////
+    // HACK:  Adding this to compensate for a missing AddRef()... somewhere...
+    //   that results in this being deleted one Release() too soon.
+    AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+    ////////////////////////////////////////////////////////////////////////////
 
     // Cache SSRC
     m_ulSSRC = ulSSRC;
@@ -77,7 +85,7 @@ CRTCPConnection::CRTCPConnection(unsigned long ulSSRC,
     if(piSDESReport)
     {
         m_piSDESReport = piSDESReport;
-        m_piSDESReport->AddRef();
+        m_piSDESReport->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
     // Store Notification Interface
@@ -85,7 +93,7 @@ CRTCPConnection::CRTCPConnection(unsigned long ulSSRC,
     if(m_piRTCPNotify)
     {
         m_ulEventInterest = m_piRTCPNotify->GetEventInterest();
-        m_piRTCPNotify->AddRef();
+        m_piRTCPNotify->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
 
@@ -115,11 +123,18 @@ CRTCPConnection::CRTCPConnection(unsigned long ulSSRC,
 CRTCPConnection::~CRTCPConnection(void)
 {
 
+    int c1, c2;
+    c1 = c2 = -1;
+    if (m_poRTCPRender) c1 = m_poRTCPRender->m_ulReferences;
+    if (m_poRTCPSource) c2 = m_poRTCPSource->m_ulReferences;
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::~CRTCPConnection(%p): ref counts: %d, %d", this, c1, c2);
     // Terminate Connection and release any remaining references to interfaces
     //  and objects
     Terminate();
-    m_piRTCPNotify->Release();
-    m_piSDESReport->Release();
+    m_piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    m_piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    // m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    // m_poRTCPSource->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
 }
 
@@ -149,12 +164,10 @@ bool CRTCPConnection::Initialize(void)
     bool                    bInitialized = FALSE;
 
     // Create The RTCP Render object
-    m_poRTCPRender =
-               new CRTCPRender(m_ulSSRC, (IRTCPNotify *)this, m_piSDESReport);
+    m_poRTCPRender = new CRTCPRender(m_ulSSRC, (IRTCPNotify *)this, m_piSDESReport);
     if (m_poRTCPRender == NULL)
     {
-        osPrintf("**** FAILURE **** CRTCPConnection::Initialize() -"
-                                    " Unable to Create CRTCPRender object\n");
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::Initialize - Unable to Create CRTCPRender object");
         return(bInitialized);
     }
 
@@ -168,24 +181,22 @@ bool CRTCPConnection::Initialize(void)
     else
     {
         // Release Transient references
-        osPrintf("**** FAILURE **** CRTCPConnection::CRTCPConnection() -"
-                                " Unable to Initialize CRTCPRender object\n");
-        m_poRTCPRender->Release();
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::Initialize - Unable to Initialize CRTCPRender object");
+        m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(bInitialized);
     }
 
     // Create The RTCP Source object
-    m_poRTCPSource =
-              new CRTCPSource(m_ulSSRC, (IRTCPNotify *)this, piReceiverStats);
+    m_poRTCPSource = new CRTCPSource(m_ulSSRC, (IRTCPNotify *)this, piReceiverStats);
     if (m_poRTCPSource == NULL)
     {
-        osPrintf("**** FAILURE **** CRTCPConnection::CRTCPConnection() -"
-                                    " Unable to Create CRTCPSource object\n");
-        m_poRTCPRender->Release();
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::Initialize - Unable to Create CRTCPSource object");
+        m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+        return(bInitialized);
     }
 
-    // Initialize RTCP Source object.  If initialization suceeds, set the
-    //  initialize flag for the connection object to True.
+    // Initialize RTCP Source object.  If initialization succeeds, set the
+    //  initialized flag for the connection object to True.
     else if(m_poRTCPSource->Initialize())
     {
        bInitialized = TRUE;
@@ -195,15 +206,15 @@ bool CRTCPConnection::Initialize(void)
     //  indication of the failure.
     else
     {
-        osPrintf("**** FAILURE **** CRTCPConnection::CRTCPConnection() -"
-                                " Unable to Initialize CRTCPSource object\n");
-        m_poRTCPRender->Release();
-        m_poRTCPSource->Release();
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::Initialize - Unable to Initialize CRTCPSource object");
+        m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+        m_poRTCPSource->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::Initialize: this=%p, m_poRTCPRender=%p, m_poRTCPSource=%p", this, m_poRTCPRender, m_poRTCPSource);
 
 
     // Release Transient reference
-    piReceiverStats->Release();
+    piReceiverStats->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     return(bInitialized);
 
@@ -243,22 +254,24 @@ void CRTCPConnection::GetDispatchInterfaces(INetDispatch **ppiNetDispatch,
                                         ISetSenderStatistics **ppiSenderStats)
 {
 
-    // Assign the Network Dispatch interface of the corresponding RTCP Source
-    //  object
-    *ppiSenderStats = NULL;
-    *ppiNetDispatch = (INetDispatch *)m_poRTCPSource;
-    if(m_poRTCPSource)
-        (*ppiNetDispatch)->AddRef();
+    // Assign the Network Dispatch interface to the corresponding RTCP Source object
+    if (m_poRTCPSource) {
+        *ppiNetDispatch = (INetDispatch *)m_poRTCPSource;
+    } else {
+        *ppiNetDispatch = NULL;
+    }
 
-    // Assign the RTP Dispatch interface fo the Receiver Report associated
+    // Assign the RTP Dispatch interface to the Receiver Report associated
     //  with the RTCP Render object
-    *ppiRTPDispatch = (IRTPDispatch *)m_poRTCPRender;
-    if(m_poRTCPRender)
+    if (m_poRTCPRender)
     {
-        (*ppiRTPDispatch)->AddRef();
+        *ppiRTPDispatch = (IRTPDispatch *)m_poRTCPRender;
 
         // Retrieve the Sender Report Statistical Interface
         m_poRTCPRender->GetSenderStatInterface(ppiSenderStats);
+    } else {
+        *ppiRTPDispatch = NULL;
+        *ppiSenderStats = NULL;
     }
 }
 
@@ -284,7 +297,7 @@ IRTCPRender *CRTCPConnection::GetRenderInterface(void)
 {
 
     if(m_poRTCPRender)
-        ((IRTCPRender *)m_poRTCPRender)->AddRef();
+        ((IRTCPRender *)m_poRTCPRender)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     return((IRTCPRender *)m_poRTCPRender);
 
@@ -323,15 +336,14 @@ bool CRTCPConnection::StartRenderer(INetworkRender *piRTCPNetworkRender)
     if (!(m_piRTCPNetworkRender))
     {
         // Identify source of Error
-        osPrintf("*** FAILURE *** CRTCPConnection::StartRenderer() -"
-                                     " Unable to Create Net Render Object\n");
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::StartRenderer - Unable to Create Net Render Object");
         return(FALSE);
     }
 #else
     // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::StartRenderer(INetworkRender *%p)", piRTCPNetworkRender);
     // Load the Netwok Render object internally and bump the reference count
     m_piRTCPNetworkRender = piRTCPNetworkRender;
-    m_piRTCPNetworkRender->AddRef();
+    m_piRTCPNetworkRender->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 #endif
 
     // Let's load up the RTCP Render Object with the Network Interface
@@ -340,11 +352,10 @@ bool CRTCPConnection::StartRenderer(INetworkRender *piRTCPNetworkRender)
     // Initialize RTCP Timer object
     if(!CRTCPTimer::Initialize())
     {
-        osPrintf("**** FAILURE **** CRTCPConnection::StartRenderer() -"
-                                " Unable to Start Connection Report Timer\n");
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::StartRenderer - Unable to Start Connection Report Timer");
         // Let's Clear and release the Renderer in light of the recent failure
         m_poRTCPRender->ClearNetworkRender();
-        m_piRTCPNetworkRender->Release();
+        m_piRTCPNetworkRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_piRTCPNetworkRender = NULL;
         return(FALSE);
     }
@@ -416,8 +427,8 @@ void CRTCPConnection::GenerateRTCPReports(unsigned char *puchByeReason,
     // Check for SDES Report
     if(ulReportMask & RTCP_SDES_SENT)
     {
-        piGetSrcDescription->AddRef();
-        ((IRTCPConnection *)this)->AddRef();
+        piGetSrcDescription->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+        ((IRTCPConnection *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_piRTCPNotify->SDESReportSent(piGetSrcDescription,
                                                      (IRTCPConnection *)this);
     }
@@ -425,8 +436,8 @@ void CRTCPConnection::GenerateRTCPReports(unsigned char *puchByeReason,
     // Check for Sender Report
     if(ulReportMask & RTCP_SR_SENT)
     {
-        piSenderStatistics->AddRef();
-        ((IRTCPConnection *)this)->AddRef();
+        piSenderStatistics->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+        ((IRTCPConnection *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_piRTCPNotify->SenderReportSent(piSenderStatistics,
                                                      (IRTCPConnection *)this);
     }
@@ -434,8 +445,8 @@ void CRTCPConnection::GenerateRTCPReports(unsigned char *puchByeReason,
     // Check for Receiver Report
     if(ulReportMask & RTCP_RR_SENT)
     {
-        piReceiverStatistics->AddRef();
-        ((IRTCPConnection *)this)->AddRef();
+        piReceiverStatistics->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+        ((IRTCPConnection *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_piRTCPNotify->ReceiverReportSent(piReceiverStatistics,
                                                      (IRTCPConnection *)this);
     }
@@ -443,16 +454,16 @@ void CRTCPConnection::GenerateRTCPReports(unsigned char *puchByeReason,
     // Check for Bye Report
     if(ulReportMask & RTCP_BYE_SENT)
     {
-        piGetByeInfo->AddRef();
-        ((IRTCPConnection *)this)->AddRef();
+        piGetByeInfo->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+        ((IRTCPConnection *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_piRTCPNotify->ByeReportSent(piGetByeInfo, (IRTCPConnection *)this);
     }
 
     // Release references
-    piGetSrcDescription->Release();
-    piSenderStatistics->Release();
-    piReceiverStatistics->Release();
-    piGetByeInfo->Release();
+    piGetSrcDescription->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    piSenderStatistics->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    piReceiverStatistics->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    piGetByeInfo->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 }
 
 /**
@@ -493,7 +504,7 @@ bool CRTCPConnection::StopRenderer(void)
     if(m_piRTCPNetworkRender)
     {
         m_poRTCPRender->ClearNetworkRender();
-        m_piRTCPNetworkRender->Release();
+        m_piRTCPNetworkRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_piRTCPNetworkRender = NULL;
     }
 
@@ -522,23 +533,26 @@ bool CRTCPConnection::StopRenderer(void)
  *               object and its consituents to be gracefully deallocated.
  *
  */
-bool CRTCPConnection::Terminate(void)
+bool CRTCPConnection::Terminate()
 {
 
-    // Let's Stop the Redner if it hasn't already been done
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::Terminate(%p)", this);
+    // Let's Stop the Render if it hasn't already been done
     StopRenderer();
 
     // Release RTCP Source object
     if(m_poRTCPSource)
     {
-        m_poRTCPSource->Release();
+        // m_poRTCPSource->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__)); while (m_poRTCPSource->Release(__LINE__));
+        m_poRTCPSource->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_poRTCPSource = NULL;
     }
 
     // Release RTCP Render object
     if(m_poRTCPRender)
     {
-        m_poRTCPRender->Release();
+        // m_poRTCPRender->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__)); while(m_poRTCPRender->Release(__LINE__));
+        m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_poRTCPRender = NULL;
     }
 
@@ -574,8 +588,8 @@ void CRTCPConnection::NewSDES(IGetSrcDescription *piGetSrcDescription,
                           IRTCPSession       *piRTCPSession)
 {
 
-    // Send the event with the correpsonding info.
-    ((IRTCPConnection *)this)->AddRef();
+    // Send the event with the corresponding info.
+    ((IRTCPConnection *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->NewSDES(piGetSrcDescription, (IRTCPConnection *)this);
 
 }
@@ -612,7 +626,7 @@ void CRTCPConnection::UpdatedSDES(IGetSrcDescription *piGetSrcDescription,
 {
 
     // Send the event with the correpsonding info.
-    ((IRTCPConnection *)this)->AddRef();
+    ((IRTCPConnection *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->UpdatedSDES(piGetSrcDescription,
                                        ulChangeMask, (IRTCPConnection *)this);
 
@@ -648,7 +662,7 @@ void CRTCPConnection::SenderReportReceived(
 {
 
     // Send the event with the correpsonding info.
-    ((IRTCPConnection *)this)->AddRef();
+    ((IRTCPConnection *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->SenderReportReceived(piGetSenderStatistics,
                                                      (IRTCPConnection *)this);
 
@@ -684,7 +698,7 @@ void CRTCPConnection::ReceiverReportReceived(
 {
 
     // Send the event with the correpsonding info.
-    ((IRTCPConnection *)this)->AddRef();
+    ((IRTCPConnection *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->ReceiverReportReceived(piGetReceiverStatistics,
                                                      (IRTCPConnection *)this);
 }
@@ -720,7 +734,7 @@ void CRTCPConnection::ByeReportReceived(IGetByeInfo        *piGetByeInfo,
 {
 
     // Send the event with the correpsonding info.
-    ((IRTCPConnection *)this)->AddRef();
+    ((IRTCPConnection *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->ByeReportReceived(piGetByeInfo,  (IRTCPConnection *)this);
 
 
@@ -755,7 +769,7 @@ void CRTCPConnection::RTCPReportingAlarm(IRTCPConnection *piRTCPConnection,
 
     // Send the event with the correpsonding info if the timer is
     //  still in force
-    ((IRTCPConnection *)this)->AddRef();
+    ((IRTCPConnection *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->RTCPReportingAlarm((IRTCPConnection *)this);
 
 }

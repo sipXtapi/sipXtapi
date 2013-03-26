@@ -84,13 +84,14 @@ OsBSem SR_sMultiThreadLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
  */
 CSenderReport::CSenderReport(ssrc_t ulSSRC,
                              ISetReceiverStatistics *piSetStatistics) :
+          CBaseClass(CBASECLASS_CALL_ARGS("CSenderReport", __LINE__)),
           CRTCPHeader(ulSSRC, etSenderReport),  // Base class construction
           m_ulPacketCount(0),
           m_ulOctetCount(0),
           m_bMediaSent(FALSE),
           m_ulRTPTimestamp(0)
-          , m_iUSecAdjust(0)
           , m_iTSCollectState(0)
+          , m_iUSecAdjust(0)
 {
 
 
@@ -99,7 +100,7 @@ CSenderReport::CSenderReport(ssrc_t ulSSRC,
 
     // Increment the interface's reference counter
     if(m_piSetReceiverStatistics)
-        m_piSetReceiverStatistics->AddRef();
+        m_piSetReceiverStatistics->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     // Initialize NTP Timestamps
     m_aulNTPTimestamp[0]      = 0;
@@ -138,7 +139,7 @@ CSenderReport::~CSenderReport(void)
 
     // Release the interface's reference counter
     if(m_piSetReceiverStatistics)
-        m_piSetReceiverStatistics->Release();
+        m_piSetReceiverStatistics->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
 }
 

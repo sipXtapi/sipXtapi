@@ -228,30 +228,6 @@ public:
  */
     IRTCPRender * GetRenderInterface(void);
 
-#ifdef PINGTEL_OSSOCKET
-/**
- *
- * Method Name:  StartRenderer()
- *
- *
- * Inputs:      OsSocket& rRtcpSocket   - Reference to an RTCP Socket object
- *
- * Outputs:     None
- *
- * Returns:     bool                    - Result of Starting the Renderer
- *
- * Description: This method starts the RTCP Renderer allowing it to generate
- *              RTCP reports on regular intervals.
- *
- *
- * Usage Notes:
- *
- */
-    bool StartRenderer(OsSocket& rRtcpSocket);
-#else
-    bool StartRenderer(INetworkRender *piNetworkRender);
-#endif
-
 /**
  *
  * Method Name: GenerateRTCPReports
@@ -690,9 +666,33 @@ public:
 DECLARE_IBASE_M
 
 
-
-
 private:        // Private Data Members
+
+#ifdef PINGTEL_OSSOCKET
+/**
+ *
+ * Method Name:  StartRenderer()
+ *
+ *
+ * Inputs:      OsSocket& rRtcpSocket   - Reference to an RTCP Socket object
+ *
+ * Outputs:     None
+ *
+ * Returns:     bool                    - Result of Starting the Renderer
+ *
+ * Description: This method starts the RTCP Renderer allowing it to generate
+ *              RTCP reports on regular intervals.
+ *
+ *
+ * Usage Notes:
+ *
+ */
+    bool StartRenderer(OsSocket& rRtcpSocket);
+#else
+    bool StartRenderer(INetworkRender *piNetworkRender);
+#endif
+
+
 
 /**
  *

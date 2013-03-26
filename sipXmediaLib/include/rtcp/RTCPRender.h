@@ -648,7 +648,7 @@ inline void CRTCPRender::SetNetworkRender(INetworkRender *piNetworkRender)
 
 //  Store the Network Render interface
     m_piNetworkRender = piNetworkRender;
-    m_piNetworkRender->AddRef();
+    m_piNetworkRender->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
 }
 
@@ -676,7 +676,7 @@ inline void CRTCPRender::ClearNetworkRender(void)
 //  Clear the Network Render interface
     if(m_piNetworkRender)
     {
-        m_piNetworkRender->Release();
+        m_piNetworkRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_piNetworkRender = NULL;
     }
 

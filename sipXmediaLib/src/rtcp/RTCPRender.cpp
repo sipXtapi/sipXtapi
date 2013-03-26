@@ -45,6 +45,7 @@ const int MAX_BUFFER_SIZE = 1500;
  */
 CRTCPRender::CRTCPRender(ssrc_t ulSSRC,
           IRTCPNotify *piRTCPNotify, ISDESReport *piSDESReport):
+          CBaseClass(CBASECLASS_CALL_ARGS("CRTCPRender", __LINE__)),
           m_piNetworkRender(NULL),
           m_ulReportCount(0),
           m_ulRemoteSSRC(0),
@@ -59,9 +60,9 @@ CRTCPRender::CRTCPRender(ssrc_t ulSSRC,
 
     // Increment reference counts to interfaces passed
     if(piSDESReport)
-        piSDESReport->AddRef();
+        piSDESReport->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     if(piRTCPNotify)
-        piRTCPNotify->AddRef();
+        piRTCPNotify->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 }
 
 
@@ -100,13 +101,20 @@ CRTCPRender::~CRTCPRender(void)
 
     // Release object references and terminate
     if(m_piSDESReport)
-        m_piSDESReport->Release();
+        m_piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     if(m_piRTCPNotify)
-        m_piRTCPNotify->Release();
+        m_piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
-    ((ISenderReport *)m_poSenderReport)->Release();
-    ((IReceiverReport *)m_poReceiverReport)->Release();
-    ((IByeReport *)m_poByeReport)->Release();
+    ((ISenderReport *)m_poSenderReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // HACK:  Adding this call to Release() to compensate for a missing one... somewhere...
+    //    to fix that we were leaking these with ref count == 1.
+    ((ISenderReport *)m_poSenderReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    ((IReceiverReport *)m_poReceiverReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    ((IByeReport *)m_poByeReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
 }
 
@@ -140,44 +148,37 @@ bool CRTCPRender::Initialize(void)
     // Create The Receiver Report class
     if((m_poReceiverReport = new CReceiverReport(m_ulLocalSSRC)) == NULL)
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                                " Unable to create CReceiverReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to create CReceiverReport object");
     }
 
     // Initialize Receiver Report Class
     else if(!m_poReceiverReport->Initialize())
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                            " Unable to initialize CReceiverReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to initialize CReceiverReport object");
     }
 
     // Create The Sender Report class
-    else if((m_poSenderReport = new CSenderReport(m_ulLocalSSRC,
-                       (ISetReceiverStatistics *)m_poReceiverReport)) == NULL)
+    else if((m_poSenderReport = new CSenderReport(m_ulLocalSSRC, (ISetReceiverStatistics *)m_poReceiverReport)) == NULL)
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                                  " Unable to create CSenderReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to create CSenderReport object");
     }
 
     //  Initialize Sender Report Class
     else if(!m_poSenderReport->Initialize())
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                              " Unable to Initialize CSenderReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to Initialize CSenderReport object");
     }
 
     //  Create The Bye Report class
     else if((m_poByeReport = new CByeReport(m_ulLocalSSRC)) == NULL)
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                                     " Unable to Create CByeReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to Create CByeReport object");
     }
 
     // Initialize Bye Report Class
     else if(!m_poByeReport->Initialize())
     {
-        osPrintf("**** FAILURE **** CRTCPRender::Initialize() -"
-                                 " Unable to Initialize CByeReport object\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::Initialize - Unable to Initialize CByeReport object\n");
     }
     else
         return(TRUE);
@@ -213,7 +214,7 @@ void CRTCPRender::GetReceiveStatInterface(
     //  pointer passed
     *ppiSetReceiverStats = (ISetReceiverStatistics *)m_poReceiverReport;
 
-    (*ppiSetReceiverStats)->AddRef();
+    (*ppiSetReceiverStats)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 }
 
 
@@ -242,7 +243,7 @@ void CRTCPRender::GetSenderStatInterface(
     //  pointers passed
     *ppiSetSenderStats   = (ISetSenderStatistics *)m_poSenderReport;
 
-    (*ppiSetSenderStats)->AddRef();
+    (*ppiSetSenderStats)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
 }
 
@@ -274,8 +275,6 @@ void CRTCPRender::ForwardRTPHeader(IRTPHeader *piRTPHeader)
 {
 
     unsigned long ulRemoteSSRC = piRTPHeader->GetSSRC();
-
-    // Bump refernece count of RTP Header interface
 
     // Check to see whether this is the first packet establishing our FE SSRC
     if(m_iRemoteSSRCFound == 0)
@@ -311,8 +310,6 @@ void CRTCPRender::ForwardRTPHeader(IRTPHeader *piRTPHeader)
     //  may perform statistics calculations regarding the performance of
     //  the RTP channel.
     m_poReceiverReport->SetRTPStatistics(piRTPHeader);
-
-    // Release the reference to RTP Header interface
 
 }
 
@@ -353,7 +350,7 @@ unsigned long CRTCPRender::ForwardSDESReport(ISDESReport *piSDESReport)
     unsigned long ulReportMask;
 
     // Bump reference count of SDES Report interface
-    piSDESReport->AddRef();
+    piSDESReport->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
     // Format the SDES Report with the changes that were received
     ulReportLength = piSDESReport->FormatSDESReport(TRUE,
@@ -367,7 +364,7 @@ unsigned long CRTCPRender::ForwardSDESReport(ISDESReport *piSDESReport)
 
 
     // Release the reference to SDES Report interface
-    piSDESReport->Release();
+    piSDESReport->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
     return(ulReportMask);
 }
@@ -408,7 +405,7 @@ unsigned long CRTCPRender::ForwardByeReport(IByeReport *piByeReport)
     unsigned long ulReportMask;
 
     // Bump refernece count of Bye Report interface
-    piByeReport->AddRef();
+    piByeReport->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
     // Format the Bye Report
     ulReportLength =
@@ -419,7 +416,7 @@ unsigned long CRTCPRender::ForwardByeReport(IByeReport *piByeReport)
     ulReportMask = GenerateRTCPReports(uchByeReport, ulReportLength);
 
     // Release the reference to Bye Report interface
-    piByeReport->Release();
+    piByeReport->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
     return(ulReportMask);
 
@@ -679,19 +676,19 @@ void CRTCPRender::GetStatistics(IGetSrcDescription     **piGetSrcDescription,
     if(piSenderStatistics != NULL)
     {
         *piSenderStatistics = (IGetSenderStatistics *)m_poSenderReport;
-        (*piSenderStatistics)->AddRef();
+        (*piSenderStatistics)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
     if(piReceiverStatistics != NULL)
     {
         *piReceiverStatistics = (IGetReceiverStatistics *)m_poReceiverReport;
-        (*piReceiverStatistics)->AddRef();
+        (*piReceiverStatistics)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
     if(piGetByeInfo != NULL)
     {
         *piGetByeInfo = (IGetByeInfo *)m_poByeReport;
-        (*piGetByeInfo)->AddRef();
+        (*piGetByeInfo)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
 }

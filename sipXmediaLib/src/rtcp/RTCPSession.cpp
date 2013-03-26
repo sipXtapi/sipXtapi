@@ -74,14 +74,11 @@ bool RTCPConnectionComparitor(CRTCPConnection *poRTCPConnection,
  */
 CRTCPSession::CRTCPSession(unsigned long ulSSRC,
                IRTCPNotify *piRTCPNotify, ISDESReport *piSDESReport) :
+    CBaseClass(CBASECLASS_CALL_ARGS("CRTCPSession", __LINE__)),
     CTLinkedList<CRTCPConnection *>(),  // Template Contructor Initialization
     m_ulEventInterest(ALL_EVENTS),
     m_etMixerMode(MIXER_ENABLED)
 {
-
-    // Store Local SSRC
-    m_ulSSRC = ulSSRC;
-
     // Store RTCP Notification Interface
     m_piRTCPNotify = piRTCPNotify;
 
@@ -90,9 +87,9 @@ CRTCPSession::CRTCPSession(unsigned long ulSSRC,
 
     // Increment reference counts to interface passed
     if(m_piRTCPNotify)
-        m_piRTCPNotify->AddRef();
+        m_piRTCPNotify->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     if(m_piSDESReport)
-        m_piSDESReport->AddRef();
+        m_piSDESReport->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     // Set Session number
     m_ulSessionID = ulMasterSessionCount++;
@@ -125,11 +122,11 @@ CRTCPSession::~CRTCPSession(void)
 
     // Release Source Description interface reference
     if(m_piSDESReport)
-        m_piSDESReport->Release();
+        m_piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     // Release Event Notification interface reference
     if(m_piRTCPNotify)
-        m_piRTCPNotify->Release();
+        m_piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
 }
 
@@ -176,7 +173,7 @@ IRTCPConnection * CRTCPSession::CreateRTCPConnection(void)
         osPrintf("**** FAILURE ***** CRTCPSession::CreateRTCPConnection() -"
                             " Unable to Initialize RTCP Connection object\n");
         poRTCPConnection->Terminate();
-        ((IRTCPConnection *)poRTCPConnection)->Release();
+        ((IRTCPConnection *)poRTCPConnection)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(NULL);
     }
 
@@ -189,7 +186,7 @@ IRTCPConnection * CRTCPSession::CreateRTCPConnection(void)
         osPrintf("**** FAILURE ***** CRTCPSession::CreateRTCPConnection() -"
                      " Unable to Add RTCP Connection object to Collection\n");
         poRTCPConnection->Terminate();
-        ((IRTCPConnection *)poRTCPConnection)->Release();
+        ((IRTCPConnection *)poRTCPConnection)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(NULL);
     }
 
@@ -203,7 +200,7 @@ IRTCPConnection * CRTCPSession::CreateRTCPConnection(void)
 
     // Increment the reference count to account for the
     //  interface being returned
-    ((IRTCPConnection *)poRTCPConnection)->AddRef();
+    //  I THINK THIS IS THE LEAK:  ((IRTCPConnection *)poRTCPConnection)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     return((IRTCPConnection *)poRTCPConnection);
 }
@@ -257,8 +254,8 @@ bool CRTCPSession::TerminateRTCPConnection(IRTCPConnection *piRTCPConnection)
         // Release reference twice.  Once for its removal from the collection
         //  and once on behalf fo the client since this method serves to
         //  terminate the connection and release the client's reference.
-        ((IRTCPConnection *)poRTCPConnection)->Release();
-        ((IRTCPConnection *)poRTCPConnection)->Release();
+        ((IRTCPConnection *)poRTCPConnection)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+        ((IRTCPConnection *)poRTCPConnection)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         return(TRUE);
     }
@@ -307,13 +304,13 @@ void CRTCPSession::ResetAllConnections(unsigned char *puchReason)
         for(ulCSRCs = 0; poRTCPConnection != NULL; ulCSRCs++)
         {
             // Bump Reference Count of Connection Object
-            poRTCPConnection->AddRef();
+            poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
             // Get the SSRC ID of the connection
             aulCSRC[ulCSRCs] = poRTCPConnection->GetRemoteSSRC();
 
             // Release Reference to Connection Object
-            poRTCPConnection->Release();
+            poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
             // Get the next connection from the list
             poRTCPConnection = GetNextEntry();
@@ -326,12 +323,12 @@ void CRTCPSession::ResetAllConnections(unsigned char *puchReason)
     {
 
         // Bump Reference Count of Connection Object
-        poRTCPConnection->AddRef();
+        poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         poRTCPConnection->GenerateRTCPReports(puchReason, aulCSRC, ulCSRCs);
 
         // Release Reference to Connection Object
-        poRTCPConnection->Release();
+        poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         // Get Next Entry
         poRTCPConnection = GetNextEntry();
@@ -385,11 +382,8 @@ void CRTCPSession::TerminateAllConnections(void)
         // Terminate RTCPConnection and release reference
         poRTCPConnection->Terminate();
 
-        // Release reference twice.  Once for its removal from the collection
-        //  and once on behalf fo the client since this method serves to
-        //  terminate the connection and release the client's reference.
-        ((IRTCPConnection *)poRTCPConnection)->Release();
-        ((IRTCPConnection *)poRTCPConnection)->Release();
+        // Release reference
+        ((IRTCPConnection *)poRTCPConnection)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Remove Next Entry
         poRTCPConnection = RemoveNextEntry();
@@ -446,7 +440,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
     while(poRTCPConnection != NULL)
     {
         // Bump Reference Count of Connection Object
-        poRTCPConnection->AddRef();
+        poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         // Get Render Interface
         IRTCPRender *piRTCPRender = poRTCPConnection->GetRenderInterface();
@@ -456,10 +450,10 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
         piRTCPRender->ReassignSSRC(ulSSRC);
 
         // Release Render Interface
-        piRTCPRender->Release();
+        piRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Release Reference to Connection Object
-        poRTCPConnection->Release();
+        poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
@@ -504,7 +498,7 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
     while(poRTCPConnection != NULL)
     {
         // Bump Reference Count of Connection Object
-        poRTCPConnection->AddRef();
+        poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         // Get the SSRC ID of the connection to determine whether it is
         //  conflicting with ours
@@ -516,14 +510,14 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
 
             // Let's inform the RTC Manager and its subscribing clients of
             //  this occurence.
-            poRTCPConnection->AddRef();
-            ((IRTCPSession *)this)->AddRef();
+            poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+            ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
             m_piRTCPNotify->LocalSSRCCollision(
                    (IRTCPConnection *)poRTCPConnection, (IRTCPSession *)this);
         }
 
         // Release Reference to Connection Object
-        poRTCPConnection->Release();
+        poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
@@ -557,7 +551,7 @@ void CRTCPSession::CheckRemoteSSRCCollisions(IRTCPConnection *piRTCPConnection)
     while(poRTCPConnection)
     {
         // Bump Reference Count of Connection Object
-        poRTCPConnection->AddRef();
+        poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         bool bInitialSSRCFound = FALSE;
         if(poRTCPConnection->GetRemoteSSRC() ==
@@ -570,15 +564,15 @@ void CRTCPSession::CheckRemoteSSRCCollisions(IRTCPConnection *piRTCPConnection)
                 // A collision has been detected.
                 // Let's inform the RTC Manager and its subscribing client's
                 //  of this occurence.
-                poRTCPConnection->AddRef();
-                ((IRTCPSession *)this)->AddRef();
+                poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+                ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
                 m_piRTCPNotify->RemoteSSRCCollision(
                    (IRTCPConnection *)poRTCPConnection, (IRTCPSession *)this);
             }
         }
 
         // Release Reference to Connection Object
-        poRTCPConnection->Release();
+        poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
@@ -625,7 +619,7 @@ void CRTCPSession::ForwardSDESReport(IGetSrcDescription *piGetSrcDescription,
     while(poRTCPConnection != NULL)
     {
         // Bump Reference Count of Connection Object
-        poRTCPConnection->AddRef();
+        poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         // Get the SSRC ID of the connection to determine whether it is not
         //  from the originator
@@ -653,14 +647,14 @@ void CRTCPSession::ForwardSDESReport(IGetSrcDescription *piGetSrcDescription,
             piRTCPRender->ForwardSDESReport(piSDESReport);
 
             // Release the reference to SDES Report interface
-            piSDESReport->Release();
+            piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
             // Release Render Interface
-            piRTCPRender->Release();
+            piRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         }
 
         // Release Reference to Connection Object
-        poRTCPConnection->Release();
+        poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
@@ -708,7 +702,7 @@ void CRTCPSession::ForwardByeReport(IGetByeInfo      *piGetByeInfo,
     while(poRTCPConnection != NULL)
     {
         // Bump Reference Count of Connection Object
-        poRTCPConnection->AddRef();
+        poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         // Get the SSRC ID of the connection to determine whether it is not
         //  from the originator
@@ -735,14 +729,14 @@ void CRTCPSession::ForwardByeReport(IGetByeInfo      *piGetByeInfo,
             piRTCPRender->ForwardByeReport(piByeReport);
 
             // Release Bye Interface
-            piByeReport->Release();
+            piByeReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
             // Release Render Interface
-            piRTCPRender->Release();
+            piRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         }
 
         // Release Reference to Connection Object
-        poRTCPConnection->Release();
+        poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
@@ -784,7 +778,7 @@ void CRTCPSession::NewSDES(IGetSrcDescription *piGetSrcDescription,
 
     // Now forward this event to the RTC Manager so that it can be dispatched
     //  to subscribers with matching interests
-    ((IRTCPSession *)this)->AddRef();
+    ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->NewSDES(piGetSrcDescription,
                                       piRTCPConnection, (IRTCPSession *)this);
 
@@ -852,7 +846,7 @@ void CRTCPSession::UpdatedSDES(IGetSrcDescription *piGetSrcDescription,
 
     // Now forward this event to the RTC Manager so that it can be dispatched
     //  to subscribers with matching interests
-    ((IRTCPSession *)this)->AddRef();
+    ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->UpdatedSDES(piGetSrcDescription,
                         ulChangeMask, piRTCPConnection, (IRTCPSession *)this);
 
@@ -921,7 +915,7 @@ void CRTCPSession::SenderReportReceived(
 
     // Now forward this event to the RTC Manager so that it can be dispatched
     //  to subscribers with matching interests
-    ((IRTCPSession *)this)->AddRef();
+    ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->SenderReportReceived(piGetSenderStatistics,
                                       piRTCPConnection, (IRTCPSession *)this);
 
@@ -978,7 +972,7 @@ void CRTCPSession::ReceiverReportReceived(
 
     // Now forward this event to the RTC Manager so that it can be dispatched
     //  to subscribers with matching interests
-    ((IRTCPSession *)this)->AddRef();
+    ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->ReceiverReportReceived(piGetReceiverStatistics,
                                       piRTCPConnection, (IRTCPSession *)this);
 
@@ -1047,7 +1041,7 @@ void CRTCPSession::ByeReportReceived(IGetByeInfo     *piGetByeInfo,
 
     // Now forward this event to the RTC Manager so that it can be dispatched
     //  to subscribers with matching interests
-    ((IRTCPSession *)this)->AddRef();
+    ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->ByeReportReceived(piGetByeInfo,
                                       piRTCPConnection, (IRTCPSession *)this);
 
@@ -1143,7 +1137,7 @@ void CRTCPSession::SDESReportSent(IGetSrcDescription *piGetSrcDescription,
 
     // Forward this event to the RTC Manager so that it can be dispatched to
     //  subscribers with matching interests
-    ((IRTCPSession *)this)->AddRef();
+    ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->SDESReportSent(piGetSrcDescription,
                                       piRTCPConnection, (IRTCPSession *)this);
 
@@ -1205,7 +1199,7 @@ void CRTCPSession::SenderReportSent(
 
     // Forward this event to the RTC Manager so that it can be dispatched
     //  to subscribers with matching interests
-    ((IRTCPSession *)this)->AddRef();
+    ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->SenderReportSent(piGetSenderStatistics,
                                       piRTCPConnection, (IRTCPSession *)this);
 
@@ -1262,7 +1256,7 @@ void CRTCPSession::ReceiverReportSent(
 
     // Forward this event to the RTC Manager so that it can be dispatched
     //  to subscribers with matching interests
-    ((IRTCPSession *)this)->AddRef();
+    ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->ReceiverReportSent(piGetReceiverStatistics,
                                       piRTCPConnection, (IRTCPSession *)this);
 
@@ -1327,7 +1321,7 @@ void CRTCPSession::ByeReportSent(IGetByeInfo     *piGetByeInfo,
 
     // Forward this event to the RTC Manager so that it can be dispatched
     //  to subscribers with matching interests
-    ((IRTCPSession *)this)->AddRef();
+    ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->ByeReportSent(piGetByeInfo,
                                       piRTCPConnection, (IRTCPSession *)this);
 
@@ -1388,7 +1382,7 @@ void CRTCPSession::RTCPReportingAlarm(IRTCPConnection     *piRTCPConnection,
 {
 
     // Send the event with the correpsonding info.
-    ((IRTCPSession *)this)->AddRef();
+    ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->RTCPReportingAlarm(piRTCPConnection, (IRTCPSession *)this);
 
 #if RTCP_DEBUG /* [ */
@@ -1455,7 +1449,7 @@ void CRTCPSession::RTCPConnectionStopped(IRTCPConnection *piRTCPConnection,
             for(ulCSRCs = 0; poPeerConnection != NULL; ulCSRCs++)
             {
                 // Bump Reference Count of Connection Object
-                poPeerConnection->AddRef();
+                poPeerConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
                 // Get the SSRC ID of the connection
                 aulCSRC[ulCSRCs] = poPeerConnection->GetRemoteSSRC();
@@ -1467,7 +1461,7 @@ void CRTCPSession::RTCPConnectionStopped(IRTCPConnection *piRTCPConnection,
                     ulCSRCs--;
 
                 // Release Reference to Connection Object
-                poPeerConnection->Release();
+                poPeerConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
                 // Get the next connection from the list
                 poPeerConnection = GetNextEntry();
@@ -1475,13 +1469,13 @@ void CRTCPSession::RTCPConnectionStopped(IRTCPConnection *piRTCPConnection,
         }
 
         // Bump Reference Count of Connection Object
-        poRTCPConnection->AddRef();
+        poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
         poRTCPConnection->GenerateRTCPReports(
           (unsigned char *)"Normal Connection Termination", aulCSRC, ulCSRCs);
 
         // Release Reference to Connection Object
-        poRTCPConnection->Release();
+        poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
 
     }
 

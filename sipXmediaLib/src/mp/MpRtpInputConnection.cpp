@@ -222,7 +222,6 @@ OsStatus MpRtpInputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
          {
              mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch, &piRTPDispatch, &piRTPAccumulator);
          }
-
          // The MprFromNet object needs the RTP and RTCP Dispatch interfaces of the
          // associated RTCP connection so that RTP and RTCP packets may be forwarded
          // to the correct location.

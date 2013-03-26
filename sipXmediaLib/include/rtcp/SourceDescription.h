@@ -1253,7 +1253,7 @@ inline unsigned long CSourceDescription::GetChanges(void)
  */
 inline ISDESReport * CSourceDescription::GetSDESInterface(void)
 {
-    ((ISDESReport *)this)->AddRef();
+    ((ISDESReport *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     return((ISDESReport *)this);
 
 }
@@ -1279,7 +1279,7 @@ inline ISDESReport * CSourceDescription::GetSDESInterface(void)
 inline IGetSrcDescription *CSourceDescription::GetAccessInterface(void)
 {
 
-    ((IGetSrcDescription *)this)->AddRef();
+    ((IGetSrcDescription *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     return((IGetSrcDescription *)this);
 
 }

@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -14,17 +16,22 @@
 #include "rtcp/RTCManager.h"
 #include "os/OsSysLog.h"
 
+#define TEST_PRINT
+
 
 #ifdef INCLUDE_RTCP /* [ */
 
    // Static Variable Initialization
 CRTCManager *CRTCManager::m_spoRTCManager = NULL;
-#if RTCP_DEBUG /* [ */
+
+#define RTCP_DEBUG
+
+#if PINGTEL_DEBUG /* [ */
 bool        bPingtelDebug = FALSE;
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
 
-#if RTCP_DEBUG /* [ */
+#if PINGTEL_DEBUG /* [ */
     // Global Function used to turn RTCP debugging ON or OFF during runtime
 int SetRTCPDebug(int iFlag)
 {
@@ -35,7 +42,7 @@ int SetRTCPDebug(int iFlag)
 
     return(bPingtelDebug);
 }
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
 /**
  *
@@ -69,12 +76,12 @@ IRTCPControl *CRTCManager::getRTCPControl(void)
         {
             osPrintf("**** FAILURE **** CRTCManager::getRTCPControl() -"
                                       " RTCManager Object Creation Failed\n");
-            piSDESReport->Release();
+            piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
             return(NULL);
         }
 
         // Release Reference to SDES Report
-        piSDESReport->Release();
+        piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
     // Check whether the RTCManager object has been initialized.
@@ -85,7 +92,7 @@ IRTCPControl *CRTCManager::getRTCPControl(void)
        {
            osPrintf("**** FAILURE **** CRTCManager::getRTCPControl() -"
                                " Unable to Initialize RTCManager object\n");
-           m_spoRTCManager->Release();
+           m_spoRTCManager->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
            m_spoRTCManager = NULL;
            return(NULL);
        }
@@ -95,7 +102,7 @@ IRTCPControl *CRTCManager::getRTCPControl(void)
 
      // sLock.release();
     // Bump the reference count to this object
-    m_spoRTCManager->AddRef();
+    m_spoRTCManager->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     return((IRTCPControl *)m_spoRTCManager);
 
@@ -124,7 +131,7 @@ IRTCPControl *CRTCManager::getRTCPControl(void)
  *
  */
 CRTCManager::CRTCManager(ISDESReport *piSDESReport)
-            :m_ulEventInterest(ALL_EVENTS)
+            : CBaseClass(CBASECLASS_CALL_ARGS("CRTCManager", __LINE__)), m_ulEventInterest(ALL_EVENTS)
 
 {
 
@@ -132,7 +139,7 @@ CRTCManager::CRTCManager(ISDESReport *piSDESReport)
     if(piSDESReport)
     {
         m_piSDESReport = piSDESReport;
-        m_piSDESReport->AddRef();
+        m_piSDESReport->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
 }
@@ -172,7 +179,7 @@ CRTCManager::~CRTCManager(void)
 
     // Release Source Description object reference
     if(m_piSDESReport)
-        m_piSDESReport->Release();
+        m_piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     // Iterate through the EventRegistration List and release all references
     // to objects contained therein
@@ -180,7 +187,7 @@ CRTCManager::~CRTCManager(void)
     while (piRTCPNotify != NULL)
     {
         // Release Reference
-        piRTCPNotify->Release();
+        piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Get Next Entry
         piRTCPNotify = m_tRegistrationList.RemoveNextEntry();
@@ -194,7 +201,7 @@ CRTCManager::~CRTCManager(void)
         // Terminate All RTCP Connections
         piRTCPSession->TerminateAllConnections();
 
-        piRTCPSession->Release();
+        piRTCPSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Get Next Entry
         piRTCPSession = m_tSessionList.RemoveNextEntry();
@@ -274,7 +281,7 @@ bool CRTCManager::Advise(IRTCPNotify *piRTCPNotify)
     // the registration collection list
     if(piRTCPNotify)
     {
-        piRTCPNotify->AddRef();
+        piRTCPNotify->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(m_tRegistrationList.AddEntry(piRTCPNotify));
     }
 
@@ -307,7 +314,7 @@ bool CRTCManager::Unadvise(IRTCPNotify *piRTCPNotify)
     // the registration collection list
     if(m_tRegistrationList.RemoveEntry(piRTCPNotify) != NULL)
     {
-        piRTCPNotify->Release();
+        piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
     return(TRUE);
@@ -357,7 +364,7 @@ IRTCPSession * CRTCManager::CreateSession(unsigned long ulSSRC)
         // to be destroyed
         osPrintf("**** FAILURE **** CRTCManager::CreateSession() -"
                                 " Unable to Intialize CRTCPSession object\n");
-        ((IRTCPSession *)poRTCPSession)->Release();
+        ((IRTCPSession *)poRTCPSession)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(NULL);
     }
 
@@ -368,19 +375,19 @@ IRTCPSession * CRTCManager::CreateSession(unsigned long ulSSRC)
         // to be destroyed
         osPrintf("**** FAILURE **** CRTCManager::CreateSession() -"
                         " Unable to add CRTCPSession object to Collection\n");
-        ((IRTCPSession *)poRTCPSession)->Release();
+        ((IRTCPSession *)poRTCPSession)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(NULL);
     }
 
-#if RTCP_DEBUG /* [ */
+#if PINGTEL_DEBUG /* [ */
     if(bPingtelDebug)
     {
         osPrintf("*** RTCP SESSION CREATED ****\n");
         osPrintf("\t  SESSION ==> %d\n", poRTCPSession->GetSessionID());
     }
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
-    ((IRTCPSession *)poRTCPSession)->AddRef();
+    ((IRTCPSession *)poRTCPSession)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     return((IRTCPSession *)poRTCPSession);
 }
 
@@ -415,13 +422,13 @@ bool CRTCManager::TerminateSession(IRTCPSession *piSession)
     if (poRTCPSession != NULL)
     {
 
-#if RTCP_DEBUG /* [ */
+#if PINGTEL_DEBUG /* [ */
         if(bPingtelDebug)
         {
             osPrintf("*** RTCP SESSION TERMINATED ****\n");
             osPrintf("\t ON SESSION ==> %d\n", poRTCPSession->GetSessionID());
         }
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
         // Terminate All RTCP Connections
         ((IRTCPSession *)poRTCPSession)->TerminateAllConnections();
@@ -429,13 +436,36 @@ bool CRTCManager::TerminateSession(IRTCPSession *piSession)
         // Release reference twice.  Once for its removal from the collection
         // and once on behalf of the client since this method serves to
         // terminate the session and release the client's reference.
-        ((IRTCPSession *)poRTCPSession)->Release();
-        ((IRTCPSession *)poRTCPSession)->Release();
+        ((IRTCPSession *)poRTCPSession)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+        ((IRTCPSession *)poRTCPSession)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(TRUE);
     }
 
     return(FALSE);
 }
+
+#ifdef RTCP_DEBUG /* [ */
+const char * getTypeName(int ulMsgType)
+{
+   static char buff[20];
+   switch (ulMsgType) {
+   case LOCAL_SSRC_COLLISION: return "LOCAL_SSRC_COLLISION";
+   case REMOTE_SSRC_COLLISION: return "REMOTE_SSRC_COLLISION";
+   case REPORTING_ALARM: return "REPORTING_ALARM";
+   case RTCP_BYE_RCVD: return "RTCP_BYE_RCVD";
+   case RTCP_BYE_SENT: return "RTCP_BYE_SENT";
+   case RTCP_NEW_SDES: return "RTCP_NEW_SDES";
+   case RTCP_RR_RCVD: return "RTCP_RR_RCVD";
+   case RTCP_RR_SENT: return "RTCP_RR_SENT";
+   case RTCP_SDES_SENT: return "RTCP_SDES_SENT";
+   case RTCP_SDES_UPDATE: return "RTCP_SDES_UPDATE";
+   case RTCP_SR_RCVD: return "RTCP_SR_RCVD";
+   case RTCP_SR_SENT: return "RTCP_SR_SENT";
+   }
+   sprintf(buff, "%d", ulMsgType);
+   return buff;
+}
+#endif /* INCLUDE_RTCP ] */
 
 /**
  *
@@ -462,14 +492,16 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
 {
     static const int WANT_FORWARDING = 0;
 
-    // Determine the type of message taken from the queue
-    unsigned long   ulMsgType     = poMessage->GetMsgType();
-    IRTCPSession    *piSession    =
-                            (IRTCPSession *)poMessage->GetThirdArgument();
-    IRTCPConnection *piConnection =
-                            (IRTCPConnection *)poMessage->GetSecondArgument();
-    IBaseClass      *piBaseClass  =
-                            (IBaseClass *)poMessage->GetFirstArgument();
+    unsigned long   ulMsgType;
+    void *p1, *p2, *p3, *p4, *p5;
+    poMessage->GetContents(&ulMsgType, &p1, &p2, &p3, &p4, &p5);
+#ifdef RTCP_DEBUG /* [ */
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ProcessMessage(%s, %p, %p, %p, %p, %p) START", getTypeName(ulMsgType), p1, p2, p3, p4, p5);
+#endif /* INCLUDE_RTCP ] */
+
+    IRTCPSession    *piSession    = (IRTCPSession *)p3;
+    IRTCPConnection *piConnection = (IRTCPConnection *)p2;
+    IBaseClass      *piBaseClass  = (IBaseClass *)p1;
 
     // Determine whether specific session or connection base processing
     // should occur as the result of this event
@@ -526,6 +558,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
         piConnection = (IRTCPConnection *)poMessage->GetFirstArgument();
 
         // Set the Base Class pointer to NULL
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ProcessMessage: clearing piBaseClass, line:%d, old:%p", __LINE__, piBaseClass);
         piBaseClass = NULL;
 
         // Call the method that generates the RTCP Reports if the
@@ -564,6 +597,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
         piConnection = (IRTCPConnection *)poMessage->GetFirstArgument();
 
         // Set the Base Class pointer to NULL
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ProcessMessage: clearing piBaseClass, line:%d, old:%p", __LINE__, piBaseClass);
         piBaseClass = NULL;
 
     }
@@ -577,17 +611,17 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
     // an interest match
     while(piRTCPNotify != NULL)
     {
-        piRTCPNotify->AddRef();
+        piRTCPNotify->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Retrieve the registered interest of this client and see if it
         // specifies this event
         if(piRTCPNotify->GetEventInterest() & ulMsgType)
         {
             // Bump reference counts
-            piConnection->AddRef();
-            piSession->AddRef();
+            piConnection->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+            piSession->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
             if(piBaseClass)
-                piBaseClass->AddRef();
+                piBaseClass->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
             // Interest match.  Send the event with the corresponding info
             // as determined by the message type.
@@ -668,9 +702,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
 
                 default:
                     // This is an Error Condition
-                    osPrintf("**** FAILURE **** CRTCManager::ProcessMessage()"
-                         " - An invalid message type was encountered - %lu\n",
-                         ulMsgType);
+                    OsSysLog::add(FAC_MP, PRI_ERR, "CRTCManager::ProcessMessage: Invalid message type was encountered: %lu", ulMsgType);
                     break;
 
             }
@@ -678,7 +710,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
         }
 
         // Release RTCP Notify Interface
-        piRTCPNotify->Release();
+        piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Get the next interface from the registration list
         // and perform the same checks
@@ -687,11 +719,14 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
 
     // Decrement reference counts to reflect their removal from
     // the RTCManager's Msg Queue
-    piConnection->Release();
-    piSession->Release();
+    piConnection->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+    piSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     if(piBaseClass)
-        piBaseClass->Release();
+        piBaseClass->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
+#ifdef RTCP_DEBUG /* [ */
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ProcessMessage(%s, %p, %p, %p, %p, %p) DONE", getTypeName(ulMsgType), p1, p2, p3, p4, p5);
+#endif /* INCLUDE_RTCP ] */
     return(TRUE);
 }
 
@@ -737,7 +772,7 @@ void CRTCManager::NewSDES(IGetSrcDescription *piGetSrcDescription,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::NewSDES new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::NewSDES: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -794,7 +829,7 @@ void CRTCManager::UpdatedSDES(IGetSrcDescription *piGetSrcDescription,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::UpdatedSDES new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::UpdatedSDES: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -849,7 +884,7 @@ void CRTCManager::SenderReportReceived(
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::SenderReportReceived new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::SenderReportReceived: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -904,7 +939,7 @@ void CRTCManager::ReceiverReportReceived(
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::ReceiverReportReceived new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ReceiverReportReceived: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -958,7 +993,7 @@ void CRTCManager::ByeReportReceived(IGetByeInfo        *piGetByeInfo,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::ByeReportReceived new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ByeReportReceived: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1009,7 +1044,7 @@ void CRTCManager::SDESReportSent(IGetSrcDescription *piGetSrcDescription,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::SDESReportSent new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::SDESReportSent: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1062,7 +1097,7 @@ void CRTCManager::SenderReportSent(IGetSenderStatistics *piGetSenderStatistics,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::SenderReportSent new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::SenderReportSent: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1117,7 +1152,7 @@ void CRTCManager::ReceiverReportSent(
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::ReceiverReportSent new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ReceiverReportSent: &msg=%p", poMessage);
 #endif    
     if(poMessage)
     {
@@ -1171,7 +1206,7 @@ void CRTCManager::ByeReportSent(IGetByeInfo      *piGetByeInfo,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::ByeReportSent new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::ByeReportSent: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1209,14 +1244,14 @@ void CRTCManager::LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
                                      IRTCPSession       *piRTCPSession)
 {
 
-#if RTCP_DEBUG /* [ */
+#if PINGTEL_DEBUG /* [ */
     if(bPingtelDebug)
     {
          osPrintf("*** LOCAL SSRC COLLISION DETECTED ****\n");
          osPrintf("\t ON SESSION ==> %d\n", piRTCPSession->GetSessionID());
          osPrintf("\t WITH SSRC  ==> %d\n", piRTCPSession->GetSSRC());
     }
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
     // Create a message structure populated with the contents
     // of this event notification
@@ -1227,7 +1262,7 @@ void CRTCManager::LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::LocalSSRCCollision new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::LocalSSRCCollision: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1263,14 +1298,14 @@ void CRTCManager::LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
 void CRTCManager::RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,
                                      IRTCPSession        *piRTCPSession)
 {
-#if RTCP_DEBUG /* [ */
+#if PINGTEL_DEBUG /* [ */
     if(bPingtelDebug)
     {
          osPrintf("*** REMOTE SSRC COLLISION DETECTED ****\n");
          osPrintf("\t ON SESSION ==> %d\n", piRTCPSession->GetSessionID());
          osPrintf("\t WITH SSRC  ==> %d\n", piRTCPConnection->GetRemoteSSRC());
     }
-#endif /* INCLUDE_RTCP ] */
+#endif /* PINGTEL_DEBUG ] */
 
     // Create a message structure populated with the contents
     // of this event notification
@@ -1281,7 +1316,7 @@ void CRTCManager::RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::RemoteSSRCCollision new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::RemoteSSRCCollision: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {
@@ -1328,7 +1363,7 @@ void CRTCManager::RTCPReportingAlarm(IRTCPConnection     *piRTCPConnection,
     // Post the newly created event message to the RTC Manager's message queue
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::RTCPReportingAlarm new message 0x%08x \n", (int)poMessage);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCManager::RTCPReportingAlarm: &msg=%p", poMessage);
 #endif
     if(poMessage)
     {

@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -13,6 +15,7 @@
 #define _BaseClass_h
 
 #include "rtcp/RtcpConfig.h"
+#include "os/OsSysLog.h"
 
 //  Includes
 #ifdef WIN32 /* [ */
@@ -56,13 +59,13 @@
 
 
 //  Static Declarations
-static unsigned long sulTotalReferenceCount = 0;
+// static unsigned long sulTotalReferenceCount = 0;
 extern bool     bPingtelDebug;
 
 
 #ifndef WIN32 /* [ */
 
-#ifdef __pingtel_on_posix__
+#ifdef __pingtel_on_posix__ /* [ */
 #include <os/OsBSem.h>
 typedef OsBSem * CRITICAL_SECTION;
 #define interface struct
@@ -136,9 +139,7 @@ public:
  * Usage Notes:
  *
  */
-    CBaseClass() {m_ulReferences=1;
-                  m_bInitialized = FALSE;
-                  sulTotalReferenceCount++; } ;
+    CBaseClass CBASECLASS_PROTO_ARGS((const char* pDerivedType = "Unknown", int callLineNum = 0));
 
 
 
@@ -160,7 +161,7 @@ public:
  *
  *
  */
-    virtual ~CBaseClass(void) { sulTotalReferenceCount--; } ;
+    virtual ~CBaseClass(void);
 
 /**
  *
@@ -202,6 +203,8 @@ public:
  */
     bool IsInitialized(void);
 
+    void setAutomatic(bool);
+
 /**
  *
  * Method Name:  AddRef
@@ -219,7 +222,7 @@ public:
  *
  *
  */
-    virtual unsigned long AddRef(void);
+    virtual unsigned long AddRef ADD_RELEASE_PROTO_ARGS((int callLineNum));
 
 /**
  *
@@ -238,10 +241,12 @@ public:
  *
  *
  */
-    virtual unsigned long Release(void);
+    virtual unsigned long Release ADD_RELEASE_PROTO_ARGS((int callLineNum));
 
+static bool AllowDeletes(void);
+static void s_SetAllowDeletes(int v);
 
-protected:
+// protected:
 /**
  *
  * Attribute Name:  m_bInitialized
@@ -254,19 +259,26 @@ protected:
  */
       bool m_bInitialized;
 
-
+      bool m_bAutomatic;
 
 /**
  *
  * Attribute Name:  m_ulReferences
  *
- * Type:            unsigned long
+ * Type:            int
  *
  * Description:     This member shall keep track of the number of references
  *                  to an object.
  *
  */
-      unsigned long m_ulReferences;
+      int m_ulReferences;
+
+#ifdef RTCP_DEBUG_REFCOUNTS /* [ */
+      const char* m_DerivedType;
+      int   m_Line;
+#endif /* RTCP_DEBUG_REFCOUNTS ] */
+
+      static bool s_bAllowDeletes;
 
 };
 
@@ -298,6 +310,7 @@ inline bool CBaseClass::Initialize(void)
 
 }
 
+
 /**
  *
  * Method Name: IsInitialized
@@ -323,6 +336,17 @@ inline bool CBaseClass::IsInitialized(void)
 
 }
 
+inline void CBaseClass::setAutomatic(bool yesNo)
+{
+    m_bAutomatic = yesNo;
+}
+
+inline bool CBaseClass::AllowDeletes(void)
+{
+    return(s_bAllowDeletes);
+}
+
+
 /**
  *
  * Macro Name:  DECLARE_IBASE_M
@@ -341,18 +365,24 @@ inline bool CBaseClass::IsInitialized(void)
  *
  *
  */
-#define DECLARE_IBASE_M                                 \
-   unsigned long AddRef(void)                           \
-   {                                                    \
-      return CBaseClass::AddRef();                      \
-   };                                                   \
-   unsigned long Release (void)                         \
-   {                                                    \
-      unsigned long ulRefCount;                         \
-      if((ulRefCount = CBaseClass::Release()) == 0)     \
-      {                                                 \
-        delete this;                                    \
-      }                                                 \
-      return(ulRefCount);                               \
-   };
+#define DECLARE_IBASE_M \
+   unsigned long AddRef ADD_RELEASE_PROTO_ARGS((int callLineNum)) \
+   { \
+      if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG,  __FILE__ " %p->AddRef(%d),  count: %d", this, callLineNum, m_ulReferences); \
+      return CBaseClass::AddRef(ADD_RELEASE_CALL_ARGS(callLineNum)); \
+   } \
+   unsigned long Release ADD_RELEASE_PROTO_ARGS((int callLineNum)) \
+   { \
+      int ulRefCount; \
+      if((ulRefCount = CBaseClass::Release(ADD_RELEASE_CALL_ARGS(callLineNum))) == 0) \
+      { \
+        if (CBaseClass::AllowDeletes()) { \
+          delete this; \
+        } else { \
+          if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG,  __FILE__ " %p->Release(%d) [would delete this]", this, callLineNum); \
+        } \
+      } \
+      if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG,  __FILE__ " %p->Release(%d), count: %d", this, callLineNum, ulRefCount); \
+      return(ulRefCount); \
+   }
 #endif /* ] */

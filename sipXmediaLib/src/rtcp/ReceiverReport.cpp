@@ -86,7 +86,10 @@ const int     FIXED_CONVERSION  = 256;
  *
  */
 CReceiverReport::CReceiverReport(ssrc_t ulSSRC, unsigned long ulVersion)
-     :CRTCPHeader(ulSSRC, etReceiverReport, ulVersion),  // Base class constr
+     :
+     CBaseClass(CBASECLASS_CALL_ARGS("CReceiverReport", __LINE__)),
+     CRTCPHeader(ulSSRC, etReceiverReport, ulVersion),  // Base class constr
+     
 #ifndef WIN32
      m_csSynchronized(NULL),
 #endif

@@ -73,7 +73,7 @@ bool SDESSsrcComparitor(CSourceDescription *poReceiverReport, void *pvArgument)
  */
 CRTCPSource::CRTCPSource(ssrc_t ulSSRC, IRTCPNotify *piRTCPNotify,
                          ISetReceiverStatistics *piSetStatistics)
-              :m_poSenderReport(NULL), m_poByeReport(NULL)
+              : CBaseClass(CBASECLASS_CALL_ARGS("CRTCPSource", __LINE__)), m_poSenderReport(NULL), m_poByeReport(NULL)
 {
 
     // Store the SSRC ID passed
@@ -88,9 +88,9 @@ CRTCPSource::CRTCPSource(ssrc_t ulSSRC, IRTCPNotify *piRTCPNotify,
     // Increment the reference count to the RTCP Notification and Receiver
     //  Stats Interfaces
     if(m_piRTCPNotify)
-        m_piRTCPNotify->AddRef();
+        m_piRTCPNotify->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     if(m_piSetReceiverStatistics)
-        m_piSetReceiverStatistics->AddRef();
+        m_piSetReceiverStatistics->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
 }
 
@@ -129,11 +129,11 @@ CRTCPSource::~CRTCPSource(void)
 
     // Release Sender object reference if it exists
     if(m_poSenderReport)
-        ((ISenderReport *)m_poSenderReport)->Release();
+        ((ISenderReport *)m_poSenderReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     // Release Bye object reference if it exists
     if(m_poByeReport)
-        ((IByeReport *)m_poByeReport)->Release();
+        ((IByeReport *)m_poByeReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     // Iterate through Source Description List and
     //  release all references to objects
@@ -141,7 +141,7 @@ CRTCPSource::~CRTCPSource(void)
     while(piSDESReport != NULL)
     {
         // Release Reference
-        piSDESReport->Release();
+        piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Get Next Entry
         piSDESReport = (ISDESReport *)m_tSrcDescriptorList.RemoveNextEntry();
@@ -155,7 +155,7 @@ CRTCPSource::~CRTCPSource(void)
     while (piReceiverReport != NULL)
     {
         // Release Reference
-        piReceiverReport->Release();
+        piReceiverReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Get Next Entry
         piReceiverReport =
@@ -164,9 +164,9 @@ CRTCPSource::~CRTCPSource(void)
 
     // Release other stored interfaces
     if(m_piRTCPNotify)
-        m_piRTCPNotify->Release();
+        m_piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     if(m_piSetReceiverStatistics)
-        m_piSetReceiverStatistics->Release();
+        m_piSetReceiverStatistics->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
 }
 
@@ -209,7 +209,7 @@ CRTCPSource::~CRTCPSource(void)
 #define DEBUG_RTCP_PACKETS
 
 #ifdef DEBUG_RTCP_PACKETS /* [ */
-static int numPacketsToDump = 1;
+static int numPacketsToDump = 1000000;
 int showRtcp(int count) {
     int save = numPacketsToDump;
     numPacketsToDump = count;
@@ -383,7 +383,7 @@ void CRTCPSource::SendRTCPEvent(unsigned long ulEventType,
         {
             CSourceDescription *poSDESReport =
                                             (CSourceDescription *)pvInterface;
-            ((IGetSrcDescription *)poSDESReport)->AddRef();
+            ((IGetSrcDescription *)poSDESReport)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
             m_piRTCPNotify->NewSDES((IGetSrcDescription *)poSDESReport);
             break;
         }
@@ -392,7 +392,7 @@ void CRTCPSource::SendRTCPEvent(unsigned long ulEventType,
         {
             CSourceDescription *poSDESReport =
                                             (CSourceDescription *)pvInterface;
-            ((IGetSrcDescription *)poSDESReport)->AddRef();
+            ((IGetSrcDescription *)poSDESReport)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
             m_piRTCPNotify->UpdatedSDES(
                             (IGetSrcDescription *)poSDESReport, ulChangeMask);
             break;
@@ -401,7 +401,7 @@ void CRTCPSource::SendRTCPEvent(unsigned long ulEventType,
         case RTCP_RR_RCVD:
         {
             CReceiverReport *poReceiverReport = (CReceiverReport *)pvInterface;
-            ((IGetReceiverStatistics *)poReceiverReport)->AddRef();
+            ((IGetReceiverStatistics *)poReceiverReport)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
             m_piRTCPNotify->ReceiverReportReceived(
                                   (IGetReceiverStatistics *)poReceiverReport);
             break;
@@ -410,7 +410,7 @@ void CRTCPSource::SendRTCPEvent(unsigned long ulEventType,
         case RTCP_SR_RCVD:
         {
             CSenderReport *poSenderReport = (CSenderReport *)pvInterface;
-            ((IGetSenderStatistics *)poSenderReport)->AddRef();
+            ((IGetSenderStatistics *)poSenderReport)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
             m_piRTCPNotify->SenderReportReceived(
                                       (IGetSenderStatistics *)poSenderReport);
             break;
@@ -419,7 +419,7 @@ void CRTCPSource::SendRTCPEvent(unsigned long ulEventType,
         case RTCP_BYE_RCVD:
         {
             CByeReport *poByeReport = (CByeReport *)pvInterface;
-            ((IGetByeInfo *)poByeReport)->AddRef();
+            ((IGetByeInfo *)poByeReport)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
             m_piRTCPNotify->ByeReportReceived((IGetByeInfo *)poByeReport);
             break;
         }
@@ -485,7 +485,7 @@ unsigned long CRTCPSource::ProcessSenderReport(unsigned char *puchRTCPReport)
         // to be destroyed
         osPrintf("**** FAILURE **** CRTCPSource::ProcessSenderReport() -"
                       " Unable to Initialize Inbound Sender Report Object\n");
-        ((ISenderReport *)m_poSenderReport)->Release();
+        ((ISenderReport *)m_poSenderReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(GetReportLength(puchRTCPReport));
     }
 
@@ -622,7 +622,11 @@ unsigned long CRTCPSource::ProcessReceiverReport(unsigned char *puchRTCPReport,
         {
             // Release the Receiver Report reference.
             // This should cause the object to be destroyed
-            ((IReceiverReport *)poReceiverReport)->Release();
+            ((IReceiverReport *)poReceiverReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessReceiverReport() - Unable to Initialize Inbound Receiver Report Object");
+         // BUT WHAT SHOULD WE RETURN?
+         //     If we don't consume this report, we will come right back here... forever...
+            assert(0 != ulReportSize);
             OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessReceiverReport() - Unable to Initialize Inbound Receiver Report Object");
          // BUT WHAT SHOULD WE RETURN?
          //     If we don't consume this report, we will come right back here... forever...
@@ -635,7 +639,11 @@ unsigned long CRTCPSource::ProcessReceiverReport(unsigned char *puchRTCPReport,
         {
             // Release the Receiver Report reference.
             // This should cause the object to be destroyed
-            ((IReceiverReport *)poReceiverReport)->Release();
+            ((IReceiverReport *)poReceiverReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessReceiverReport() - Unable to Add Inbound Receiver Report Object to Collection");
+         // BUT WHAT SHOULD WE RETURN?
+         //     If we don't consume this report, we will come right back here... forever...
+            assert(0 != ulReportSize);
             OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessReceiverReport() - Unable to Add Inbound Receiver Report Object to Collection");
          // BUT WHAT SHOULD WE RETURN?
          //     If we don't consume this report, we will come right back here... forever...
@@ -745,7 +753,7 @@ unsigned long CRTCPSource::ProcessSDESReport(unsigned char *puchRTCPReport)
             //  object to be destroyed
             osPrintf("**** FAILURE **** CRTCPSource::ProcessSDESReport()"
                       " - Unable to Initialize Inbound SDES Report Object\n");
-            ((ISDESReport *)poSDESReport)->Release();
+            ((ISDESReport *)poSDESReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
             return(ulReportSize);
         }
 
@@ -756,7 +764,7 @@ unsigned long CRTCPSource::ProcessSDESReport(unsigned char *puchRTCPReport)
             // This should cause the object to be destroyed
             osPrintf("**** FAILURE **** CRTCPSource::ProcessSDESReport()"
                        " - Unable to Add SDES Report Object to Collection\n");
-            ((ISDESReport *)poSDESReport)->Release();
+            ((ISDESReport *)poSDESReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
             return(ulReportSize);
         }
 
@@ -839,7 +847,7 @@ unsigned long CRTCPSource::ProcessByeReport(unsigned char *puchRTCPReport)
         // to be destroyed
         osPrintf("**** FAILURE **** CRTCPSource::ProcessByeReport()"
                        " - Unable to Initialize Inbound Bye Report Object\n");
-        ((IByeReport *)m_poByeReport)->Release();
+        ((IByeReport *)m_poByeReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return(ulBytesProcessed);
     }
 
@@ -922,19 +930,19 @@ void CRTCPSource::GetStatistics(IGetSrcDescription     **piGetSrcDescription,
     if(piSenderStatistics != NULL)
     {
         *piSenderStatistics = (IGetSenderStatistics *)m_poSenderReport;
-        (*piSenderStatistics)->AddRef();
+        (*piSenderStatistics)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
     if(piReceiverStatistics != NULL)
     {
         *piReceiverStatistics =
               (IGetReceiverStatistics *)m_tReceiverReportList.GetFirstEntry();
-        (*piReceiverStatistics)->AddRef();
+        (*piReceiverStatistics)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
     if(piGetByeInfo != NULL)
     {
         *piGetByeInfo = (IGetByeInfo *)m_poByeReport;
-        (*piGetByeInfo)->AddRef();
+        (*piGetByeInfo)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
 }
