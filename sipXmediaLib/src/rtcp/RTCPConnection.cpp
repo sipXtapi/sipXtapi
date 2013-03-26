@@ -254,22 +254,24 @@ void CRTCPConnection::GetDispatchInterfaces(INetDispatch **ppiNetDispatch,
                                         ISetSenderStatistics **ppiSenderStats)
 {
 
-    // Assign the Network Dispatch interface of the corresponding RTCP Source
-    //  object
-    *ppiSenderStats = NULL;
-    *ppiNetDispatch = (INetDispatch *)m_poRTCPSource;
-    if(m_poRTCPSource)
-        (*ppiNetDispatch)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+    // Assign the Network Dispatch interface to the corresponding RTCP Source object
+    if (m_poRTCPSource) {
+        *ppiNetDispatch = (INetDispatch *)m_poRTCPSource;
+    } else {
+        *ppiNetDispatch = NULL;
+    }
 
-    // Assign the RTP Dispatch interface fo the Receiver Report associated
+    // Assign the RTP Dispatch interface to the Receiver Report associated
     //  with the RTCP Render object
-    *ppiRTPDispatch = (IRTPDispatch *)m_poRTCPRender;
-    if(m_poRTCPRender)
+    if (m_poRTCPRender)
     {
-        (*ppiRTPDispatch)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+        *ppiRTPDispatch = (IRTPDispatch *)m_poRTCPRender;
 
         // Retrieve the Sender Report Statistical Interface
         m_poRTCPRender->GetSenderStatInterface(ppiSenderStats);
+    } else {
+        *ppiRTPDispatch = NULL;
+        *ppiSenderStats = NULL;
     }
 }
 
