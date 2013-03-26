@@ -23,7 +23,7 @@ OsBSem sMultiThreadLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 
 static int sulTotalReferenceCount = 0;
-bool CBaseClass::s_bAllowDeletes = false;
+bool CBaseClass::s_bAllowDeletes = true;
 void CBaseClass::s_SetAllowDeletes(int v)
 {
     s_bAllowDeletes = (v != 0);
