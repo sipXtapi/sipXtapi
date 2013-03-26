@@ -63,8 +63,8 @@ typedef uint32_t ssrc_t;
 typedef uint32_t rtpts_t;
 
 
-#undef RTCP_DEBUG_REFCOUNTS
 #define RTCP_DEBUG_REFCOUNTS
+#undef RTCP_DEBUG_REFCOUNTS
 #ifdef RTCP_DEBUG_REFCOUNTS /* [ */
 #define ADD_RELEASE_CALL_ARGS(x) (x)
 #define ADD_RELEASE_PROTO_ARGS(x) x
