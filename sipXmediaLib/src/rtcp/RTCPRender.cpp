@@ -279,10 +279,7 @@ void CRTCPRender::ForwardRTPHeader(IRTPHeader *piRTPHeader)
     // Check to see whether this is the first packet establishing our FE SSRC
     if(m_iRemoteSSRCFound == 0)
     {
-/*       
-        osPrintf(">> CRTCPRdr::FwdRTPHdr():"
-                            " New SSRC 0x%lX detected\n", ulRemoteSSRC);
-*/
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRdr::FwdRTPHdr(): New SSRC 0x%lX detected\n", ulRemoteSSRC);
         m_ulRemoteSSRC = ulRemoteSSRC;
         m_iRemoteSSRCFound++;
     }
@@ -292,10 +289,7 @@ void CRTCPRender::ForwardRTPHeader(IRTPHeader *piRTPHeader)
         // SSRC ID has changed
         if (m_iRemoteSSRCFound < 20) 
         {
-/*
-            osPrintf(">> CRTCPRdr::FwdRTPHdr(): SSRC Changed"
-               " from 0x%lX to 0x%lX\n", m_ulRemoteSSRC, ulRemoteSSRC);
-*/
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRdr::FwdRTPHdr(): SSRC Changed from 0x%lX to 0x%lX\n", m_ulRemoteSSRC, ulRemoteSSRC);
         }
         m_ulRemoteSSRC = ulRemoteSSRC;
         m_iRemoteSSRCFound++;

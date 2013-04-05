@@ -120,14 +120,11 @@ void MpRtpOutputConnection::releaseSockets()
 }
 
 #ifdef INCLUDE_RTCP /* [ */
-void MpRtpOutputConnection::reassignSSRC(int iSSRC)
+void MpRtpOutputConnection::reassignSSRC()
 {
-
-//  Set the new SSRC
-    mpToNet->setSSRC(iSSRC);
-
-    return;
-
+    ssrc_t newSSRC = getFlowGraph()->getRTCPSessionPtr()->GetSSRC(getConnectionId(), 'A', getStreamId());
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "MpRtpOutputConnection::reassignSSRC: new SSRC=0x%08X", newSSRC);
+    mpToNet->setSSRC(newSSRC);
 }
 #endif /* INCLUDE_RTCP ] */
 
@@ -189,7 +186,7 @@ OsStatus MpRtpOutputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
 
         // The RTP Stream associated with the MprToNet object must have its SSRC ID
         // set to the value generated from the Session.
-        mpToNet->setSSRC(pFlowGraph->getRTCPSessionPtr()->GetSSRC(getConnectionId(), 'A', getStreamId()));
+        reassignSSRC();
     }
 #endif /* INCLUDE_RTCP ] */
 

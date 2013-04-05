@@ -89,7 +89,7 @@ public:
 
 #ifdef INCLUDE_RTCP /* [ */
      /// A new SSRC has been generated for the Session
-   void reassignSSRC(int iSSRC);
+   virtual void reassignSSRC(void);
 #endif /* INCLUDE_RTCP ] */
 
    // set the # of microseconds of skew to add to the RTCP SR timestamps

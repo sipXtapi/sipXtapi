@@ -90,7 +90,9 @@ CBaseClass(CBASECLASS_CALL_ARGS("MpFlowGraphBase", __LINE__))
 
    // Create an RTCP Session for this Flow Graph.  Pass the SSRC ID to be
    // used to identify our audio source uniquely within this RTP/RTCP Session.
-   mpiRTCPSession = piRTCPControl->CreateSession(rand_timer32());
+   i = rand_timer32();
+   mpiRTCPSession = piRTCPControl->CreateSession(i);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::MpFlowGraphBase:  Created RTCPSession: %p, SSRC=0x%08X", mpiRTCPSession, i);
 
    // Subscribe for Events associated with this Session
    piRTCPControl->Advise((IRTCPNotify *)this);
@@ -785,31 +787,18 @@ void MpFlowGraphBase::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection,
         piRTCPSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         return;
     }
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::LocalSSRCCollision()");
 
 // We have a collision with our local SSRC.  We will remedy this by
 // generating a new SSRC
     mpiRTCPSession->ReassignSSRC(rand_timer32(),
                          (unsigned char *)"LOCAL SSRC COLLISION");
 
-#if 0 /* [ */
-// We must inform all connections associated with this session to change their
-// SSRC
-    mConnTableLock.acquire();
-    // ** HZM... Trouble...  We may have to put a dummy virtual reassignSSRC in the
-    //   base MpResource, then override it in the MpOutputConnection class, and loop
-    //   through the unsorted list calling that method.
-    for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
-    {
-      if (mpOutputConnections[iConnection]->getRTCPConnection())  // ** HZM... Trouble...
-      {
-//       Set the new SSRC
-         mpOutputConnections[iConnection]->
-                          reassignSSRC((int)mpiRTCPSession->GetSSRC());
-         break;
-      }
+// Inform all connections associated with this session to change their SSRC
+   for (int i=0; i < mResourceCnt; i++)
+   {
+       mUnsorted[i]->reassignSSRC();
    }
-   mConnTableLock.release();
-#endif /* ] */
 
 // Release Interface References
    piRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(__LINE__));

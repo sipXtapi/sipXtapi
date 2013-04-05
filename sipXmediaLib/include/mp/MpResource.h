@@ -273,6 +273,9 @@ static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
    /// Receive buffer asynchronously from resource at given input port
    virtual OsStatus pushBuffer(int inputPort, MpBufPtr& inputBuffer);
 
+   /// Broadcast announcement that we are changing our SSRC
+   virtual void reassignSSRC(void);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */

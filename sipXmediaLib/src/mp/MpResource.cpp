@@ -231,6 +231,8 @@ OsStatus MpResource::pushBuffer(int inputPort, MpBufPtr& inputBuffer)
    return(OS_NOT_YET_IMPLEMENTED);
 }
 
+void MpResource::reassignSSRC() {} // base class -- do nothing.
+
 /* ============================ ACCESSORS ================================= */
 
 // (static) Displays information on the console about the specified flow
