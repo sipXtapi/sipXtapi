@@ -859,7 +859,8 @@ static  uint32_t last_timer = 0x12345678;
 #if defined(_WIN32) || defined(__pingtel_on_posix__) /* [ */
 // Otherwise, call rand() 3 times, using 12 or 8 bits from each call (15 max)
         static int firstTime = 1;
-        unsigned int x, y, z;
+        uint32_t x, y, z;
+        uint32_t ret;
 
         if (firstTime) {
             assert(RAND_MAX > 0xfff);
@@ -869,7 +870,9 @@ static  uint32_t last_timer = 0x12345678;
         x = rand();
         y = rand();
         z = rand();
-        return ((x&0xFFF) | ((y<<12)&0xFFF000) | ((z<<24)&0xFF000000));
+        ret = ((x&0xFFF) | ((y<<12)&0xFFF000) | ((z<<24)&0xFF000000));
+        // OsSysLog::add(FAC_MP, PRI_DEBUG, "rand_timer32(): x=0x%X=%d, y=0x%X=%d, z=0x%X=%d, ret=0x%08X", x, x, y, y, z, z, ret);
+        return ret;
 #endif /* _WIN32 || __pingtel_on_posix__ ] */
 }
 
