@@ -1417,8 +1417,8 @@ void CRTCPSession::RTCPReportingAlarm(IRTCPConnection     *piRTCPConnection,
                                       IRTCPSession        *piRTCPSession)
 {
 
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSession::RTCPReportingAlarm");
-    // Send the event with the correpsonding info.
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSession::RTCPReportingAlarm");
+    // Send the event with the corresponding info.
     ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->RTCPReportingAlarm(piRTCPConnection, (IRTCPSession *)this);
 

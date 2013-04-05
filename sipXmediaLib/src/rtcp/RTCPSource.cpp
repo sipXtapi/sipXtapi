@@ -205,11 +205,10 @@ CRTCPSource::~CRTCPSource(void)
  *
  */
 
-#undef DEBUG_RTCP_PACKETS
-#define DEBUG_RTCP_PACKETS
+// #define DEBUG_RTCP_PACKETS
 
 #ifdef DEBUG_RTCP_PACKETS /* [ */
-static int numPacketsToDump = 1000000;
+static int numPacketsToDump = 10;
 int showRtcp(int count) {
     int save = numPacketsToDump;
     numPacketsToDump = count;

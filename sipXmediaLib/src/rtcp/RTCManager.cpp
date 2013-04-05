@@ -16,7 +16,8 @@
 #include "rtcp/RTCManager.h"
 #include "os/OsSysLog.h"
 
-#define TEST_PRINT
+// #define TEST_PRINT
+// #define RTCP_DEBUG
 
 
 #ifdef INCLUDE_RTCP /* [ */
@@ -24,7 +25,6 @@
    // Static Variable Initialization
 CRTCManager *CRTCManager::m_spoRTCManager = NULL;
 
-#define RTCP_DEBUG
 
 #if PINGTEL_DEBUG /* [ */
 bool        bPingtelDebug = FALSE;
