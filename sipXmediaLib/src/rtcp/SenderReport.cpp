@@ -375,7 +375,7 @@ void CSenderReport::GetSenderStatistics(uint32_t *pulPacketCount,
     // Pass back the current packet and octet counts
     *pulPacketCount = m_ulPacketCount;
     *pulOctetCount  = m_ulOctetCount;
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::GetSenderStatistics: Packets=%d, Octets=%d", m_ulPacketCount, m_ulOctetCount);
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::GetSenderStatistics: Packets=%d, Octets=%d", m_ulPacketCount, m_ulOctetCount);
 
 }
 

@@ -206,6 +206,7 @@ public:
  *
  */
     unsigned long GetRemoteSSRC(void);
+    bool isRemoteSSRCValid(void);
 
 
 /**
@@ -802,15 +803,8 @@ private:        // Private Data Members
  *
  */
 
-inline unsigned long CRTCPConnection::GetRemoteSSRC(void)
-{
-
-    if(m_poRTCPRender)
-        return(m_poRTCPRender->GetRemoteSSRC());
-
-    return(0);
-
-}
+inline unsigned long CRTCPConnection::GetRemoteSSRC(void) { return ((m_poRTCPRender) ?  (m_poRTCPRender->GetRemoteSSRC()) : 0); }
+inline bool CRTCPConnection::isRemoteSSRCValid(void) { return ((m_poRTCPRender) ?  (m_poRTCPRender->isRemoteSSRCValid()) : 0); }
 
 /**
  *

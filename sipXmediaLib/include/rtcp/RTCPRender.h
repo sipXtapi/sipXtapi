@@ -411,6 +411,7 @@ public:
  *
  */
     ssrc_t GetRemoteSSRC(void);
+    bool isRemoteSSRCValid(void);
 
 /**
  *
@@ -619,11 +620,8 @@ private:        // Private Data Members
  * Usage Notes:
  *
  */
-inline ssrc_t CRTCPRender::GetRemoteSSRC(void)
-{
-
-    return(m_ulRemoteSSRC);
-}
+inline ssrc_t CRTCPRender::GetRemoteSSRC(void) { return m_ulRemoteSSRC; }
+inline bool CRTCPRender::isRemoteSSRCValid(void) { return (0 != m_iRemoteSSRCFound); }
 
 /**
  *

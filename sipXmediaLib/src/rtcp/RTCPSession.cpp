@@ -17,6 +17,8 @@
 
 //  Constants
 const int MAX_CONNECTIONS  = 64;
+const int SSRC_SESSION_MASK = 0xFFFFFF00;
+const int SSRC_CONXION_MASK = 0x000000FF;
 
 //  Static Declarations
 static unsigned long ulMasterSessionCount = 1;
@@ -79,6 +81,10 @@ CRTCPSession::CRTCPSession(unsigned long ulSSRC,
     m_ulEventInterest(ALL_EVENTS),
     m_etMixerMode(MIXER_ENABLED)
 {
+
+    // Store Local SSRC
+    m_ulSSRC = ulSSRC & SSRC_SESSION_MASK;
+
     // Store RTCP Notification Interface
     m_piRTCPNotify = piRTCPNotify;
 
@@ -431,7 +437,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
     ResetAllConnections(puchReason);
 
     // Set new Session SSRC
-    m_ulSSRC = ulSSRC;
+    m_ulSSRC = ulSSRC & SSRC_SESSION_MASK;
 
     // Check the each entry of the connection list
     CRTCPConnection *poRTCPConnection = GetFirstEntry();
@@ -483,10 +489,30 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
  */
 
 /******************************************************************
+ * It appears that this is called every 5 seconds (or so), on the
+ # RTCP timer event.
  *
- *  THIS NEEDS SERIOUS REVISING, IN THE NEXT ROUND OF CHECKINS.
+ *  THIS NEEDS SERIOUS REVISION.  The SSRCs should be kept
+ * independently per connection, not per session.  And, I cannot
+ * tell whether each connection should only check against its own
+ * SSRC, or against all other SSRCs in the session/flowgraph.
  *
  *****************************************************************/
+
+/////////////////////////////////////////////////////////////////////////////////////
+// Debugging trick: force phantom collisions to see how we handle them
+// #define FORCE_SSRC_COLLISIONS 64 // If non-zero, force a collision every Nth call
+#define FORCE_SSRC_COLLISIONS 0
+#if FORCE_SSRC_COLLISIONS /* [ */
+static bool collide()
+{
+    static int counter = 0;
+    return (0 == (++counter % FORCE_SSRC_COLLISIONS));
+}
+#else /* FORCE_SSRC_COLLISIONS ] [ */
+#define collide() 0
+#endif /* FORCE_SSRC_COLLISIONS ] */
+/////////////////////////////////////////////////////////////////////////////////////
 
 void CRTCPSession::CheckLocalSSRCCollisions(void)
 {
@@ -502,8 +528,9 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
 
         // Get the SSRC ID of the connection to determine whether it is
         //  conflicting with ours
-        if(poRTCPConnection->GetRemoteSSRC() == m_ulSSRC)
+        if (collide() || (poRTCPConnection->isRemoteSSRCValid() && ((SSRC_SESSION_MASK & poRTCPConnection->GetRemoteSSRC()) == m_ulSSRC)))
         {
+            OsSysLog::add(FAC_MP, PRI_WARNING, "CRTCPSession::CheckLocalSSRCCollisions: COLLISION:  Session: %p RTCPCxn: %p, SSRC: 0x%08X", this, poRTCPConnection, m_ulSSRC);
             // A collision has been detected.
             // Let's reset all the connections.
             ResetAllConnections((unsigned char *)"SSRC Collision");
@@ -1095,13 +1122,22 @@ void CRTCPSession::ByeReportReceived(IGetByeInfo     *piGetByeInfo,
 /******************************************************************
  *
  *  THIS IS A QUICK HACK, TO ALLOW OTHER FIXES TO WORK.
- *  THIS IS TO BE FIXED IN THE NEXT ROUND OF CHECKINS.
+ *  THIS IS TO BE FIXED ... SOMEDAY...
+ *
+ * The problem is that the original code assumed that a single SSRC
+ * per session was appropriate, so the SSRC to use when sending out
+ * RTP is maintained in the RTCPSession.  HOWEVER, that is wrong.
+ * Each connection should have its own SSRC, but it is going to take
+ * longer than I have right now to untangle this.
+ *
+ * So, the quick fix is to keep the 32-bit value in the Session, but
+ * replace the lower 8 bits with a hash of keys for each connection.
  *
  *****************************************************************/
 ssrc_t CRTCPSession::GetSSRC(int connID, int mediaType, int streamID)
 {
-    int low = (connID ^ mediaType ^ streamID) & 0xFF;
-    return((m_ulSSRC & (~0xFF)) | low);
+    int hash = (connID ^ mediaType ^ streamID);
+    return ((m_ulSSRC & SSRC_SESSION_MASK) | (hash & SSRC_CONXION_MASK));
 }
 
 
@@ -1381,7 +1417,8 @@ void CRTCPSession::RTCPReportingAlarm(IRTCPConnection     *piRTCPConnection,
                                       IRTCPSession        *piRTCPSession)
 {
 
-    // Send the event with the correpsonding info.
+    // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSession::RTCPReportingAlarm");
+    // Send the event with the corresponding info.
     ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     m_piRTCPNotify->RTCPReportingAlarm(piRTCPConnection, (IRTCPSession *)this);
 
