@@ -7,7 +7,7 @@ INCLUDES = -I$(top_srcdir)/include \
  -I$(top_srcdir)/contrib/libilbc/include \
  @ILBC_INCLUDE@
 
-pkgdata_LTLIBRARIES = codec_ilbc.la
+pkglib_LTLIBRARIES = codec_ilbc.la
 
 codec_ilbc_la_SOURCES = PlgIlbc.c
 codec_ilbc_la_LIBADD = @ILBC_LIB_ROOT@/.libs/libilbc.la

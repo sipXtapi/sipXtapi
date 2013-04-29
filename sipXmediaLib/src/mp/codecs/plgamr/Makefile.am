@@ -5,7 +5,7 @@ LIBAMRNB_LIB = @AMRNB_LIB_ROOT@/.libs/libamrnb.la
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @AMRNB_INCLUDE@
 
-pkgdata_LTLIBRARIES = codec_amr.la
+pkglib_LTLIBRARIES = codec_amr.la
 
 codec_amr_la_SOURCES = PlgAmr.c
 codec_amr_la_LIBADD = ${LIBAMRNB_LIB}

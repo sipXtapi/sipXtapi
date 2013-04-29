@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include
 
-pkgdata_LTLIBRARIES = codec_tones.la
+pkglib_LTLIBRARIES = codec_tones.la
 
 codec_tones_la_SOURCES = PlgTones.c
 

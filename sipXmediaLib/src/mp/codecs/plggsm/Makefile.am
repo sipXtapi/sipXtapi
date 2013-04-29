@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @GSM_CFLAGS@
 
-pkgdata_LTLIBRARIES = codec_gsm.la
+pkglib_LTLIBRARIES = codec_gsm.la
 
 codec_gsm_la_SOURCES = PlgGsm.c
 codec_gsm_la_LIBADD = @GSM_LIBS@

@@ -25,7 +25,7 @@ endif
 
 unconditional_SUBDIRS = . include src bin meta examples syslog2siptrace siplog2siptrace siptest $(SIPVIEWER_OPT)
 
-include $(srcdir)/config/sipXprojtop.mak
+include $(top_builddir)/config/sipXprojtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 RELEASE = 1

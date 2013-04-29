@@ -14,7 +14,7 @@ EXTRA_DIST = \
 
 unconditional_SUBDIRS = . src examples include bin 
 
-include $(srcdir)/config/sipXprojtop.mak
+include $(top_builddir)/config/sipXprojtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 RELEASE = 1

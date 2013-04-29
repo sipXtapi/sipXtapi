@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include -I$(top_srcdir)/contrib/libspandsp/src
 
-pkgdata_LTLIBRARIES = codec_pcmapcmu.la
+pkglib_LTLIBRARIES = codec_pcmapcmu.la
 
 codec_pcmapcmu_la_SOURCES = \
 	CodecPcmaWrapper.c \
