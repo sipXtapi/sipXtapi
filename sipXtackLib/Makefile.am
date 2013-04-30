@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/sipXcommon.mak
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -25,7 +25,7 @@ endif
 
 unconditional_SUBDIRS = . include src bin meta examples syslog2siptrace siplog2siptrace siptest $(SIPVIEWER_OPT)
 
-include $(top_builddir)/config/sipXprojtop.mak
+include $(top_srcdir)/config/sipXprojtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 RELEASE = 1
