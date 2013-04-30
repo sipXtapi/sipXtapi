@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include -I$(top_srcdir)/contrib/libspandsp/src
+INCLUDES = -I$(top_srcdir)/sipXmediaLib/include -I$(top_srcdir)/sipXportLib/include -I$(top_srcdir)/sipXmediaLib/contrib/libspandsp/src
 
 pkglib_LTLIBRARIES = codec_pcmapcmu.la
 

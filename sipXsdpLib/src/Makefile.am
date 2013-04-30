@@ -4,7 +4,7 @@ SUBDIRS = . test
 
 lib_LTLIBRARIES = libsipXsdp.la
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/sipXsdpLib/include -I$(top_srcdir)/sipXportLib/include
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
@@ -17,20 +17,16 @@ version_Revision=0
 version_Age=0
 
 libsipXsdp_la_LDFLAGS = \
-	-version-info ${version_Current}:${version_Revision}:${version_Age} \
-	@SSL_LDFLAGS@
+	-version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXsdp_la_LIBADD = \
-	@SSL_LIBS@ \
-	@SIPXPORT_LIBS@ \
+	$(top_builddir)/sipXportLib/src/libsipXport.la \
         -lstdc++
 
 # this is helpful if you're debugging something with lots of inlines (like the UtlLink code)
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
 
 libsipXsdp_la_CXXFLAGS = \
-	@PCRE_CFLAGS@ \
-	@SSL_CXXFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 

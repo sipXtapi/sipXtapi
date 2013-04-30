@@ -3,7 +3,7 @@
 LIBAMRNB_SUBDIR = ../../../../contrib/libamrnb
 LIBAMRNB_LIB = @AMRNB_LIB_ROOT@/.libs/libamrnb.la
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @AMRNB_INCLUDE@
+INCLUDES = -I$(top_srcdir)/sipXmediaLib/include -I$(top_srcdir)/sipXportLib/include @AMRNB_INCLUDE@
 
 pkglib_LTLIBRARIES = codec_amr.la
 

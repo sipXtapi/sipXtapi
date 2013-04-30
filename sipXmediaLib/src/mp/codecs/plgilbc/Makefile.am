@@ -2,9 +2,9 @@
 
 SUBDIRS = ../../../../contrib/libilbc
 
-INCLUDES = -I$(top_srcdir)/include \
- -I@SIPXPORTINC@ \
- -I$(top_srcdir)/contrib/libilbc/include \
+INCLUDES = -I$(top_srcdir)/sipXmediaLib/include \
+ -I$(top_srcdir)/sipXportLib/include \
+ -I$(top_srcdir)/sipXmediaLib/contrib/libilbc/include \
  @ILBC_INCLUDE@
 
 pkglib_LTLIBRARIES = codec_ilbc.la

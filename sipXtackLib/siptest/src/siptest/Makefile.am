@@ -1,14 +1,16 @@
 ## Process this file with automake to produce Makefile.in
 
 INCLUDES = \
-	-I$(top_srcdir)/include \
-	-I$(srcdir)/../../include
+	-I$(top_srcdir)/sipXtackLib/include \
+	-I$(srcdir)/../../include \
+	-I$(top_srcdir)/sipXsdpLib/include \
+	-I$(top_srcdir)/sipXportLib/include
 
 bin_PROGRAMS = siptest
 
 bin_SCRIPTS = subscribe-dialog-test
 
-siptest_LDADD = $(top_builddir)/src/libsipXtack.la
+siptest_LDADD = $(top_builddir)/sipXtackLib/src/libsipXtack.la $(top_builddir)/sipXportLib/src/libsipXport.la
 
 siptest_SOURCES =  \
     AuthCommand.cpp \

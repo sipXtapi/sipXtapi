@@ -15,9 +15,7 @@ testsuite_LDADD = \
     ../libsipXport.la
 
 testsuite_CXXFLAGS = \
-	-I$(top_srcdir)/include \
-	@PCRE_CFLAGS@ \
-	@SSL_CXXFLAGS@ \
+	-I$(top_srcdir)/sipXportLib/include \
 	@CPPUNIT_CFLAGS@ \
     -I$(SIPXUNITINC) \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
@@ -113,7 +111,7 @@ UtlListPerformance_SOURCES = \
 
 UtlListPerformance_CXXFLAGS = \
 	-I$(top_builddir)/config \
-	-I$(top_srcdir)/include
+	-I$(top_srcdir)/sipXportLib/include
 
 UtlListPerformance_LDADD = \
     ../libsipXport.la
@@ -126,7 +124,7 @@ UtlHashMapPerformance_SOURCES = \
 
 UtlHashMapPerformance_CXXFLAGS = \
 	-I$(top_builddir)/config \
-	-I$(top_srcdir)/include
+	-I$(top_srcdir)/sipXportLib/include
 
 UtlHashMapPerformance_LDADD = \
     ../libsipXport.la

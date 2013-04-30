@@ -16,8 +16,8 @@ libtestpluginA_la_LDFLAGS = \
 libtestpluginB_la_LDFLAGS = $(libtestpluginA_la_LDFLAGS)
 
 INCLUDES = \
-	-I$(top_srcdir)/include \
-	-I$(top_srcdir)/src/test/utl
+	-I$(top_srcdir)/sipXportLib/include \
+	-I$(top_srcdir)/sipXportLib/src/test/utl
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed

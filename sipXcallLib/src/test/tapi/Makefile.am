@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/sipXcallLib/include
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup

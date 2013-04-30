@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/../sipXcallLib/include
+INCLUDES = -I$(top_srcdir)/sipXtackLib/include -I$(top_srcdir)/sipXsdpLib/include -I$(top_srcdir)/sipXportLib/include
 
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
@@ -20,7 +20,7 @@ nobase_include_HEADERS =  \
 noinst_LTLIBRARIES = libmediainterface.la
 
 libmediainterface_la_LIBADD =  \
-	@SIPXMEDIA_LIBS@
+	$(top_builddir)/sipXmediaLib/src/libsipXmedia.la
 
 libmediainterface_la_SOURCES =  \
     CpMediaInterface.cpp \

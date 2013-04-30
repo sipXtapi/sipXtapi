@@ -6,7 +6,7 @@ EXTRA_DIST = tapi
 SUBDIRS = . test
 
 #INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXmediaAdapterLib/sipXmediaVoiceEngine
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXmediaAdapterLib/sipXmediaMediaProcessing/include
+INCLUDES = -I$(top_srcdir)/sipXcallLib/include -I$(top_srcdir)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include -I$(top_srcdir)/sipXmediaAdapterLib/interface -I$(top_srcdir)/sipXmediaLib/include -I$(top_srcdir)/sipXtackLib/include -I$(top_srcdir)/sipXsdpLib/include -I$(top_srcdir)/sipXportLib/include
 
 lib_LTLIBRARIES = libsipXcall.la
 
@@ -23,7 +23,9 @@ version_Age=0
 libsipXcall_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXcall_la_LIBADD = \
-	@SIPXMEDIA_MP_LIBS@ @SIPXTACK_LIBS@ -lstdc++
+	$(top_builddir)/sipXmediaAdapterLib/sipXmediaMediaProcessing/src/libsipXmediaProcessing.la \
+	$(top_builddir)/sipXtackLib/src/libsipXtack.la \
+	-lstdc++
 
 libsipXcall_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \

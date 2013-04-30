@@ -2,7 +2,7 @@
 
 SUBDIRS = test mp/codecs
 
-INCLUDES = -I$(top_srcdir)/include 
+INCLUDES = -I$(top_srcdir)/sipXmediaLib/include -I$(top_srcdir)/sipXtackLib/include -I$(top_srcdir)/sipXsdpLib/include -I$(top_srcdir)/sipXportLib/include
 
 lib_LTLIBRARIES = libsipXmedia.la
 
@@ -34,9 +34,9 @@ libsipXmedia_la_CXXFLAGS = \
 	@SPEEX_CFLAGS@
 
 libsipXmedia_la_LIBADD = \
-	@SIPXTACK_LIBS@ \
-	@SIPXPORT_LIBS@ \
-	@SIPXSDP_LIBS@ \
+	$(top_builddir)/sipXtackLib/src/libsipXtack.la \
+	$(top_builddir)/sipXportLib/src/libsipXport.la \
+	$(top_builddir)/sipXsdpLib/src/libsipXsdp.la \
 	@CA_LIBS@ \
 	@GSM_LIBS@ \
 	@SPEEXDSP_LIBS@ \

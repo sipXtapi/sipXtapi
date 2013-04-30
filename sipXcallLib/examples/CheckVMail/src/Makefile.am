@@ -1,6 +1,6 @@
 SUBDIRS =
 
-INCLUDES = -I$(top_srcdir)/include 
+INCLUDES = -I$(top_srcdir)/sipXcallLib/include 
 
 CheckVMaildir = .
 CheckVMail_PROGRAMS = CheckVMail
@@ -13,10 +13,8 @@ CheckVMail_LDADD = \
     @SIPXMEDIA_STATIC_LIBS@ \
     @SIPXMEDIA_MP_STATIC_LIBS@ \
     @CA_LIBS@  \
-    @PCRE_LIBS@ \
-    @SSL_LIBS@ \
     @RT_LIBS@ \
     -lresolv \
-    $(top_builddir)/src/.libs/libsipXcall.a
+    $(top_builddir)/sipXcallLib/src/.libs/libsipXcall.a
 
 CheckVMail_SOURCES = CheckVMail.cpp
