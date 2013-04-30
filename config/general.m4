@@ -1122,10 +1122,10 @@ AC_DEFUN([CHECK_SPEEX],
         AC_MSG_RESULT([using svn version])
         SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
         SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
-        SPEEX_CFLAGS+=' -I${top_builddir}/contrib/libspeex/include'
-        SPEEX_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeex.a'
+        SPEEX_CFLAGS+=' -I${top_builddir}/sipXmediaLib/contrib/libspeex/include'
+        SPEEX_STATIC_LIB='${top_builddir}/sipXmediaLib/contrib/libspeex/libspeex/.libs/libspeex.a'
         SPEEX_LIBS=${SPEEX_STATIC_LIB}
-        SPEEXDSP_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeexdsp.a'
+        SPEEXDSP_STATIC_LIB='${top_builddir}/sipXmediaLib/contrib/libspeex/libspeex/.libs/libspeexdsp.a'
         SPEEXDSP_LIBS=${SPEEXDSP_STATIC_LIB}
         AC_SUBST(SPEEX_ROOT)
         AC_SUBST(SPEEX_CFLAGS)
@@ -1245,8 +1245,8 @@ AC_DEFUN([AM_SET_ILBC],
 # Currently only iLBC in contrib supported
     PLUGINS="${PLUGINS} iLBC"
 
-    ILBC_INCLUDE="-I${PWD}/contrib/libilbc/include"
-    ILBC_LIB_ROOT="${PWD}/contrib/libilbc/"
+    ILBC_INCLUDE="-I${PWD}/sipXmediaLib/contrib/libilbc/include"
+    ILBC_LIB_ROOT="${PWD}/sipXmediaLib/contrib/libilbc/"
     ILBC_LIB_TARGET="lib/libilbc.a"
     ILBC_TARGET="plgilbc"
     AC_SUBST(ILBC_INCLUDE)
@@ -1894,15 +1894,15 @@ AC_DEFUN([AM_SET_AMR],
 # Currently only iLBC in contrib supported
     PLUGINS="${PLUGINS} AMR"
     AMR_TARGET="plgamr"
-    AMRNB_INCLUDE="-I${PWD}/contrib/libamrnb/"
-    AMRNB_LIB_ROOT="${PWD}/contrib/libamrnb/"    
+    AMRNB_INCLUDE="-I${PWD}/sipXmediaLib/contrib/libamrnb/"
+    AMRNB_LIB_ROOT="${PWD}/sipXmediaLib/contrib/libamrnb/"    
     AC_SUBST(AMR_TARGET)    
     AC_SUBST(AMRNB_INCLUDE)    
     AC_SUBST(AMRNB_LIB_ROOT)
 
     # amr narrowband codec has it's own configure, 
     # so be sure to call it.
-    AC_CONFIG_SUBDIRS([contrib/libamrnb/])
+    AC_CONFIG_SUBDIRS([sipXmediaLib/contrib/libamrnb/])
 ])dnl
 
 AC_DEFUN([AM_SET_AMRWB],
@@ -1910,15 +1910,15 @@ AC_DEFUN([AM_SET_AMRWB],
 # Currently only iLBC in contrib supported
     PLUGINS="${PLUGINS} AMR-WB"
     AMRWB_TARGET="plgamrwb"
-    AMRWB_INCLUDE="-I${PWD}/contrib/libamrwb/"
-    AMRWB_LIB_ROOT="${PWD}/contrib/libamrwb/"
+    AMRWB_INCLUDE="-I${PWD}/sipXmediaLib/contrib/libamrwb/"
+    AMRWB_LIB_ROOT="${PWD}/sipXmediaLib/contrib/libamrwb/"
     AC_SUBST(AMRWB_TARGET)    
     AC_SUBST(AMRWB_INCLUDE)    
     AC_SUBST(AMRWB_LIB_ROOT)
 
     # amr wideband codec has it's own configure, 
     # so be sure to call it.
-    AC_CONFIG_SUBDIRS([contrib/libamrwb/])
+    AC_CONFIG_SUBDIRS([sipXmediaLib/contrib/libamrwb/])
 ])dnl
 
 AC_DEFUN([CHECK_AMR_AMRWB],
