@@ -34,6 +34,7 @@
 #include "os/OsFS.h"
 #include "mp/MpTypes.h"
 #include "mp/MpAudioUtils.h"
+#include "mp/MpAudioWaveFileRead.h"
 #include "mp/StreamHttpDataSource.h"
 
 #ifndef DISABLE_STREAM_PLAYER // [
