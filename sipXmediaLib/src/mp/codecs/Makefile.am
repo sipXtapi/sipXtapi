@@ -1,14 +1,44 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = \
-	@PCMAPCMU_TARGET@ \
-	@GSM_TARGET@ \
-	@SPEEX_TARGET@ \
-	@ILBC_TARGET@ \
-	@TONES_TARGET@ \
-	@L16_TARGET@ \
-	@G726_TARGET@ \
-	@G722_TARGET@ \
-	@AMR_TARGET@ \
-	@AMRWB_TARGET@
+SUBDIRS =
+
+if BUILD_CODEC_PCMAPCMU
+SUBDIRS += plgpcmapcmu
+endif
+
+if BUILD_CODEC_GSM
+SUBDIRS += plggsm
+endif
+
+if BUILD_CODEC_SPEEX
+SUBDIRS += plgspeex
+endif
+
+if BUILD_CODEC_ILBC
+SUBDIRS += plgilbc
+endif
+
+if BUILD_CODEC_TONES
+SUBDIRS += plgtones
+endif
+
+if BUILD_CODEC_L16
+SUBDIRS += plgl16
+endif
+
+if BUILD_CODEC_G726
+SUBDIRS += plgg726
+endif
+
+if BUILD_CODEC_G722
+SUBDIRS += plgg722
+endif
+
+if AMRNB
+SUBDIRS += plgamr
+endif
+
+if AMRWB
+SUBDIRS += plgamrwb
+endif
 

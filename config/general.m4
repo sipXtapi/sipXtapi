@@ -984,6 +984,8 @@ AC_DEFUN([CHECK_GSM],
          *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-gsm) ;;
       esac],
     [AM_PATH_GSM])
+
+    AM_CONDITIONAL([BUILD_CODEC_GSM], [test ! -z "$GSM_TARGET"])
 ])dnl
 
 
@@ -1073,6 +1075,7 @@ AC_DEFUN([ENABLE_CODEC_SPEEX],
                        no) ;;
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
                     esac])
+    AM_CONDITIONAL([BUILD_CODEC_SPEEX], [test ! -z "$SPEEX_TARGET"])
     AM_CONDITIONAL(SPEEX_STATIC, test "$CODEC_SPEEX_STATIC" = true)
 ])dnl
 
@@ -1173,6 +1176,7 @@ AC_DEFUN([CHECK_PCMA_PCMU],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-pcmapcmu) ;;
                     esac],
                   [AM_SET_PCMA_PCMU])
+    AM_CONDITIONAL([BUILD_CODEC_PCMAPCMU], [test ! -z "$PCMAPCMU_TARGET"])
     AM_CONDITIONAL(PCMAPCMU_STATIC, test "$CODEC_PCMAPCMU_STATIC" = true)
 ])dnl
 
@@ -1204,6 +1208,7 @@ AC_DEFUN([CHECK_TONES],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-tones) ;;
                     esac],
                   [AM_SET_TONES])
+    AM_CONDITIONAL([BUILD_CODEC_TONES], [test ! -z "$TONES_TARGET"])
     AM_CONDITIONAL(TONES_STATIC, test "$CODEC_TONES_STATIC" = true)
 ])dnl
 
@@ -1235,6 +1240,7 @@ AC_DEFUN([CHECK_L16],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-l16) ;;
                     esac],
                   [AM_SET_L16])
+    AM_CONDITIONAL([BUILD_CODEC_L16], [test ! -z "$L16_TARGET"])
     AM_CONDITIONAL(L16_STATIC, test "$CODEC_L16_STATIC" = true)
 ])dnl
 
@@ -1267,6 +1273,7 @@ AC_DEFUN([CHECK_ILBC],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-ilbc) ;;
                     esac],
                   [AM_SET_ILBC])
+    AM_CONDITIONAL([BUILD_CODEC_ILBC], [test ! -z "$ILBC_TARGET"])
 ])dnl
 
 
@@ -1816,6 +1823,7 @@ AC_DEFUN([CHECK_G726],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g726) ;;
                     esac],
                   [AM_SET_G726])
+    AM_CONDITIONAL([BUILD_CODEC_G726], [test ! -z "$G726_TARGET"])
     AM_CONDITIONAL(G726_STATIC, test "$CODEC_G726_STATIC" = true)
 ])dnl
 
@@ -1854,6 +1862,7 @@ AC_DEFUN([CHECK_G722],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g722) ;;
                     esac],
                   [AM_SET_G722])
+    AM_CONDITIONAL([BUILD_CODEC_G722], [test ! -z "$G722_TARGET"])
     AM_CONDITIONAL(G722_STATIC, test "$CODEC_G722_STATIC" = true)
 ])dnl
 
