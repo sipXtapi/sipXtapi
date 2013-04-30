@@ -25,5 +25,5 @@ DISTCLEANFILES = \
 	config/install-sh \
 	config/ltmain.sh \
 	config/missing \
-	config/sipxcalllib-buildstamp.cpp \
-	config/sipxcalllib-buildstamp.h
+	$(top_srcdir)/config/@PACKAGE@-buildstamp.cpp \
+	$(top_srcdir)/config/@PACKAGE@-buildstamp.h

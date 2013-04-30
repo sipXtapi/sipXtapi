@@ -30,8 +30,8 @@ libsipXcall_la_CXXFLAGS = \
     @VIDEO_DEFINE@
 
 libsipXcall_la_SOURCES = \
-    ../config/sipxcalllib-buildstamp.h \
-    ../config/sipxcalllib-buildstamp.cpp \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.h \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp \
     cp/CallManager.cpp \
     cp/CSeqManager.cpp \
     cp/Connection.cpp \

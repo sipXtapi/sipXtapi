@@ -57,8 +57,8 @@ AUDIODRIVERS_SOURCE = \
 endif
 
 libsipXmedia_la_SOURCES =  \
-    ../config/sipxmedialib-buildstamp.h \
-    ../config/sipxmedialib-buildstamp.cpp \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.h \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp \
     $(AUDIODRIVERS_SOURCE) \
     mp/dft.cpp \
     mp/dmaTaskPosix.cpp \

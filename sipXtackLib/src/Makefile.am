@@ -48,8 +48,8 @@ SECURITY_FILES=
 endif
 
 libsipXtack_la_SOURCES =  \
-    ../config/sipxtacklib-buildstamp.h \
-    ../config/sipxtacklib-buildstamp.cpp \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.h \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp \
     net/HttpBody.cpp \
     net/HttpMessage.cpp \
     net/HttpRequestContext.cpp \

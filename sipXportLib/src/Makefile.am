@@ -40,8 +40,8 @@ libsipXport_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 libsipXport_la_SOURCES =  \
-    ../config/sipxportlib-buildstamp.h \
-    ../config/sipxportlib-buildstamp.cpp \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.h \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp \
     utl/UtlLongLongInt.cpp \
     utl/UtlNameValueTokenizer.cpp \
     utl/UtlBool.cpp \
