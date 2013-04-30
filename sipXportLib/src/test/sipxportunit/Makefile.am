@@ -21,6 +21,13 @@ libsipXunit_la_LIBADD = \
 	@CPPUNIT_LIBS@
 
 sipxincludedir = $(includedir)/sipxportunit
-sipxinclude_HEADERS = 
+sipxinclude_HEADERS = \
+	com_sipez_unit_UnitTestActivity.h \
+	SipxPortUnitTestAsserts.h \
+	SipxPortUnitTestClass.h \
+	SipxPortUnitTestConstructor.h \
+	SipxPortUnitTestEnvironment.h \
+	SipxPortUnitTest.h \
+	SipxPortUnitTestPointFailure.h
 
 

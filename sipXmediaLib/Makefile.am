@@ -9,7 +9,6 @@ EXTRA_DIST = \
     config/sipXcommon.mak.in \
     CONTRIBUTORS \
     BUILDSTAMP \
-    SVN-VERSION \
     sipxmedialib.spec
 
 unconditional_SUBDIRS = . contrib src include bin

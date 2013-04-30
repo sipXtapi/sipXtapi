@@ -8,9 +8,7 @@ EXTRA_DIST = \
 	config/sipX-buildstamp.h.in \
 	config/sipXprojtop.mak \
 	config/sipXcommon.mak.in \
-	CONTRIBUTORS \
 	BUILDSTAMP \
-	SVN-VERSION \
 	sipxsdplib.spec \
 	config.properties.in 
 

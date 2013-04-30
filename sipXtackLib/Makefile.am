@@ -10,7 +10,6 @@ EXTRA_DIST = \
     config/sipXcommon.mak.in \
     CONTRIBUTORS \
     BUILDSTAMP \
-    SVN-VERSION \
     ant-targets.xml \
     ant-targets.am \
     sipxtacklib.spec \

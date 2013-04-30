@@ -140,3 +140,5 @@ UtlHashMapPerformance_LDADD = \
 
 EXTRA_DIST=
 
+noinst_HEADERS = sipxunittests.h
+

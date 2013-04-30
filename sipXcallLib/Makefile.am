@@ -8,8 +8,6 @@ EXTRA_DIST = \
     config/sipXprojtop.mak \
     config/sipXcommon.mak.in \
     CONTRIBUTORS \
-    BUILDSTAMP \
-    SVN-VERSION \
     sipxcalllib.spec
 
 unconditional_SUBDIRS = . src examples include bin 

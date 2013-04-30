@@ -10,7 +10,6 @@ EXTRA_DIST = \
     config/sipXcommon.mak.in \
     CONTRIBUTORS \
     BUILDSTAMP \
-    SVN-VERSION \
     sipxportlib.spec
 
 unconditional_SUBDIRS = . bin src include syslogviewer

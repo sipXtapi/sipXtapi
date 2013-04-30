@@ -81,8 +81,10 @@ nobase_include_HEADERS =  \
     mp/MprAudioFrameBuffer.h \
     mp/MprBridge.h \
     mp/MprBridgeConstructor.h \
+    mp/MprBridgeSetGainsMsg.h \
     mp/MprDecode.h \
     mp/MprDecodeConstructor.h \
+    mp/MprDecodeSelectCodecsMsg.h \
     mp/MprDejitter.h \
     mp/MprEchoSuppress.h \
     mp/MprEncode.h \
@@ -141,6 +143,7 @@ nobase_include_HEADERS =  \
     mp/MprVadConstructor.h \
     mp/MprVoiceActivityNotifier.h \
     mp/MprVoiceActivityNotifierConstructor.h \
+    mp/MpSetSocketsMsg.h \
     mp/MpSineWaveGeneratorDeviceDriver.h \
     mp/MpSpeakerSelectBase.h \
     mp/MpStaticCodecInit.h \
@@ -159,6 +162,7 @@ nobase_include_HEADERS =  \
     mp/MpTypes.h \
     mp/MpVadBase.h \
     mp/MpVadSimple.h \
+    mp/MpVideoResource.h \
     mp/NetInTask.h \
     mp/RtpHeader.h \
     mp/StreamBufferDataSource.h \
