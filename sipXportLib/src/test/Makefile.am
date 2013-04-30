@@ -1,5 +1,13 @@
 
-SUBDIRS = @SIPX_UNIT_TARGET@ testplugin
+SUBDIRS = testplugin
+
+if BUILD_SIPXUNIT
+SUBDIRS += sipxunit
+endif
+
+if BUILD_SIPXPORTUNIT
+SUBDIRS += sipxportunit
+endif
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup

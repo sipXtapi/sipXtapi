@@ -157,6 +157,9 @@ AC_DEFUN([CHECK_CPPUNIT],
       [],
       [AC_MSG_ERROR("cppunit not found")]
     )
+
+    AM_CONDITIONAL([BUILD_SIPXUNIT], [test "x$SIPX_UNIT_TARGET" == "xsipxunit" ])
+    AM_CONDITIONAL([BUILD_SIPXPORTUNIT], [test "x$SIPX_UNIT_TARGET" == "xsipxportunit" ])
 ])
                                                                                                                         
 
