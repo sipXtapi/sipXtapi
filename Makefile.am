@@ -10,7 +10,8 @@ unconditional_SUBDIRS = \
   sipXsdpLib \
   sipXtackLib \
   sipXmediaLib \
-  sipXmediaAdapterLib
+  sipXmediaAdapterLib \
+  sipXcallLib
 
 include $(top_srcdir)/config/sipXpkgtop.mak
 
