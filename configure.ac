@@ -1,24 +1,29 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.60)
+AC_PREREQ(2.69)
 AC_INIT(sipXtapi, 3.3, sipxtapi-dev@list.sipfoundry.org)
-AC_CONFIG_AUX_DIR(config)
-AC_PREFIX_DEFAULT([/usr/local/sipx])
-AM_INIT_AUTOMAKE(foreign)
-SFAC_AUTOMAKE_VERSION([1.6])
-CHECK_AUTOCONF
+AC_CONFIG_SRCDIR([sipXportLib/src/os/OsConfigDb.cpp])
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE([-Wno-extra-portability])
+#AC_PREFIX_DEFAULT([/usr/local/sipx])
+
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+
+LT_INIT
+
+
+SFAC_AUTOMAKE_VERSION([1.11])
+#CHECK_AUTOCONF
 
 # Configure pkg-config
 PKG_PROG_PKG_CONFIG
 
-AC_CONFIG_SRCDIR([sipXportLib/src/os/OsConfigDb.cpp])
 AM_CONFIG_HEADER([config.h])
 
 # Codec plugin loading uses dlopen, so we need to check for it here.
 AC_LIBTOOL_DLOPEN
-
-AC_PROG_LIBTOOL
 
 # Checks for programs.
 AC_PROG_CXX
@@ -50,8 +55,8 @@ CHECK_L16
 CHECK_G726
 CHECK_G722
 CHECK_AMR_AMRWB
-CHECK_PCRE
-CHECK_SSL
+#CHECK_PCRE
+#CHECK_SSL
 
 # Checks for header files.
 AC_HEADER_DIRENT
@@ -129,8 +134,8 @@ AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
 ## Sipviewer is written in java and compiled w/ant so allow someone
 ## w/o java or ant to effectively ignore anything about this
 AC_ARG_ENABLE(sipviewer, 
-  [  --disable-sipviewer       Do not try to compile java based sipviewer program],
-  , enable_sipviewer=yes)
+  [  --enable-sipviewer       Compile java based sipviewer program (needs JVM)],
+  , enable_sipviewer=no)
 AM_CONDITIONAL(SIPVIEWER, test x$enable_sipviewer = xyes)
 if test x$enable_sipviewer = xyes
 then
@@ -156,6 +161,8 @@ SFAC_FEATURE_SIPX_EZPHONE
 
 # named is used in some sipXtackLib tests
 CHECK_NAMED
+
+AC_SEARCH_LIBS([clock_nanosleep],[rt posix4])
 
 AC_CONFIG_FILES([
   Makefile
