@@ -460,11 +460,7 @@ AC_DEFUN([CHECK_XERCES],
         AC_SUBST(XERCES_LIBS,["-lxerces-c"])
         AC_SUBST(XERCES_LDFLAGS,["-L$xercesdir/lib"])
     fi
-],
-[
-    AC_MSG_RESULT(yes)
 ])
-])dnl
 
 # CHECK_APR is called from CHECK_APACHE2
 # ============ A P R ==============
@@ -786,11 +782,7 @@ AC_DEFUN([CHECK_LIBWWW],
         LIBWWW_LDFLAGS="-L$lwwwdir/lib";
         AC_SUBST(LIBWWW_LDFLAGS)
     fi
-],
-[
-    AC_MSG_RESULT(yes)
 ])
-])dnl
 
 # ============ P C R E ==================
 AC_DEFUN([CHECK_PCRE],
