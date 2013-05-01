@@ -1283,8 +1283,6 @@ AC_DEFUN([CHECK_ILBC],
 # == D E C L A R E _ C O D E C S _ S T A F F ==
 AC_DEFUN([DECLARE_CODECS_STAFF],
 [
-    AC_MSG_CHECKING([Configured codecs: ])
-
     AC_SUBST([codeclibdir], ['${pkglibdir}/codecs'])
 
     CPPFLAGS="${CPPFLAGS} -DDEFAULT_CODECS_PATH=\"${codeclibdir}\" "
