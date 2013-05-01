@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/sipXcommon.am.inc
 
 ## HACK
 ##    We don't need these libraries installed, so we declare them noinst_

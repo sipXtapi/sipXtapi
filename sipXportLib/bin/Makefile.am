@@ -1,4 +1,4 @@
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/sipXcommon.am.inc
 
 
 # TESTS = sipx-upgrade-testsuite

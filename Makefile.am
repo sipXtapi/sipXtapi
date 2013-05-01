@@ -1,7 +1,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-include $(top_srcdir)/config/sipXcommon.mak
+include $(top_srcdir)/config/sipXcommon.am.inc
 
 EXTRA_DIST = \
     config/sipXpkgtop.mak \
@@ -9,7 +9,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
     config/sipXprojtop.mak \
-    config/sipXcommon.mak.in
+    config/sipXcommon.am.inc
 
 unconditional_SUBDIRS = \
   sipXportLib \
