@@ -38,7 +38,7 @@ CHECH_DYNEXT
 # Checks for libraries.
 CHECK_COREAUDIO
 CHECK_CARBON
-CHECK_LIBRT
+#CHECK_LIBRT
 
 # Check for SpanDSP library
 CHECK_SPANDSP
