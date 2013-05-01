@@ -13,7 +13,6 @@ CheckVMail_LDADD = \
     @SIPXMEDIA_STATIC_LIBS@ \
     @SIPXMEDIA_MP_STATIC_LIBS@ \
     @CA_LIBS@  \
-    @RT_LIBS@ \
     -lresolv \
     $(top_builddir)/sipXcallLib/src/.libs/libsipXcall.a
 

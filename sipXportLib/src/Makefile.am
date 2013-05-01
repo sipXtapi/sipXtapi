@@ -23,7 +23,6 @@ libsipXport_la_LDFLAGS = \
 libsipXport_la_LIBADD = \
 	-lssl -lcrypto \
 	-lpcre \
-	@RT_LIBS@ \
 	-ldl \
 	-lpthread  \
 	-lstdc++
