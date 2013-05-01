@@ -7,7 +7,7 @@ INCLUDES = -I$(top_srcdir)/sipXmediaLib/include \
  -I$(top_srcdir)/sipXmediaLib/contrib/libilbc/include \
  @ILBC_INCLUDE@
 
-pkglib_LTLIBRARIES = codec_ilbc.la
+codeclib_LTLIBRARIES = codec_ilbc.la
 
 codec_ilbc_la_SOURCES = PlgIlbc.c
 codec_ilbc_la_LIBADD = @ILBC_LIB_ROOT@/.libs/libilbc.la
@@ -22,11 +22,4 @@ codec_ilbc_la_LDFLAGS = -module -avoid-version
 #.PHONY: libilbc
 #libilbc: 	
 #	make -C @ILBC_LIB_ROOT@ all
-
-all-local: codec_ilbc.la
-	echo "Installing plugin codec_ilbc.so ..."
-	cp -f .libs/codec_ilbc.so @DEFAULT_CODECS_PATH@
-
-clean-local:
-	rm -f @DEFAULT_CODECS_PATH@/codec_ilbc.so
 

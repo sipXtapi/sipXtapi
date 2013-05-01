@@ -1285,18 +1285,9 @@ AC_DEFUN([DECLARE_CODECS_STAFF],
 [
     AC_MSG_CHECKING([Configured codecs: ])
 
-    DEFAULT_CODECS_PATH="${PWD}/bin"
-    AC_ARG_WITH([codecs-bin-path],
-                [AS_HELP_STRING([--with-codecs-bin-path=PATH],
-                                [Set installation binary codec path. Default is ${PWD}/bin])],
-                [DEFAULT_CODECS_PATH=${withval}],
-                [])
+    AC_SUBST([codeclibdir], ['${pkglibdir}/codecs'])
 
-    AC_MSG_RESULT( ${PLUGINS} )    
-    AC_SUBST(DEFAULT_CODECS_PATH)
-    
-    CFLAGS="${CFLAGS} -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "
-    CXXFLAGS="${CXXFLAGS} -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "    
+    CPPFLAGS="${CPPFLAGS} -DDEFAULT_CODECS_PATH=\"${codeclibdir}\" "
 ])dnl
 
 

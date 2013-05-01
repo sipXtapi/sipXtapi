@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/sipXmediaLib/include -I$(top_srcdir)/sipXportLib/include
 
-pkglib_LTLIBRARIES = codec_l16.la
+codeclib_LTLIBRARIES = codec_l16.la
 
 codec_l16_la_SOURCES = \
 	CodecL16.c \
@@ -23,10 +23,4 @@ codec_l16_la_LDFLAGS = -module -avoid-version -static
 else
 codec_l16_la_LDFLAGS = -module -avoid-version
 
-all-local: codec_l16.la
-	echo "Installing plugin codec_l16.so ..."
-	cp -f .libs/codec_l16.so @DEFAULT_CODECS_PATH@
-
-clean-local:
-	rm -f @DEFAULT_CODECS_PATH@/codec_l16.so
 endif
