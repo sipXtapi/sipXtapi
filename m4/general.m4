@@ -776,7 +776,7 @@ AC_DEFUN([DECLARE_CODECS_STAFF],
 [
     AC_SUBST([codeclibdir], ['${pkglibdir}/codecs'])
 
-    CPPFLAGS="${CPPFLAGS} -DDEFAULT_CODECS_PATH=\"${codeclibdir}\" "
+    CPPFLAGS="${CPPFLAGS} -DDEFAULT_CODECS_PATH='\"${codeclibdir}\"' "
 ])dnl
 
 

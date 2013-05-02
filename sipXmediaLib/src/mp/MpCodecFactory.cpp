@@ -266,27 +266,11 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
    return OS_SUCCESS;
 }
 
-// Copied for MpMisc.cpp:
-#ifndef CODEC_PLUGIN_PATH
-// Windows compilers do not allow definition of preprocessor macros with
-// quotes in them within project files, so we need to stringify it here.
-// All platforms do this now.
-// Two levels of indirection are necessary to properly stringify a value in a macro.
-#  define STRINGIFY(s) #s
-#  define SSTRINGIFY(s) STRINGIFY(s)
-#  ifndef DEFAULT_CODECS_PATH
-#     define CODEC_PLUGIN_PATH  "."
-#  else
-#     define CODEC_PLUGIN_PATH  SSTRINGIFY(DEFAULT_CODECS_PATH)
-#  endif
-#endif
-
-
 OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFilter)
 {
    const char* _path = path;
    if(_path == NULL)
-      _path = CODEC_PLUGIN_PATH;
+      _path = DEFAULT_CODECS_PATH;
 
    OsPath ospath = _path;
    OsPath module;
