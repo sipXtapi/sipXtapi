@@ -112,10 +112,10 @@ CHECK_GRAPH_INTERFACE
 # SPEEX detection and configuration code inside general.m4 cannot do
 # sub-configure with AC_CONFIG_SUBDIRS, since it would be called more
 # than once, so do it here, where we know it only happens once.
-if test "x$contrib_speex_enabled" == "xyes"; then
-        # speex codec has it's own configure, so be sure to call it.
-        AC_CONFIG_SUBDIRS([contrib/libspeex])
-fi
+#if test "x$contrib_speex_enabled" == "xyes"; then
+#        # speex codec has it's own configure, so be sure to call it.
+#        AC_CONFIG_SUBDIRS([contrib/libspeex])
+#fi
 # Specify a SPEEX_CONTRIB make variable conditional upon using contrib speex.
 dnl Do not stick AM_CONDITIONAL inside a shell conditional.
 dnl If you do, automake will be confused, thus, it is in configure.ac.
@@ -208,8 +208,6 @@ AC_CONFIG_FILES([
   sipXmediaLib/Makefile 
   sipXmediaLib/include/Makefile 
   sipXmediaLib/src/Makefile 
-  sipXmediaLib/contrib/Makefile
-  sipXmediaLib/contrib/libilbc/Makefile
   sipXmediaLib/src/mp/codecs/Makefile
   sipXmediaLib/src/mp/codecs/plggsm/Makefile
   sipXmediaLib/src/mp/codecs/plgpcmapcmu/Makefile

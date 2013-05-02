@@ -11,7 +11,7 @@ EXTRA_DIST = \
     BUILDSTAMP \
     sipxmedialib.spec
 
-unconditional_SUBDIRS = . contrib src include bin
+unconditional_SUBDIRS = . src include bin
 
 include $(top_srcdir)/config/sipXprojtop.mak
 
