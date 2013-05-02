@@ -64,7 +64,20 @@ AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h malloc.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
 
-CHECK_CPPUNIT
+# Check CPPUnit - begin
+# can't be encapsulated as a function due to search path ordering issues
+AM_PATH_CPPUNIT(1.9,
+      [ SIPX_UNIT_TARGET="sipxunit" ],
+      [ SIPX_UNIT_TARGET="sipxportunit"
+        CPPUNIT_CFLAGS=' -DNO_CPPUNIT -I$(top_srcdir)/sipXportLib/src/test/sipxportunit '
+        AC_MSG_WARN("cppunit not found") ]
+)
+
+AC_SUBST(SIPX_UNIT_TARGET)
+
+AM_CONDITIONAL([BUILD_SIPXUNIT], [test "x$SIPX_UNIT_TARGET" == "xsipxunit" ])
+AM_CONDITIONAL([BUILD_SIPXPORTUNIT], [test "x$SIPX_UNIT_TARGET" == "xsipxportunit" ])
+# Check CPPUnit - end
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
