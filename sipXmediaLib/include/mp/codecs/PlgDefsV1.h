@@ -307,12 +307,12 @@ typedef int   (*dlPlgFreeV1)(void* handle, int isDecoder);
 typedef int16_t audio_sample_t;
 
 
-#ifndef max
-#define max(a, b) (((a) > (b)) ? (a) : (b))
+#ifndef _sipx_max
+#define _sipx_max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
-#ifndef min
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+#ifndef _sipx_min
+#define _sipx_min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
 #ifdef __cplusplus
