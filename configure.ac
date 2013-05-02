@@ -56,7 +56,9 @@ CHECK_G726
 CHECK_G722
 CHECK_AMR_AMRWB
 #CHECK_PCRE
-#CHECK_SSL
+
+# OpenSSL is mandatory, find it or configure fails:
+CHECK_SSL
 
 # Checks for header files.
 AC_HEADER_DIRENT
