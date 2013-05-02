@@ -195,31 +195,6 @@ AC_DEFUN([CHECK_CARBON],
     fi
 ])
 
-# ============ M O D   C P L U S P L U S ==================
-AC_DEFUN([CHECK_MODCPLUSPLUS],
-[
-    AC_MSG_CHECKING([for mod_cplusplus])
-    AC_ARG_WITH(mod_cplusplus,
-                [--with-mod_cplusplus=PATH to mod_cplusplus source directory],
-                [mod_cplusplus_path=$withval],
-                [mod_cplusplus_path="/usr/local/apache2/include /usr/local/include /usr/include /usr/include/httpd /usr/include/apache2"],
-                )
-    for mod_cplusplusdir in $mod_cplusplus_path ; do
-            if test -f "$mod_cplusplusdir/mod_cplusplus.h";
-        then
-            found_mod_cplusplus="yes";
-            break;
-        fi
-    done
-
-    if test x_$found_mod_cplusplus != x_yes;
-    then
-        AC_MSG_ERROR(['mod_cplusplus.h' not found; tried $mod_cplusplus_path])
-    else
-        AC_MSG_RESULT($mod_cplusplusdir)
-    fi
-])dnl
-
 # ==================== C G I C C  =========================
 AC_DEFUN([CHECK_CGICC],
 [
