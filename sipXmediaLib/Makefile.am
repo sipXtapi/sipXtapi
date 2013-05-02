@@ -8,7 +8,6 @@ EXTRA_DIST = \
     config/sipXprojtop.mak \
     config/sipXcommon.am.inc \
     CONTRIBUTORS \
-    BUILDSTAMP \
     sipxmedialib.spec
 
 unconditional_SUBDIRS = . src include bin

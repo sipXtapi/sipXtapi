@@ -8,7 +8,6 @@ EXTRA_DIST = \
 	config/sipX-buildstamp.h.in \
 	config/sipXprojtop.mak \
 	config/sipXcommon.am.inc \
-	BUILDSTAMP \
 	sipxsdplib.spec \
 	config.properties.in 
 

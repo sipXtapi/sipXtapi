@@ -9,7 +9,6 @@ EXTRA_DIST = \
     config/sipXprojtop.mak \
     config/sipXcommon.am.inc \
     CONTRIBUTORS \
-    BUILDSTAMP \
     ant-targets.xml \
     ant-targets.am \
     sipxtacklib.spec \
