@@ -196,41 +196,6 @@ AC_DEFUN([CHECK_CARBON],
 ])
 
 
-# ============ X E R C E S ==================
-AC_DEFUN([CHECK_XERCES],
-[   AC_MSG_CHECKING([for xerces])
-    AC_ARG_WITH(xerces,
-                [--with-xerces=PATH to xerces source directory],
-                [xerces_path=$with_val],
-                [xerces_path="/usr/local/xercesc /usr/lib/xercesc /usr/xercesc /usr/pkg /usr/local /usr"]
-                )
-    for dir in $xerces_path ; do
-        xercesdir="$dir"
-        if test -f "$dir/include/xercesc/sax/Parser.hpp"; then
-            found_xerces="yes";
-            XERCES_CFLAGS="-I$xercesdir/include/xercesc";
-            break;
-        fi
-        if test -f "$dir/include/sax/Parser.hpp"; then
-            found_xerces="yes";
-            XERCES_CFLAGS="-I$xercesdir/include";
-            break;
-        fi
-    done
-
-    if test x_$found_xerces != x_yes; then
-        AC_MSG_ERROR(Cannot find xerces - looked for include/sax/Parser.hpp or include/xercesc/sax/Parser.hpp in $xerces_path )
-    else
-        AC_MSG_RESULT($xercesdirm)
-
-        AC_SUBST(XERCES_CFLAGS,"$XERCES_CFLAGS")
-        AC_SUBST(XERCES_CXXFLAGS,"$XERCES_CFLAGS")
-
-        AC_SUBST(XERCES_LIBS,["-lxerces-c"])
-        AC_SUBST(XERCES_LDFLAGS,["-L$xercesdir/lib"])
-    fi
-])
-
 # CHECK_APR is called from CHECK_APACHE2
 # ============ A P R ==============
 AC_DEFUN([CHECK_APR],
