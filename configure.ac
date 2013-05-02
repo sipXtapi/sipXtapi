@@ -6,7 +6,7 @@ AC_INIT(sipXtapi, 3.3, sipxtapi-dev@list.sipfoundry.org)
 AC_CONFIG_SRCDIR([sipXportLib/src/os/OsConfigDb.cpp])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
-AM_INIT_AUTOMAKE([-Wno-extra-portability])
+AM_INIT_AUTOMAKE([-Wno-extra-portability tar-ustar])
 #AC_PREFIX_DEFAULT([/usr/local/sipx])
 
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
