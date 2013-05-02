@@ -2,16 +2,6 @@
 ## AC macros for general packages like OpenSSL, Xerces, etc
 ##
 
-# ============= A U T O C O N F ===============
-AC_DEFUN([CHECK_AUTOCONF],
-[
-    AC_PATH_PROG([AUTOCONF], autoconf)
-    if test `autoconf --version | grep "2.58" | wc -c` -ne 0 ; then
-        AC_MSG_WARN(["Autoconf 2.58 was found on system.  If you are a maintainer of this library it has known incompatilities.  If you are not a maintainer, 2.58 has serious bugs and you should consider upgrading autoconf"]);
-    fi
-])
-
-
 # ============ C L O V E R  =======================
 AC_DEFUN([CHECK_CLOVER],
 [
