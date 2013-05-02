@@ -76,7 +76,7 @@ int HelpCommand::execute(int argc, char* argv[])
         {
                 status = CommandProcessor::COMMAND_SUCCESS;
                 getUsage(argv[0], &usage);
-                printf(usage.data());
+                puts(usage.data());
         }
         else if(argc == 2)
         {
@@ -91,7 +91,7 @@ int HelpCommand::execute(int argc, char* argv[])
                                 //printf("found help for: \"%s\" command\n", argv[1]);
                                 status = CommandProcessor::COMMAND_SUCCESS;
                                 command->getUsage(argv[1], &usage);
-                                printf(usage.data());
+                                puts(usage.data());
                         }
                 }
                 if(status != CommandProcessor::COMMAND_SUCCESS)

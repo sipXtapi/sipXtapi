@@ -259,7 +259,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 
     char cVersion[80] ;
     sipxConfigGetVersion(cVersion, sizeof(cVersion)) ;
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, cVersion) ;
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "%s", cVersion) ;
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxInitialize tcpPort=%d udpPort=%d tlsPort=%d rtpPortStart=%d"
