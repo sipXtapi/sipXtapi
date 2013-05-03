@@ -25,7 +25,7 @@ int internal_decode_g726(void* handle, const void* pCodedData,
    int samples;
    int maxBytesToDecode;
 
-   maxBytesToDecode = min(cbCodedPacketSize, cbBufferSize*8/((g726_state_t*)handle)->bits_per_sample);
+   maxBytesToDecode = _sipx_min(cbCodedPacketSize, cbBufferSize*8/((g726_state_t*)handle)->bits_per_sample);
    assert(maxBytesToDecode == cbCodedPacketSize);
    
    samples = g726_decode((g726_state_t*)handle, (int16_t*)pAudioBuffer, pCodedData, maxBytesToDecode);
