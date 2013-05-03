@@ -8,8 +8,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.h.in \
     config/sipXprojtop.mak \
     config/sipXcommon.am.inc \
-    CONTRIBUTORS \
-    sipxportlib.spec
+    CONTRIBUTORS
 
 unconditional_SUBDIRS = . src include syslogviewer
 # bin is not really needed now that we have a top-level build system
@@ -42,5 +41,5 @@ sipxportlib.spec : sipxportlib.spec.in
 
 # 'rpmbuild -ta' searches root of tarball for first *.spec file to build 
 # RPM from
-dist-hook: sipxportlib.spec
-	cp sipxportlib.spec $(distdir)
+#dist-hook: sipxportlib.spec
+#	cp sipxportlib.spec $(distdir)

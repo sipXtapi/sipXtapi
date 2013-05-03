@@ -11,7 +11,6 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     ant-targets.xml \
     ant-targets.am \
-    sipxtacklib.spec \
     lib/jdom-b10.jar \
     lib/junit.jar \
     config.properties.in \
@@ -58,5 +57,5 @@ sipxtacklib.spec : sipxtacklib.spec.in
 
 # 'rpmbuild -ta' searches root of tarball for pkgname.spec file to build 
 # RPM from
-dist-hook: sipxtacklib.spec
-	cp sipxtacklib.spec $(distdir)
+#dist-hook: sipxtacklib.spec
+#	cp sipxtacklib.spec $(distdir)

@@ -7,8 +7,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.h.in \
     config/sipXprojtop.mak \
     config/sipXcommon.am.inc \
-    CONTRIBUTORS \
-    sipxmedialib.spec
+    CONTRIBUTORS
 
 unconditional_SUBDIRS = . src include
 # bin is not really needed now that we have a top-level build system
@@ -41,5 +40,5 @@ sipxmedialib.spec : sipxmedialib.spec.in
 
 # 'rpmbuild -ta' searches root of tarball for first *.spec file to build
 # RPM from
-dist-hook: sipxmedialib.spec
-	cp sipxmedialib.spec $(distdir)
+#dist-hook: sipxmedialib.spec
+#	cp sipxmedialib.spec $(distdir)

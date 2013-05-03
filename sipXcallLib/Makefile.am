@@ -7,8 +7,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.h.in \
     config/sipXprojtop.mak \
     config/sipXcommon.am.inc \
-    CONTRIBUTORS \
-    sipxcalllib.spec
+    CONTRIBUTORS
 
 unconditional_SUBDIRS = . src examples include
 # bin is not really needed now that we have a top-level build system
@@ -44,7 +43,7 @@ sipxcalllib.spec : sipxcalllib.spec.in
 
 # 'rpmbuild -ta' searches root of tarball for pkgname.spec file to build
 # RPM from
-dist-hook : sipxcalllib.spec
-	cp sipxcalllib.spec $(distdir)
+#dist-hook : sipxcalllib.spec
+#	cp sipxcalllib.spec $(distdir)
 
 DISTCLEANFILES = Makefile.in aclocal.m4 autom4te.cache/* config.h.in

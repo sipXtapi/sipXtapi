@@ -8,8 +8,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.h.in \
     config/sipXprojtop.mak \
     config/sipXcommon.am.inc \
-    CONTRIBUTORS \
-    sipxmediaadapterlib.spec
+    CONTRIBUTORS
 
 unconditional_SUBDIRS = . interface sipXmediaMediaProcessing examples
 
@@ -40,5 +39,5 @@ sipxmediaadapterlib.spec : sipxmediaadapterlib.spec.in
 
 # 'rpmbuild -ta' searches root of tarball for first *.spec file to build 
 # RPM from
-dist-hook: sipxmediaadapterlib.spec
-	cp sipxmediaadapterlib.spec $(distdir)
+#dist-hook: sipxmediaadapterlib.spec
+#	cp sipxmediaadapterlib.spec $(distdir)

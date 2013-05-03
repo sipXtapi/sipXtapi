@@ -8,7 +8,6 @@ EXTRA_DIST = \
 	config/sipX-buildstamp.h.in \
 	config/sipXprojtop.mak \
 	config/sipXcommon.am.inc \
-	sipxsdplib.spec \
 	config.properties.in 
 
 unconditional_SUBDIRS = . include src 
@@ -46,5 +45,5 @@ sipxsdplib.spec : sipxsdplib.spec.in
 
 # 'rpmbuild -ta' searches root of tarball for pkgname.spec file to build 
 # RPM from
-dist-hook: sipxsdplib.spec
-	cp sipxsdplib.spec $(distdir)
+#dist-hook: sipxsdplib.spec
+#	cp sipxsdplib.spec $(distdir)
