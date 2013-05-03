@@ -31,9 +31,11 @@ libsipXcall_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
     @VIDEO_DEFINE@
 
-libsipXcall_la_SOURCES = \
+nodist_libsipXcall_la_SOURCES = \
     $(top_srcdir)/config/@PACKAGE@-buildstamp.h \
-    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp
+
+libsipXcall_la_SOURCES = \
     cp/CallManager.cpp \
     cp/CSeqManager.cpp \
     cp/Connection.cpp \

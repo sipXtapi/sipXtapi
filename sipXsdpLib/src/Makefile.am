@@ -30,9 +30,11 @@ libsipXsdp_la_CXXFLAGS = \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
-libsipXsdp_la_SOURCES =  \
+nodist_libsipXsdp_la_SOURCES =  \
     $(top_srcdir)/config/@PACKAGE@-buildstamp.h \
-    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp
+
+libsipXsdp_la_SOURCES =  \
     sdp/Sdp.cpp \
     sdp/SdpCandidate.cpp \
     sdp/SdpCandidatePair.cpp \

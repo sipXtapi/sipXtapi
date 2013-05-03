@@ -45,9 +45,11 @@ else
 SECURITY_FILES=
 endif
 
-libsipXtack_la_SOURCES =  \
+nodist_libsipXtack_la_SOURCES =  \
     $(top_srcdir)/config/@PACKAGE@-buildstamp.h \
-    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp
+
+libsipXtack_la_SOURCES =  \
     net/HttpBody.cpp \
     net/HttpMessage.cpp \
     net/HttpRequestContext.cpp \

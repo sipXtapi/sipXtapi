@@ -56,9 +56,11 @@ AUDIODRIVERS_SOURCE = \
         mp/MpOssContainer.cpp 
 endif
 
-libsipXmedia_la_SOURCES =  \
+nodist_libsipXmedia_la_SOURCES =  \
     $(top_srcdir)/config/@PACKAGE@-buildstamp.h \
-    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp
+
+libsipXmedia_la_SOURCES =  \
     $(AUDIODRIVERS_SOURCE) \
     mp/dft.cpp \
     mp/dmaTaskPosix.cpp \
