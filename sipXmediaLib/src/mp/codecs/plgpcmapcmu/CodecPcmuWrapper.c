@@ -113,7 +113,7 @@ CODEC_API int PLG_DECODE_V1(sipxPcmu)(void* handle, const void* pCodedData,
    if (cbBufferSize == 0)
       return RPLG_INVALID_ARGUMENT;
 
-   samples = min(cbCodedPacketSize, cbBufferSize);
+   samples = _sipx_min(cbCodedPacketSize, cbBufferSize);
 #ifdef USE_BUGGY_G711 // [
    G711U_Decoder(samples, (uint8_t*)pCodedData, (MpAudioSample *)pAudioBuffer);
 #else // USE_BUGGY_G711 ][
