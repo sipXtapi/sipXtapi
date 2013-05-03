@@ -184,8 +184,8 @@ AC_SEARCH_LIBS([clock_nanosleep],[rt posix4])
 
 AC_CONFIG_FILES([
   Makefile
+  bin/Makefile
   sipXcallLib/Makefile 
-  sipXcallLib/bin/Makefile
   sipXcallLib/doc/Makefile
   sipXcallLib/examples/CallScript/src/Makefile
   sipXcallLib/examples/Makefile 
@@ -220,11 +220,9 @@ AC_CONFIG_FILES([
   sipXmediaLib/src/mp/codecs/plgamr/Makefile
   sipXmediaLib/src/mp/codecs/plgamrwb/Makefile
   sipXmediaLib/src/test/Makefile
-  sipXmediaLib/bin/Makefile
   sipXmediaLib/doc/Makefile
   sipXportLib/Makefile 
   sipXportLib/include/Makefile 
-  sipXportLib/bin/Makefile
   sipXportLib/src/Makefile 
   sipXportLib/src/test/Makefile
   sipXportLib/src/test/sipxunit/Makefile
@@ -240,7 +238,6 @@ AC_CONFIG_FILES([
   sipXtackLib/Makefile 
   sipXtackLib/include/Makefile 
   sipXtackLib/src/Makefile 
-  sipXtackLib/bin/Makefile 
   sipXtackLib/meta/Makefile 
   sipXtackLib/src/test/Makefile
   sipXtackLib/examples/Makefile

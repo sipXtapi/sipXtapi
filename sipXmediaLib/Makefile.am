@@ -10,7 +10,9 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     sipxmedialib.spec
 
-unconditional_SUBDIRS = . src include bin
+unconditional_SUBDIRS = . src include
+# bin is not really needed now that we have a top-level build system
+#unconditional_SUBDIRS += bin
 
 include $(top_srcdir)/config/sipXprojtop.mak
 

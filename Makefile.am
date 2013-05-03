@@ -12,6 +12,7 @@ EXTRA_DIST = \
     config/sipXcommon.am.inc
 
 unconditional_SUBDIRS = \
+  bin \
   sipXportLib \
   sipXsdpLib \
   sipXtackLib \
@@ -22,5 +23,4 @@ unconditional_SUBDIRS = \
 include $(top_srcdir)/config/sipXpkgtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
-
 
