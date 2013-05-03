@@ -20,6 +20,7 @@
 #     define __inline__ __inline // For gcc compatibility
 #   endif // _MSC_VER ]
 #  include <spandsp/telephony.h>
+#  include <spandsp/bit_operations.h>
 #  include <spandsp/g711.h>
 #endif // !USE_BUGGY_G711 ]
 
