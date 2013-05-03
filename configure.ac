@@ -187,11 +187,7 @@ AC_CONFIG_FILES([
   bin/Makefile
   sipXcallLib/Makefile 
   sipXcallLib/doc/Makefile
-  sipXcallLib/examples/CallScript/src/Makefile
   sipXcallLib/examples/Makefile 
-  sipXcallLib/examples/PlaceCall/Makefile
-  sipXcallLib/examples/ReceiveCall/Makefile
-  sipXcallLib/examples/musicServer/Makefile
   sipXcallLib/examples/sipXezPhone/Makefile
   sipXcallLib/include/Makefile 
   sipXcallLib/src/Makefile 
