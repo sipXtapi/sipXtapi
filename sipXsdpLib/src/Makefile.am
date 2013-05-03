@@ -46,4 +46,3 @@ libsipXsdp_la_SOURCES =  \
 EXTRA_DIST= \
     sdp/SdpHelperResip.cpp
 
-DISTCLEANFILES = Makefile.in

@@ -62,4 +62,3 @@ libsipXcall_la_SOURCES = \
     tapi/SipXHandleMap.cpp \
     tapi/SipXMessageObserver.cpp
 
-DISTCLEANFILES = Makefile.in

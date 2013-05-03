@@ -44,4 +44,3 @@ regression_SOURCES = \
     mp/MyPlayerListenerPoller.cpp \
     mp/MyStreamQueueHistoryKeeper.cpp
 
-DISTCLEANFILES = Makefile.in

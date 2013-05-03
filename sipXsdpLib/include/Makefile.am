@@ -15,4 +15,3 @@ nobase_include_HEADERS = \
 EXTRA_DIST= \
     sdp/SdpHelperResip.h 
 
-DISTCLEANFILES = Makefile.in

@@ -14,7 +14,6 @@ $(top_builddir)/BUILDSTAMP:
 	chmod +x @PACKAGE@-config
 
 DISTCLEANFILES = \
-	Makefile.in \
 	@PACKAGE@-config \
 	$(top_srcdir)/config/@PACKAGE@-buildstamp.cpp \
 	$(top_srcdir)/config/@PACKAGE@-buildstamp.h

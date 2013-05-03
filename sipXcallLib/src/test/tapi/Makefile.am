@@ -34,4 +34,3 @@ testsuite_SOURCES = \
   sipXtapiTestSubscribe.cpp \
   ../jnibutton.cpp
 
-DISTCLEANFILES = Makefile.in

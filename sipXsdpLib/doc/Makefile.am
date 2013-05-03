@@ -37,4 +37,4 @@ clean: clean-doc
 clean-doc:
 	rm -rf @PACKAGE@ Doxyfile
 
-DISTCLEANFILES = Doxyfile Makefile.in
+DISTCLEANFILES = Doxyfile
