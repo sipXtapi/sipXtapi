@@ -24,3 +24,5 @@ include $(top_srcdir)/config/sipXpkgtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 
+DISTCLEANFILES = BUILDSTAMP
+

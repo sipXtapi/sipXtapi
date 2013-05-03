@@ -59,3 +59,6 @@ sipxtacklib.spec : sipxtacklib.spec.in
 # RPM from
 #dist-hook: sipxtacklib.spec
 #	cp sipxtacklib.spec $(distdir)
+
+DISTCLEANFILES = config.properties
+

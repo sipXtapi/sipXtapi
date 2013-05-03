@@ -47,3 +47,6 @@ sipxsdplib.spec : sipxsdplib.spec.in
 # RPM from
 #dist-hook: sipxsdplib.spec
 #	cp sipxsdplib.spec $(distdir)
+
+DISTCLEANFILES = config.properties
+
