@@ -3,8 +3,6 @@ include $(top_srcdir)/config/sipXcommon.am.inc
 EXTRA_DIST = \
   Doxyfile.in \
   footer.html \
-  license/jdom-LICENSE.txt \
-  license/junit-LICENSE.txt \
   license/MD5-LICENSE
 
 all: doc

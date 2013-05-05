@@ -11,8 +11,6 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     ant-targets.xml \
     ant-targets.am \
-    lib/jdom-b10.jar \
-    lib/junit.jar \
     config.properties.in \
     syslog2siptrace/siptrace-merge
 
