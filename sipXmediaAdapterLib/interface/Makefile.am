@@ -2,9 +2,9 @@
 
 INCLUDES = -I$(top_srcdir)/sipXtackLib/include -I$(top_srcdir)/sipXsdpLib/include -I$(top_srcdir)/sipXportLib/include
 
-nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
+nobase_pkgincludeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
-nobase_include_HEADERS =  \
+nobase_pkginclude_HEADERS =  \
     mi/CpMediaInterface.h \
     mi/CpMediaInterfaceFactoryImpl.h \
     mi/CpMediaInterfaceFactoryFactory.h \

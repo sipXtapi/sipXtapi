@@ -1,5 +1,5 @@
 
-nobase_include_HEADERS =  \
+nobase_pkginclude_HEADERS =  \
     siptest/AuthCommand.h \
     siptest/Command.h \
     siptest/CommandMsgProcessor.h \

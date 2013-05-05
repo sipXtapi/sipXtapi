@@ -25,7 +25,7 @@ libsipXunit_la_SOURCES =  \
 libsipXunit_la_LIBADD = \
 	@CPPUNIT_LIBS@
 
-sipxincludedir = $(includedir)/sipxunit
+sipxincludedir = @pkgincludedir@/sipxunit
 sipxinclude_HEADERS = \
     TestUtilities.h
 

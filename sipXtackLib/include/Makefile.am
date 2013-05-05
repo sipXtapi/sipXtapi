@@ -1,6 +1,6 @@
 # preserve header timestamps to preserve incremental builds across
 # projects
-nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
+nobase_pkgincludeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
 ## If we use windows, make these conditional includes
 EXTRA_DIST = \
@@ -17,7 +17,7 @@ EXTRA_DIST = \
     resparse/wnt/sysdep.h \
     resparse/wnt/utilNT.h
 
-nobase_include_HEADERS =  \
+nobase_pkginclude_HEADERS =  \
     net/HttpBody.h \
     net/HttpMessage.h \
     net/HttpRequestContext.h \
