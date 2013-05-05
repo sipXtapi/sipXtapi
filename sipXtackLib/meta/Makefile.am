@@ -1,5 +1,5 @@
 
-schemadir = @pkgdatadir@/schema
+schemadir = $(pkgdatadir)/schema
 
 schemas = \
 	sip_types.xsd
