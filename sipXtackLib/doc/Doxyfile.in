@@ -14,7 +14,7 @@
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project. 
 
-PROJECT_NAME          = @PACKAGE@
+PROJECT_NAME          = sipXtackLib
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
@@ -309,7 +309,7 @@ GENERATE_HTML         = @enable_html_docs@
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be 
 # put in front of it. If left blank `html' will be used as the default path. 
 
-HTML_OUTPUT           = @PACKAGE@
+HTML_OUTPUT           = sipXtackLib
 
 # The HTML_HEADER tag can be used to specify a personal HTML header for 
 # each generated HTML page. If it is left blank doxygen will generate a 
@@ -503,7 +503,7 @@ TAGFILES              = \
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create 
 # a tag file that is based on the input files it reads. 
 
-GENERATE_TAGFILE      = @PACKAGE@/@PACKAGE@.tag
+GENERATE_TAGFILE      = sipXtackLib/sipXtackLib.tag
 
 # If the ALLEXTERNALS tag is set to YES all external classes will be listed 
 # in the class index. If set to NO only the inherited external classes 
