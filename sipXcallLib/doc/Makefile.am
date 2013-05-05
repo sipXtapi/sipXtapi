@@ -33,7 +33,7 @@ install-doc: $(PROJECT)
 	find $(PROJECT) -type f -print \
 	| xargs --replace=% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@docdir@/%
 
-clean: clean-doc
+clean-local: clean-doc
 
 .PHONY: clean-doc
 clean-doc:
