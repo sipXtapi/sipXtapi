@@ -58,7 +58,7 @@ CHECK_G722
 CHECK_AMR_AMRWB
 
 # PCRE is mandatory
-PKG_CHECK_MODULES([DEPS_PCRE], [libpcre >= 8.30])
+PKG_CHECK_MODULES([DEPS_PCRE], [libpcre >= 4.5])
 
 # OpenSSL is mandatory, find it or configure fails:
 CHECK_SSL
