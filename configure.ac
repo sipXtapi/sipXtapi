@@ -184,6 +184,7 @@ AC_SEARCH_LIBS([clock_nanosleep],[rt posix4])
 
 AC_CONFIG_FILES([
   Makefile
+  sipxtapi.spec
   bin/Makefile
   sipXcallLib/Makefile 
   sipXcallLib/doc/Makefile
