@@ -4,7 +4,7 @@ INCLUDES = -I$(top_srcdir)/sipXtackLib/include -I$(top_srcdir)/sipXsdpLib/includ
 
 bin_PROGRAMS = syslog2siptrace
 
-syslog2siptrace_LDADD = $(top_builddir)/sipXtackLib/src/libsipXtack.la $(top_builddir)/sipXportLib/src/libsipXport.la
+syslog2siptrace_LDADD = $(top_builddir)/sipXtackLib/src/libsipXtack.la $(top_builddir)/sipXsdpLib/src/libsipXsdp.la $(top_builddir)/sipXportLib/src/libsipXport.la
 
 syslog2siptrace_SOURCES = main.cpp
 
