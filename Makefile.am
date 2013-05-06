@@ -4,6 +4,7 @@ ACLOCAL_AMFLAGS = -I m4
 include $(top_srcdir)/config/sipXcommon.am.inc
 
 EXTRA_DIST = \
+    sipxtapi.spec \
     config/sipXpkgtop.mak \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
