@@ -101,8 +101,8 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
         if(!sendOk)
         {
             OsTask* pCallingTask = OsTask::getCurrentTask();
-            int callingTaskId = -1;
-            int clientTaskId = -1;
+            OsTaskId_t callingTaskId = -1;
+            OsTaskId_t clientTaskId = -1;
 
             if ( pCallingTask )
             {

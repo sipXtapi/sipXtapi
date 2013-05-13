@@ -378,10 +378,7 @@ void OsTaskLinux::yield(void)
 // Return NULL if none exists.
 OsTaskLinux* OsTaskLinux::getCurrentTask(void)
 {
-   int taskId;
-
-   taskId = (int)pthread_self();
-   return OsTaskLinux::getTaskById(taskId);
+   return OsTaskLinux::getTaskById(pthread_self());
 }
 
 
@@ -392,9 +389,9 @@ void OsTaskLinux::getIdString(UtlString &dest, pthread_t tid)
 }
 
 // Return an Id of the currently executing task
-OsStatus OsTaskLinux::getCurrentTaskId(int &rid)
+OsStatus OsTaskLinux::getCurrentTaskId(OsTaskId_t &rid)
 {
-   rid = (int)pthread_self();
+   rid = pthread_self();
    return OS_SUCCESS;
 }
 
@@ -495,13 +492,13 @@ OsStatus OsTaskLinux::varGet(void)
 /* ============================ INQUIRY =================================== */
 
 // Get the task ID for this task
-OsStatus OsTaskLinux::id(int& rId)
+OsStatus OsTaskLinux::id(OsTaskId_t &rId)
 {
    OsStatus retVal = OS_SUCCESS;
    
    //if started, return the taskId, otherwise return -1
    if (isStarted())
-      rId = (int)mTaskId;
+      rId = mTaskId;
    else
    {
       retVal = OS_TASK_NOT_STARTED;

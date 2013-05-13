@@ -354,7 +354,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
       if (willLog(facility, priority))
       {
          UtlString taskName ;
-         int      taskId = 0 ;
+         OsTaskId_t taskId = 0 ;
 
          va_list ap;
          va_start(ap, format);
@@ -367,7 +367,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
          } else {
             char buff[100];
             OsTaskLinux::getCurrentTaskId(taskId );
-            sprintf(buff, "TID#%d", taskId);
+            sprintf(buff, "TID#%ld", taskId);
             taskName = buff;
          }
 
@@ -383,7 +383,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
 
 // Add a log entry given a variable argument list
 OsStatus OsSysLog::vadd(const char*            taskName,
-                        const int              taskId,                        
+                        const OsTaskId_t       taskId,                        
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,
@@ -1031,15 +1031,18 @@ OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
     mFacility(facility),
     mPriority(priority)
 {
-    OsTask::getCurrentTaskId(mTid);
-    OsSysLog::add(mFacility, mPriority, "ENTER FUNC (tid=%d) %s\n",
-        mTid, methodName);
+    OsTaskId_t tid;
+    OsTask::getCurrentTaskId(tid);
+    OsSysLog::add(mFacility, mPriority, "ENTER FUNC (tid=%ld) %s\n",
+        tid, methodName);
 }
 
 OsStackTraceLogger::~OsStackTraceLogger()
 {
-    OsSysLog::add(mFacility, mPriority, "EXIT  FUNC (tid=%d) %s\n",
-        mTid, mMethodName.data());
+    OsTaskId_t tid;
+    OsTask::getCurrentTaskId(tid);
+    OsSysLog::add(mFacility, mPriority, "EXIT  FUNC (tid=%ld) %s\n",
+        tid, mMethodName.data());
 }
 
 OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
@@ -1050,8 +1053,9 @@ OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
     mFacility(facility),
     mPriority(priority)
 {
+    OsTaskId_t tid;
     mMethodName = UtlString(oneBackInStack.mMethodName) + UtlString("->") + mMethodName;
-    OsTask::getCurrentTaskId(mTid);
-    OsSysLog::add(mFacility, mPriority, "ENTER FUNC (tid=%d) %s\n",
-        mTid, mMethodName.data());
+    OsTask::getCurrentTaskId(tid);
+    OsSysLog::add(mFacility, mPriority, "ENTER FUNC (tid=%ld) %s\n",
+        tid, mMethodName.data());
 }
