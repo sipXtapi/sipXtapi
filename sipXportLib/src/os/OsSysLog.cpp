@@ -365,10 +365,9 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
             taskName = pBase->getName() ;
             pBase->id(taskId) ;
          } else {
-            char buff[100];
             OsTaskLinux::getCurrentTaskId(taskId );
-            sprintf(buff, "TID#%ld", taskId);
-            taskName = buff;
+            taskName = "Anon";
+            // OsTask::getIdString_d(taskName, taskId);
          }
 
          rc = vadd(taskName.data(), taskId, facility, priority, format, ap);         
@@ -410,15 +409,17 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          
          UtlString   strTime ;
          logTime.getIsoTimeStringZus(strTime) ;
+         UtlString   taskHex;
+         OsTaskLinux::getIdString_X(taskHex, taskId);
 
-         mysprintf(logEntry, "\"%s\":%d:%s:%s:%s:%s:%08X:%s:\"%s\"",
+         mysprintf(logEntry, "\"%s\":%d:%s:%s:%s:%s:%s:%s:\"%s\"",
                strTime.data(),
                ++sEventCount,
                OsSysLog::sFacilityNames[facility], 
                OsSysLog::sPriorityNames[priority],
                sHostname.data(),
                (taskName == NULL) ? "" : taskName,
-               taskId,
+               taskHex.data(),
                sProcessId.data(),
                logData.data()) ;         
 
@@ -1032,17 +1033,21 @@ OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
     mPriority(priority)
 {
     OsTaskId_t tid;
+    UtlString taskHex("ENTER FUNC (tid=");
     OsTask::getCurrentTaskId(tid);
-    OsSysLog::add(mFacility, mPriority, "ENTER FUNC (tid=%ld) %s\n",
-        tid, methodName);
+    OsTaskLinux::getIdString_X(taskHex, tid);
+    OsSysLog::add(mFacility, mPriority, "%s) %s\n",
+        taskHex.data(), methodName);
 }
 
 OsStackTraceLogger::~OsStackTraceLogger()
 {
     OsTaskId_t tid;
+    UtlString taskHex("EXIT  FUNC (tid=");
     OsTask::getCurrentTaskId(tid);
-    OsSysLog::add(mFacility, mPriority, "EXIT  FUNC (tid=%ld) %s\n",
-        tid, mMethodName.data());
+    OsTaskLinux::getIdString_X(taskHex, tid);
+    OsSysLog::add(mFacility, mPriority, "%s) %s\n",
+        taskHex.data(), mMethodName.data());
 }
 
 OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
@@ -1054,8 +1059,10 @@ OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
     mPriority(priority)
 {
     OsTaskId_t tid;
+    UtlString taskHex("ENTER FUNC (tid=");
     mMethodName = UtlString(oneBackInStack.mMethodName) + UtlString("->") + mMethodName;
     OsTask::getCurrentTaskId(tid);
-    OsSysLog::add(mFacility, mPriority, "ENTER FUNC (tid=%ld) %s\n",
-        tid, mMethodName.data());
+    OsTaskLinux::getIdString_X(taskHex, tid);
+    OsSysLog::add(mFacility, mPriority, "%s) %s\n",
+        taskHex.data(), mMethodName.data());
 }

@@ -210,7 +210,9 @@ public:
      // private value by directly accessing the variable. This routine is
      // provided primarily for debugging purposes.
 
-   static void getIdString(UtlString&, pthread_t);
+   static void getIdString_d(UtlString&, OsTaskId_t);
+   static void getIdString_x(UtlString&, OsTaskId_t);
+   static void getIdString_X(UtlString&, OsTaskId_t);
      //: Relatively portable way to do what was being done wrong before.
 
 /* ============================ INQUIRY =================================== */
