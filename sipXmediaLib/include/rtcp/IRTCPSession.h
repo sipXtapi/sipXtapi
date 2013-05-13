@@ -336,30 +336,6 @@ public:
 
 /**
  *
- * Method Name: GetFirstConnection
- *
- *
- * Inputs:   None
- *
- * Outputs:  None
- *
- * Returns:  IRTCPConnection *
- *             Returns an interface for use in controlling an RTCP Connection
- *
- *
- * Description: The GetFirstConnection shall retrieve the first instantiation
- *              of an RTCP Connection interface on the RTCP Session's
- *              collection list.
- *
- *
- * Usage Notes:
- *
- *
- */
-    virtual IRTCPConnection *GetFirstConnection(void)=0;
-
-/**
- *
  * Method Name: CheckConnection
  *
  *
@@ -380,31 +356,6 @@ public:
  *
  */
     virtual IRTCPConnection *CheckConnection(IRTCPConnection *)=0;
-
-
-/**
- *
- * Method Name: GetNextConnection
- *
- *
- * Inputs:   None
- *
- * Outputs:  None
- *
- * Returns:  IRTCPConnection *
- *             Returns an interface for use in controlling an RTCP Connection
- *
- *
- * Description: The GetNextConnection shall retrieve the next instantiation of
- *              an RTCP Connection interface on the RTCP Session's collection
- *              list.
- *
- *
- * Usage Notes:
- *
- *
- */
-    virtual IRTCPConnection *GetNextConnection(void)=0;
 };
 
 #endif

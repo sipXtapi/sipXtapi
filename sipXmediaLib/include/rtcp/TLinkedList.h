@@ -13,6 +13,7 @@
 #define _TLinkedList_h
 
 #include "rtcp/RtcpConfig.h"
+#include "os/OsTask.h" //// DEBUG
 
 // Includes
 #include "BaseClass.h"
@@ -111,6 +112,48 @@ class CTLinkedList
 
 /*|><|************************************************************************
 *
+* Method Name:  TakeLock
+*
+*
+* Inputs:       None
+*
+* Outputs:      None
+*
+* Returns:      None
+*
+* Description:  Take the list's synchronization lock.
+*
+* Usage Notes:  Call TakeLock before calling GetFirstEntry or RemoveFirstEntry
+*               AND KEEP THAT LOCK until done with GetNextEntry or
+*               RemoveNextEntry.
+*
+************************************************************************|<>|*/
+      virtual void TakeLock(void);
+
+
+/*|><|************************************************************************
+*
+* Method Name:  ReleaseLock
+*
+*
+* Inputs:       None
+*
+* Outputs:      None
+*
+* Returns:      None
+*
+* Description:  Release the list's synchronization lock.
+*
+* Usage Notes:  Call TakeLock before calling GetFirstEntry or RemoveFirstEntry
+*               AND KEEP THAT LOCK until done with GetNextEntry or
+*               RemoveNextEntry.
+*
+************************************************************************|<>|*/
+      virtual void ReleaseLock(void);
+
+
+/*|><|************************************************************************
+*
 * Method Name:  AddEntry
 *
 *
@@ -152,7 +195,10 @@ class CTLinkedList
 *               successive calls to GetNextEntry() will cause the iterator to
 *               move down the list.
 *
-*
+* Caveats:      GetFirstEntry, GetNextEntry, RemoveFirstEntry, and RemoveNextEntry
+*               SHARE A SINGLE ITERATOR!
+*   THE NEW USAGE PARADIGM IS:  Call TakeLock before calling xxxFirstEntry, and
+*   KEEP THAT LOCK until you are done with xxxNextEntry, then call ReleaseLock.
 *
 ************************************************************************|<>|*/
      virtual TENTRY GetFirstEntry(void);
@@ -179,6 +225,10 @@ class CTLinkedList
 *               successive calls to GetNextEntry() will cause the iterator to
 *               move down the list.
 *
+* Caveats:      GetFirstEntry, GetNextEntry, RemoveFirstEntry, and RemoveNextEntry
+*               SHARE A SINGLE ITERATOR!
+*   THE NEW USAGE PARADIGM IS:  Call TakeLock before calling xxxFirstEntry, and
+*   KEEP THAT LOCK until you are done with xxxNextEntry, then call ReleaseLock.
 *
 ************************************************************************|<>|*/
     virtual TENTRY GetNextEntry(void);
@@ -203,7 +253,10 @@ class CTLinkedList
 *               of the list while successive calls to RemoveNextEntry() will
 *               cause the iterator to move down the list.
 *
-*
+* Caveats:      GetFirstEntry, GetNextEntry, RemoveFirstEntry, and RemoveNextEntry
+*               SHARE A SINGLE ITERATOR!
+*   THE NEW USAGE PARADIGM IS:  Call TakeLock before calling xxxFirstEntry, and
+*   KEEP THAT LOCK until you are done with xxxNextEntry, then call ReleaseLock.
 *
 ************************************************************************|<>|*/
      virtual TENTRY RemoveFirstEntry(void);
@@ -228,6 +281,10 @@ class CTLinkedList
 *               of the list while successive calls to RemoveNextEntry() will
 *               cause the iterator to move down the list.
 *
+* Caveats:      GetFirstEntry, GetNextEntry, RemoveFirstEntry, and RemoveNextEntry
+*               SHARE A SINGLE ITERATOR!
+*   THE NEW USAGE PARADIGM IS:  Call TakeLock before calling xxxFirstEntry, and
+*   KEEP THAT LOCK until you are done with xxxNextEntry, then call ReleaseLock.
 *
 ************************************************************************|<>|*/
     virtual TENTRY RemoveNextEntry(void);
@@ -323,6 +380,7 @@ class CTLinkedList
 ************************************************************************|<>|*/
      virtual TENTRY RemoveEntry(bool (*Comparitor)(TENTRY, void *),void *);
 
+#if 0
 /*|><|************************************************************************
 *
 * Method Name:  RemoveAllEntries
@@ -342,7 +400,8 @@ class CTLinkedList
 *
 *
 ************************************************************************|<>|*/
-     virtual void RemoveAllEntries(TENTRY tEntry);
+     virtual void RemoveAllEntries();
+#endif
 
 
 /*|><|************************************************************************
@@ -638,6 +697,54 @@ unsigned long CTLinkedList<TENTRY>::GetCount(void)
 
 /*|><|************************************************************************
 *
+* Method Name:  TakeLock
+*
+*
+* Inputs:       None
+*
+* Outputs:      None
+*
+* Returns:      None
+*
+* Description:  Take the list's synchronization lock.
+*
+* Usage Notes:
+*
+*
+************************************************************************|<>|*/
+template <class TENTRY>
+void CTLinkedList<TENTRY>::TakeLock(void)
+{
+    EnterCriticalSection (&m_csSynchronized);
+}
+
+
+/*|><|************************************************************************
+*
+* Method Name:  ReleaseLock
+*
+*
+* Inputs:       None
+*
+* Outputs:      None
+*
+* Returns:      None
+*
+* Description:  Release the list's synchronization lock.
+*
+* Usage Notes:
+*
+*
+************************************************************************|<>|*/
+template <class TENTRY>
+void CTLinkedList<TENTRY>::ReleaseLock(void)
+{
+    LeaveCriticalSection (&m_csSynchronized);
+}
+
+
+/*|><|************************************************************************
+*
 * Method Name:  AddEntry
 *
 *
@@ -693,35 +800,30 @@ bool CTLinkedList<TENTRY>::AddEntry(TENTRY tEntry)
 *
 * Returns:      TENTRY
 *
-* Logic Notes:
-*
-* Caveats:      Both GetFirst and GetNext entry maintain a single context.
-*               Undesired results will occur if two or more users of a linked
-*               list attempt to use its iterator simultaneously.
+* Caveats:      GetFirstEntry, GetNextEntry, RemoveFirstEntry, and RemoveNextEntry
+*               SHARE A SINGLE ITERATOR!
+*   THE NEW USAGE PARADIGM IS:  Call TakeLock before calling xxxFirstEntry, and
+*   KEEP THAT LOCK until you are done with xxxNextEntry, then call ReleaseLock.
 *
 ************************************************************************|<>|*/
 template <class TENTRY>
-TENTRY CTLinkedList<TENTRY>::GetFirstEntry(void)
+TENTRY CTLinkedList<TENTRY>::GetFirstEntry()
 {
 
 //  Declarations
     CTLink<TENTRY> *ptLink;
-
-//  Enter Synchronized Area
-    EnterCriticalSection (&m_csSynchronized);
+    TENTRY retVal = NULL;
 
 //  Reset the list iterator to the tail where the first entry in resides.
     ptLink = ResetIterator();
 
-//  Leave Synchronized Area
-    LeaveCriticalSection (&m_csSynchronized);
-
 //  If the Iterator is equal to NULL, then the list is empty
-    if(!ptLink)
-        return(NULL);
+    if(ptLink) {
+        retVal = ptLink->GetEntry();
+    }
 
 //  Return entry
-    return(ptLink->GetEntry());
+    return retVal;
 }
 
 /*|><|************************************************************************
@@ -735,37 +837,30 @@ TENTRY CTLinkedList<TENTRY>::GetFirstEntry(void)
 *
 * Returns:      TENTRY
 *
-* Logic Notes:
-*
-* Caveats:      Both GetFirst and GetNext entry maintain a single context.
-*               Undesired results will occur if two or more users of a linked
-*               list attempt to use its iterator simultaneously.
+* Caveats:      GetFirstEntry, GetNextEntry, RemoveFirstEntry, and RemoveNextEntry
+*               SHARE A SINGLE ITERATOR!
+*   THE NEW USAGE PARADIGM IS:  Call TakeLock before calling xxxFirstEntry, and
+*   KEEP THAT LOCK until you are done with xxxNextEntry, then call ReleaseLock.
 *
 ************************************************************************|<>|*/
 template <class TENTRY>
-TENTRY CTLinkedList<TENTRY>::GetNextEntry(void)
+TENTRY CTLinkedList<TENTRY>::GetNextEntry()
 {
 
 //  Declarations
     CTLink<TENTRY> *ptLink;
-
-//  Enter Synchronized Area
-    EnterCriticalSection (&m_csSynchronized);
+    TENTRY retVal = NULL;
 
 //  Advance List Iterator
     ptLink = AdvanceIterator();
 
-//  Leave Synchronized Area
-    LeaveCriticalSection (&m_csSynchronized);
-
 //  If the Iterator is equal to NULL, then the list is empty or the iterator
 //  has reached the end of the list
-    if(!ptLink)
-        return(NULL);
+    if(ptLink) {
+        retVal = (ptLink->GetEntry());
+    }
 
-
-    return(ptLink->GetEntry());
-
+    return retVal;
 }
 
 /*|><|************************************************************************
@@ -779,49 +874,30 @@ TENTRY CTLinkedList<TENTRY>::GetNextEntry(void)
 *
 * Returns:      TENTRY
 *
-* Logic Notes:
-*
-* Caveats:      Both RemoveFirst and RemoveNext entry maintain a single
-*               context.  Undesired results will occur if two or more users
-*               of a linked list attempt to use its iterator simultaneously.
-*               Undesirable effects will also occur if Get and Remove
-*               First/Next Entry calls are interleaved.  Both sets of calls
-*               operate off the same iterator.
+* Caveats:      GetFirstEntry, GetNextEntry, RemoveFirstEntry, and RemoveNextEntry
+*               SHARE A SINGLE ITERATOR!
+*   THE NEW USAGE PARADIGM IS:  Call TakeLock before calling xxxFirstEntry, and
+*   KEEP THAT LOCK until you are done with xxxNextEntry, then call ReleaseLock.
 *
 ************************************************************************|<>|*/
 template <class TENTRY>
-TENTRY CTLinkedList<TENTRY>::RemoveFirstEntry(void)
+TENTRY CTLinkedList<TENTRY>::RemoveFirstEntry()
 {
 
 //  Declarations
     CTLink<TENTRY> *ptLink;
-    TENTRY tEntry;
-
-//  Enter Synchronized Area
-    EnterCriticalSection (&m_csSynchronized);
+    TENTRY retVal = NULL;
 
 //  Reset the list iterator to the tail where the first entry in resides.
     ptLink = ResetIterator();
 
-
 //  If the Iterator is equal to NULL, then the list is empty
     if(!ptLink)
     {
-//      Leave Synchronized Area
-        LeaveCriticalSection (&m_csSynchronized);
-
-        return(NULL);
+        //  Remove entry
+        retVal = RemoveLink(ptLink);
     }
-
-
-//  Remove entry
-    tEntry = RemoveLink(ptLink);
-
-//  Leave Synchronized Area
-    LeaveCriticalSection (&m_csSynchronized);
-
-    return(tEntry);
-
+    return retVal;
 }
 
 /*|><|************************************************************************
@@ -835,47 +911,32 @@ TENTRY CTLinkedList<TENTRY>::RemoveFirstEntry(void)
 *
 * Returns:      TENTRY
 *
-* Logic Notes:
-*
-* Caveats:  Both RemoveFirst and RemoveNext entry maintain a single context.
-*           Undesired results will occur if two or more users of a linked list
-*           attempt to use its iterator simultaneously.  Undesirable effects
-*           will also occur if Get and Remove First/Next Entry calls are
-*           interleaved.  Both sets of calls operate off the same iterator.
+* Caveats:      GetFirstEntry, GetNextEntry, RemoveFirstEntry, and RemoveNextEntry
+*               SHARE A SINGLE ITERATOR!
+*   THE NEW USAGE PARADIGM IS:  Call TakeLock before calling xxxFirstEntry, and
+*   KEEP THAT LOCK until you are done with xxxNextEntry, then call ReleaseLock.
 *
 ************************************************************************|<>|*/
 template <class TENTRY>
-TENTRY CTLinkedList<TENTRY>::RemoveNextEntry(void)
+TENTRY CTLinkedList<TENTRY>::RemoveNextEntry()
 {
 
 //  Declarations
     CTLink<TENTRY> *ptLink;
-    TENTRY ptEntry;
-
-//  Enter Synchronized Area
-    EnterCriticalSection (&m_csSynchronized);
+    TENTRY retVal = NULL;
 
 //  Advance List Iterator
     ptLink = AdvanceIterator();
 
 //  If the Iterator is equal to NULL, then the list is empty or the iterator
 //  has reached the end of the list
-    if(!ptLink)
+    if(ptLink)
     {
-//      Leave Synchronized Area
-        LeaveCriticalSection (&m_csSynchronized);
-
-        return(NULL);
+        //  Remove entry
+        retVal = RemoveLink(ptLink);
     }
 
-//  Remove entry
-    ptEntry = RemoveLink(ptLink);
-
-//  Leave Synchronized Area
-    LeaveCriticalSection (&m_csSynchronized);
-
-    return(ptEntry);
-
+    return retVal;
 }
 
 
@@ -1087,56 +1148,6 @@ TENTRY CTLinkedList<TENTRY>::RemoveEntry(
     return(NULL);
 
 }
-
-/*|><|************************************************************************
-*
-* Method Name:  RemoveAllEntries
-*
-*
-* Inputs:       TENTRY tEntry
-*
-* Outputs:      None
-*
-* Returns:      void
-*
-* Logic Notes:
-*
-* Caveats:
-*
-************************************************************************|<>|*/
-template <class TENTRY>
-void CTLinkedList<TENTRY>::RemoveAllEntries(TENTRY tEntry)
-{
-//  Enter Synchronized Area
-    EnterCriticalSection (&m_csSynchronized);
-
-//  Initialize link pointer
-    CTLink<TENTRY> *ptLink = m_ptTail;
-
-//  Iterate through the list looking for the matching entry
-    while(ptLink)
-    {
-//      Check for matching entry address
-        if(ptLink->GetEntry())
-        {
-            CTLink<TENTRY> *ptNextLink = ptLink->GetPrevious();
-            RemoveLink(ptLink);
-            ptLink = ptNextLink;
-            continue;
-        }
-
-
-//      Advance the pointer and try again
-        ptLink = ptLink->GetPrevious();
-    }
-
-//  Leave Synchronized Area
-    LeaveCriticalSection (&m_csSynchronized);
-
-    return;
-
-}
-
 
 /*|><|************************************************************************
 *

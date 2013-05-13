@@ -137,6 +137,7 @@ CRTCPSource::~CRTCPSource(void)
 
     // Iterate through Source Description List and
     //  release all references to objects
+    m_tSrcDescriptorList.TakeLock();
     piSDESReport = (ISDESReport *)m_tSrcDescriptorList.RemoveFirstEntry();
     while(piSDESReport != NULL)
     {
@@ -147,20 +148,21 @@ CRTCPSource::~CRTCPSource(void)
         piSDESReport = (ISDESReport *)m_tSrcDescriptorList.RemoveNextEntry();
 
     }
+    m_tSrcDescriptorList.ReleaseLock();
 
     // Iterate through Source Description List and
     //  release all references to objects
-    piReceiverReport =
-                  (IReceiverReport *)m_tReceiverReportList.RemoveFirstEntry();
+    m_tReceiverReportList.TakeLock();
+    piReceiverReport = (IReceiverReport *)m_tReceiverReportList.RemoveFirstEntry();
     while (piReceiverReport != NULL)
     {
         // Release Reference
         piReceiverReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
         // Get Next Entry
-        piReceiverReport =
-                   (IReceiverReport *)m_tReceiverReportList.RemoveNextEntry();
+        piReceiverReport = (IReceiverReport *)m_tReceiverReportList.RemoveNextEntry();
     }
+    m_tReceiverReportList.ReleaseLock();
 
     // Release other stored interfaces
     if(m_piRTCPNotify)
@@ -925,9 +927,10 @@ void CRTCPSource::GetStatistics(IGetSrcDescription     **piGetSrcDescription,
     }
     if(piReceiverStatistics != NULL)
     {
-        *piReceiverStatistics =
-              (IGetReceiverStatistics *)m_tReceiverReportList.GetFirstEntry();
+        m_tReceiverReportList.TakeLock();
+        *piReceiverStatistics = (IGetReceiverStatistics *)m_tReceiverReportList.GetFirstEntry();
         (*piReceiverStatistics)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+        m_tReceiverReportList.ReleaseLock();
     }
 
     if(piGetByeInfo != NULL)

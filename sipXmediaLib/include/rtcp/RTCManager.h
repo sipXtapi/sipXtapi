@@ -246,53 +246,6 @@ public:
  */
     IRTCPSession *CreateSession(unsigned long ulSSRC);
 
-
-/**
- *
- * Method Name: GetFirstSession
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     IRTCPSession *
- *           - Returns an interface for use in controlling an RTCP Session
- *
- *
- * Description: The GetFirstSession shall retrieve the first instantiation of
- *              an RTCP Session interface on the RTC Manager's collection list.
- *
- *
- * Usage Notes:
- *
- *
- */
-    IRTCPSession *GetFirstSession(void);
-
-/**
- *
- * Method Name: GetNextSession
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     IRTCPSession *
- *           - Returns an interface for use in controlling an RTCP Session
- *
- *
- * Description: The GetNextSession shall retrieve the next instantiation of an
- *              RTCP Session interface on the RTC Manager's collection list.
- *
- *
- * Usage Notes:
- *
- *
- */
-    IRTCPSession *GetNextSession(void);
-
 /**
  *
  * Method Name: TerminateSession
@@ -830,62 +783,6 @@ inline unsigned long CRTCManager::GetEventInterest(void)
 {
 
     return(m_ulEventInterest);
-}
-
-/**
- *
- * Method Name: GetFirstSession
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     IRTCPSession *
- *                 - the interface for use in controlling an RTCP Session
- *
- *
- * Description: The GetFirstSession shall retrieve the first instantiation of
- *              an RTCP Session interface on the RTC Manager's collection list.
- *
- *
- * Usage Notes:
- *
- *
- */
-inline IRTCPSession *CRTCManager::GetFirstSession(void)
-{
-
-    return(m_tSessionList.GetFirstEntry());
-
-}
-
-/**
- *
- * Method Name: GetNextSession
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     IRTCPSession *
- *                 - the interface for use in controlling an RTCP Session
- *
- *
- * Description: The GetNextSession shall retrieve the next instantiation of an
- *              RTCP Session interface on the RTC Manager's collection list.
- *
- *
- * Usage Notes:
- *
- *
- */
-inline IRTCPSession *CRTCManager::GetNextSession(void)
-{
-
-    return(m_tSessionList.GetNextEntry());
-
 }
 
 #endif

@@ -304,6 +304,7 @@ void CRTCPSession::ResetAllConnections(unsigned char *puchReason)
     if(m_etMixerMode == MIXER_ENABLED)
     {
         // Check each entry of the connection list
+        TakeLock();
         poRTCPConnection = GetFirstEntry();
 
         // Iterate through the list until all entries have been exhausted
@@ -321,9 +322,11 @@ void CRTCPSession::ResetAllConnections(unsigned char *puchReason)
             // Get the next connection from the list
             poRTCPConnection = GetNextEntry();
         }
+        ReleaseLock();
     }
 
     // Check each entry of the connection list again
+    TakeLock();
     poRTCPConnection = GetFirstEntry();
     while (poRTCPConnection != NULL)
     {
@@ -339,6 +342,7 @@ void CRTCPSession::ResetAllConnections(unsigned char *puchReason)
         // Get Next Entry
         poRTCPConnection = GetNextEntry();
     }
+    ReleaseLock();
 }
 
 
@@ -372,6 +376,7 @@ void CRTCPSession::TerminateAllConnections(void)
     ResetAllConnections((unsigned char *)"Normal Session Termination");
 
     // Remove all RTCP Connections
+    TakeLock();
     CRTCPConnection *poRTCPConnection = RemoveFirstEntry();
     while (poRTCPConnection != NULL)
     {
@@ -394,6 +399,7 @@ void CRTCPSession::TerminateAllConnections(void)
         // Remove Next Entry
         poRTCPConnection = RemoveNextEntry();
     }
+    ReleaseLock();
 
 }
 
@@ -440,6 +446,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
     m_ulSSRC = ulSSRC & SSRC_SESSION_MASK;
 
     // Check the each entry of the connection list
+    TakeLock();
     CRTCPConnection *poRTCPConnection = GetFirstEntry();
 
     // Iterate through the list until all entries have been exhausted
@@ -464,6 +471,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
     }
+    ReleaseLock();
 
 }
 
@@ -518,6 +526,7 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
 {
 
     // Check the each entry of the connection list
+    TakeLock();
     CRTCPConnection *poRTCPConnection = GetFirstEntry();
 
     // Iterate through the list until all entries have been exhausted
@@ -549,6 +558,7 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
     }
+    ReleaseLock();
 
 }
 
@@ -574,6 +584,7 @@ void CRTCPSession::CheckRemoteSSRCCollisions(IRTCPConnection *piRTCPConnection)
 {
 
     // Check for Collision
+    TakeLock();
     CRTCPConnection *poRTCPConnection = GetFirstEntry();
     while(poRTCPConnection)
     {
@@ -604,6 +615,7 @@ void CRTCPSession::CheckRemoteSSRCCollisions(IRTCPConnection *piRTCPConnection)
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
     }
+    ReleaseLock();
 }
 
 /**
@@ -640,6 +652,7 @@ void CRTCPSession::ForwardSDESReport(IGetSrcDescription *piGetSrcDescription,
 
     // Check the each entry of the connection list and forward this report to
     //  those not matching the originators SSRC
+    TakeLock();
     CRTCPConnection *poRTCPConnection = GetFirstEntry();
 
     // Iterate through the list until all entries have been exhausted
@@ -686,6 +699,7 @@ void CRTCPSession::ForwardSDESReport(IGetSrcDescription *piGetSrcDescription,
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
     }
+    ReleaseLock();
 
 }
 
@@ -723,6 +737,7 @@ void CRTCPSession::ForwardByeReport(IGetByeInfo      *piGetByeInfo,
 
     // Check the each entry of the connection list and forward this report to
     //  those not matching the originators SSRC
+    TakeLock();
     CRTCPConnection *poRTCPConnection = GetFirstEntry();
 
     // Iterate through the list until all entries have been exhausted
@@ -768,6 +783,7 @@ void CRTCPSession::ForwardByeReport(IGetByeInfo      *piGetByeInfo,
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
     }
+    ReleaseLock();
 
 }
 
@@ -1480,6 +1496,7 @@ void CRTCPSession::RTCPConnectionStopped(IRTCPConnection *piRTCPConnection,
         if(m_etMixerMode == MIXER_ENABLED)
         {
             // Check each entry of the connection list
+            TakeLock();
             CRTCPConnection *poPeerConnection = GetFirstEntry();
 
             // Iterate through the list until all entries have been exhausted
@@ -1503,6 +1520,7 @@ void CRTCPSession::RTCPConnectionStopped(IRTCPConnection *piRTCPConnection,
                 // Get the next connection from the list
                 poPeerConnection = GetNextEntry();
             }
+            ReleaseLock();
         }
 
         // Bump Reference Count of Connection Object
