@@ -97,55 +97,6 @@ public:
  *
  */
     virtual bool TerminateSession(IRTCPSession *piRTCPSession) = 0;
-
-/**
- *
- * Method Name: GetFirstSession
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     IRTCPSession *
- *                Returns an interface for use in controlling an RTCP Session
- *
- *
- * Description: The GetFirstSession shall retrieve the first instantiation of
- *              an RTCP Session interface on the RTC Manager's collection list.
- *
- *
- * Usage Notes:
- *
- *
- */
-    virtual IRTCPSession *GetFirstSession(void)=0;
-
-/**
- *
- * Method Name: GetFirstSession
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     IRTCPSession *
- *                Returns an interface for use in controlling an RTCP Session
- *
- *
- * Description: The GetFirstSession shall retrieve the next instantiation of
- *              an RTCP Session interface on the RTC Manager's collection list.
- *
- *
- * Usage Notes:
- *
- *
- */
-    virtual IRTCPSession *GetNextSession(void)=0;
-
-
-
 };
 
 #endif

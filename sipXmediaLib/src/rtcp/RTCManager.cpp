@@ -183,6 +183,7 @@ CRTCManager::~CRTCManager(void)
 
     // Iterate through the EventRegistration List and release all references
     // to objects contained therein
+    m_tRegistrationList.TakeLock();
     piRTCPNotify = m_tRegistrationList.RemoveFirstEntry();
     while (piRTCPNotify != NULL)
     {
@@ -192,9 +193,11 @@ CRTCManager::~CRTCManager(void)
         // Get Next Entry
         piRTCPNotify = m_tRegistrationList.RemoveNextEntry();
     }
+    m_tRegistrationList.ReleaseLock();
 
     // Iterate through the RTCP Session object List and release all references
     // to those objects
+    m_tSessionList.TakeLock();
     piRTCPSession = m_tSessionList.RemoveFirstEntry();
     while (piRTCPSession != NULL)
     {
@@ -206,6 +209,7 @@ CRTCManager::~CRTCManager(void)
         // Get Next Entry
         piRTCPSession = m_tSessionList.RemoveNextEntry();
     }
+    m_tSessionList.ReleaseLock();
 
     // Clear RTC Manager pointer
     m_spoRTCManager = NULL;
@@ -605,6 +609,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
     // Check the event registration list for those subscribers that have a
     // matching interest.  For each matching interest, use the recipients
     // IRTCPNotify interface to deliver the message.
+    m_tRegistrationList.TakeLock();
     IRTCPNotify *piRTCPNotify = m_tRegistrationList.GetFirstEntry();
 
     // Iterate through the list until all subscribers have been checked for
@@ -716,6 +721,7 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
         // and perform the same checks
         piRTCPNotify = m_tRegistrationList.GetNextEntry();
     }
+    m_tRegistrationList.ReleaseLock();
 
     // Decrement reference counts to reflect their removal from
     // the RTCManager's Msg Queue

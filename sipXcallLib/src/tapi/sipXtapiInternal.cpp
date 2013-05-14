@@ -1759,7 +1759,7 @@ SIPXTAPI_API void sipxLogEntryAdd(OsSysLogPriority priority,
     va_list ap;
     va_start(ap, format);
 
-    int threadId;
+    OsTaskId_t threadId;
     OsTask::getCurrentTaskId(threadId) ;
     OsSysLog::vadd("sipXtapi", threadId, FAC_SIPXTAPI, priority, format, ap);  
 

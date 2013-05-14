@@ -72,7 +72,7 @@ OsStatus OsTaskBase::syslog(const OsSysLogFacility facility,
                             const char*            format,
                                                     ...)
 {
-   int taskId;
+   OsTaskId_t taskId;
    int processId;
 
    if (OsSysLog::willLog(facility, priority))

@@ -378,23 +378,32 @@ void OsTaskLinux::yield(void)
 // Return NULL if none exists.
 OsTaskLinux* OsTaskLinux::getCurrentTask(void)
 {
-   int taskId;
-
-   taskId = (int)pthread_self();
-   return OsTaskLinux::getTaskById(taskId);
+   return OsTaskLinux::getTaskById(pthread_self());
 }
 
 
 // Convert a taskId into a UtlString
-void OsTaskLinux::getIdString(UtlString &dest, pthread_t tid)
+void OsTaskLinux::getIdString_d(UtlString &dest, OsTaskId_t tid)
 {
    dest.appendFormat("%ld", tid);
 }
 
-// Return an Id of the currently executing task
-OsStatus OsTaskLinux::getCurrentTaskId(int &rid)
+// Convert a taskId into a UtlString
+void OsTaskLinux::getIdString_x(UtlString &dest, OsTaskId_t tid)
 {
-   rid = (int)pthread_self();
+   dest.appendFormat("%lx", tid);
+}
+
+// Convert a taskId into a UtlString
+void OsTaskLinux::getIdString_X(UtlString &dest, OsTaskId_t tid)
+{
+   dest.appendFormat("%lX", tid);
+}
+
+// Return an Id of the currently executing task
+OsStatus OsTaskLinux::getCurrentTaskId(OsTaskId_t &rid)
+{
+   rid = pthread_self();
    return OS_SUCCESS;
 }
 
@@ -425,7 +434,7 @@ OsTaskLinux* OsTaskLinux::getTaskById(const pthread_t taskId)
    OsStatus res;
    intptr_t val;
 
-   getIdString(idString, taskId);   // convert the id to a string
+   getIdString_d(idString, taskId);   // convert the id to a string
    res = OsUtil::lookupKeyValue(TASKID_PREFIX, idString, &val);
    assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
 
@@ -495,13 +504,13 @@ OsStatus OsTaskLinux::varGet(void)
 /* ============================ INQUIRY =================================== */
 
 // Get the task ID for this task
-OsStatus OsTaskLinux::id(int& rId)
+OsStatus OsTaskLinux::id(OsTaskId_t &rId)
 {
    OsStatus retVal = OS_SUCCESS;
    
    //if started, return the taskId, otherwise return -1
    if (isStarted())
-      rId = (int)mTaskId;
+      rId = mTaskId;
    else
    {
       retVal = OS_TASK_NOT_STARTED;
@@ -630,7 +639,7 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
 
    // Enter the thread id into the global name database so that given the
    // thread id we will be able to find the corresponding OsTask object
-   getIdString(idString, mTaskId);   // convert the id to a string
+   getIdString_d(idString, mTaskId);   // convert the id to a string
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::doLinuxCreateTask, task ID: %ld/'%s'/0x%lX", mTaskId, idString.data(), mTaskId);
    OsUtil::insertKeyValue(TASKID_PREFIX, idString, (intptr_t) this);
 
@@ -854,7 +863,7 @@ void OsTaskLinux::taskUnregister(void)
    if ( 0 != (int)mTaskId )
    {
       // Remove the key from the internal task list, before terminating it
-      getIdString(idString, mTaskId);   // convert the id to a string
+      getIdString_d(idString, mTaskId);   // convert the id to a string
       res = OsUtil::deleteKeyValue(TASKID_PREFIX, idString);
    }
    else

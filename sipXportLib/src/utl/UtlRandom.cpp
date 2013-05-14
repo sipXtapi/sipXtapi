@@ -35,7 +35,7 @@ UtlRandom::UtlRandom()
 {
     static int siCounter = 0 ;
 
-    int iTaskId = 0 ;
+    OsTaskId_t iTaskId = 0 ;
     OsTime now ;
     unsigned int seed ;
 

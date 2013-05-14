@@ -936,64 +936,6 @@ inline unsigned long CRTCPSession::GetEventInterest(void)
 
 /**
  *
- * Method Name: GetFirstConnection
- *
- *
- * Inputs:   None
- *
- * Outputs:  None
- *
- * Returns:  IRTCPConnection *
- *            - Returns an interface for use in controlling an RTCP Connection
- *
- *
- * Description: The GetFirstConnection shall retrieve the first instantiation
- *              of an RTCP Connection interface on the RTCP Session's
- *              collection list.
- *
- *
- * Usage Notes:
- *
- *
- */
-inline IRTCPConnection *CRTCPSession::GetFirstConnection(void)
-{
-
-    return(GetFirstEntry());
-
-}
-
-/**
- *
- * Method Name: GetNextConnection
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     IRTCPConnection *
- *            - Returns an interface for use in controlling an RTCP Connection
- *
- *
- * Description: The GetNextConnection shall retrieve the next instantiation
- *              of an RTCP Conection interface on an RTCP Session's
- *              collection list.
- *
- *
- * Usage Notes:
- *
- *
- */
-inline IRTCPConnection *CRTCPSession::GetNextConnection(void)
-{
-
-    return(GetNextEntry());
-
-}
-
-/**
- *
  * Method Name: CheckConnection
  *
  *

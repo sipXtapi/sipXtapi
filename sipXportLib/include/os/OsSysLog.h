@@ -25,6 +25,8 @@
 #include "os/OsTime.h"
 #include "os/OsAtomics.h"
 
+typedef pthread_t OsTaskId_t;
+
 // DEFINES
 #define SYSLOG_NUM_PRIORITIES    8  // Number of OsSysLogPriority entries
 
@@ -341,7 +343,7 @@ public:
 
 
    static OsStatus vadd(const char*            taskName,
-                        const int              taskId,
+                        const OsTaskId_t       taskId,
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,

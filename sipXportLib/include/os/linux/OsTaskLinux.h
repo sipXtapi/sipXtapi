@@ -183,7 +183,7 @@ public:
      //:Return a pointer to the OsTask object for the currently executing task
      // Return NULL if none exists.
 
-   static OsStatus getCurrentTaskId(int &rid);
+   static OsStatus getCurrentTaskId(OsTaskId_t &rid);
      //:Return an Id of the currently executing task
 
    static OsTaskLinux* getTaskByName(const UtlString& taskName);
@@ -210,12 +210,14 @@ public:
      // private value by directly accessing the variable. This routine is
      // provided primarily for debugging purposes.
 
-   static void getIdString(UtlString&, pthread_t);
+   static void getIdString_d(UtlString&, OsTaskId_t);
+   static void getIdString_x(UtlString&, OsTaskId_t);
+   static void getIdString_X(UtlString&, OsTaskId_t);
      //: Relatively portable way to do what was being done wrong before.
 
 /* ============================ INQUIRY =================================== */
 
-   virtual OsStatus id(int& rId);
+   virtual OsStatus id(OsTaskId_t &rId);
      //:Get the task ID for this task
 
    virtual UtlBoolean isSuspended(void);
@@ -227,7 +229,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   pthread_t mTaskId;      // Linux unique ID for task
+   OsTaskId_t mTaskId;     // Linux unique ID for task
    OsRWMutex mDeleteGuard; // RWMutex guard to prevent unwanted task deletion
    int       mSuspendCnt;  // Counts the nesting level of suspend() calls
 

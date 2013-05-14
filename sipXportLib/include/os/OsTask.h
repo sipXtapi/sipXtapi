@@ -32,6 +32,17 @@
 // FORWARD DECLARATIONS
 class OsTime;
 
+#if defined(_WIN32)
+   typedef intptr_t OsTaskId_t; // Not sure this is proper for this platform...
+#elif defined(_VXWORKS)
+   typedef intptr_t OsTaskId_t; // Not sure this is proper for this platform...
+#elif defined(__pingtel_on_posix__)
+   typedef pthread_t OsTaskId_t;
+#else
+#  error Unsupported target platform.
+#endif
+
+
 //:Task abstraction
 // A task represents a thread of execution. All tasks run within the same
 // address space but have their own stack and program counter. Tasks may be
@@ -259,7 +270,7 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-   virtual OsStatus id(int& rId) = 0;
+   virtual OsStatus id(OsTaskId_t &rId) = 0;
      //:Get the task ID for this task
 
    virtual UtlBoolean isReady(void);
