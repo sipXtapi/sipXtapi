@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -86,11 +88,13 @@ public:
    virtual ~XmlRpcRequest();
 
    /// Execute the named procedure on the remote server.
-   bool execute(XmlRpcResponse& response); ///< response returned from the remote server
+   bool execute(XmlRpcResponse& response, ///< response returned from the remote server
+                int timeoutMilliSeconds = XML_RPC_TIMEOUT,
+                UtlBoolean usePersistentConnections = TRUE);
    /**<
     * @note
     * This is a synchronous (blocking) implementation (execute does not return
-    * until it receives a response or an error).
+    * until it receives a response, timeout or an error).
     * 
     * If the return is false, the caller can use response.getFault() to obtain
     * the fault code and fault string.

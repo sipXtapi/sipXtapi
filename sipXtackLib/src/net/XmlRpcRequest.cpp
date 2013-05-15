@@ -60,7 +60,7 @@ XmlRpcRequest::~XmlRpcRequest()
 }
 
 
-bool XmlRpcRequest::execute(XmlRpcResponse& response)
+bool XmlRpcRequest::execute(XmlRpcResponse& response, int timeoutMilliSeconds, UtlBoolean usePersistentConnections)
 {
    bool result = false;
    
@@ -82,7 +82,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    // to the XML-RPC server
    HttpMessage *pResponse = new HttpMessage();
 
-   int statusCode = pResponse->get(mUrl, *mpHttpRequest, XML_RPC_TIMEOUT, true /* persist conn */ );
+   int statusCode = pResponse->get(mUrl, *mpHttpRequest, timeoutMilliSeconds, (usePersistentConnections == TRUE));
    if (statusCode/100 == 2)
    {
       const HttpBody* pResponseBody = pResponse->getBody();
