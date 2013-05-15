@@ -952,27 +952,29 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
          "MpMediaTask::handleWaitForSignal done with all flowgraphs");
 #endif
 
+#ifdef TEST_PRINT
    OsTime finishTime;
    OsDateTime::getCurTime(finishTime);
    OsTime queueTime = startTime - signaledTime;
    OsTime processTime = finishTime - startTime;
    int messagesUsed = mpSignalMsgPool->getNoInUse();
 
- {
-  static int prev_mU = 12345, prev_SSM = 12345, prev_SSNQ = 12345;
-  if ((prev_mU!=messagesUsed) || (prev_SSM!=sSignalStartsMissed) || (prev_SSNQ!=sSignalStartsNotQueued) || (0 == (0xff & sSignalStartsQueued)))
-  {
-   OsSysLog::add(FAC_MP, PRI_DEBUG,
-           "Finished frame queued: %d.%06d processing: %d.%06d queued signals: %d missed: %d not queued: %d queued: %d",
-           // Down cast the following as seconds should be very small and usecs should not exceed 999,999
-           (int)queueTime.seconds(), (int)queueTime.usecs(), (int)processTime.seconds(), (int)processTime.usecs(),
-           messagesUsed,
-           sSignalStartsMissed, sSignalStartsNotQueued, sSignalStartsQueued);
-   prev_mU = messagesUsed;
-   prev_SSM = sSignalStartsMissed;
-   prev_SSNQ = sSignalStartsNotQueued;
-  }
- }
+   {
+      static int prev_mU = 12345, prev_SSM = 12345, prev_SSNQ = 12345;
+      if ((prev_mU!=messagesUsed) || (prev_SSM!=sSignalStartsMissed) || (prev_SSNQ!=sSignalStartsNotQueued) || (0 == (0xff & sSignalStartsQueued)))
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "Finished frame queued: %d.%06d processing: %d.%06d queued signals: %d missed: %d not queued: %d queued: %d",
+            // Down cast the following as seconds should be very small and usecs should not exceed 999,999
+            (int)queueTime.seconds(), (int)queueTime.usecs(), (int)processTime.seconds(), (int)processTime.usecs(),
+            messagesUsed,
+            sSignalStartsMissed, sSignalStartsNotQueued, sSignalStartsQueued);
+            prev_mU = messagesUsed;
+            prev_SSM = sSignalStartsMissed;
+            prev_SSNQ = sSignalStartsNotQueued;
+      }
+   }
+#endif
 
 #ifdef _PROFILE /* [ */
    {
