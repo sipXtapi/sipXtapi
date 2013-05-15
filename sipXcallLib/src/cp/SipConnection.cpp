@@ -6843,13 +6843,19 @@ void SipConnection::fireAudioStartEvents(SIPX_MEDIA_CAUSE cause)
 
     if (mpMediaInterface)
     {
-        if (mpMediaInterface->getPrimaryCodec(mConnectionId,
-                audioCodecName,
-                videoCodecName,
-                &tapiCodec.audioCodec.iPayloadType,
-                &tapiCodec.videoCodec.iPayloadType,
-                tapiCodec.bIsEncrypted) == OS_SUCCESS)
+        OsStatus status = mpMediaInterface->getPrimaryCodec(mConnectionId,
+            audioCodecName,
+            videoCodecName,
+            &tapiCodec.audioCodec.iPayloadType,
+            &tapiCodec.videoCodec.iPayloadType,
+            tapiCodec.bIsEncrypted);
+
+        if (status == OS_SUCCESS)
         {
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "SipConnection::fireAudioStartEvents audio: %s payload: %d video: %s payload: %d",
+                     audioCodecName.data(), tapiCodec.audioCodec.iPayloadType,
+                     videoCodecName.data(), tapiCodec.videoCodec.iPayloadType);
             strncpy(tapiCodec.audioCodec.cName, audioCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
             strncpy(tapiCodec.videoCodec.cName, videoCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
 
@@ -6870,6 +6876,17 @@ void SipConnection::fireAudioStartEvents(SIPX_MEDIA_CAUSE cause)
                 fireSipXMediaEvent(MEDIA_REMOTE_START, cause, MEDIA_TYPE_VIDEO, &tapiCodec) ;
             }
         }
+        else
+        {
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "SipConnection::fireAudioStartEvents getPrimaryCodec returned: %d",
+                    status);
+        }
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                "SipConnection::fireAudioStartEvents no mediaInterface");
     }
 }
 
