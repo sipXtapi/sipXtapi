@@ -740,46 +740,46 @@ int HttpMessage::get(Url& httpUrl,
     {        
         if (httpSocket == NULL)
         {
-    int tries = 0;
+            int tries = 0;
     
-    int exp = 1;
+            int exp = 1;
             while (tries++ < HttpMessageRetries)
-    {
-       if (urlType == "https")
-       {
+            {
+                if (urlType == "https")
+                {
 #ifdef HAVE_SSL
-          httpSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, maxWaitMilliSeconds/1000);
+                httpSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, maxWaitMilliSeconds/1000);
 #else /* ! HAVE_SSL */
-          // SSL is not configured in, so we cannot do https: gets.
-          OsSysLog::add(FAC_SIP, PRI_CRIT,
+                // SSL is not configured in, so we cannot do https: gets.
+                OsSysLog::add(FAC_SIP, PRI_CRIT,
                         "HttpMessage::get(Url&,HttpMessage&,int) SSL not configured; "
                         "cannot get URL '%s'", httpUrl.toString().data());
-          httpSocket = NULL;
+                httpSocket = NULL;
 #endif /* HAVE_SSL */
-       }
-       else
-       {
-          httpSocket = new OsConnectionSocket(httpPort, httpHost);
-       }
-       if (httpSocket)
-       {
-          connected = httpSocket->isConnected();
-          if (!connected)
-          {
-             OsSysLog::add(FAC_SIP, PRI_ERR,
-                           "HttpMessage::get socket connection to %s:%d failed, try again %d ...\n",
-                           httpHost.data(), httpPort, tries);
-             delete httpSocket;
-             httpSocket = 0;
-             OsTask::delay(20*exp);
-             exp = exp*2;
-          }
-          else
-          {
-             break;
-          }
-       }
-    }
+                }
+                else
+                {
+                    httpSocket = new OsConnectionSocket(httpPort, httpHost);
+                }
+                if (httpSocket)
+                {
+                    connected = httpSocket->isConnected();
+                    if (!connected)
+                    {
+                        OsSysLog::add(FAC_SIP, PRI_ERR,
+                                   "HttpMessage::get socket connection to %s:%d failed, try again %d ...\n",
+                                   httpHost.data(), httpPort, tries);
+                        delete httpSocket;
+                        httpSocket = 0;
+                        OsTask::delay(20*exp);
+                        exp = exp*2;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
             // If we created a new connection and are persistent then remember the socket in the map
             // and mark connection as being used
             if (pConnectionMapEntry)
@@ -792,27 +792,28 @@ int HttpMessage::get(Url& httpUrl,
         {
             connected = httpSocket->isConnected();          
         }
-    if (!connected)
-    {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
-                     "HttpMessage::get socket connection to %s:%d failed, give up...\n",
-                     httpHost.data(), httpPort);
+
+        if (!connected)
+        {
+           OsSysLog::add(FAC_SIP, PRI_ERR,
+                         "HttpMessage::get socket connection to %s:%d failed, give up...\n",
+                         httpHost.data(), httpPort);
            if (pConnectionMap)
            {
                // Release lock on persistent connection
                pConnectionMapEntry->mLock.release();             
            }              
-       return httpStatus;
-    }
+           return httpStatus;
+        }
 
         // Send the request - most of the time returns 1 for some reason, 0 indicates problem
-    if (httpSocket->isReadyToWrite(maxWaitMilliSeconds))
+        if (httpSocket->isReadyToWrite(maxWaitMilliSeconds))
         {
-        bytesSent = request.write(httpSocket);
+            bytesSent = request.write(httpSocket);
         }
 
         if (bytesSent == 0)            
-    {
+        {
             if (pConnectionMap)
             {
                 // No bytes were sent .. if this is a persistent connection and it failed on retry
@@ -822,14 +823,14 @@ int HttpMessage::get(Url& httpUrl,
                     pConnectionMapEntry->mbInUse = false;
                 }
                 // Close socket to avoid timeouts in subsequent calls
-        httpSocket->close();
+                httpSocket->close();
                 delete httpSocket;
                 pConnectionMapEntry->mpSocket = NULL;
                 httpSocket = NULL;
                 OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
                               "HttpMessage::get Sending failed sending on persistent connection on try %d",
                               sendTries);      
-    }
+            }
         }
         else if(   bytesSent > 0
                 && httpSocket->isReadyToRead(maxWaitMilliSeconds))
