@@ -2863,6 +2863,9 @@ void SdpBody::addMediaLinesAnswer(int numMediaLines, const SdpMediaLine* mediaLi
             // There was no match to this remote media line, write out a inactive m line
             if(!wroteMediaLine)
             {
+                // c line is manditory and must go before any a lines
+                addConnectionAddress("0.0.0.0");
+
                 remoteMediaPort = 0;
                 addMediaData(remoteMediaType,
                              remoteMediaPort, 
@@ -2873,8 +2876,6 @@ void SdpBody::addMediaLinesAnswer(int numMediaLines, const SdpMediaLine* mediaLi
 
                 // Mark media line as inactive
                 addValue("a", "inactive");
-                // c line is manditory
-                addConnectionAddress("0.0.0.0");
             }
 
             remoteMediaIndex++;
