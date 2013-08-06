@@ -9,7 +9,7 @@ Vendor: SIPfoundry
 Packager: Daniel Pocock <daniel@pocock.com.au>
 Url: http://sipxtapi.sipfoundry.org
 
-Source: %name-%version.tar.gz
+Source: http://www.resiprocate.org/files/pub/sipX/%name-%version.tar.gz
 
 BuildRequires: libtool automake autoconf
 BuildRequires: cppunit-devel
