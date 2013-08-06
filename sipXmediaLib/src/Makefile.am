@@ -42,6 +42,7 @@ libsipXmedia_la_LIBADD = \
 	@SPEEXDSP_LIBS@ \
 	@STATIC_CODEC_LIBS@ \
 	-Lmp/codecs/ \
+	-lrt \
 	-lstdc++
 
 if COREAUDIO_DRIVERS
