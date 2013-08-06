@@ -55,7 +55,7 @@
 #define SWS "\\s*"
 #define SLASH "\\"
 
-#define SIP_TOKEN "[a-zA-Z0-9.!%*_+`'~-]++"
+#define SIP_TOKEN "[a-zA-Z0-9.!%*#_+`'~-]++"
 
 // SipTokenSequenceOrQuoted - used to validate display name values in setDisplayName
 //   does not capture any substrings - this is important to avoid recursion
@@ -128,7 +128,7 @@ const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
 const RegEx UsernameAndPassword(
    "("
       "(?:"
-         "[a-zA-Z0-9_.!~*'()&=+$,;?/-]++"
+         "[a-zA-Z0-9_.!~*#'()&=+$,;?/-]++"
       "|"
          "%[0-9a-fA-F]{2}"
       ")+"
@@ -136,7 +136,7 @@ const RegEx UsernameAndPassword(
    "(?:" ":"
         "("
         "(?:"
-            "[a-zA-Z0-9_.!~*'()&=+$,-]++"
+            "[a-zA-Z0-9_.!~*#'()&=+$,-]++"
         "|"
            "%[0-9a-fA-F]{2}"
         ")*"
