@@ -45,6 +45,7 @@ class UrlTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(UrlTest);
     CPPUNIT_TEST(testFileBasic);
+    CPPUNIT_TEST(testSpecialChars);
     CPPUNIT_TEST(testFileWithPortAndPath);
     CPPUNIT_TEST(testHttpBasic);
     CPPUNIT_TEST(testHttpWithPortAndPath);
@@ -154,6 +155,16 @@ public:
         ASSERT_STR_EQUAL_MESSAGE(msg, "file", getUrlType(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "/dddd/ffff.txt", getPath(url));
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
+    }
+
+    void testSpecialChars()
+    {
+        const char* uriString = "abc#123*456@example.com";
+        Url url(uriString);
+        ASSERT_STR_EQUAL(toString(url), "sip:abc#123*456@example.com");
+        ASSERT_STR_EQUAL(getHostAddress(url), "example.com");
+        ASSERT_STR_EQUAL(getUrlType(url), "sip");
+        ASSERT_STR_EQUAL(getUserId(url), "abc#123*456");
     }
 
     void testFileWithPortAndPath()
