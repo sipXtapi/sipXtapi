@@ -4,12 +4,9 @@ Release: 1
 
 Summary: SIP stack, RTP media framework and codecs
 License: LGPL
-Group: Development/Libraries
-Vendor: SIPfoundry
-Packager: Daniel Pocock <daniel@pocock.com.au>
-Url: http://sipxtapi.sipfoundry.org
+Url: http://www.sipxtapi.org
 
-Source: http://www.resiprocate.org/files/pub/sipX/%name-%version.tar.gz
+Source: http://www.sipxtapi.org/files/pub/sipX/%name-%version.tar.gz
 
 BuildRequires: libtool automake autoconf
 BuildRequires: cppunit-devel
@@ -19,25 +16,15 @@ BuildRequires: openssl-devel >= 0.9.8
 BuildRequires: pcre-devel
 BuildRequires: spandsp-devel
 BuildRequires: xerces-c-devel
+BuildRequires: gcc-c++
 Requires: openssl >= 0.9.8
 
 %description
 sipXtapi is a framework that makes it easy to construct SIP user agents,
 including softphones and telephony servers.
 
-%package libs
-Summary: Shared libraries http://sipxtapi.sipfoundry.org
-
-%description libs
-sipXtapi is a framework that makes it easy to construct SIP user agents,
-including softphones and telephony servers.
-
-This package provides the libraries for dynamic linking.
-
 %package devel
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
-Group: Development/Libraries
-Vendor: SIPfoundry
 Summary: Header files for %name
 
 %description devel
@@ -47,8 +34,6 @@ including softphones and telephony servers.
 This package provides headers and resources for development.
 
 %package apidoc
-Group: Development/Libraries
-Vendor: SIPfoundry
 Summary: API documentation for %name
 
 %description apidoc
@@ -61,7 +46,7 @@ This package provides developer documentation about the API.
 %setup -q
 
 %build
-%configure --enable-topology-graph --disable-codec-ilbc --disable-codec-g726 --enable-codec-g722 --enable-codec-gsm
+%configure --enable-topology-graph --disable-codec-ilbc --disable-codec-g726 --enable-codec-g722 --enable-codec-gsm --disable-static
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 make %{?_smp_mflags}
@@ -72,11 +57,11 @@ rm -f %{buildroot}%{_libdir}/lib*.a
 rm -f %{buildroot}%{_libdir}/lib*.la
 rm -rf %{buildroot}%{_bindir}
 
-%post libs -p /sbin/ldconfig
+%post -p /sbin/ldconfig
 
-%postun libs -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
-%files libs
+%files
 %doc COPYING
 %{_libdir}/lib*.so.*
 %{_libdir}/sipxtapi/
