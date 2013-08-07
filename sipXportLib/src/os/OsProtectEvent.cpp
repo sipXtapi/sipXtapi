@@ -34,7 +34,10 @@ OsProtectedEvent::OsProtectedEvent(const intptr_t userData)
 
 OsProtectedEvent::~OsProtectedEvent()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "Warning OsProtectedEvent deleted");
+   // This log statement triggers a "pure virtual method called"
+   // failure (SIGABRT) on some platforms (see Debian bug# 718854),
+   // commented out for now:
+   //OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "Warning OsProtectedEvent deleted");
    mStringData = OsUtil::NULL_OS_STRING;
 }
 
