@@ -1,12 +1,11 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -817,8 +816,22 @@ int local_main(int argc, char* argv[])
         // initialize sipx TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("PlaceCall.log");
-        sipxInitialize(&g_hInst, iSipPort, iSipPort, -1, iRtpPort,
-                       DEFAULT_CONNECTIONS, DEFAULT_IDENTITY, szBindAddr);
+        int mediaEngineSampleRate = 16000;
+        sipxInitialize(&g_hInst, 
+                       iSipPort, 
+                       iSipPort, 
+                       -1, 
+                       iRtpPort,
+                       DEFAULT_CONNECTIONS, 
+                       DEFAULT_IDENTITY, 
+                       szBindAddr,
+                       false, // use sequential RTP/RTCP ports
+                       NULL, // cert. nickname
+                       NULL, // cert. password
+                       NULL, // DB location
+                       true, // Enable local audio
+                       mediaEngineSampleRate,
+                       48000); // Audio device sample rate 
         sipxConfigEnableRport(g_hInst, bUseRport) ;
         dumpInputOutputDevices() ;
         sipxEventListenerAdd(g_hInst, EventCallBack, NULL) ;
