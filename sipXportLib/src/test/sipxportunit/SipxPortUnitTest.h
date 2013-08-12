@@ -17,6 +17,7 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // APPLICATION INCLUDES
 #include <SipxPortUnitTestEnvironment.h>

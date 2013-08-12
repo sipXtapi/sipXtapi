@@ -13,8 +13,13 @@
 #include <string.h>
 #include <setjmp.h>
 #include <signal.h>
-#if !defined(ANDROID)
+#if !defined(ANDROID) && !defined(_WIN32)
 #   include <execinfo.h>
+#endif
+
+#if defined(_WIN32)
+#define siglongjmp longjmp
+#define sigsetjmp(BUF, OPT) setjmp(BUF)
 #endif
 
 // APPLICATION INCLUDES
@@ -165,7 +170,7 @@ void SipxPortUnitTestEnvironment::signalHandler(int signalCaught)
 
     sTestClassesToRun[sCurrentTestClassIndex]->addSignalCaughtFailure(signalCaught);
 
-#if !defined(ANDROID)
+#if !defined(ANDROID) && !defined(_WIN32)
     // Try to get a back trace, but we loose the top function call due to
     // being in the signal handler
     void* traceStack[SIPX_PORT_UNIT_MAX_STACK_TRACE_SIZE];

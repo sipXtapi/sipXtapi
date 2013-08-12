@@ -15,6 +15,8 @@
 #define _SipxPortUnitTestClass_h_
 
 // SYSTEM INCLUDES
+#include <stdio.h>
+#include <stdlib.h>
 
 // APPLICATION INCLUDES
 #include <SipxPortUnitTestEnvironment.h>
