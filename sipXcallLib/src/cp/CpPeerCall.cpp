@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2013 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2701,7 +2701,7 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                else
                {
                   int energyLevel = intNotif.getValue();
-                  double ledLevel = log(energyLevel) / log(10.0) * 1.2;
+                  double ledLevel = log((double)energyLevel) / log((double)10.0) * 1.2;
                   OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring MI_NOTF_ENERGY_LEVEL focus: %s resource name: %s energy: %d led: %f",
                      isInFocus() ? "true" : "false", resourceName.data(), intNotif.getValue(), ledLevel);
                }
