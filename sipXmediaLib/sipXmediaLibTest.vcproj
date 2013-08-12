@@ -1,21 +1,43 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="sipXmediaLibTest"
 	ProjectGUID="{F84B8F14-AD8A-4E35-9CB8-65B8D0F438B7}"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
@@ -23,91 +45,132 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib"
 				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				SubSystem="1"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="include;src\test;..\sipXportLib\include;..\sipXportLib\src\test;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\CPPUnit\include"
 				PreprocessorDefinitions="HAVE_SPEEX;WIN32;NDEBUG;_CONSOLE"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"/>
+				Detect64BitPortabilityProblems="true"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib winmm.lib cppunit.lib pcre.lib"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib"
 				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -116,110 +179,144 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath=".\src\test\mp\MpAudioBufTest.cpp">
+				RelativePath=".\src\test\mp\MpAudioBufTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpBufTest.cpp">
+				RelativePath=".\src\test\mp\MpBufTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpCodecsPerformanceTest.cpp">
+				RelativePath=".\src\test\mp\MpCodecsPerformanceTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpDspUtilsTest.cpp">
+				RelativePath=".\src\test\mp\MpDspUtilsTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpFlowGraphTest.cpp">
+				RelativePath=".\src\test\mp\MpFlowGraphTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpGenericResourceTest.cpp">
+				RelativePath=".\src\test\mp\MpGenericResourceTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpInputDeviceDriverTest.cpp">
+				RelativePath=".\src\test\mp\MpInputDeviceDriverTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpInputDeviceManagerTest.cpp">
+				RelativePath=".\src\test\mp\MpInputDeviceManagerTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpInputOutputFrameworkTest.cpp">
+				RelativePath=".\src\test\mp\MpInputOutputFrameworkTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpMediaTaskTest.cpp">
+				RelativePath=".\src\test\mp\MpMediaTaskTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpMMTimerTest.cpp">
+				RelativePath=".\src\test\mp\MpMMTimerTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpOutputDriverTest.cpp">
+				RelativePath=".\src\test\mp\MpOutputDriverTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpOutputFrameworkTest.cpp">
+				RelativePath=".\src\test\mp\MpOutputFrameworkTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpOutputManagerTest.cpp">
+				RelativePath=".\src\test\mp\MpOutputManagerTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprBridgeTest.cpp">
+				RelativePath=".\src\test\mp\MprBridgeTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprBridgeTestWB.cpp">
+				RelativePath=".\src\test\mp\MprBridgeTestWB.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprDelayTest.cpp">
+				RelativePath=".\src\test\mp\MprDelayTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpResourceTest.cpp">
+				RelativePath=".\src\test\mp\MpResourceTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpResourceTopologyTest.cpp">
+				RelativePath=".\src\test\mp\MpResourceTopologyTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprFromFileTest.cpp">
+				RelativePath=".\src\test\mp\MprFromFileTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprFromMicTest.cpp">
+				RelativePath=".\src\test\mp\MprFromMicTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprMixerTest.cpp">
+				RelativePath=".\src\test\mp\MprMixerTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprSpeakerSelectorTest.cpp">
+				RelativePath=".\src\test\mp\MprSpeakerSelectorTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprSplitterTest.cpp">
+				RelativePath=".\src\test\mp\MprSplitterTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprToneGenTest.cpp">
+				RelativePath=".\src\test\mp\MprToneGenTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprToSpkrTest.cpp">
+				RelativePath=".\src\test\mp\MprToSpkrTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpTestResource.cpp">
+				RelativePath=".\src\test\mp\MpTestResource.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpWBInputOutputDeviceTest.cpp">
+				RelativePath=".\src\test\mp\MpWBInputOutputDeviceTest.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath=".\src\test\mp\dtmf5_48khz_16b_signed.h">
+				RelativePath=".\src\test\mp\dtmf5_48khz_16b_signed.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpGenericResourceTest.h">
+				RelativePath=".\src\test\mp\MpGenericResourceTest.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpTestResource.h">
+				RelativePath=".\src\test\mp\MpTestResource.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 	</Files>
 	<Globals>

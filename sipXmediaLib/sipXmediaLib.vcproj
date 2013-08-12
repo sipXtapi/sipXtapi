@@ -1,217 +1,310 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="sipXmediaLib"
 	ProjectGUID="{0EC8287A-481E-45DC-8F95-BAD940AE1038}"
-	SccProjectName=""
-	SccAuxPath=""
-	SccLocalPath=""
-	SccProvider="">
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;contrib\libgsm\inc;contrib\libspeex\include;contrib\libilbc\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\FFmpeg\include\ffmpeg"
 				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;SIPX_VIDEO;_DEBUG;WIN32;_LIB"
-				StringPooling="TRUE"
+				StringPooling="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\Debug/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				AdditionalLibraryDirectories=""
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				AdditionalLibraryDirectories=""
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include;contrib\libgsm\inc;contrib\libspeex\include;contrib\libilbc\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\FFmpeg\include\ffmpeg"
 				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;SIPX_VIDEO;NDEBUG;WIN32;_LIB"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="0"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Debug_NoVideo|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;contrib\libgsm\inc;contrib\libspeex\include;contrib\libilbc\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include"
 				PreprocessorDefinitions="HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;_DEBUG;WIN32;_LIB"
-				StringPooling="TRUE"
+				StringPooling="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\Debug/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				AdditionalLibraryDirectories=""
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				AdditionalLibraryDirectories=""
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release_NoVideo|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include;contrib\libgsm\inc;contrib\libspeex\include;contrib\libilbc\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include"
-				PreprocessorDefinitions="HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;NDEBUG;WIN32;_LIB"
-				StringPooling="TRUE"
+				PreprocessorDefinitions="HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;NDEBUG;WIN32;_LIB;EXTERNAL_PLC;EXTERNAL_AGC;EXTERNAL_VAD;EXTERNAL_JB_ESTIMATION"
+				StringPooling="true"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="0"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -219,3906 +312,4938 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath="src\rtcp\BaseClass.cpp">
+				RelativePath="src\rtcp\BaseClass.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\ByeReport.cpp">
+				RelativePath="src\rtcp\ByeReport.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\dft.cpp">
+				RelativePath="src\mp\dft.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\dmaTaskWnt.cpp">
+				RelativePath="src\mp\dmaTaskWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\DSPlib.cpp">
+				RelativePath="src\mp\DSPlib.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\dtmflib.cpp">
+				RelativePath="src\mp\dtmflib.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\FilterBank.cpp">
+				RelativePath="src\mp\FilterBank.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\HandsetFilterBank.cpp">
+				RelativePath="src\mp\HandsetFilterBank.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\Message.cpp">
+				RelativePath="src\rtcp\Message.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MicThreadWnt.cpp">
+				RelativePath="src\mp\MicThreadWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpAgcBase.cpp">
+				RelativePath=".\src\mp\MpAgcBase.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpAgcSimple.cpp">
+				RelativePath=".\src\mp\MpAgcSimple.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpArrayBuf.cpp">
+				RelativePath=".\src\mp\MpArrayBuf.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\mpau.cpp">
+				RelativePath="src\mp\mpau.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpAudioAbstract.cpp">
+				RelativePath="src\mp\MpAudioAbstract.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpAudioBuf.cpp">
+				RelativePath=".\src\mp\MpAudioBuf.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpAudioFileDecompress.cpp">
+				RelativePath="src\mp\MpAudioFileDecompress.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpAudioFileOpen.cpp">
+				RelativePath="src\mp\MpAudioFileOpen.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpAudioFileUtils.cpp">
+				RelativePath="src\mp\MpAudioFileUtils.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpAudioOutputConnection.cpp">
+				RelativePath=".\src\mp\MpAudioOutputConnection.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpAudioResource.cpp">
+				RelativePath=".\src\mp\MpAudioResource.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpAudioUtils.cpp">
+				RelativePath="src\mp\MpAudioUtils.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpAudioWaveFileRead.cpp">
+				RelativePath="src\mp\MpAudioWaveFileRead.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpBridgeAlgLinear.cpp">
+				RelativePath=".\src\mp\MpBridgeAlgLinear.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpBridgeAlgSimple.cpp">
+				RelativePath=".\src\mp\MpBridgeAlgSimple.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpBuf.cpp">
+				RelativePath="src\mp\MpBuf.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpBufferMsg.cpp">
+				RelativePath="src\mp\MpBufferMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpBufPool.cpp">
+				RelativePath=".\src\mp\MpBufPool.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpCallFlowGraph.cpp">
+				RelativePath="src\mp\MpCallFlowGraph.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpCodec.cpp">
+				RelativePath="src\mp\MpCodec.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpCodecFactory.cpp">
+				RelativePath="src\mp\MpCodecFactory.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpDataBuf.cpp">
+				RelativePath=".\src\mp\MpDataBuf.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpDecoderBase.cpp">
+				RelativePath="src\mp\MpDecoderBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpDecoderPayloadMap.cpp">
+				RelativePath=".\src\mp\MpDecoderPayloadMap.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpDspUtils.cpp">
+				RelativePath=".\src\mp\MpDspUtils.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpDTMFDetector.cpp">
+				RelativePath=".\src\mp\MpDTMFDetector.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpEncoderBase.cpp">
+				RelativePath="src\mp\MpEncoderBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpFlowGraphBase.cpp">
+				RelativePath="src\mp\MpFlowGraphBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpFlowGraphMsg.cpp">
+				RelativePath="src\mp\MpFlowGraphMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\mpG711.cpp">
+				RelativePath="src\mp\mpG711.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpidWinMM.cpp">
+				RelativePath=".\src\mp\MpidWinMM.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpInputDeviceDriver.cpp">
+				RelativePath=".\src\mp\MpInputDeviceDriver.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpInputDeviceManager.cpp">
+				RelativePath=".\src\mp\MpInputDeviceManager.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpJbeFixed.cpp">
+				RelativePath=".\src\mp\MpJbeFixed.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpJitterBuffer.cpp">
+				RelativePath="src\mp\MpJitterBuffer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpJitterBufferEstimation.cpp">
+				RelativePath=".\src\mp\MpJitterBufferEstimation.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpMediaTask.cpp">
+				RelativePath="src\mp\MpMediaTask.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpMediaTaskMsg.cpp">
+				RelativePath="src\mp\MpMediaTaskMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpMisc.cpp">
+				RelativePath="src\mp\MpMisc.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpMMTimer.cpp">
+				RelativePath=".\src\mp\MpMMTimer.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpMMTimerWnt.cpp">
+				RelativePath=".\src\mp\MpMMTimerWnt.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpodBufferRecorder.cpp">
+				RelativePath=".\src\mp\MpodBufferRecorder.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpodWinMM.cpp">
+				RelativePath=".\src\mp\MpodWinMM.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpOutputDeviceDriver.cpp">
+				RelativePath=".\src\mp\MpOutputDeviceDriver.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpOutputDeviceManager.cpp">
+				RelativePath=".\src\mp\MpOutputDeviceManager.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpPlayer.cpp">
+				RelativePath="src\mp\MpPlayer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpPlayerEvent.cpp">
+				RelativePath="src\mp\MpPlayerEvent.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpPlcBase.cpp">
+				RelativePath=".\src\mp\MpPlcBase.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpPlcSilence.cpp">
+				RelativePath=".\src\mp\MpPlcSilence.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpPlgStaffV1.cpp">
+				RelativePath=".\src\mp\MpPlgStaffV1.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprAudioFrameBuffer.cpp">
+				RelativePath=".\src\mp\MprAudioFrameBuffer.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MprBridge.cpp">
+				RelativePath="src\mp\MprBridge.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MprDecode.cpp">
+				RelativePath="src\mp\MprDecode.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MprDejitter.cpp">
+				RelativePath="src\mp\MprDejitter.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MprDelay.cpp">
+				RelativePath="src\mp\MprDelay.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MprDelay.cpp">
+				RelativePath="src\mp\MprDelay.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MprEchoSuppress.cpp">
+				RelativePath="src\mp\MprEchoSuppress.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MprEncode.cpp">
+				RelativePath="src\mp\MprEncode.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpResampler.cpp">
+				RelativePath=".\src\mp\MpResampler.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpResamplerSpeex.cpp">
+				RelativePath=".\src\mp\MpResamplerSpeex.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpResNotificationMsg.cpp">
+				RelativePath=".\src\mp\MpResNotificationMsg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpResource.cpp">
+				RelativePath="src\mp\MpResource.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpResourceFactory.cpp">
+				RelativePath=".\src\mp\MpResourceFactory.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpResourceMsg.cpp">
+				RelativePath=".\src\mp\MpResourceMsg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpResourceSortAlg.cpp">
+				RelativePath="src\mp\MpResourceSortAlg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpResourceTopology.cpp">
+				RelativePath=".\src\mp\MpResourceTopology.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MprFromFile.cpp">
+				RelativePath="src\mp\MprFromFile.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprFromInputDevice.cpp">
+				RelativePath=".\src\mp\MprFromInputDevice.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MprFromMic.cpp">
+				RelativePath="src\mp\MprFromMic.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MprFromNet.cpp">
+				RelativePath="src\mp\MprFromNet.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MprFromStream.cpp">
+				RelativePath="src\mp\MprFromStream.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprHook.cpp">
+				RelativePath=".\src\mp\MprHook.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MprMixer.cpp">
+				RelativePath="src\mp\MprMixer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprnDTMFMsg.cpp">
+				RelativePath=".\src\mp\MprnDTMFMsg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprnIntMsg.cpp">
+				RelativePath=".\src\mp\MprnIntMsg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprnProgressMsg.cpp">
+				RelativePath=".\src\mp\MprnProgressMsg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprnRtpStreamActivityMsg.cpp">
+				RelativePath=".\src\mp\MprnRtpStreamActivityMsg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprNull.cpp">
+				RelativePath=".\src\mp\MprnStringMsg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprNullAec.cpp">
+				RelativePath=".\src\mp\MprNull.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MprRecorder.cpp">
+				RelativePath=".\src\mp\MprNullAec.cpp"
+				>
+			</File>
+			<File
+				RelativePath="src\mp\MprRecorder.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprRtpDispatcher.cpp">
+				RelativePath=".\src\mp\MprRtpDispatcher.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprRtpDispatcherActiveSsrcs.cpp">
+				RelativePath=".\src\mp\MprRtpDispatcherActiveSsrcs.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprRtpDispatcherIpAffinity.cpp">
+				RelativePath=".\src\mp\MprRtpDispatcherIpAffinity.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprSpeakerSelector.cpp">
+				RelativePath=".\src\mp\MprSpeakerSelector.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprSpeexEchoCancel.cpp">
+				RelativePath=".\src\mp\MprSpeexEchoCancel.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprSpeexPreprocess.cpp">
+				RelativePath=".\src\mp\MprSpeexPreprocess.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MprSplitter.cpp">
+				RelativePath="src\mp\MprSplitter.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MprToneGen.cpp">
+				RelativePath="src\mp\MprToneGen.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MprToNet.cpp">
+				RelativePath="src\mp\MprToNet.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprToOutputDevice.cpp">
+				RelativePath=".\src\mp\MprToOutputDevice.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MprToSpkr.cpp">
+				RelativePath="src\mp\MprToSpkr.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpRtpBuf.cpp">
+				RelativePath=".\src\mp\MpRtpBuf.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpRtpInputConnection.cpp">
+				RelativePath=".\src\mp\MpRtpInputConnection.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpRtpOutputConnection.cpp">
+				RelativePath=".\src\mp\MpRtpOutputConnection.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprVad.cpp">
+				RelativePath=".\src\mp\MprVad.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprVoiceActivityNotifier.cpp">
+				RelativePath=".\src\mp\MprVoiceActivityNotifier.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp">
+				RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpSpeakerSelectBase.cpp">
+				RelativePath=".\src\mp\MpSpeakerSelectBase.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpStaticCodecInit.cpp">
+				RelativePath=".\src\mp\MpStaticCodecInit.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\mp\MpStreamFeeder.cpp">
+				RelativePath="src\mp\MpStreamFeeder.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpStreamMsg.cpp">
+				RelativePath="src\mp\MpStreamMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpStreamPlayer.cpp">
+				RelativePath="src\mp\MpStreamPlayer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpStreamPlaylistPlayer.cpp">
+				RelativePath="src\mp\MpStreamPlaylistPlayer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpStreamQueuePlayer.cpp">
+				RelativePath="src\mp\MpStreamQueuePlayer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpTopologyGraph.cpp">
+				RelativePath=".\src\mp\MpTopologyGraph.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpTypes.cpp">
+				RelativePath=".\src\mp\MpTypes.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpUdpBuf.cpp">
+				RelativePath=".\src\mp\MpUdpBuf.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpVadBase.cpp">
+				RelativePath=".\src\mp\MpVadBase.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpVadSimple.cpp">
+				RelativePath=".\src\mp\MpVadSimple.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\rtcp\MsgQueue.cpp">
+				RelativePath="src\rtcp\MsgQueue.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\NetInTask.cpp">
+				RelativePath="src\mp\NetInTask.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\NetworkChannel.cpp">
+				RelativePath="src\rtcp\NetworkChannel.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\ReceiverReport.cpp">
+				RelativePath="src\rtcp\ReceiverReport.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\RTCManager.cpp">
+				RelativePath="src\rtcp\RTCManager.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\RTCPConnection.cpp">
+				RelativePath="src\rtcp\RTCPConnection.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\RTCPHeader.cpp">
+				RelativePath="src\rtcp\RTCPHeader.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\RTCPRender.cpp">
+				RelativePath="src\rtcp\RTCPRender.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\RTCPSession.cpp">
+				RelativePath="src\rtcp\RTCPSession.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\RTCPSource.cpp">
+				RelativePath="src\rtcp\RTCPSource.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\RTCPTimer.cpp">
+				RelativePath="src\rtcp\RTCPTimer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\RTPHeader.cpp">
+				RelativePath="src\rtcp\RTPHeader.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\SenderReport.cpp">
+				RelativePath="src\rtcp\SenderReport.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\rtcp\SourceDescription.cpp">
+				RelativePath="src\rtcp\SourceDescription.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\SpeakerThreadWnt.cpp">
+				RelativePath="src\mp\SpeakerThreadWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamBufferDataSource.cpp">
+				RelativePath="src\mp\StreamBufferDataSource.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamDataSource.cpp">
+				RelativePath="src\mp\StreamDataSource.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamDataSourceListener.cpp">
+				RelativePath="src\mp\StreamDataSourceListener.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamDecoderListener.cpp">
+				RelativePath="src\mp\StreamDecoderListener.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamFileDataSource.cpp">
+				RelativePath="src\mp\StreamFileDataSource.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamFormatDecoder.cpp">
+				RelativePath="src\mp\StreamFormatDecoder.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamHttpDataSource.cpp">
+				RelativePath="src\mp\StreamHttpDataSource.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamQueueingFormatDecoder.cpp">
+				RelativePath="src\mp\StreamQueueingFormatDecoder.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamQueueMsg.cpp">
+				RelativePath="src\mp\StreamQueueMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamRAWFormatDecoder.cpp">
+				RelativePath="src\mp\StreamRAWFormatDecoder.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\StreamWAVFormatDecoder.cpp">
+				RelativePath="src\mp\StreamWAVFormatDecoder.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
+					Name="Debug_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
+						BasicRuntimeChecks="3"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release_NoVideo|Win32">
+					Name="Release_NoVideo|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath="include\rtcp\BaseClass.h">
+				RelativePath="include\rtcp\BaseClass.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\ByeReport.h">
+				RelativePath="include\rtcp\ByeReport.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\dmaTask.h">
+				RelativePath="include\mp\dmaTask.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\dsplib.h">
+				RelativePath="include\mp\dsplib.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\dtmflib.h">
+				RelativePath="include\mp\dtmflib.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\FilterBank.h">
+				RelativePath="include\mp\FilterBank.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\HandsetFilterBank.h">
+				RelativePath="include\mp\HandsetFilterBank.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\HandsetFilterbankWindows.h">
+				RelativePath="include\mp\HandsetFilterbankWindows.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IBaseClass.h">
+				RelativePath="include\rtcp\IBaseClass.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IByeReport.h">
+				RelativePath="include\rtcp\IByeReport.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IGetByeInfo.h">
+				RelativePath="include\rtcp\IGetByeInfo.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IGetReceiverStatistics.h">
+				RelativePath="include\rtcp\IGetReceiverStatistics.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IGetSenderStatistics.h">
+				RelativePath="include\rtcp\IGetSenderStatistics.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IGetSrcDescription.h">
+				RelativePath="include\rtcp\IGetSrcDescription.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\INetDispatch.h">
+				RelativePath="include\rtcp\INetDispatch.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\INetworkChannel.h">
+				RelativePath="include\rtcp\INetworkChannel.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\INetworkRender.h">
+				RelativePath="include\rtcp\INetworkRender.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\INetworkSource.h">
+				RelativePath="include\rtcp\INetworkSource.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IReceiverReport.h">
+				RelativePath="include\rtcp\IReceiverReport.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IRTCPConnection.h">
+				RelativePath="include\rtcp\IRTCPConnection.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IRTCPControl.h">
+				RelativePath="include\rtcp\IRTCPControl.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IRTCPHeader.h">
+				RelativePath="include\rtcp\IRTCPHeader.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IRTCPNotify.h">
+				RelativePath="include\rtcp\IRTCPNotify.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IRTCPRegister.h">
+				RelativePath="include\rtcp\IRTCPRegister.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IRTCPRender.h">
+				RelativePath="include\rtcp\IRTCPRender.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IRTCPSession.h">
+				RelativePath="include\rtcp\IRTCPSession.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IRTCPStatistics.h">
+				RelativePath="include\rtcp\IRTCPStatistics.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IRTPDispatch.h">
+				RelativePath="include\rtcp\IRTPDispatch.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\IRTPHeader.h">
+				RelativePath="include\rtcp\IRTPHeader.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\ISDESReport.h">
+				RelativePath="include\rtcp\ISDESReport.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\ISenderReport.h">
+				RelativePath="include\rtcp\ISenderReport.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\ISetReceiverStatistics.h">
+				RelativePath="include\rtcp\ISetReceiverStatistics.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\ISetSenderStatistics.h">
+				RelativePath="include\rtcp\ISetSenderStatistics.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\ISetSrcDescription.h">
+				RelativePath="include\rtcp\ISetSrcDescription.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\Message.h">
+				RelativePath="include\rtcp\Message.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpAgcBase.h">
+				RelativePath=".\include\mp\MpAgcBase.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpAgcSimple.h">
+				RelativePath=".\include\mp\MpAgcSimple.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpArrayBuf.h">
+				RelativePath=".\include\mp\MpArrayBuf.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\mpau.h">
+				RelativePath="include\mp\mpau.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpAudioAbstract.h">
+				RelativePath="include\mp\MpAudioAbstract.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpAudioBuf.h">
+				RelativePath=".\include\mp\MpAudioBuf.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpAudioFileDecompress.h">
+				RelativePath="include\mp\MpAudioFileDecompress.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpAudioFileOpen.h">
+				RelativePath="include\mp\MpAudioFileOpen.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpAudioFileUtils.h">
+				RelativePath="include\mp\MpAudioFileUtils.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpAudioOutputConnection.h">
+				RelativePath=".\include\mp\MpAudioOutputConnection.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpAudioResource.h">
+				RelativePath=".\include\mp\MpAudioResource.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpAudioResourceConstructor.h">
+				RelativePath=".\include\mp\MpAudioResourceConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpAudioUtils.h">
+				RelativePath="include\mp\MpAudioUtils.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpAudioWaveFileRead.h">
+				RelativePath="include\mp\MpAudioWaveFileRead.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpBridgeAlgBase.h">
+				RelativePath=".\include\mp\MpBridgeAlgBase.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpBridgeAlgLinear.h">
+				RelativePath=".\include\mp\MpBridgeAlgLinear.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpBridgeAlgSimple.h">
+				RelativePath=".\include\mp\MpBridgeAlgSimple.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpBuf.h">
+				RelativePath="include\mp\MpBuf.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpBufferMsg.h">
+				RelativePath="include\mp\MpBufferMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpBufPool.h">
+				RelativePath=".\include\mp\MpBufPool.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpCallFlowGraph.h">
+				RelativePath="include\mp\MpCallFlowGraph.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpCodec.h">
+				RelativePath="include\mp\MpCodec.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpCodecFactory.h">
+				RelativePath="include\mp\MpCodecFactory.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpCodecInfo.h">
+				RelativePath="include\mp\MpCodecInfo.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpDataBuf.h">
+				RelativePath=".\include\mp\MpDataBuf.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpDecoderBase.h">
+				RelativePath="include\mp\MpDecoderBase.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpDecoderPayloadMap.h">
+				RelativePath=".\include\mp\MpDecoderPayloadMap.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpDspUtils.h">
+				RelativePath=".\include\mp\MpDspUtils.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpDspUtilsConvertVect.h">
+				RelativePath=".\include\mp\MpDspUtilsConvertVect.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpDspUtilsIntSqrt.h">
+				RelativePath=".\include\mp\MpDspUtilsIntSqrt.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpDspUtilsSerials.h">
+				RelativePath=".\include\mp\MpDspUtilsSerials.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpDspUtilsShift.h">
+				RelativePath=".\include\mp\MpDspUtilsShift.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpDspUtilsSum.h">
+				RelativePath=".\include\mp\MpDspUtilsSum.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpDspUtilsSumVect.h">
+				RelativePath=".\include\mp\MpDspUtilsSumVect.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpDTMFDetector.h">
+				RelativePath=".\include\mp\MpDTMFDetector.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpEncoderBase.h">
+				RelativePath="include\mp\MpEncoderBase.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpFlowGraphBase.h">
+				RelativePath="include\mp\MpFlowGraphBase.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpFlowGraphMsg.h">
+				RelativePath="include\mp\MpFlowGraphMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpidWinMM.h">
+				RelativePath=".\include\mp\MpidWinMM.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpInputDeviceDriver.h">
+				RelativePath=".\include\mp\MpInputDeviceDriver.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpInputDeviceManager.h">
+				RelativePath=".\include\mp\MpInputDeviceManager.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpIntResourceMsg.h">
+				RelativePath=".\include\mp\MpIntResourceMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpJbeFixed.h">
+				RelativePath=".\include\mp\MpJbeFixed.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpJitterBuffer.h">
+				RelativePath="include\mp\MpJitterBuffer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpJitterBufferEstimation.h">
+				RelativePath=".\include\mp\MpJitterBufferEstimation.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpMediaTask.h">
+				RelativePath="include\mp\MpMediaTask.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpMediaTaskMsg.h">
+				RelativePath="include\mp\MpMediaTaskMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpMisc.h">
+				RelativePath="include\mp\MpMisc.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpMMTimer.h">
+				RelativePath=".\include\mp\MpMMTimer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpMMTimerWnt.h">
+				RelativePath=".\include\mp\MpMMTimerWnt.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpodBufferRecorder.h">
+				RelativePath=".\include\mp\MpodBufferRecorder.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpodWinMM.h">
+				RelativePath=".\include\mp\MpodWinMM.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpOutputDeviceDriver.h">
+				RelativePath=".\include\mp\MpOutputDeviceDriver.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpOutputDeviceManager.h">
+				RelativePath=".\include\mp\MpOutputDeviceManager.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpPackedResourceMsg.h">
+				RelativePath=".\include\mp\MpPackedResourceMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpPlayer.h">
+				RelativePath="include\mp\MpPlayer.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpPlayerEvent.h">
+				RelativePath="include\mp\MpPlayerEvent.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpPlayerListener.h">
+				RelativePath="include\mp\MpPlayerListener.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpPlcBase.h">
+				RelativePath=".\include\mp\MpPlcBase.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpPlcSilence.h">
+				RelativePath=".\include\mp\MpPlcSilence.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpPlgStaffV1.h">
+				RelativePath=".\include\mp\MpPlgStaffV1.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpQueuePlayerListener.h">
+				RelativePath="include\mp\MpQueuePlayerListener.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprAudioFrameBuffer.h">
+				RelativePath=".\include\mp\MprAudioFrameBuffer.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprBridge.h">
+				RelativePath="include\mp\MprBridge.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprBridgeConstructor.h">
+				RelativePath=".\include\mp\MprBridgeConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprDecode.h">
+				RelativePath="include\mp\MprDecode.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprDecodeConstructor.h">
+				RelativePath=".\include\mp\MprDecodeConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprDecodeSelectCodecsMsg.h">
+				RelativePath=".\include\mp\MprDecodeSelectCodecsMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprDejitter.h">
+				RelativePath="include\mp\MprDejitter.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprDelay.h">
+				RelativePath="include\mp\MprDelay.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprDelay.h">
+				RelativePath="include\mp\MprDelay.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprDelayConstructor.h">
+				RelativePath=".\include\mp\MprDelayConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprEchoSuppress.h">
+				RelativePath="include\mp\MprEchoSuppress.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprEncode.h">
+				RelativePath="include\mp\MprEncode.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprEncodeConstructor.h">
+				RelativePath=".\include\mp\MprEncodeConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpResampler.h">
+				RelativePath="include\mp\MpResampler.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpResamplerSpeex.h">
+				RelativePath="include\mp\MpResamplerSpeex.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpResNotificationMsg.h">
+				RelativePath=".\include\mp\MpResNotificationMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpResource.h">
+				RelativePath="include\mp\MpResource.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpResourceConstructor.h">
+				RelativePath=".\include\mp\MpResourceConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpResourceFactory.h">
+				RelativePath=".\include\mp\MpResourceFactory.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpResourceMsg.h">
+				RelativePath=".\include\mp\MpResourceMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpResourceSortAlg.h">
+				RelativePath="include\mp\MpResourceSortAlg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpResourceTopology.h">
+				RelativePath=".\include\mp\MpResourceTopology.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprFromFile.h">
+				RelativePath="include\mp\MprFromFile.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprFromFileConstructor.h">
+				RelativePath=".\include\mp\MprFromFileConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprFromInputDevice.h">
+				RelativePath=".\include\mp\MprFromInputDevice.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprFromInputDeviceConstructor.h">
+				RelativePath=".\include\mp\MprFromInputDeviceConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprFromMic.h">
+				RelativePath="include\mp\MprFromMic.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprFromNet.h">
+				RelativePath="include\mp\MprFromNet.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprFromStream.h">
+				RelativePath="include\mp\MprFromStream.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprHook.h">
+				RelativePath=".\include\mp\MprHook.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprHookConstructor.h">
+				RelativePath=".\include\mp\MprHookConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprMixer.h">
+				RelativePath="include\mp\MprMixer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprnDTMFMsg.h">
+				RelativePath=".\include\mp\MprnDTMFMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprnIntMsg.h">
+				RelativePath=".\include\mp\MprnIntMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprnProgressMsg.h">
+				RelativePath=".\include\mp\MprnProgressMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprnRtpStreamActivityMsg.h">
+				RelativePath=".\include\mp\MprnRtpStreamActivityMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprNull.h">
+				RelativePath=".\include\mp\MprnStringMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprNullAec.h">
+				RelativePath=".\include\mp\MprNull.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprNullAecConstructor.h">
+				RelativePath=".\include\mp\MprNullAec.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprNullConstructor.h">
+				RelativePath=".\include\mp\MprNullAecConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprRecorder.h">
+				RelativePath=".\include\mp\MprNullConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRecorderConstructor.h">
+				RelativePath="include\mp\MprRecorder.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRtpDispatcher.h">
+				RelativePath=".\include\mp\MprRecorderConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRtpDispatcherActiveSsrcs.h">
+				RelativePath=".\include\mp\MprRtpDispatcher.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRtpDispatcherIpAffinity.h">
+				RelativePath=".\include\mp\MprRtpDispatcherActiveSsrcs.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRtpInputConnectionConstructor.h">
+				RelativePath=".\include\mp\MprRtpDispatcherIpAffinity.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRtpOutputConnectionConstructor.h">
+				RelativePath=".\include\mp\MprRtpInputConnectionConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRtpStartReceiveMsg.h">
+				RelativePath=".\include\mp\MprRtpOutputConnectionConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprSpeakerSelector.h">
+				RelativePath=".\include\mp\MprRtpStartReceiveMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprSpeakerSelectorConstructor.h">
+				RelativePath=".\include\mp\MprSpeakerSelector.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprSpeexEchoCancel.h">
+				RelativePath=".\include\mp\MprSpeakerSelectorConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprSpeexPreprocess.h">
+				RelativePath=".\include\mp\MprSpeexEchoCancel.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprSpeexPreProcessConstructor.h">
+				RelativePath=".\include\mp\MprSpeexPreprocess.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprSplitter.h">
+				RelativePath=".\include\mp\MprSpeexPreProcessConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprSplitterConstructor.h">
+				RelativePath="include\mp\MprSplitter.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprToneGen.h">
+				RelativePath="include\mp\MprSplitterConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprToneGenConstructor.h">
+				RelativePath="include\mp\MprToneGen.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprToNet.h">
+				RelativePath=".\include\mp\MprToneGenConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprToOutputDevice.h">
+				RelativePath="include\mp\MprToNet.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprToOutputDeviceConstructor.h">
+				RelativePath=".\include\mp\MprToOutputDevice.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprToOutputDeviceWithAecConstructor.h">
+				RelativePath=".\include\mp\MprToOutputDeviceConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MprToSpkr.h">
+				RelativePath=".\include\mp\MprToOutputDeviceWithAecConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpRtpBuf.h">
+				RelativePath="include\mp\MprToSpkr.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpRtpInputConnection.h">
+				RelativePath=".\include\mp\MpRtpBuf.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpRtpOutputConnection.h">
+				RelativePath=".\include\mp\MpRtpInputConnection.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprVad.h">
+				RelativePath=".\include\mp\MpRtpOutputConnection.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprVadConstructor.h">
+				RelativePath=".\include\mp\MprVad.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprVoiceActivityNotifier.h">
+				RelativePath=".\include\mp\MprVadConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprVoiceActivityNotifierConstructor.h">
+				RelativePath=".\include\mp\MprVoiceActivityNotifier.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h">
+				RelativePath=".\include\mp\MprVoiceActivityNotifierConstructor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpSpeakerSelectBase.h">
+				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpStaticCodecInit.h">
+				RelativePath=".\include\mp\MpSpeakerSelectBase.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpStreamFeeder.h">
+				RelativePath=".\include\mp\MpStaticCodecInit.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpStreamMsg.h">
+				RelativePath="include\mp\MpStreamFeeder.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpStreamPlayer.h">
+				RelativePath="include\mp\MpStreamMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpStreamPlaylistPlayer.h">
+				RelativePath="include\mp\MpStreamPlayer.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpStreamQueuePlayer.h">
+				RelativePath="include\mp\MpStreamPlaylistPlayer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpStringResourceMsg.h">
+				RelativePath="include\mp\MpStreamQueuePlayer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpSyncFlowgraphMsg.h">
+				RelativePath=".\include\mp\MpStringResourceMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpToneResourceMsg.h">
+				RelativePath=".\include\mp\MpSyncFlowgraphMsg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpTopologyGraph.h">
+				RelativePath=".\include\mp\MpToneResourceMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\MpTypes.h">
+				RelativePath=".\include\mp\MpTopologyGraph.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpUdpBuf.h">
+				RelativePath="include\mp\MpTypes.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpVadBase.h">
+				RelativePath=".\include\mp\MpUdpBuf.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpVadSimple.h">
+				RelativePath=".\include\mp\MpVadBase.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\MsgQueue.h">
+				RelativePath=".\include\mp\MpVadSimple.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\NetInTask.h">
+				RelativePath="include\rtcp\MsgQueue.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\NetworkChannel.h">
+				RelativePath="include\mp\NetInTask.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\codecs\PlgDefsV1.h">
+				RelativePath="include\rtcp\NetworkChannel.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\ReceiverReport.h">
+				RelativePath=".\include\mp\codecs\PlgDefsV1.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\RTCManager.h">
+				RelativePath="include\rtcp\ReceiverReport.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\RtcpConfig.h">
+				RelativePath="include\rtcp\RTCManager.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\RTCPConnection.h">
+				RelativePath="include\rtcp\RtcpConfig.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\RTCPHeader.h">
+				RelativePath="include\rtcp\RTCPConnection.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\RTCPRender.h">
+				RelativePath="include\rtcp\RTCPHeader.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\RTCPSession.h">
+				RelativePath="include\rtcp\RTCPRender.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\RTCPSource.h">
+				RelativePath="include\rtcp\RTCPSession.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\RTCPTimer.h">
+				RelativePath="include\rtcp\RTCPSource.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\mp\RtpHeader.h">
+				RelativePath="include\rtcp\RTCPTimer.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\RTPHeader.h">
+				RelativePath=".\include\mp\RtpHeader.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\SenderReport.h">
+				RelativePath="include\rtcp\RTPHeader.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\SourceDescription.h">
+				RelativePath="include\rtcp\SenderReport.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamBufferDataSource.h">
+				RelativePath="include\rtcp\SourceDescription.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamDataSource.h">
+				RelativePath="include\mp\StreamBufferDataSource.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamDataSourceListener.h">
+				RelativePath="include\mp\StreamDataSource.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamDecoderListener.h">
+				RelativePath="include\mp\StreamDataSourceListener.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamDefs.h">
+				RelativePath="include\mp\StreamDecoderListener.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamFileDataSource.h">
+				RelativePath="include\mp\StreamDefs.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamFormatDecoder.h">
+				RelativePath="include\mp\StreamFileDataSource.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamHttpDataSource.h">
+				RelativePath="include\mp\StreamFormatDecoder.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamQueueingFormatDecoder.h">
+				RelativePath="include\mp\StreamHttpDataSource.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamQueueMsg.h">
+				RelativePath="include\mp\StreamQueueingFormatDecoder.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamRAWFormatDecoder.h">
+				RelativePath="include\mp\StreamQueueMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\mp\StreamWAVFormatDecoder.h">
+				RelativePath="include\mp\StreamRAWFormatDecoder.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\TLink.h">
+				RelativePath="include\mp\StreamWAVFormatDecoder.h"
+				>
 			</File>
 			<File
-				RelativePath="include\rtcp\TLinkedList.h">
+				RelativePath="include\rtcp\TLink.h"
+				>
+			</File>
+			<File
+				RelativePath="include\rtcp\TLinkedList.h"
+				>
 			</File>
 		</Filter>
 	</Files>
