@@ -16,9 +16,15 @@ g711_release
 ; G.722
 g722_encode_init
 g722_encode_release
+; TODO: Update contrib to have spandsp 0.0.6
+; g722_encode_free is for spandsp 0.0.6 compatibility */
+g722_encode_free
 g722_encode
 g722_decode_init
 g722_decode_release
+; TODO: Update contrib to have spandsp 0.0.6
+; g722_decode_free is for spandsp 0.0.6 compatibility */
+g722_decode_free
 g722_decode
 
 ; G.726

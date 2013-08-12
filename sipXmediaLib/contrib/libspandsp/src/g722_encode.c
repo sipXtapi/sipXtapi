@@ -171,8 +171,19 @@ int g722_encode_release(g722_encode_state_t *s)
     free(s);
     return 0;
 }
+
+
 /*- End of function --------------------------------------------------------*/
 
+/* TODO: Update contrib to have spandsp 0.0.6
+   This is for spandsp 0.0.6 compatibility */
+int g722_encode_free(g722_encode_state_t *s)
+{
+    return 0;
+}
+
+
+/*- End of function --------------------------------------------------------*/
 int g722_encode(g722_encode_state_t *s, uint8_t g722_data[], const int16_t amp[], int len)
 {
     static const int q6[32] =

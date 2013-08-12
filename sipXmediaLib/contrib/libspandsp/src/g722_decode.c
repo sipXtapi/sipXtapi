@@ -174,6 +174,13 @@ int g722_decode_release(g722_decode_state_t *s)
     free(s);
     return 0;
 }
+
+/* TODO: Update contrib to have spandsp 0.0.6
+   This is for spandsp 0.0.6 compatibility */
+int g722_decode_free(g722_decode_state_t *s)
+{
+    return 0;
+}
 /*- End of function --------------------------------------------------------*/
 
 int g722_decode(g722_decode_state_t *s, int16_t amp[], const uint8_t g722_data[], int len)
