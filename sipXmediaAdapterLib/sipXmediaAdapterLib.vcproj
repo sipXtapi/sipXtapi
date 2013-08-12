@@ -1,176 +1,276 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="sipXmediaAdapterLib"
 	ProjectGUID="{0E229E54-9234-44DC-8B74-8C6BA553D3C5}"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
 				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;HAVE_SPEEX;SIPX_VIDEO;WIN32;_DEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCLibrarianTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
 				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;SIPX_VIDEO;HAVE_SPEEX;WIN32;NDEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY"
 				RuntimeLibrary="1"
-				RuntimeTypeInfo="TRUE"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="0"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCLibrarianTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Debug_NoVideo|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
 				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;HAVE_SPEEX;WIN32;_DEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCLibrarianTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release_NoVideo|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
 				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;HAVE_SPEEX;WIN32;NDEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY"
-				RuntimeLibrary="1"
-				RuntimeTypeInfo="TRUE"
+				RuntimeLibrary="2"
+				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="0"/>
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="0"
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCLibrarianTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -179,98 +279,136 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath="interface\CpMediaInterface.cpp">
+				RelativePath="interface\CpMediaInterface.cpp"
+				>
 			</File>
 			<File
-				RelativePath="interface\CpMediaInterfaceFactory.cpp">
+				RelativePath="interface\CpMediaInterfaceFactory.cpp"
+				>
 			</File>
 			<File
-				RelativePath="interface\CpMediaInterfaceFactoryImpl.cpp">
+				RelativePath="interface\CpMediaInterfaceFactoryImpl.cpp"
+				>
 			</File>
 			<File
-				RelativePath="sipXmediaMediaProcessing\src\CpPhoneMediaInterface.cpp">
+				RelativePath="sipXmediaMediaProcessing\src\CpPhoneMediaInterface.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\sipXmediaMediaProcessing\src\CpTopologyGraphFactoryImpl.cpp">
+				RelativePath=".\sipXmediaMediaProcessing\src\CpTopologyGraphFactoryImpl.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\sipXmediaMediaProcessing\src\CpTopologyGraphInterface.cpp">
+				RelativePath=".\sipXmediaMediaProcessing\src\CpTopologyGraphInterface.cpp"
+				>
 			</File>
 			<File
-				RelativePath="sipXmediaMediaProcessing\src\MaNotfTranslatorDispatcher.cpp">
+				RelativePath="sipXmediaMediaProcessing\src\MaNotfTranslatorDispatcher.cpp"
+				>
 			</File>
 			<File
-				RelativePath="interface\MiDtmfNotf.cpp">
+				RelativePath="interface\MiDtmfNotf.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\interface\MiIntNotf.cpp">
+				RelativePath=".\interface\MiIntNotf.cpp"
+				>
 			</File>
 			<File
-				RelativePath="interface\MiNotification.cpp">
+				RelativePath="interface\MiNotification.cpp"
+				>
 			</File>
 			<File
-				RelativePath="interface\MiProgressNotf.cpp">
+				RelativePath="interface\MiProgressNotf.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\interface\MiRtpStreamActivityNotf.cpp">
+				RelativePath=".\interface\MiRtpStreamActivityNotf.cpp"
+				>
 			</File>
 			<File
-				RelativePath="sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp">
+				RelativePath=".\interface\MiStringNotf.cpp"
+				>
+			</File>
+			<File
+				RelativePath="sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath="interface\mi\CpMediaInterface.h">
+				RelativePath="interface\mi\CpMediaInterface.h"
+				>
 			</File>
 			<File
-				RelativePath="interface\mi\CpMediaInterfaceFactory.h">
+				RelativePath="interface\mi\CpMediaInterfaceFactory.h"
+				>
 			</File>
 			<File
-				RelativePath="interface\mi\CpMediaInterfaceFactoryFactory.h">
+				RelativePath="interface\mi\CpMediaInterfaceFactoryFactory.h"
+				>
 			</File>
 			<File
-				RelativePath="interface\mi\CpMediaInterfaceFactoryImpl.h">
+				RelativePath="interface\mi\CpMediaInterfaceFactoryImpl.h"
+				>
 			</File>
 			<File
-				RelativePath="sipXmediaMediaProcessing\include\CpPhoneMediaInterface.h">
+				RelativePath="sipXmediaMediaProcessing\include\CpPhoneMediaInterface.h"
+				>
 			</File>
 			<File
-				RelativePath=".\sipXmediaMediaProcessing\include\CpTopologyGraphFactoryImpl.h">
+				RelativePath=".\sipXmediaMediaProcessing\include\CpTopologyGraphFactoryImpl.h"
+				>
 			</File>
 			<File
-				RelativePath=".\sipXmediaMediaProcessing\include\CpTopologyGraphInterface.h">
+				RelativePath=".\sipXmediaMediaProcessing\include\CpTopologyGraphInterface.h"
+				>
 			</File>
 			<File
-				RelativePath="sipXmediaMediaProcessing\include\MaNotfTranslatorDispatcher.h">
+				RelativePath="sipXmediaMediaProcessing\include\MaNotfTranslatorDispatcher.h"
+				>
 			</File>
 			<File
-				RelativePath="interface\mi\MiDtmfNotf.h">
+				RelativePath="interface\mi\MiDtmfNotf.h"
+				>
 			</File>
 			<File
-				RelativePath=".\interface\mi\MiIntNotf.h">
+				RelativePath=".\interface\mi\MiIntNotf.h"
+				>
 			</File>
 			<File
-				RelativePath="interface\mi\MiNotification.h">
+				RelativePath="interface\mi\MiNotification.h"
+				>
 			</File>
 			<File
-				RelativePath="interface\mi\MiProgressNotf.h">
+				RelativePath="interface\mi\MiProgressNotf.h"
+				>
 			</File>
 			<File
-				RelativePath=".\interface\mi\MiRtpStreamActivityNotf.h">
+				RelativePath=".\interface\mi\MiRtpStreamActivityNotf.h"
+				>
 			</File>
 			<File
-				RelativePath="sipXmediaMediaProcessing\include\sipXmediaFactoryImpl.h">
+				RelativePath=".\interface\mi\MiStringNotf.h"
+				>
+			</File>
+			<File
+				RelativePath="sipXmediaMediaProcessing\include\sipXmediaFactoryImpl.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 	</Files>
 	<Globals>
