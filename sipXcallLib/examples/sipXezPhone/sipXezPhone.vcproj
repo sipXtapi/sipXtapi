@@ -1,23 +1,49 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="sipXezPhone"
 	ProjectGUID="{F0EBB1F7-CA6B-4201-976E-4CF7D0A19BA1}"
-	SccProjectName=""
-	SccLocalPath="">
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Debug/sipXezPhone.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
@@ -25,128 +51,159 @@
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough="stdwx.h"
 				BrowseInformation="1"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib comctl32.lib sipXtapid.lib sipXportLibD.lib pcre.lib winmm.lib wxmsw26_core.lib wxmsw26_adv.lib wxbase26.lib"
 				OutputFile="debug\sipXezPhone.exe"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib\wnt;..\lib;..\lib\wnt\nss;..\lib\wnt\wx"
-				IgnoreAllDefaultLibraries="FALSE"
+				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="msvcrt.lib"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/sipXezPhone.pdb"
 				SubSystem="2"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="TRUE"
-				SuppressStartupBanner="TRUE"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/sipXezPhone.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Populating sipXtapi.dll"
-				CommandLine="copy ..\..\sipXtapi\Debug\sipXtapid.dll Debug
-xcopy  res Debug\res /I /Y /S
-"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				CommandLine="copy ..\..\sipXtapi\Debug\sipXtapid.dll Debug&#x0D;&#x0A;xcopy  res Debug\res /I /Y /S&#x0D;&#x0A;"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/sipXezPhone.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1;"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				BrowseInformation="1"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				CompileAs="0"/>
+				SuppressStartupBanner="true"
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="msvcrt.lib msvcprt.lib rpcrt4.lib Ws2_32.lib comctl32.lib sipXtapi.lib sipXportLib.lib pcre.lib winmm.lib wxmsw26_core.lib wxmsw26_adv.lib wxbase26.lib"
 				OutputFile="release\sipXezPhone.exe"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\lib\wnt;..\lib;..\lib\wnt\nss;..\lib\wnt\wx"
 				ProgramDatabaseFile=".\Release/sipXezPhone.pdb"
 				SubSystem="2"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="TRUE"
-				SuppressStartupBanner="TRUE"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Release/sipXezPhone.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Populating sipXtapi.dll"
-				CommandLine="copy ..\..\sipXtapi\Release\sipXtapi.dll Release
-xcopy  res Release\res /I /Y /S
-"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				CommandLine="copy ..\..\sipXtapi\Release\sipXtapi.dll Release&#x0D;&#x0A;xcopy  res Release\res /I /Y /S&#x0D;&#x0A;"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -154,651 +211,828 @@ xcopy  res Release\res /I /Y /S
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath=".\AddContactDlg.cpp">
+				RelativePath=".\AddContactDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="ButtonPanel.cpp">
+				RelativePath="ButtonPanel.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="CallHistoryPanel.cpp">
+				RelativePath="CallHistoryPanel.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="CallList.cpp">
+				RelativePath="CallList.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\CameraSettingsDlg.cpp">
+				RelativePath=".\CameraSettingsDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ConferencePanel.cpp">
+				RelativePath=".\ConferencePanel.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ContactListCtrl.cpp">
+				RelativePath=".\ContactListCtrl.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ContactListPanel.cpp">
+				RelativePath=".\ContactListPanel.cpp"
+				>
 			</File>
 			<File
-				RelativePath="DialEntryPanel.cpp">
+				RelativePath="DialEntryPanel.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\DialerThread.cpp">
+				RelativePath=".\DialerThread.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DialerThread.h">
+				RelativePath=".\DialerThread.h"
+				>
 			</File>
 			<File
-				RelativePath="DialPadButton.cpp">
+				RelativePath="DialPadButton.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="DialPadPanel.cpp">
+				RelativePath="DialPadPanel.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\EventLogDlg.cpp">
+				RelativePath=".\EventLogDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ImportCertificateDlg.cpp">
+				RelativePath=".\ImportCertificateDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="MainPanel.cpp">
+				RelativePath="MainPanel.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="PlacedCallList.cpp">
+				RelativePath="PlacedCallList.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\PreviewWindow.cpp">
+				RelativePath=".\PreviewWindow.cpp"
+				>
 			</File>
 			<File
-				RelativePath="ReceivedCallList.cpp">
+				RelativePath="ReceivedCallList.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sipXAudioSettingsDlg.cpp">
+				RelativePath=".\sipXAudioSettingsDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="sipXezPhone_wdr.cpp">
+				RelativePath="sipXezPhone_wdr.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sipXezPhone_wdr.h">
+				RelativePath=".\sipXezPhone_wdr.h"
+				>
 			</File>
 			<File
-				RelativePath="sipXezPhoneAboutDlg.cpp">
+				RelativePath="sipXezPhoneAboutDlg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sipXezPhoneAboutDlg.h">
+				RelativePath=".\sipXezPhoneAboutDlg.h"
+				>
 			</File>
 			<File
-				RelativePath="sipXezPhoneApp.cpp">
+				RelativePath="sipXezPhoneApp.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="sipXezPhoneFrame.cpp">
+				RelativePath="sipXezPhoneFrame.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="sipXezPhoneSettings.cpp">
+				RelativePath="sipXezPhoneSettings.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="sipXezPhoneSettingsDlg.cpp">
+				RelativePath="sipXezPhoneSettingsDlg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sipXezPhoneSettingsDlg.h">
+				RelativePath=".\sipXezPhoneSettingsDlg.h"
+				>
 			</File>
 			<File
-				RelativePath="sipXmgr.cpp">
+				RelativePath="sipXmgr.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories="C:\dev_Video\gips"
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sipXSrtpSettingsDlg.cpp">
+				RelativePath=".\sipXSrtpSettingsDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\sipXTabbedDlg.cpp">
+				RelativePath=".\sipXTabbedDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\sipXVideoSettingsDlg.cpp">
+				RelativePath=".\sipXVideoSettingsDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="stdwx.cpp">
+				RelativePath="stdwx.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\VideoPanel.cpp">
+				RelativePath=".\VideoPanel.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\VideoWindow.cpp">
+				RelativePath=".\VideoWindow.cpp"
+				>
 			</File>
 			<File
-				RelativePath="VolumeControlPanel.cpp">
+				RelativePath="VolumeControlPanel.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<Filter
 				Name="states"
-				Filter="">
+				>
 				<File
-					RelativePath=".\states\PhoneState.cpp">
+					RelativePath=".\states\PhoneState.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateAccepted.cpp">
+					RelativePath=".\states\PhoneStateAccepted.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateCallHeldLocally.cpp">
+					RelativePath=".\states\PhoneStateCallHeldLocally.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateCallHeldRemotely.cpp">
+					RelativePath=".\states\PhoneStateCallHeldRemotely.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateConnected.cpp">
+					RelativePath=".\states\PhoneStateConnected.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateDialing.cpp">
+					RelativePath=".\states\PhoneStateDialing.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateDisconnectRequested.cpp">
+					RelativePath=".\states\PhoneStateDisconnectRequested.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateIdle.cpp">
+					RelativePath=".\states\PhoneStateIdle.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateLocalHoldRequested.cpp">
+					RelativePath=".\states\PhoneStateLocalHoldRequested.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateMachine.cpp">
+					RelativePath=".\states\PhoneStateMachine.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateMachineObserver.cpp">
+					RelativePath=".\states\PhoneStateMachineObserver.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateOutgoingCallReject.cpp">
+					RelativePath=".\states\PhoneStateOutgoingCallReject.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateRemoteAlerting.cpp">
+					RelativePath=".\states\PhoneStateRemoteAlerting.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateRemoteBusy.cpp">
+					RelativePath=".\states\PhoneStateRemoteBusy.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateRinging.cpp">
+					RelativePath=".\states\PhoneStateRinging.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateTransfering.cpp">
+					RelativePath=".\states\PhoneStateTransfering.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateTransferRequested.cpp">
+					RelativePath=".\states\PhoneStateTransferRequested.cpp"
+					>
 				</File>
 			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath=".\AddContactDlg.h">
+				RelativePath=".\AddContactDlg.h"
+				>
 			</File>
 			<File
-				RelativePath="ButtonPanel.h">
+				RelativePath="ButtonPanel.h"
+				>
 			</File>
 			<File
-				RelativePath="CallHistoryPanel.h">
+				RelativePath="CallHistoryPanel.h"
+				>
 			</File>
 			<File
-				RelativePath="CallList.h">
+				RelativePath="CallList.h"
+				>
 			</File>
 			<File
-				RelativePath=".\CameraSettingsDlg.h">
+				RelativePath=".\CameraSettingsDlg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ConferencePanel.h">
+				RelativePath=".\ConferencePanel.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ContactListCtrl.h">
+				RelativePath=".\ContactListCtrl.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ContactListPanel.h">
+				RelativePath=".\ContactListPanel.h"
+				>
 			</File>
 			<File
-				RelativePath="DialEntryPanel.h">
+				RelativePath="DialEntryPanel.h"
+				>
 			</File>
 			<File
-				RelativePath="DialPadButton.h">
+				RelativePath="DialPadButton.h"
+				>
 			</File>
 			<File
-				RelativePath="DialPadPanel.h">
+				RelativePath="DialPadPanel.h"
+				>
 			</File>
 			<File
-				RelativePath=".\EventLogDlg.h">
+				RelativePath=".\EventLogDlg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ImportCertificateDlg.h">
+				RelativePath=".\ImportCertificateDlg.h"
+				>
 			</File>
 			<File
-				RelativePath="MainPanel.h">
+				RelativePath="MainPanel.h"
+				>
 			</File>
 			<File
-				RelativePath="PlacedCallList.h">
+				RelativePath="PlacedCallList.h"
+				>
 			</File>
 			<File
-				RelativePath=".\PreviewWindow.h">
+				RelativePath=".\PreviewWindow.h"
+				>
 			</File>
 			<File
-				RelativePath="ReceivedCallList.h">
+				RelativePath="ReceivedCallList.h"
+				>
 			</File>
 			<File
-				RelativePath="resource.h">
+				RelativePath="resource.h"
+				>
 			</File>
 			<File
-				RelativePath=".\sipXAudioSettingsDlg.h">
+				RelativePath=".\sipXAudioSettingsDlg.h"
+				>
 			</File>
 			<File
-				RelativePath="sipXezPhoneApp.h">
+				RelativePath="sipXezPhoneApp.h"
+				>
 			</File>
 			<File
-				RelativePath="sipXezPhoneFrame.h">
+				RelativePath="sipXezPhoneFrame.h"
+				>
 			</File>
 			<File
-				RelativePath="sipXezPhoneSettings.h">
+				RelativePath="sipXezPhoneSettings.h"
+				>
 			</File>
 			<File
-				RelativePath="sipXmgr.h">
+				RelativePath="sipXmgr.h"
+				>
 			</File>
 			<File
-				RelativePath=".\sipXSrtpSettingsDlg.h">
+				RelativePath=".\sipXSrtpSettingsDlg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\sipXTabbedDlg.h">
+				RelativePath=".\sipXTabbedDlg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\sipXVideoSettingsDlg.h">
+				RelativePath=".\sipXVideoSettingsDlg.h"
+				>
 			</File>
 			<File
-				RelativePath="stdwx.h">
+				RelativePath="stdwx.h"
+				>
 			</File>
 			<File
-				RelativePath=".\VideoPanel.h">
+				RelativePath=".\VideoPanel.h"
+				>
 			</File>
 			<File
-				RelativePath=".\VideoWindow.h">
+				RelativePath=".\VideoWindow.h"
+				>
 			</File>
 			<File
-				RelativePath="VolumeControlPanel.h">
+				RelativePath="VolumeControlPanel.h"
+				>
 			</File>
 			<Filter
 				Name="Resource Files"
-				Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+				Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+				>
 			</Filter>
 			<Filter
 				Name="states"
-				Filter="">
+				>
 				<File
-					RelativePath=".\states\IStateTransitions.h">
+					RelativePath=".\states\IStateTransitions.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneState.h">
+					RelativePath=".\states\PhoneState.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateAccepted.h">
+					RelativePath=".\states\PhoneStateAccepted.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateCallHeldLocally.h">
+					RelativePath=".\states\PhoneStateCallHeldLocally.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateCallHeldRemotely.h">
+					RelativePath=".\states\PhoneStateCallHeldRemotely.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateConnected.h">
+					RelativePath=".\states\PhoneStateConnected.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateDialing.h">
+					RelativePath=".\states\PhoneStateDialing.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateDisconnectRequested.h">
+					RelativePath=".\states\PhoneStateDisconnectRequested.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateIdle.h">
+					RelativePath=".\states\PhoneStateIdle.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateLocalHoldRequested.h">
+					RelativePath=".\states\PhoneStateLocalHoldRequested.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateMachine.h">
+					RelativePath=".\states\PhoneStateMachine.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateMachineObserver.h">
+					RelativePath=".\states\PhoneStateMachineObserver.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateOutgoingCallReject.h">
+					RelativePath=".\states\PhoneStateOutgoingCallReject.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateRemoteAlerting.h">
+					RelativePath=".\states\PhoneStateRemoteAlerting.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateRemoteBusy.h">
+					RelativePath=".\states\PhoneStateRemoteBusy.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateRinging.h">
+					RelativePath=".\states\PhoneStateRinging.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateTransfering.h">
+					RelativePath=".\states\PhoneStateTransfering.h"
+					>
 				</File>
 				<File
-					RelativePath=".\states\PhoneStateTransferRequested.h">
+					RelativePath=".\states\PhoneStateTransferRequested.h"
+					>
 				</File>
 			</Filter>
 		</Filter>
