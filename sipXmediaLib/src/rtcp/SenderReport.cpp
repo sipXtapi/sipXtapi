@@ -16,6 +16,7 @@
 
 #include <os/OsIntTypes.h>
 #include <os/OsLock.h>
+#include <os/OsDateTime.h>
 
 #include <assert.h>
 
@@ -191,19 +192,13 @@ void CSenderReport::IncrementCounts(uint32_t ulOctetCount, rtpts_t RTPTimestampB
     uint32_t ntp_secs;
     uint32_t ntp_usec;
 
-#if defined(__pingtel_on_posix__)
-    {
-        struct timeval tv;
+    OsTime now;
+    OsDateTime::getCurTime(now);
+    // Load Most Significant word with Wall time seconds
+    ntp_secs = now.seconds();
+    // Load Least Significant word with Wall time microseconds
+    ntp_usec = now.usecs();
 
-        gettimeofday(&tv, NULL);
-        // Load Most Significant word with Wall time seconds
-        ntp_secs = tv.tv_sec;
-
-        // Load Least Significant word with Wall time microseconds
-        ntp_usec = tv.tv_usec;
-    }
-
-#endif
     // OsSysLog::add(FAC_MP, PRI_DEBUG, "CSenderReport::IncrementCounts: this=%p, NTP = {%2d.%06d}, octets=%04d, rtpTSBase=%u=0x%08X, rtpTS=%u=0x%08X, SSRC=0x%08X,0x%08X", this, (ntp_secs&0x3F), ntp_usec, ulOctetCount, RTPTimestampBase, RTPTimestampBase, RTPTimestamp, RTPTimestamp, ssrc, GetSSRC());
 
     OsLock lock(SR_sMultiThreadLock);
@@ -615,7 +610,7 @@ unsigned long CSenderReport::LoadTimestamps(uint32_t *aulTimestamps)
     _ftime(&stLocalTime);
 
     // Load Most Significant word with Wall time seconds
-    ntp_secs = = (unsigned long)stLocalTime.time;
+    ntp_secs = (unsigned long)stLocalTime.time;
 
     // Load Least Significant word with Wall time microseconds
     dTimestampUSec = stLocalTime.millitm * MILLI2MICRO;
