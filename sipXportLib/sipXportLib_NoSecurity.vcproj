@@ -1,117 +1,168 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="sipXportLib"
 	ProjectGUID="{14631055-9D3F-47E5-B6A7-16BFC0CC8091}"
 	SccProjectName="Perforce Project"
-	SccLocalPath=".">
+	SccLocalPath="."
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;..\sipXcallLib\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB"
-				StringPooling="FALSE"
-				ExceptionHandling="TRUE"
+				StringPooling="false"
+				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
-				SmallerTypeCheck="TRUE"
+				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
-				BufferSecurityCheck="TRUE"
-				EnableFunctionLevelLinking="TRUE"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				BufferSecurityCheck="true"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				BrowseInformation="1"
 				WarningLevel="3"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				SuppressStartupBanner="TRUE"
-				IgnoreDefaultLibraryNames=""/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames=""
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include;..\sipXcallLib\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB"
-				StringPooling="FALSE"
-				ExceptionHandling="TRUE"
+				StringPooling="false"
+				ExceptionHandling="1"
 				RuntimeLibrary="2"
-				BufferSecurityCheck="FALSE"
-				EnableFunctionLevelLinking="FALSE"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="false"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -119,2572 +170,3232 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath=".\src\xmlparser\ExtractContent.cpp">
+				RelativePath=".\src\xmlparser\ExtractContent.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\getWindowsDNSServers.cpp">
+				RelativePath="src\os\Wnt\getWindowsDNSServers.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsAssert.c">
+				RelativePath="src\os\OsAssert.c"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsBSemWnt.cpp">
+				RelativePath="src\os\Wnt\OsBSemWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsCallback.cpp">
+				RelativePath="src\os\OsCallback.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsConfigDb.cpp">
+				RelativePath="src\os\OsConfigDb.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsConnectionSocket.cpp">
+				RelativePath="src\os\OsConnectionSocket.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsCSemBase.cpp">
+				RelativePath="src\os\OsCSemBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsCSemWnt.cpp">
+				RelativePath="src\os\Wnt\OsCSemWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsDatagramSocket.cpp">
+				RelativePath="src\os\OsDatagramSocket.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsDateTime.cpp">
+				RelativePath="src\os\OsDateTime.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsDateTimeWnt.cpp">
+				RelativePath="src\os\Wnt\OsDateTimeWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsDirBase.cpp">
+				RelativePath="src\os\OsDirBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsDirWnt.cpp">
+				RelativePath="src\os\Wnt\OsDirWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsEncryption.cpp">
+				RelativePath="src\os\OsEncryption.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsEvent.cpp">
+				RelativePath="src\os\OsEvent.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsEventMsg.cpp">
+				RelativePath="src\os\OsEventMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsExcept.cpp">
+				RelativePath="src\os\OsExcept.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsFileBase.cpp">
+				RelativePath="src\os\OsFileBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsFileInfoBase.cpp">
+				RelativePath="src\os\OsFileInfoBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsFileInfoWnt.cpp">
+				RelativePath="src\os\Wnt\OsFileInfoWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsFileIteratorBase.cpp">
+				RelativePath="src\os\OsFileIteratorBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsFileIteratorWnt.cpp">
+				RelativePath="src\os\Wnt\OsFileIteratorWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsFileSystem.cpp">
+				RelativePath="src\os\OsFileSystem.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsFileSystemWnt.cpp">
+				RelativePath="src\os\Wnt\OsFileSystemWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsFileWnt.cpp">
+				RelativePath="src\os\Wnt\OsFileWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\os\OsIntPtrMsg.cpp">
+				RelativePath=".\src\os\OsIntPtrMsg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\os\OsLockingList.cpp">
+				RelativePath="src\os\OsLockingList.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsMsg.cpp">
+				RelativePath="src\os\OsMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsMsgPool.cpp">
+				RelativePath="src\os\OsMsgPool.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsMsgQ.cpp">
+				RelativePath="src\os\OsMsgQ.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\shared\OsMsgQShared.cpp">
+				RelativePath="src\os\shared\OsMsgQShared.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsMulticastSocket.cpp">
+				RelativePath="src\os\OsMulticastSocket.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsMutexWnt.cpp">
+				RelativePath="src\os\Wnt\OsMutexWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsNameDb.cpp">
+				RelativePath="src\os\OsNameDb.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\os\OsNameDbInit.cpp">
+				RelativePath=".\src\os\OsNameDbInit.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\os\OsPathBase.cpp">
+				RelativePath="src\os\OsPathBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsPathWnt.cpp">
+				RelativePath="src\os\Wnt\OsPathWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\osPrintf.cpp">
+				RelativePath="src\os\osPrintf.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsProcessBase.cpp">
+				RelativePath="src\os\OsProcessBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsProcessIteratorBase.cpp">
+				RelativePath="src\os\OsProcessIteratorBase.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsProcessIteratorWnt.cpp">
+				RelativePath="src\os\Wnt\OsProcessIteratorWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsProcessMgr.cpp">
+				RelativePath="src\os\OsProcessMgr.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsProcessWnt.cpp">
+				RelativePath="src\os\Wnt\OsProcessWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsProtectEvent.cpp">
+				RelativePath="src\os\OsProtectEvent.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsProtectEventMgr.cpp">
+				RelativePath="src\os\OsProtectEventMgr.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\os\OsProtectEventMgrInit.cpp">
+				RelativePath=".\src\os\OsProtectEventMgrInit.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\os\OsPtrMsg.cpp">
+				RelativePath="src\os\OsPtrMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsQueuedEvent.cpp">
+				RelativePath="src\os\OsQueuedEvent.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsRpcMsg.cpp">
+				RelativePath="src\os\OsRpcMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\shared\OsRWMutexShared.cpp">
+				RelativePath="src\os\shared\OsRWMutexShared.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\os\OsServerSocket.cpp">
+				RelativePath="src\os\OsServerSocket.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsServerTask.cpp">
+				RelativePath="src\os\OsServerTask.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsSharedLibMgr.cpp">
+				RelativePath="src\os\OsSharedLibMgr.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsSharedLibMgrWnt.cpp">
+				RelativePath="src\os\Wnt\OsSharedLibMgrWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsSocket.cpp">
+				RelativePath="src\os\OsSocket.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsSysLog.cpp">
+				RelativePath="src\os\OsSysLog.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsSysLogFacilities.cpp">
+				RelativePath="src\os\OsSysLogFacilities.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsSysLogMsg.cpp">
+				RelativePath="src\os\OsSysLogMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsSysLogTask.cpp">
+				RelativePath="src\os\OsSysLogTask.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsTask.cpp">
+				RelativePath="src\os\OsTask.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsTaskWnt.cpp">
+				RelativePath="src\os\Wnt\OsTaskWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsTime.cpp">
+				RelativePath="src\os\OsTime.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsTimeLog.cpp">
+				RelativePath="src\os\OsTimeLog.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsTimer.cpp">
+				RelativePath="src\os\OsTimer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsTimerMessage.cpp">
+				RelativePath="src\os\Wnt\OsTimerMessage.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsTimerMsg.cpp">
+				RelativePath="src\os\OsTimerMsg.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsTimerTask.cpp">
+				RelativePath="src\os\OsTimerTask.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\os\OsTLS.cpp">
+				RelativePath=".\src\os\OsTLS.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\OsTLSClientConnectionSocket.cpp">
+				RelativePath=".\src\os\OsTLSClientConnectionSocket.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\OsTLSConnectionSocket.cpp">
+				RelativePath=".\src\os\OsTLSConnectionSocket.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\OsTLSServerConnectionSocket.cpp">
+				RelativePath=".\src\os\OsTLSServerConnectionSocket.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\OsTLSServerSocket.cpp">
+				RelativePath=".\src\os\OsTLSServerSocket.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\os\OsTokenizer.cpp">
+				RelativePath="src\os\OsTokenizer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsUtil.cpp">
+				RelativePath="src\os\OsUtil.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsUtilWnt.cpp">
+				RelativePath="src\os\Wnt\OsUtilWnt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\utl\PluginHooks.cpp">
+				RelativePath=".\src\utl\PluginHooks.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\xmlparser\tinystr.cpp">
+				RelativePath="src\xmlparser\tinystr.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\xmlparser\tinyxml.cpp">
+				RelativePath="src\xmlparser\tinyxml.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\xmlparser\tinyxmlerror.cpp">
+				RelativePath="src\xmlparser\tinyxmlerror.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\xmlparser\tinyxmlparser.cpp">
+				RelativePath="src\xmlparser\tinyxmlparser.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\xmlparser\TiXmlIterator.cpp">
+				RelativePath="src\xmlparser\TiXmlIterator.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\utl\UtlBool.cpp">
+				RelativePath=".\src\utl\UtlBool.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\utl\UtlChainPool.cpp">
+				RelativePath=".\src\utl\UtlChainPool.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\utl\UtlContainable.cpp">
+				RelativePath="src\utl\UtlContainable.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\utl\UtlContainableAtomic.cpp">
+				RelativePath=".\src\utl\UtlContainableAtomic.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\utl\UtlContainer.cpp">
+				RelativePath="src\utl\UtlContainer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\utl\UtlCrc32.cpp">
+				RelativePath=".\src\utl\UtlCrc32.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\utl\UtlDateTime.cpp">
+				RelativePath=".\src\utl\UtlDateTime.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\utl\UtlDList.cpp">
+				RelativePath="src\utl\UtlDList.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlDListIterator.cpp">
+				RelativePath="src\utl\UtlDListIterator.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlHashBag.cpp">
+				RelativePath="src\utl\UtlHashBag.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlHashBagIterator.cpp">
+				RelativePath="src\utl\UtlHashBagIterator.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlHashMap.cpp">
+				RelativePath="src\utl\UtlHashMap.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlHashMapIterator.cpp">
+				RelativePath="src\utl\UtlHashMapIterator.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\utl\UtlHistogram.cpp">
+				RelativePath=".\src\utl\UtlHistogram.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\utl\UtlInit.cpp">
+				RelativePath=".\src\utl\UtlInit.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\utl\UtlInt.cpp">
+				RelativePath="src\utl\UtlInt.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlIterator.cpp">
+				RelativePath="src\utl\UtlIterator.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlLink.cpp">
+				RelativePath="src\utl\UtlLink.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlList.cpp">
+				RelativePath="src\utl\UtlList.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlListIterator.cpp">
+				RelativePath="src\utl\UtlListIterator.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\utl\UtlLongLongInt.cpp">
+				RelativePath=".\src\utl\UtlLongLongInt.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\utl\UtlNameValueTokenizer.cpp">
+				RelativePath=".\src\utl\UtlNameValueTokenizer.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\utl\UtlRandom.cpp">
+				RelativePath="src\utl\UtlRandom.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlRegex.cpp">
+				RelativePath="src\utl\UtlRegex.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlRscStore.cpp">
+				RelativePath="src\utl\UtlRscStore.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlRscTrace.cpp">
+				RelativePath="src\utl\UtlRscTrace.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlSList.cpp">
+				RelativePath="src\utl\UtlSList.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlSListIterator.cpp">
+				RelativePath="src\utl\UtlSListIterator.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlSortedList.cpp">
+				RelativePath="src\utl\UtlSortedList.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlSortedListIterator.cpp">
+				RelativePath="src\utl\UtlSortedListIterator.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlString.cpp">
+				RelativePath="src\utl\UtlString.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlTokenizer.cpp">
+				RelativePath="src\utl\UtlTokenizer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\UtlVoidPtr.cpp">
+				RelativePath="src\utl\UtlVoidPtr.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\WindowsAdapterInfo.cpp">
+				RelativePath="src\os\Wnt\WindowsAdapterInfo.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
+						PreprocessorDefinitions=""
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\utl\XmlContent.cpp">
+				RelativePath=".\src\utl\XmlContent.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath=".\include\xmlparser\ExtractContent.h">
+				RelativePath=".\include\xmlparser\ExtractContent.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\getWindowsDNSServers.h">
+				RelativePath="include\os\wnt\getWindowsDNSServers.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\HostAdapterAddress.h">
+				RelativePath=".\include\os\HostAdapterAddress.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsAssert.h">
+				RelativePath="include\os\OsAssert.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsBSem.h">
+				RelativePath="include\os\OsBSem.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsBSemWnt.h">
+				RelativePath="include\os\wnt\OsBSemWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsCallback.h">
+				RelativePath="include\os\OsCallback.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsConfigDb.h">
+				RelativePath="include\os\OsConfigDb.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsConfigEncryption.h">
+				RelativePath="include\os\OsConfigEncryption.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsConnectionSocket.h">
+				RelativePath="include\os\OsConnectionSocket.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsCSem.h">
+				RelativePath="include\os\OsCSem.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsCSemWnt.h">
+				RelativePath="include\os\wnt\OsCSemWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsDatagramSocket.h">
+				RelativePath="include\os\OsDatagramSocket.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsDateTime.h">
+				RelativePath="include\os\OsDateTime.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsDateTimeWnt.h">
+				RelativePath="include\os\wnt\OsDateTimeWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsDefs.h">
+				RelativePath="include\os\OsDefs.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsDirBase.h">
+				RelativePath="include\os\OsDirBase.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsDirWnt.h">
+				RelativePath="include\os\wnt\OsDirWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsEncryption.h">
+				RelativePath="include\os\OsEncryption.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsEvent.h">
+				RelativePath="include\os\OsEvent.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsEventMsg.h">
+				RelativePath="include\os\OsEventMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsExcept.h">
+				RelativePath="include\os\OsExcept.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsFileBase.h">
+				RelativePath="include\os\OsFileBase.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsFileInfoBase.h">
+				RelativePath="include\os\OsFileInfoBase.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsFileInfoWnt.h">
+				RelativePath="include\os\wnt\OsFileInfoWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsFileIteratorBase.h">
+				RelativePath="include\os\OsFileIteratorBase.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsFileIteratorWnt.h">
+				RelativePath="include\os\wnt\OsFileIteratorWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsFileSystem.h">
+				RelativePath="include\os\OsFileSystem.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsFileSystemWnt.h">
+				RelativePath="include\os\wnt\OsFileSystemWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsFileWnt.h">
+				RelativePath="include\os\wnt\OsFileWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsFS.h">
+				RelativePath="include\os\OsFS.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsIntPtrMsg.h">
+				RelativePath=".\include\os\OsIntPtrMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsLock.h">
+				RelativePath="include\os\OsLock.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsLockingList.h">
+				RelativePath="include\os\OsLockingList.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsMsg.h">
+				RelativePath="include\os\OsMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsMsgPool.h">
+				RelativePath="include\os\OsMsgPool.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsMsgQ.h">
+				RelativePath="include\os\OsMsgQ.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsMulticastSocket.h">
+				RelativePath="include\os\OsMulticastSocket.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsMutex.h">
+				RelativePath="include\os\OsMutex.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsMutexWnt.h">
+				RelativePath="include\os\wnt\OsMutexWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsNameDb.h">
+				RelativePath="include\os\OsNameDb.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsNameDbInit.h">
+				RelativePath=".\include\os\OsNameDbInit.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsNotification.h">
+				RelativePath="include\os\OsNotification.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsPathBase.h">
+				RelativePath="include\os\OsPathBase.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsPathWnt.h">
+				RelativePath="include\os\wnt\OsPathWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsProcess.h">
+				RelativePath="include\os\OsProcess.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsProcessIterator.h">
+				RelativePath="include\os\OsProcessIterator.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsProcessIteratorWnt.h">
+				RelativePath="include\os\wnt\OsProcessIteratorWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsProcessMgr.h">
+				RelativePath="include\os\OsProcessMgr.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsProcessWnt.h">
+				RelativePath="include\os\wnt\OsProcessWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsProtectEvent.h">
+				RelativePath="include\os\OsProtectEvent.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsProtectEventMgr.h">
+				RelativePath="include\os\OsProtectEventMgr.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsProtectEventMgrInit.h">
+				RelativePath=".\include\os\OsProtectEventMgrInit.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsPtrMsg.h">
+				RelativePath="include\os\OsPtrMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsQueuedEvent.h">
+				RelativePath="include\os\OsQueuedEvent.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsReadLock.h">
+				RelativePath="include\os\OsReadLock.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsRpcMsg.h">
+				RelativePath="include\os\OsRpcMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsRWMutex.h">
+				RelativePath="include\os\OsRWMutex.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\shared\OsRWMutexShared.h">
+				RelativePath="include\os\shared\OsRWMutexShared.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsServerSocket.h">
+				RelativePath="include\os\OsServerSocket.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsServerTask.h">
+				RelativePath="include\os\OsServerTask.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsSharedLibMgr.h">
+				RelativePath="include\os\OsSharedLibMgr.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsSharedLibMgrWnt.h">
+				RelativePath="include\os\wnt\OsSharedLibMgrWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsSocket.h">
+				RelativePath="include\os\OsSocket.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsSSLConnectionSocket.h">
+				RelativePath="include\os\OsSSLConnectionSocket.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsSSLServerSocket.h">
+				RelativePath="include\os\OsSSLServerSocket.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsStatus.h">
+				RelativePath="include\os\OsStatus.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsSyncBase.h">
+				RelativePath="include\os\OsSyncBase.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsSysLog.h">
+				RelativePath="include\os\OsSysLog.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsSysLogFacilities.h">
+				RelativePath="include\os\OsSysLogFacilities.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsSysLogMsg.h">
+				RelativePath="include\os\OsSysLogMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsSysLogTask.h">
+				RelativePath="include\os\OsSysLogTask.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsTask.h">
+				RelativePath="include\os\OsTask.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsTaskWnt.h">
+				RelativePath="include\os\wnt\OsTaskWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsTime.h">
+				RelativePath="include\os\OsTime.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsTimeLog.h">
+				RelativePath="include\os\OsTimeLog.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsTimer.h">
+				RelativePath="include\os\OsTimer.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsTimerMsg.h">
+				RelativePath="include\os\OsTimerMsg.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsTimerTask.h">
+				RelativePath="include\os\OsTimerTask.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsTLS.h">
+				RelativePath=".\include\os\OsTLS.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsTLSClientConnectionSocket.h">
+				RelativePath=".\include\os\OsTLSClientConnectionSocket.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsTLSConnectionSocket.h">
+				RelativePath=".\include\os\OsTLSConnectionSocket.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsTLSServerConnectionSocket.h">
+				RelativePath=".\include\os\OsTLSServerConnectionSocket.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsTLSServerSocket.h">
+				RelativePath=".\include\os\OsTLSServerSocket.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsTokenizer.h">
+				RelativePath="include\os\OsTokenizer.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsUtil.h">
+				RelativePath="include\os\OsUtil.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\OsUtilWnt.h">
+				RelativePath="include\os\wnt\OsUtilWnt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\OsWriteLock.h">
+				RelativePath="include\os\OsWriteLock.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\PluginHooks.h">
+				RelativePath=".\include\utl\PluginHooks.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\PtTest.h">
+				RelativePath="include\utl\PtTest.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\SipXportLibInit.h">
+				RelativePath=".\include\SipXportLibInit.h"
+				>
 			</File>
 			<File
-				RelativePath="include\xmlparser\tinystr.h">
+				RelativePath="include\xmlparser\tinystr.h"
+				>
 			</File>
 			<File
-				RelativePath="include\xmlparser\tinyxml.h">
+				RelativePath="include\xmlparser\tinyxml.h"
+				>
 			</File>
 			<File
-				RelativePath="include\xmlparser\TiXmlIterator.h">
+				RelativePath="include\xmlparser\TiXmlIterator.h"
+				>
 			</File>
 			<File
-				RelativePath="include\aes\uitypes.h">
+				RelativePath="include\aes\uitypes.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlBool.h">
+				RelativePath=".\include\utl\UtlBool.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlChainPool.h">
+				RelativePath=".\include\utl\UtlChainPool.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlContainable.h">
+				RelativePath="include\utl\UtlContainable.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlContainableAtomic.h">
+				RelativePath=".\include\utl\UtlContainableAtomic.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlContainer.h">
+				RelativePath="include\utl\UtlContainer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlCrc32.h">
+				RelativePath=".\include\utl\UtlCrc32.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlDateTime.h">
+				RelativePath=".\include\utl\UtlDateTime.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlDefs.h">
+				RelativePath="include\utl\UtlDefs.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlDList.h">
+				RelativePath="include\utl\UtlDList.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlDListIterator.h">
+				RelativePath="include\utl\UtlDListIterator.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlHashBag.h">
+				RelativePath="include\utl\UtlHashBag.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlHashBagIterator.h">
+				RelativePath="include\utl\UtlHashBagIterator.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlHashMap.h">
+				RelativePath="include\utl\UtlHashMap.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlHashMapIterator.h">
+				RelativePath="include\utl\UtlHashMapIterator.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlHistogram.h">
+				RelativePath=".\include\utl\UtlHistogram.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlInit.h">
+				RelativePath=".\include\utl\UtlInit.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlInt.h">
+				RelativePath="include\utl\UtlInt.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlIterator.h">
+				RelativePath="include\utl\UtlIterator.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlLink.h">
+				RelativePath=".\include\utl\UtlLink.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlList.h">
+				RelativePath="include\utl\UtlList.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlListIterator.h">
+				RelativePath="include\utl\UtlListIterator.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlLongLongInt.h">
+				RelativePath=".\include\utl\UtlLongLongInt.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlNameValueTokenizer.h">
+				RelativePath=".\include\utl\UtlNameValueTokenizer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlObservable.h">
+				RelativePath=".\include\utl\UtlObservable.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlObservableImpl.h">
+				RelativePath=".\include\utl\UtlObservableImpl.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlRandom.h">
+				RelativePath="include\utl\UtlRandom.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlRegex.h">
+				RelativePath="include\utl\UtlRegex.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlRscStore.h">
+				RelativePath="include\utl\UtlRscStore.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlRscTrace.h">
+				RelativePath="include\utl\UtlRscTrace.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlSerialized.h">
+				RelativePath="include\utl\UtlSerialized.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlSList.h">
+				RelativePath="include\utl\UtlSList.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlSListIterator.h">
+				RelativePath="include\utl\UtlSListIterator.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlSortedList.h">
+				RelativePath="include\utl\UtlSortedList.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlSortedListIterator.h">
+				RelativePath="include\utl\UtlSortedListIterator.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlString.h">
+				RelativePath="include\utl\UtlString.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\UtlTokenizer.h">
+				RelativePath=".\include\utl\UtlTokenizer.h"
+				>
 			</File>
 			<File
-				RelativePath="include\utl\UtlVoidPtr.h">
+				RelativePath="include\utl\UtlVoidPtr.h"
+				>
 			</File>
 			<File
-				RelativePath="include\os\wnt\WIndowsAdapterInfo.h">
+				RelativePath="include\os\wnt\WIndowsAdapterInfo.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\utl\XmlContent.h">
+				RelativePath=".\include\utl\XmlContent.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="NAT"
-			Filter="">
+			>
 			<File
-				RelativePath=".\include\os\IStunSocket.h">
+				RelativePath=".\include\os\IStunSocket.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\NatMsg.cpp">
+				RelativePath=".\src\os\NatMsg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\OsNatAgentTask.cpp">
+				RelativePath=".\src\os\OsNatAgentTask.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsNatAgentTask.h">
+				RelativePath=".\include\os\OsNatAgentTask.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\OsNatConnectionSocket.cpp">
+				RelativePath=".\src\os\OsNatConnectionSocket.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsNatConnectionSocket.h">
+				RelativePath=".\include\os\OsNatConnectionSocket.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\OsNatDatagramSocket.cpp">
+				RelativePath=".\src\os\OsNatDatagramSocket.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsNatDatagramSocket.h">
+				RelativePath=".\include\os\OsNatDatagramSocket.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\OsNatServerSocket.cpp">
+				RelativePath=".\src\os\OsNatServerSocket.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsNatServerSocket.h">
+				RelativePath=".\include\os\OsNatServerSocket.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\OsNatSocketBaseImpl.cpp">
+				RelativePath=".\src\os\OsNatSocketBaseImpl.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\OsNatSocketBaseImpl.h">
+				RelativePath=".\include\os\OsNatSocketBaseImpl.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\StunMessage.cpp">
+				RelativePath=".\src\os\StunMessage.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\StunMessage.h">
+				RelativePath=".\include\os\StunMessage.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\StunUtils.cpp">
+				RelativePath=".\src\os\StunUtils.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\StunUtils.h">
+				RelativePath=".\include\os\StunUtils.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\os\TurnMessage.cpp">
+				RelativePath=".\src\os\TurnMessage.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\TurnMessage.h">
+				RelativePath=".\include\os\TurnMessage.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="hmac-sha1"
-			Filter="">
+			>
 			<File
-				RelativePath=".\src\hmac-sha1\hmac-sha1.c">
+				RelativePath=".\src\hmac-sha1\hmac-sha1.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\hmac-sha1\sha1.c">
+				RelativePath=".\src\hmac-sha1\sha1.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\hmac-sha1\sha1.h">
+				RelativePath=".\src\hmac-sha1\sha1.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="msinttypes"
-			Filter="">
+			>
 			<File
-				RelativePath=".\include\os\msinttypes\inttypes.h">
+				RelativePath=".\include\os\msinttypes\inttypes.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\os\msinttypes\stdint.h">
+				RelativePath=".\include\os\msinttypes\stdint.h"
+				>
 			</File>
 		</Filter>
 	</Files>

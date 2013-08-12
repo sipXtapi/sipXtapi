@@ -1,91 +1,142 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="sipXunitTestSuite"
 	ProjectGUID="{DB95F825-45EE-4D62-825D-F337E2210B01}"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="src\test;..\CPPUnit\include;include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCLibrarianTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="src\test;..\CPPUnit\include;include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"/>
+				Detect64BitPortabilityProblems="true"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCLibrarianTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -94,50 +145,64 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath=".\src\test\sipxunit\TestMonitor.cpp">
+				RelativePath=".\src\test\sipxunit\TestMonitor.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\TestOsSysLogListener.cpp">
+				RelativePath=".\src\test\sipxunit\TestOsSysLogListener.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\TestOutputter.cpp">
+				RelativePath=".\src\test\sipxunit\TestOutputter.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\TestRunner.cpp">
+				RelativePath=".\src\test\sipxunit\TestRunner.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\TestUtilities.cpp">
+				RelativePath=".\src\test\sipxunit\TestUtilities.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\unitmain.cpp">
+				RelativePath=".\src\test\sipxunit\unitmain.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath=".\src\test\sipxunit\TestMonitor.h">
+				RelativePath=".\src\test\sipxunit\TestMonitor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\TestOsSysLogListener.h">
+				RelativePath=".\src\test\sipxunit\TestOsSysLogListener.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\TestOutputter.h">
+				RelativePath=".\src\test\sipxunit\TestOutputter.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\TestRunner.h">
+				RelativePath=".\src\test\sipxunit\TestRunner.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\TestUtilities.h">
+				RelativePath=".\src\test\sipxunit\TestUtilities.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 	</Files>
 	<Globals>

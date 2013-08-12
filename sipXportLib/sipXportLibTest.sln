@@ -1,30 +1,36 @@
-Microsoft Visual Studio Solution File, Format Version 8.00
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLibTest", "sipXportLibTest.vcproj", "{AB8F7343-BC81-4077-B1A5-37CA389FCA93}"
 	ProjectSection(ProjectDependencies) = postProject
-		{83237445-E98E-4F59-BA91-C02F2B00130A} = {83237445-E98E-4F59-BA91-C02F2B00130A}
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "sipXportLib.vcproj", "{83237445-E98E-4F59-BA91-C02F2B00130A}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "sipXportLib.vcproj", "{14631055-9D3F-47E5-B6A7-16BFC0CC8091}"
 EndProject
 Global
-	GlobalSection(SolutionConfiguration) = preSolution
-		Debug = Debug
-		Release = Release
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_SSL|Win32 = Debug_SSL|Win32
+		Debug|Win32 = Debug|Win32
+		Release_SSL|Win32 = Release_SSL|Win32
+		Release|Win32 = Release|Win32
 	EndGlobalSection
-	GlobalSection(ProjectConfiguration) = postSolution
-		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Debug.ActiveCfg = Debug|Win32
-		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Debug.Build.0 = Debug|Win32
-		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Release.ActiveCfg = Release|Win32
-		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Release.Build.0 = Release|Win32
-		{83237445-E98E-4F59-BA91-C02F2B00130A}.Debug.ActiveCfg = Debug|Win32
-		{83237445-E98E-4F59-BA91-C02F2B00130A}.Debug.Build.0 = Debug|Win32
-		{83237445-E98E-4F59-BA91-C02F2B00130A}.Release.ActiveCfg = Release|Win32
-		{83237445-E98E-4F59-BA91-C02F2B00130A}.Release.Build.0 = Release|Win32
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Debug_SSL|Win32.ActiveCfg = Debug|Win32
+		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Debug_SSL|Win32.Build.0 = Debug|Win32
+		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Debug|Win32.Build.0 = Debug|Win32
+		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Release_SSL|Win32.ActiveCfg = Release|Win32
+		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Release_SSL|Win32.Build.0 = Release|Win32
+		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Release|Win32.ActiveCfg = Release|Win32
+		{AB8F7343-BC81-4077-B1A5-37CA389FCA93}.Release|Win32.Build.0 = Release|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug_SSL|Win32.ActiveCfg = Debug_SSL|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug_SSL|Win32.Build.0 = Debug_SSL|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug|Win32.ActiveCfg = Debug|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release_SSL|Win32.ActiveCfg = Release_SSL|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release_SSL|Win32.Build.0 = Release_SSL|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release|Win32.ActiveCfg = Release|Win32
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-	EndGlobalSection
-	GlobalSection(ExtensibilityAddIns) = postSolution
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
