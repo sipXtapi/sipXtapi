@@ -1,97 +1,148 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="libilbc"
 	ProjectGUID="{214007F3-D6E8-4B07-AC00-9FB673FF539E}"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\include;..\src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\lib\libilbcd.lib"/>
+				OutputFile="..\lib\libilbcd.lib"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\include;..\src"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
-				BufferSecurityCheck="FALSE"
+				BufferSecurityCheck="false"
 				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\lib\libilbc.lib"/>
+				OutputFile="..\lib\libilbc.lib"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -100,161 +151,211 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath="..\src\anaFilter.c">
+				RelativePath="..\src\anaFilter.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\constants.c">
+				RelativePath="..\src\constants.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\createCB.c">
+				RelativePath="..\src\createCB.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\doCPLC.c">
+				RelativePath="..\src\doCPLC.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\enhancer.c">
+				RelativePath="..\src\enhancer.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\filter.c">
+				RelativePath="..\src\filter.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\FrameClassify.c">
+				RelativePath="..\src\FrameClassify.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\gainquant.c">
+				RelativePath="..\src\gainquant.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\getCBvec.c">
+				RelativePath="..\src\getCBvec.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\helpfun.c">
+				RelativePath="..\src\helpfun.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\hpInput.c">
+				RelativePath="..\src\hpInput.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\hpOutput.c">
+				RelativePath="..\src\hpOutput.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\iCBConstruct.c">
+				RelativePath="..\src\iCBConstruct.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\iCBSearch.c">
+				RelativePath="..\src\iCBSearch.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\iLBC_decode.c">
+				RelativePath="..\src\iLBC_decode.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\iLBC_encode.c">
+				RelativePath="..\src\iLBC_encode.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\LPCdecode.c">
+				RelativePath="..\src\LPCdecode.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\LPCencode.c">
+				RelativePath="..\src\LPCencode.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\lsf.c">
+				RelativePath="..\src\lsf.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\packing.c">
+				RelativePath="..\src\packing.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\StateConstructW.c">
+				RelativePath="..\src\StateConstructW.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\StateSearchW.c">
+				RelativePath="..\src\StateSearchW.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\syntFilter.c">
+				RelativePath="..\src\syntFilter.c"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath="..\src\anaFilter.h">
+				RelativePath="..\src\anaFilter.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\constants.h">
+				RelativePath="..\src\constants.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\createCB.h">
+				RelativePath="..\src\createCB.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\doCPLC.h">
+				RelativePath="..\src\doCPLC.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\enhancer.h">
+				RelativePath="..\src\enhancer.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\filter.h">
+				RelativePath="..\src\filter.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\FrameClassify.h">
+				RelativePath="..\src\FrameClassify.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\gainquant.h">
+				RelativePath="..\src\gainquant.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\getCBvec.h">
+				RelativePath="..\src\getCBvec.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\helpfun.h">
+				RelativePath="..\src\helpfun.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\hpInput.h">
+				RelativePath="..\src\hpInput.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\hpOutput.h">
+				RelativePath="..\src\hpOutput.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\iCBConstruct.h">
+				RelativePath="..\src\iCBConstruct.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\iCBSearch.h">
+				RelativePath="..\src\iCBSearch.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\LPCdecode.h">
+				RelativePath="..\src\LPCdecode.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\LPCencode.h">
+				RelativePath="..\src\LPCencode.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\lsf.h">
+				RelativePath="..\src\lsf.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\packing.h">
+				RelativePath="..\src\packing.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\StateConstructW.h">
+				RelativePath="..\src\StateConstructW.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\StateSearchW.h">
+				RelativePath="..\src\StateSearchW.h"
+				>
 			</File>
 			<File
-				RelativePath="..\src\syntFilter.h">
+				RelativePath="..\src\syntFilter.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 		<Filter
 			Name="Public Header Files"
-			Filter="">
+			>
 			<File
-				RelativePath="..\include\iLBC_decode.h">
+				RelativePath="..\include\iLBC_decode.h"
+				>
 			</File>
 			<File
-				RelativePath="..\include\iLBC_define.h">
+				RelativePath="..\include\iLBC_define.h"
+				>
 			</File>
 			<File
-				RelativePath="..\include\iLBC_encode.h">
+				RelativePath="..\include\iLBC_encode.h"
+				>
 			</File>
 		</Filter>
 	</Files>

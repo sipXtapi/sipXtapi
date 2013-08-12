@@ -1,72 +1,123 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="libamrwb"
 	ProjectGUID="{A68385EC-6D5E-4F09-9F69-F3338DED55F4}"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="2"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\..\..\sipXportLib\include\os\msinttypes"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBAMRWB_EXPORTS"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/libamrwb.dll"
 				LinkIncremental="2"
 				ModuleDefinitionFile="libamrwb.def"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/libamrwb.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/libamrwb.lib"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="2"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories=".;..\..\..\sipXportLib\include\os\msinttypes"
@@ -74,41 +125,53 @@
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/libamrwb.dll"
 				LinkIncremental="1"
 				ModuleDefinitionFile="libamrwb.def"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/libamrwb.lib"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -117,125 +180,164 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath=".\dec_acelp.c">
+				RelativePath=".\dec_acelp.c"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_dtx.c">
+				RelativePath=".\dec_dtx.c"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_gain.c">
+				RelativePath=".\dec_gain.c"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_if.c">
+				RelativePath=".\dec_if.c"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_lpc.c">
+				RelativePath=".\dec_lpc.c"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_main.c">
+				RelativePath=".\dec_main.c"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_rom.c">
+				RelativePath=".\dec_rom.c"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_util.c">
+				RelativePath=".\dec_util.c"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_acelp.c">
+				RelativePath=".\enc_acelp.c"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_dtx.c">
+				RelativePath=".\enc_dtx.c"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_gain.c">
+				RelativePath=".\enc_gain.c"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_if.c">
+				RelativePath=".\enc_if.c"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_lpc.c">
+				RelativePath=".\enc_lpc.c"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_main.c">
+				RelativePath=".\enc_main.c"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_rom.c">
+				RelativePath=".\enc_rom.c"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_util.c">
+				RelativePath=".\enc_util.c"
+				>
 			</File>
 			<File
-				RelativePath=".\if_rom.c">
+				RelativePath=".\if_rom.c"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath=".\dec.h">
+				RelativePath=".\dec.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_acelp.h">
+				RelativePath=".\dec_acelp.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_dtx.h">
+				RelativePath=".\dec_dtx.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_gain.h">
+				RelativePath=".\dec_gain.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_if.h">
+				RelativePath=".\dec_if.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_lpc.h">
+				RelativePath=".\dec_lpc.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_main.h">
+				RelativePath=".\dec_main.h"
+				>
 			</File>
 			<File
-				RelativePath=".\dec_util.h">
+				RelativePath=".\dec_util.h"
+				>
 			</File>
 			<File
-				RelativePath=".\enc.h">
+				RelativePath=".\enc.h"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_acelp.h">
+				RelativePath=".\enc_acelp.h"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_dtx.h">
+				RelativePath=".\enc_dtx.h"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_gain.h">
+				RelativePath=".\enc_gain.h"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_if.h">
+				RelativePath=".\enc_if.h"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_lpc.h">
+				RelativePath=".\enc_lpc.h"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_main.h">
+				RelativePath=".\enc_main.h"
+				>
 			</File>
 			<File
-				RelativePath=".\enc_util.h">
+				RelativePath=".\enc_util.h"
+				>
 			</File>
 			<File
-				RelativePath=".\if_rom.h">
+				RelativePath=".\if_rom.h"
+				>
 			</File>
 			<File
-				RelativePath=".\typedef.h">
+				RelativePath=".\typedef.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 		<File
-			RelativePath=".\libamrwb.def">
+			RelativePath=".\libamrwb.def"
+			>
 		</File>
 	</Files>
 	<Globals>
