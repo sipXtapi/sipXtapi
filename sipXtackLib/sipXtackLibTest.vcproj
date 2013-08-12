@@ -1,37 +1,67 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="sipXtackLibTest"
-	ProjectGUID="{AB8F7343-BC81-4077-B1A5-37CA389FCA93}"
+	ProjectGUID="{806B3CE3-4C40-4757-831C-338C6A83D459}"
 	RootNamespace="sipXtackLibTest"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\src\test;..\sipXsdpLib\include;..\CPPUnit\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib cppunitd.lib pcre.lib"
@@ -40,37 +70,58 @@
 				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;..\CPPUnit\lib"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="nss3.dll;smime3.dll;nspr4.dll;plc4.dll;ssl3.dll"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/sipXtackLibTest.pdb"
 				SubSystem="1"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\src\test;..\sipXsdpLib\include;..\CPPUnit\include"
@@ -78,10 +129,18 @@
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib cppunit.lib pcre.lib"
@@ -89,31 +148,35 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=".\Release;..\sipXportLib\release;..\CPPUnit\lib"
 				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -122,98 +185,128 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath=".\src\test\net\HttpBodyTest.cpp">
+				RelativePath=".\src\test\net\HttpBodyTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\HttpMessageTest.cpp">
+				RelativePath=".\src\test\net\HttpMessageTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\NameValuePairInsensitiveTest.cpp">
+				RelativePath=".\src\test\net\NameValuePairInsensitiveTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\NameValuePairTest.cpp">
+				RelativePath=".\src\test\net\NameValuePairTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\NetAttributeTokenizerTest.cpp">
+				RelativePath=".\src\test\net\NetAttributeTokenizerTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\NetBase64CodecTest.cpp">
+				RelativePath=".\src\test\net\NetBase64CodecTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\NetMd5CodecTest.cpp">
+				RelativePath=".\src\test\net\NetMd5CodecTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SdpBodyTest.cpp">
+				RelativePath=".\src\test\net\SdpBodyTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\SdpHelperTest.cpp">
+				RelativePath=".\src\test\SdpHelperTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipContactDbTest.cpp">
+				RelativePath=".\src\test\net\SipContactDbTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipDialogEventTest.cpp">
+				RelativePath=".\src\test\net\SipDialogEventTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipDialogMonitorTest.cpp">
+				RelativePath=".\src\test\net\SipDialogMonitorTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipDialogTest.cpp">
+				RelativePath=".\src\test\net\SipDialogTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipMessageTest.cpp">
+				RelativePath=".\src\test\net\SipMessageTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipPresenceEventTest.cpp">
+				RelativePath=".\src\test\net\SipPresenceEventTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipProxyMessageTest.cpp">
+				RelativePath=".\src\test\net\SipProxyMessageTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipPublishContentMgrTest.cpp">
+				RelativePath=".\src\test\net\SipPublishContentMgrTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipRefreshManagerTest.cpp">
+				RelativePath=".\src\test\net\SipRefreshManagerTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipServerShutdownTest.cpp">
+				RelativePath=".\src\test\net\SipServerShutdownTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipSrvLookupTest.cpp">
+				RelativePath=".\src\test\net\SipSrvLookupTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipSubscribeServerTest.cpp">
+				RelativePath=".\src\test\net\SipSubscribeServerTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipSubscriptionClientTest.cpp">
+				RelativePath=".\src\test\net\SipSubscriptionClientTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipSubscriptionMgrTest.cpp">
+				RelativePath=".\src\test\net\SipSubscriptionMgrTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipUserAgentTest.cpp">
+				RelativePath=".\src\test\net\SipUserAgentTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\UrlTest.cpp">
+				RelativePath=".\src\test\net\UrlTest.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\XmlRpcTest.cpp">
+				RelativePath=".\src\test\net\XmlRpcTest.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath=".\stdafx.h">
+				RelativePath=".\stdafx.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 	</Files>
 	<Globals>
