@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2011 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2013 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -17,15 +16,14 @@
 // SYSTEM INCLUDES
 #include <stdarg.h>
 // APPLICATION INCLUDES
-#include "utl/UtlDefs.h"
-#include "os/OsSysLogFacilities.h"
-#include "os/OsSocket.h"
-#include "os/OsDefs.h"
-#include "os/OsStatus.h"
-#include "os/OsTime.h"
-#include "os/OsAtomics.h"
-
-typedef pthread_t OsTaskId_t;
+#include <utl/UtlDefs.h>
+#include <os/OsSysLogFacilities.h>
+#include <os/OsSocket.h>
+#include <os/OsDefs.h>
+#include <os/OsStatus.h>
+#include <os/OsTime.h>
+#include <os/OsAtomics.h>
+#include <os/OsTaskId.h>
 
 // DEFINES
 #define SYSLOG_NUM_PRIORITIES    8  // Number of OsSysLogPriority entries

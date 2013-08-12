@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2013 SIPez LLC. All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -14,12 +16,13 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsMsgQ.h"
-#include "os/OsMutex.h"
-#include "os/OsStatus.h"
-#include "os/OsSysLog.h"
-#include "os/OsAtomics.h"
+#include <os/OsDefs.h>
+#include <os/OsMsgQ.h>
+#include <os/OsMutex.h>
+#include <os/OsStatus.h>
+#include <os/OsSysLog.h>
+#include <os/OsAtomics.h>
+#include <os/OsTaskId.h>
 
 // DEFINES
 #define OSTASK_STACK_SIZE_1M 1024*1024
@@ -31,17 +34,6 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class OsTime;
-
-#if defined(_WIN32)
-   typedef intptr_t OsTaskId_t; // Not sure this is proper for this platform...
-#elif defined(_VXWORKS)
-   typedef intptr_t OsTaskId_t; // Not sure this is proper for this platform...
-#elif defined(__pingtel_on_posix__)
-   typedef pthread_t OsTaskId_t;
-#else
-#  error Unsupported target platform.
-#endif
-
 
 //:Task abstraction
 // A task represents a thread of execution. All tasks run within the same

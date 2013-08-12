@@ -98,6 +98,7 @@ nobase_include_HEADERS = \
     os/OsSysLogMsg.h \
     os/OsSysLogTask.h \
     os/OsTask.h \
+    os/OsTaskId.h \
     os/OsTime.h \
     os/OsTimeLog.h \
     os/OsTimer.h \
