@@ -1,22 +1,44 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="sipXsdpLib"
-	ProjectGUID="{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}">
+	ProjectGUID="{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
@@ -24,97 +46,126 @@
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/sipXsdpLib.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
 				BrowseInformation="1"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\Debug\sipXsdpLib.lib"
-				SuppressStartupBanner="TRUE"
-				IgnoreDefaultLibraryNames="msvcrt.lib"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				OutputFile=".\Debug\sipXsdpLib.lib"
+				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames="msvcrt.lib"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXportLib\include;..\..\resip\"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release/sipXsdpLib.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				CompileAs="0"/>
+				SuppressStartupBanner="true"
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\Release\sipXsdpLib.lib"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Culture="1033"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLibrarianTool"
+				OutputFile=".\Release\sipXsdpLib.lib"
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -122,58 +173,76 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath="src\sdp\Sdp.cpp">
+				RelativePath="src\sdp\Sdp.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\sdp\SdpCandidate.cpp">
+				RelativePath="src\sdp\SdpCandidate.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\sdp\SdpCandidatePair.cpp">
+				RelativePath="src\sdp\SdpCandidatePair.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\sdp\SdpCodec.cpp">
+				RelativePath="src\sdp\SdpCodec.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\sdp\SdpCodecList.cpp">
+				RelativePath=".\src\sdp\SdpCodecList.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\src\sdp\SdpDefaultCodecFactory.cpp">
+				RelativePath=".\src\sdp\SdpDefaultCodecFactory.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\sdp\SdpHelperResip.cpp">
+				RelativePath="src\sdp\SdpHelperResip.cpp"
+				>
 			</File>
 			<File
-				RelativePath="src\sdp\SdpMediaLine.cpp">
+				RelativePath="src\sdp\SdpMediaLine.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath="include\sdp\Sdp.h">
+				RelativePath="include\sdp\Sdp.h"
+				>
 			</File>
 			<File
-				RelativePath="include\sdp\SdpCandidate.h">
+				RelativePath="include\sdp\SdpCandidate.h"
+				>
 			</File>
 			<File
-				RelativePath="include\sdp\SdpCandidatePair.h">
+				RelativePath="include\sdp\SdpCandidatePair.h"
+				>
 			</File>
 			<File
-				RelativePath="include\sdp\SdpCodec.h">
+				RelativePath="include\sdp\SdpCodec.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\sdp\SdpCodecList.h">
+				RelativePath=".\include\sdp\SdpCodecList.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\sdp\SdpDefaultCodecFactory.h">
+				RelativePath=".\include\sdp\SdpDefaultCodecFactory.h"
+				>
 			</File>
 			<File
-				RelativePath="include\sdp\SdpHelperResip.h">
+				RelativePath="include\sdp\SdpHelperResip.h"
+				>
 			</File>
 			<File
-				RelativePath="include\sdp\SdpMediaLine.h">
+				RelativePath="include\sdp\SdpMediaLine.h"
+				>
 			</File>
 		</Filter>
 	</Files>
