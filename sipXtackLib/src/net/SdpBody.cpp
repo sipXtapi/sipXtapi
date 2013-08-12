@@ -20,6 +20,7 @@
 #include <os/OsSysLog.h>
 #include <utl/UtlSListIterator.h>
 #include <utl/UtlTokenizer.h>
+#include <utl/UtlLongLongInt.h>
 #include <sdp/SdpCodec.h>
 #include <sdp/SdpMediaLine.h>
 #include <net/SdpBody.h>
@@ -3066,7 +3067,7 @@ UtlBoolean SdpBody::getCandidateAttribute(int mediaIndex,
                             tmpCandidateId.strip(UtlString::leading, ':') ;
 
                             rCandidateId = atoi(tmpCandidateId) ;
-                            rQvalue = atoll(tmpQvalue) ;
+                            rQvalue = UtlLongLongInt::stringToLongLong(tmpQvalue) ;
                             rCandidatePort = atoi(tmpCandidatePort) ;
                        
                             found = TRUE;
