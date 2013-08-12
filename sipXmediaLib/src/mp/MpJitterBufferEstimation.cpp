@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2008-2013 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -41,6 +40,8 @@ MpJitterBufferEstimation *MpJitterBufferEstimation::createJbe(const UtlString &a
    else
    {
 #ifdef EXTERNAL_JB_ESTIMATION // [
+       OsSysLog::add(FAC_MP, PRI_DEBUG, "MpJitterBufferEstimation::createJbe(%s) using external JB", algName.data());
+
       return ::createJbe(name.data());
 
 #else // EXTERNAL_VAD ][

@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2008-2013 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -40,6 +39,8 @@ MpAgcBase *MpAgcBase::createAgc(const UtlString &name)
    else
    {
 #ifdef EXTERNAL_AGC // [
+       OsSysLog::add(FAC_MP, PRI_DEBUG, "MpAgcBase::createAgc(%s) using external AGC", name.data());
+
       return ::createAgc(algName.data());
 
 #else // EXTERNAL_AGC ][
