@@ -416,7 +416,7 @@ OsStatus OsTaskWnt::varGet(void)
 /* ============================ INQUIRY =================================== */
 
 // Get the task ID for this task
-OsStatus OsTaskWnt::id(int& rId)
+OsStatus OsTaskWnt::id(OsTaskId_t& rId)
 {
    OsStatus retVal = OS_SUCCESS;
 

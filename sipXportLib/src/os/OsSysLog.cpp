@@ -23,7 +23,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include <pthread.h>
+#ifdef __pingtel_on_posix__
+#    include <pthread.h>
+#endif
 
 #ifdef ANDROID
 #  include <android/log.h>
@@ -365,7 +367,11 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
             taskName = pBase->getName() ;
             pBase->id(taskId) ;
          } else {
+
+             // TODO: should get abstracted into a OsTaskBase method
+#ifdef __pingtel_on_posix__
             OsTaskLinux::getCurrentTaskId(taskId );
+#endif
             taskName = "Anon";
             // OsTask::getIdString_d(taskName, taskId);
          }
@@ -410,7 +416,10 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          UtlString   strTime ;
          logTime.getIsoTimeStringZus(strTime) ;
          UtlString   taskHex;
+         // TODO: Should get abstracted into a OsTaskBase method
+#ifdef __pingtel_on_posix__
          OsTaskLinux::getIdString_X(taskHex, taskId);
+#endif
 
          mysprintf(logEntry, "\"%s\":%d:%s:%s:%s:%s:%s:%s:\"%s\"",
                strTime.data(),
@@ -1035,7 +1044,10 @@ OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
     OsTaskId_t tid;
     UtlString taskHex("ENTER FUNC (tid=");
     OsTask::getCurrentTaskId(tid);
+    //TODO: should get abstracted into a OsTaskBase method
+#ifdef __pingtel_on_posix__
     OsTaskLinux::getIdString_X(taskHex, tid);
+#endif
     OsSysLog::add(mFacility, mPriority, "%s) %s\n",
         taskHex.data(), methodName);
 }
@@ -1045,7 +1057,10 @@ OsStackTraceLogger::~OsStackTraceLogger()
     OsTaskId_t tid;
     UtlString taskHex("EXIT  FUNC (tid=");
     OsTask::getCurrentTaskId(tid);
+    // TODO: should get abstracted into a OsTaskBase method
+#ifdef __pingtel_on_posix__
     OsTaskLinux::getIdString_X(taskHex, tid);
+#endif
     OsSysLog::add(mFacility, mPriority, "%s) %s\n",
         taskHex.data(), mMethodName.data());
 }
@@ -1062,7 +1077,10 @@ OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
     UtlString taskHex("ENTER FUNC (tid=");
     mMethodName = UtlString(oneBackInStack.mMethodName) + UtlString("->") + mMethodName;
     OsTask::getCurrentTaskId(tid);
+    // TODO: should get abstracted into an OsTaskBase method
+#ifdef __pingtel_on_posix__
     OsTaskLinux::getIdString_X(taskHex, tid);
+#endif
     OsSysLog::add(mFacility, mPriority, "%s) %s\n",
         taskHex.data(), mMethodName.data());
 }
