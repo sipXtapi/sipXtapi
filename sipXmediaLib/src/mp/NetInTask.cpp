@@ -766,7 +766,7 @@ OsStatus NetInTask::addNetInputSources(OsSocket* pRtpSocket, OsSocket* pRtcpSock
                                        MprFromNet* fwdTo, OsNotification* notify)
 {
    netInTaskMsg msg;
-   bzero(&msg, NET_TASK_MAX_MSG_LEN);
+   memset(&msg, 0, NET_TASK_MAX_MSG_LEN);
    int wrote = 0;
 
    if (NULL != fwdTo)
