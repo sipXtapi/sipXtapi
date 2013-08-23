@@ -1,11 +1,11 @@
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/sipXcommon.am.inc
 
 bin_PROGRAMS = PlaceCall
 
 INCLUDES = -Iinclude
 
 PlaceCall_LDADD = \
-	$(top_builddir)/src/libsipXcall.la \
+	$(top_builddir)/sipXcallLib/src/libsipXcall.la \
     @SIPXMEDIA_MP_LIBS@ \
     @CA_LIBS@
 #    @SIPXMEDIA_VE_LIBS@  \

@@ -3,9 +3,12 @@
 SUBDIRS = . test
 
 INCLUDES = \
-	-I$(top_srcdir)/interface \
-	-I$(top_srcdir)/sipXmediaMediaProcessing/include \
-	-I$(top_srcdir)/../sipXcallLib/include
+	-I$(top_srcdir)/sipXmediaAdapterLib/interface \
+	-I$(top_srcdir)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include \
+	-I$(top_srcdir)/sipXmediaLib/include \
+	-I$(top_srcdir)/sipXtackLib/include \
+	-I$(top_srcdir)/sipXsdpLib/include \
+	-I$(top_srcdir)/sipXportLib/include
 
 lib_LTLIBRARIES = libsipXmediaProcessing.la
 
@@ -23,7 +26,6 @@ libsipXmediaProcessing_la_LDFLAGS = -version-info ${version_Current}:${version_R
 
 libsipXmediaProcessing_la_CXXFLAGS = \
 	@INTERFACE_FLAGS@ \
-	@SSL_CXXFLAGS@ \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
         ${VIDEO_DEFINE} \
@@ -31,8 +33,7 @@ libsipXmediaProcessing_la_CXXFLAGS = \
 
 libsipXmediaProcessing_la_LIBADD = \
 	../../interface/libmediainterface.la \
-	@SIPXPORT_LIBS@ \
-	@SSL_LIBS@ \
+	$(top_builddir)/sipXportLib/src/libsipXport.la \
 	-lresolv
 
 libsipXmediaProcessing_la_SOURCES =  \

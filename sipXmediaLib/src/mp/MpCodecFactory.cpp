@@ -268,12 +268,16 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
 
 OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFilter)
 {
-   OsPath ospath = path;
+   const char* _path = path;
+   if(_path == NULL)
+      _path = DEFAULT_CODECS_PATH;
+
+   OsPath ospath = _path;
    OsPath module;
    OsFileIterator fi(ospath);
 
    OsSysLog::add(FAC_MP, PRI_INFO, "MpCodecFactory::loadAllDynCodecs(\"%s\", \"%s\")",
-                 path, regexFilter);
+                 _path, regexFilter);
 
    OsStatus res;
    res = fi.findFirst(module, regexFilter);
@@ -282,7 +286,7 @@ OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFil
       return OS_NOT_FOUND;
 
    do {
-      UtlString str = path;
+      UtlString str = _path;
       str += OsPathBase::separator;
       str += module.data();
       res = loadDynCodec(str.data());

@@ -1,5 +1,5 @@
 
-include $(top_srcdir)/ant-targets.am
+include ../ant-targets.am
 
 EXTRA_DIST = \
   build.xml \

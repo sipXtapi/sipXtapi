@@ -2,16 +2,6 @@
 ## AC macros for general packages like OpenSSL, Xerces, etc
 ##
 
-# ============= A U T O C O N F ===============
-AC_DEFUN([CHECK_AUTOCONF],
-[
-    AC_PATH_PROG([AUTOCONF], autoconf)
-    if test `autoconf --version | grep "2.58" | wc -c` -ne 0 ; then
-        AC_MSG_WARN(["Autoconf 2.58 was found on system.  If you are a maintainer of this library it has known incompatilities.  If you are not a maintainer, 2.58 has serious bugs and you should consider upgrading autoconf"]);
-    fi
-])
-
-
 # ============ C L O V E R  =======================
 AC_DEFUN([CHECK_CLOVER],
 [
@@ -34,131 +24,6 @@ AC_DEFUN([CHECK_CLOVER],
        ],)
    fi
 ])
-
-# ============= C P P U N I T ==================
-dnl
-dnl AM_PATH_CPPUNIT(MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
-dnl
-AC_DEFUN([AM_PATH_CPPUNIT],
-[
-
-AC_ARG_WITH(cppunit, [  --with-cppunit (use --without-cppunit to use sipX portable unit test framework)],
-            with_cppunit=$withval, with_cppunit="no")
-AC_ARG_WITH(cppunit-config,[  --with-cppunit-config=PATH  Path to cppunit-config (optional)],
-            cppunit_config_path="$withval", cppunit_config_path="")
-AC_ARG_WITH(cppunit-prefix,[  --with-cppunit-prefix=PFX   Prefix where CppUnit is installed (optional)],
-            cppunit_config_prefix="$withval", cppunit_config_prefix="")
-AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix where CppUnit is installed (optional)],
-            cppunit_config_exec_prefix="$withval", cppunit_config_exec_prefix="")
-
-  AC_MSG_WARN(with_cppunit: \"$with_cppunit\")
-
-  # If config options did not disable use of CPPUNIT:
-  if test "$with_cppunit" != "no" ; then
-    if test x$cppunit_config_path != x ; then
-      if test -f "$cppunit_config_path/cppunit-config" ; then
-        CPPUNIT_CONFIG=$cppunit_config_path/cppunit-config
-      elif test -f "$cppunit_config_path" ; then
-        CPPUNIT_CONFIG=$cppunit_config_path
-      fi
-    fi
-    if test x$cppunit_config_exec_prefix != x ; then
-      cppunit_config_args="$cppunit_config_args --exec-prefix=$cppunit_config_exec_prefix"
-      if test x${CPPUNIT_CONFIG+set} != xset ; then
-        CPPUNIT_CONFIG=$cppunit_config_exec_prefix/bin/cppunit-config
-      fi
-    fi
-    if test x$cppunit_config_prefix != x ; then
-      cppunit_config_args="$cppunit_config_args --prefix=$cppunit_config_prefix"
-      if test x${CPPUNIT_CONFIG+set} != xset ; then
-        CPPUNIT_CONFIG=$cppunit_config_prefix/bin/cppunit-config
-      fi
-    fi          
-
-    AC_PATH_PROG(CPPUNIT_CONFIG, cppunit-config, no)
-    cppunit_version_min=$1
-
-    AC_MSG_CHECKING(for Cppunit - version >= $cppunit_version_min)
-    no_cppunit=""
-    if test "$CPPUNIT_CONFIG" = "no" ; then
-      AC_MSG_RESULT(no)
-      no_cppunit=yes
-    else
-      CPPUNIT_CFLAGS=`$CPPUNIT_CONFIG --cflags`
-      CPPUNIT_LIBS=`$CPPUNIT_CONFIG --libs`
-      cppunit_version=`$CPPUNIT_CONFIG --version`
-
-      cppunit_major_version=`echo $cppunit_version | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
-      cppunit_minor_version=`echo $cppunit_version | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
-      cppunit_micro_version=`echo $cppunit_version | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
-
-      cppunit_major_min=`echo $cppunit_version_min | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
-      if test "x${cppunit_major_min}" = "x" ; then
-        cppunit_major_min=0
-      fi
-
-      cppunit_minor_min=`echo $cppunit_version_min | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
-      if test "x${cppunit_minor_min}" = "x" ; then
-        cppunit_minor_min=0
-      fi
-
-      cppunit_micro_min=`echo $cppunit_version_min | \
-             sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
-      if test "x${cppunit_micro_min}" = "x" ; then
-         cppunit_micro_min=0
-      fi                                                                                                                  
-
-      cppunit_version_proper=`expr \
-          $cppunit_major_version \> $cppunit_major_min \| \
-          $cppunit_major_version \= $cppunit_major_min \& \
-          $cppunit_minor_version \> $cppunit_minor_min \| \
-          $cppunit_major_version \= $cppunit_major_min \& \
-          $cppunit_minor_version \= $cppunit_minor_min \& \
-          $cppunit_micro_version \>= $cppunit_micro_min `
-
-      if test "$cppunit_version_proper" = "1" ; then
-        AC_MSG_RESULT([$cppunit_major_version.$cppunit_minor_version.$cppunit_micro_version])
-      else
-        AC_MSG_RESULT(no)
-        no_cppunit=yes
-      fi
-    fi
-
-    SIPX_UNIT_TARGET="sipxunit"
-
-  # --without-cppunit
-  else
-     no_cppunit=yes
-     AC_MSG_WARN(Cppunit disabled by --without-cppunit)
-  fi
-
-  if test "x$no_cppunit" = x ; then
-     ifelse([$2], , :, [$2])
-  else
-     CPPUNIT_CFLAGS=" -DNO_CPPUNIT -I\$(sipx_abs_srcdir)/../sipXportLib/src/test/sipxportunit "
-     CPPUNIT_LIBS=""
-     SIPX_UNIT_TARGET="sipxportunit"
-     AC_MSG_WARN(Using sipx portable unit test framework.)
-  fi
-
-  AC_SUBST(CPPUNIT_CFLAGS)
-  AC_SUBST(CPPUNIT_LIBS)
-  AC_SUBST(SIPX_UNIT_TARGET)
-])   
-
-AC_DEFUN([CHECK_CPPUNIT],
-[
-    AM_PATH_CPPUNIT(1.9,
-      [],
-      [AC_MSG_ERROR("cppunit not found")]
-    )
-])
-                                                                                                                        
 
 # ============ T O M C A T  =======================
 AC_DEFUN([CHECK_TOMCAT_HOME],
@@ -274,121 +139,28 @@ AC_DEFUN([CHECK_ANT],
 # OpenSSL is required
 #
 AC_DEFUN([CHECK_SSL],
-[   AC_ARG_WITH(openssl,
-                [  --with-openssl=PATH      to openssl source directory],
-                [openssl_path=$withval],
-                [openssl_path="/usr/local /usr/local/ssl /usr/ssl /usr/pkg /usr / /sw/lib"]
-                )
-    if test "$withval" != "no" ; then
-    
-    AC_MSG_RESULT(openssl option: ${with-openssl} withval: ${withval})
-    AC_PATH_PROG([OPENSSL],[openssl])
-    AC_MSG_CHECKING([for openssl includes])
-    found_ssl_inc="no";
-    tried_path=""
-    for dir in $openssl_path ; do
-        if test -f "$dir/openssl/ssl.h"; then
-            found_ssl_inc="yes";
-            sslincdir="$dir"
-            break;
-        elif test -f "$dir/include/openssl/ssl.h"; then
-            found_ssl_inc="yes";
-            sslincdir="$dir/include"
-            break;
-        else
-            tried_path="${tried_path} $dir $dir/include"
-        fi
-    done
-    if test x_$found_ssl_inc != x_yes ; then
-        AC_MSG_ERROR(['openssl/ssl.h' not found; tried ${tried_path}])
-    else
-        AC_MSG_RESULT($sslincdir)
-        HAVE_SSL=yes
-        AC_SUBST(HAVE_SSL)
-        SSL_CFLAGS="-DHAVE_SSL"
-
-        # don't need to add -I/usr/include
-        if test "${sslincdir}" != "/usr/include"; then
-           SSL_CFLAGS="$SSL_CFLAGS -I$sslincdir"
-        fi
-    fi
-
-    AC_MSG_CHECKING([for openssl libraries])
-    found_ssl_lib="no";
-    for dir in $openssl_path ; do
-        if test -f "$dir/lib/libssl.so" -o "$dir/lib/libssl.a"; then
-            found_ssl_lib="yes";
-            ssllibdir="$dir/lib"
-            break;
-        # This test is an ugly hack to make sure that the current builds work.
-        # But our test should be improved to allow libssl.so to have any version
-        # and let the test succeed, since "-lssl" works with any version number.
-        elif test -f "$dir/lib/libssl.so.4"; then
-            found_ssl_lib="yes";
-            ssllibdir="$dir/lib"
-            break;
-        elif test -f "$dir/lib/openssl/libssl.so"; then
-            found_ssl_lib="yes";
-            ssllibdir="$dir/lib/openssl"
-            break;
-        elif test -f "$dir/lib/ssl/libssl.so"; then
-            found_ssl_lib="yes";
-            ssllibdir="$dir/lib/ssl"
-            break;
-        fi
-    done
-
-    if test x_$found_ssl_lib != x_yes ; then
-        AC_MSG_ERROR(['libssl.so' not found; tried $openssl_path, each with lib, lib/openssl, and lib/ssl])
-    else
-        AC_MSG_RESULT($ssllibdir)
-        AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir")
-        AC_SUBST(SSL_LIBS,"-lssl -lcrypto")
-    fi
-
-## openssl-devel rpm installs kerbose in another dir
-    AC_MSG_CHECKING(for extra kerberos includes)
-    krb_found="no"
-    for krbdir in $openssl_path ; do
-      if test -f "$krbdir/kerberos/include/krb5.h"; then
-        krb_found="yes"
-        break;
-      fi
-    done
-    if test x_$krb_found = x_yes; then
-        AC_MSG_RESULT($krbdir/kerberos/include)
-        SSL_CFLAGS="$SSL_CFLAGS -I$krbdir/kerberos/include"
-    else
-        AC_MSG_RESULT(['kerberos/include/krb5.h' not found - looked in $openssl_path])
-    fi
-
-    AC_SUBST(SSL_CFLAGS,"$SSL_CFLAGS")
-    AC_SUBST(SSL_CXXFLAGS,"$SSL_CFLAGS")
-
-    fi # end if with openssl
-])
-
-
-# ============ L I B R T  =========================
-AC_DEFUN([CHECK_LIBRT],
 [
-   AC_MSG_CHECKING([for librt])
-
-   rt_found="no"
-   for dir in /lib /usr/lib /usr/local/lib; do
-      if test -f "$dir/librt.so.1"; then
-        rt_found="yes"
-        break;
-      fi
-   done
-   if test x_$rt_found = x_yes; then
-        AC_SUBST(RT_LIBS,"-lrt")
-	AC_MSG_RESULT([-lrt])
-   else
-        AC_SUBST(RT_LIBS,"")
-        AC_MSG_RESULT([not needed])
-   fi
+AC_CHECK_HEADER(
+  [openssl/ssl.h],,
+  [ AC_CHECK_HEADER(
+      [openssl/ssl.h],,
+      [ AC_CHECK_HEADER(
+          [ssl.h],,
+          [ AC_CHECK_HEADER(
+              [ssl.h],,
+              [ AC_MSG_ERROR([Failed to find OpenSSL (ssl.h)]) ],
+              [krb5.h]
+            )
+          ]
+        )
+      ],
+      [krb5.h]
+    )
+  ]
+)
+CPPFLAGS="${CPPFLAGS} -DHAVE_SSL"
 ])
+
 
 # ============ C O R E A U D I O =======================
 
@@ -422,280 +194,6 @@ AC_DEFUN([CHECK_CARBON],
         AC_MSG_RESULT([not needed])
     fi
 ])
-
-
-# ============ X E R C E S ==================
-AC_DEFUN([CHECK_XERCES],
-[   AC_MSG_CHECKING([for xerces])
-    AC_ARG_WITH(xerces,
-                [--with-xerces=PATH to xerces source directory],
-                [xerces_path=$with_val],
-                [xerces_path="/usr/local/xercesc /usr/lib/xercesc /usr/xercesc /usr/pkg /usr/local /usr"]
-                )
-    for dir in $xerces_path ; do
-        xercesdir="$dir"
-        if test -f "$dir/include/xercesc/sax/Parser.hpp"; then
-            found_xerces="yes";
-            XERCES_CFLAGS="-I$xercesdir/include/xercesc";
-            break;
-        fi
-        if test -f "$dir/include/sax/Parser.hpp"; then
-            found_xerces="yes";
-            XERCES_CFLAGS="-I$xercesdir/include";
-            break;
-        fi
-    done
-
-    if test x_$found_xerces != x_yes; then
-        AC_MSG_ERROR(Cannot find xerces - looked for include/sax/Parser.hpp or include/xercesc/sax/Parser.hpp in $xerces_path )
-    else
-        AC_MSG_RESULT($xercesdirm)
-
-        AC_SUBST(XERCES_CFLAGS,"$XERCES_CFLAGS")
-        AC_SUBST(XERCES_CXXFLAGS,"$XERCES_CFLAGS")
-
-        AC_SUBST(XERCES_LIBS,["-lxerces-c"])
-        AC_SUBST(XERCES_LDFLAGS,["-L$xercesdir/lib"])
-    fi
-],
-[
-    AC_MSG_RESULT(yes)
-])
-])dnl
-
-# CHECK_APR is called from CHECK_APACHE2
-# ============ A P R ==============
-AC_DEFUN([CHECK_APR],
-[
-    found_apr_dir="no"
-    AC_MSG_CHECKING([for apr headers])
-    # May need to add support for Apache post-2.0.50 tarball
-    AC_ARG_WITH(apr,
-                [--with-apr=PATH to apr header files directory],
-                [apr_path=$withval],
-                [apr_path="/usr/include/httpd /usr/include/apr-0 /usr/local/apache2/include /usr/apache2/include /etc/httpd/include /usr/include/apache2"
-                ]
-               )
-    for apr_dir in $apr_path ; do
-       if test -f "$apr_dir/apr.h"; then
-          found_apr_dir="yes"
-          break;
-       fi
-    done
-
-    if test x_$found_apr_dir != x_yes; then
-       AC_MSG_ERROR(['apr.h' not found; tried $apr_path])
-    else
-       AC_MSG_RESULT($apr_dir)
-       APACHE2_CFLAGS="$APACHE2_CFLAGS -I$apr_dir"
-       APACHE2_CXXFLAGS="$APACHE2_CXXFLAGS -I$apr_dir"
-    fi
-])dnl
-
-# ============ A P A C H E 2 ==================
-AC_DEFUN([CHECK_APACHE2],
-[
-   found_apache2_inc="no"
-   AC_ARG_WITH([apache-include],
-               [--with-apache-include=PATH the apache2 include directory],
-               [ apache2_inc_search_path=$withval
-                 ],
-               [ apache2_inc_search_path="/usr/local/apache2/include /usr/apache2/include /etc/httpd/include /usr/include/apache2 /usr/include/httpd"
-                 ]
-               )
-
-   ## Include directory
-   AC_MSG_CHECKING([for apache2 include directory])
-   for incdir in $apache2_inc_search_path; do
-          if test -f "$incdir/httpd.h"; then
-       found_apache2_inc="yes";
-       break;
-     fi
-   done
-   if test x_$found_apache2_inc = x_yes; then
-       AC_MSG_RESULT($incdir)
-       AC_SUBST(APACHE2_CFLAGS, -I$incdir)
-       AC_SUBST(APACHE2_CXXFLAGS, -I$incdir)
-       AC_SUBST(APACHE2_INCDIR, $incdir)
-   else
-       AC_MSG_ERROR('httpd.h' not found; tried: $apache2_inc_search_path)
-   fi
-
-   CHECK_APR
-
-   AC_ARG_WITH([apache-modules],
-               [--with-apache-modules=PATH where apache modules are installed],
-               [ apache2_mod_search_path="$withval"
-                 apache2_mod_override="$withval"
-                ],
-               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules /usr/lib/apache2 /usr/lib/apache2/modules"
-                 apache2_mod_override=""
-                ]
-              )
-
-   ## Get the version numbers for this Apache installation.
-   ## APACHE2_MMN is the module magic number, which is the version of
-   ## the API that modules have to interface to.
-   ## Some versions have a $incdir/.mmn file containing only the MMN, but
-   ## we can't depend on that.
-   apache2_mmn=`sed <$incdir/ap_mmn.h \
-                -e '/#define MODULE_MAGIC_NUMBER_MAJOR/!d' \
-                -e 's/#define MODULE_MAGIC_NUMBER_MAJOR //'`
-   AC_SUBST(APACHE2_MMN, $apache2_mmn)
-   AC_MSG_RESULT(apachd2_mmn=$apache2_mmn)
-   ## APACHE2_VERSION is the Apache version number.
-   ## This makes it easier for the uninitiated to see what versions of Apache
-   ## might be compatible with this mod_cplusplus.  But compatibility is really
-   ## controlled by the MMN value.
-   apache2_version=`awk -f $srcdir/config/apache_version.awk $incdir/ap_release.h`
-   AC_SUBST(APACHE2_VERSION, $apache2_version)
-   AC_MSG_RESULT(apache2_version=$apache2_version)
-   AC_MSG_RESULT(apache2_version=$apache2_version)
-
-   ## Apache Modules Directory
-   AC_MSG_CHECKING([for apache2 modules directory])
-   found_apache2_mod="no";
-   tried_path=""
-   ## Older versions of Apache seem to always have mod_access.so in their
-   ## modules directory.  Newer ones can have it linked into the httpd
-   ## executable, but they seem to have an httpd.exp file in the modules
-   ## directory.  So we check for either.
-   for apache2_moddir in $apache2_mod_search_path; do
-     if test -f "$apache2_moddir/mod_access.so"; then
-       found_apache2_mod="yes";
-       break;
-     elif test -f "$apache2_moddir/httpd.exp"; then
-       found_apache2_mod="yes";
-       break;
-     else
-       tried_path="${tried_path} $apache2_moddir"
-     fi
-   done
-   if test x_$found_apache2_mod = x_yes; then
-       AC_MSG_RESULT($apache2_moddir)
-       AC_SUBST(APACHE2_MOD, $apache2_moddir)
-   elif test x_$apache2_mod_override != x_; then
-       AC_SUBST(APACHE2_MOD, $apache2_mod_override)
-       AC_MSG_WARN('mod_access.so' and 'httpd.exp' not found; using explicit value: $apache2_mod_override)
-   else
-       AC_MSG_ERROR('mod_access.so' and 'httpd.exp' not found; tried: $tried_path)
-   fi
-
-   AC_ARG_WITH([apache-httpd],
-               [--with-apache-httpd=PATH the apache2 httpd executable],
-               [ apache2_bin_search_path="$withval"
-                 ],
-               [ apache2_bin_search_path="/usr/local/apache2/bin /usr/apache2/bin /etc/httpd/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /usr/sbin/apache2"
-                 ]
-               )
-
-   ## Apache httpd executable
-   AC_MSG_CHECKING([for Apache2 httpd])
-   found_apache2_httpd="no";
-   for apache2_httpd_dir in $apache2_bin_search_path; do
-     if test -x "$apache2_httpd_dir/httpd"; then
-       found_apache2_httpd="yes";
-       apache2_httpd="$apache2_httpd_dir/httpd";
-       break;
-     elif test -x "$apache2_httpd_dir/httpd2"; then
-       found_apache2_httpd="yes";
-       apache2_httpd="$apache2_httpd_dir/httpd2";
-       break;
-     elif test -f "$apache2_httpd_dir" -a -x "$apache2_httpd_dir"; then
-       found_apache2_httpd="yes";
-       apache2_httpd="$apache2_httpd_dir";
-       break;
-     fi
-   done
-   if test x_$found_apache2_httpd = x_yes; then
-       AC_MSG_RESULT($apache2_httpd)
-       AC_SUBST(APACHE2_HTTPD, $apache2_httpd)
-   else
-       AC_MSG_ERROR('httpd' not found; tried: $apache2_bin_search_path)
-   fi
-
-   ## Apache apxs executable
-   AC_ARG_WITH([apache-apxs],
-               [--with-apache-apxs=PATH the apache2 apxs executable],
-               [ apache2_apxs_search_path="$withval"
-                 ],
-               [ apache2_apxs_search_path="/usr/local/apache2/bin /usr/apache2/bin /etc/httpd/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin"
-                 ]
-               )
-   AC_MSG_CHECKING([for apache2 apxs])
-   found_apache2_apxs="no";
-   for apache2_apxs_dir in $apache2_apxs_search_path; do
-
-     ## Apache >= 2.0.50
-     if test -x "$apache2_apxs_dir/apxs2"; then
-       found_apache2_apxs="yes";
-       apache2_apxs="$apache2_apxs_dir/apxs2";
-       break;
-
-     ## Apache < 2.0.50
-     elif test -x "$apache2_apxs_dir/apxs"; then
-       found_apache2_apxs="yes";
-       apache2_apxs="$apache2_apxs_dir/apxs";
-       break;
-     fi
-   done
-   if test x_$found_apache2_apxs = x_yes; then
-       AC_MSG_RESULT($apache2_apxs)
-       AC_SUBST(APACHE2_APXS, $apache2_apxs)
-   else
-       AC_MSG_ERROR('apxs' not found; tried: $apache2_apxs_search_path)
-   fi
-
-   ## Apache "home", the location of build/config_vars.mk, and probably
-   ## the parent of APACHE2_INC, etc.
-   AC_ARG_WITH([apache-home],
-               [--with-apache-home=PATH the apache2 home directory],
-               [ apache2_home_search_path="$withval"
-                 ],
-               [ apache2_home_search_path="/usr/local/apache2 /usr/apache2 /etc/httpd /usr/local/sbin /usr/local /usr/sbin /usr /usr/lib/apache2 /usr/share/apache2"
-                 ]
-               )
-   AC_MSG_CHECKING([for apache2 home])
-   found_apache2_home="no";
-   for apache2_home_dir in $apache2_home_search_path; do
-   if test -f "$apache2_home_dir/build/config_vars.mk"; then
-       found_apache2_home="yes";
-       apache2_home="$apache2_home_dir";
-       break;
-     fi
-   done
-   if test x_$found_apache2_home = x_yes; then
-       AC_MSG_RESULT($apache2_home)
-       AC_SUBST(APACHE2_HOME, $apache2_home)
-   else
-       AC_MSG_ERROR('build/config_vars.mk' not found; tried: $apache2_home_search_path)
-   fi
-])dnl
-
-# ============ M O D   C P L U S P L U S ==================
-AC_DEFUN([CHECK_MODCPLUSPLUS],
-[
-    AC_MSG_CHECKING([for mod_cplusplus])
-    AC_ARG_WITH(mod_cplusplus,
-                [--with-mod_cplusplus=PATH to mod_cplusplus source directory],
-                [mod_cplusplus_path=$withval],
-                [mod_cplusplus_path="/usr/local/apache2/include /usr/local/include /usr/include /usr/include/httpd /usr/include/apache2"],
-                )
-    for mod_cplusplusdir in $mod_cplusplus_path ; do
-            if test -f "$mod_cplusplusdir/mod_cplusplus.h";
-        then
-            found_mod_cplusplus="yes";
-            break;
-        fi
-    done
-
-    if test x_$found_mod_cplusplus != x_yes;
-    then
-        AC_MSG_ERROR(['mod_cplusplus.h' not found; tried $mod_cplusplus_path])
-    else
-        AC_MSG_RESULT($mod_cplusplusdir)
-    fi
-])dnl
 
 # ==================== C G I C C  =========================
 AC_DEFUN([CHECK_CGICC],
@@ -783,11 +281,7 @@ AC_DEFUN([CHECK_LIBWWW],
         LIBWWW_LDFLAGS="-L$lwwwdir/lib";
         AC_SUBST(LIBWWW_LDFLAGS)
     fi
-],
-[
-    AC_MSG_RESULT(yes)
 ])
-])dnl
 
 # ============ P C R E ==================
 AC_DEFUN([CHECK_PCRE],
@@ -984,6 +478,8 @@ AC_DEFUN([CHECK_GSM],
          *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-gsm) ;;
       esac],
     [AM_PATH_GSM])
+
+    AM_CONDITIONAL([BUILD_CODEC_GSM], [test ! -z "$GSM_TARGET"])
 ])dnl
 
 
@@ -1073,6 +569,7 @@ AC_DEFUN([ENABLE_CODEC_SPEEX],
                        no) ;;
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
                     esac])
+    AM_CONDITIONAL([BUILD_CODEC_SPEEX], [test ! -z "$SPEEX_TARGET"])
     AM_CONDITIONAL(SPEEX_STATIC, test "$CODEC_SPEEX_STATIC" = true)
 ])dnl
 
@@ -1122,10 +619,10 @@ AC_DEFUN([CHECK_SPEEX],
         AC_MSG_RESULT([using svn version])
         SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
         SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
-        SPEEX_CFLAGS+=' -I${top_builddir}/contrib/libspeex/include'
-        SPEEX_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeex.a'
+        SPEEX_CFLAGS+=' -I${top_builddir}/sipXmediaLib/contrib/libspeex/include'
+        SPEEX_STATIC_LIB='${top_builddir}/sipXmediaLib/contrib/libspeex/libspeex/.libs/libspeex.a'
         SPEEX_LIBS=${SPEEX_STATIC_LIB}
-        SPEEXDSP_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeexdsp.a'
+        SPEEXDSP_STATIC_LIB='${top_builddir}/sipXmediaLib/contrib/libspeex/libspeex/.libs/libspeexdsp.a'
         SPEEXDSP_LIBS=${SPEEXDSP_STATIC_LIB}
         AC_SUBST(SPEEX_ROOT)
         AC_SUBST(SPEEX_CFLAGS)
@@ -1173,6 +670,7 @@ AC_DEFUN([CHECK_PCMA_PCMU],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-pcmapcmu) ;;
                     esac],
                   [AM_SET_PCMA_PCMU])
+    AM_CONDITIONAL([BUILD_CODEC_PCMAPCMU], [test ! -z "$PCMAPCMU_TARGET"])
     AM_CONDITIONAL(PCMAPCMU_STATIC, test "$CODEC_PCMAPCMU_STATIC" = true)
 ])dnl
 
@@ -1204,6 +702,7 @@ AC_DEFUN([CHECK_TONES],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-tones) ;;
                     esac],
                   [AM_SET_TONES])
+    AM_CONDITIONAL([BUILD_CODEC_TONES], [test ! -z "$TONES_TARGET"])
     AM_CONDITIONAL(TONES_STATIC, test "$CODEC_TONES_STATIC" = true)
 ])dnl
 
@@ -1235,6 +734,7 @@ AC_DEFUN([CHECK_L16],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-l16) ;;
                     esac],
                   [AM_SET_L16])
+    AM_CONDITIONAL([BUILD_CODEC_L16], [test ! -z "$L16_TARGET"])
     AM_CONDITIONAL(L16_STATIC, test "$CODEC_L16_STATIC" = true)
 ])dnl
 
@@ -1245,8 +745,8 @@ AC_DEFUN([AM_SET_ILBC],
 # Currently only iLBC in contrib supported
     PLUGINS="${PLUGINS} iLBC"
 
-    ILBC_INCLUDE="-I${PWD}/contrib/libilbc/include"
-    ILBC_LIB_ROOT="${PWD}/contrib/libilbc/"
+    ILBC_INCLUDE="-I${PWD}/sipXmediaLib/contrib/libilbc/include"
+    ILBC_LIB_ROOT="${PWD}/sipXmediaLib/contrib/libilbc/"
     ILBC_LIB_TARGET="lib/libilbc.a"
     ILBC_TARGET="plgilbc"
     AC_SUBST(ILBC_INCLUDE)
@@ -1267,26 +767,16 @@ AC_DEFUN([CHECK_ILBC],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-ilbc) ;;
                     esac],
                   [AM_SET_ILBC])
+    AM_CONDITIONAL([BUILD_CODEC_ILBC], [test ! -z "$ILBC_TARGET"])
 ])dnl
 
 
 # == D E C L A R E _ C O D E C S _ S T A F F ==
 AC_DEFUN([DECLARE_CODECS_STAFF],
 [
-    AC_MSG_CHECKING([Configured codecs: ])
+    AC_SUBST([codeclibdir], ['${pkglibdir}/codecs'])
 
-    DEFAULT_CODECS_PATH="${PWD}/bin"
-    AC_ARG_WITH([codecs-bin-path],
-                [AS_HELP_STRING([--with-codecs-bin-path=PATH],
-                                [Set installation binary codec path. Default is ${PWD}/bin])],
-                [DEFAULT_CODECS_PATH=${withval}],
-                [])
-
-    AC_MSG_RESULT( ${PLUGINS} )    
-    AC_SUBST(DEFAULT_CODECS_PATH)
-    
-    CFLAGS="${CFLAGS} -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "
-    CXXFLAGS="${CXXFLAGS} -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "    
+    CPPFLAGS="${CPPFLAGS} -DDEFAULT_CODECS_PATH='\"${codeclibdir}\"' "
 ])dnl
 
 
@@ -1816,6 +1306,7 @@ AC_DEFUN([CHECK_G726],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g726) ;;
                     esac],
                   [AM_SET_G726])
+    AM_CONDITIONAL([BUILD_CODEC_G726], [test ! -z "$G726_TARGET"])
     AM_CONDITIONAL(G726_STATIC, test "$CODEC_G726_STATIC" = true)
 ])dnl
 
@@ -1854,6 +1345,7 @@ AC_DEFUN([CHECK_G722],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g722) ;;
                     esac],
                   [AM_SET_G722])
+    AM_CONDITIONAL([BUILD_CODEC_G722], [test ! -z "$G722_TARGET"])
     AM_CONDITIONAL(G722_STATIC, test "$CODEC_G722_STATIC" = true)
 ])dnl
 
@@ -1894,15 +1386,15 @@ AC_DEFUN([AM_SET_AMR],
 # Currently only iLBC in contrib supported
     PLUGINS="${PLUGINS} AMR"
     AMR_TARGET="plgamr"
-    AMRNB_INCLUDE="-I${PWD}/contrib/libamrnb/"
-    AMRNB_LIB_ROOT="${PWD}/contrib/libamrnb/"    
+    AMRNB_INCLUDE="-I${PWD}/sipXmediaLib/contrib/libamrnb/"
+    AMRNB_LIB_ROOT="${PWD}/sipXmediaLib/contrib/libamrnb/"    
     AC_SUBST(AMR_TARGET)    
     AC_SUBST(AMRNB_INCLUDE)    
     AC_SUBST(AMRNB_LIB_ROOT)
 
     # amr narrowband codec has it's own configure, 
     # so be sure to call it.
-    AC_CONFIG_SUBDIRS([contrib/libamrnb/])
+    AC_CONFIG_SUBDIRS([sipXmediaLib/contrib/libamrnb/])
 ])dnl
 
 AC_DEFUN([AM_SET_AMRWB],
@@ -1910,15 +1402,15 @@ AC_DEFUN([AM_SET_AMRWB],
 # Currently only iLBC in contrib supported
     PLUGINS="${PLUGINS} AMR-WB"
     AMRWB_TARGET="plgamrwb"
-    AMRWB_INCLUDE="-I${PWD}/contrib/libamrwb/"
-    AMRWB_LIB_ROOT="${PWD}/contrib/libamrwb/"
+    AMRWB_INCLUDE="-I${PWD}/sipXmediaLib/contrib/libamrwb/"
+    AMRWB_LIB_ROOT="${PWD}/sipXmediaLib/contrib/libamrwb/"
     AC_SUBST(AMRWB_TARGET)    
     AC_SUBST(AMRWB_INCLUDE)    
     AC_SUBST(AMRWB_LIB_ROOT)
 
     # amr wideband codec has it's own configure, 
     # so be sure to call it.
-    AC_CONFIG_SUBDIRS([contrib/libamrwb/])
+    AC_CONFIG_SUBDIRS([sipXmediaLib/contrib/libamrwb/])
 ])dnl
 
 AC_DEFUN([CHECK_AMR_AMRWB],

@@ -19,6 +19,8 @@
 #  ifdef _MSC_VER // [
 #     define __inline__ __inline // For gcc compatibility
 #   endif // _MSC_VER ]
+#  include <spandsp/telephony.h>
+#  include <spandsp/bit_operations.h>
 #  include <spandsp/g711.h>
 #endif // !USE_BUGGY_G711 ]
 
@@ -112,7 +114,7 @@ CODEC_API int PLG_DECODE_V1(sipxPcmu)(void* handle, const void* pCodedData,
    if (cbBufferSize == 0)
       return RPLG_INVALID_ARGUMENT;
 
-   samples = min(cbCodedPacketSize, cbBufferSize);
+   samples = _sipx_min(cbCodedPacketSize, cbBufferSize);
 #ifdef USE_BUGGY_G711 // [
    G711U_Decoder(samples, (uint8_t*)pCodedData, (MpAudioSample *)pAudioBuffer);
 #else // USE_BUGGY_G711 ][

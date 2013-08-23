@@ -1,18 +1,18 @@
-include $(top_srcdir)/config/sipXcommon.mak.in
+include $(top_srcdir)/config/sipXcommon.am.inc
 
 EXTRA_DIST = \
   Doxyfile.in \
   footer.html \
-  license/jdom-LICENSE.txt \
-  license/junit-LICENSE.txt \
   license/MD5-LICENSE
 
 all: doc
 
-doc: @PACKAGE@
+PROJECT = sipXtackLib
 
-@PACKAGE@: Doxyfile
-	rm -rf @PACKAGE@
+doc: $(PROJECT)
+
+$(PROJECT): Doxyfile
+	rm -rf $(PROJECT)
 	@DOXYGEN@
 
 Doxyfile: $(srcdir)/Doxyfile.in
@@ -27,15 +27,15 @@ Doxyfile: $(srcdir)/Doxyfile.in
 install: install-doc
 
 .PHONY: install-doc
-install-doc: @PACKAGE@
-	rm -rf $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
-	@INSTALL@ -d $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
-	find @PACKAGE@ -type f -print \
-	| xargs -i% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@SIPX_DOCDIR@/%
+install-doc: $(PROJECT)
+	rm -rf $(DESTDIR)@docdir@/$(PROJECT)
+	@INSTALL@ -d $(DESTDIR)@docdir@/$(PROJECT)
+	find $(PROJECT) -type f -print \
+	| xargs -i% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@docdir@/%
 
-clean: clean-doc
+clean-local: clean-doc
 
 .PHONY: clean-doc
 clean-doc:
-	rm -rf @PACKAGE@ Doxyfile
+	rm -rf $(PROJECT) Doxyfile
 

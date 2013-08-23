@@ -4,7 +4,7 @@ TESTS = testsuite
 
 check_PROGRAMS = testsuite sandbox
 
-INCLUDES = -I$(top_srcdir)/include -I${top_srcdir}/../sipXcallLib/include
+INCLUDES = -I$(top_srcdir)/sipXtackLib/include -I${top_srcdir}/sipXcallLib/include
 
 # Make TESTDIR an absolute path to the directory containing
 # SipSrvLookupTest.named.*
@@ -21,10 +21,10 @@ testsuite_CXXFLAGS = \
 testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
     
 testsuite_LDADD = \
-    @SIPXUNIT_LIBS@ \
+    $(top_builddir)/sipXportLib/src/test/sipxportunit/libsipXunit.la \
     $(CPPUNIT_LIBS) \
-    @SIPXPORT_LIBS@ \
-    @SIPXSDP_LIBS@ \
+    $(top_builddir)/sipXportLib/src/libsipXport.la \
+    $(top_builddir)/sipXsdpLib/src/libsipXsdp.la \
     ../libsipXtack.la
 
 testsuite_SOURCES = \

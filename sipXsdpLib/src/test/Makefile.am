@@ -4,7 +4,7 @@ TESTS = testsuite
 
 check_PROGRAMS = testsuite sandbox
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/sipXsdpLib/include
 
 # Make TESTDIR an absolute path to the directory containing
 # SipSrvLookupTest.named.*
@@ -15,23 +15,20 @@ TESTDIR=$(if $(patsubst /%,,$(top_srcdir)),$(shell pwd)/$(top_srcdir),$(top_srcd
 testsuite_CXXFLAGS = \
     -DTESTDIR=\"$(TESTDIR)\" \
     -I$(SIPXUNITINC) \
-	@SSL_CXXFLAGS@ \
     @CPPUNIT_CFLAGS@ \
     -O0 
 #    $(if @NAMED_PROGRAM@,-DNAMED_PROGRAM=\"@NAMED_PROGRAM@\")
 
 testsuite_CPPFLAGS = \
-    @CPPUNIT_CFLAGS@ \
-	@PCRE_CFLAGS@
+    @CPPUNIT_CFLAGS@
 
 ## To load source in gdb for libsipXport.la, type the 'share' at the
 ## gdb console just before stepping into function in sipXportLib
 testsuite_LDADD = \
-    @SIPXUNIT_LIBS@ \
+    $(top_builddir)/sipXportLib/src/test/sipxportunit/libsipXunit.la \
     $(CPPUNIT_LIBS) \
-    @SIPXPORT_LIBS@ \
-	../libsipXsdp.la \
-	@SSL_LDFLAGS@
+    $(top_builddir)/sipXportLib/src/libsipXport.la \
+	../libsipXsdp.la
 
 testsuite_SOURCES = \
     ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \

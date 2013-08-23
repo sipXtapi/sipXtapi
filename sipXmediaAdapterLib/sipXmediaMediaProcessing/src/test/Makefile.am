@@ -1,18 +1,18 @@
 
 TESTS = testsuite sandbox
 
-INCLUDES = -I$(top_srcdir)/interface \
-           -I$(top_srcdir)/sipXmediaMediaProcessing/include
+INCLUDES = -I$(top_srcdir)/sipXmediaAdapterLib/interface \
+           -I$(top_srcdir)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include
 
 check_PROGRAMS = testsuite sandbox
 
 testsuite_LDADD = \
-    @SIPXUNIT_LIBS@ \
+    $(top_builddir)/sipXportLib/src/test/sipxportunit/libsipXunit.la \
     $(CPPUNIT_LIBS) \
-    @SIPXTACK_LIBS@ \
-    @SIPXSDP_LIBS@ \
-    @SIPXPORT_LIBS@ \
-    @SIPXMEDIA_LIBS@ \
+    $(top_builddir)/sipXtackLib/src/libsipXtack.la \
+    $(top_builddir)/sipXsdpLib/src/libsipXsdp.la \
+    $(top_builddir)/sipXportLib/src/libsipXport.la \
+    $(top_builddir)/sipXmediaLib/src/libsipXmedia.la \
     ../libsipXmediaProcessing.la \
     $(GIPS_OBJS)
 

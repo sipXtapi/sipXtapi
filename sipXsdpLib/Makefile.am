@@ -1,22 +1,18 @@
 ## Process this file with automake to produce Makefile.in
 
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/sipXcommon.am.inc
 
 EXTRA_DIST = \
 	config/sipX-config.in \
 	config/sipX-buildstamp.cpp.in \
 	config/sipX-buildstamp.h.in \
 	config/sipXprojtop.mak \
-	config/sipXcommon.mak.in \
-	CONTRIBUTORS \
-	BUILDSTAMP \
-	SVN-VERSION \
-	sipxsdplib.spec \
+	config/sipXcommon.am.inc \
 	config.properties.in 
 
 unconditional_SUBDIRS = . include src 
 
-include $(srcdir)/config/sipXprojtop.mak
+include $(top_srcdir)/config/sipXprojtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 RELEASE = 1
@@ -49,5 +45,8 @@ sipxsdplib.spec : sipxsdplib.spec.in
 
 # 'rpmbuild -ta' searches root of tarball for pkgname.spec file to build 
 # RPM from
-dist-hook: sipxsdplib.spec
-	cp sipxsdplib.spec $(distdir)
+#dist-hook: sipxsdplib.spec
+#	cp sipxsdplib.spec $(distdir)
+
+DISTCLEANFILES = config.properties
+

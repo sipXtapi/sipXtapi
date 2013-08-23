@@ -1,10 +1,10 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include 
+INCLUDES = -I$(top_srcdir)/sipXcallLib/include 
 
 noinst_PROGRAMS = musicserver
 
-musicserver_LDADD = $(top_builddir)/src/libsipXcall.la
+musicserver_LDADD = $(top_builddir)/sipXcallLib/src/libsipXcall.la
 
 musicserver_SOURCES =  \
 	main.cpp \

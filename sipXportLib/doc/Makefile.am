@@ -1,4 +1,4 @@
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/sipXcommon.am.inc
 
 images = \
 	PluginUml.png
@@ -10,7 +10,9 @@ EXTRA_DIST = \
 
 all: doc
 
-doc: @PACKAGE@ external-docs
+PROJECT = sipXportLib
+
+doc: $(PROJECT) external-docs
 
 Doxyfile: $(srcdir)/Doxyfile.in
 	$(LocalizeSipXconfig) \
@@ -25,24 +27,24 @@ install: install-doc
 
 .PHONY: install-doc
 install-doc:
-	rm -rf $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
-	@INSTALL@ -d $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
-	find @PACKAGE@ -type f -print \
-	| xargs --replace=% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@SIPX_DOCDIR@/%
+	rm -rf $(DESTDIR)@docdir@/$(PROJECT)
+	@INSTALL@ -d $(DESTDIR)@docdir@/$(PROJECT)
+	find $(PROJECT) -type f -print \
+	| xargs --replace=% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@docdir@/%
 
-clean: clean-doc
+clean-local: clean-doc
 
 .PHONY: clean-doc
 clean-doc:
-	rm -rf @PACKAGE@ Doxyfile
+	rm -rf $(PROJECT) Doxyfile
 
-@PACKAGE@: Doxyfile 
-	rm -rf @PACKAGE@
+$(PROJECT): Doxyfile 
+	rm -rf $(PROJECT)
 	@DOXYGEN@
 
 .PHONY: external-docs
-external-docs: @PACKAGE@ $(foreach img,$(images),@PACKAGE@/$(img))
+external-docs: $(PROJECT) $(foreach img,$(images),$(PROJECT)/$(img))
 
-$(foreach img,$(images),@PACKAGE@/$(img)): @PACKAGE@/% : % @PACKAGE@
+$(foreach img,$(images),$(PROJECT)/$(img)): $(PROJECT)/% : % $(PROJECT)
 	cp $< $@
 

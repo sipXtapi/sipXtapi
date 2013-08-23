@@ -4,8 +4,8 @@ EXTRA_DIST = \
     dialogdisplay
 
 INCLUDES = \
-	-I$(top_srcdir)/include \
-	-I$(top_builddir)/include
+	-I$(top_srcdir)/sipXtackLib/include \
+	-I$(top_builddir)/sipXtackLib/include
 
 bin_PROGRAMS = dialogwatch
 

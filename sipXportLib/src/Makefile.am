@@ -1,11 +1,11 @@
 ## Process this file with automake to produce Makefile.in
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/sipXcommon.am.inc
 
 SUBDIRS = . test
 
 lib_LTLIBRARIES = libsipXport.la
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXcallLib/include
+INCLUDES = -I$(top_srcdir)/sipXportLib/include -I$(top_srcdir)/sipXcallLib/include
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
@@ -18,14 +18,11 @@ version_Revision=0
 version_Age=0
 
 libsipXport_la_LDFLAGS = \
-	-version-info ${version_Current}:${version_Revision}:${version_Age} \
-	@PCRE_LDFLAGS@ \
-	@SSL_LDFLAGS@
+	-version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXport_la_LIBADD = \
-	@PCRE_LIBS@ \
-	@SSL_LIBS@ \
-	@RT_LIBS@ \
+	-lssl -lcrypto \
+	-lpcre \
 	-ldl \
 	-lpthread  \
 	-lstdc++
@@ -34,14 +31,14 @@ libsipXport_la_LIBADD = \
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
 
 libsipXport_la_CXXFLAGS = \
-	@PCRE_CFLAGS@ \
-	@SSL_CXXFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
+nodist_libsipXport_la_SOURCES =  \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.h \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp
+
 libsipXport_la_SOURCES =  \
-    ../config/sipxportlib-buildstamp.h \
-    ../config/sipxportlib-buildstamp.cpp \
     utl/UtlLongLongInt.cpp \
     utl/UtlNameValueTokenizer.cpp \
     utl/UtlBool.cpp \

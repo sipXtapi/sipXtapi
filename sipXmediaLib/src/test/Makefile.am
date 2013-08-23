@@ -1,14 +1,14 @@
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/sipXmediaLib/include
 
 TESTS = testsuite
 
 check_PROGRAMS = testsuite sandbox
 
 testsuite_LDADD = \
-    @SIPXUNIT_LIBS@ \
+    $(top_builddir)/sipXportLib/src/test/sipxportunit/libsipXunit.la \
     $(CPPUNIT_LIBS) \
-    @SIPXPORT_LIBS@ \
-    @SIPXTACK_LIBS@ \
+    $(top_builddir)/sipXportLib/src/libsipXport.la \
+    $(top_builddir)/sipXtackLib/src/libsipXtack.la \
     @SPEEXDSP_LIBS@ \
     ../libsipXmedia.la \
     $(GIPS_OBJS)

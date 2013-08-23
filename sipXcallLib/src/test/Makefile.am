@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/sipXcallLib/include
 
 SUBDIRS = tapi
 
@@ -44,4 +44,3 @@ regression_SOURCES = \
     mp/MyPlayerListenerPoller.cpp \
     mp/MyStreamQueueHistoryKeeper.cpp
 
-DISTCLEANFILES = Makefile.in

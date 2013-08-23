@@ -1,21 +1,16 @@
 ## Process this file with automake to produce Makefile.in
 
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/sipXcommon.am.inc
 
 EXTRA_DIST = \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
     config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
+    config/sipXcommon.am.inc \
     CONTRIBUTORS \
-    BUILDSTAMP \
-    SVN-VERSION \
     ant-targets.xml \
     ant-targets.am \
-    sipxtacklib.spec \
-    lib/jdom-b10.jar \
-    lib/junit.jar \
     config.properties.in \
     syslog2siptrace/siptrace-merge
 
@@ -23,9 +18,11 @@ if SIPVIEWER
 SIPVIEWER_OPT = sipviewer
 endif
 
-unconditional_SUBDIRS = . include src bin meta examples syslog2siptrace siplog2siptrace siptest $(SIPVIEWER_OPT)
+unconditional_SUBDIRS = . include src meta examples syslog2siptrace siplog2siptrace siptest $(SIPVIEWER_OPT)
+# bin is not really needed now that we have a top-level build system
+#unconditional_SUBDIRS += bin
 
-include $(srcdir)/config/sipXprojtop.mak
+include $(top_srcdir)/config/sipXprojtop.mak
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 RELEASE = 1
@@ -58,5 +55,8 @@ sipxtacklib.spec : sipxtacklib.spec.in
 
 # 'rpmbuild -ta' searches root of tarball for pkgname.spec file to build 
 # RPM from
-dist-hook: sipxtacklib.spec
-	cp sipxtacklib.spec $(distdir)
+#dist-hook: sipxtacklib.spec
+#	cp sipxtacklib.spec $(distdir)
+
+DISTCLEANFILES = config.properties
+

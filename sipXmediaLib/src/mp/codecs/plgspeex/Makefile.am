@@ -1,8 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @SPEEX_CFLAGS@
+INCLUDES = -I$(top_srcdir)/sipXmediaLib/include -I$(top_srcdir)/sipXportLib/include @SPEEX_CFLAGS@
 
-pkgdata_LTLIBRARIES = codec_speex.la
+codeclib_LTLIBRARIES = codec_speex.la
 
 codec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c
 
@@ -23,12 +23,5 @@ codec_speex_la_LIBADD = @SPEEX_STATIC_LIB@ @SPEEXDSP_STATIC_LIB@
 #codec_speex_la_LIBADD = @SPEEX_LIBS@ @SPEEXDSP_LIBS@
 
 codec_speex_la_LDFLAGS = -module -avoid-version
-
-all-local: codec_speex.la
-	echo "Installing plugin codec_speex.so ..."
-	cp -f .libs/codec_speex.so @DEFAULT_CODECS_PATH@
-
-clean-local:
-	rm -f @DEFAULT_CODECS_PATH@/codec_speex.so
 
 endif

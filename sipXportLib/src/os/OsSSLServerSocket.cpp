@@ -92,7 +92,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR
                     , "OsSSLServerSocket: accept exiting because socketDescriptor is %d"
-                    ,socketDescriptor);
+                    ,(int)socketDescriptor);
    }
    else
    {

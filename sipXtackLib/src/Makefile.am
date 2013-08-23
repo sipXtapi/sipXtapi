@@ -9,9 +9,10 @@ EXTRA_DIST = \
     resparse/wnt/writev.c
 
 INCLUDES = \
-	-I$(top_srcdir)/include \
-	-I$(top_builddir)/include \
-	-I$(top_srcdir)/../sipXcallLib/include
+	-I$(top_srcdir)/sipXtackLib/include \
+	-I$(top_builddir)/sipXtackLib/include \
+        -I$(top_srcdir)/sipXsdpLib/include \
+	-I$(top_srcdir)/sipXportLib/include
 
 lib_LTLIBRARIES = libsipXtack.la
 
@@ -26,18 +27,15 @@ version_Revision=0
 version_Age=0
 
 libsipXtack_la_LDFLAGS = \
-	-version-info ${version_Current}:${version_Revision}:${version_Age} \
-	@SSL_LDFLAGS@
+	-version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXtack_la_CXXFLAGS = \
-	@SSL_CXXFLAGS@ \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 libsipXtack_la_LIBADD = \
-	@SIPXPORT_LIBS@ \
-        @SIPXSDP_LIBS@ \
-	@SSL_LIBS@ \
+	$(top_builddir)/sipXportLib/src/libsipXport.la \
+        $(top_builddir)/sipXsdpLib/src/libsipXsdp.la \
 	-lresolv -lstdc++
 
 if BUILDTLS
@@ -47,9 +45,11 @@ else
 SECURITY_FILES=
 endif
 
+nodist_libsipXtack_la_SOURCES =  \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.h \
+    $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp
+
 libsipXtack_la_SOURCES =  \
-    ../config/sipxtacklib-buildstamp.h \
-    ../config/sipxtacklib-buildstamp.cpp \
     net/HttpBody.cpp \
     net/HttpMessage.cpp \
     net/HttpRequestContext.cpp \

@@ -444,6 +444,8 @@ int setMaxSpkr(int v)
     return save;
 }
 
+// This stringification does not work for paths containing hyphens
+// may need to use more conditional code to handle the Windows case
 #ifndef CODEC_PLUGIN_PATH
 // Windows compilers do not allow definition of preprocessor macros with 
 // quotes in them within project files, so we need to stringify it here.
@@ -504,7 +506,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         }
         else
         {
-           pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH, CODEC_PLUGINS_FILTER);
+           pcf->loadAllDynCodecs(DEFAULT_CODECS_PATH, CODEC_PLUGINS_FILTER);
         }
 
 #ifdef _VXWORKS /* [ */
