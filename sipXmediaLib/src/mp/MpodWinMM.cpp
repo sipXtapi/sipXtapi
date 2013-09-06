@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reservied.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -810,6 +809,9 @@ DWORD WINAPI MpodWinMM::ThreadMMProc(LPVOID lpMessage)
                "device open (WOM_OPEN).");
             break;
          case WOM_DONE:
+#ifdef TEST_PRINT
+             OsSysLog::add(FAC_MP, PRI_DEBUG, "MpodWinMM::ThreadMMProc WOM_DONE received");
+#endif
             oddWinMMPtr->finalizeProcessedHeader(hdr);
             break;
          case WOM_CLOSE:

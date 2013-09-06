@@ -1,9 +1,8 @@
 //  
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2006-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
