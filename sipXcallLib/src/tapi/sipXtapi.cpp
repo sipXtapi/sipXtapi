@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2013 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -5526,12 +5526,21 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
             {
                 if (pInst->inputAudioDevices[i])
                 {
-                    if (strcmp(szDevice, pInst->inputAudioDevices[i]) == 0)
+                    // Get rid of whitespace
+                    UtlString requestedDevice(szDevice);
+                    requestedDevice.strip(UtlString::both);
+                    UtlString availableDevice(pInst->inputAudioDevices[i]);
+                    availableDevice.strip(UtlString::both);
+
+                    // Allow sloppy match where requested device string is a substring
+                    // of the actual device name
+                    if (requestedDevice.length() > 2 &&
+                        availableDevice.index(requestedDevice) == 0)
                     {
                         // Match
                         if (strcmp(szDevice, oldDevice) != 0)
                         {
-                            strncpy(pInst->micSetting.device, szDevice, sizeof(pInst->micSetting.device)-1) ;
+                            strncpy(pInst->micSetting.device, pInst->inputAudioDevices[i], sizeof(pInst->micSetting.device)-1) ;
                             status = pInterface->setMicrophoneDevice(pInst->micSetting.device) ;
                             // GIPS returns -1 on the call to set audio input device, no matter what
                             //assert(status == OS_SUCCESS) ;
@@ -5589,10 +5598,19 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
             {
                 if (pInst->outputAudioDevices[i])
                 {
-                    if (strcmp(szDevice, pInst->outputAudioDevices[i]) == 0)
+                    // Get rid of whitespace
+                    UtlString requestedDevice(szDevice);
+                    requestedDevice.strip(UtlString::both);
+                    UtlString availableDevice(pInst->outputAudioDevices[i]);
+                    availableDevice.strip(UtlString::both);
+
+                    // Allow sloppy match where requested device string is a substring
+                    // of the actual device name
+                    if (requestedDevice.length() > 2 &&
+                        availableDevice.index(requestedDevice) == 0)
                     {
                         oldDevice = pInst->speakerSettings[RINGER].device ;
-                        strncpy(pInst->speakerSettings[RINGER].device, szDevice,
+                        strncpy(pInst->speakerSettings[RINGER].device, pInst->outputAudioDevices[i],
                             sizeof(pInst->speakerSettings[RINGER].device)-1) ;
                         rc = SIPX_RESULT_SUCCESS ;
                         break ;
@@ -5656,13 +5674,31 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
             {
                 if (pInst->outputAudioDevices[i])
                 {
-                    if (strcmp(szDevice, pInst->outputAudioDevices[i]) == 0)
+                    // Get rid of whitespace
+                    UtlString requestedDevice(szDevice);
+                    requestedDevice.strip(UtlString::both);
+                    UtlString availableDevice(pInst->outputAudioDevices[i]);
+                    availableDevice.strip(UtlString::both);
+
+                    // Allow sloppy match where requested device string is a substring
+                    // of the actual device name
+                    if (requestedDevice.length() > 2 &&
+                        availableDevice.index(requestedDevice) == 0)
                     {
-                        oldDevice = pInst->speakerSettings[SPEAKER].device ;
-                        strncpy(pInst->speakerSettings[SPEAKER].device, szDevice, 
-                                sizeof(pInst->speakerSettings[SPEAKER].device)-1) ;
+                        oldDevice = pInst->speakerSettings[SPEAKER].device;
+                        strncpy(pInst->speakerSettings[SPEAKER].device, pInst->outputAudioDevices[i], 
+                                sizeof(pInst->speakerSettings[SPEAKER].device)-1);
+
+                        printf("target device \"%s\" matches[%d] \"%s\"\n",
+                            szDevice, i, pInst->outputAudioDevices[i]);
+
                         rc = SIPX_RESULT_SUCCESS ;
                         break ;
+                    }
+                    else
+                    {
+                        printf("target device \"%s\" does not match[%d] \"%s\"\n",
+                            szDevice, i, pInst->outputAudioDevices[i]);
                     }
                 }
                 else
