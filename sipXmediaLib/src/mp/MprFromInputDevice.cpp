@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -108,6 +107,17 @@ MprFromInputDevice::~MprFromInputDevice()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+
+OsStatus MprFromInputDevice::setDeviceId(const UtlString& resourceName,
+                                       OsMsgQ& flowgraphMessageQueue,
+                                       MpOutputDeviceHandle deviceId)
+{
+    MpIntResourceMsg message((MpResourceMsg::MpResourceMsgType)MPRM_SET_INPUT_DEVICE_ID,
+                             resourceName,
+                             deviceId);
+    return(flowgraphMessageQueue.send(message, sOperationQueueTimeout));
+}
 
 OsStatus MprFromInputDevice::setGain(const UtlString& namedResource, OsMsgQ& fgQ,
                                      MpBridgeGain gain)
@@ -260,6 +270,14 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
       return FALSE;
    }
 
+   // If the input device is disabled, don't resample to save the CPU cycles
+   UtlBoolean deviceDisabled = FALSE;
+   if(!mpInputDeviceManager->isDeviceEnabled(mDeviceId))
+   {
+       deviceDisabled = TRUE;
+       devSampleRate = samplesPerSecond;
+   }
+
    if(mpResampler == NULL)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame mpResampler NULL");
@@ -322,23 +340,28 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
 
 UtlBoolean MprFromInputDevice::handleMessage(MpResourceMsg& rMsg)
 {
-   UtlBoolean msgHandled = FALSE;
+    UtlBoolean msgHandled = FALSE;
 
-   switch (rMsg.getMsg()) 
-   {
-   case MPRM_SET_GAIN:
-      {
-         MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&rMsg;
-         msgHandled = handleSetGain((int16_t)pMsg->getData());
-      }
-      break;
+    switch (rMsg.getMsg()) 
+    {
+    case MPRM_SET_GAIN:
+    {
+        MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&rMsg;
+        msgHandled = handleSetGain((int16_t)pMsg->getData());
+    }
+    break;
 
-   default:
-      // If we don't handle the message here, let our parent try.
-      msgHandled = MpResource::handleMessage(rMsg); 
-      break;
-   }
-   return msgHandled;
+    case MPRM_SET_INPUT_DEVICE_ID:
+        msgHandled = handleSetInputDeviceId(*((MpIntResourceMsg*)&rMsg));
+    break;
+
+    default:
+        // If we don't handle the message here, let our parent try.
+        msgHandled = MpResource::handleMessage(rMsg); 
+    break;
+    }
+
+    return msgHandled;
 }
 
 UtlBoolean MprFromInputDevice::handleSetGain(MpBridgeGain gain)
@@ -346,5 +369,17 @@ UtlBoolean MprFromInputDevice::handleSetGain(MpBridgeGain gain)
    mGain = gain;
    return TRUE;
 }
+
+UtlBoolean MprFromInputDevice::handleSetInputDeviceId(const MpIntResourceMsg& message)
+{
+    MpOutputDeviceHandle newDeviceId = message.getData();
+    if(newDeviceId != mDeviceId)
+    {
+        mFrameTimeInitialized = FALSE;
+    }
+
+    return(TRUE);
+}
+
 /* ============================ FUNCTIONS ================================= */
 

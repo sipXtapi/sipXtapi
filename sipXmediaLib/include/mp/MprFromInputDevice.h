@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -30,6 +29,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpInputDeviceManager;
+class MpIntResourceMsg;
 
 /**
 *  @brief Resource in which input media from source outside the flowgraph
@@ -66,6 +66,18 @@ public:
 ///@name Manipulators
 //@{
 
+   /// Send a message to the named MprFromInputDevice in the given flowgraph, to set the input device
+   static OsStatus setDeviceId(const UtlString& resourceName,
+                               OsMsgQ& flowgraphMessageQueue,
+                               MpInputDeviceHandle deviceId);
+   /**<
+    *  @param[in] resourceName - the name of the resource to send a message to.
+    *  @param[in] flowgraphMessageQueue - the queue of the flowgraph containing the resource which
+    *             the message is to be received by.
+    *  @param deviceId - input device ID for the MprFromInputDevice on which
+    *         this resource is to receive its input.
+    */
+
      /// Send message to set gain to apply to the audio.
    static OsStatus setGain(const UtlString& namedResource, 
                            OsMsgQ& fgQ,
@@ -92,7 +104,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-
+    UtlBoolean handleSetInputDeviceId(const MpIntResourceMsg& message);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -100,6 +112,7 @@ private:
    typedef enum
    {
       MPRM_SET_GAIN = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+      MPRM_SET_INPUT_DEVICE_ID,
    } AddlMsgTypes;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],

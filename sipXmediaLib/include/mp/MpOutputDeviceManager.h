@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -130,6 +129,11 @@ public:
      *  Multi-thread safe.
      */
 
+   int removeAllDevices();
+   /**<
+    *  Remove all the device drivers, disable them if they are not already
+    */
+
 
      /// Helper to enable device driver.
    OsStatus enableDevice(MpOutputDeviceHandle deviceId,
@@ -178,6 +182,16 @@ public:
      *
      *  Multi-thread safe.
      */
+
+   /// Helper to disable all device drivers except the optional list of devices
+   OsStatus disableAllDevicesExcept(int exceptCount = 0, MpOutputDeviceHandle exceptIdArray[] = NULL);
+   /**<
+    *  This method diables all the devices except the given array of devices
+    *
+    *  @param exceptCount[in] number of device Ids in exceptIdArray
+    *
+    *  @param exceptIdArray[in] array of devices which are not to be disabled (i.e. exceptions)
+    */
 
 
      /// Method for sending frame of data to output device.

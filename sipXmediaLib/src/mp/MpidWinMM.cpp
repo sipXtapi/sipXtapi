@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -397,6 +396,11 @@ void MpidWinMM::processAudioInput(HWAVEIN hwi,
         // Only process if we're enabled..
         if(mIsEnabled)
         {
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpidWinMM::processAudioInput got frame device: %d (%s)", 
+                getDeviceId(), getDeviceName().data());
+#endif
            mpInputDeviceManager->pushFrame(mDeviceId,
                                            mSamplesPerFrame,
                                            (MpAudioSample*)pWaveHdr->lpData,
@@ -404,6 +408,12 @@ void MpidWinMM::processAudioInput(HWAVEIN hwi,
            // Ok, we have received and pushed a frame to the manager,
            // Now we advance the frame time.
            mCurrentFrameTime += (mSamplesPerFrame*1000)/mSamplesPerSec;
+        }
+        else
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpidWinMM::processAudioInput input device: %d (%s) disabled", 
+                getDeviceId(), getDeviceName().data());
         }
 
         if(mIsEnabled)
