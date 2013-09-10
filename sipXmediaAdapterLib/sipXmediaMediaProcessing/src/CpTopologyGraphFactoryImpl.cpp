@@ -190,6 +190,8 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 , mpInputDeviceManager(NULL)
 , mpOutputDeviceManager(NULL)
 , mpMediaTaskTicker(NULL)
+, mDefaultToOutputDevice(MP_INVALID_OUTPUT_DEVICE_HANDLE)
+, mDefaultToInputDevice(MP_INVALID_INPUT_DEVICE_HANDLE)
 , mNumMcastStreams(3)
 {
     assert(MpMisc.RawAudioPool);
@@ -257,6 +259,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
        // Enable devices
 #ifndef MP_LATE_DEVICE_ENABLE // [
        tempRes = mpInputDeviceManager->enableDevice(sourceDeviceId);
+       mDefaultToInputDevice = sourceDeviceId;
        if (tempRes != OS_SUCCESS)
        {
           OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphFactoryImpl(): "
@@ -270,6 +273,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 #endif // MP_LATE_DEVICE_ENABLE ]
 
        tempRes = mpOutputDeviceManager->enableDevice(sinkDeviceId);
+       mDefaultToOutputDevice = sinkDeviceId;
        if (tempRes == OS_SUCCESS)
        {
           // Use our output device as a source of media task ticks.
@@ -351,25 +355,19 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
       OsTask::delay(30);
 
       // Disable devices
-      result = mpInputDeviceManager->disableDevice(1);
+      result = mpInputDeviceManager->disableAllDevicesExcept();
 //      assert(result == OS_SUCCESS);
-      result = mpOutputDeviceManager->disableDevice(1);
+      result = mpOutputDeviceManager->disableAllDevicesExcept();
 //      assert(result == OS_SUCCESS);
 
       // Free input device driver
-      MpInputDeviceDriver *pInDriver = mpInputDeviceManager->removeDevice(1);
-      if (pInDriver)
-      {
-         delete pInDriver;
-         pInDriver = NULL;
-      }
+      int inDevicesRemoved = mpInputDeviceManager->removeAllDevices();
 
       // Free output device driver
-      MpOutputDeviceDriver *pOutDriver = mpOutputDeviceManager->removeDevice(1);
-      if (pOutDriver)
+      int outDevicesRemoved = mpOutputDeviceManager->removeAllDevices();
+
+      if(outDevicesRemoved)
       {
-         delete pOutDriver;
-         pOutDriver = NULL;
       }
       else
       {
@@ -463,17 +461,127 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
 
     pIf->setValue(miInterfaceId);
     miInterfaceId++;
-    return pIf;
+
+    // Set the default input device in the MprToInputDevice resource
+    MprFromInputDevice::setDeviceId(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, *(pIf->getMsgQ()), mDefaultToInputDevice);
+
+    // Set the default output device in the MprToOutputDevice resource
+    MprToOutputDevice::setDeviceId(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, *(pIf->getMsgQ()), mDefaultToOutputDevice);
+
+    return(pIf);
 }
 
 OsStatus CpTopologyGraphFactoryImpl::setSpeakerDevice(const UtlString& device) 
 {
-   return OS_NOT_YET_IMPLEMENTED;
+    // See if the device already is setup
+    MpOutputDeviceHandle deviceId = MP_INVALID_OUTPUT_DEVICE_HANDLE;
+    OsStatus status = mpOutputDeviceManager->getDeviceId(device, deviceId);
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "CpTopologyGraphFactoryImpl::setSpeakerDevice(%s) found id: %d getDeviceId returned: %d", 
+        device.data(), deviceId, status);
+
+
+    // This interface assumes only one device enabled at a time.  Need addition arguments or another
+    // interface to allow multiple devices enabled at once.  The MpOutputDeviceManager supports multiple
+    // simultainious output devices.
+
+    // Disable all existing output devices, except the given device
+    mpOutputDeviceManager->disableAllDevicesExcept(deviceId > MP_INVALID_OUTPUT_DEVICE_HANDLE ? 1 : 0, &deviceId);
+
+    // If the device does not already exist, add it
+    if(deviceId <= MP_INVALID_OUTPUT_DEVICE_HANDLE)
+    {
+        OUTPUT_DRIVER* newDevice =
+          new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(device));
+        deviceId = mpOutputDeviceManager->addDevice(newDevice);
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "CpTopologyGraphFactoryImpl::setSpeakerDevice addDevice(%s) id: %d",
+            device.data(), deviceId);
+
+        if(deviceId > MP_INVALID_OUTPUT_DEVICE_HANDLE)
+        {
+            status = OS_SUCCESS;
+        }
+
+    }
+
+    // Enable the device if it was not already
+    if(deviceId > MP_INVALID_OUTPUT_DEVICE_HANDLE &&
+       !mpOutputDeviceManager->isDeviceEnabled(deviceId))
+    {
+        status = mpOutputDeviceManager->enableDevice(deviceId);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpTopologyGraphFactoryImpl::setSpeakerDevice enableDevice id: %d (%s) returned: %d",
+            deviceId, device.data(), status);
+
+        // The device is the clock for the media task frameprocessing.
+        OsNotification* processFrameNotifier = MpMediaTask::getMediaTask()->getTickerNotification();
+        status = mpOutputDeviceManager->setFlowgraphTickerSource(deviceId,
+                                                                 processFrameNotifier);
+        
+    }
+    else
+    {
+        // TODO: ???
+        // If the device is already enabled, should we set the process frame notifier anyway??
+    }
+
+    // Set the default device ID to use for the local output path in the flowgraph
+    mDefaultToOutputDevice = deviceId;
+
+    return(status);
 }
 
 OsStatus CpTopologyGraphFactoryImpl::setMicrophoneDevice(const UtlString& device) 
 {
-   return OS_NOT_YET_IMPLEMENTED;
+    // See if the device already is setup
+    MpInputDeviceHandle deviceId = MP_INVALID_INPUT_DEVICE_HANDLE;
+    OsStatus status = mpInputDeviceManager->getDeviceId(device, deviceId);
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "CpTopologyGraphFactoryImpl::setMicrophoneDevice(%s) found id: %d getDeviceId returned: %d", 
+        device.data(), deviceId, status);
+
+
+    // This interface assumes only one device enabled at a time.  Need addition arguments or another
+    // interface to allow multiple devices enabled at once.  The MpInputDeviceManager supports multiple
+    // simultainious output devices.
+
+    // Disable all existing input devices, except the given device
+    mpInputDeviceManager->disableAllDevicesExcept(deviceId > MP_INVALID_INPUT_DEVICE_HANDLE ? 1 : 0, &deviceId);
+
+    // If the device does not already exist, add it
+    if(deviceId <= MP_INVALID_INPUT_DEVICE_HANDLE)
+    {
+        INPUT_DRIVER* newDevice =
+          new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*mpInputDeviceManager,
+                                                           device));
+        deviceId = mpInputDeviceManager->addDevice(*newDevice);
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "CpTopologyGraphFactoryImpl::setMicrophoneDevice addDevice(%s) id: %d",
+            device.data(), deviceId);
+
+        if(deviceId > MP_INVALID_INPUT_DEVICE_HANDLE)
+        {
+            status = OS_SUCCESS;
+        }
+    }
+
+    // Enable the device if it was not already
+    if(deviceId > MP_INVALID_INPUT_DEVICE_HANDLE &&
+       !mpInputDeviceManager->isDeviceEnabled(deviceId))
+    {
+        status = mpInputDeviceManager->enableDevice(deviceId);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpTopologyGraphFactoryImpl::setMicrophoneDevice enableDevice id: %d (%s) returned: %d",
+            deviceId, device.data(), status);
+    }
+
+    // Set the default device ID to use for the local output path in the flowgraph
+    mDefaultToInputDevice = deviceId;
+
+    return(status);
 }
 
 OsStatus CpTopologyGraphFactoryImpl::setAudioAECMode(const MEDIA_AEC_MODE mode)
@@ -1005,12 +1113,16 @@ int CpTopologyGraphFactoryImpl::getMaxInputConnections()
 
 OsStatus CpTopologyGraphFactoryImpl::getSpeakerDevice(UtlString& device) const
 {
-   return OS_NOT_YET_IMPLEMENTED;
+    OsStatus status = mpOutputDeviceManager->getDeviceName(mDefaultToOutputDevice, device);
+    
+    return(status);
 }
 
 OsStatus CpTopologyGraphFactoryImpl::getMicrophoneDevice(UtlString& device) const
 {
-   return OS_NOT_YET_IMPLEMENTED;
+    OsStatus status = mpInputDeviceManager->getDeviceName(mDefaultToInputDevice, device);
+    
+    return(status);
 }
 
 void CpTopologyGraphFactoryImpl::setInitialResourceTopology(MpResourceTopology& resourceTopology)
