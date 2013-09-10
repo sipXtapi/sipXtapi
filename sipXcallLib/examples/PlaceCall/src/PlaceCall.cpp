@@ -912,17 +912,28 @@ int local_main(int argc, char* argv[])
         }
         if (szOutDevice)
         {
-            if (sipxAudioSetCallOutputDevice(g_hInst, szOutDevice) != SIPX_RESULT_SUCCESS)
+            SIPX_RESULT sipxStatus = sipxAudioSetCallOutputDevice(g_hInst, szOutDevice);
+            if (sipxStatus != SIPX_RESULT_SUCCESS)
             {
-                printf("!! Setting output device %s failed !!\n", szOutDevice);
+                printf("!! Setting output device %s failed: %d !!\n", szOutDevice, sipxStatus);
+            }
+            else
+            {
+                printf("Successfully set output device to: %s\n", szOutDevice);
             }
         }
         if (szInDevice)
         {
-            if (sipxAudioSetCallInputDevice(g_hInst, szInDevice) != SIPX_RESULT_SUCCESS)
+            SIPX_RESULT sipxStatus = sipxAudioSetCallInputDevice(g_hInst, szInDevice);
+            if (sipxStatus != SIPX_RESULT_SUCCESS)
             { 
-                printf("!! Setting input device %s failed !!\n", szOutDevice);
+                printf("!! Setting input device %s failed: %d !!\n", szOutDevice, sipxStatus);
             }
+            else
+            {
+                printf("Successfully set input device to: %s\n", szInDevice);
+            }
+
         }
         if (szCodec)
         {
