@@ -341,6 +341,51 @@ OsStatus MpMediaTask::stopFlowGraph(MpFlowGraphBase& rFlowGraph)
    return OS_SUCCESS;
 }
 
+OsStatus MpMediaTask::sendToAllFlowgraphs(OsMsgQ& queuedMessages)
+{
+    OsMsg* aMessage = NULL;
+    int messageCount = 0;
+    OsStatus status = OS_NOT_FOUND;
+
+    OsLock lock(mMutex);
+    while(queuedMessages.receive(aMessage, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
+    {
+        if(aMessage)
+        {
+            messageCount++;
+            int successfulSends = 0;
+            for(int flowgraphIndex = 0; flowgraphIndex < mManagedCnt; flowgraphIndex++)
+            {
+                status = mManagedFGs[flowgraphIndex]->getMsgQ()->send(*aMessage);
+                if(status == OS_SUCCESS)
+                {
+                    successfulSends++;
+                }
+                else
+                {
+                    OsSysLog::add(FAC_MP, PRI_DEBUG,
+                        "MpMediaTask::sendToAllFlowgraphs failed to send message[%d] to flowgraph[%d] error: %d",
+                        messageCount, flowgraphIndex, status);
+                }
+            }
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpMediaTask::sendToAllFlowgraphs sent message[%d] to %d flowgraphs",
+                messageCount, successfulSends);
+
+            delete aMessage;
+            aMessage = NULL;
+        }
+        else
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                "MpMediaTask::sendToAllFlowgraphs dequeued NULL message[%d]",
+                messageCount);
+        }
+    }
+
+    return(status);
+}
+
 /* ============================ ACCESSORS ================================= */
 
 // Debug aid for tracking state. See MpMediaTaskTest
