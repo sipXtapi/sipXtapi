@@ -220,7 +220,8 @@ MpFrameTime MpOutputDeviceDriver::getFramePeriod() const
 MpFrameTime MpOutputDeviceDriver::getFramePeriod(unsigned samplesPerFrame,
                                                  unsigned samplesPerSec)
 {
-   return (1000*samplesPerFrame)/samplesPerSec;
+    assert(samplesPerSec);
+    return(samplesPerSec ? ((1000*samplesPerFrame)/samplesPerSec) : 0);
 }
 
 unsigned MpOutputDeviceDriver::getSamplesPerFrame() const
