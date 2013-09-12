@@ -376,6 +376,7 @@ UtlBoolean MprFromInputDevice::handleSetInputDeviceId(const MpIntResourceMsg& me
     if(newDeviceId != mDeviceId)
     {
         mFrameTimeInitialized = FALSE;
+        mDeviceId = newDeviceId;
     }
 
     return(TRUE);
