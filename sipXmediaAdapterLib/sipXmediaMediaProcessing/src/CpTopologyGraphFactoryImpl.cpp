@@ -515,6 +515,10 @@ OsStatus CpTopologyGraphFactoryImpl::setSpeakerDevice(const UtlString& device)
             "CpTopologyGraphFactoryImpl::setSpeakerDevice enableDevice id: %d (%s) returned: %d",
             deviceId, device.data(), status);
 
+        // TODO: SHould only do this if one enabled device is not already the clock.
+        // if(mDefaultToOutputDevice <= MP_INVALID_OUTPUT_DEVICE_HANDLE && 
+        //      mDefaultToOutputDevice != device Id &&
+        //      !mpOutputDeviceManager->isDeviceEnabled(mDefaultToOutputDevice))
         // The device is the clock for the media task frameprocessing.
         OsNotification* processFrameNotifier = MpMediaTask::getMediaTask()->getTickerNotification();
         status = mpOutputDeviceManager->setFlowgraphTickerSource(deviceId,
@@ -523,12 +527,22 @@ OsStatus CpTopologyGraphFactoryImpl::setSpeakerDevice(const UtlString& device)
     }
     else
     {
-        // TODO: ???
-        // If the device is already enabled, should we set the process frame notifier anyway??
+        // If the device is already enabled, no need to set the process frame notifier
     }
 
     // Set the default device ID to use for the local output path in the flowgraph
     mDefaultToOutputDevice = deviceId;
+
+    // Create message to set the default output device in the MprToOutputDevice resource
+    OsMsgQ localQueue;
+    MprToOutputDevice::setDeviceId(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, localQueue, mDefaultToOutputDevice);
+    
+    MpMediaTask* mediaTask = MpMediaTask::getMediaTask();
+    if(mediaTask)
+    {
+        // Need to tell all the existing calls that the device changed
+        mediaTask->sendToAllFlowgraphs(localQueue);
+    }
 
     return(status);
 }
@@ -578,8 +592,19 @@ OsStatus CpTopologyGraphFactoryImpl::setMicrophoneDevice(const UtlString& device
             deviceId, device.data(), status);
     }
 
-    // Set the default device ID to use for the local output path in the flowgraph
+    // Set the default device id
     mDefaultToInputDevice = deviceId;
+
+    // Create message to set the default device ID to use for the local output path in the flowgraph
+    OsMsgQ localQueue;
+    MprFromInputDevice::setDeviceId(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, localQueue, mDefaultToInputDevice);
+
+    MpMediaTask* mediaTask = MpMediaTask::getMediaTask();
+    if(mediaTask)
+    {
+        // Need to tell all the existing calls that the device changed
+        mediaTask->sendToAllFlowgraphs(localQueue);
+    }
 
     return(status);
 }
