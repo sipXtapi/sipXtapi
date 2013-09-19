@@ -409,10 +409,13 @@ CpTopologyGraphInterface::~CpTopologyGraphInterface()
         mpTopologyGraph = NULL;
     }
 
+    // Don't want to do this as multiple flowgraphs could be using the same input device
+#if 0
     if (mpInputDeviceManager != NULL && mInputDeviceHandle > -1)
     {
        mpInputDeviceManager->disableDevice(mInputDeviceHandle);
     }
+#endif
 
     // Delete the properties and their values
     mInterfaceProperties.destroyAll();
