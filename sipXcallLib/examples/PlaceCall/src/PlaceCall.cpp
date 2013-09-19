@@ -489,6 +489,28 @@ bool WaitForSipXEvent(SIPX_CALLSTATE_EVENT event, int iTimeoutInSecs)
             {
                 break ;
             }
+#ifdef ITERATE_DEVICES
+            // Change to a different input and output device every 10 seconds
+            if(tries % 10 == 0)
+            {
+                size_t numInputs = 0;
+                size_t numOutputs = 0;
+                sipxAudioGetNumInputDevices(g_hInst, numInputs);
+                sipxAudioGetNumOutputDevices(g_hInst, numOutputs);
+
+                int deviceIndex = tries / 10;
+
+                const char* outputDeviceString;
+                sipxAudioGetOutputDevice(g_hInst, deviceIndex % numOutputs, outputDeviceString);
+                printf("Switching speaker device to: \"%s\"\n", outputDeviceString);
+                sipxAudioSetCallOutputDevice(g_hInst, outputDeviceString);
+
+                const char* inputDeviceString;
+                sipxAudioGetInputDevice(g_hInst, deviceIndex % numInputs, inputDeviceString);
+                printf("Switching mic device to: \"%s\"\n", inputDeviceString);
+                sipxAudioSetCallInputDevice(g_hInst, inputDeviceString);
+            }
+#endif
         }
     }
 
