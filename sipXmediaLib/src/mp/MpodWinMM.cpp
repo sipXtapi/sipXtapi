@@ -408,6 +408,8 @@ OsStatus MpodWinMM::disableDevice()
    OsStatus status = OS_SUCCESS;
    MMRESULT   res;
 
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+       "MpodWinMM::disableDevice()");
    // If the device is (not valid) or (not enabled),
    // then don't do anything and return failure.
    if ( !isDeviceValid() )

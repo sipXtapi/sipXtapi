@@ -389,6 +389,9 @@ OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
 OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle deviceId,
                                                          OsNotification *pFlowgraphTicker)
 {
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+        "MpOutputDeviceManager::setFlowgraphTickerSource(deviceId: %d, pFlowgraphTicker: %p)",
+        deviceId, pFlowgraphTicker);
    OsStatus status = OS_SUCCESS;
    MpAudioOutputConnection* connection = NULL;
    OsWriteLock lock(mRwMutex);
@@ -404,9 +407,16 @@ OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle de
          if (connection != NULL)
          {
             status = connection->disableFlowgraphTicker();
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                "MpOutputDeviceManager::setFlowgraphTickerSource disableFlowgraphTicker currrent deviceId: %d returned: %d",
+                mCurrentTickerDevice, status);
          }
          else
          {
+             OsSysLog::add(FAC_MP, PRI_ERR,
+                 "MpOutputDeviceManager::setFlowgraphTickerSource current deviceId: %d not found",
+                 mCurrentTickerDevice);
+
             status = OS_INVALID_STATE;
          }
 
@@ -426,9 +436,15 @@ OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle de
             {
                mCurrentTickerDevice = deviceId;
             }
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpOutputDeviceManager::setFlowgraphTickerSource enableFlowgraphTicker deviceId: %d returned: %d",
+                deviceId, status);
          }
          else
          {
+             OsSysLog::add(FAC_MP, PRI_ERR,
+                 "MpOutputDeviceManager::setFlowgraphTickerSource new deviceId: %d not found",
+                 deviceId);
             status = OS_NOT_FOUND;
          }
       }
