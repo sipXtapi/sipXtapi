@@ -1,10 +1,5 @@
 #
-# Copyright (C) 2009 SIPfoundry Inc.
-# Licensed by SIPfoundry under the LGPL license.
-#
-# Copyright (C) 2009 SIPez LLC.
-# Licensed to SIPfoundry under a Contributor Agreement.
-#
+# Copyright (C) 2009 SIPez LLC.  All rights reserved.
 #
 #  Android makefile for libpcre
 #
@@ -34,6 +29,7 @@ LOCAL_PRELINK_MODULE := false
 intermediates := $(call local-intermediates-dir)
 
 LOCAL_SRC_FILES :=  \
+  JNI_OnLoad.c \
   pcre_compile.c \
   pcre_config.c \
   pcre_dfa_exec.c \
@@ -79,8 +75,8 @@ LOCAL_GENERATED_SOURCES += $(GEN)
 # Hack for NDK which does not take into account LOCAL_GENERATED_SOURCES variable
 $(LOCAL_PATH)/pcre_compile.c: $(SIPX_HOME)/libpcre/pcre.h $(SIPX_HOME)/libpcre/config.h
 
-#include $(BUILD_SHARED_LIBRARY)
-include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_STATIC_LIBRARY)
 
 ###
 ### Build pcregrep
