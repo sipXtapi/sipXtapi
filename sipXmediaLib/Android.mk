@@ -115,6 +115,7 @@ LOCAL_SRC_FILES := \
     src/mp/MprnIntMsg.cpp \
     src/mp/MprnProgressMsg.cpp \
     src/mp/MprnRtpStreamActivityMsg.cpp \
+    src/mp/MprnStringMsg.cpp \
     src/mp/MprNull.cpp \
     src/mp/MprNullAec.cpp \
     src/mp/MprRecorder.cpp \
@@ -196,7 +197,7 @@ LOCAL_C_INCLUDES += \
 
 
 LOCAL_SHARED_LIBRARIES := libpcre
-LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport
+LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport $(SIPX_CODEC_LIBS)
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
