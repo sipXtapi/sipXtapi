@@ -1,4 +1,4 @@
-#include <regex.h>
+//#include <regex.h>
 #include <string.h>
 
 #include "resparse/rr.h"
