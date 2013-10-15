@@ -10,10 +10,8 @@
 
 ifeq ($(strip $(SIPX_HOME)),)
   LOCAL_PATH := $(call my-dir)
-endif
-
-ifeq ($(strip $(LOCAL_PATH)),)
-   LOCAL_PATH := $(SIPX_HOME)/libpcre
+else
+  LOCAL_PATH := $(SIPX_HOME)/libpcre
 endif
 
 ###
