@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -239,6 +239,37 @@ SdpCodec::SdpCodec(int payloadFormat,
       else if(mMimeSubtype.compareTo("g722") == 0, UtlString::ignoreCase)
       {
          setValue(SDP_CODEC_G722);
+      }
+      else if(mMimeSubtype.compareTo(MIME_SUBTYPE_OPUS) == 0, UtlString::ignoreCase)
+      {
+         setValue(SDP_CODEC_OPUS);
+         if(mSampleRate != 48000)
+         {
+            OsSysLog::add(FAC_SDP, PRI_ERR,
+                          "SdpCodec:xxxx OPUS codec NOT at 48000: %d", mSampleRate);
+         }
+         if(mNumChannels != 2)
+         {
+            OsSysLog::add(FAC_SDP, PRI_ERR,
+                          "SdpCodec:xxxx OPUS codec not labeled 2 channel: %d", mNumChannels);
+         }
+
+         // Check for stereo
+
+         // Parameters:
+         //  rate
+         //  maxplaybackrate
+         //  sprop-maxcapturerate
+         //  maxptime
+         //  ptime
+         //  minptime
+         //  maxaveragebitrate
+         //  stereo (receive)
+         //  sprop-stereo (send)
+         //  cbr
+         //  useinbandfec
+         //  usedtx
+
       }
       else if(mMimeSubtype.compareTo("speex") == 0, UtlString::ignoreCase)
       {
