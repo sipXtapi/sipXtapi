@@ -1,9 +1,5 @@
 //  
-// Copyright (C) 2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2010-2013 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,26 +47,9 @@ public:
 ///@name Creators
 //@{
 
-   // Look at AudioSystem.h in Android sources for description.
-   enum StreamType
-   {
-      DEFAULT          =-1,
-      VOICE_CALL       = 0,
-      SYSTEM           = 1,
-      RING             = 2,
-      MUSIC            = 3,
-      ALARM            = 4,
-      NOTIFICATION     = 5,
-      BLUETOOTH_SCO    = 6,
-      ENFORCED_AUDIBLE = 7, // Sounds that cannot be muted by user and must be routed to speaker
-      DTMF             = 8,
-      TTS              = 9,
-      NUM_STREAM_TYPES
-   };
-
      /// Default constructor.
    explicit
-   MpodAndroid(StreamType streamType);
+   MpodAndroid(MpAndroidAudioBindingInterface::StreamType streamType);
      /**<
      *  @note Device name is not supported under Android for now.
      */
@@ -125,7 +104,7 @@ protected:
       DRIVER_STOPPED   ///< MpodAndroid is stopped: the AudioTrack will be stopped
    };
 
-   StreamType mStreamType;   ///< Android type of the output stream
+   MpAndroidAudioBindingInterface::StreamType mStreamType;   ///< Android type of the output stream
    OsAtomicLightUInt mState; ///< Internal class state
    MpAndroidAudioTrack *mpAudioTrack; ///< Pointer to audio track used for playback
    Mutex mLock;              ///< Mutex to control concurrent access to this object

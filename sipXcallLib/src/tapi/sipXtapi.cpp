@@ -67,7 +67,7 @@
 #include "utl/UtlHashMapIterator.h"
 
 #ifdef ANDROID
-#include <mp/MpAndroidAudioTrack.h>
+#include <mp/MpAndroidAudioBindingInterface.h>
 #endif
 
 #ifdef VOICE_ENGINE
@@ -308,7 +308,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 
 #ifdef ANDROID
 // Load and initialize correct driver for this version of Android
-    OsStatus stat = MpAndroidAudioTrack::setAudioTrackCreator();
+    OsStatus stat = MpAndroidAudioBindingInterface::spGetAndroidAudioBinding()->getStatus();
+    //OsStatus stat = MpAndroidAudioTrack::setAudioTrackCreator();
     switch(stat)
     {
         // Things are good continue
@@ -333,6 +334,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     }
     if(stat != OS_SUCCESS)
     {
+        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+        "Failed to initialize Android media bindings, OsStatus: %d SIPX_RESULT: %d", stat, rc);
+
         return(rc);
     }
 #endif

@@ -116,7 +116,7 @@
 #     include <mp/MpodAndroid.h>
 #     define OUTPUT_DRIVER MpodAndroid
 #     define OUTPUT_DRIVER_DEFAULT_NAME "default"
-#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (MpodAndroid::VOICE_CALL)
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (MpAndroidAudioBindingInterface::VOICE_CALL)
 #  else
 #     include <mp/MpodOss.h>
 #     define OUTPUT_DRIVER MpodOss
