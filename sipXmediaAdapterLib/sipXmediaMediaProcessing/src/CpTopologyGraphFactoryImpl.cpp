@@ -242,7 +242,9 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                                            tmpInputDeviceName));
 
        MpInputDeviceHandle sourceDeviceId = mpInputDeviceManager->addDevice(*sourceDevice);
-       OsSysLog::add(FAC_CP, (sourceDeviceId > 0) ? PRI_INFO : PRI_ERR, "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl mpInputDeviceManager->addDevice returned: %d", sourceDeviceId);
+       OsSysLog::add(FAC_CP, (sourceDeviceId > 0) ? PRI_INFO : PRI_ERR, 
+                     "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl mpInputDeviceManager->addDevice returned deviceId: %d", 
+                     sourceDeviceId);
        assert(sourceDeviceId > 0);
 
        // Create sink (output) device and add it to manager.
@@ -251,25 +253,29 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
        OUTPUT_DRIVER *sinkDevice =
           new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(tmpOutputDeviceName));
        MpOutputDeviceHandle sinkDeviceId = mpOutputDeviceManager->addDevice(sinkDevice);
-       OsSysLog::add(FAC_CP, (sinkDeviceId > 0) ? PRI_INFO : PRI_ERR, "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl mpOutputDeviceManager->addDevice returned: %d", sourceDeviceId);
+       OsSysLog::add(FAC_CP, (sinkDeviceId > 0) ? PRI_INFO : PRI_ERR, 
+                     "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl mpOutputDeviceManager->addDevice returned deviceId: %d", 
+                     sinkDeviceId);
        assert(sinkDeviceId > 0);
 
        OsStatus tempRes;
 
        // Enable devices
+       mDefaultToInputDevice = sourceDeviceId;
 #ifndef MP_LATE_DEVICE_ENABLE // [
        tempRes = mpInputDeviceManager->enableDevice(sourceDeviceId);
-       mDefaultToInputDevice = sourceDeviceId;
        if (tempRes != OS_SUCCESS)
        {
           OsSysLog::add(FAC_CP, PRI_ERR, "CpTopologyGraphFactoryImpl(): "
-                        "Can't enable input audio device \"%s\"",
-                        sourceDevice->getDeviceName().data());
+                        "Can't enable input audio device \"%s\"(%d)",
+                        sourceDevice->getDeviceName().data(), mDefaultToInputDevice);
           mpInputDeviceManager->removeDevice(sourceDeviceId);
           delete sourceDevice;
        }
 #else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl delaying enabling of input device");
+       OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                     "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl delaying enabling of input device: %d",
+                     mDefaultToInputDevice);
 #endif // MP_LATE_DEVICE_ENABLE ]
 
        tempRes = mpOutputDeviceManager->enableDevice(sinkDeviceId);
@@ -428,8 +434,12 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
 {
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphFactoryImpl::createMediaInterface");
 #ifdef MP_LATE_DEVICE_ENABLE // [
-    if (mpInputDeviceManager->enableDevice(1) != OS_SUCCESS)
+    OsStatus status = mpInputDeviceManager->enableDevice(mDefaultToInputDevice);
+    if(status != OS_SUCCESS)
     {
+       OsSysLog::add(FAC_MP, PRI_ERR,
+                     "CpTopologyGraphFactoryImpl::createMediaInterface failed to enable input device: %d enableDevice returned: %d",
+                     mDefaultToInputDevice, status);
        return NULL;
     }
 #endif // MP_LATE_DEVICE_ENABLE ]
@@ -449,10 +459,10 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                        enableIce,
                                        pDispatcher,
                                        mpInputDeviceManager,
-                                       1,
+                                       mDefaultToInputDevice,
                                        TRUE,
                                        mpOutputDeviceManager,
-                                       1);
+                                       mDefaultToOutputDevice);
 
     if(mConfiguredIpAddress.length() > 0)
     {
