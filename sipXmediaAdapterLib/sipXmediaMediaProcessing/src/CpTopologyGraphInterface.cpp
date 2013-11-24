@@ -363,9 +363,16 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
 
    mExpeditedIpTos = expeditedIpTos;
 
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "CpTopologyGraphInterface::CpTopologyGraphInterface using input device: %d already enabled: %s",
+                 mInputDeviceHandle, inputDeviceAlreadyEnabled ? "true" : "false");
+
    if (!inputDeviceAlreadyEnabled && mpInputDeviceManager != NULL
       && mInputDeviceHandle > -1)
    {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "CpTopologyGraphInterface::CpTopologyGraphInterface enabling input device: %d",
+                    mInputDeviceHandle);
       mpInputDeviceManager->enableDevice(mInputDeviceHandle);
    }
 }
