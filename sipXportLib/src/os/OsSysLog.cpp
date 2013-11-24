@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2011 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -342,6 +341,26 @@ OsStatus OsSysLog::add(const char*            taskName,
 }
 
 
+void OsSysLog::getTaskInfo(UtlString& taskName, OsTaskId_t& taskId)
+{
+    OsTaskBase* pBase = OsTask::getCurrentTask() ;
+    if (pBase != NULL)
+    {
+        taskName = pBase->getName() ;
+        pBase->id(taskId) ;
+    } 
+    else
+    {
+
+         // TODO: should get abstracted into a OsTaskBase method
+#ifdef __pingtel_on_posix__
+        OsTaskLinux::getCurrentTaskId(taskId);
+#endif
+        taskName = "Anon";
+        // OsTask::getIdString_d(taskName, taskId);
+    }
+}
+
 // Add a log entry
 OsStatus OsSysLog::add(const OsSysLogFacility facility,
                        const OsSysLogPriority priority,
@@ -361,20 +380,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
          va_list ap;
          va_start(ap, format);
 
-         OsTaskBase* pBase = OsTask::getCurrentTask() ;
-         if (pBase != NULL)
-         {
-            taskName = pBase->getName() ;
-            pBase->id(taskId) ;
-         } else {
-
-             // TODO: should get abstracted into a OsTaskBase method
-#ifdef __pingtel_on_posix__
-            OsTaskLinux::getCurrentTaskId(taskId );
-#endif
-            taskName = "Anon";
-            // OsTask::getIdString_d(taskName, taskId);
-         }
+         getTaskInfo(taskName, taskId);
 
          rc = vadd(taskName.data(), taskId, facility, priority, format, ap);         
          va_end(ap);
@@ -384,6 +390,20 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
       rc = OS_SUCCESS ;
 
    return rc;
+}
+
+// Add a log entry given a variable argument list
+OsStatus OsSysLog::vadd(const OsSysLogFacility facility,
+                        const OsSysLogPriority priority,
+                        const char*            format,
+                        va_list                ap)
+{
+    UtlString taskName;
+    OsTaskId_t taskId = 0;
+
+    getTaskInfo(taskName, taskId);
+
+    return(vadd(taskName, taskId, facility, priority, format, ap));
 }
 
 // Add a log entry given a variable argument list
