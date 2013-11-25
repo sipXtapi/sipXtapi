@@ -454,8 +454,10 @@ UtlBoolean MprToOutputDevice::handleEnable()
 
 UtlBoolean MprToOutputDevice::handleSetOutputDeviceId(const MpIntResourceMsg& message)
 {
-
     MpOutputDeviceHandle newDeviceId = message.getData();
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+        "MprToOutputDevice::handleSetOutputDeviceId setting deviceId: %d",
+        newDeviceId);
     if(newDeviceId != mDeviceId)
     {
         mFrameTimeInitialized = FALSE;

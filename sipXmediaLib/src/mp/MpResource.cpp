@@ -610,12 +610,22 @@ UtlBoolean MpResource::handleMessages(OsMsgQ& msgQ)
 
 UtlBoolean MpResource::handleEnable()
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+        "MpResource::handleEnable resource: %s",
+        getName().data());
+#endif
     mIsEnabled = TRUE;
     return(TRUE);
 }
 
 UtlBoolean MpResource::handleDisable()
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+        "MpResource::handleDisable resource: %s",
+        getName().data());
+#endif
     mIsEnabled = FALSE;
     return(TRUE);
 }
