@@ -273,6 +273,10 @@
 				RelativePath="..\sipXportLib\src\test\sipxportunit\SipxPortUnitTestPointFailure.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\os\UnitTestLogHooks.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
