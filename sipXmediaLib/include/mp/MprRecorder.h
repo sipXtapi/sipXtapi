@@ -52,7 +52,7 @@ public:
       UNINITIALIZED_FORMAT = -1,
       RAW_PCM_16 = 0,
       WAV_PCM_16 = 1,
-      WAV_GSM = 31
+      WAV_GSM = 49 // 0x31
    } RecordFileFormat;
 
 /* ============================ CREATORS ================================== */

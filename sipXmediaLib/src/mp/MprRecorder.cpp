@@ -312,8 +312,8 @@ UtlBoolean MprRecorder::handleStartFile(int file,
            OsSysLog::flush();
        }
        assert(mpEncoder);
-       assert(mpEncoder->getInfo()->getSampleRate() == codecSampleRate);
        mpEncoder->initEncode();
+       assert(mpEncoder->getInfo()->getSampleRate() == codecSampleRate);
        break;
 
    case MprRecorder::UNINITIALIZED_FORMAT:
@@ -533,7 +533,8 @@ void MprRecorder::closeFile()
 {
    if (mFileDescriptor > -1)
    {
-      if (mRecFormat == WAV_PCM_16)
+      // Any WAVE file needs header updates on closing
+      if (mRecFormat != RAW_PCM_16)
       {
          updateWaveHeaderLengths(mFileDescriptor);
       }
