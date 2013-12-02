@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -7,9 +7,9 @@
 // Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #include <utl/UtlInit.h>
-#include <os/OsSysLog.h>
 #include <mp/MpPlgStaffV1.h>
 #include <mp/MpCodecFactory.h>
+#include <os/OsSysLog.h>
 
 MpCodecCallInfoV1* MpCodecFactory::sStaticCodecsV1 = NULL;
 
