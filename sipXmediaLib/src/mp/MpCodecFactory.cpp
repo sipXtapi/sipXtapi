@@ -16,7 +16,6 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlInit.h> // KEEP THIS ONE THE FIRST INCLUDE
-
 #include <mp/MpCodecFactory.h>
 #include <mp/MpEncoderBase.h>
 #include <mp/MpDecoderBase.h>
