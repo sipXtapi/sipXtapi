@@ -180,6 +180,7 @@ LOCAL_CFLAGS += -DCODEC_PCMA_PCMU_STATIC=1 \
                 -DCODEC_TONES_STATIC=1 \
                 -DCODEC_G722_STATIC=1 \
                 -DCODEC_SPEEX_STATIC=1 \
+                -DCODEC_OPUS_STATIC=1 \
                 -DDISABLE_STREAM_PLAYER
 
 LOCAL_CFLAGS += -DHAVE_SPEEX
@@ -674,6 +675,39 @@ LOCAL_C_INCLUDES += \
 
 
 LOCAL_LDLIBS += -lstdc++ -ldl
+
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
+
+# =======================
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := libcodec_opus
+
+
+LOCAL_SRC_FILES := \
+    src/mp/codecs/plgopus/plgopus.c 
+
+
+LOCAL_CFLAGS += -DCODEC_STATIC \
+                -DDISABLE_STREAM_PLAYER
+
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libopus/opus/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libopus/ \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android \
+
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_STATIC_LIBRARIES := libopus
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)
