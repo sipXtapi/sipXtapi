@@ -95,25 +95,27 @@ void usage(const char* szExecutable)
     printf("      using %s\n", szBuffer);
     printf("\n") ;
     printf("Options:\n") ;
-    printf("   -d durationInSeconds (default=30 seconds)\n") ;
-    printf("   -t play tones (default = none)\n") ;
-    printf("   -f play file (default = none)\n") ;
+    printf("   -d <int> durationInSeconds (default=30 seconds)\n") ;
+    printf("   -t <string> play tones (0123456789#!*,) (default = none)\n") ;
+    printf("   -f <string> play file (default = none)\n") ;
     printf("   -b play file from buffer (default = none)\n") ;
-    printf("   -p SIP port (default = 5060)\n") ;
-    printf("   -r RTP port start (default = 9000)\n") ;
+    printf("   -p <int> SIP port (default = 5060)\n") ;
+    printf("   -r <int> RTP port start (default = 9000)\n") ;
     printf("   -R use rport as part of via (disabled by default)\n") ;
-    printf("   -B ip address to bind to\n");
-    printf("   -u username (for authentication)\n") ;
-    printf("   -a password  (for authentication)\n") ;
-    printf("   -m realm  (for authentication)\n") ;
-    printf("   -i from identity\n") ;
-    printf("   -S stun server\n") ;
-    printf("   -x proxy (outbound proxy)\n");
+    printf("   -B <string> ip address to bind to\n");
+    printf("   -u <string> username (for authentication)\n") ;
+    printf("   -a <string> password  (for authentication)\n") ;
+    printf("   -m <string> realm  (for authentication)\n") ;
+    printf("   -i <string> from identity\n") ;
+    printf("   -S <string> stun server\n") ;
+    printf("   -x <string> proxy (outbound proxy)\n");
     printf("   -v show sipXtapi version\n");
-    printf("   -c repeat count/Prank mode (call end point N times)\n") ;
-    printf("   -I call input device name\n");
-    printf("   -O call output device name\n");
-    printf("   -C codec name\n");
+    printf("   -c <int> repeat count/Prank mode (call end point N times)\n") ;
+    printf("   -I <string> call input device name\n");
+    printf("   -O <string> call output device name\n");
+    printf("   -g <float> set input device gain (0.001-10.0) (default = 1.0)n");
+    printf("   -volume <int> set output volume (1-100) (default = 70)\n");
+    printf("   -C <string> codec name (default all available)\n");
     printf("   -L list all supported codecs\n");
     printf("   -aec enable acoustic echo cancelation\n");
     printf("   -agc enable automatic gain control\n");
@@ -148,6 +150,8 @@ bool parseArgs(int argc,
                int*   pRepeatCount,
                char** pszInputDevice,
                char** pszOutputDevice,
+               float*   inputGain,
+               int*   outputVolume,
                char** pszCodecName,
                bool*  bCodecList,
                bool*  bAEC,
@@ -178,6 +182,8 @@ bool parseArgs(int argc,
     *pszBindAddress = NULL;
     *pszInputDevice = NULL;
     *pszOutputDevice = NULL;
+    *inputGain = -1.0;
+    *outputVolume = -1;
     *pszCodecName = NULL;
     *bCodecList = false;
     *bAEC = false;
@@ -376,6 +382,28 @@ bool parseArgs(int argc,
             else
             {
                 break ; // Error
+            }
+        }
+        else if (strcmp(argv[i], "-g") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *inputGain = atof(argv[++i]);
+            }
+            else
+            {
+                break; // Error
+            }
+        }
+        else if (strcmp(argv[i], "-volume") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *outputVolume = atoi(argv[++i]);
+            }
+            else
+            {
+                break; // Error
             }
         }
         else if (strcmp(argv[i], "-C") == 0)
@@ -808,6 +836,8 @@ int local_main(int argc, char* argv[])
     char* szBindAddr;
     char* szOutDevice;
     char* szInDevice;
+    float inputGain;
+    int outputVolume;
     char* szCodec;
     bool bUseRport;
     bool bCList;
@@ -831,7 +861,8 @@ int local_main(int argc, char* argv[])
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szPlayTones,
             &szFile, &szFileBuffer, &szSipUrl, &bUseRport, &szUsername, 
             &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
-            &szBindAddr, &iRepeatCount, &szInDevice, &szOutDevice, &szCodec, &bCList,
+            &szBindAddr, &iRepeatCount, &szInDevice, &szOutDevice, &inputGain, &outputVolume,
+            &szCodec, &bCList,
             &bAEC, &bAGC, &bDenoise, &bUseCustomTransportReliable, &bUseCustomTransportUnreliable) 
             && (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
@@ -855,6 +886,11 @@ int local_main(int argc, char* argv[])
                        mediaEngineSampleRate,
                        48000); // Audio device sample rate 
         sipxConfigEnableRport(g_hInst, bUseRport) ;
+        if(bUseRport)
+        {
+            // Don't use Rport mapping discovered for future contact headers
+            sipxConfigEnableRportMapping(g_hInst, false);
+        }
         dumpInputOutputDevices() ;
         sipxEventListenerAdd(g_hInst, EventCallBack, NULL) ;
 
@@ -979,6 +1015,20 @@ int local_main(int argc, char* argv[])
             if (placeCall(szSipUrl, szFromIdentity, szUsername, szPassword, szRealm))
             {
                 bError = false ;
+
+                // If the mic gain was expelicitly given
+                if(inputGain >= 0.0)
+                {
+                    printf("Setting mic gain to: %f return code: %d\n", inputGain,
+                        sipxCallSetMicGain(g_hCall, inputGain));
+                }
+
+                // If the speaker volume was explicitily set
+                if(outputVolume >= 0)
+                {
+                    printf("Setting speaker volume to: %d return code: %d\n", outputVolume,
+                        sipxAudioSetVolume(g_hInst, SPEAKER, outputVolume));
+                }
 
                 // Play tones if provided
                 if (szPlayTones)
