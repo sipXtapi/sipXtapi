@@ -76,7 +76,7 @@
 #define GAIN_MAX                100     /**< Max acceptable gain value */
 #define GAIN_DEFAULT            70      /**< Nominal gain value */
 
-#define VOLUME_MIN              1       /**< Min acceptable volume value */
+#define VOLUME_MIN              0       /**< Min acceptable volume value */
 #define VOLUME_MAX              100     /**< Max acceptable volume value */
 #define VOLUME_DEFAULT          70      /**< Nominal volume value */
 
@@ -2153,6 +2153,11 @@ SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecPreferences(const SIPX_CALL hCall,
  *        a listener interface.
  * @param gain Floating point gain to apply. Gain should be >0. Internally,
  *        inside of a media engine, it may be represented as fixed point value.
+ *        (values for gain recommended in the 0.001-10.0 range)
+ *        The default value is 1.0.  Clipping may occur for values
+ *        greater than 1.0  The gain value is not intended for muting.
+ *        @see sipxAudioMute also a local hold using @see sipxCallHold
+ *        with the bStopRemoteAudio=false may be useful.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallSetMicGain(const SIPX_CALL hCall,
                                             float gain);
@@ -2164,6 +2169,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallSetMicGain(const SIPX_CALL hCall,
  * @param bridgeOutputIndex - output index on the bridge whose input 
  *        gains are to be set.
  * @param gain - new gain value to set for inputs.
+ *        (values for gain recommended in the 0.001-10.0 range)
+ *        The default value is 1.0.  Clipping may occur for values
+ *        greater than 1.0
  */
 SIPXTAPI_API SIPX_RESULT sipxCallSetMixOutputGain(const SIPX_CALL hCall,
                                                   int bridgeOutputIndex,
@@ -2650,7 +2658,8 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetEnabledSpeaker(const SIPX_INST hInst,
  * @param type The type of the speaker either the logical ringer 
  *	      (used to alert user of in inbound call) or speaker 
  *        (in call audio device).
- * @param iLevel The level of the gain of the microphone
+ * @param iLevel The level of the gain of the microphone 
+ 8        (see VOLUME_MIN, VOLUME_MAX and VOLUME_DEFAULT)
  */
 SIPXTAPI_API SIPX_RESULT sipxAudioSetVolume(const SIPX_INST hInst,
                                             const SPEAKER_TYPE type, 

@@ -5054,64 +5054,62 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetVolume(const SIPX_INST hInst,
         "sipxAudioSetVolume hInst=%p type=%d iLevel=%d",
         hInst, type, iLevel);
         
-    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
-    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
+    SIPX_RESULT sr = SIPX_RESULT_INVALID_ARGS;
 
-    assert(type == SPEAKER || type == RINGER) ;
-    assert(iLevel >= VOLUME_MIN) ;
-    assert(iLevel <= VOLUME_MAX) ;
-
-    OsSysLog::add(FAC_LOG, PRI_ERR, "DEBUG: Testing callback\n");
-
-
-    if (pInst)
+    if(iLevel >= VOLUME_MIN && iLevel <= VOLUME_MAX && 
+        (type == SPEAKER || type == RINGER))
     {
-        CpMediaInterfaceFactoryImpl* pInterface = 
-                pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+        SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
-        // Validate Params
-        if ((type == SPEAKER || type == RINGER) && (iLevel >= VOLUME_MIN) &&
-                (iLevel <= VOLUME_MAX))
+        if (pInst)
         {
-            // Only process if uninitialized (first call) or the state has changed
-            if (!pInst->speakerSettings[type].bInitialized ||
-                    pInst->speakerSettings[type].iVol != iLevel)
+            CpMediaInterfaceFactoryImpl* pInterface = 
+                    pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+
+            // Validate Params
+            if ((type == SPEAKER || type == RINGER) && (iLevel >= VOLUME_MIN) &&
+                    (iLevel <= VOLUME_MAX))
             {
-                // Lazy Init
-                if (!pInst->speakerSettings[type].bInitialized)
+                // Only process if uninitialized (first call) or the state has changed
+                if (!pInst->speakerSettings[type].bInitialized ||
+                        pInst->speakerSettings[type].iVol != iLevel)
                 {
-                    initSpeakerSettings(&pInst->speakerSettings[type]) ;
-                    assert(pInst->speakerSettings[type].bInitialized) ;
-                }
-
-                // Store value
-                pInst->speakerSettings[type].iVol = iLevel ;
-                sr = SIPX_RESULT_SUCCESS ;
-
-                // Set value if this type is enabled
-                if (pInst->enabledSpeaker == type)
-                {
-                    // the CpMediaInterfaceFactoryImpl always uses a scale of 0 - 100
-                    OsStatus status = pInterface->setSpeakerVolume(iLevel) ;
-                    assert(status == OS_SUCCESS) ;
-                    int iVolume ;
-                    status = pInterface->getSpeakerVolume(iVolume) ;
-                    assert(status == OS_SUCCESS) ;
-                    assert(iVolume == iLevel) ;
-                    if (status != OS_SUCCESS)
+                    // Lazy Init
+                    if (!pInst->speakerSettings[type].bInitialized)
                     {
-                        sr = SIPX_RESULT_FAILURE ;
+                        initSpeakerSettings(&pInst->speakerSettings[type]) ;
+                        assert(pInst->speakerSettings[type].bInitialized) ;
+                    }
+
+                    // Store value
+                    pInst->speakerSettings[type].iVol = iLevel ;
+                    sr = SIPX_RESULT_SUCCESS ;
+
+                    // Set value if this type is enabled
+                    if (pInst->enabledSpeaker == type)
+                    {
+                        // the CpMediaInterfaceFactoryImpl always uses a scale of 0 - 100
+                        OsStatus status = pInterface->setSpeakerVolume(iLevel) ;
+                        assert(status == OS_SUCCESS) ;
+                        int iVolume ;
+                        status = pInterface->getSpeakerVolume(iVolume) ;
+                        assert(status == OS_SUCCESS) ;
+                        assert(iVolume == iLevel) ;
+                        if (status != OS_SUCCESS)
+                        {
+                            sr = SIPX_RESULT_FAILURE ;
+                        }
                     }
                 }
+                else if (pInst->speakerSettings[type].iVol == iLevel)
+                {
+                    sr = SIPX_RESULT_SUCCESS ;
+                }
             }
-            else if (pInst->speakerSettings[type].iVol == iLevel)
+            else
             {
-                sr = SIPX_RESULT_SUCCESS ;
+                sr = SIPX_RESULT_INVALID_ARGS ;
             }
-        }
-        else
-        {
-            sr = SIPX_RESULT_INVALID_ARGS ;
         }
     }
     return sr ;
