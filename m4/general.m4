@@ -583,7 +583,7 @@ dnl CHECK_SPEEX because it can only be specified once, and CHECK_SPEEX has the
 dnl possibility of being specified more than once (and does in sipXmediaLib).
 AC_DEFUN([CHECK_SPEEX],
 [
-    AC_MSG_CHECKING([for libspeex >= 1.2.0])
+    AC_MSG_CHECKING([for libspeex >= 1.2rc1])
 
     # Check if the user wished to force usage of contrib version of speex
     contrib_speex_enabled=no;
@@ -601,11 +601,14 @@ AC_DEFUN([CHECK_SPEEX],
     speex_detected=no;
     if test "x$contrib_speex_enabled" == "xno"; then
         PKG_CHECK_MODULES([SPEEX],
-                          [speex >= 1.2.0], 
-                          speex_detected=yes, 
+                          [speex >= 1.2rc1],
+                          PKG_CHECK_MODULES([SPEEXDSP],
+                                  [speexdsp >= 1.2rc1],
+                                  speex_detected=yes,
+                                  speex_detected=no; contrib_speex_enabled=yes),
                           speex_detected=no; contrib_speex_enabled=yes)
         pkg_failed=no
-        _PKG_CONFIG([SPEEX_LIBDIR], [variable=libdir], [speex >= 1.2.0])
+        _PKG_CONFIG([SPEEX_LIBDIR], [variable=libdir], [speex >= 1.2rc1])
         if test "x$pkg_failed" = "xuntried"; then
             AC_MSG_ERROR(Failed to get the speex library directory from pkg-config!)
         else
