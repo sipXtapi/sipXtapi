@@ -5,6 +5,7 @@ INCLUDES = -I$(top_srcdir)/sipXmediaLib/include -I$(top_srcdir)/sipXportLib/incl
 codeclib_LTLIBRARIES = codec_speex.la
 
 codec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c
+noinst_HEADERS = plgspeex.h
 
 if SPEEX_STATIC
 codec_speex_la_CFLAGS  = -DCODEC_STATIC
