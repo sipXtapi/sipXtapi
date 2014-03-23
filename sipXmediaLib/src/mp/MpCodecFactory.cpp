@@ -326,8 +326,8 @@ OsStatus MpCodecFactory::createDecoder(const UtlString &mime,
       OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createDecoder unknown codec type "
                     "%s, fmtp=%s"
-                    "payloadType = %d",
-                    mime.data(), fmtp.data(), payloadType);
+                    "payloadType = %d, sampleRate = %d",
+                    mime.data(), fmtp.data(), payloadType, sampleRate);
 
       assert(!"Could not find codec of given type!");
       rpDecoder=NULL;
@@ -452,13 +452,33 @@ MpCodecSubInfo* MpCodecFactory::searchByMIME(const UtlString& mime,
    UtlString mime_copy(mime);
    mime_copy.toLower();
 
+   int _sampleRate = sampleRate;
+   if(mime == "G722" && sampleRate == 8000)
+   {
+      // From RFC 3551 s4.5.2:
+      //
+      //    Even though the actual sampling rate for G.722 audio is 16,000 Hz,
+      //    the RTP clock rate for the G722 payload format is 8,000 Hz because
+      //    that value was erroneously assigned in RFC 1890 and must remain
+      //    unchanged for backward compatibility.  The octet rate or sample-pair
+      //    rate is 8,000 Hz.
+      //
+      // Therefore, when the codec is G722 and we see 8000 in RTP, we need
+      // to look for the standard 16000 codec implementation.
+      //
+      // This is often described as a hack, but it is a hack specified by the RFC
+      // and we have to live with it.  Some implementations may not implement
+      // the hack correctly and may not interoperate.
+      _sampleRate = 16000;
+   }
+
    // Create iterator to list all codecs with given MIME subtype.
    UtlHashBagIterator iter(mCodecsInfo, &mime_copy);
 
    MpCodecSubInfo* pInfo;
    while ((pInfo = (MpCodecSubInfo*)iter()))
    { 
-      if (pInfo->getCodecInfo()->sampleRate == sampleRate &&
+      if (pInfo->getCodecInfo()->sampleRate == _sampleRate &&
           pInfo->getCodecInfo()->numChannels == numChannels)
       {
          return pInfo;
