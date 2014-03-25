@@ -219,8 +219,12 @@ public:
 
      /// @copydoc CpMediaInterface::startChannelTone()
    virtual OsStatus startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote) ;
+   virtual OsStatus startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote, UtlBoolean inband, UtlBoolean rfc4733payload) ;
      /// @copydoc CpMediaInterface::stopChannelTone()
    virtual OsStatus stopChannelTone(int connectionId) ;
+   virtual OsStatus stopChannelTone(int connectionId,
+                                    UtlBoolean inband,
+                                    UtlBoolean rfc4733payload);
 
      /// @copydoc CpMediaInterface::playAudio()
    virtual OsStatus playAudio(const char* url, 

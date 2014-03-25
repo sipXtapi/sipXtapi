@@ -467,7 +467,18 @@ public:
                                      UtlBoolean local, 
                                      UtlBoolean remote) = 0 ;
 
+   virtual OsStatus startChannelTone(int connectiondId,
+                                     int toneId,
+                                     UtlBoolean local,
+                                     UtlBoolean remote,
+                                     UtlBoolean inband,
+                                     UtlBoolean rfc4733payload) = 0 ;
+
    virtual OsStatus stopChannelTone(int connectiondId) = 0 ;
+
+   virtual OsStatus stopChannelTone(int connectiondId,
+                                    UtlBoolean inband,
+                                    UtlBoolean rfc4733payload) = 0 ;
 
 
    virtual OsStatus recordChannelAudio(int connectionId,

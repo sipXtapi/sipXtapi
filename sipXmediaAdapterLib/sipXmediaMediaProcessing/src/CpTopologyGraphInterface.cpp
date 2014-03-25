@@ -2140,20 +2140,36 @@ OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
                                                     UtlBoolean local,
                                                     UtlBoolean remote) 
 {
+   return startChannelTone(connectionId, toneId, local, remote, true, true);
+}
+
+OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
+                                                    int toneId,
+                                                    UtlBoolean local,
+                                                    UtlBoolean remote,
+                                                    UtlBoolean inband,
+                                                    UtlBoolean rfc4733payload)
+{
    OsStatus stat = OS_FAILED;
 
    if (mpTopologyGraph)
    {
-      // Generate in-band tone
-      // FIXME: should only send to the specified connectionId, not the
-      // entire flow graph
-      stat = MprToneGen::startTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
-                                   *mpTopologyGraph->getMsgQ(), toneId);
+      if(inband)
+      {
+         // Generate in-band tone
+         // FIXME: should only send to the specified connectionId, not the
+         // entire flow graph
+         stat = MprToneGen::startTone(DEFAULT_TONE_GEN_RESOURCE_NAME,
+                                      *mpTopologyGraph->getMsgQ(), toneId);
+      }
 
-      // Generate RFC4733 out-of-band tone
-      UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
-      MpResourceTopology::replaceNumInName(encodeName, connectionId);
-      stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
+      if(rfc4733payload)
+      {
+         // Generate RFC4733 out-of-band tone
+         UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+         MpResourceTopology::replaceNumInName(encodeName, connectionId);
+         stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
+      }
    }
    else
    {
@@ -2165,20 +2181,33 @@ OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
 
 OsStatus CpTopologyGraphInterface::stopChannelTone(int connectionId)
 {
+   return stopChannelTone(connectionId, true, true);
+}
+
+OsStatus CpTopologyGraphInterface::stopChannelTone(int connectionId,
+                                                   UtlBoolean inband,
+                                                   UtlBoolean rfc4733payload)
+{
    OsStatus stat = OS_FAILED;
 
    if (mpTopologyGraph)
    {
-      // Stop in-band tone
-      // FIXME: should only send to the specified connectionId, not the
-      // entire flow graph
-      stat = MprToneGen::stopTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
-                                   *mpTopologyGraph->getMsgQ());
+      if(inband)
+      {
+         // Stop in-band tone
+         // FIXME: should only send to the specified connectionId, not the
+         // entire flow graph
+         stat = MprToneGen::stopTone(DEFAULT_TONE_GEN_RESOURCE_NAME,
+                                      *mpTopologyGraph->getMsgQ());
+      }
 
-      // Stop RFC4733 out-of-band tone
-      UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
-      MpResourceTopology::replaceNumInName(encodeName, connectionId);
-      stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
+      if(rfc4733payload)
+      {
+         // Stop RFC4733 out-of-band tone
+         UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+         MpResourceTopology::replaceNumInName(encodeName, connectionId);
+         stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
+      }
    }
    else
    {
