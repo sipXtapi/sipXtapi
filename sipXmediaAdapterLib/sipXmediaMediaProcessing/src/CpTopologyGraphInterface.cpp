@@ -2145,6 +2145,8 @@ OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
    if (mpTopologyGraph)
    {
       // Generate in-band tone
+      // FIXME: should only send to the specified connectionId, not the
+      // entire flow graph
       stat = MprToneGen::startTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
                                    *mpTopologyGraph->getMsgQ(), toneId);
 
@@ -2168,6 +2170,8 @@ OsStatus CpTopologyGraphInterface::stopChannelTone(int connectionId)
    if (mpTopologyGraph)
    {
       // Stop in-band tone
+      // FIXME: should only send to the specified connectionId, not the
+      // entire flow graph
       stat = MprToneGen::stopTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
                                    *mpTopologyGraph->getMsgQ());
 
