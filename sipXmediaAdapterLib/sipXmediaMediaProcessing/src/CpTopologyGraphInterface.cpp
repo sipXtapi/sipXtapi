@@ -2161,6 +2161,10 @@ OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
          // entire flow graph
          stat = MprToneGen::startTone(DEFAULT_TONE_GEN_RESOURCE_NAME,
                                       *mpTopologyGraph->getMsgQ(), toneId);
+         if(stat != OS_SUCCESS)
+         {
+            return stat;
+         }
       }
 
       if(rfc4733payload)
@@ -2199,6 +2203,10 @@ OsStatus CpTopologyGraphInterface::stopChannelTone(int connectionId,
          // entire flow graph
          stat = MprToneGen::stopTone(DEFAULT_TONE_GEN_RESOURCE_NAME,
                                       *mpTopologyGraph->getMsgQ());
+         if(stat != OS_SUCCESS)
+         {
+            return stat;
+         }
       }
 
       if(rfc4733payload)
