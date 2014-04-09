@@ -42,3 +42,7 @@ if AMRWB
 SUBDIRS += plgamrwb
 endif
 
+if BUILD_CODEC_OPUS
+SUBDIRS += plgopus
+endif
+

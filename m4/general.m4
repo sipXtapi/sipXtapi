@@ -1368,6 +1368,46 @@ AC_DEFUN([CHECK_GRAPH_INTERFACE],
     AC_SUBST(INTERFACE_FLAGS)    
 ])dnl
 
+# === CHECK_OPUS
+AC_DEFUN([AM_SET_STATIC_OPUS],
+[
+    CODEC_OPUS_STATIC=true
+    AM_SET_OPUS
+    if test "$OPUS_TARGET" != ""; then
+        AC_DEFINE(CODEC_OPUS_STATIC, [1], [Select Opus for static link])
+        LDFLAGS="$LDFLAGS"
+        STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgopus/codec_opus.la"
+        AC_SUBST(STATIC_CODEC_LIBS)
+    fi
+
+])dnl
+AC_DEFUN([AM_SET_OPUS],
+[
+    PLUGINS="${PLUGINS} OPUS"
+    OPUS_TARGET="plgopus"
+    AC_SUBST(OPUS_TARGET)
+    OPUS_CFLAGS="-I/usr/include/opus"
+    OPUS_LIBS="-lopus"
+    AC_SUBST(OPUS_CFLAGS)
+    AC_SUBST(OPUS_LIBS)
+])dnl
+AC_DEFUN([CHECK_OPUS],
+[
+    AC_ARG_ENABLE([codec-opus],
+                  [AS_HELP_STRING([--enable-codec-opus],
+                                  [Enable support for Opus codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_OPUS ;;
+                       auto) AM_SET_OPUS ;;
+                       yes) AM_SET_OPUS ;;
+                       no) AC_MSG_RESULT(Codec Opus was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-opus) ;;
+                    esac],
+                  [AM_SET_OPUS])
+    AM_CONDITIONAL([BUILD_CODEC_OPUS], [test ! -z "$OPUS_TARGET"])
+    AM_CONDITIONAL(OPUS_STATIC, test "$CODEC_OPUS_STATIC" = true)
+])dnl
+
 # === CHECK_STREAM_PLAYER
 AC_DEFUN([CHECK_STREAM_PLAYER],
 [

@@ -56,6 +56,7 @@ CHECK_L16
 CHECK_G726
 CHECK_G722
 CHECK_AMR_AMRWB
+CHECK_OPUS
 
 # PCRE is mandatory
 PKG_CHECK_MODULES([DEPS_PCRE], [libpcre >= 4.5])
@@ -216,6 +217,7 @@ AC_CONFIG_FILES([
   sipXmediaLib/src/mp/codecs/plgg722/Makefile
   sipXmediaLib/src/mp/codecs/plgamr/Makefile
   sipXmediaLib/src/mp/codecs/plgamrwb/Makefile
+  sipXmediaLib/src/mp/codecs/plgopus/Makefile
   sipXmediaLib/src/test/Makefile
   sipXmediaLib/doc/Makefile
   sipXportLib/Makefile 
