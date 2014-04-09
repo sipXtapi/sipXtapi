@@ -122,6 +122,18 @@ CODEC_API int PLG_GET_INFO_V1_1(opus_48000)(const struct MppCodecInfoV1_1 **code
 CODEC_API void* PLG_INIT_V1_2(opus_48000)(const char* fmtp, int isDecoder,
                                           struct MppCodecFmtpInfoV1_2* codecInfo)
 {
+    if (codecInfo == NULL)
+    {
+        return NULL;
+    }
+
+    /* Fill general codec information */
+    codecInfo->signalingCodec = FALSE;
+    /* It could do PLC, but wrapper should be fixed to support it. */
+    codecInfo->packetLossConcealment = CODEC_PLC_INTERNAL;
+    /* It could do DTX+CNG, but wrapper should be fixed to support it. */
+    codecInfo->vadCng = CODEC_CNG_NONE;
+
     int createError = OPUS_UNIMPLEMENTED;
     struct MpCodecOpusCodecState* codecContext = 
         malloc(sizeof(struct MpCodecOpusCodecState));
