@@ -1,5 +1,9 @@
 # 
-# Copyright (C) 2009-2013 SIPez LLC.  All rights reserved.
+# Copyright (C) 2009 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+# 
+# Copyright (C) 2009 SIPez LLC.
+# Licensed to SIPfoundry under a Contributor Agreement.
 # 
 #
 #//////////////////////////////////////////////////////////////////////////
@@ -11,25 +15,23 @@
 #
 #
 
-SIPX_LIBS := libsipXandroid2_0 libsipXandroid2_3  libsipXandroid2_3_4 libsipXandroid4_0_1 libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall libsipXtapi libpcre
-APP_EXTRA_LIBS := 
-SIPX_CODEC_LIBS := libcodec_pcmapcmu libcodec_tones libcodec_g722 libcodec_speex
+SIPX_LIBS := libsipXport libsipXsdp libsipXtack libsipXmedia libsipXmediaAdapter libsipXcall libsipXtapi libpcre
+SIPX_CODEC_LIBS := libcodec_pcmapcmu libcodec_tones libcodec_g722
 SIPX_SPEEX_LIBS := libspeex libspeexdsp
-JNI_UNIT_LIBS := libsipxportjnisandbox libsipxtackjnisandbox libsipxmediajnisandbox
-UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit sipxsdpunit sipxtackunit sipxtacksandbox mediasandbox sipxmediaunit sipxmediaadapterunit sipxcallunit sipxtapiunit
+JNI_UNIT_LIBS := libsipxportjnisandbox libsipxmediajnisandbox
+UNIT_TESTS := libsipxUnit sipxsandbox sipxportunit sipxsdpunit sipxtackunit mediasandbox sipxmediaunit sipxmediaadapterunit sipxcallunit sipxtapiunit
 
-APP_MODULES := \
+APP_MODULES := $(SIPX_LIBS) \
    $(APP_EXTRA_LIBS) \
-   $(SIPX_SPEEX_LIBS) \
    $(SIPX_CODEC_LIBS) \
-   $(SIPX_LIBS) \
+   $(SIPX_SPEEX_LIBS) \
    $(JNI_UNIT_LIBS) \
    $(UNIT_TESTS)
 
 #APP_DEBUG_FLAGS := -fno-omit-frame-pointer -fno-strict-aliasing -marm
 
 APP_PROJECT_PATH := $(call my-dir)/project
-APP_BUILD_SCRIPT := $(call my-dir)/project/jni/Android.mk
+#APP_BUILD_SCRIPT := $(call my-dir)/Android.mk
 #APP_OPTIM        := release
 APP_OPTIM        := debug
 APP_CFLAGS      := -D__pingtel_on_posix__ \
@@ -38,13 +40,9 @@ APP_CFLAGS      := -D__pingtel_on_posix__ \
                    -DSIPX_TMPDIR=\"/sdcard\" \
                    -DSIPX_CONFDIR=\"/etc/sipx\" \
                    -DTEST_DIR=\"/sdcard\" \
-                   -include $(APP_PROJECT_PATH)/jni/sipXportLib/include/os/OsIntTypes.h \
+                   -include apps/sipxtapi/project/jni/sipXportLib/include/os/OsIntTypes.h \
                    -O2 -g \
                    $(APP_DEBUG_FLAGS)
-
-# The only reason this is here is to provide istream header file.  We can probably live without LIBSTL
-# and just not build in the wave file readers in sipXmediaLib
-APP_STL:=stlport_static
 
 # Optimizations for ARM Cortex-A8, used in Motorola Droid/Milestone, HTC Nexus One, etc
 # This optimizations don't give any spped improvement over ARM11-optimized code, so we

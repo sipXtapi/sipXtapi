@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reservied.
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -79,8 +80,6 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mUnderrunLength(0)
 , mTotSampleCount(0)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MpodWinMM::MpodWinMM(%s)", getDeviceName().data());
    WAVEOUTCAPS devCaps;
    // Grab the number of output devices that are available.
    UINT nInputDevs = waveOutGetNumDevs();
@@ -174,9 +173,6 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 // Destructor
 MpodWinMM::~MpodWinMM() 
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MpodWinMM::~MpodWinMM(%s)", getDeviceName().data());
-
    // We shouldn't be enabled, assert that we aren't.
    // If we happen to still be enabled at this point, disable the device.
    //assert(!isEnabled());  // Commented out as it causes issues with unit test.
@@ -246,9 +242,6 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
                                  MpFrameTime currentFrameTime,
                                  OsCallback &frameTicker)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MpodWinMM::enableDevice");
-
    // If the device is not valid, let the user know it's bad.
    if ( !isDeviceValid() )
    {
@@ -416,8 +409,6 @@ OsStatus MpodWinMM::disableDevice()
    OsStatus status = OS_SUCCESS;
    MMRESULT   res;
 
-   OsSysLog::add(FAC_MP, PRI_DEBUG,
-       "MpodWinMM::disableDevice()");
    // If the device is (not valid) or (not enabled),
    // then don't do anything and return failure.
    if ( !isDeviceValid() )
@@ -765,20 +756,7 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
       // send a ticker notification so that more frames can be sent.
       if(mpTickerNotification != NULL)
       {
-#ifdef TEST_PRINT
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-             "MpodWinMM::finalizeProcessedHeader signaling notifier from device: %d",
-             getDeviceName().data());
-#endif
          mpTickerNotification->signal(mCurFrameTime);
-      }
-      else
-      {
-#ifdef TEST_PRINT
-          OsSysLog::add(FAC_MP, PRI_DEBUG,
-              "MpodWinMM::finalizeProcessedHeader NULL tickerNotifier for device: %s",
-              getDeviceName().data());
-#endif
       }
    }
 
@@ -794,11 +772,7 @@ DWORD WINAPI MpodWinMM::ThreadMMProc(LPVOID lpMessage)
       assert (WAIT_OBJECT_0 == res);
 
       if (oddWinMMPtr->mExitFlag == TRUE)
-      {
-          OsSysLog::add(FAC_MP, PRI_DEBUG,
-              "MpodWinMM::ThreadMMProc exiting, mExitFlag == TRUE");
          return 0;
-      }
 
       for (;;)
       {
@@ -836,9 +810,6 @@ DWORD WINAPI MpodWinMM::ThreadMMProc(LPVOID lpMessage)
                "device open (WOM_OPEN).");
             break;
          case WOM_DONE:
-#ifdef TEST_PRINT
-             OsSysLog::add(FAC_MP, PRI_DEBUG, "MpodWinMM::ThreadMMProc WOM_DONE received");
-#endif
             oddWinMMPtr->finalizeProcessedHeader(hdr);
             break;
          case WOM_CLOSE:
@@ -856,8 +827,6 @@ DWORD WINAPI MpodWinMM::ThreadMMProc(LPVOID lpMessage)
          }
       }
    }
-   OsSysLog::add(FAC_MP, PRI_DEBUG,
-      "MpodWinMM::ThreadMMProc exiting");
 }
 
 /* //////////////////////// PROTECTED STATIC //////////////////////////////// */

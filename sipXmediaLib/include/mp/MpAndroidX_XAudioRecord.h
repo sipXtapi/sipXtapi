@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2010-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2010-2011 SIPez LLC.  All rights reserved.
+// Licensed under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,18 +33,6 @@
 #elif ANDROID_4_0_1
 #    define MP_ANDROID_AUDIO_RECORD MpAndroid4_0_1AudioRecord
 #    define QUOTED_MP_ANDROID_AUDIO_RECORD "MpAndroid4_0_1AudioRecord"
-#    ifndef LOG_TAG
-#        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_RECORD
-#    endif
-#elif ANDROID_4_1_1
-#    define MP_ANDROID_AUDIO_RECORD MpAndroid4_1_1AudioRecord
-#    define QUOTED_MP_ANDROID_AUDIO_RECORD "MpAndroid4_1_1AudioRecord"
-#    ifndef LOG_TAG
-#        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_RECORD
-#    endif
-#elif ANDROID_4_2_1
-#    define MP_ANDROID_AUDIO_RECORD MpAndroid4_2_1AudioRecord
-#    define QUOTED_MP_ANDROID_AUDIO_RECORD "MpAndroid4_2_1AudioRecord"
 #    ifndef LOG_TAG
 #        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_RECORD
 #    endif
@@ -82,8 +71,6 @@ class MP_ANDROID_AUDIO_RECORD : public MpAndroidAudioRecord
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
     friend MpAndroidAudioRecord* createAndroidAudioRecord();
-
-    friend class MP_ANDROID_AUDIO_BINDING_INTERFACE;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

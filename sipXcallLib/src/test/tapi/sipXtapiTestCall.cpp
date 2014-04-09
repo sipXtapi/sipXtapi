@@ -8,8 +8,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <sipxunittests.h>
-
+#include <cppunit/CompilerOutputter.h>
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/ui/text/TestRunner.h>
 #include "sipXtapiTest.h"
 #include "EventValidator.h"
 #include "callbacks.h"

@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2010-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2010-2011 SIPez LLC.  All rights reserved.
+// Licensed under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,34 +45,11 @@
 #    define CREATE_TRACK_METHOD createTrack_l
      extern "C" int setpriority(int, int, int);
 #    define PRIO_PROCESS 0
-#elif ANDROID_4_1_1
-#    define MP_ANDROID_AUDIO_TRACK MpAndroid4_1_1AudioTrack
-#    define QUOTED_MP_ANDROID_AUDIO_TRACK "MpAndroid4_1_1AudioTrack"
-#    ifndef LOG_TAG
-#        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_TRACK
-#    endif
-#    define CREATE_TRACK_METHOD createTrack_l
-     extern "C" int setpriority(int, int, int);
-#    define PRIO_PROCESS 0
-#    define LOGV ALOGV
-#    define LOGD ALOGD
-#elif ANDROID_4_2_1
-#    define MP_ANDROID_AUDIO_TRACK MpAndroid4_2_1AudioTrack
-#    define QUOTED_MP_ANDROID_AUDIO_TRACK "MpAndroid4_2_1AudioTrack"
-#    ifndef LOG_TAG
-#        define LOG_TAG QUOTED_MP_ANDROID_AUDIO_TRACK
-#    endif
-#    define CREATE_TRACK_METHOD createTrack_l
-     extern "C" int setpriority(int, int, int);
-#    define PRIO_PROCESS 0
-#    define LOGV ALOGV
-#    define LOGD ALOGD
 #else
 #    error Unsupported version of Android AudioTrack
 #endif
 
 // SIPX INCLUDES
-#include <mp/MpAndroidX_XAudioBinding.h>
 #include <mp/MpAndroidAudioTrack.h>
 
 // SYSTEM INCLUDES
@@ -262,8 +240,6 @@ public:
                                           sipXcallback_t cbf,
                                           void* user,
                                           int notificationFrames);
-
-    friend class MP_ANDROID_AUDIO_BINDING_INTERFACE;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

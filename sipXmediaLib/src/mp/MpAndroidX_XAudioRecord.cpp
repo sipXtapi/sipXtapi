@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2010-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2010-2011 SIPez LLC. 
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,13 +13,12 @@
 //#define ENABLE_FILE_LOGGING
 
 // SIPX INCLUDES
-#if defined(ANDROID_2_3) || defined(ANDROID_2_3_4) || defined(ANDROID_4_0_1) || defined(ANDROID_4_1_1) || defined(ANDROID_4_2_1)
+#if defined(ANDROID_2_3) || defined(ANDROID_2_3_4) || defined(ANDROID_4_0_1)
 // Must include specific version of pthreads here before Android audio stuff for Android 2.3 so
 // so that this can be compiled for Android 2.3 using NDK r3
 #    include <development/ndk/platforms/android-9/include/pthread.h>
 #endif
 #include <mp/MpAndroidX_XAudioRecord.h>
-#include <mp/MpAndroidX_XAudioTrack.h>
 
 // SYSTEM INCLUDES
 #include <utils/Log.h>
@@ -29,7 +29,6 @@ using namespace android;
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-// DEFINES
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -76,13 +75,9 @@ int /*status_t*/ MP_ANDROID_AUDIO_RECORD::set(int inputSource,
                                               void* user,
                                               int notificationFrames)
 {
-    return(mpAudioRecord->set(
-#if defined(ANDROID_4_1_1) || defined(ANDROID_4_2_1)
-                              (audio_source_t)
-#endif
-                                inputSource,
+    return(mpAudioRecord->set(inputSource,
                               sampleRate,
-#if defined(ANDROID_4_0_1) || defined(ANDROID_4_1_1) || defined(ANDROID_4_2_1)
+#ifdef ANDROID_4_0_1
                               AUDIO_FORMAT_PCM_16_BIT, // format
                               AUDIO_CHANNEL_IN_MONO, // # channels
 #else
@@ -90,12 +85,7 @@ int /*status_t*/ MP_ANDROID_AUDIO_RECORD::set(int inputSource,
                               AudioSystem::CHANNEL_IN_MONO,  // # channels
 #endif
                               0,  // frameCount
-#if !defined(ANDROID_4_2_1)
-#  if defined(ANDROID_4_1_1) || defined(ANDROID_4_2_1)
-                              (AudioRecord::record_flags)
-#  endif
-                                (AudioRecord::RECORD_AGC_ENABLE | AudioRecord::RECORD_NS_ENABLE),  // flags
-#endif
+                              AudioRecord::RECORD_AGC_ENABLE | AudioRecord::RECORD_NS_ENABLE,  // flags
                               audioCallback,  // cbf
                               user,
                               notificationFrames,

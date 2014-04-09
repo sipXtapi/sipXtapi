@@ -1,5 +1,9 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2007-2008 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -9,7 +13,6 @@
 #include <utl/UtlInit.h>
 #include <mp/MpPlgStaffV1.h>
 #include <mp/MpCodecFactory.h>
-#include <os/OsSysLog.h>
 
 MpCodecCallInfoV1* MpCodecFactory::sStaticCodecsV1 = NULL;
 
@@ -37,15 +40,3 @@ extern "C" void callbackRegisterStaticCodec(const char* moduleName,
 
    MpCodecFactory::addStaticCodec(pCodecInfo);
 }
-
-extern "C" void mppLogError(const char* format, ...)
-{
-    va_list varArgs;
-    va_start(varArgs, format);
-
-    OsSysLog::vadd(FAC_MP, PRI_ERR,
-                  format, varArgs);
-
-    va_end(varArgs);
-}
-

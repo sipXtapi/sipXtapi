@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2010-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2010-2011 SIPez LLC. 
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,8 +28,25 @@ using namespace android;
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+MpAndroidAudioTrack::MpAndroidAudioTrackCreator MpAndroidAudioTrack::spAudioTrackCreate = stubAndroidAudioTrackCreator;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/* ============================ CREATORS ================================== */
+MpAndroidAudioTrack* stubAndroidAudioTrackCreator(int streamType,
+                                          uint32_t sampleRate,
+                                          int format,
+                                          int channels,
+                                          int frameCount,
+                                          uint32_t flags,
+                                          sipXcallback_t cbf,
+                                          void* user,
+                                          int notificationFrames)
+{
+    LOGE("stubAndroidAudioTrackCreator: Unimplemented Android AudioTrack");
+
+    return(new MpAndroidAudioTrack());
+}
 
 MpAndroidAudioTrack::MpAndroidAudioTrack()
 {
@@ -41,6 +59,56 @@ MpAndroidAudioTrack::~MpAndroidAudioTrack()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+OsStatus MpAndroidAudioTrack::setAudioTrackCreator()
+{
+    OsStatus res;
+    OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
+    const char* audioDriverLibNames[] =
+    {
+        "libsipXandroid2_0.so",
+        "libsipXandroid2_3.so",
+        "libsipXandroid2_3_4.so",
+        "libsipXandroid4_0_1.so"
+    };
+
+    const char* libName = NULL;
+    for(int libIndex = 0; libIndex < sizeof(audioDriverLibNames)/sizeof(const char*); libIndex++)
+    {
+        libName = audioDriverLibNames[libIndex];
+        res = pShrMgr->loadSharedLib(libName);
+        LOGD("Trying libs [%d/%d] for platform specific audio driver, loadSharedLib(\"%s\") returned: %d", 
+            libIndex, sizeof(audioDriverLibNames)/sizeof(const char*), libName, res);
+        if(res == OS_SUCCESS)
+        {
+            break;
+        }
+    }
+
+    if(res == OS_SUCCESS)
+    {
+        void* symbolAddress = NULL;
+        const char* symbolName = "createAndroidAudioTrack";
+
+        res = pShrMgr->getSharedLibSymbol(libName, symbolName, symbolAddress);
+
+        if(res == OS_SUCCESS && symbolAddress)
+        {
+            spAudioTrackCreate = (MpAndroidAudioTrackCreator)symbolAddress;
+            LOGD("got symbol: \"%s\" funcPtr: %p res: %d", symbolName, symbolAddress, res);
+
+            // Get the record creator too
+            res = MpAndroidAudioRecord::setAudioRecordCreator(libName);
+        }
+        else
+        {
+            res = OS_PLATFORM_NOT_SUPPORTED;
+            LOGE("get symbol: %s failed: %d", symbolName, res);
+        }
+    }
+
+    return(res);
+}
 
 void MpAndroidAudioTrack::start()
 {

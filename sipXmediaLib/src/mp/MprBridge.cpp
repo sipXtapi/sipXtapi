@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -395,23 +395,6 @@ UtlBoolean MprBridge::handleSetMixWeightsForOutput(int bridgeOutputPort,
                                                    int numWeights,
                                                    const MpBridgeGain gain[])
 {
-#ifdef TEST_PRINT
-    UtlString weightString;
-    for(int wIndex = 0; wIndex < numWeights; wIndex++)
-    {
-#  ifdef MP_FIXED_POINT
-        weightString.appendFormat("%s%d", 
-            wIndex > 0 ? ", " : "", gain[wIndex]);
-#  else
-        weightString.appendFormat("%s%f", 
-            wIndex > 0 ? ", " : "", (double)gain[wIndex]);
-#  endif
-    }
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MprBridge::handleSetMixWeightsForOutput(outputPort: %d, numWeights: %d, weights[%s]",
-        bridgeOutputPort, numWeights, weightString.data());
-#endif
-
    // New gains vector must feet into matrix
    assert(bridgeOutputPort >= 0);
    assert(numWeights <= maxInputs());
@@ -430,24 +413,7 @@ UtlBoolean MprBridge::handleSetMixWeightsForInput(int bridgeInputPort,
                                                   int numWeights,
                                                   const MpBridgeGain gain[])
 {
-#ifdef TEST_PRINT
-    UtlString weightString;
-    for(int wIndex = 0; wIndex < numWeights; wIndex++)
-    {
-#  ifdef MP_FIXED_POINT
-        weightString.appendFormat("%s%d", 
-            wIndex > 0 ? ", " : "", gain[wIndex]);
-#  else
-        weightString.appendFormat("%s%f", 
-            wIndex > 0 ? ", " : "", (double)gain[wIndex]);
-#  endif
-    }
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MprBridge::handleSetMixWeightsForInput(inputPort: %d, numWeights: %d, weights[%s]",
-        bridgeInputPort, numWeights, weightString.data());
-#endif
-
-   // New gains vector must fit into matrix
+   // New gains vector must feet into matrix
    assert(numWeights <= maxOutputs());
    if (numWeights > maxOutputs())
    {

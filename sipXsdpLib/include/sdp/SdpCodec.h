@@ -47,7 +47,6 @@
 #define MIME_SUBTYPE_ILBC "iLBC"
 #define MIME_SUBTYPE_ISAC "ISAC"
 #define MIME_SUBTYPE_GSM "GSM"
-#define MIME_SUBTYPE_OPUS "opus"
 #define MIME_SUBTYPE_SPEEX "speex"
 #define MIME_SUBTYPE_AMR "amr"
 #define MIME_SUBTYPE_AMRWB "amr-wb"
@@ -190,7 +189,6 @@ public:
         SDP_CODEC_MPEG4_GENERIC_AAC_LC_16000,
         SDP_CODEC_MPEG4_GENERIC_AAC_LC_32000,
         SDP_CODEC_MPEG4_GENERIC_AAC_LC_48000,
-        SDP_CODEC_OPUS, ///< Default OPUS VoIP codec upto 48000 samples/sec
 
         /// GIPS specific codecs
         //@{

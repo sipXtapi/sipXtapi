@@ -363,16 +363,9 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
 
    mExpeditedIpTos = expeditedIpTos;
 
-   OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "CpTopologyGraphInterface::CpTopologyGraphInterface using input device: %d already enabled: %s",
-                 mInputDeviceHandle, inputDeviceAlreadyEnabled ? "true" : "false");
-
    if (!inputDeviceAlreadyEnabled && mpInputDeviceManager != NULL
       && mInputDeviceHandle > -1)
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG,
-                    "CpTopologyGraphInterface::CpTopologyGraphInterface enabling input device: %d",
-                    mInputDeviceHandle);
       mpInputDeviceManager->enableDevice(mInputDeviceHandle);
    }
 }
@@ -416,13 +409,10 @@ CpTopologyGraphInterface::~CpTopologyGraphInterface()
         mpTopologyGraph = NULL;
     }
 
-    // Don't want to do this as multiple flowgraphs could be using the same input device
-#if 0
     if (mpInputDeviceManager != NULL && mInputDeviceHandle > -1)
     {
        mpInputDeviceManager->disableDevice(mInputDeviceHandle);
     }
-#endif
 
     // Delete the properties and their values
     mInterfaceProperties.destroyAll();
@@ -1492,21 +1482,13 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
            mediaConnection->mRtpAudioSendHostPort, mediaConnection->mRtcpAudioSendHostPort);
 //#endif
 
+       
+       // Store the primary codec for cost calculations later
        if (mediaConnection->mpAudioCodec != NULL)
        {
            delete mediaConnection->mpAudioCodec ;
            mediaConnection->mpAudioCodec = NULL ;
        }
-#ifdef VIDEO
-       if (mediaConnection->mpVideoCodec != NULL)
-       {
-           delete mediaConnection->mpVideoCodec ;
-           mediaConnection->mpVideoCodec = NULL ;
-       }
-#endif
-
-       // Should the following be done inside the if we have an audio send address scope?????
-       // Store the primary codec for cost calculations later
        if (audioCodec != NULL)
        {
            mediaConnection->mpAudioCodec = new SdpCodec();
@@ -1540,7 +1522,7 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
 
       // Start sending RTP if destination address is present.
       if ( !mediaConnection->mRtpAudioSendHostAddress.isNull()
-#ifdef VIDEO  // Should this be mRtpAudioSendHostAddress???
+#ifdef VIDEO
          && mediaConnection->mRtpVideoSendHostAddress.compareTo("0.0.0.0")
 #endif
          )
@@ -1577,37 +1559,26 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
          !mediaConnection->mRtpVideoSendHostAddress.isNull() &&
          mediaConnection->mRtpVideoSendHostAddress.compareTo("0.0.0.0"))
       {
-          // Do the same for video
-          // Note: temporarily use MprDecode message for video encode as we want full list of
-          // codecs to make inteligent choice at media layer
-          UtlString videoConnectionName(DEFAULT_VIDEO_RTP_OUTPUT_RESOURCE_NAME);
-          MpResourceTopology::replaceNumInName(videoConnectionName, connectionId);
+         // Do the same for video
+         // Note: temporarily use MprDecode message for video encode as we want full list of
+         // codecs to make inteligent choice at media layer
+         UtlString videoConnectionName(DEFAULT_VIDEO_RTP_OUTPUT_RESOURCE_NAME);
+         MpResourceTopology::replaceNumInName(videoConnectionName, connectionId);
 
-          MprFromNet::setSockets(videoConnectionName, *(mpTopologyGraph->getMsgQ()),
-              mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtcpVideoSocket);
+         MprFromNet::setSockets(videoConnectionName, *(mpTopologyGraph->getMsgQ()),
+             mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtcpVideoSocket);
 
-          MprDecode::selectCodecs(videoConnectionName, *mpTopologyGraph->getMsgQ(),
-                                  sendCodecs, numCodecs);
+         MprDecode::selectCodecs(videoConnectionName, *mpTopologyGraph->getMsgQ(),
+                                 sendCodecs, numCodecs);
 
-          MpResource::enable(videoConnectionName, *mpTopologyGraph->getMsgQ());
-          mediaConnection->mRtpVideoSending = TRUE;
+         MpResource::enable(videoConnectionName, *mpTopologyGraph->getMsgQ());
+         mediaConnection->mRtpVideoSending = TRUE;
 
-          returnCode = OS_SUCCESS;
-
-          if (videoCodec != NULL)
-          {
-              mediaConnection->mpVideoCodec = new SdpCodec();
-              *mediaConnection->mpVideoCodec = *videoCodec ;
-              UtlString videoMimeSubType;
-              videoCodec->getEncodingName(videoMimeSubType);
-              OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::startRtpSend primary video codec: %s payload ID: %d",
-                  videoMimeSubType.data(), videoCodec->getCodecPayloadFormat());
-          }
+         returnCode = OS_SUCCESS;
       }
 #endif
    }
-
-   return (returnCode);
+   return returnCode;
 }
 
 
@@ -2589,38 +2560,32 @@ OsStatus CpTopologyGraphInterface::getPrimaryCodec(int connectionId,
                                                 int* videoPayloadType,
                                                 bool& isEncrypted)
 {
-    OsStatus status =  OS_NOT_FOUND;
     UtlString codecType;
     CpTopologyMediaConnection* pConnection = getMediaConnection(connectionId);
-    if(pConnection)
+    if (pConnection == NULL)
+       return OS_NOT_FOUND;
+
+    if (pConnection->mpAudioCodec != NULL)
     {
-        status = OS_SUCCESS;
-
-        if (pConnection->mpAudioCodec != NULL)
-        {
-            pConnection->mpAudioCodec->getEncodingName(audioCodec);
-            *audioPayloadType = pConnection->mpAudioCodec->getCodecPayloadFormat();
-        }
-
-#ifdef VIDEO
-        if(pConnection->mpVideoCodec)
-        {
-            pConnection->mpVideoCodec->getEncodingName(videoCodec);
-            *videoPayloadType = pConnection->mpVideoCodec->getCodecPayloadFormat();
-        }
-        else
-#endif
-        {
-            videoCodec="";
-            *videoPayloadType=0;
-        }
+        pConnection->mpAudioCodec->getEncodingName(audioCodec);
+        *audioPayloadType = pConnection->mpAudioCodec->getCodecPayloadFormat();
     }
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
-            "CpTopologyGraphInterface::getPrimaryCodec returning %d",
-            status);
+#ifdef VIDEO
+    if(pConnection->mpVideoCodec)
+    {
+        pConnection->mpVideoCodec->getEncodingName(videoCodec);
+        *videoPayloadType = pConnection->mpVideoCodec->getCodecPayloadFormat();
+    }
+    else
+#else
+    {
+        videoCodec="";
+        *videoPayloadType=0;
+    }
+#endif
 
-    return(status);
+   return(OS_SUCCESS);
 }
 
 OsStatus CpTopologyGraphInterface::getVideoQuality(int& quality)

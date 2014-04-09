@@ -235,8 +235,7 @@ void OsServerSocket::close()
 {
    if(socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-          "OsServerSocket::close: socket fd: %d\n", (int)socketDescriptor);
+      // OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsServerSocket::close: socket fd: %d\n", (int)socketDescriptor);
 #if defined(_WIN32)
       closesocket(socketDescriptor);
 #elif defined(_VXWORKS) || defined(__pingtel_on_posix__)

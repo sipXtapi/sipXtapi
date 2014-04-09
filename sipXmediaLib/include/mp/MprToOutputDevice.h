@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -29,7 +30,6 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpOutputDeviceManager;
-class MpIntResourceMsg;
 
 /**
 *  @brief Resource in which input media from source outside the flowgraph
@@ -71,18 +71,6 @@ public:
 ///@name Manipulators
 //@{
 
-   /// Send a message to the named MprToOutputDevice in the given flowgraph, to set the output device
-   static OsStatus setDeviceId(const UtlString& resourceName,
-                               OsMsgQ& flowgraphMessageQueue,
-                               MpOutputDeviceHandle deviceId);
-   /**<
-    *  @param[in] resourceName - the name of the resource to send a message to.
-    *  @param[in] flowgraphMessageQueue - the queue of the flowgraph containing the resource which
-    *             the message is to be received by.
-    *  @param deviceId - output device ID for the MpOutputDeviceManager on which
-    *         this resource is to send its output.
-    */
-
      /// Send message to enable/disable copy queue.
    static OsStatus enableCopyQ(const UtlString& namedResource, 
                                OsMsgQ& fgQ,
@@ -121,7 +109,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    UtlBoolean handleSetOutputDeviceId(const MpIntResourceMsg& message);
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -129,8 +117,7 @@ private:
    typedef enum
    {
       MPRM_ENABLE_COPY_QUEUE = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
-      MPRM_DISABLE_COPY_QUEUE,
-      MPRM_SET_OUTPUT_DEVICE_ID
+      MPRM_DISABLE_COPY_QUEUE
    } AddlResMsgTypes;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],

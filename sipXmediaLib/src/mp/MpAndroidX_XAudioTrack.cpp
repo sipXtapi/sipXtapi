@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2010-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2010-2011 SIPez LLC. 
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +13,7 @@
 //#define ENABLE_FILE_LOGGING
 
 // SIPX INCLUDES
-#if defined(ANDROID_2_3) || defined(ANDROID_2_3_4) || defined(ANDROID_4_0_1) ||  defined(ANDROID_4_1_1) || defined(ANDROID_4_2_1)
+#if defined(ANDROID_2_3) || defined(ANDROID_2_3_4) || defined(ANDROID_4_0_1)
 // Must include specific version of pthreads here before Android audio stuff for Android 2.3 so
 // so that this can be compiled for Android 2.3 using NDK r3
 #    include <development/ndk/platforms/android-9/include/pthread.h>
@@ -26,7 +27,6 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-// DEFINES
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -153,6 +153,7 @@ void MP_ANDROID_AUDIO_TRACK::dumpAudioTrack(const char* label)
     LOGV("dumpAudioTrack exit");
 }
 /* ============================ INQUIRY =================================== */
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

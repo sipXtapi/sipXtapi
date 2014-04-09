@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -214,13 +215,6 @@ public:
      *  @see getTickerNotification() for an alternative method of signaling
      *       frame start.
      */
-
-   /// Queue the given messages to each of the managed flowgraphs
-   OsStatus sendToAllFlowgraphs(OsMsgQ& queuedMessages);
-   /**<
-    *   @param queuedMessagees - message queue containing one or more messages that
-    *          are to be queued to all of the managed flowgraphs
-    */
 
 //@}
 

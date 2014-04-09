@@ -1,5 +1,9 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2010 SIPfoundry Inc. 
+// Licensed by SIPfoundry under the LGPL license. 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -1131,7 +1135,7 @@ protected:
       for (i=0; i < nOutputDrivers; i++)
       {
          // Create driver
-         MpodAndroid *pDriver = new MpodAndroid(MpAndroidAudioBindingInterface::DEFAULT);
+         MpodAndroid *pDriver = new MpodAndroid(MpodAndroid::DEFAULT);
          CPPUNIT_ASSERT(pDriver != NULL);
 
          // Add driver to manager

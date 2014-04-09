@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2010-2013 SIPez LLC. 
+// Copyright (C) 2010-2011 SIPez LLC. 
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -24,6 +24,18 @@ using namespace android;
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+MpAndroidAudioRecord::MpAndroidAudioRecordCreator MpAndroidAudioRecord::spAudioRecordCreate = MpAndroidAudioRecord::stubAndroidAudioRecordCreator;
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/* ============================ CREATORS ================================== */
+MpAndroidAudioRecord* MpAndroidAudioRecord::stubAndroidAudioRecordCreator()
+{
+    LOGE("stubAndroidAudioRecordCreator: Unimplemented Android AudioRecord");
+
+    return(new MpAndroidAudioRecord());
+}
+
 // private constructor
 MpAndroidAudioRecord::MpAndroidAudioRecord()
 {
@@ -36,6 +48,27 @@ MpAndroidAudioRecord::~MpAndroidAudioRecord()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+OsStatus MpAndroidAudioRecord::setAudioRecordCreator(const char* libName)
+{
+    void* symbolAddress = NULL;
+    const char* symbolName = "createAndroidAudioRecord";
+    OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
+    OsStatus result = pShrMgr->getSharedLibSymbol(libName, symbolName, symbolAddress);
+
+    if(result == OS_SUCCESS && symbolAddress)
+    {
+        spAudioRecordCreate = (MpAndroidAudioRecordCreator)symbolAddress;
+        LOGD("got symbol: \"%s\" funcPtr: %p result: %d", symbolName, symbolAddress, result);
+    }
+    else
+    {
+        result = OS_PLATFORM_NOT_SUPPORTED;
+        LOGE("get symbol: %s failed: %d", symbolName, result);
+    }
+
+    return(result);
+}
 
 int /*status_t*/ MpAndroidAudioRecord::start()
 {

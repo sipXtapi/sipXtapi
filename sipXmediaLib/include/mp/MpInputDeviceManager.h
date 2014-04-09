@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -21,8 +22,6 @@
 #include "mp/MpTypes.h"
 
 // DEFINES
-#define MP_INVALID_INPUT_DEVICE_HANDLE -1
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -142,11 +141,6 @@ public:
      *  Multi-thread safe.
      */
 
-   int removeAllDevices();
-   /**<
-    *  Remove all the device drivers, disable them if they are not already
-    */
-
 
      /// @brief Set device parameters before enabling it.
    OsStatus setupDevice(MpInputDeviceHandle deviceId,
@@ -202,15 +196,6 @@ public:
      *  Multi-thread safe.
      */
 
-   /// Helper to disable all device drivers except the optional list of devices
-   OsStatus disableAllDevicesExcept(int exceptCount = 0, MpInputDeviceHandle exceptIdArray[] = NULL);
-   /**<
-    *  This method diables all the devices except the given array of devices
-    *
-    *  @param exceptCount[in] number of device Ids in exceptIdArray
-    *
-    *  @param exceptIdArray[in] array of devices which are not to be disabled (i.e. exceptions)
-    */
 
      /// @brief Method for MpInputDeviceDriver to push a frame of media for a given time
    OsStatus pushFrame(MpInputDeviceHandle deviceId,
@@ -302,7 +287,7 @@ public:
      *  @param deviceId   - (out) A place to store the ID of the device.
      *  @returns OS_SUCCESS and \c deviceId set with the ID of the 
      *           device, if the device was found.
-     *  @returns OS_NOT_FOUND and \c deviceId set with MP_INVALID_INPUT_DEVICE_HANDLE if the 
+     *  @returns OS_NOT_FOUND and \c deviceId set with -1 if the 
      *           device could not be found.
      *
      *  Multi-thread safe.

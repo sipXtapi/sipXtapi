@@ -1,6 +1,4 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
-//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -10,7 +8,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <sipxunittests.h>
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/TestCase.h>
 
 #include <os/OsDefs.h>
 #include <cp/CallManager.h>

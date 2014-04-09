@@ -1,5 +1,9 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2010 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,7 +52,7 @@ public:
    void setUp()
    {
 #ifdef ANDROID
-      OsStatus stat = MpAndroidAudioBindingInterface::spGetAndroidAudioBinding()->getStatus();
+      OsStatus stat = MpAndroidAudioTrack::setAudioTrackCreator();
 #endif
 
       mpBufPool = 

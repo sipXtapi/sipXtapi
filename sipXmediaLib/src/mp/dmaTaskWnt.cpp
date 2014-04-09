@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -142,12 +143,10 @@ void showWaveError(char *syscall, int e, int N, int line)
       break;
    }
    if (-1 == N) {
-      OsSysLog::add(FAC_MP, PRI_DEBUG,
-          "%s failed (line %d): res = %s (%d):\n   %s\n\n",
+      osPrintf("%s failed (line %d): res = %s (%d):\n   %s\n\n",
          syscall, line, name, e, str);
    } else {
-      OsSysLog::add(FAC_MP, PRI_DEBUG,
-          "%s failed (line %d): res = %s (%d, %d):\n   %s\n\n",
+      osPrintf("%s failed (line %d): res = %s (%d, %d):\n   %s\n\n",
         syscall, line, name, e, N, str);
    }
 }

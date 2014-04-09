@@ -12,15 +12,25 @@
 
 // SIPX INCLUDES
 #include <os/OsStatus.h>
-#include <mp/MpAndroidAudioBindingInterface.h>
 
 // SYSTEM INCLUDES
 
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
+typedef void (*sipXcallback_t)(int event, void* user, void *info);
 
 class MpAndroidAudioTrack;
+
+extern "C" MpAndroidAudioTrack* stubAndroidAudioTrackCreator(int streamType,
+                                          uint32_t sampleRate,
+                                          int format,
+                                          int channels,
+                                          int frameCount,
+                                          uint32_t flags,
+                                          sipXcallback_t cbf,
+                                          void* user,
+                                          int notificationFrames);
 
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -39,15 +49,29 @@ class MpAndroidAudioTrack
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-    friend MpAndroidAudioTrack* MpAndroidAudioBindingInterface::createAudioTrack(int streamType,
-                                                                                 uint32_t sampleRate,
-                                                                                 int format,
-                                                                                 int channels,
-                                                                                 int frameCount,
-                                                                                 uint32_t flags,
-                                                                                 sipXcallback_t cbf,
-                                                                                 void* user,
-                                                                                 int notificationFrames) const;
+    typedef MpAndroidAudioTrack* (*MpAndroidAudioTrackCreator) (int streamType,
+                                          uint32_t sampleRate,
+                                          int format,
+                                          int channels,
+                                          int frameCount,
+                                          uint32_t flags,
+                                          sipXcallback_t cbf,
+                                          void* user,
+                                          int notificationFrames);
+
+    friend MpAndroidAudioTrack* stubAndroidAudioTrackCreator(int streamType,
+                                          uint32_t sampleRate,
+                                          int format,
+                                          int channels,
+                                          int frameCount,
+                                          uint32_t flags,
+                                          sipXcallback_t cbf,
+                                          void* user,
+                                          int notificationFrames);
+
+    static MpAndroidAudioTrackCreator spAudioTrackCreate;
+
+    static OsStatus setAudioTrackCreator();
 
     enum event_type {
         EVENT_MORE_DATA = 0,

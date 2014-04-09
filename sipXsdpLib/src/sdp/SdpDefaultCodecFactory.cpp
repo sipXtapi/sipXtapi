@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -42,7 +42,6 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_PCMA,          "pcma",    8000, 1,  NULL  },
    { SdpCodec::SDP_CODEC_PCMU,          "pcmu",    8000, 1,  NULL  },
    { SdpCodec::SDP_CODEC_GSM,           "gsm",     8000, 1,  NULL  },
-   { SdpCodec::SDP_CODEC_OPUS,          MIME_SUBTYPE_OPUS, 48000, 2, "stereo=0; sprop-stereo=0"},
    { SdpCodec::SDP_CODEC_SPEEX,         "speex",   8000, 1,  ""        },
    { SdpCodec::SDP_CODEC_SPEEX_5,       "speex",   8000, 1,  "mode=2"  },
    { SdpCodec::SDP_CODEC_SPEEX_15,      "speex",   8000, 1,  "mode=5"  },
@@ -140,7 +139,6 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_ILBC,            "ILBC" },
    { SdpCodec::SDP_CODEC_ILBC_20MS,       "ILBC-20MS" },
    { SdpCodec::SDP_CODEC_GSM,             "GSM" },
-   { SdpCodec::SDP_CODEC_OPUS,            "OPUS" },
    { SdpCodec::SDP_CODEC_SPEEX,           "SPEEX" },
    { SdpCodec::SDP_CODEC_SPEEX_5,         "SPEEX_5" },
    { SdpCodec::SDP_CODEC_SPEEX_15,        "SPEEX_15" },
@@ -628,21 +626,6 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          "",
                          SdpCodec::SDP_CODEC_CPU_LOW,
                          SDP_CODEC_BANDWIDTH_HIGH);
-      }
-      break;
-
-   case SdpCodec::SDP_CODEC_OPUS:
-      {
-         return(SdpCodec(SdpCodec::SDP_CODEC_OPUS,
-                         SdpCodec::SDP_CODEC_UNKNOWN,
-                         MIME_TYPE_AUDIO,
-                         MIME_SUBTYPE_OPUS,
-                         48000,
-                         20000,
-                         2,
-                         "stereo=0; sprop-stereo=0",
-                         SdpCodec::SDP_CODEC_CPU_HIGH,
-                         SDP_CODEC_BANDWIDTH_LOW));
       }
       break;
 

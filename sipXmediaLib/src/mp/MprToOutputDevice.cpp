@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -21,7 +22,6 @@
 #include <mp/MpMisc.h>
 #include <mp/MpBufferMsg.h>
 #include <mp/MpResampler.h>
-#include <mp/MpIntResourceMsg.h>
 
 #ifdef RTL_ENABLED
 #include <rtl_macro.h>
@@ -91,9 +91,6 @@ MprToOutputDevice::MprToOutputDevice(const UtlString& rName,
              OsMsgPool::SINGLE_CLIENT)
 , mIsCopyQEnabled(FALSE)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MprToOutputDevice::MprToOutputDevice resource: %s using output device ID: %d",
-        rName.data(), deviceId);
 }
 
 // Destructor
@@ -103,16 +100,6 @@ MprToOutputDevice::~MprToOutputDevice()
 }
 
 /* ============================ MANIPULATORS ============================== */
-
-OsStatus MprToOutputDevice::setDeviceId(const UtlString& resourceName,
-                                        OsMsgQ& flowgraphMessageQueue,
-                                        MpOutputDeviceHandle deviceId)
-{
-    MpIntResourceMsg message((MpResourceMsg::MpResourceMsgType)MPRM_SET_OUTPUT_DEVICE_ID,
-                             resourceName,
-                             deviceId);
-    return(flowgraphMessageQueue.send(message, sOperationQueueTimeout));
-}
 
 OsStatus MprToOutputDevice::enableCopyQ(const UtlString& namedResource,
                                         OsMsgQ& fgQ,
@@ -131,7 +118,6 @@ OsStatus MprToOutputDevice::enableCopyQ(UtlBoolean enable)
                      getName());
    return postMessage(msg);
 }
-
 
 /* ============================ ACCESSORS ================================= */
 
@@ -194,14 +180,6 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       return FALSE;
    }
 
-   // If the output device is disabled, don't resample to save the CPU cycles
-   UtlBoolean deviceDisabled = FALSE;
-   if(!mpOutputDeviceManager->isDeviceEnabled(mDeviceId))
-   {
-       deviceDisabled = TRUE;
-       devSampleRate = samplesPerSecond;
-   }
-
    // Check to see if the resampler needs it's rate adjusted.
    if(mpResampler->getInputRate() != samplesPerSecond)
       mpResampler->setInputRate(samplesPerSecond);
@@ -237,15 +215,10 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       }
    }
 
-   if(deviceDisabled)
-   {
-       // we do nothing until it becomes enabled
-   }
-
    // We push buffer to output device even if buffer is NULL. With NULL buffer we
    // notify output device that we will not push more frames during this time
    // interval.
-   else if (!mFrameTimeInitialized)
+   if (!mFrameTimeInitialized)
    {
       status = mpOutputDeviceManager->pushFrameFirst(mDeviceId,
                                                      mFrameTime,
@@ -310,7 +283,7 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
             // We've run out of mixer buffer space, but still need to advance
             // some more. Looks like we either can't keep abreast with sound
             // card rate because of lack of CPU power, or it's a sound card
-            // clock temporary deviation. Anyway, react                                 with increasing mFrameTime
+            // clock temporary deviation. Anyway, react with increasing mFrameTime
             // to continue playing.
             mFrameTime += frameTimeInterval;
             OsSysLog::add(FAC_MP, PRI_WARNING, "MprToOutputDevice::doProcessFrame(): frameTime=%d %s\n",
@@ -417,30 +390,26 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
 
 UtlBoolean MprToOutputDevice::handleMessage(MpResourceMsg& rMsg)
 {
-    UtlBoolean msgHandled = FALSE;
+   UtlBoolean msgHandled = FALSE;
 
-    switch (rMsg.getMsg()) 
-    {
-    case MPRM_ENABLE_COPY_QUEUE:
-        mIsCopyQEnabled = TRUE;
-        msgHandled = TRUE;
-        break;
+   switch (rMsg.getMsg()) 
+   {
+   case MPRM_ENABLE_COPY_QUEUE:
+      mIsCopyQEnabled = TRUE;
+      msgHandled = TRUE;
+      break;
 
-    case MPRM_DISABLE_COPY_QUEUE:
-        mIsCopyQEnabled = FALSE;
-        msgHandled = TRUE;
-        break;
+   case MPRM_DISABLE_COPY_QUEUE:
+      mIsCopyQEnabled = FALSE;
+      msgHandled = TRUE;
+      break;
 
-    case MPRM_SET_OUTPUT_DEVICE_ID:
-       msgHandled = handleSetOutputDeviceId((const MpIntResourceMsg&)rMsg);
-       break;
-
-    default:
-        // If we don't handle the message here, let our parent try.
-        msgHandled = MpResource::handleMessage(rMsg); 
-        break;
-    }
-    return msgHandled;
+   default:
+      // If we don't handle the message here, let our parent try.
+      msgHandled = MpResource::handleMessage(rMsg); 
+      break;
+   }
+   return msgHandled;
 }
 
 
@@ -450,21 +419,6 @@ UtlBoolean MprToOutputDevice::handleEnable()
    mFrameTime = 0;
    mMixerBufferPosition = 0;
    return MpResource::handleEnable();
-}
-
-UtlBoolean MprToOutputDevice::handleSetOutputDeviceId(const MpIntResourceMsg& message)
-{
-    MpOutputDeviceHandle newDeviceId = message.getData();
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MprToOutputDevice::handleSetOutputDeviceId setting deviceId: %d",
-        newDeviceId);
-    if(newDeviceId != mDeviceId)
-    {
-        mFrameTimeInitialized = FALSE;
-    }
-    mDeviceId = newDeviceId;
-
-    return(TRUE);
 }
 
 /* ============================ FUNCTIONS ================================= */

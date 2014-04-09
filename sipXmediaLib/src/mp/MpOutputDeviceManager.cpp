@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -18,15 +19,12 @@
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
 #include <os/OsTask.h>
-#include <utl/UtlInt.h>
-#include <utl/UtlDList.h>
-#include <utl/UtlDListIterator.h>
-#include <utl/UtlHashBagIterator.h>
 #include <mp/MpOutputDeviceManager.h>
 #include <mp/MpOutputDeviceDriver.h>
 #include <mp/MpAudioOutputConnection.h>
 #include <mp/MpBuf.h>
 #include <mp/MpAudioBuf.h>
+#include <utl/UtlInt.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -137,52 +135,6 @@ MpOutputDeviceDriver* MpOutputDeviceManager::removeDevice(MpOutputDeviceHandle d
 }
 
 
-int MpOutputDeviceManager::removeAllDevices()
-{
-    int numRemoved = 0;
-    MpOutputDeviceHandle deviceId = MP_INVALID_OUTPUT_DEVICE_HANDLE;
-
-    while(mConnectionsByDeviceId.entries())
-    {
-        {
-            OsWriteLock lock(mRwMutex);
-            MpAudioOutputConnection* connection = NULL;
-            UtlHashBagIterator iterator(mConnectionsByDeviceId);
-            if(connection = (MpAudioOutputConnection*) iterator())
-            {
-                deviceId = connection->getValue();
-            }
-            else
-            {
-                deviceId = MP_INVALID_OUTPUT_DEVICE_HANDLE;
-            }
-        }
-
-        if(deviceId > MP_INVALID_OUTPUT_DEVICE_HANDLE)
-        {
-            // If device is not disabled, disable it
-            if(isDeviceEnabled(deviceId))
-            {
-                disableDevice(deviceId);
-            }
-
-            // Remove device
-            MpOutputDeviceDriver* deviceDriver = removeDevice(deviceId);
-
-            // Need to delete the device as it is not in removeDevice
-            if(deviceDriver)
-            {
-                delete deviceDriver;
-                deviceDriver = NULL;
-            }
-
-            numRemoved++;
-        }
-    }
-
-    return(numRemoved);
-}
-
 OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
                                              MpFrameTime mixerBufferLength,
                                              uint32_t samplesPerFrame,
@@ -208,9 +160,6 @@ OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
                                          samplesPerSec,
                                          0,
                                          mixerBufferLength);
-       OsSysLog::add(FAC_MP, PRI_DEBUG,
-           "MpOutputDeviceManager::enableDevice enableDevice(samplesPerFrames: %d, samplesPerSec: %d,0, mixerBufferLength: %d) id: %d (%s) returned: %d",
-           samplesPerFrame, samplesPerSec, mixerBufferLength, deviceId, (connection->getDeviceDriver()->getDeviceName()).data(), status);
    }
    else
    {
@@ -229,7 +178,7 @@ OsStatus MpOutputDeviceManager::disableDevice(MpOutputDeviceHandle deviceId)
    UtlInt deviceKey(deviceId);
 
    {
-      // Lock is taken to increase use count only.
+      // Lock is took to increase use count only.
       OsWriteLock lock(mRwMutex);
 
       connection = findConnectionBlocking(deviceId);
@@ -252,14 +201,10 @@ OsStatus MpOutputDeviceManager::disableDevice(MpOutputDeviceHandle deviceId)
       }
    }
 
-   UtlString deviceName;
-
    if (status == OS_SUCCESS)
    {
       status = 
          connection->disableDevice();
-
-      deviceName = connection->getDeviceDriver()->getDeviceName();
 
       {
          // Lock is took to decrease use count only.
@@ -268,57 +213,9 @@ OsStatus MpOutputDeviceManager::disableDevice(MpOutputDeviceHandle deviceId)
       }
    }
 
-   OsSysLog::add(FAC_MP, PRI_DEBUG,
-       "MpOutputDeviceManager::disableDevice(%d) (%s) return: %d",
-       deviceId, deviceName.data(), status);
-
    return status;
 }
 
-
-OsStatus MpOutputDeviceManager::disableAllDevicesExcept(int exceptCount, MpOutputDeviceHandle exceptDeviceIds[])
-{
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MpOutputDeviceManager::disableAllDevicesExcept(%d, %p)", exceptCount, exceptDeviceIds);
-    OsStatus status = OS_SUCCESS;
-    UtlDList exceptions;
-    for(int i = 0; i < exceptCount; i++)
-    {
-        exceptions.append(new UtlInt(exceptDeviceIds[i]));
-    }
-
-    UtlDList disableList;
-
-    // Lock is taken to get device IDs only.
-    {
-        OsWriteLock lock(mRwMutex);
-        MpAudioOutputConnection* connection = NULL;
-        UtlHashBagIterator iterator(mConnectionsByDeviceId);
-        while(connection = (MpAudioOutputConnection*) iterator())
-        {
-            // If not in the exception list, add to the list to be disabled
-            UtlInt deviceIdInt(connection->getValue());
-            if(exceptions.find(&deviceIdInt) == NULL)
-            {
-                disableList.append(new UtlInt(connection->getValue()));
-            }
-        }
-    }
-
-    // Disable the devices
-    UtlDListIterator disableIterator(disableList);
-    UtlInt* deviceIdPtr = NULL;
-    while((deviceIdPtr = (UtlInt*) disableIterator()))
-    {
-        // Locking is done in disableDevice
-        status = disableDevice(deviceIdPtr->getValue());
-    }
-
-    disableList.destroyAll();
-    exceptions.destroyAll();
-
-    return(status);
-}
 
 OsStatus MpOutputDeviceManager::pushFrameFirst(MpOutputDeviceHandle deviceId,
                                                MpFrameTime &frameTime,
@@ -389,9 +286,6 @@ OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
 OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle deviceId,
                                                          OsNotification *pFlowgraphTicker)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MpOutputDeviceManager::setFlowgraphTickerSource(deviceId: %d, pFlowgraphTicker: %p)",
-        deviceId, pFlowgraphTicker);
    OsStatus status = OS_SUCCESS;
    MpAudioOutputConnection* connection = NULL;
    OsWriteLock lock(mRwMutex);
@@ -407,16 +301,9 @@ OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle de
          if (connection != NULL)
          {
             status = connection->disableFlowgraphTicker();
-            OsSysLog::add(FAC_MP, PRI_ERR,
-                "MpOutputDeviceManager::setFlowgraphTickerSource disableFlowgraphTicker currrent deviceId: %d returned: %d",
-                mCurrentTickerDevice, status);
          }
          else
          {
-             OsSysLog::add(FAC_MP, PRI_ERR,
-                 "MpOutputDeviceManager::setFlowgraphTickerSource current deviceId: %d not found",
-                 mCurrentTickerDevice);
-
             status = OS_INVALID_STATE;
          }
 
@@ -436,15 +323,9 @@ OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle de
             {
                mCurrentTickerDevice = deviceId;
             }
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MpOutputDeviceManager::setFlowgraphTickerSource enableFlowgraphTicker deviceId: %d returned: %d",
-                deviceId, status);
          }
          else
          {
-             OsSysLog::add(FAC_MP, PRI_ERR,
-                 "MpOutputDeviceManager::setFlowgraphTickerSource new deviceId: %d not found",
-                 deviceId);
             status = OS_NOT_FOUND;
          }
       }
@@ -564,15 +445,7 @@ OsStatus MpOutputDeviceManager::getDeviceSamplesPerSec(MpOutputDeviceHandle devi
    if(pDevDriver)
    {
       samplesPerSec = pDevDriver->getSamplesPerSec();
-#ifdef TEST_PRINT
-      OsSysLog::add(FAC_MP, PRI_DEBUG,
-          "MpOutputDeviceManager::getDeviceSamplesPerSec device sample rate: %d", samplesPerSec);
-#endif
       ret = OS_SUCCESS;
-   }
-   else
-   {
-       samplesPerSec = mDefaultSamplesPerSecond;
    }
    return ret;
 }
@@ -593,7 +466,6 @@ OsStatus MpOutputDeviceManager::getDeviceSamplesPerFrame(MpOutputDeviceHandle de
       samplesPerFrame = pDevDriver->getSamplesPerFrame();
       ret = OS_SUCCESS;
    }
-
    return ret;
 }
 

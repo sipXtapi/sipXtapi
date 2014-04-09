@@ -1,5 +1,6 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2010 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -22,19 +23,16 @@
 #endif /* WIN32 && !WINCE ] */
 
 // APPLICATION INCLUDES
-#include <os/OsDefs.h>
-#include <os/OsSysLog.h>
-#include <os/OsLock.h>
-#include <os/OsTask.h>
-#include <mp/MpMisc.h>
-#include <mp/MpBuf.h>
-#include <mp/MpFlowGraphBase.h>
-#include <mp/MprRecorder.h>
-#include <mp/MpPackedResourceMsg.h>
-#include <mp/MprnIntMsg.h>
-#include <mp/MpEncoderBase.h>
-#include <mp/MpResampler.h>
-#include <mp/MpCodecFactory.h>
+#include "os/OsDefs.h"
+#include "os/OsSysLog.h"
+#include "os/OsLock.h"
+#include "os/OsTask.h"
+#include "mp/MpMisc.h"
+#include "mp/MpBuf.h"
+#include "mp/MpFlowGraphBase.h"
+#include "mp/MprRecorder.h"
+#include "mp/MpPackedResourceMsg.h"
+#include "mp/MprnIntMsg.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -58,8 +56,6 @@ MprRecorder::MprRecorder(const UtlString& rName)
 , mRecFormat(UNINITIALIZED_FORMAT)
 , mpBuffer(NULL)
 , mBufferSize(0)
-, mpEncoder(NULL)
-, mpResampler(NULL)
 {
 }
 
@@ -69,18 +65,6 @@ MprRecorder::~MprRecorder()
    // If when we get to the destructor and our file descriptor is not set to -1
    // then close it now.
    closeFile();
-
-   if(mpEncoder)
-   {
-       delete mpEncoder;
-       mpEncoder = NULL;
-   }
-
-   if(mpResampler)
-   {
-       delete mpResampler;
-       mpResampler = NULL;
-   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -274,82 +258,10 @@ UtlBoolean MprRecorder::handleStartFile(int file,
    mFileDescriptor = file;
    mRecFormat = recFormat;
    mRecordDestination = TO_FILE;
-   int codecSampleRate = 0;
-   int flowgraphSampleRate = mpFlowGraph->getSamplesPerSec();
-   OsStatus status = OS_INVALID_ARGUMENT;
 
-   MpCodecFactory* codecFactory = MpCodecFactory::getMpCodecFactory();
-
-   assert(codecFactory);
-
-   if(mpEncoder)
+   if (mRecFormat == MprRecorder::WAV_PCM_16)
    {
-       delete mpEncoder;
-       mpEncoder = NULL;
-   }
-   if(mpResampler)
-   {
-       delete mpResampler;
-       mpResampler = NULL;
-   }
-
-   switch(mRecFormat)
-   {
-       // Encoder needed
-   case MprRecorder::WAV_GSM:
-       codecSampleRate = 8000;
-       status = codecFactory->createEncoder(MIME_SUBTYPE_GSM, 
-                                            NULL, // FMTP
-                                            codecSampleRate, // GSM 8K
-                                            1, // Num channels
-                                            111, // Bogus payload as we are writing to file
-                                            mpEncoder);
-       // Note: we could have a NULL encoder here if the codec plugin is not loaded
-       if(mpEncoder == NULL)
-       {
-           OsSysLog::add(FAC_MP, PRI_ERR,
-                         "MprRecorder::handleStartFile failed to load GSM codec.  Perhaps GSM plugin is not loaded?");
-           OsSysLog::flush();
-       }
-       assert(mpEncoder);
-       mpEncoder->initEncode();
-       assert(mpEncoder->getInfo()->getSampleRate() == codecSampleRate);
-       break;
-
-   case MprRecorder::UNINITIALIZED_FORMAT:
-       OsSysLog::add(FAC_MP, PRI_ERR,
-                     "MprRecorder::handleStartFile unset recording format");
-       OsSysLog::flush();
-       assert(mRecFormat > MprRecorder::UNINITIALIZED_FORMAT);
-       break;
-
-       // Encoder not needed
-   case MprRecorder::RAW_PCM_16:
-   case MprRecorder::WAV_PCM_16:
-       //mEncoder = NULL;
-       codecSampleRate = flowgraphSampleRate;
-       break;
-
-   default:
-       OsSysLog::add(FAC_MP, PRI_ERR,
-           "MprRecorder::handleStartFile invalid recording format: %d",
-           mRecFormat);
-       OsSysLog::flush();
-       assert(0);
-       break;
-   }
-
-   // If the file ecoder needs a different sample rate
-   if(codecSampleRate != flowgraphSampleRate)
-   {
-       mpResampler = MpResamplerBase::createResampler(1, flowgraphSampleRate, codecSampleRate);
-   }
-
-   // If we are creating a WAV file, write the header.
-   // Otherwise we are writing raw PCM data to file.
-   if (mRecFormat != MprRecorder::RAW_PCM_16)
-   {
-      writeWAVHeader(file, recFormat, codecSampleRate);
+      writeWAVHeader(file, mpFlowGraph->getSamplesPerSec());
    }
 
    startRecording(time, silenceLength);
@@ -533,8 +445,7 @@ void MprRecorder::closeFile()
 {
    if (mFileDescriptor > -1)
    {
-      // Any WAVE file needs header updates on closing
-      if (mRecFormat != RAW_PCM_16)
+      if (mRecFormat == WAV_PCM_16)
       {
          updateWaveHeaderLengths(mFileDescriptor);
       }
@@ -546,99 +457,25 @@ void MprRecorder::closeFile()
 
 int MprRecorder::writeFileSilence(int numSamples)
 {
-    assert(((int)MpMisc.mpFgSilence->getSamplesNumber()) >= numSamples);
-    const MpAudioSample* silence = MpMisc.mpFgSilence->getSamplesPtr();
-    return(writeFileSpeech(silence, numSamples));
+   MpAudioSample silent=0;
+   int i;
+   for (i=0; i<numSamples; i++)
+   {
+      int bytesWritten = write(mFileDescriptor, (char *)&silent, sizeof(silent));
+      if (bytesWritten<sizeof(silent))
+      {
+         // Error occurred. Probably out of space.
+         break;
+      }
+   }
+
+   return i;
 }
 
 int MprRecorder::writeFileSpeech(const MpAudioSample *pBuffer, int numSamples)
 {
-    const MpAudioSample* resampledBufferPtr = NULL;
-    const int localBufferSize = 1500; // No audio codecs exceed an MTU
-    MpAudioSample localBuffer[localBufferSize];
-    OsStatus status = OS_FAILED;
-
-    // If the resampler exists, we resample
-    uint32_t samplesConsumed;
-    uint32_t numResampled = 0;
-    if(mpResampler)
-    {
-        resampledBufferPtr = localBuffer;
-        status = mpResampler->resample(0, 
-                                       pBuffer, 
-                                       numSamples, 
-                                       samplesConsumed,
-                                       localBuffer, 
-                                       localBufferSize, 
-                                       numResampled);
-        if(status != OS_SUCCESS)
-        {
-            OsSysLog::add(FAC_MP, PRI_ERR,
-                          "MprRecoder::writeFileSpeech resample returned: %d",
-                          status);
-        }
-        assert(samplesConsumed == numSamples);
-    }
-
-    // No resampler, pass it straight through
-    else
-    {
-        numResampled = numSamples;
-        resampledBufferPtr = pBuffer;
-    }
-
-    // Some encoders are frame based and do not create a complete
-    const MpAudioSample* encodedSamplesPtr = NULL;
-    MpAudioSample localEncodeBuffer[localBufferSize]; // Should never get larger after encoding
-
-    // If there is an encoder, encode
-    int dataSize = 0;
-    int numSamplesEncoded = 0;
-    UtlBoolean isEndOfFrame = FALSE;
-    UtlBoolean isPacketSilent = FALSE;
-    UtlBoolean shouldSetMarker = FALSE;
-    if(mpEncoder)
-    {
-        encodedSamplesPtr = localEncodeBuffer;
-        status = mpEncoder->encode(resampledBufferPtr, 
-                                   numResampled, 
-                                   numSamplesEncoded, 
-                                   (unsigned char*)localEncodeBuffer, 
-                                   numResampled * sizeof(MpAudioSample), 
-                                   dataSize, 
-                                   isEndOfFrame,
-                                   isPacketSilent,
-                                   shouldSetMarker);
-        if(status != OS_SUCCESS)
-        {
-            OsSysLog::add(FAC_MP, PRI_ERR,
-                "MprRecoder::writeFileSpeech encode returned: %d",
-                status);
-        }
-    }
-
-    //  No encoder, pass it straight through
-    else
-    {
-        dataSize = numResampled * sizeof(MpAudioSample);
-        numSamplesEncoded = numResampled;
-        encodedSamplesPtr = resampledBufferPtr;
-    }
-   
-    // Depending upon the encoder framing, there may not always be stuff to write
-    if(numSamplesEncoded)
-    {
-        int bytesWritten = write(mFileDescriptor, (char *)encodedSamplesPtr, dataSize);
-        // Should comment this out after debug as likely scenario is we are out of file space
-        // and filling up the log is not likely to help
-//#ifdef TEST_PRINT
-        OsSysLog::add(FAC_MP, PRI_ERR,
-                      "MprRecorder::wirteFileSpeech wrote %d of %d bytes",
-                      bytesWritten, dataSize);
-//#endif
-    }
-
-    return(numSamplesEncoded);
+   return write(mFileDescriptor, (char *)pBuffer, numSamples * sizeof(MpAudioSample))
+          / sizeof(MpAudioSample);
 }
 
 int MprRecorder::writeBufferSilence(int numSamples)
@@ -655,16 +492,14 @@ int MprRecorder::writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples)
    return toWrite;
 }
 
-UtlBoolean MprRecorder::writeWAVHeader(int handle, 
-                                       RecordFileFormat format,
-                                       uint32_t samplesPerSecond)
+UtlBoolean MprRecorder::writeWAVHeader(int handle, uint32_t samplesPerSecond)
 {
    UtlBoolean retCode = FALSE;
    char tmpbuf[80];
    int16_t sampleSize = 2; //sizeof(MpAudioSample);
    int16_t bitsPerSample = sampleSize*8;
 
-   int16_t compressionCode = (int16_t) format;
+   int16_t compressionCode = 1; //PCM
    int16_t numChannels = 1;
    uint32_t averageSamplePerSec = samplesPerSecond*sampleSize;
    int16_t blockAlign = sampleSize*numChannels;

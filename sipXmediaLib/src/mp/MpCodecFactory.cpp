@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2006-2011 SIPez LLC. All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -15,6 +16,7 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlInit.h> // KEEP THIS ONE THE FIRST INCLUDE
+
 #include <mp/MpCodecFactory.h>
 #include <mp/MpEncoderBase.h>
 #include <mp/MpDecoderBase.h>
@@ -297,19 +299,6 @@ OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFil
 
 MpCodecCallInfoV1* MpCodecFactory::addStaticCodec(MpCodecCallInfoV1* sStaticCode)
 {
-    const struct MppCodecInfoV1_1 *codecInfo = NULL;
-    sStaticCode->mPlgGetInfo(&codecInfo);
-    if(codecInfo)
-    {
-        OsSysLog::add(FAC_MP, PRI_DEBUG,
-                      "binding static codec: %s from: %s",
-                      codecInfo->mimeSubtype, codecInfo->codecManufacturer);
-    }
-    else
-    {
-        OsSysLog::add(FAC_MP, PRI_DEBUG,
-                      "binding static codec, could not get info");
-    }
     sStaticCodecsV1 = (MpCodecCallInfoV1 *)sStaticCode->bound(MpCodecFactory::sStaticCodecsV1);
     return sStaticCodecsV1;
 }
@@ -415,8 +404,7 @@ void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
                                                              pCodecInfo->numChannels,
                                                              "",
                                                              codecType);
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                  "Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
+         osPrintf("Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
                   res==OS_SUCCESS?codecType:-1,
                   pCodecInfo->mimeSubtype, pCodecInfo->sampleRate, pCodecInfo->numChannels,
                   "");
@@ -436,11 +424,10 @@ void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
                                                                 pCodecInfo->numChannels,
                                                                 pCodecInfo->fmtps[fmtpIdx],
                                                                 codecType);
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
-                          "Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
-                          res==OS_SUCCESS?codecType:-1,
-                          pCodecInfo->mimeSubtype, pCodecInfo->sampleRate, pCodecInfo->numChannels,
-                          pCodecInfo->fmtps[fmtpIdx]);
+            osPrintf("Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
+                     res==OS_SUCCESS?codecType:-1,
+                     pCodecInfo->mimeSubtype, pCodecInfo->sampleRate, pCodecInfo->numChannels,
+                     pCodecInfo->fmtps[fmtpIdx]);
 
             if (res == OS_SUCCESS)
             {

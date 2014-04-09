@@ -1,5 +1,9 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2010 SIPez LLC.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,7 +61,7 @@
 #  elif defined(ANDROID)
 #     include <mp/MpodAndroid.h>
 #     define OUTPUT_DRIVER MpodAndroid
-#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpAndroidAudioBindingInterface::ENFORCED_AUDIBLE
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodAndroid::ENFORCED_AUDIBLE
 #  else
 #     include <mp/MpodOss.h>
 #     define OUTPUT_DRIVER MpodOss

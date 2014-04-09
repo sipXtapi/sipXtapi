@@ -128,7 +128,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\sipXportLib\src\test;..\sipXportLib\src\test\sipxportunit;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\include\glib;interface;sipXmediaMediaProcessing\include;..\sipXmediaLib\include;..\sipXtackLib\include;..\sipXsdpLib\include;..\CPPUnit\include"
+				AdditionalIncludeDirectories="..\sipXportLib\src\test;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\include\glib;interface;sipXmediaMediaProcessing\include;..\sipXmediaLib\include;..\sipXtackLib\include;..\sipXsdpLib\include;..\CPPUnit\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -151,7 +151,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib winmm.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib"
@@ -183,7 +183,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\sipXcallLib\bin\sipXtapi.dll Debug\sipXtapid.dll"
 			/>
 		</Configuration>
 	</Configurations>
@@ -249,34 +248,6 @@
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
-		</Filter>
-		<Filter
-			Name="TestFramework"
-			>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxportunit\main.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxportunit\SipxPortUnitTestClass.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxportunit\SipxPortUnitTestConstructor.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxportunit\SipxPortUnitTestEnvironment.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxportunit\SipxPortUnitTestPointFailure.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\os\UnitTestLogHooks.cpp"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

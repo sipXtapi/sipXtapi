@@ -1,5 +1,6 @@
 // 
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2010 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2005-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -465,7 +466,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 
         mediaInterface->giveFocus() ;
 
-        OsTaskId_t taskId;
+        int taskId;
         OsTask::getCurrentTaskId(taskId);
 
         // Record the entire "call" - all connections.
@@ -695,7 +696,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 
         mediaInterface->giveFocus() ;
 
-        OsTaskId_t taskId;
+        int taskId;
         OsTask::getCurrentTaskId(taskId);
 
         // Record the entire "call" - all connections.

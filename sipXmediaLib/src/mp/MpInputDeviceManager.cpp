@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -18,14 +19,11 @@
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
 #include <os/OsTask.h>
-#include <utl/UtlHashBagIterator.h>
-#include <utl/UtlInt.h>
-#include <utl/UtlDList.h>
-#include <utl/UtlDListIterator.h>
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpInputDeviceDriver.h>
 #include <mp/MpBuf.h>
 #include <mp/MpAudioBuf.h>
+#include <utl/UtlInt.h>
 
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
@@ -284,16 +282,8 @@ public:
       OsStatus result = OS_INVALID_STATE;
       assert(mpInputDeviceDriver);
       //assert(mpInputDeviceDriver && mpInputDeviceDriver->isEnabled());
-      if (mpInputDeviceDriver)
+      if (mpInputDeviceDriver) // && mpInputDeviceDriver->isEnabled())
       {
-          // If the device is disabled, get out here as there is no frames to be had.
-          if(!mpInputDeviceDriver->isEnabled())
-          {
-              OsSysLog::add(FAC_MP, PRI_ERR, "getFrame - disabled device (%d)\n",
-                getValue());
-              return(result);
-          }
-
          result = OS_NOT_FOUND;
       }
       else
@@ -627,51 +617,6 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
    return(deviceDriver);
 }
 
-int MpInputDeviceManager::removeAllDevices()
-{
-    int numRemoved = 0;
-    MpInputDeviceHandle deviceId = MP_INVALID_INPUT_DEVICE_HANDLE;
-
-    while(mConnectionsByDeviceId.entries())
-    {
-        {
-            OsWriteLock lock(mRwMutex);
-            MpAudioInputConnection* connection = NULL;
-            UtlHashBagIterator iterator(mConnectionsByDeviceId);
-            if(connection = (MpAudioInputConnection*) iterator())
-            {
-                deviceId = connection->getValue();
-            }
-            else
-            {
-                deviceId = MP_INVALID_INPUT_DEVICE_HANDLE;
-            }
-        }
-
-        if(deviceId > MP_INVALID_INPUT_DEVICE_HANDLE)
-        {
-            // If device is not disabled, disable it
-            if(isDeviceEnabled(deviceId))
-            {
-                disableDevice(deviceId);
-            }
-
-            // Remove device
-            MpInputDeviceDriver* deviceDriver = removeDevice(deviceId);
-
-            // Need to delete the device as it is not in removeDevice
-            if(deviceDriver)
-            {
-                delete deviceDriver;
-                deviceDriver = NULL;
-            }
-
-            numRemoved++;
-        }
-    }
-
-    return(numRemoved);
-}
 
 OsStatus MpInputDeviceManager::setupDevice(MpInputDeviceHandle deviceId,
                                            uint32_t samplesPerFrame,
@@ -708,18 +653,7 @@ OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
    if (connectionFound)
    {
       status = connectionFound->enable();
-
-      OsSysLog::add(FAC_MP, PRI_DEBUG,
-           "MpInputDeviceManager::enableDevice enableDevice() id: %d (%s) returned: %d",
-           deviceId, (connectionFound->getDeviceDriver()->getDeviceName()).data(), status);
    }
-   else
-   {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MpInputDeviceManager::enableDevice deviceId: %d, connection not found",
-           deviceId);
-
-   }
-
    return(status);
 }
 
@@ -762,10 +696,8 @@ OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
       mRwMutex.acquireWrite();
    }
 
-   UtlString deviceName;
    if (connectionFound)
    {
-       deviceName = connectionFound->getDeviceDriver()->getDeviceName();
       if (connectionFound->isInUse())
       {
          // If the connection is in use by someone else,
@@ -793,56 +725,9 @@ OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
       mRwMutex.releaseWrite();
    }
 
-   OsSysLog::add(FAC_MP, PRI_DEBUG,
-       "MpInputDeviceManager::disableDevice(%d) (%s) return: %d",
-       deviceId, deviceName.data(), status);
-
    return(status);
 }
 
-OsStatus MpInputDeviceManager::disableAllDevicesExcept(int exceptCount, MpInputDeviceHandle exceptDeviceIds[])
-{
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MpInputDeviceManager::disableAllDevicesExcept(%d, %p)", exceptCount, exceptDeviceIds);
-    OsStatus status = OS_SUCCESS;
-    UtlDList exceptions;
-    for(int i = 0; i < exceptCount; i++)
-    {
-        exceptions.append(new UtlInt(exceptDeviceIds[i]));
-    }
-
-    UtlDList disableList;
-
-    // Lock is taken to get device IDs only.
-    {
-        OsWriteLock lock(mRwMutex);
-        MpAudioInputConnection* connection = NULL;
-        UtlHashBagIterator iterator(mConnectionsByDeviceId);
-        while(connection = (MpAudioInputConnection*) iterator())
-        {
-            // If not in the exception list, add to the list to be disabled
-            UtlInt deviceIdInt(connection->getValue());
-            if(exceptions.find(&deviceIdInt) == NULL)
-            {
-                disableList.append(new UtlInt(connection->getValue()));
-            }
-        }
-    }
-
-    // Disable the devices
-    UtlDListIterator disableIterator(disableList);
-    UtlInt* deviceIdPtr = NULL;
-    while((deviceIdPtr = (UtlInt*) disableIterator()))
-    {
-        // Locking is done in disableDevice
-        status = disableDevice(deviceIdPtr->getValue());
-    }
-
-    disableList.destroyAll();
-    exceptions.destroyAll();
-
-    return(status);
-}
 
 OsStatus MpInputDeviceManager::pushFrame(MpInputDeviceHandle deviceId,
                                          unsigned numSamples,
@@ -889,18 +774,11 @@ OsStatus MpInputDeviceManager::getFrame(MpInputDeviceHandle deviceId,
 
    if (connectionFound)
    {
-       if(connectionFound->getDeviceDriver()->isEnabled())
-       {
-            status = 
-                connectionFound->getFrame(frameTime,
-                                          buffer,
-                                          numFramesBefore,
-                                          numFramesAfter);
-       }
-       else
-       {
-           status = OS_INVALID_STATE;
-       }
+      status = 
+         connectionFound->getFrame(frameTime,
+                                   buffer,
+                                   numFramesBefore,
+                                   numFramesAfter);
    }
 
    RTL_EVENT("MpInputDeviceManager.getFrame", 0);
@@ -960,7 +838,7 @@ OsStatus MpInputDeviceManager::getDeviceId(const UtlString& deviceName,
    }
    else
    {
-      deviceId = MP_INVALID_INPUT_DEVICE_HANDLE;
+      deviceId = -1;
    }
 
    return status;
@@ -1001,12 +879,7 @@ OsStatus MpInputDeviceManager::getDeviceSamplesPerSec(MpInputDeviceHandle device
       samplesPerSec = pDevDriver->getSamplesPerSec();
       ret = OS_SUCCESS;
    }
-   else
-   {
-       samplesPerSec = mDefaultSamplesPerSecond;
-   }
-
-   return(ret);
+   return ret;
 }
 
 

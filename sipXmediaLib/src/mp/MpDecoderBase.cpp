@@ -58,17 +58,13 @@ OsStatus MpDecoderBase::initDecode()
    return initDecode(mDefaultFmtp);
 }
 
-OsStatus MpDecoderBase::freeDecode()
+void MpDecoderBase::freeDecode()
 {
-   OsStatus status = OS_INVALID_STATE;
    if (isInitialized())
    {
       mCallInfo.mPlgFree(plgHandle, CODEC_DECODER);
       plgHandle = NULL;
-      status = OS_SUCCESS;
    }
-
-   return(status);
 }
 
 /* ============================ MANIPULATORS ============================== */
