@@ -15,10 +15,10 @@
 //#include <arpa/inet.h>
 
 /* APPLICATION INCLUDES */
+#include "config.h"
 #include <mp/codecs/PlgDefsV1.h>
 
 /* CODEC LIBRARY INCLUDES */
-#include <opus/config.h>
 #include <opus.h>
 
 /* EXTERNAL VARIABLES */
