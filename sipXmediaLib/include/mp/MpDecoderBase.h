@@ -69,6 +69,13 @@ public:
      *  @retval OS_NO_MEMORY - Memory allocation failure
      */
 
+     /// Frees all memory allocated to the decoder by initDecode()
+   OsStatus freeDecode();
+     /**<
+     *  @retval OS_SUCCESS - Success.
+     *  @retval OS_INVALID_STATE - Object has already been freed.
+     */
+
 //@}
 
 /* ============================ MANIPULATORS ============================== */
@@ -161,8 +168,6 @@ private:
    const char* mDefaultFmtp; ///< Fmtp to use if not passed to initDecode().
 
    bool isInitialized() const;  ///< Is codec initialized?
-
-   void freeDecode();
 
      /// Copy constructor
    MpDecoderBase(const MpDecoderBase& rMpDecoderBase);

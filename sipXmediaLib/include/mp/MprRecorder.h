@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2009 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -39,6 +38,8 @@
 // TYPEDEFS
 
 // FORWARD DECLARATIONS
+class MpEncoderBase;
+class MpResamplerBase;
 
 /// The "Recorder" media processing resource
 class MprRecorder : public MpAudioResource
@@ -46,10 +47,12 @@ class MprRecorder : public MpAudioResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+    /// These match the WAVE compression format codes in the RIFF header for convenience
    typedef enum {
       UNINITIALIZED_FORMAT = -1,
       RAW_PCM_16 = 0,
-      WAV_PCM_16
+      WAV_PCM_16 = 1,
+      WAV_GSM = 49 // 0x31
    } RecordFileFormat;
 
 /* ============================ CREATORS ================================== */
@@ -178,6 +181,10 @@ protected:
    int mBufferSize;         ///< mpBuffer size.
 //@}
 
+   MpEncoderBase* mpEncoder; ///< encoder for non-PCM formats saved to file
+
+   MpResamplerBase* mpResampler; ///< Resampler for encoding to file
+
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                     MpBufPtr outBufs[],
                                     int inBufsSize,
@@ -225,7 +232,7 @@ protected:
    inline int writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples);
 
      /// Write out standard 16bit WAV Header
-   static UtlBoolean writeWAVHeader(int handle, uint32_t samplesPerSecond = 8000);
+   static UtlBoolean writeWAVHeader(int handle, RecordFileFormat format, uint32_t samplesPerSecond = 8000);
 
      /// Update WAV-file's header with correct recorded length.
    static UtlBoolean updateWaveHeaderLengths(int handle);

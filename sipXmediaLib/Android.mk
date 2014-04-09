@@ -1,9 +1,5 @@
 #
-# Copyright (C) 2009 SIPfoundry Inc.
-# Licensed by SIPfoundry under the LGPL license.
-#
-# Copyright (C) 2009-2012 SIPez LLC.  All rights reserved.
-# Licensed to SIPfoundry under a Contributor Agreement.
+# Copyright (C) 2009-2013 SIPez LLC.  All rights reserved.
 #
 #
 #//////////////////////////////////////////////////////////////////////////
@@ -45,6 +41,7 @@ LOCAL_SRC_FILES := \
     src/mp/HandsetFilterBank.cpp \
     src/mp/MpAgcBase.cpp \
     src/mp/MpAgcSimple.cpp \
+    src/mp/MpAndroidAudioBindingInterface.cpp \
     src/mp/MpAndroidAudioRecord.cpp \
     src/mp/MpAndroidAudioTrack.cpp \
     src/mp/MpArrayBuf.cpp \
@@ -115,6 +112,7 @@ LOCAL_SRC_FILES := \
     src/mp/MprnIntMsg.cpp \
     src/mp/MprnProgressMsg.cpp \
     src/mp/MprnRtpStreamActivityMsg.cpp \
+    src/mp/MprnStringMsg.cpp \
     src/mp/MprNull.cpp \
     src/mp/MprNullAec.cpp \
     src/mp/MprRecorder.cpp \
@@ -182,6 +180,7 @@ LOCAL_CFLAGS += -DCODEC_PCMA_PCMU_STATIC=1 \
                 -DCODEC_TONES_STATIC=1 \
                 -DCODEC_G722_STATIC=1 \
                 -DCODEC_SPEEX_STATIC=1 \
+                -DCODEC_OPUS_STATIC=1 \
                 -DDISABLE_STREAM_PLAYER
 
 LOCAL_CFLAGS += -DHAVE_SPEEX
@@ -196,7 +195,7 @@ LOCAL_C_INCLUDES += \
 
 
 LOCAL_SHARED_LIBRARIES := libpcre
-LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport
+LOCAL_STATIC_LIBRARIES := libsipXtack libsipXsdp libsipXport $(SIPX_CODEC_LIBS)
 
 LOCAL_LDLIBS += -lstdc++ -ldl
 
@@ -237,6 +236,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libsipXandroid2_0
 
 LOCAL_SRC_FILES := \
+    src/mp/MpAndroidX_XAudioBinding.cpp \
     src/mp/MpAndroidX_XAudioRecord.cpp \
     src/mp/MpAndroidX_XAudioTrack.cpp \
 
@@ -255,6 +255,78 @@ include $(BUILD_SHARED_LIBRARY)
 
 # =======================
 
+# Shared lib for audio drivers on Android 4.2.1+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := libsipXandroid4_2_1
+
+LOCAL_SRC_FILES := \
+    src/mp/MpAndroidX_XAudioBinding.cpp \
+    src/mp/MpAndroidX_XAudioRecord.cpp \
+    src/mp/MpAndroidX_XAudioTrack.cpp \
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+
+LOCAL_SHARED_LIBRARIES += libsipXtapi
+LOCAL_LDLIBS += -llog -Wl,--allow-shlib-undefined -L$(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_2_1_libs -lmedia -lutils -lcutils
+LOCAL_CFLAGS += -include AndroidConfig.h -DANDROID_4_2_1
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_2_1_headers/frameworks/base/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_2_1_headers/frameworks/native/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_2_1_headers/frameworks/av/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_2_1_headers/system/core/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_2_1_headers/build/core/combo/include/arch/linux-arm \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_2_1_headers/hardware/libhardware/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_2_1_headers \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libspeex/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android
+
+
+include $(BUILD_SHARED_LIBRARY)
+
+# =======================
+
+# Shared lib for audio drivers on Android 4.1.1+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := libsipXandroid4_1_1
+
+LOCAL_SRC_FILES := \
+    src/mp/MpAndroidX_XAudioBinding.cpp \
+    src/mp/MpAndroidX_XAudioRecord.cpp \
+    src/mp/MpAndroidX_XAudioTrack.cpp \
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+
+LOCAL_SHARED_LIBRARIES += libsipXtapi
+LOCAL_LDLIBS += -llog -Wl,--allow-shlib-undefined -L$(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_1_1_libs -lmedia -lutils -lcutils
+LOCAL_CFLAGS += -include AndroidConfig.h -DANDROID_4_1_1
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_1_1_headers/frameworks/base/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_1_1_headers/frameworks/native/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_1_1_headers/frameworks/av/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_1_1_headers/system/core/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_1_1_headers/system/core/include/arch/linux-arm \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_1_1_headers/hardware/libhardware/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android/android_4_1_1_headers \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libspeex/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android
+
+
+include $(BUILD_SHARED_LIBRARY)
+
+# =======================
+
 # Shared lib for audio drivers on Android 4.0.1+
 include $(CLEAR_VARS)
 
@@ -262,6 +334,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libsipXandroid4_0_1
 
 LOCAL_SRC_FILES := \
+    src/mp/MpAndroidX_XAudioBinding.cpp \
     src/mp/MpAndroidX_XAudioRecord.cpp \
     src/mp/MpAndroidX_XAudioTrack.cpp \
 
@@ -295,6 +368,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libsipXandroid2_3_4
 
 LOCAL_SRC_FILES := \
+    src/mp/MpAndroidX_XAudioBinding.cpp \
     src/mp/MpAndroidX_XAudioRecord.cpp \
     src/mp/MpAndroidX_XAudioTrack.cpp \
 
@@ -327,6 +401,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libsipXandroid2_3
 
 LOCAL_SRC_FILES := \
+    src/mp/MpAndroidX_XAudioBinding.cpp \
     src/mp/MpAndroidX_XAudioRecord.cpp \
     src/mp/MpAndroidX_XAudioTrack.cpp \
 
@@ -600,6 +675,39 @@ LOCAL_C_INCLUDES += \
 
 
 LOCAL_LDLIBS += -lstdc++ -ldl
+
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
+
+# =======================
+
+include $(CLEAR_VARS)
+
+# Set up the target identity.
+LOCAL_MODULE := libcodec_opus
+
+
+LOCAL_SRC_FILES := \
+    src/mp/codecs/plgopus/plgopus.c 
+
+
+LOCAL_CFLAGS += -DCODEC_STATIC \
+                -DDISABLE_STREAM_PLAYER
+
+
+LOCAL_C_INCLUDES += \
+    $(SIPX_HOME)/libpcre \
+    $(SIPX_HOME)/sipXportLib/include \
+    $(SIPX_HOME)/sipXsdpLib/include \
+    $(SIPX_HOME)/sipXtackLib/include \
+    $(SIPX_HOME)/sipXmediaLib/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libopus/opus/include \
+    $(SIPX_HOME)/sipXmediaLib/contrib/libopus/ \
+    $(SIPX_HOME)/sipXmediaLib/contrib/android \
+
+
+LOCAL_LDLIBS += -lstdc++ -ldl
+LOCAL_STATIC_LIBRARIES := libopus
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)

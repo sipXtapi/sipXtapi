@@ -1,9 +1,5 @@
 //  
-// Copyright (C) 2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2010-2013 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,7 +59,7 @@ static OutFileInit sgOutFileInit;
 
 /* ============================ CREATORS ================================== */
 // Default constructor
-MpodAndroid::MpodAndroid(StreamType streamType)
+MpodAndroid::MpodAndroid(MpAndroidAudioBindingInterface::StreamType streamType)
 : MpOutputDeviceDriver("")
 , mStreamType(streamType)
 , mState(DRIVER_IDLE)
@@ -90,7 +86,7 @@ MpodAndroid::MpodAndroid(StreamType streamType)
    } else {
       LOGV("AudioFlinger default frame count for the stream is %d\n", frameCount);
    }
-   if (AudioSystem::getOutputLatency(&outputLatency, streamType) != NO_ERROR) {
+   if (MpAndroidAudioBindingInterface::spGetAndroidAudioBinding()->getOutputLatency(outputLatency, streamType) != NO_ERROR) {
       LOGE("Unable to marshal AudioFlinger");
       return;
    } else {
@@ -289,7 +285,7 @@ UtlBoolean MpodAndroid::initAudioTrack()
    }
 
    // Open audio track
-   mpAudioTrack = MpAndroidAudioTrack::spAudioTrackCreate(mStreamType,  // streamType
+   mpAudioTrack = MpAndroidAudioBindingInterface::spGetAndroidAudioBinding()->createAudioTrack(mStreamType,  // streamType
                                  mSamplesPerSec,  // sampleRate
                                  AudioSystem::PCM_16_BIT,  // format
 #ifdef ANDROID_1_6

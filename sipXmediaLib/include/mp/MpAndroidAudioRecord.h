@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2010-2011 SIPez LLC. 
-// Licensed under the LGPL license.
+// Copyright (C) 2010-2013 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,13 +11,13 @@
 
 // SIPX INCLUDES
 #include <os/OsStatus.h>
+#include <mp/MpAndroidAudioBindingInterface.h>
 
 // SYSTEM INCLUDES
 
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
-typedef void (*sipXcallback_t)(int event, void* user, void *info);
 
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -39,13 +38,7 @@ public:
 
     static const int DEFAULT_SAMPLE_RATE = 8000;
 
-    typedef MpAndroidAudioRecord* (*MpAndroidAudioRecordCreator) ();
-
-    static MpAndroidAudioRecord* stubAndroidAudioRecordCreator();
-
-    static MpAndroidAudioRecordCreator spAudioRecordCreate;
-
-    static OsStatus setAudioRecordCreator(const char* libName);
+    friend MpAndroidAudioRecord* MpAndroidAudioBindingInterface::createAudioRecord() const;
 
     enum event_type {
         EVENT_MORE_DATA = 0,

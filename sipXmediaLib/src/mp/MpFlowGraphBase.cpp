@@ -493,6 +493,9 @@ OsStatus MpFlowGraphBase::postNotification(const MpResNotificationMsg& msg)
 // For now, this method always returns success.
 OsStatus MpFlowGraphBase::processNextFrame(void)
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::processNextFrame");
+#endif
 #ifdef RTL_ENABLED
     RTL_CPU_BLOCK("MpFlowGraphBase.processNextFrame");
     RTL_EVENT("MpFlowGraphBase.processNextFrame.resourceCount", mResourceCnt);

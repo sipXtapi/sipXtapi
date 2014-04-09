@@ -1,9 +1,5 @@
 //
-// Copyright (C) 2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2010-2013 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +10,9 @@
 #define _OsAtomicsAndroid_H_
 
 #include <cutils/atomic.h>
+#include <assert.h>
+
+#define USE_GCC_ATOMICS_ON_ANDROID
 
 #ifdef __x86_64__ // [
 #  error 64-bit Android systems are not supported yet.
@@ -42,7 +41,16 @@ public:
       else
       {
          // Atomic write with memory barrier.
+         // Assert that we are on aligned memory location, hense this is atomic anyway
+         //assert((((int)&mVal) & 0x3) == 0);
+         // Android 2.3 and above has android_atomic_write #defined as android_atomic_release_store
+         // Its not clear this is even needed.  So comment it out for now
+#ifdef USE_GCC_ATOMICS_ON_ANDROID
+         __sync_lock_test_and_set(&mVal, (int32_t)val);
+#else
          android_atomic_write((int32_t)val, &mVal);
+#endif
+         //mVal = (int32_t)val;
       }
    }
 
@@ -95,16 +103,40 @@ public:
    {store(val); return val;}
 
    T operator++(int)
-   {return (T)android_atomic_inc(&mVal)+1;}
+   {
+#ifdef USE_GCC_ATOMICS_ON_ANDROID
+       return (T)__sync_fetch_and_add(&mVal, 1)+1;
+#else
+       return (T)android_atomic_inc(&mVal)+1;
+#endif
+   }
 
    T operator--(int)
-   {return (T)android_atomic_dec(&mVal)-1;}
+   {
+#ifdef USE_GCC_ATOMICS_ON_ANDROID
+       return((T)__sync_fetch_and_sub(&mVal, 1)-1);
+#else
+       return((T)android_atomic_dec(&mVal)-1);
+#endif
+   }
 
    T operator++()
-   {return (T)android_atomic_inc(&mVal);}
+   {
+#ifdef USE_GCC_ATOMICS_ON_ANDROID
+       return((T)__sync_add_and_fetch(&mVal, 1));
+#else
+       return((T)android_atomic_inc(&mVal));
+#endif
+   }
 
    T operator--()
-   {return (T)android_atomic_dec(&mVal);}
+   {
+#ifdef USE_GCC_ATOMICS_ON_ANDROID
+       return((T)__sync_sub_and_fetch(&mVal, 1));
+#else
+       return((T)android_atomic_dec(&mVal));
+#endif
+   }
 
    T operator+=(T val)
    {return fetch_add(val)+val;}

@@ -338,7 +338,23 @@ public:
      //!param: priority - Defines the priority of the event.  See
      //        OsSysLogPriority for more information.
 
+   static OsStatus vadd(const OsSysLogFacility facility,
+                        const OsSysLogPriority priority,
+                        const char*            format,
+                        va_list                ap)
+#ifdef __GNUC__
+       // with the -Wformat switch, this enables format string checking
+       __attribute__ ((format (printf, 3, 0)))
+#endif
+       ;
 
+     //:Adds an event to the sys log.  If the sys log has not been
+     //:initialized, the message is printed to the console.
+     //
+     //!param: facility - Defines the facility responsible for adding the
+     //        event.  See the OsSysLogFacility for more information.
+     //!param: priority - Defines the priority of the event.  See
+     //        OsSysLogPriority for more information.
 
    static OsStatus vadd(const char*            taskName,
                         const OsTaskId_t       taskId,
@@ -483,6 +499,8 @@ protected:
    static UtlString unescape(const UtlString& source) ;
      //:Unescapes previously escaped Quotes and CrLfs
 
+   static void getTaskInfo(UtlString& taskName, OsTaskId_t& taskId);
+     //:Get current task name and id
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

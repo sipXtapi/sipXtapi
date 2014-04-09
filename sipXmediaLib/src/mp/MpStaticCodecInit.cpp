@@ -39,6 +39,9 @@ static void initStaticCodec(void)
 #ifdef CODEC_SPEEX_STATIC
    REGISTER_STATIC_PLG(speex);
 #endif
+#ifdef CODEC_OPUS_STATIC
+   REGISTER_STATIC_PLG(opus);
+#endif
 }
 }
 

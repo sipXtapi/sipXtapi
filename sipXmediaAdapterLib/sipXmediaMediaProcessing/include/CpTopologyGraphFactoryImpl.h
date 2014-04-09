@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -200,6 +199,8 @@ protected:
    MpInputDeviceManager  *mpInputDeviceManager;
    MpOutputDeviceManager *mpOutputDeviceManager;
    MpMMTimer             *mpMediaTaskTicker;
+   MpOutputDeviceHandle   mDefaultToOutputDevice;
+   MpInputDeviceHandle    mDefaultToInputDevice;
    int                    mNumMcastStreams;
 
      /// Add RTP output connection to topology

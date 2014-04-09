@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -221,7 +220,8 @@ MpFrameTime MpOutputDeviceDriver::getFramePeriod() const
 MpFrameTime MpOutputDeviceDriver::getFramePeriod(unsigned samplesPerFrame,
                                                  unsigned samplesPerSec)
 {
-   return (1000*samplesPerFrame)/samplesPerSec;
+    assert(samplesPerSec);
+    return(samplesPerSec ? ((1000*samplesPerFrame)/samplesPerSec) : 0);
 }
 
 unsigned MpOutputDeviceDriver::getSamplesPerFrame() const

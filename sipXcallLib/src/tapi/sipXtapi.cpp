@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2013 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -67,7 +67,7 @@
 #include "utl/UtlHashMapIterator.h"
 
 #ifdef ANDROID
-#include <mp/MpAndroidAudioTrack.h>
+#include <mp/MpAndroidAudioBindingInterface.h>
 #endif
 
 #ifdef VOICE_ENGINE
@@ -308,7 +308,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 
 #ifdef ANDROID
 // Load and initialize correct driver for this version of Android
-    OsStatus stat = MpAndroidAudioTrack::setAudioTrackCreator();
+    OsStatus stat = MpAndroidAudioBindingInterface::spGetAndroidAudioBinding()->getStatus();
+    //OsStatus stat = MpAndroidAudioTrack::setAudioTrackCreator();
     switch(stat)
     {
         // Things are good continue
@@ -333,6 +334,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     }
     if(stat != OS_SUCCESS)
     {
+        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+        "Failed to initialize Android media bindings, OsStatus: %d SIPX_RESULT: %d", stat, rc);
+
         return(rc);
     }
 #endif
@@ -5050,64 +5054,62 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetVolume(const SIPX_INST hInst,
         "sipxAudioSetVolume hInst=%p type=%d iLevel=%d",
         hInst, type, iLevel);
         
-    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
-    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
+    SIPX_RESULT sr = SIPX_RESULT_INVALID_ARGS;
 
-    assert(type == SPEAKER || type == RINGER) ;
-    assert(iLevel >= VOLUME_MIN) ;
-    assert(iLevel <= VOLUME_MAX) ;
-
-    OsSysLog::add(FAC_LOG, PRI_ERR, "DEBUG: Testing callback\n");
-
-
-    if (pInst)
+    if(iLevel >= VOLUME_MIN && iLevel <= VOLUME_MAX && 
+        (type == SPEAKER || type == RINGER))
     {
-        CpMediaInterfaceFactoryImpl* pInterface = 
-                pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+        SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
-        // Validate Params
-        if ((type == SPEAKER || type == RINGER) && (iLevel >= VOLUME_MIN) &&
-                (iLevel <= VOLUME_MAX))
+        if (pInst)
         {
-            // Only process if uninitialized (first call) or the state has changed
-            if (!pInst->speakerSettings[type].bInitialized ||
-                    pInst->speakerSettings[type].iVol != iLevel)
+            CpMediaInterfaceFactoryImpl* pInterface = 
+                    pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+
+            // Validate Params
+            if ((type == SPEAKER || type == RINGER) && (iLevel >= VOLUME_MIN) &&
+                    (iLevel <= VOLUME_MAX))
             {
-                // Lazy Init
-                if (!pInst->speakerSettings[type].bInitialized)
+                // Only process if uninitialized (first call) or the state has changed
+                if (!pInst->speakerSettings[type].bInitialized ||
+                        pInst->speakerSettings[type].iVol != iLevel)
                 {
-                    initSpeakerSettings(&pInst->speakerSettings[type]) ;
-                    assert(pInst->speakerSettings[type].bInitialized) ;
-                }
-
-                // Store value
-                pInst->speakerSettings[type].iVol = iLevel ;
-                sr = SIPX_RESULT_SUCCESS ;
-
-                // Set value if this type is enabled
-                if (pInst->enabledSpeaker == type)
-                {
-                    // the CpMediaInterfaceFactoryImpl always uses a scale of 0 - 100
-                    OsStatus status = pInterface->setSpeakerVolume(iLevel) ;
-                    assert(status == OS_SUCCESS) ;
-                    int iVolume ;
-                    status = pInterface->getSpeakerVolume(iVolume) ;
-                    assert(status == OS_SUCCESS) ;
-                    assert(iVolume == iLevel) ;
-                    if (status != OS_SUCCESS)
+                    // Lazy Init
+                    if (!pInst->speakerSettings[type].bInitialized)
                     {
-                        sr = SIPX_RESULT_FAILURE ;
+                        initSpeakerSettings(&pInst->speakerSettings[type]) ;
+                        assert(pInst->speakerSettings[type].bInitialized) ;
+                    }
+
+                    // Store value
+                    pInst->speakerSettings[type].iVol = iLevel ;
+                    sr = SIPX_RESULT_SUCCESS ;
+
+                    // Set value if this type is enabled
+                    if (pInst->enabledSpeaker == type)
+                    {
+                        // the CpMediaInterfaceFactoryImpl always uses a scale of 0 - 100
+                        OsStatus status = pInterface->setSpeakerVolume(iLevel) ;
+                        assert(status == OS_SUCCESS) ;
+                        int iVolume ;
+                        status = pInterface->getSpeakerVolume(iVolume) ;
+                        assert(status == OS_SUCCESS) ;
+                        assert(iVolume == iLevel) ;
+                        if (status != OS_SUCCESS)
+                        {
+                            sr = SIPX_RESULT_FAILURE ;
+                        }
                     }
                 }
+                else if (pInst->speakerSettings[type].iVol == iLevel)
+                {
+                    sr = SIPX_RESULT_SUCCESS ;
+                }
             }
-            else if (pInst->speakerSettings[type].iVol == iLevel)
+            else
             {
-                sr = SIPX_RESULT_SUCCESS ;
+                sr = SIPX_RESULT_INVALID_ARGS ;
             }
-        }
-        else
-        {
-            sr = SIPX_RESULT_INVALID_ARGS ;
         }
     }
     return sr ;
@@ -5526,12 +5528,21 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
             {
                 if (pInst->inputAudioDevices[i])
                 {
-                    if (strcmp(szDevice, pInst->inputAudioDevices[i]) == 0)
+                    // Get rid of whitespace
+                    UtlString requestedDevice(szDevice);
+                    requestedDevice.strip(UtlString::both);
+                    UtlString availableDevice(pInst->inputAudioDevices[i]);
+                    availableDevice.strip(UtlString::both);
+
+                    // Allow sloppy match where requested device string is a substring
+                    // of the actual device name
+                    if (requestedDevice.length() > 2 &&
+                        availableDevice.index(requestedDevice) == 0)
                     {
                         // Match
                         if (strcmp(szDevice, oldDevice) != 0)
                         {
-                            strncpy(pInst->micSetting.device, szDevice, sizeof(pInst->micSetting.device)-1) ;
+                            strncpy(pInst->micSetting.device, pInst->inputAudioDevices[i], sizeof(pInst->micSetting.device)-1) ;
                             status = pInterface->setMicrophoneDevice(pInst->micSetting.device) ;
                             // GIPS returns -1 on the call to set audio input device, no matter what
                             //assert(status == OS_SUCCESS) ;
@@ -5589,10 +5600,19 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
             {
                 if (pInst->outputAudioDevices[i])
                 {
-                    if (strcmp(szDevice, pInst->outputAudioDevices[i]) == 0)
+                    // Get rid of whitespace
+                    UtlString requestedDevice(szDevice);
+                    requestedDevice.strip(UtlString::both);
+                    UtlString availableDevice(pInst->outputAudioDevices[i]);
+                    availableDevice.strip(UtlString::both);
+
+                    // Allow sloppy match where requested device string is a substring
+                    // of the actual device name
+                    if (requestedDevice.length() > 2 &&
+                        availableDevice.index(requestedDevice) == 0)
                     {
                         oldDevice = pInst->speakerSettings[RINGER].device ;
-                        strncpy(pInst->speakerSettings[RINGER].device, szDevice,
+                        strncpy(pInst->speakerSettings[RINGER].device, pInst->outputAudioDevices[i],
                             sizeof(pInst->speakerSettings[RINGER].device)-1) ;
                         rc = SIPX_RESULT_SUCCESS ;
                         break ;
@@ -5656,13 +5676,31 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
             {
                 if (pInst->outputAudioDevices[i])
                 {
-                    if (strcmp(szDevice, pInst->outputAudioDevices[i]) == 0)
+                    // Get rid of whitespace
+                    UtlString requestedDevice(szDevice);
+                    requestedDevice.strip(UtlString::both);
+                    UtlString availableDevice(pInst->outputAudioDevices[i]);
+                    availableDevice.strip(UtlString::both);
+
+                    // Allow sloppy match where requested device string is a substring
+                    // of the actual device name
+                    if (requestedDevice.length() > 2 &&
+                        availableDevice.index(requestedDevice) == 0)
                     {
-                        oldDevice = pInst->speakerSettings[SPEAKER].device ;
-                        strncpy(pInst->speakerSettings[SPEAKER].device, szDevice, 
-                                sizeof(pInst->speakerSettings[SPEAKER].device)-1) ;
+                        oldDevice = pInst->speakerSettings[SPEAKER].device;
+                        strncpy(pInst->speakerSettings[SPEAKER].device, pInst->outputAudioDevices[i], 
+                                sizeof(pInst->speakerSettings[SPEAKER].device)-1);
+
+                        printf("target device \"%s\" matches[%d] \"%s\"\n",
+                            szDevice, i, pInst->outputAudioDevices[i]);
+
                         rc = SIPX_RESULT_SUCCESS ;
                         break ;
+                    }
+                    else
+                    {
+                        printf("target device \"%s\" does not match[%d] \"%s\"\n",
+                            szDevice, i, pInst->outputAudioDevices[i]);
                     }
                 }
                 else

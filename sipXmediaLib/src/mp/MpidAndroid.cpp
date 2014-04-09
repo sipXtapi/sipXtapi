@@ -1,9 +1,5 @@
 //  
-// Copyright (C) 2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2010-2013 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -369,7 +365,7 @@ bool MpidAndroid::initAudioRecord()
    }
 
    // Open audio track
-   mpAudioRecord = MpAndroidAudioRecord::spAudioRecordCreate();
+   mpAudioRecord = MpAndroidAudioBindingInterface::spGetAndroidAudioBinding()->createAudioRecord();
    if (mpAudioRecord == NULL) {
       LOGW("MpidAndroid::initAudioRecord() AudioRecord allocation failed\n");
       goto initAudioTrack_exit;

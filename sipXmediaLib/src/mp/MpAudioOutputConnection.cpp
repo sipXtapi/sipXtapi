@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -220,24 +219,31 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
       return result;
    }
 
-   // Convert frameTime to offset in mixer buffer.
-   // Note: frameTime >= mCurrentFrameTime.
-   unsigned mixerBufferOffsetFrames =
-            (frameTime-mCurrentFrameTime) / mpDeviceDriver->getFramePeriod();
-   unsigned mixerBufferOffsetSamples = 
-            mixerBufferOffsetFrames * mpDeviceDriver->getSamplesPerFrame();
-
-   // Don't touch mix buffer if no audio was pushed. Mixer buffer will be filled
-   // with silence or data from other sources.
-   if (samples != NULL)
+   if(mpDeviceDriver->isEnabled())
    {
-      // Mix this data with other sources.
-      result = mixFrame(mixerBufferOffsetSamples, samples, numSamples);
+       // Convert frameTime to offset in mixer buffer.
+       // Note: frameTime >= mCurrentFrameTime.
+       unsigned mixerBufferOffsetFrames =
+                (frameTime-mCurrentFrameTime) / mpDeviceDriver->getFramePeriod();
+       unsigned mixerBufferOffsetSamples = 
+                mixerBufferOffsetFrames * mpDeviceDriver->getSamplesPerFrame();
+
+       // Don't touch mix buffer if no audio was pushed. Mixer buffer will be filled
+       // with silence or data from other sources.
+       if (samples != NULL)
+       {
+          // Mix this data with other sources.
+          result = mixFrame(mixerBufferOffsetSamples, samples, numSamples);
+       }
+       else
+       {
+          // Just check for late frame.
+          result = isLateToMix(mixerBufferOffsetSamples, numSamples);
+       }
    }
    else
    {
-      // Just check for late frame.
-      result = isLateToMix(mixerBufferOffsetSamples, numSamples);
+       result = OS_INVALID_STATE;
    }
 
    RTL_EVENT("MpAudioOutputConnection::pushFrame", result);

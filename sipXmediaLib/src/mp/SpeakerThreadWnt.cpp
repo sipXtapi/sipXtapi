@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -382,13 +381,15 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
         if (strcmp(devcaps.szPname, DmaTask::getRingDevice())==0) 
         {
             gRingDeviceId = ii;
-            osPrintf("SpkrThread: Selected ring device: %s\n",devcaps.szPname);
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "SpkrThread: Selected ring device: %s\n",devcaps.szPname);
         }
 
         if (strcmp(devcaps.szPname, DmaTask::getCallDevice())==0) 
         {
             gCallDeviceId = ii;
-            osPrintf("SpkrThread: Selected call device: %s\n",devcaps.szPname);
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "SpkrThread: Selected call device: %s\n",devcaps.szPname);
         }
     }
 
@@ -397,7 +398,8 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
      */ 
     if (!openAudioOut(gRingDeviceId, &audioOutH, 1, SAMPLES_PER_SEC, BITS_PER_SAMPLE))
     {
-        osPrintf("SpkrThread: Failed to open ring audio output channel\n\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "SpkrThread: Failed to open ring audio output channel\n\n");
         ResumeThread(hMicThread);
         return 1;
     }
@@ -409,7 +411,8 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
      */
     if (!openAudioOut(gCallDeviceId,&audioOutCallH, 1, SAMPLES_PER_SEC, BITS_PER_SAMPLE))
     {
-        osPrintf("SpkrThread: Failed to open call audio output channel\n\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "SpkrThread: Failed to open call audio output channel\n\n");
         ResumeThread(hMicThread);
         return 1;
     }
@@ -652,6 +655,8 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
             switch (msgType) 
             {
             case WM_ALT_HEARTBEAT:
+                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "SpeakerThreadWnt invoking MpMediaTask::signalFrameStart from timer message");
                 res = MpMediaTask::signalFrameStart();
                 switch (res) 
                 {
@@ -780,6 +785,8 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                     played++;
                 }
 
+                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "SpeakerThreadWnt invoking MpMediaTask::signalFrameStart from WOM_DONE message");
                 res = MpMediaTask::signalFrameStart();
 
                 switch (res) 

@@ -179,6 +179,10 @@ OsStatus MpTopologyGraph::processNextFrame()
 // Enable our microphone and speaker resources
 OsStatus MpTopologyGraph::gainFocus(void)
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+       "MpTopologyGraph::gainFocus");
+#endif
    UtlBoolean    boolRes;
    OsStatus      result;
    OsStatus      retval = OS_FAILED;
@@ -218,6 +222,10 @@ OsStatus MpTopologyGraph::gainFocus(void)
 // Disable our microphone and speaker resources
 OsStatus MpTopologyGraph::loseFocus(void)
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+       "MpTopologyGraph::loseFocus");
+#endif
    UtlBoolean    boolRes;
    OsStatus      result;
    OsStatus      retval = OS_FAILED;
