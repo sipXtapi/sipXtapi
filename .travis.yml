@@ -9,4 +9,4 @@ compiler:
 script:
   - autoreconf -fi
   - ./configure --enable-topology-graph --disable-codec-ilbc --disable-codec-g726 --enable-codec-speex --enable-speex-dsp --enable-codec-g722 --enable-codec-opus --enable-codec-gsm
-  - make
+  - make -k
