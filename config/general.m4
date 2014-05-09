@@ -831,7 +831,7 @@ AC_DEFUN([CHECK_PCRE],
 
     # Check for libpcre.{so,a} in the specified lib directory if any, and a
     # number of other likely places.
-    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib /usr/lib64 /opt/local/lib /sw/lib; do
+    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib /usr/lib64 /opt/local/lib /sw/lib /usr/lib/x86_64-linux-gnu ; do
         if test -f "$dir/libpcre.so" -o -f "$dir/libpcre.a"; then
             found_pcre_lib="yes";
             libval=$dir
