@@ -20,7 +20,7 @@ libspeex/libspeex/.libs/libspeexdsp.so libspeex/libspeex/libspeexdsp.la: libspee
 libopus/opus/.libs/libopus.so libopus/opus/libospus.la libopus/opus/Makefile: libopus/opus/configure
 	pwd
 	(cd libopus/opus; ./configure)
-	(cd libopus/opus; $(MAKE))
+	$(MAKE) -C libopus/opus
 
 # Copy over the speex shared libtool .la files to the codec dir
 @DEFAULT_CODECS_PATH@/libspeex.la:  libspeex/libspeex/libspeex.la 
@@ -51,10 +51,10 @@ speex_distclean: libspeex/Makefile
 opus: @DEFAULT_CODECS_PATH@/libopus.so
 
 opus_clean: libopus/opus/Makefile
-	(cd libopus/opus; $(MAKE) clean)
+	$(MAKE) -C libopus/opus clean)
 
 opus_distclean: libopus/opus/Makefile
-	(cd libopus/opus; $(MAKE) distclean)
+	$(MAKE) -C libopus/opus distclean)
 
 ALL_TARGETS := $(ALL_TARGETS) speex opus
 
