@@ -19,7 +19,8 @@ libspeex/libspeex/.libs/libspeexdsp.so libspeex/libspeex/libspeexdsp.la: libspee
 
 libopus/opus/.libs/libopus.so libopus/opus/libospus.la libopus/opus/Makefile: libopus/opus/configure
 	pwd
-	(cd libopus/opus; ./configure)
+	if [ ! -d libopus/opus ]; then mkdir -p libopus/opus; fi
+	(cd libopus/opus; $(top_builddir)/sipXmediaLib/contrib/libopus/opus/configure)
 	$(MAKE) -C libopus/opus
 
 # Copy over the speex shared libtool .la files to the codec dir
