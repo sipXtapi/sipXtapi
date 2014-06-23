@@ -11,7 +11,7 @@
 /* #undef FIXED_DEBUG */
 
 /* Compile as fixed-point (for machines without a fast enough FPU) */
-#define FIXED_POINT 1
+/* #undef FIXED_POINT */
 
 /* Float approximations */
 /* #undef FLOAT_APPROX */
