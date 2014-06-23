@@ -1269,6 +1269,37 @@ AC_DEFUN([CHECK_ILBC],
                   [AM_SET_ILBC])
 ])dnl
 
+# =============== O P U S =====================
+
+AC_DEFUN([AM_SET_OPUS],
+[
+# Currently only opus in contrib supported
+    PLUGINS="${PLUGINS} opus"
+
+    OPUS_INCLUDE="-I${PWD}/contrib/libopus -I${PWD}/contrib/libopus/opus/include"
+    OPUS_LIB_ROOT="${PWD}/contrib/libopus/opus"
+    OPUS_LIB_TARGET="lib/libopus.a"
+    OPUS_TARGET="plgopus"
+    AC_SUBST(OPUS_INCLUDE)
+    AC_SUBST(OPUS_LIB_ROOT)    
+    AC_SUBST(OPUS_LIB_TARGET)    
+    AC_SUBST(OPUS_TARGET)    
+    
+])dnl
+AC_DEFUN([CHECK_OPUS],
+[
+    AC_ARG_ENABLE([codec-opus],
+                  [AS_HELP_STRING([--enable-codec-opus],
+                                  [Enable support for opus codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_OPUS ;;
+                       yes) AM_SET_OPUS ;;
+                       no) AC_MSG_RESULT(Codec opus was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-opus) ;;
+                    esac],
+                  [AM_SET_OPUS])
+])dnl
+
 
 # == D E C L A R E _ C O D E C S _ S T A F F ==
 AC_DEFUN([DECLARE_CODECS_STAFF],

@@ -79,6 +79,7 @@ CHECK_TONES
 CHECK_L16
 CHECK_G726
 CHECK_G722
+CHECK_OPUS
 CHECK_AMR_AMRWB
 
 # Use external components, if requested.
@@ -145,6 +146,7 @@ AC_CONFIG_FILES([
   src/mp/codecs/plgilbc/Makefile
   src/mp/codecs/plgg726/Makefile
   src/mp/codecs/plgg722/Makefile
+  src/mp/codecs/plgopus/Makefile
   src/mp/codecs/plgamr/Makefile
   src/mp/codecs/plgamrwb/Makefile
   src/test/Makefile
