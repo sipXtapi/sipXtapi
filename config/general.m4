@@ -1276,7 +1276,7 @@ AC_DEFUN([AM_SET_OPUS],
 # Currently only opus in contrib supported
     PLUGINS="${PLUGINS} opus"
 
-    OPUS_INCLUDE="-I${PWD}/contrib/libopus -I${PWD}/contrib/libopus/opus/include"
+    OPUS_INCLUDE='-I${top_srcdir}/contrib/libopus -I${top_srcdir}/contrib/libopus/opus/include'
     OPUS_LIB_ROOT="${PWD}/contrib/libopus/opus"
     OPUS_LIB_TARGET="lib/libopus.a"
     OPUS_TARGET="plgopus"
