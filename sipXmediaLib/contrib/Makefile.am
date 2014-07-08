@@ -17,10 +17,14 @@ libspeex/libspeex/.libs/libspeex.so libspeex/libspeex/libspeex.la: libspeex/Make
 libspeex/libspeex/.libs/libspeexdsp.so libspeex/libspeex/libspeexdsp.la: libspeex/Makefile
 	$(MAKE) -C libspeex
 
-libopus/opus/.libs/libopus.so libopus/opus/libospus.la libopus/opus/Makefile: libopus/opus/configure
+libopus/opus/Makefile: $(top_srcdir)/contrib/libopus/opus/configure
 	pwd
 	if [ ! -d libopus/opus ]; then mkdir -p libopus/opus; fi
-	(cd libopus/opus; $(top_builddir)/sipXmediaLib/contrib/libopus/opus/configure)
+	(cd libopus/opus; $(top_srcdir)/../../contrib/libopus/opus/configure)
+
+
+libopus/opus/.libs/libopus.so libopus/opus/libospus.la: libopus/opus/Makefile
+	pwd
 	$(MAKE) -C libopus/opus
 
 # Copy over the speex shared libtool .la files to the codec dir
