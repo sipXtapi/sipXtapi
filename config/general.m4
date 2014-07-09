@@ -1280,10 +1280,12 @@ AC_DEFUN([AM_SET_OPUS],
     OPUS_LIB_ROOT="${PWD}/contrib/libopus/opus"
     OPUS_LIB_TARGET="lib/libopus.a"
     OPUS_TARGET="plgopus"
+    OPUS_STATIC_LIB='${top_builddir}/contrib/libopus/opus/.libs/libopus.a'
     AC_SUBST(OPUS_INCLUDE)
     AC_SUBST(OPUS_LIB_ROOT)    
     AC_SUBST(OPUS_LIB_TARGET)    
-    AC_SUBST(OPUS_TARGET)    
+    AC_SUBST(OPUS_TARGET)
+    AC_SUBST(OPUS_STATIC_LIB)
     
 ])dnl
 AC_DEFUN([CHECK_OPUS],
