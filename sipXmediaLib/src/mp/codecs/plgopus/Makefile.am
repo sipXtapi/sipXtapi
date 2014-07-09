@@ -5,8 +5,8 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @OPUS_
 pkgdata_LTLIBRARIES = codec_opus.la
 
 codec_opus_la_SOURCES = plgopus.c
-codec_opus_la_LIBADD = @OPUS_LIB_ROOT@/.libs/libopus.la
-codec_opus_la_LDFLAGS = -module -avoid-version 
+codec_opus_la_LIBADD = @OPUS_STATIC_LIB@
+codec_opus_la_LDFLAGS = -module -avoid-version
 
 all-local: codec_opus.la
 	echo "Installing plugin codec_opus.so ..."
