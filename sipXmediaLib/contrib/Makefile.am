@@ -17,16 +17,6 @@ libspeex/libspeex/.libs/libspeex.so libspeex/libspeex/libspeex.la: libspeex/Make
 libspeex/libspeex/.libs/libspeexdsp.so libspeex/libspeex/libspeexdsp.la: libspeex/Makefile
 	$(MAKE) -C libspeex
 
-libopus/opus/Makefile: $(top_srcdir)/contrib/libopus/opus/configure
-	pwd
-	if [ ! -d libopus/opus ]; then mkdir -p libopus/opus; fi
-	(cd libopus/opus; $(top_srcdir)/../../contrib/libopus/opus/configure)
-
-
-libopus/opus/.libs/libopus.so libopus/opus/libospus.la: libopus/opus/Makefile
-	pwd
-	$(MAKE) -C libopus/opus
-
 # Copy over the speex shared libtool .la files to the codec dir
 @DEFAULT_CODECS_PATH@/libspeex.la:  libspeex/libspeex/libspeex.la 
 	cp -d libspeex/libspeex/libspeex.la @DEFAULT_CODECS_PATH@/libspeex.la
@@ -42,9 +32,6 @@ endif
 @DEFAULT_CODECS_PATH@/libspeexdsp.so: libspeex/libspeex/.libs/libspeexdsp.so
 	cp -d libspeex/libspeex/.libs/libspeexdsp.so* @DEFAULT_CODECS_PATH@/
 
-@DEFAULT_CODECS_PATH@/libopus.so: libopus/opus/.libs/libopus.so
-	cp -d libopus/opus/.libs/libopus.so* @DEFAULT_CODECS_PATH@/
-
 speex: @DEFAULT_CODECS_PATH@/libspeex.so @DEFAULT_CODECS_PATH@/libspeex.la @DEFAULT_CODECS_PATH@/libspeexdsp.so @DEFAULT_CODECS_PATH@/libspeexdsp.la
 
 speex_clean: libspeex/Makefile
@@ -52,6 +39,32 @@ speex_clean: libspeex/Makefile
 
 speex_distclean: libspeex/Makefile
 	$(MAKE) -C libspeex distclean
+
+ALL_TARGETS := $(ALL_TARGETS) speex
+
+CLEAN_TARGETS := $(CLEAN_TARGETS) speex_clean
+
+DISTCLEAN_TARGETS := $(DISTCLEAN_TARGETS) speex_distclean
+
+.PHONY: speex speex_clean speex_distclean opus opus_clean opus_distclean
+
+else
+
+.PHONY: opus opus_clean opus_distclean
+
+endif
+
+libopus/opus/Makefile: $(top_srcdir)/contrib/libopus/opus/configure
+	pwd
+	if [ ! -d libopus/opus ]; then mkdir -p libopus/opus; fi
+	(cd libopus/opus; $(top_srcdir)/../../contrib/libopus/opus/configure $)OPU_CONFIG_OPTS))
+
+libopus/opus/.libs/libopus.so libopus/opus/libospus.la: libopus/opus/Makefile
+	pwd
+	$(MAKE) -C libopus/opus
+
+@DEFAULT_CODECS_PATH@/libopus.so: libopus/opus/.libs/libopus.so
+	cp -d libopus/opus/.libs/libopus.so* @DEFAULT_CODECS_PATH@/
 
 opus: @DEFAULT_CODECS_PATH@/libopus.so
 
@@ -61,15 +74,11 @@ opus_clean: libopus/opus/Makefile
 opus_distclean: libopus/opus/Makefile
 	$(MAKE) -C libopus/opus distclean)
 
-ALL_TARGETS := $(ALL_TARGETS) speex opus
+ALL_TARGETS := $(ALL_TARGETS) opus
 
-CLEAN_TARGETS := $(CLEAN_TARGETS) speex_clean opus_clean
+CLEAN_TARGETS := $(CLEAN_TARGETS) opus_clean
 
-DISTCLEAN_TARGETS := $(DISTCLEAN_TARGETS) speex_distclean opus_distclean
-
-.PHONY: speex speex_clean speex_distclean opus opus_clean opus_distclean
-
-endif
+DISTCLEAN_TARGETS := $(DISTCLEAN_TARGETS) opus_distclean
 
 all-local: $(ALL_TARGETS)
 
