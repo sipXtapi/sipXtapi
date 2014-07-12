@@ -57,7 +57,7 @@ endif
 libopus/opus/Makefile: $(top_srcdir)/contrib/libopus/opus/configure
 	pwd
 	if [ ! -d libopus/opus ]; then mkdir -p libopus/opus; fi
-	(cd libopus/opus; $(top_srcdir)/../../contrib/libopus/opus/configure $)OPU_CONFIG_OPTS))
+	(cd libopus/opus; $(top_srcdir)/../../contrib/libopus/opus/configure $(OPUS_CONFIG_OPTS))
 
 libopus/opus/.libs/libopus.so libopus/opus/libospus.la: libopus/opus/Makefile
 	pwd
