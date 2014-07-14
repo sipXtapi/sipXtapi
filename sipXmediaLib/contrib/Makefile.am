@@ -87,7 +87,7 @@ if AMRNB
 libamrnb/Makefile: $(top_srcdir)/contrib/libamrnb/configure
 	pwd
 	if [ ! -d libamrnb ]; then mkdir -p libamrnb; fi
-	(cd libamrnb; $(top_srcdir)/../../contrib/libamrnb/configure)
+	(cd libamrnb; $(top_srcdir)/../contrib/libamrnb/configure)
 
 libamrnb/.libs/libamrnb.so libamrnb/libamrnb.la: libamrnb/Makefile
 	pwd
@@ -116,7 +116,7 @@ if AMRWB
 libamrwb/Makefile: $(top_srcdir)/contrib/libamrwb/configure
 	pwd
 	if [ ! -d libamrwb ]; then mkdir -p libamrwb; fi
-	(cd libamrwb; $(top_srcdir)/../../contrib/libamrwb/configure)
+	(cd libamrwb; $(top_srcdir)/../contrib/libamrwb/configure)
 
 libamrwb/.libs/libamrwb.so libamrwb/libamrwb.la: libamrwb/Makefile
 	pwd
