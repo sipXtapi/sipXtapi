@@ -1927,7 +1927,7 @@ AC_DEFUN([AM_SET_AMR],
 # Currently only iLBC in contrib supported
     PLUGINS="${PLUGINS} AMR"
     AMR_TARGET="plgamr"
-    AMRNB_INCLUDE="-I${PWD}/contrib/libamrnb/"
+    AMRNB_INCLUDE='-I$(top_srcdir)/contrib/libamrnb/'
     AMRNB_LIB_ROOT="${PWD}/contrib/libamrnb/"    
     AC_SUBST(AMR_TARGET)    
     AC_SUBST(AMRNB_INCLUDE)    
@@ -1943,7 +1943,7 @@ AC_DEFUN([AM_SET_AMRWB],
 # Currently only iLBC in contrib supported
     PLUGINS="${PLUGINS} AMR-WB"
     AMRWB_TARGET="plgamrwb"
-    AMRWB_INCLUDE="-I${PWD}/contrib/libamrwb/"
+    AMRWB_INCLUDE='-I$(top_srcdir)/contrib/libamrwb/'
     AMRWB_LIB_ROOT="${PWD}/contrib/libamrwb/"
     AC_SUBST(AMRWB_TARGET)    
     AC_SUBST(AMRWB_INCLUDE)    
