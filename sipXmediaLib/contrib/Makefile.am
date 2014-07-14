@@ -7,7 +7,10 @@ if AMRWB
 AMRWB_DIR = libamrwb
 endif
 
-SUBDIRS = $(AMRNB_DIR) $(AMRWB_DIR)
+# This resursion does not seem to work on all platforms.  The Makefiles
+# do not seem to get created by configure.  So explicit, manual steps
+# are taken below to force configure to be run in libamr*
+# SUBDIRS = $(AMRNB_DIR) $(AMRWB_DIR)
 
 if SPEEX_CONTRIB
 
