@@ -16,7 +16,7 @@ ${LIBAMRNB_LIB}: ${LIBAMRNB_SUBDIR}/Makefile
 	make -C @AMRNB_LIB_ROOT@
 
 ${LIBAMRNB_SUBDIR}/Makefile: ${LIBAMRNB_SUBDIR}/configure
-	( cd ${LIBAMRNB_SUBDIR}; ./configure --host=${host_triplet} --build=${build_triplet} )
+	( cd ${LIBAMRNB_SUBDIR}; @AMRNB_LIB_ROOT@/configure --host=${host_triplet} --build=${build_triplet} )
 
 all-local: codec_amr.la
 	echo "Installing plugin codec_amr.so ..."
@@ -24,7 +24,7 @@ all-local: codec_amr.la
 
 clean-local:
 	rm -f @DEFAULT_CODECS_PATH@/codec_amr.so
-	if [ -f ${LIBAMRNB_SUBDIR}/Makefile ]; then make -C @AMRNB_LIB_ROOT@ clean; fi
+	if [ -f ${LIBAMRNB_SUBDIR}/Makefile ]; then make -C ${LIBAMRNB_SUBDIR} clean; fi
 distclean-local:
-	if [ -f ${LIBAMRNB_SUBDIR}/Makefile ]; then make -C @AMRNB_LIB_ROOT@ distclean; fi
+	if [ -f ${LIBAMRNB_SUBDIR}/Makefile ]; then make -C ${LIBAMRNB_SUBDIR} distclean; fi
 

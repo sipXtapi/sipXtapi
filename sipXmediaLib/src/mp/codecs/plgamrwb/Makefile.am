@@ -13,10 +13,10 @@ codec_amrwb_la_LDFLAGS = -module -avoid-version
 codec_amrwb_la_DEPENDENCIES = ${LIBAMRWB_LIB}
 
 ${LIBAMRWB_LIB}: ${LIBAMRWB_SUBDIR}/Makefile 
-	make -C @AMRWB_LIB_ROOT@
+	make -C ${LIBAMRWB_SUBDIR}
 
-${LIBAMRWB_SUBDIR}/Makefile: ${LIBAMRWB_SUBDIR}/configure
-	( cd ${LIBAMRWB_SUBDIR}; ./configure --host=${host_triplet} --build=${build_triplet} )
+${LIBAMRWB_SUBDIR}/Makefile: @AMRWB_LIB_ROOT@/configure
+	( cd ${LIBAMRWB_SUBDIR}; @AMRWB_LIB_ROOT@/configure --host=${host_triplet} --build=${build_triplet} )
 
 all-local: codec_amrwb.la
 	echo "Installing plugin codec_amrwb.so ..."
@@ -24,7 +24,7 @@ all-local: codec_amrwb.la
 
 clean-local:
 	rm -f @DEFAULT_CODECS_PATH@/codec_amrwb.so
-	if [ -f ${LIBAMRWB_SUBDIR}/Makefile ]; then make -C  @AMRWB_LIB_ROOT@ clean; fi
+	if [ -f ${LIBAMRWB_SUBDIR}/Makefile ]; then make -C  ${LIBAMRWB_SUBDIR} clean; fi
 distclean-local:
-	if [ -f ${LIBAMRWB_SUBDIR}/Makefile ]; then make -C @AMRWB_LIB_ROOT@ distclean; fi
+	if [ -f ${LIBAMRWB_SUBDIR}/Makefile ]; then make -C ${LIBAMRWB_SUBDIR} distclean; fi
 
