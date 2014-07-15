@@ -15,8 +15,8 @@ codec_amrwb_la_DEPENDENCIES = ${LIBAMRWB_LIB}
 ${LIBAMRWB_LIB}: ${LIBAMRWB_SUBDIR}/Makefile 
 	make -C ${LIBAMRWB_SUBDIR}
 
-${LIBAMRWB_SUBDIR}/Makefile: @AMRWB_LIB_ROOT@/configure
-	( cd ${LIBAMRWB_SUBDIR}; @AMRWB_LIB_ROOT@/configure --host=${host_triplet} --build=${build_triplet} )
+${LIBAMRWB_SUBDIR}/Makefile: $(sipx_abs_srcdir)/contrib/libamrwb/configure
+	( cd ${LIBAMRWB_SUBDIR}; $(sipx_abs_srcdir)/contrib/libamrwb/configure --host=${host_triplet} --build=${build_triplet} )
 
 all-local: codec_amrwb.la
 	echo "Installing plugin codec_amrwb.so ..."

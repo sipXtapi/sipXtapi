@@ -15,8 +15,8 @@ codec_amr_la_DEPENDENCIES = ${LIBAMRNB_LIB}
 ${LIBAMRNB_LIB}: ${LIBAMRNB_SUBDIR}/Makefile 
 	make -C @AMRNB_LIB_ROOT@
 
-${LIBAMRNB_SUBDIR}/Makefile: ${LIBAMRNB_SUBDIR}/configure
-	( cd ${LIBAMRNB_SUBDIR}; @AMRNB_LIB_ROOT@/configure --host=${host_triplet} --build=${build_triplet} )
+${LIBAMRNB_SUBDIR}/Makefile: $(sipx_abs_srcdir)/contrib/libamrnb/configure
+	( cd ${LIBAMRNB_SUBDIR}; $(sipx_abs_srcdir)/contrib/libamrnb/configure --host=${host_triplet} --build=${build_triplet} )
 
 all-local: codec_amr.la
 	echo "Installing plugin codec_amr.so ..."
