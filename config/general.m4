@@ -1929,9 +1929,11 @@ AC_DEFUN([AM_SET_AMR],
     AMR_TARGET="plgamr"
     AMRNB_INCLUDE='-I$(top_srcdir)/contrib/libamrnb/'
     AMRNB_LIB_ROOT="${PWD}/contrib/libamrnb/"    
+    AMRNB_STATIC_LIB='${top_builddir}/contrib/libamrnb/.libs/libamrnb.a'
     AC_SUBST(AMR_TARGET)    
     AC_SUBST(AMRNB_INCLUDE)    
     AC_SUBST(AMRNB_LIB_ROOT)
+    AC_SUBST(AMRNB_STATIC_LIB)
 
     # amr narrowband codec has it's own configure, 
     # so be sure to call it.
@@ -1945,9 +1947,11 @@ AC_DEFUN([AM_SET_AMRWB],
     AMRWB_TARGET="plgamrwb"
     AMRWB_INCLUDE='-I$(top_srcdir)/contrib/libamrwb/'
     AMRWB_LIB_ROOT="${PWD}/contrib/libamrwb/"
+    AMRWB_STATIC_LIB='${top_builddir}/contrib/libamrwb/.libs/libamrwb.a'
     AC_SUBST(AMRWB_TARGET)    
     AC_SUBST(AMRWB_INCLUDE)    
     AC_SUBST(AMRWB_LIB_ROOT)
+    AC_SUBST(AMRWB_STATIC_LIB)
 
     # amr wideband codec has it's own configure, 
     # so be sure to call it.
