@@ -8,7 +8,7 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @AMRNB
 pkgdata_LTLIBRARIES = codec_amr.la
 
 codec_amr_la_SOURCES = PlgAmr.c
-codec_amr_la_LIBADD = ${LIBAMRNB_LIB}
+codec_amr_la_LIBADD = @AMRNB_STATIC_LIB@
 codec_amr_la_LDFLAGS = -module -avoid-version
 codec_amr_la_DEPENDENCIES = ${LIBAMRNB_LIB}
 
