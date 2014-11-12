@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -631,11 +631,11 @@ int MprRecorder::writeFileSpeech(const MpAudioSample *pBuffer, int numSamples)
         int bytesWritten = write(mFileDescriptor, (char *)encodedSamplesPtr, dataSize);
         // Should comment this out after debug as likely scenario is we are out of file space
         // and filling up the log is not likely to help
-//#ifdef TEST_PRINT
+#ifdef TEST_PRINT
         OsSysLog::add(FAC_MP, PRI_ERR,
-                      "MprRecorder::wirteFileSpeech wrote %d of %d bytes",
+                      "MprRecorder::writeFileSpeech wrote %d of %d bytes",
                       bytesWritten, dataSize);
-//#endif
+#endif
     }
 
     return(numSamplesEncoded);
