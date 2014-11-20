@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2014 SIPez LLC.  Al rights reserved.
+//
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -168,7 +170,29 @@ void SipXEventDispatcher::serviceListeners(SIPX_EVENT_CATEGORY category,
             assert(pContext->pCallbackProc) ;
             if (pContext->pCallbackProc)
             {
+                OsTime before;
+                OsDateTime::getCurTime(before);
                 pContext->pCallbackProc(category, pInfo, pContext->pUserData) ;
+                OsTime after;
+                OsDateTime::getCurTime(after);
+                OsTime lapse = after - before;
+                if(lapse.seconds() || lapse.usecs() > 100000) // more than 0.1 seconds
+                {
+                    OsSysLogPriority priority = PRI_DEBUG;
+                    if(lapse.seconds())
+                    {
+                        priority = PRI_ERR;
+                    }
+                    else //if(lapse.usecs() > 10000)
+                    {
+                        priority = PRI_WARNING;
+                    }
+                    OsSysLog::add(FAC_SIPXTAPI, priority,
+                                  "sipXtapi callback event handler(%p) was slow to return (%f seconds)."
+                                  "  Care should be taken not to block in the callback for so long.",
+                                  pContext->pCallbackProc,
+                                  ((double) lapse.seconds()) + (((double) lapse.usecs()) / 1000000.0));
+                }
             }
         }
     }
