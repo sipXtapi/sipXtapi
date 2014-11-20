@@ -1,13 +1,12 @@
 //
+// Copyright (C) 2006-2014 SIPez LLC.  All right reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2006 ProfitFuel Inc.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -216,7 +215,7 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
 UtlBoolean MprSpeexEchoCancel::handleMessage(MpResourceMsg& rMsg)
 {
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-      "MprHook::handleMessage(%d)", rMsg.getMsg());
+      "MprSpeexEchoCancel::handleMessage(%d)", rMsg.getMsg());
    switch (rMsg.getMsg())
    {
    case MPRM_SET_SPEAKER_QUEUE:
