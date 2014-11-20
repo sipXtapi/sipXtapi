@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2014 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1251,6 +1251,10 @@ static SIPX_RESULT sipxCallCreateHelper(const SIPX_INST hInst,
                 else
                 {
                     *phCall = gpCallHandleMap->allocHandle(pData) ;
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                                  "sipxCallCreateHelper new hCall: %d Call-Id: %s",
+                                  *phCall,
+                                  pData->callId->data());
                     assert(*phCall != 0) ;
                     sr = SIPX_RESULT_SUCCESS ;
 
@@ -4102,6 +4106,11 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
 
 
                     SIPX_CALL hNewCall = gpCallHandleMap->allocHandle(pNewCallData) ;
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                                  "sipxConferenceAdd new hCall: %d Call-Id: %s",
+                                  hNewCall,
+                                  pNewCallData->callId->data());
+
                     pData->hCalls[pData->nCalls++] = hNewCall ;
                     *phNewCall = hNewCall ;
 

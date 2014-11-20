@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1215,6 +1214,10 @@ void sipxFireCallEvent(const void* pSrc,
         pCallData->lineURI = new UtlString(urlFrom.toString()) ;
 
         hCall = gpCallHandleMap->allocHandle(pCallData) ;
+        OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                      "sipxFireCallEvent new hCall: %d Call-Id: %s",
+                      hCall,
+                      pCallData->callId->data());
 
         if (pEventData)
         {
