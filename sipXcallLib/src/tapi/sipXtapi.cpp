@@ -264,13 +264,20 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxInitialize tcpPort=%d udpPort=%d tlsPort=%d rtpPortStart=%d"
             " maxConnections=%d identity=%s bindTo=%s sequentialPorts=%d"
-            " certNickname=%s, DBLocation=%s",
+            " certNickname=%s, DBLocation=%s bEnableLocalAudio=%s internalSamplerate=%d"
+            " devicesSamplerate=%d internalFrameSizeMs=%d callInputDeviceName=\"%s\" callOutputDeviceName=\"%s\"",
             tcpPort, udpPort, iActualTLSPort, rtpPortStart, maxConnections,
             ((szIdentity != NULL) ? szIdentity : ""),
             ((szBindToAddr != NULL) ? szBindToAddr : ""),
             bUseSequentialPorts,
             ((szTLSCertificateNickname != NULL) ? szTLSCertificateNickname : ""),
-            ((szDbLocation != NULL) ? szDbLocation : "")) ;
+            ((szDbLocation != NULL) ? szDbLocation : ""),
+            (bEnableLocalAudio ? "true" : "false"),
+            internalSamplerate,
+            devicesSamplerate,
+            internalFrameSizeMs,
+            callInputDeviceName,
+            callOutputDeviceName);
 
     sipxStructureIntegrityCheck();
 
