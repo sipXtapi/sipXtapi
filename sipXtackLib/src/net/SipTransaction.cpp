@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -3842,15 +3842,14 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
 				}
             }
 
-            // No request for to cancel
+            // No request to cancel
             else
             {
                 // Send a transaction not found error
                 SipMessage cancelError;
                 cancelError.setBadTransactionData(&incomingMessage);
-#ifdef TEST_PRINT
-                osPrintf("SipTransaction::handleIncoming transaction not found, sending CANCEL response\n");
-#endif
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipTransaction::handleIncoming transaction not found for CANCEL\n");
                 handleOutgoing(cancelError,
                                userAgent,
                                transactionList,
