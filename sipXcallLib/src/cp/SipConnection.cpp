@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -368,6 +368,19 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
         // Send a bad callId/transaction message
         SipMessage badTransactionMessage;
         badTransactionMessage.setBadTransactionData(sipMsg);
+        if(tag.isNull())
+        {
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "SipConnection::requestShouldCreateConnection invalid method(%s) for creating new call",
+                    method.data());
+        }
+        else
+        {
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "SipConnection::requestShouldCreateConnection for method: %s has To tag: %s",
+                    method.data(), tag.data());
+        }
+
         sipUa.send(badTransactionMessage);
         createConnection = FALSE;
     }
@@ -4239,6 +4252,19 @@ void SipConnection::processCancelRequest(const SipMessage* request)
     // CANCEL is not legal in the current state
     else
     {
+        if(lastRemoteSequenceNumber == requestSequenceNum)
+        {
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "CANCEL not valid in current call state: %d",
+                    calleeState);
+        }
+        else
+        {
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "CANCEL CSeq: %d does not match current call transaction CSeq: %d",
+                    requestSequenceNum, lastRemoteSequenceNumber);
+        }
+
         // Build an error response
         SipMessage sipResponse;
         sipResponse.setBadTransactionData(request);
