@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2014 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -564,7 +564,7 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString4Data(originalCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(originalConnectionAddress);
     UtlBoolean bOnHold = ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
-    RTP_TRANSPORT rtpTransportOptions = (RTP_TRANSPORT) ((CpMultiStringMessage*)pEventMessage)->getInt2Data() ;
+    //RTP_TRANSPORT rtpTransportOptions = (RTP_TRANSPORT) ((CpMultiStringMessage*)pEventMessage)->getInt2Data() ;
 
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION referTo: %s referredBy: \"%s\" originalCallId: %s originalConnectionAddress: %s\n",
@@ -2400,13 +2400,17 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             ((CpMultiStringMessage&)eventMessage).getString3Data(file) ;
             OsProtectedEvent* pEvent = (OsProtectedEvent*) 
                     ((CpMultiStringMessage&)eventMessage).getInt1Data();
+            CpMediaInterface::CpAudioFileFormat recordFormat = 
+                (CpMediaInterface::CpAudioFileFormat)
+                    ((CpMultiStringMessage&)eventMessage).getInt2Data();
+
             UtlBoolean bSuccess = false ;
 
             Connection* connection = findHandlingConnection(remoteAddress);
             if (connection && mpMediaInterface)
             {   
                 int connectionId = connection->getConnectionId() ;
-                if (mpMediaInterface->recordChannelAudio(connectionId, file))
+                if (mpMediaInterface->recordChannelAudio(connectionId, file, recordFormat))
                 {
                     bSuccess = true ;
                 }

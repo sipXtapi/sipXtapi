@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2014 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -175,7 +175,13 @@ public:
     virtual void audioStop(const char* callId);
     virtual void audioChannelPlay(const char* callId, const char* szRemoteAddress, const char* audioUrl, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote, UtlBoolean mixWithMic = false, int downScaling = 100);
     virtual void audioChannelStop(const char* callId, const char* szRemoteAddress);
-    virtual OsStatus audioChannelRecordStart(const char* callId, const char* szRemoteAddress, const char* szFile) ;
+
+    /// @copydoc CpCallManager::audioChannelRecordStart
+    virtual OsStatus audioChannelRecordStart(const char* callId, 
+                                            const char* szRemoteAddress, 
+                                            const char* szFile,
+                                            CpMediaInterface::CpAudioFileFormat = CpMediaInterface::CP_WAVE_PCM_16);
+
     virtual OsStatus audioChannelRecordStop(const char* callId, const char* szRemoteAddress) ;
     virtual OsStatus audioChannelRecordBufferStart(const char* callId, const char* szRemoteAddress, const char* pBuffer, const int bufferSize, const int bufferType, const int maxRecordTime, const int maxSilence);
     virtual OsStatus audioChannelRecordBufferStop(const char* callId, const char* szRemoteAddress);

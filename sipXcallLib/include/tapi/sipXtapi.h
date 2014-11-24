@@ -1,8 +1,8 @@
 //
+// Copyright (C) 2005-2014 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
-//
-// Copyright (C) 2005-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -338,6 +338,15 @@ typedef enum SIPX_TONE_ID
 typedef SIPX_TONE_ID TONE_ID  ;		/**< Left for backwards compatibility -- please use 
 										 SIPX_TONE_ID */
 
+/** Audio file format types 
+ */
+typedef enum SIPX_AUDIO_FILE_FORMAT
+{
+    SIPX_UNKNOWN_FORMAT = 0,
+    SIPX_WAVE_PCM_16,        /**< Wave audio file with PCM 16 bit, signed, little endian
+                                  encoded audio. */
+    SIPX_WAVE_GSM            /**< Wave audio file with GSM encoded audio. */
+} SIPX_AUDIO_FILE_FORMAT;
 
 /**
  * Various log levels available for the sipxConfigEnableLog method.  
@@ -1627,9 +1636,11 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall) ;
  *        invoking sipxCallCreate or passed to your application through
  *        a listener interface.
  * @param szFile Filename for the resulting audio file.
+ * @param recordFormat - audio file format to use when creating recording file
  */
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
-                                                      const char* szFile) ;
+                                                      const char* szFile,
+                                                      SIPX_AUDIO_FILE_FORMAT recordFormat = SIPX_WAVE_PCM_16);
 
 /**
  * Stop recording a call to file.
@@ -2155,8 +2166,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecPreferences(const SIPX_CALL hCall,
  *        inside of a media engine, it may be represented as fixed point value.
  *        (values for gain recommended in the 0.001-10.0 range)
  *        The default value is 1.0.  Clipping may occur for values
- *        greater than 1.0  The gain value is not intended for muting.
- *        @see sipxAudioMute also a local hold using @see sipxCallHold
+ *        greater than 1.0. Also @see sipxCallHold
  *        with the bStopRemoteAudio=false may be useful.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallSetMicGain(const SIPX_CALL hCall,

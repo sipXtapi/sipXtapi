@@ -95,7 +95,7 @@ extern OsMutex gSubscribeAccessLock; // sipXtapiInternal.cpp
 // STRUCTURES
 
 // GLOBALS
-static bool gbHibernated = false;
+//static bool gbHibernated = false;
 
 /* ============================ FUNCTIONS ================================= */
 
@@ -2298,20 +2298,45 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall)
 
 
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
-                                                      const char* szFile) 
+                                                      const char* szFile,
+                                                      SIPX_AUDIO_FILE_FORMAT recordFormat) 
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAudioRecordFileStart");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxCallAudioRecordFileStart hCall=%d szFile=%s", hCall, szFile);
+        "sipxCallAudioRecordFileStart hCall=%d szFile=%s recordFormat: %d", 
+        hCall, szFile, recordFormat);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA *pInst ;
     UtlString callId ;
     UtlString remoteAddress ;
 
-    if (szFile && sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
-    {        
-        if (pInst->pCallManager->audioChannelRecordStart(callId, remoteAddress, szFile))
+    CpMediaInterface::CpAudioFileFormat cpRecordFormat = CpMediaInterface::CP_UNKNOWN_FORMAT;
+    switch(recordFormat)
+    {
+        case SIPX_WAVE_PCM_16:
+            cpRecordFormat = CpMediaInterface::CP_WAVE_PCM_16;
+            break;
+
+        case SIPX_WAVE_GSM:
+            cpRecordFormat = CpMediaInterface::CP_WAVE_GSM;
+            break;
+
+        default:
+            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                    "Invalid record format: %d",
+                    recordFormat);
+            OsSysLog::flush();
+            assert(0);
+            break;
+    }
+
+    if (szFile && 
+        cpRecordFormat != CpMediaInterface::CP_UNKNOWN_FORMAT &&
+        sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {
+
+        if (pInst->pCallManager->audioChannelRecordStart(callId, remoteAddress, szFile, cpRecordFormat))
         {
             sr = SIPX_RESULT_SUCCESS ;
         }
@@ -2321,7 +2346,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
         sr = SIPX_RESULT_INVALID_ARGS ;
     }
 
-    return sr ;
+    return(sr);
 }
 
 
@@ -7249,8 +7274,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
         memset((void*)pCodec, 0, sizeof(SIPX_AUDIO_CODEC));
         if (index >= 0 && index < pInst->audioCodecSetting.numCodecs)
         {
-            CpMediaInterfaceFactoryImpl* pInterface = 
-                pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
+            //CpMediaInterfaceFactoryImpl* pInterface = 
+            //    pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
 
             // If a name is found for the codec type, copy name and bandwidth cost
             if (SdpDefaultCodecFactory::getCodecNameByType(pInst->audioCodecSetting.sdpCodecArray[index]->getCodecType(),
