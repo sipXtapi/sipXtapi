@@ -136,7 +136,6 @@ OsStatus MprRecorder::startBuffer(const UtlString& namedResource,
                                   int time,
                                   int silenceLength)
 {
-   int file = -1;
    OsStatus stat;
    MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START_BUFFER,
                            namedResource);
@@ -274,8 +273,8 @@ UtlBoolean MprRecorder::handleStartFile(int file,
    mFileDescriptor = file;
    mRecFormat = recFormat;
    mRecordDestination = TO_FILE;
-   int codecSampleRate = 0;
-   int flowgraphSampleRate = mpFlowGraph->getSamplesPerSec();
+   unsigned int codecSampleRate = 0;
+   unsigned int flowgraphSampleRate = mpFlowGraph->getSamplesPerSec();
    OsStatus status = OS_INVALID_ARGUMENT;
 
    MpCodecFactory* codecFactory = MpCodecFactory::getMpCodecFactory();
@@ -577,7 +576,7 @@ int MprRecorder::writeFileSpeech(const MpAudioSample *pBuffer, int numSamples)
                           "MprRecoder::writeFileSpeech resample returned: %d",
                           status);
         }
-        assert(samplesConsumed == numSamples);
+        assert(samplesConsumed == (uint32_t) numSamples);
     }
 
     // No resampler, pass it straight through
@@ -628,7 +627,11 @@ int MprRecorder::writeFileSpeech(const MpAudioSample *pBuffer, int numSamples)
     // Depending upon the encoder framing, there may not always be stuff to write
     if(numSamplesEncoded)
     {
-        int bytesWritten = write(mFileDescriptor, (char *)encodedSamplesPtr, dataSize);
+        // ifdef to avoid warning of unused variable
+#ifdef TEST_PRINT
+        int bytesWritten = 
+#endif
+            write(mFileDescriptor, (char *)encodedSamplesPtr, dataSize);
         // Should comment this out after debug as likely scenario is we are out of file space
         // and filling up the log is not likely to help
 #ifdef TEST_PRINT
@@ -662,14 +665,33 @@ UtlBoolean MprRecorder::writeWAVHeader(int handle,
    UtlBoolean retCode = FALSE;
    char tmpbuf[80];
    int16_t sampleSize = 2; //sizeof(MpAudioSample);
-   int16_t bitsPerSample = sampleSize*8;
+   int16_t bitsPerSample = 0;
 
    int16_t compressionCode = (int16_t) format;
    int16_t numChannels = 1;
-   uint32_t averageSamplePerSec = samplesPerSecond*sampleSize;
-   int16_t blockAlign = sampleSize*numChannels;
+   uint32_t averageBytesPerSecond = 0;
+   int16_t blockAlign = 0;
    unsigned long bytesWritten = 0;
 
+   switch(format)
+   {
+       case MprRecorder::WAV_GSM:
+           averageBytesPerSecond = 1625;
+           blockAlign = 65;
+           bitsPerSample = 0;
+           break;
+
+       case MprRecorder::WAV_PCM_16:
+           averageBytesPerSecond = samplesPerSecond*sampleSize;
+           blockAlign = sampleSize*numChannels;
+           bitsPerSample = sampleSize*8;
+           break;
+
+       default:
+           assert(0);
+           break;
+   }
+  
    //write RIFF & length
    //8 bytes written
    strcpy(tmpbuf,"RIFF");
@@ -694,7 +716,7 @@ UtlBoolean MprRecorder::writeWAVHeader(int handle,
    bytesWritten += write(handle, (char*)&compressionCode, sizeof(compressionCode));
    bytesWritten += write(handle, (char*)&numChannels, sizeof(numChannels));
    bytesWritten += write(handle, (char*)&samplesPerSecond, sizeof(samplesPerSecond));
-   bytesWritten += write(handle, (char*)&averageSamplePerSec, sizeof(averageSamplePerSec));
+   bytesWritten += write(handle, (char*)&averageBytesPerSecond, sizeof(averageBytesPerSecond));
    bytesWritten += write(handle, (char*)&blockAlign, sizeof(blockAlign));
    bytesWritten += write(handle, (char*)&bitsPerSample, sizeof(bitsPerSample));
 
