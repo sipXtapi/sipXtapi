@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -103,6 +103,14 @@ public:
       AUDIO_STREAM,
       VIDEO_STREAM
    };
+   
+   enum CpAudioFileFormat
+   {
+       CP_UNKNOWN_FORMAT = 0,
+       CP_WAVE_PCM_16, ///< Wave file format containing PCM 16 bit signed little endian encoded audio
+       CP_WAVE_GSM     ///< Wafe file format contain GSM encoded audio
+   };
+
 
 /* =========================== CREATORS =========================== */
 
@@ -471,7 +479,8 @@ public:
 
 
    virtual OsStatus recordChannelAudio(int connectionId,
-                                       const char* szFile) = 0 ;
+                                       const char* szFile,
+                                       CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16) = 0;
 
    virtual OsStatus stopRecordChannelAudio(int connectionId) = 0 ;
 

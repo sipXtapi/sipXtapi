@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1946,17 +1946,45 @@ OsStatus CpTopologyGraphInterface::stopChannelAudio(int connectionId)
 
 
 OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
-                                                      const char* szFile) 
+                                                      const char* szFile,
+                                                      CpAudioFileFormat cpFileFormat) 
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
-      stat = MprRecorder::startFile(DEFAULT_RECORDER_RESOURCE_NAME,
-                                    *mpTopologyGraph->getMsgQ(),
-                                    szFile,
-                                    MprRecorder::WAV_PCM_16);
+       MprRecorder::RecordFileFormat recordFormat = MprRecorder::WAV_PCM_16;
+      switch(cpFileFormat)
+      {
+          case CP_WAVE_PCM_16:
+              recordFormat = MprRecorder::WAV_PCM_16;
+              stat = OS_SUCCESS;
+              break;
+
+          case CP_WAVE_GSM:
+              recordFormat = MprRecorder::WAV_GSM;
+              stat = OS_SUCCESS;
+              break;
+
+          default:
+              OsSysLog::add(FAC_CP, PRI_ERR,
+                      "Invalid record file format: %d",
+                      cpFileFormat);
+              OsSysLog::flush();
+              assert(0);
+              stat = OS_INVALID_ARGUMENT;
+              break;
+      }
+
+      if(stat == OS_SUCCESS)
+      {
+          stat = MprRecorder::startFile(DEFAULT_RECORDER_RESOURCE_NAME,
+                                        *mpTopologyGraph->getMsgQ(),
+                                        szFile,
+                                        recordFormat);
+      }
    }
-   return stat;
+
+   return(stat);
 }
 
 OsStatus CpTopologyGraphInterface::stopRecordChannelAudio(int connectionId) 
@@ -2703,7 +2731,7 @@ UtlBoolean CpTopologyGraphInterface::isDestinationSet(int connectionId)
 
 UtlBoolean CpTopologyGraphInterface::canAddParty() 
 {
-   int maxConnections = ((CpTopologyGraphFactoryImpl*)mpFactoryImpl)->getMaxInputConnections();
+   unsigned int maxConnections = ((CpTopologyGraphFactoryImpl*)mpFactoryImpl)->getMaxInputConnections();
    return mMediaConnections.entries() < maxConnections;
 }
 
@@ -4065,7 +4093,10 @@ OsStatus CpTopologyGraphInterface::setConnectionToConnectionWeight(CpTopologyMed
                                                                    int destConnectionId,
                                                                    float weight)
 {
+   // Not sure why the following line is here.  Additionally pDestConnection is not used
+   // and complier complains
    CpTopologyMediaConnection* pDestConnection = getMediaConnection(destConnectionId);
+
    int destPort;
    OsStatus stat = getConnectionPortOnBridge(destConnectionId, 0, destPort);
    if (stat != OS_SUCCESS)
