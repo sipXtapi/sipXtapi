@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -534,7 +534,8 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
    UtlContainable* objInserted = mConnectionsByDeviceName.insertKeyAndValue(&newDevice, idValue);
    if(objInserted == NULL)
    {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MpInputDeviceManager::addDevice device not added to mConnectionsByDeviceName");
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpInputDeviceManager::addDevice device not added to mConnectionsByDeviceName samples/frame: %d samples/sec.: %d",
+              mDefaultSamplesPerFrame, mDefaultSamplesPerSecond);
    }
    assert(objInserted);
 
