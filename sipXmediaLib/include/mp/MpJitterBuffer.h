@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC. 
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -52,10 +52,13 @@ public:
 //@{
 
      /// Constructor
-   MpJitterBuffer(MpDecoderPayloadMap *pPayloadMap = NULL);
+   MpJitterBuffer(MpDecoderPayloadMap *pPayloadMap = NULL,
+                  const UtlString& resourceName = "unknown");
      /**<
      *  @param[in] pPayloadMap - set of decoders, mapped to their RTP payload
      *             types.
+     *  @param[in] resourceName - name of the resource that this is part
+     *             of.  Used for debugging and logging purposes.
      */
 
      /// Initialize with given sample rate and frame size.
@@ -141,6 +144,9 @@ public:
       /// Get number of samples, remaining in buffer.
    inline
    int getSamplesNum() const;
+
+   /// Set parameter on the VAD component
+   OsStatus setVadParam(const UtlString& name, int value);
 
 //@}
 

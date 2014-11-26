@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2008 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2008-2014 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -125,6 +124,9 @@ public:
      /// Return weighted energy of current frame
    virtual int getEnergy() const = 0;
 
+   /// Set name
+   void setName(const UtlString& name);
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -137,6 +139,8 @@ public:
 protected:
 
    static UtlString smDefaultAlgorithm; ///< Name of algorithm to be used by default.
+
+   UtlString mName; ///< Name useful for debugging to distiguish multiple instances
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

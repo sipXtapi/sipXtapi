@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -37,23 +37,25 @@
 #include <string.h>
 
 // APPLICATION INCLUDES
-#include "mp/MprDecode.h"
-#include "mp/MpDspUtils.h"
-#include "mp/MpBuf.h"
-#include "mp/MprDejitter.h"
-#include "mp/MpDecoderBase.h"
-#include "mp/MpCodecFactory.h"
-#include "mp/MpJitterBuffer.h"
-#include "mp/MpPlcBase.h"
-#include "mp/MpFlowGraphBase.h"
-#include "mp/MprnDTMFMsg.h"
-#include "mp/MprDecodeSelectCodecsMsg.h"
-#include "mp/MpStringResourceMsg.h"
-#include "os/OsDefs.h"
-#include "os/OsSysLog.h"
-#include "os/OsLock.h"
-#include "os/OsNotification.h"
-#include "mp/MprDejitter.h"
+#include <os/OsDefs.h>
+#include <os/OsSysLog.h>
+#include <os/OsLock.h>
+#include <os/OsNotification.h>
+#include <utl/UtlSerialized.h>
+#include <mp/MprDecode.h>
+#include <mp/MpDspUtils.h>
+#include <mp/MpBuf.h>
+#include <mp/MprDejitter.h>
+#include <mp/MpDecoderBase.h>
+#include <mp/MpCodecFactory.h>
+#include <mp/MpJitterBuffer.h>
+#include <mp/MpPlcBase.h>
+#include <mp/MpFlowGraphBase.h>
+#include <mp/MprnDTMFMsg.h>
+#include <mp/MprDecodeSelectCodecsMsg.h>
+#include <mp/MpStringResourceMsg.h>
+#include <mp/MpPackedResourceMsg.h>
+#include <mp/MprDejitter.h>
 
 // DEFINES
 //#define RTL_ENABLED
@@ -86,7 +88,7 @@ const UtlContainableType MprDecode::TYPE = "MprDecode";
 MprDecode::MprDecode(const UtlString& rName,
                      const UtlString &plcName)
 : MpAudioResource(rName, 1, 1, 1, 1)
-, mpJB(new MpJitterBuffer())
+, mpJB(new MpJitterBuffer(NULL, rName))
 , mIsJBInitialized(FALSE)
 , mpMyDJ(NULL)
 , mOwnDJ(FALSE)
@@ -725,6 +727,14 @@ UtlBoolean MprDecode::handleMessage(MpResourceMsg& rMsg)
       msgHandled = handleReset();
       break;
 
+   case MPRM_SET_VAD_PARAM:
+      {
+          MpPackedResourceMsg packedMessage = (MpPackedResourceMsg&) rMsg;
+          UtlSerialized& serialData = packedMessage.getData();
+          msgHandled = handleSetVadParam(serialData);
+      }
+      break;
+
    default:
       // If we don't handle the message here, let our parent try.
       msgHandled = MpResource::handleMessage(rMsg); 
@@ -1004,6 +1014,23 @@ UtlBoolean MprDecode::handleDisable()
       handleReset();
    }
    return MpResource::handleDisable();
+}
+
+UtlBoolean MprDecode::handleSetVadParam(UtlSerialized& serialData)
+{
+    assert(mpJB);
+    if(mpJB)
+    {
+        UtlString name;
+        int value;
+        serialData.deserialize(name);
+        serialData.deserialize(value);
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MprDecode setting VAD parameter: %s value: %d",
+            name.data(), value);
+        mpJB->setVadParam(name, value);
+    }
+    return(TRUE);
 }
 
 /* ============================ FUNCTIONS ================================= */
