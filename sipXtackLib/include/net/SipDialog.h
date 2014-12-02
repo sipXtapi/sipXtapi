@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -253,6 +255,13 @@ public:
     UtlBoolean isEarlyDialogFor(const UtlString& callId,
                                 const UtlString& localTag,
                                 const UtlString& remoteTag) const;
+
+    //! Checks if this was an early dialog for the given SIP message
+    /*! This dialog is considered to have been an early dialog if
+     *  the SIP Call-Id and one of the given tags matches one of
+     *  the tags of this dialog.
+     */
+    UtlBoolean wasEarlyDialogFor(const SipMessage& message) const;
 
     //! Checks if this was an early dialog for the given SIP message
     /*! This dialog is considered to have been an early dialog if

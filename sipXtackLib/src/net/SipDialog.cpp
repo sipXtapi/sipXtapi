@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -712,6 +714,20 @@ UtlBoolean SipDialog::isEarlyDialogFor(const UtlString& callId,
     }
 
     return(isSameEarlyDialog);
+}
+
+UtlBoolean SipDialog::wasEarlyDialogFor(const SipMessage& message) const
+{
+    UtlString handle;
+
+    message.getDialogHandle(handle);
+
+    UtlString callId;
+    UtlString localTag;
+    UtlString remoteTag;
+    parseHandle(handle, callId, localTag, remoteTag);
+
+    return(wasEarlyDialogFor(callId, localTag, remoteTag));
 }
 
 UtlBoolean SipDialog::wasEarlyDialogFor(const UtlString& callId,
