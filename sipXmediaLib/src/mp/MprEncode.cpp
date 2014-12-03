@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -571,9 +571,10 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
       if(in != MpMisc.mpFgSilence &&
          samplesConsumed != in->getSamplesNumber())
       {
+         int inSamples = in->getSamplesNumber();
          OsSysLog::add(FAC_MP, PRI_ERR,
             "MprEncode::doPrimaryCodec should be equal samplesConsumed = %d in->getSamplesNumber() = %d",
-            samplesConsumed, in->getSamplesNumber());
+            samplesConsumed, inSamples);
          OsSysLog::flush();
          assert(samplesConsumed == in->getSamplesNumber());
       }
