@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -65,6 +65,11 @@ CpCall::CpCall(CpCallManager* manager,
 {
     // add the call task name to a list so we can track leaked calls.
     UtlString strCallTaskName = getName();
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "Constructing %s",
+            strCallTaskName.data());
+#endif
     addToCallTrackingList(strCallTaskName);
 
     mCallInFocus = FALSE;
@@ -111,11 +116,7 @@ CpCall::CpCall(CpCallManager* manager,
     mpMetaEventCallIds = NULL;
     mMessageEventCount = -1;
 
-    UtlString name = getName();
-#ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "%s Call constructed: %s\n", name.data(), mCallId.data());
-    osPrintf("%s constructed: %s\n", name.data(), mCallId.data());
-#endif
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "%s Call constructed: %s\n", strCallTaskName.data(), mCallId.data());
 }
 
 // Destructor
@@ -196,7 +197,8 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
     CpMultiStringMessage* multiStringMessage = (CpMultiStringMessage*)&eventMessage;
 
     UtlBoolean processedMessage = TRUE;
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::handleMessage message type: %d subtype %d\n", msgType, msgSubType);
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::handleMessage(%s) message type: %d subtype %d\n", 
+                  mName.data(), msgType, msgSubType);
 
     switch(msgType)
     {

@@ -692,8 +692,8 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
 
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
-        "%s CpPeerCall::handleSipMessage - connection %d msgType %d msgSubType %d",
-        getName().data(), (int)connection, pEventMessage->getMsgType(), pEventMessage->getMsgSubType());
+        "%s CpPeerCall::handleSipMessage - connection %p msgType %d msgSubType %d",
+        getName().data(), connection, pEventMessage->getMsgType(), pEventMessage->getMsgSubType());
 #endif
 
     if(connection)
@@ -3694,8 +3694,17 @@ UtlBoolean CpPeerCall::hasCallId(const char* callIdString)
     while ((connection = (Connection*) iterator()))
     {
         connection->getCallId(&connectionCallId);
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                "CpPeerCall::hasCallId(%s) connection: \"%s\"",
+                callIdString, connectionCallId.data());
+#endif
         if(strcmp(callIdString, connectionCallId.data()) == 0)
         {
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                    "CpPeerCall::hasCallId matching connection");
+#endif
             foundCallId = TRUE;
             break;
         }
@@ -4333,16 +4342,23 @@ CpCall::handleWillingness CpPeerCall::willHandleMessage(const OsMsg& eventMessag
             {
                 UtlString callId;
                 sipMsg->getCallIdField(&callId);
-
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_CP, PRI_DEBUG,
-                    "%s-Message mCallId %s callid: %s", 
-                    mName.data(), mCallId.data(), callId.data());
+                {
+                    UtlString method;
+                    sipMsg->getRequestMethod(&method);
+                    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                        "%s-Message mCallId %s %s {Call-Id: \"%s\", CSeq: %d \"%s\"}", 
+                        mName.data(), mCallId.data(), method.data(), callId.data(), seqNum, seqMethod.data());
+                }
 #endif
 
                 UtlBoolean thisCallHasCallId = hasCallId(callId.data());
                 if(thisCallHasCallId)
                 {
+#ifdef TEST_PRINT
+                    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                            "WILL_HANDLE");
+#endif
                     takeTheMessage = CP_DEFINITELY_WILL_HANDLE;
                 }
 
