@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -235,7 +235,7 @@ protected:
    static UtlBoolean writeWAVHeader(int handle, RecordFileFormat format, uint32_t samplesPerSecond = 8000);
 
      /// Update WAV-file's header with correct recorded length.
-   static UtlBoolean updateWaveHeaderLengths(int handle);
+   static UtlBoolean updateWaveHeaderLengths(int handle, RecordFileFormat format);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

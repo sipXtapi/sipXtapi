@@ -297,7 +297,7 @@ UtlBoolean MprRecorder::handleStartFile(int file,
        // Encoder needed
    case MprRecorder::WAV_GSM:
        codecSampleRate = 8000;
-       status = codecFactory->createEncoder(MIME_SUBTYPE_GSM, 
+       status = codecFactory->createEncoder(MIME_SUBTYPE_GSM_WAVE, 
                                             NULL, // FMTP
                                             codecSampleRate, // GSM 8K
                                             1, // Num channels
@@ -535,7 +535,7 @@ void MprRecorder::closeFile()
       // Any WAVE file needs header updates on closing
       if (mRecFormat != RAW_PCM_16)
       {
-         updateWaveHeaderLengths(mFileDescriptor);
+         updateWaveHeaderLengths(mFileDescriptor, mRecFormat);
       }
       close(mFileDescriptor);
       mFileDescriptor = -1;
@@ -552,6 +552,11 @@ int MprRecorder::writeFileSilence(int numSamples)
 
 int MprRecorder::writeFileSpeech(const MpAudioSample *pBuffer, int numSamples)
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MprRecorder::writeFileSpeech(pBuffer: %p, numSamples: %d)",
+            pBuffer, numSamples);
+#endif
     const MpAudioSample* resampledBufferPtr = NULL;
     const int localBufferSize = 1500; // No audio codecs exceed an MTU
     MpAudioSample localBuffer[localBufferSize];
@@ -611,8 +616,17 @@ int MprRecorder::writeFileSpeech(const MpAudioSample *pBuffer, int numSamples)
         if(status != OS_SUCCESS)
         {
             OsSysLog::add(FAC_MP, PRI_ERR,
-                "MprRecoder::writeFileSpeech encode returned: %d",
+                "MprRecorder::writeFileSpeech encode returned: %d",
                 status);
+        }
+        else
+        {
+            // The upper lay does not know or care about resampling.
+            // So we tell it that we encoded all of the samples passed in.
+            if(numSamplesEncoded == numResampled)
+            {
+                numSamplesEncoded = numSamples;
+            }
         }
     }
 
@@ -620,27 +634,32 @@ int MprRecorder::writeFileSpeech(const MpAudioSample *pBuffer, int numSamples)
     else
     {
         dataSize = numResampled * sizeof(MpAudioSample);
-        numSamplesEncoded = numResampled;
+        // The upper layer does not know or care about resampling.
+        // So we tell it that we encoded all of the samples passed in.
+        //numSamplesEncoded = numResampled;
+        numSamplesEncoded = numSamples;
         encodedSamplesPtr = resampledBufferPtr;
     }
    
     // Depending upon the encoder framing, there may not always be stuff to write
-    if(numSamplesEncoded)
+    if(dataSize)
     {
-        // ifdef to avoid warning of unused variable
-#ifdef TEST_PRINT
         int bytesWritten = 
-#endif
             write(mFileDescriptor, (char *)encodedSamplesPtr, dataSize);
-        // Should comment this out after debug as likely scenario is we are out of file space
-        // and filling up the log is not likely to help
-#ifdef TEST_PRINT
-        OsSysLog::add(FAC_MP, PRI_ERR,
-                      "MprRecorder::writeFileSpeech wrote %d of %d bytes",
-                      bytesWritten, dataSize);
-#endif
+
+        if(bytesWritten != dataSize)
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                          "MprRecorder::writeFileSpeech wrote %d of %d bytes",
+                          bytesWritten, dataSize);
+        }
     }
 
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MprRecorder::writeFileSpeech returning: %d (numSamplesEncoded)",
+            numSamplesEncoded);
+#endif
     return(numSamplesEncoded);
 }
 
@@ -666,12 +685,14 @@ UtlBoolean MprRecorder::writeWAVHeader(int handle,
    char tmpbuf[80];
    int16_t sampleSize = 2; //sizeof(MpAudioSample);
    int16_t bitsPerSample = 0;
+   int32_t formatLength = 0;
 
    int16_t compressionCode = (int16_t) format;
    int16_t numChannels = 1;
    uint32_t averageBytesPerSecond = 0;
    int16_t blockAlign = 0;
    unsigned long bytesWritten = 0;
+   uint32_t totalHeaderSize = 0;
 
    switch(format)
    {
@@ -679,12 +700,16 @@ UtlBoolean MprRecorder::writeWAVHeader(int handle,
            averageBytesPerSecond = 1625;
            blockAlign = 65;
            bitsPerSample = 0;
+           formatLength = 20;
+           totalHeaderSize = 60;
            break;
 
        case MprRecorder::WAV_PCM_16:
            averageBytesPerSecond = samplesPerSecond*sampleSize;
            blockAlign = sampleSize*numChannels;
            bitsPerSample = sampleSize*8;
+           formatLength = 16;
+           totalHeaderSize = 44;
            break;
 
        default:
@@ -707,7 +732,7 @@ UtlBoolean MprRecorder::writeWAVHeader(int handle,
    //write fmt & length
    //8 bytes written
    strcpy(tmpbuf,"fmt ");
-   length = 16; // size of the format header
+   length = formatLength; // size of the format header
    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
    bytesWritten += write(handle, (char*)&length,sizeof(length));
 
@@ -720,6 +745,20 @@ UtlBoolean MprRecorder::writeWAVHeader(int handle,
    bytesWritten += write(handle, (char*)&blockAlign, sizeof(blockAlign));
    bytesWritten += write(handle, (char*)&bitsPerSample, sizeof(bitsPerSample));
 
+   // GSM specific part of fmt header
+   if(MprRecorder::WAV_GSM)
+   {
+       int16_t extraFormat = 320; // magic number
+       int16_t extraFormatBytes = sizeof(extraFormat);
+       bytesWritten += write(handle, (char*)&extraFormatBytes, sizeof(extraFormatBytes));
+       bytesWritten += write(handle, (char*)&extraFormat, sizeof(extraFormat));
+
+       int32_t factNumberOfSamples = 0;
+       int32_t factLength = sizeof(factNumberOfSamples);
+       bytesWritten += write(handle, "fact", 4);
+       bytesWritten += write(handle, (char*)&factLength, sizeof(factLength));
+       bytesWritten += write(handle, (char*)&factNumberOfSamples, sizeof(factNumberOfSamples));
+   }
 
    //write data and length
    strcpy(tmpbuf,"data");
@@ -727,14 +766,14 @@ UtlBoolean MprRecorder::writeWAVHeader(int handle,
    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
    bytesWritten += write(handle, (char*)&length, sizeof(length));
 
-   //total length at this point should be 44 bytes
-   if (bytesWritten == 44)
+   //total length at this point should be 44 or 60 bytes
+   if (bytesWritten == totalHeaderSize)
       retCode = TRUE;
 
    return retCode;
 }
 
-UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
+UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle, RecordFileFormat format)
 {
    UtlBoolean retCode = FALSE;
 
@@ -748,14 +787,32 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
    uint32_t rifflength = length-8;
    write(handle, (char*)&rifflength,sizeof(length));
 
-   //now seek to the data length
-   lseek(handle,40,SEEK_SET);
 
    //this should be the length of just the data
-   uint32_t datalength = length-44;
+   uint16_t totalWaveHeaderLength = 0;
+   switch(format)
+   {
+       case MprRecorder::WAV_GSM:
+           //now seek to the data length
+           lseek(handle,56,SEEK_SET);
+           totalWaveHeaderLength = 60;
+           break;
+
+       case MprRecorder::WAV_PCM_16:
+           //now seek to the data length
+           lseek(handle,40,SEEK_SET);
+           totalWaveHeaderLength = 44;
+           break;
+
+       default:
+           assert(0);
+           break;
+   }
+
+   uint32_t datalength = length - totalWaveHeaderLength;
    write(handle, (char*)&datalength,sizeof(datalength));
 
-   return retCode;
+   return(retCode);
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
