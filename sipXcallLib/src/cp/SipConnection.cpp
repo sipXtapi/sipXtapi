@@ -404,7 +404,8 @@ UtlBoolean SipConnection::shouldCreateConnection(SipUserAgent& sipUa,
         sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
         messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
 #ifdef TEST_PRINT
-        osPrintf("SipConnection::messageType: %d\n", messageType);
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                      "SipConnection::messageType: %d", messageType);
 #endif
 
         switch(messageType)
@@ -6450,6 +6451,8 @@ UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
     // Do not handle message if marked for deletion
     if (isMarkedForDeletion())
     {
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                "SipConnection::willHandleMessage connection marked for deletion, not handling SIP message");
         // already set handleMessage = false;
     }
     else if(inviteMsg &&
@@ -6464,7 +6467,9 @@ UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
         int msgLen;
         inviteMsg->getBytes(&dumpMessage, &msgLen);
         OsSysLog::add(FAC_CP, PRI_DEBUG,
-            "Invite message:\n%s", dumpMessage.data());
+            "Invite from this side: %s message:\n%s", 
+            inviteFromThisSide ? "T" : "F",
+            dumpMessage.data());
 #endif
 
         SipDialog thisDialog(inviteMsg, inviteFromThisSide);
@@ -6488,17 +6493,33 @@ UtlBoolean SipConnection::willHandleMessage(OsMsg& eventMessage) const
            handleMessage = TRUE;
 #ifdef TEST_PRINT
            OsSysLog::add(FAC_CP, PRI_DEBUG,
-               "SipConnection::willHandleMessage same early dialog");
+               "SipConnection::willHandleMessage same is early dialog");
+#endif
+        }
+        else if(thisDialog.wasEarlyDialogFor(*sipMsg))
+        {
+           handleMessage = TRUE;
+#ifdef TEST_PRINT
+           OsSysLog::add(FAC_CP, PRI_DEBUG,
+               "SipConnection::willHandleMessage same was early dialog");
 #endif
         }
 
 #ifdef TEST_PRINT
         else
         {
+           UtlString dialogString;
+           thisDialog.toString(dialogString);
            OsSysLog::add(FAC_CP, PRI_DEBUG,
-               "SipConnection::willHandleMessage NOT same dialog");
+               "SipConnection::willHandleMessage NOT same dialog:\%s",
+               dialogString.data());
         }
 #endif
+    }
+    else if(inviteMsg == NULL)
+    {
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                "SipConnection::willHandleMessage NULL invite message.");
     }
 
     return(handleMessage);
