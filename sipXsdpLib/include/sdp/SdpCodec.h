@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -47,6 +47,7 @@
 #define MIME_SUBTYPE_ILBC "iLBC"
 #define MIME_SUBTYPE_ISAC "ISAC"
 #define MIME_SUBTYPE_GSM "GSM"
+#define MIME_SUBTYPE_GSM_WAVE "GSM_WAVE"
 #define MIME_SUBTYPE_OPUS "opus"
 #define MIME_SUBTYPE_SPEEX "speex"
 #define MIME_SUBTYPE_AMR "amr"
