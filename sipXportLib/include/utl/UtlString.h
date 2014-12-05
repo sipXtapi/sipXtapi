@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -399,6 +398,19 @@ public:
        __attribute__ ((format(printf, 2, 3)))
 #endif
        ;
+
+    /// Append binary data in human readable string format
+    UtlString& appendBinaryToString(const void* binaryData, int numBytes, int valuesPerRow = 16);
+    /**
+     *  Outputs strings similar to xxd -p and can be converted back to binary using
+     *  xxd -r -p
+     *
+     *  @param binaryData - pointer to binary data to append as string in human
+     *               readable format.
+     *  @param numBytes - number of bytes to read from binaryData.
+     *  @param valuesPerRow - number space sparated 4 byte string values to
+     *               append per row (newline separated).
+     */
 
 ///@}
 // ================================================================
