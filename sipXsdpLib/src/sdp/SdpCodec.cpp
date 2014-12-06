@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -236,11 +236,11 @@ SdpCodec::SdpCodec(int payloadFormat,
       {
          setValue(SDP_CODEC_G726_40);
       }
-      else if(mMimeSubtype.compareTo("g722") == 0, UtlString::ignoreCase)
+      else if(mMimeSubtype.compareTo("g722", UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_G722);
       }
-      else if(mMimeSubtype.compareTo(MIME_SUBTYPE_OPUS) == 0, UtlString::ignoreCase)
+      else if(mMimeSubtype.compareTo(MIME_SUBTYPE_OPUS, UtlString::ignoreCase) == 0)
       {
          setValue(SDP_CODEC_OPUS);
          if(mSampleRate != 48000)
@@ -271,7 +271,7 @@ SdpCodec::SdpCodec(int payloadFormat,
          //  usedtx
 
       }
-      else if(mMimeSubtype.compareTo("speex") == 0, UtlString::ignoreCase)
+      else if(mMimeSubtype.compareTo("speex", UtlString::ignoreCase) == 0)
       {
          if (mSampleRate == 8000)
          {
