@@ -148,7 +148,7 @@ public:
         SDP_CODEC_SPEEX_5,         ///< Speex NB,  5,950bps
         SDP_CODEC_SPEEX_15,        ///< Speex NB, 15,000bps
         SDP_CODEC_SPEEX_24,        ///< Speex NB, 24,600bps
-        SDP_CODEC_SPEEX_WB,        ///< Speex WB   9,800bps
+        SDP_CODEC_SPEEX_WB,        ///< Speex WB   9,800bps (enum 100)
         SDP_CODEC_SPEEX_WB_5,      ///< Speex WB   5,750bps
         SDP_CODEC_SPEEX_WB_21,     ///< Speex WB  20,600bps
         SDP_CODEC_SPEEX_WB_42,     ///< Speex WB  42,200bps
@@ -174,7 +174,7 @@ public:
         SDP_CODEC_L16_16000_STEREO, ///< PCM 16 bit/sample 16000 samples/sec stereo.
         SDP_CODEC_L16_16000_MONO,   ///< PCM 16 bit/sample 16000 samples/sec mono.
         SDP_CODEC_L16_22050_STEREO, ///< PCM 16 bit/sample 22050 samples/sec stereo.
-        SDP_CODEC_L16_22050_MONO,   ///< PCM 16 bit/sample 22050 samples/sec mono.
+        SDP_CODEC_L16_22050_MONO,   ///< PCM 16 bit/sample 22050 samples/sec mono. (enum 125)
         SDP_CODEC_L16_24000_STEREO, ///< PCM 16 bit/sample 24000 samples/sec stereo.
         SDP_CODEC_L16_24000_MONO,   ///< PCM 16 bit/sample 24000 samples/sec mono.
         SDP_CODEC_L16_32000_STEREO, ///< PCM 16 bit/sample 32000 samples/sec stereo.
@@ -206,7 +206,7 @@ public:
         SDP_CODEC_VP71_CIF,
         SDP_CODEC_VP71_QCIF,
         SDP_CODEC_VP71_SQCIF,
-        SDP_CODEC_VP71_QVGA,
+        SDP_CODEC_VP71_QVGA, // (ENUM 150)
         SDP_CODEC_IYUV_CIF,
         SDP_CODEC_IYUV_QCIF,
         SDP_CODEC_IYUV_SQCIF,
@@ -223,7 +223,7 @@ public:
         SDP_CODEC_H263_QCIF,
         SDP_CODEC_H263_SQCIF,
         SDP_CODEC_H263_QVGA,
-        SDP_CODEC_H264, // 166
+        SDP_CODEC_H264, // (enum 166)
         SDP_CODEC_H264_CIF_256,
         SDP_CODEC_H264_NTSC_256,
         SDP_CODEC_H264_4CIF_512,
@@ -232,7 +232,7 @@ public:
         SDP_CODEC_H264_HD720_1024,
         SDP_CODEC_H264_HD720_2048,
         SDP_CODEC_H264_HD1088_2048,
-        SDP_CODEC_H264_HD1088_4096,
+        SDP_CODEC_H264_HD1088_4096, // (enum 175)
         SDP_CODEC_H264_PM1_CIF_256,
         SDP_CODEC_H264_PM1_NTSC_256,
         SDP_CODEC_H264_PM1_4CIF_512,
