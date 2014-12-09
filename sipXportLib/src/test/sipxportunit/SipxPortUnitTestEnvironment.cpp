@@ -51,6 +51,7 @@ int SipxPortUnitTestEnvironment::sTestPointsFailed = 0;
 int SipxPortUnitTestEnvironment::sTotalTestClassCount = 0;
 SipxPortUnitTestConstructor** SipxPortUnitTestEnvironment::sTestClassesToRun = NULL;
 
+bool SipxPortUnitTestEnvironment::sCatchSignals = true;
 int SipxPortUnitTestEnvironment::sNumExceptionsCaught = 0;
 int SipxPortUnitTestEnvironment::sLastExceptionsCaught = 0;
 int SipxPortUnitTestEnvironment::sLastExceptionClassIndex = -1;
@@ -204,12 +205,13 @@ void SipxPortUnitTestEnvironment::runTests(const UtlString& testClassName)
     initializeEnvironment();
 
 
-    // Prepare to run tests and catch signals if something bad happends
-#ifndef DONT_CATCH_SIGNALS
-    signal(SIGFPE, SipxPortUnitTestEnvironment::signalHandler);
-    signal(SIGSEGV, SipxPortUnitTestEnvironment::signalHandler);
-    signal(SIGILL, SipxPortUnitTestEnvironment::signalHandler);
-#endif
+    if(SipxPortUnitTestEnvironment::sCatchSignals)
+    {
+        // Prepare to run tests and catch signals if something bad happends
+        signal(SIGFPE, SipxPortUnitTestEnvironment::signalHandler);
+        signal(SIGSEGV, SipxPortUnitTestEnvironment::signalHandler);
+        signal(SIGILL, SipxPortUnitTestEnvironment::signalHandler);
+    }
 
     // Render test inforation for each test class first time this gets run
     // This will be run more than once if we catch a signal and are able
@@ -283,14 +285,14 @@ void SipxPortUnitTestEnvironment::runTests(const UtlString& testClassName)
         }
     }
 
-    // Now that we are done with the tests, we do not want the signal
-    // handler to catch stuff any more
-
-#ifndef DONT_CATCH_SIGNALS
-    signal(SIGFPE, SIG_DFL);
-    signal(SIGSEGV, SIG_DFL);
-#endif
-
+    if(SipxPortUnitTestEnvironment::sCatchSignals)
+    {
+        // Now that we are done with the tests, we do not want the signal
+        // handler to catch stuff any more
+        signal(SIGFPE, SIG_DFL);
+        signal(SIGSEGV, SIG_DFL);
+        signal(SIGILL, SIG_DFL);
+    }
 }
 
 void SipxPortUnitTestEnvironment::reportResults()
@@ -477,6 +479,11 @@ char* SipxPortUnitTestEnvironment::newCopyString(const char* stringToCopy)
 void SipxPortUnitTestEnvironment::incrementMethodsRun()
 {
     sTestMethodsRun++;
+}
+
+void SipxPortUnitTestEnvironment::setCatchSignals(bool enable)
+{
+    SipxPortUnitTestEnvironment::sCatchSignals = enable;
 }
 
 void SipxPortUnitTestEnvironment::setMethodIndex(int methodIndex)

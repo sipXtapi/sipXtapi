@@ -131,6 +131,8 @@ public:
 
     static void incrementMethodsRun();
 
+    static void setCatchSignals(bool enable);
+
     static void setMethodIndex(int methodIndex);
 
     static void resetTestPointIndex();
@@ -202,6 +204,7 @@ private:
     // Note the term exceptions is used loosely here
     // really we are talking about signal events that we are
     // able to recover from
+    static bool sCatchSignals;  ///< should try to catch signals and continue or not
     static int sNumExceptionsCaught;
     static int sLastExceptionsCaught;
     static int sLastExceptionClassIndex;
