@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2010-2012 SIPez LLC  All rights reserved.
+// Copyright (C) 2010-2014 SIPez LLC  All rights reserved.
 // 
 // $$
 // Author: Daniel Petrie
@@ -30,7 +30,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-//#define DONT_CATCH_SIGNALS
+#define DONT_CATCH_SIGNALS
 
 // STATIC VARIABLE INITIALIZATIONS
 bool SipxPortUnitTestEnvironment::sInitialized = 0;
@@ -40,6 +40,7 @@ int SipxPortUnitTestEnvironment::sInitializing = 0;
 int SipxPortUnitTestEnvironment::sCurrentTestClassIndex = -1;
 int SipxPortUnitTestEnvironment::sCurrentTestMethodIndex = -1;
 int SipxPortUnitTestEnvironment::sCurrentTestPointIndex = -1;
+int SipxPortUnitTestEnvironment::sTestClassesRun = 0;
 SipxPortUnitTestClass* SipxPortUnitTestEnvironment::spCurrentTestClass = 0;
 
 int SipxPortUnitTestEnvironment::sTotalTestMethodCount = 0;
@@ -93,6 +94,7 @@ void SipxPortUnitTestEnvironment::initializeEnvironment()
             sCurrentTestClassIndex = -1;
             sCurrentTestMethodIndex = -1;
             sCurrentTestPointIndex = -1;
+            sTestClassesRun = 0;
             spCurrentTestClass = 0;
 
             sTotalTestMethodCount = 0;
@@ -191,8 +193,14 @@ void SipxPortUnitTestEnvironment::signalHandler(int signalCaught)
     siglongjmp(sLongJumpStack, 1);
 }
 
-void SipxPortUnitTestEnvironment::runTests()
+void SipxPortUnitTestEnvironment::runTests(const UtlString& testClassName)
 {
+    if(!testClassName.isNull())
+    {
+        printf("Only running %s test(s)\n",
+               testClassName.data());
+    }
+
     initializeEnvironment();
 
 
@@ -209,6 +217,7 @@ void SipxPortUnitTestEnvironment::runTests()
     if(sigsetjmp(sLongJumpStack, 1)  == 0 /*sCurrentTestClassIndex == -1i*/)
     {
         sCurrentTestClassIndex = 0;
+        sTestClassesRun = 0;
         sTotalTestMethodCount = 0;
         for(int testIndex = 0; testIndex < sTotalTestClassCount; testIndex++)
         {
@@ -247,26 +256,31 @@ void SipxPortUnitTestEnvironment::runTests()
 
     for(;sCurrentTestClassIndex < sTotalTestClassCount; sCurrentTestClassIndex++)
     {
-        assert(sTestClassesToRun[sCurrentTestClassIndex]);
-
-        if(sLogHookBegin)
+        if(testClassName.isNull() || 
+           testClassName.compareTo(sTestClassesToRun[sCurrentTestClassIndex]->getClassName()) == 0)
         {
-            sLogHookBegin(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
+            assert(sTestClassesToRun[sCurrentTestClassIndex]);
+
+            if(sLogHookBegin)
+            {
+                sLogHookBegin(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
+            }
+
+            sTestClassesToRun[sCurrentTestClassIndex]->runAllMethodsFrom(sCurrentTestMethodIndex);
+
+            // Can now free up the test class, but we keep the test class 
+            //constructor around so we can get at the stats
+            sTestClassesToRun[sCurrentTestClassIndex]->releaseTestClass();
+
+            if(sLogHookEnd)
+            {
+                sLogHookEnd(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
+            }
+
+            sCurrentTestMethodIndex = 0;
+            sCurrentTestPointIndex = 0;
+            sTestClassesRun++;
         }
-
-        sTestClassesToRun[sCurrentTestClassIndex]->runAllMethodsFrom(sCurrentTestMethodIndex);
-
-        // Can now free up the test class, but we keep the test class 
-        //constructor around so we can get at the stats
-        sTestClassesToRun[sCurrentTestClassIndex]->releaseTestClass();
-
-        if(sLogHookEnd)
-        {
-            sLogHookEnd(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
-        }
-
-        sCurrentTestMethodIndex = 0;
-        sCurrentTestPointIndex = 0;
     }
 
     // Now that we are done with the tests, we do not want the signal
@@ -291,7 +305,7 @@ void SipxPortUnitTestEnvironment::reportResults()
     printOut(buffer);
 
     sprintf(buffer, "Ran: %d test class(es), %d test method(s), %d test points\n",
-            sCurrentTestClassIndex, sTestMethodsRun, 
+            sTestClassesRun, sTestMethodsRun, 
             sTestPointsPassed + sTestPointsFailed);
     printOut(buffer);
 

@@ -1,10 +1,9 @@
 //
 //
+// Copyright (C) 2010-2014 SIPez LLC All rights reserved.
+//
 // Copyright (C) 2010 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2010 SIPez LLC All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 // Author: Daniel Petrie
@@ -14,11 +13,26 @@
 
 #include <SipxPortUnitTestEnvironment.h>
 
-int main(int arc, char* argv[])
+void usage(const char* name)
 {
+    printf("Usage:\n"
+           "\t%s [--help | testclassname]\n"
+           "Where:\n"
+           "\ttestclassname is the name of a unit test class\n",
+           name);
+}
+
+int main(int argc, char* argv[])
+{
+    if(argc > 0 && strcmp(argv[1], "--help") == 0)
+    {
+        usage(argv[0]);
+        return(-1);
+    }
+
     int result = 0;
 
-    SipxPortUnitTestEnvironment::runTests();
+    SipxPortUnitTestEnvironment::runTests(argc > 0 ? argv[1] : "");
 
     SipxPortUnitTestEnvironment::reportResults();
 

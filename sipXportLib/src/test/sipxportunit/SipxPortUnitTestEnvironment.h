@@ -1,6 +1,6 @@
 // 
 //
-// Copyright (C) 2010-2012 SIPez LLC  All rights reserved.
+// Copyright (C) 2010-2014 SIPez LLC  All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -91,7 +91,7 @@ public:
 
     static void registerTestConstructor(SipxPortUnitTestConstructor* testClassToAdd);
 
-    static void runTests();
+    static void runTests(const UtlString& testClassName);
 
     static void reportResults();
 
@@ -188,6 +188,7 @@ private:
     static int sCurrentTestClassIndex;
     static int sCurrentTestMethodIndex;
     static int sCurrentTestPointIndex;
+    static int sTestClassesRun;
     static SipxPortUnitTestClass* spCurrentTestClass;
 
     static int sTotalTestMethodCount;
