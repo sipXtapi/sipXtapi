@@ -24,7 +24,7 @@ void usage(const char* name)
 
 int main(int argc, char* argv[])
 {
-    if(argc > 0 && strcmp(argv[1], "--help") == 0)
+    if(argc > 1 && strcmp(argv[1], "--help") == 0)
     {
         usage(argv[0]);
         return(-1);
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
     int result = 0;
 
-    SipxPortUnitTestEnvironment::runTests(argc > 0 ? argv[1] : "");
+    SipxPortUnitTestEnvironment::runTests(argc > 1 ? argv[1] : "");
 
     SipxPortUnitTestEnvironment::reportResults();
 
