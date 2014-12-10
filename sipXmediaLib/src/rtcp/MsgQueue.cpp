@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -9,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Include
-#include "rtcp/MsgQueue.h"
+#include <rtcp/MsgQueue.h>
 
 #ifdef _VXWORKS /* [ */
 #include <taskLib.h>
@@ -18,7 +20,8 @@
 #       include <process.h>
 #   endif
 #elif defined(__pingtel_on_posix__)
-#include "os/OsMsgQ.h"
+#include <os/OsMsgQ.h>
+#include <os/OsTask.h>
 #include <pthread.h> /* OS-SPECIFIC!!! (Well, POSIX anyway) Eventually to be
             fully OSAL-compliant this will need to be an OsTask subclass... */
 #endif /* ] */
@@ -50,6 +53,13 @@ CMsgQueue::CMsgQueue()
             m_hMessageEvent(NULL),
             m_hThreadEvent(NULL),
             m_hMessageThread(NULL)
+#elif defined(_VXWORKS)
+          : m_ulMsgQID(0),
+            m_iMsgTaskID(0)
+#elif defined(__pingtel_on_posix__)
+          : m_pMsgQ(0)
+#else
+#error Unsupported target platform.
 #endif /* ] */
 {
 
@@ -96,36 +106,79 @@ CMsgQueue::~CMsgQueue()
 ************************************************************************|<>|*/
 bool CMsgQueue::Initialize()
 {
+    bool success = TRUE;
 
 #ifdef WIN32 /* [ */
     // Create the Event Object which shall be used to inform us of new
     // incoming messages.
     if(!CreateMessageEvent())
-        return(FALSE);
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                "CMsgQueue::Initialize failed to create message event");
+        success = FALSE;
+        return(success);
+    }
 
     // Create the Message thread.  The Message thread will use the event
     // object to signal us when it has complete the initialization phase.
     if(!CreateMessageThread())
     {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                "CMsgQueue::Initialize failed to create message thread");
+        success = FALSE;
         DestroyMessageEvent();
-        return(FALSE);
+        return(success);
     }
 
 #elif defined(_VXWORKS) /* ] [ */
     // Create VxWorks Message Processing Thread
     if(!CreateMessageTask())
-        return(FALSE);
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+            "CMsgQueue::Initialize failed to create event thread");
+        success = FALSE;
+        return(success);
+    }
 #elif defined(__pingtel_on_posix__)
     pthread_t thread;
+    int limit;
     
     if(pthread_create(&thread, NULL, InitMessageThread, this))
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+            "CMsgQueue::Initialize failed to create event thread");
         return(FALSE);
+    }
+
     pthread_detach(thread);
+
+    // If spawned thread has not yet had time to create message queue
+    if(!m_pMsgQ)
+    {
+        OsTask::yield();
+    }
+
+    // Wait up to 50 mS for the new thread to catch up and create the queue
+    for (limit=0; (limit<50)&&(!m_pMsgQ); limit++) 
+    {
+        OsTask::delay(1);
+    }
+    if (!m_pMsgQ) 
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+            "CMsgQueue::Initialize failed to create OsMsgQ in event thread after %d milliseconds",
+            limit);
+        success = FALSE;
+    }
+    else if(limit)
+    {
+        OsSysLog::add(FAC_MP, limit == 1 ? PRI_DEBUG : PRI_WARNING,
+            "CMsgQueue::Initialize created OsMsgQ in event thread after %d milliseconds",
+            limit);
+    }
 #endif /* ] */
 
-    return(TRUE);
-
-
+    return(success);
 }
 
 
