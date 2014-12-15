@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved
+// Copyright (C) 2007-2014 SIPez LLC. All rights reserved
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -176,8 +176,8 @@ OsStatus MpodOss::pushFrame(unsigned int numSamples,
    if(numSamples != mSamplesPerFrame)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, 
-         "MpodOss::pushFrame given %d samples, expected full frame of: %d samples",
-         numSamples, (int)mSamplesPerFrame);
+         "MpodOss::pushFrame (%p) given %d samples, expected full frame of: %d samples",
+         this, numSamples, (int)mSamplesPerFrame);
       OsSysLog::flush();
       assert(numSamples == mSamplesPerFrame);
    }
