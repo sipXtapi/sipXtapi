@@ -35,7 +35,6 @@
 #include <mp/MpAgcBase.h>
 #include <mp/MpDspUtils.h>
 // For debug use only
-#include <net/NetBase64Codec.h>
 #include <mp/MpFlowGraphBase.h>
 
 // MACROS
@@ -304,11 +303,11 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
          // Should not do this in normal cases as this does a new/malloc in the middle of media task runtime sensaive code
          if(OsSysLog::willLog(FAC_MP, PRI_DEBUG))
          {
-             UtlString encodedPacket;
-             NetBase64Codec::encode(rtpPacket->getPayloadSize(), rtpPacket->getDataPtr(), encodedPacket);
+             UtlString hexEncodedPacket;
+             hexEncodedPacket.appendBinaryToString(rtpPacket->getDataPtr(), rtpPacket->getPayloadSize());
              OsSysLog::add(FAC_MP, PRI_ERR,
                      "MpJitterBuffer::pushPacket decode failed on RTP packet: \n%s",
-                     encodedPacket.data());
+                     hexEncodedPacket.data());
 
              OsSysLog::flush();
          }
@@ -320,7 +319,9 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    dprintf(" %d", packetSpeechParams.mSpeechType);
 
    int wantedAdjustment = wantedBufferSamples + mSamplesPerPacket - getSamplesNum();
+#ifdef ANDROID
    int wantedAdjustmentOrig = wantedAdjustment;
+#endif
 
 #define N_POS  2
 #define N_NEG  3
