@@ -154,6 +154,18 @@ OsStatus MprRecorder::startBuffer(const UtlString& namedResource,
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
+OsStatus MprRecorder::pause(const UtlString& namedResource, OsMsgQ& flowgraphQueue)
+{
+   MpResourceMsg message((MpResourceMsg::MpResourceMsgType)MPRM_PAUSE, namedResource);
+   return(flowgraphQueue.send(message, sOperationQueueTimeout));
+}
+
+OsStatus MprRecorder::resume(const UtlString& namedResource, OsMsgQ& flowgraphQueue)
+{
+   MpResourceMsg message((MpResourceMsg::MpResourceMsgType)MPRM_RESUME, namedResource);
+   return(flowgraphQueue.send(message, sOperationQueueTimeout));
+}
+
 OsStatus MprRecorder::stop(const UtlString& namedResource, OsMsgQ& fgQ)
 {
    MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_STOP, namedResource);
@@ -442,6 +454,40 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
       }
       break;
 
+   case MPRM_PAUSE:
+      if(mState == STATE_RECORDING)
+      {
+          mState = STATE_PAUSED;
+          MprnIntMsg msg(MpResNotificationMsg::MPRNM_RECORDER_PAUSED,
+                         getName(),
+                         mSamplesRecorded);
+          sendNotification(msg);
+          return(TRUE);
+      }
+      else
+      {
+          OsSysLog::add(FAC_MP, PRI_ERR,
+                  "Attempt to pause MprRecorder(%s) not started (%d)",
+                  getName().data(), mState);
+          return(TRUE);
+      }
+      break;
+
+   case MPRM_RESUME:
+      if(mState == STATE_PAUSED)
+      {
+          mState = STATE_RECORDING;
+          sendNotification(MpResNotificationMsg::MPRNM_RECORDER_RESUMED);
+          return(TRUE);
+      }
+      else
+      {
+          OsSysLog::add(FAC_MP, PRI_ERR,
+                  "Attempt to resume MprRecorder(%s) not paused (%d)",
+                  getName().data(), mState);
+          return(TRUE);
+      }
+
    case MPRM_STOP:
       return handleStop();
       break;
@@ -623,7 +669,7 @@ int MprRecorder::writeFileSpeech(const MpAudioSample *pBuffer, int numSamples)
         {
             // The upper lay does not know or care about resampling.
             // So we tell it that we encoded all of the samples passed in.
-            if(numSamplesEncoded == numResampled)
+            if(numSamplesEncoded == (int)numResampled)
             {
                 numSamplesEncoded = numSamples;
             }

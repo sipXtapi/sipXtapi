@@ -109,6 +109,20 @@ public:
      *  @param[in] event - an optional OsEvent to signal on completion (DEPRECATED!).
      */
 
+     /// Pause recording if it is already recording.
+   static OsStatus pause(const UtlString& namedResource, OsMsgQ& flowgraphQueue);
+     /**<
+     *  @param[in] namedResource - resource name to send command to.
+     *  @param[in] flowgraphQueue - flowgraph queue to send command to.
+     */
+
+     /// Resume recording if it is already recording.
+   static OsStatus resume(const UtlString& namedResource, OsMsgQ& flowgraphQueue);
+     /**<
+     *  @param[in] namedResource - resource name to send command to.
+     *  @param[in] flowgraphQueue - flowgraph queue to send command to.
+     */
+
      /// Stop recording if it has not stopped automatically yet.
    static OsStatus stop(const UtlString& namedResource, OsMsgQ& fgQ);
      /**<
@@ -137,6 +151,8 @@ protected:
    {
       MPRM_START_FILE = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
       MPRM_START_BUFFER,
+      MPRM_PAUSE,
+      MPRM_RESUME,
       MPRM_STOP
    } AddlMsgTypes;
 
@@ -151,7 +167,8 @@ protected:
    {
       STATE_IDLE,      ///< Recording is not running
       STATE_RECORDING, ///< Recording is running
-      STATE_PAUSED     ///< Recording is running, but paused (NOT IMPLEMENTED YET!)
+      STATE_PAUSED    ///< Recording is running, but paused
+          
    } State;
 
    typedef enum
