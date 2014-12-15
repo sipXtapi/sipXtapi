@@ -50,7 +50,7 @@ testsuite_SOURCES = \
     mp/MpWBInputOutputDeviceTest.cpp \
     mp/RtcpParserTest.cpp 
 
-does_not_build =
+does_not_build = \
     mp/MprDelayTest.cpp 
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
