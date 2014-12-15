@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -48,6 +47,8 @@ public:
       MPRNM_FROMFILE_ERROR,
       MPRNM_FROMFILE_PROGRESS,  ///< Value for MprnProgressMsg notifications.
       MPRNM_RECORDER_STARTED,   ///< Recording started.
+      MPRNM_RECORDER_PAUSED,    ///< Recorder paused after being started, or resumed (MprnIntMsg bears number of recorded samples).
+      MPRNM_RECORDER_RESUMED,   ///< Recorder resumed after being paused
       MPRNM_RECORDER_STOPPED,   ///< Recording stopped manually (MprnIntMsg bears number of recorded samples). 
       MPRNM_RECORDER_FINISHED,  ///< Recording stopped automatically (MprnIntMsg bears number of recorded samples).
       MPRNM_RECORDER_ERROR,     ///< Recording stopped because of an error.
