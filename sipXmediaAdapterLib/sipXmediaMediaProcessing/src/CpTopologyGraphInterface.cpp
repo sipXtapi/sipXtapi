@@ -1987,6 +1987,28 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
    return(stat);
 }
 
+OsStatus CpTopologyGraphInterface::pauseRecordChannelAudio(int connectionId) 
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprRecorder::pause(DEFAULT_RECORDER_RESOURCE_NAME,
+                                *mpTopologyGraph->getMsgQ());
+   }
+   return(stat);
+}
+
+OsStatus CpTopologyGraphInterface::resumeRecordChannelAudio(int connectionId) 
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprRecorder::resume(DEFAULT_RECORDER_RESOURCE_NAME,
+                                 *mpTopologyGraph->getMsgQ());
+   }
+   return(stat);
+}
+
 OsStatus CpTopologyGraphInterface::stopRecordChannelAudio(int connectionId) 
 {
    OsStatus stat = OS_NOT_FOUND;

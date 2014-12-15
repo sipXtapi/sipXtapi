@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -85,6 +84,7 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
       case MpResNotificationMsg::MPRNM_FROMFILE_FINISHED:
       case MpResNotificationMsg::MPRNM_FROMFILE_ERROR:
       case MpResNotificationMsg::MPRNM_RECORDER_STARTED:
+      case MpResNotificationMsg::MPRNM_RECORDER_RESUMED:
       case MpResNotificationMsg::MPRNM_RECORDER_ERROR:
       case MpResNotificationMsg::MPRNM_DELAY_SPEECH_STARTED:
       case MpResNotificationMsg::MPRNM_DELAY_NO_DELAY:
@@ -123,6 +123,17 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
          }
          break;
       case MpResNotificationMsg::MPRNM_RECORDER_STOPPED:
+         {
+            MprnIntMsg& mediaLibNotf = (MprnIntMsg&)resNotf;
+            MiIntNotf miNotf(lookupNotfType(notfType),
+                             mediaLibNotf.getOriginatingResourceName(),
+                             mediaLibNotf.getValue(),
+                             (int)(mediaLibNotf.getConnectionId()),
+                             mediaLibNotf.getStreamId());
+            stat = mpAbstractedMsgDispatcher->post(miNotf);
+         }
+         break;
+      case MpResNotificationMsg::MPRNM_RECORDER_PAUSED:
          {
             MprnIntMsg& mediaLibNotf = (MprnIntMsg&)resNotf;
             MiIntNotf miNotf(lookupNotfType(notfType),
@@ -264,6 +275,12 @@ MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgTy
       break;
    case MpResNotificationMsg::MPRNM_RECORDER_STARTED:
       miNotfType = MiNotification::MI_NOTF_RECORD_STARTED;
+      break;
+   case MpResNotificationMsg::MPRNM_RECORDER_PAUSED:
+      miNotfType = MiNotification::MI_NOTF_RECORD_PAUSED;
+      break;
+   case MpResNotificationMsg::MPRNM_RECORDER_RESUMED:
+      miNotfType = MiNotification::MI_NOTF_RECORD_RESUMED;
       break;
    case MpResNotificationMsg::MPRNM_RECORDER_STOPPED:
       miNotfType = MiNotification::MI_NOTF_RECORD_STOPPED;

@@ -470,26 +470,38 @@ public:
      */
 
 
+   /// @brief Start playing DTMF tone
    virtual OsStatus startChannelTone(int connectiondId,
                                      int toneId, 
                                      UtlBoolean local, 
                                      UtlBoolean remote) = 0 ;
 
+   /// @brief Stop playing DTMF tone
    virtual OsStatus stopChannelTone(int connectiondId) = 0 ;
 
 
+   /// @brief Start recording to file
    virtual OsStatus recordChannelAudio(int connectionId,
                                        const char* szFile,
                                        CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16) = 0;
 
+   /// @brief Stop buffer or file recording which has been started
    virtual OsStatus stopRecordChannelAudio(int connectionId) = 0 ;
 
+   /// @brief Pause buffer or file recording which has been started
+   virtual OsStatus pauseRecordChannelAudio(int connectionId) = 0;
+
+   /// @brief Resume buffer or file recording which has been paused
+   virtual OsStatus resumeRecordChannelAudio(int connectionId) = 0;
+
+   /// @brief Start recording to buffer
    virtual OsStatus recordBufferChannelAudio(int connectionId,
                                              char* pBuffer,
                                              int bufferSize,
                                              int maxRecordTime = -1,
                                              int maxSilence = -1) = 0 ;
 
+   /// @brief Stop recording to buffer
    virtual OsStatus stopRecordBufferChannelAudio(int connectionId) = 0 ;
 
      /// @brief Play the specified audio URL to the call.

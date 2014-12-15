@@ -251,8 +251,10 @@ public:
      /// @copydoc CpMediaInterface::resumeAudio()
    virtual OsStatus resumeAudio();
 
+   /// @copydoc CpMediaInterface::stopAudio()
    virtual OsStatus stopAudio();
 
+   /// @copydoc CpMediaInterface::playCHannelAudio
    virtual OsStatus playChannelAudio(int connectionId,
                                      const char* url,
                                      UtlBoolean repeat,
@@ -262,22 +264,31 @@ public:
                                      int downScaling = 100,
                                      UtlBoolean autoStopOnFinish = TRUE);
 
-
+   /// @copydoc CpMediaInterface::stopChannelAudio
    virtual OsStatus stopChannelAudio(int connectionId) ;
 
-
+   /// @copydoc CpMediaInterface::recordChannelAudio
    virtual OsStatus recordChannelAudio(int connectionId,
                                        const char* szFile,
                                        CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16);
 
-   virtual OsStatus stopRecordChannelAudio(int connectionId) ;
+   /// @copydoc CpMediaInterface::pauseRecordChannelAudio
+   virtual OsStatus pauseRecordChannelAudio(int connectionId);
 
+   /// @copydoc CpMediaInterface::resumeRecordChannelAudio
+   virtual OsStatus resumeRecordChannelAudio(int connectionId);
+
+   /// @copydoc CpMediaInterface::stopRecordChannelAudio
+   virtual OsStatus stopRecordChannelAudio(int connectionId);
+
+   /// @copydoc CpMediaInterface::recordBufferChannelAudio
    virtual OsStatus recordBufferChannelAudio(int connectionId,
                                              char* pBuffer,
                                              int bufferSize,
                                              int maxRecordTime = -1,
                                              int maxSilence = -1) ;
 
+   /// @copydoc CpMediaInterface::stopRecordBufferAudio
    virtual OsStatus stopRecordBufferChannelAudio(int connectionId) ;
 
    /// Deprecated
