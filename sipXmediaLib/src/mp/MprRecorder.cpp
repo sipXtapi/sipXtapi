@@ -409,7 +409,9 @@ UtlBoolean MprRecorder::handleDisable()
 UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
 {
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "MprRecorder::handleMessage(%d)", rMsg.getMsg());
+                 "MprRecorder::handleMessage(%d) id: %s", 
+                 rMsg.getMsg(),
+                 getName().data());
    switch (rMsg.getMsg())
    {
    case MPRM_START_FILE:
