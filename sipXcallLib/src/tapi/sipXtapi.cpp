@@ -2349,6 +2349,57 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
     return(sr);
 }
 
+SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordPause(const SIPX_CALL hCall)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAudioRecordPause");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallAudioRecordPause hCall=%d", hCall);
+
+    SIPX_RESULT status = SIPX_RESULT_FAILURE;
+    SIPX_INSTANCE_DATA *pInst;
+    UtlString callId;
+    UtlString remoteAddress;
+
+    if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {
+        if (pInst->pCallManager->audioChannelRecordPause(callId, remoteAddress))
+        {
+            status = SIPX_RESULT_SUCCESS;
+        }
+    }
+    else
+    {
+        status = SIPX_RESULT_INVALID_ARGS;
+    }
+
+    return(status);
+}
+
+SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordResume(const SIPX_CALL hCall)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAudioRecordResume");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallAudioRecordResume hCall=%d", hCall);
+
+    SIPX_RESULT status = SIPX_RESULT_FAILURE;
+    SIPX_INSTANCE_DATA *pInst;
+    UtlString callId;
+    UtlString remoteAddress;
+
+    if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {
+        if (pInst->pCallManager->audioChannelRecordResume(callId, remoteAddress))
+        {
+            status = SIPX_RESULT_SUCCESS;
+        }
+    }
+    else
+    {
+        status = SIPX_RESULT_INVALID_ARGS;
+    }
+
+    return(status);
+}
 
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStop(const SIPX_CALL hCall) 
 {
@@ -2375,7 +2426,6 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStop(const SIPX_CALL hCall)
 
     return sr ;
 }
-
 
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordBufferStart(const SIPX_CALL hCall,
                                                         const char* pBuffer,
