@@ -10,6 +10,8 @@
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
 // SYSTEM INCLUDES
+#include <os/OsIntTypes.h>
+#include <os/OsSysLog.h>
 #include <mp/MpResNotificationMsg.h>
 #include <mp/MprnDTMFMsg.h>
 #include <mp/MprnIntMsg.h>
@@ -62,19 +64,32 @@ OsMsgDispatcher* MaNotfTranslatorDispatcher::setDispatcher( OsMsgDispatcher* pMI
 OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
 {
    OsStatus stat = OS_FAILED;
-   if(mpAbstractedMsgDispatcher)
-   {
-      // we should have a resource notification message - if not, something is wrong.
-      assert(msg.getMsgType() == OsMsg::MP_RES_NOTF_MSG);
-      if(msg.getMsgType() != OsMsg::MP_RES_NOTF_MSG)
-      {
-         // TODO: add a syslog msg.
-         return OS_FAILED;
-      }
+   unsigned char messageType = msg.getMsgType();
+   MpResNotificationMsg::RNMsgType notfType = 
+      (MpResNotificationMsg::RNMsgType)(msg.getMsgSubType());
 
+   // DO NOT CHECK IN
+//#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+           "MaNotfTranslatorDispatcher::post message type: %d subtype: %d",
+           (int) messageType,
+           notfType);
+//#endif
+
+   // we should have a resource notification message - if not, something is wrong.
+   if(messageType != OsMsg::MP_RES_NOTF_MSG)
+   {
+       OsSysLog::add(FAC_MP, PRI_DEBUG,
+           "MaNotfTranslatorDispatcher::post invalid message type: %d subtype: %d",
+           (int) messageType,
+           notfType);
+       OsSysLog::flush();
+       assert(messageType == OsMsg::MP_RES_NOTF_MSG);
+   }
+
+   else if(mpAbstractedMsgDispatcher)
+   {
       MpResNotificationMsg& resNotf = (MpResNotificationMsg&)msg;
-      MpResNotificationMsg::RNMsgType notfType = 
-         (MpResNotificationMsg::RNMsgType)(msg.getMsgSubType());
       switch(notfType)
       {
       case MpResNotificationMsg::MPRNM_FROMFILE_STARTED:
@@ -222,7 +237,13 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
          stat = mpAbstractedMsgDispatcher->post(msg);
       }
    }
-   return stat;
+   else
+   {
+       OsSysLog::add(FAC_MP, PRI_WARNING,
+           "MaNotfTranslatorDispatcher::post message dropped, NULL dispatcher");
+   }
+
+   return(stat);
 }
 
 OsStatus MaNotfTranslatorDispatcher::receive(OsMsg*& rpMsg, const OsTime& rTimeout)
