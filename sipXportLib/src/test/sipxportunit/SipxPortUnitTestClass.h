@@ -1,9 +1,6 @@
 // 
 //
-// Copyright (C) 2010-2013 SIPez LLC  All rights reserved.
-//
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2010-2014 SIPez LLC.  All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -55,6 +52,15 @@
         return(mCurrentMethodIndex >= 0 && \
                mCurrentMethodIndex < sMethodCount ? \
                spMethodNames[mCurrentMethodIndex] : \
+               0); \
+    } \
+ \
+    static const char* getMethodName(int methodIndex) \
+    { \
+        assert(spMethodNames); \
+        return(methodIndex >= 0 && \
+               methodIndex < sMethodCount ? \
+               spMethodNames[methodIndex] : \
                0); \
     } \
  \
@@ -128,6 +134,13 @@
         forEachTestMethod(RUN_ALL_FROM, this, startMethodIndex); \
     } \
  \
+    void runMethod(const char* methodName) \
+    { \
+        /* TODO */ \
+        printf("runMethod(%s) not implemented\n", \
+               methodName); \
+    } \
+\
     void addFailedTestPoint(const char* fileName, \
                             const char* className, \
                             const char* methodName, \
@@ -288,6 +301,11 @@ class CLASS_NAME##Constructor : public SipxPortUnitTestConstructor \
         return(CLASS_NAME::getMethodCount()); \
     } \
  \
+    const char* getTestMethodName(int methodIndex) const\
+    { \
+        return(CLASS_NAME::getMethodName(methodIndex)); \
+    } \
+ \
     void addTestClassFailure(const char* className, \
                              const char* message) \
     { \
@@ -376,6 +394,8 @@ public:
 /* ======================== M A N I P U L A T O R S ======================= */
 
     virtual void runAllMethodsFrom(int methodIndex) = 0;
+
+    virtual void runMethod(const char* methodName) = 0;
 
     /// User overridable initialization to be done before each test method is invoked
     virtual void setUp();

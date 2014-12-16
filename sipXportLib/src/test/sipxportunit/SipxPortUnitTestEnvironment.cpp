@@ -194,12 +194,32 @@ void SipxPortUnitTestEnvironment::signalHandler(int signalCaught)
     siglongjmp(sLongJumpStack, 1);
 }
 
-void SipxPortUnitTestEnvironment::runTests(const UtlString& testClassName)
+void SipxPortUnitTestEnvironment::runTests(const char* testClassFilterName)
 {
-    if(!testClassName.isNull())
+    char* testClassName = NULL;
+    const char* testMethodName = NULL;
+    if(testClassFilterName)
     {
-        printf("Only running %s test(s)\n",
-               testClassName.data());
+        const char* classNameEnd = index(testClassFilterName, ':');
+        if(classNameEnd)
+        {
+            // Get just the class name (text prior to ':')
+            int classNameLength = classNameEnd - testClassFilterName;
+            testClassName = new char[classNameLength + 1];
+            memcpy(testClassName, testClassFilterName, classNameLength);
+            testClassName[classNameLength] = '\0';
+
+            // If there are 2 colins ("::"), get the method name
+            if(testClassFilterName[classNameLength + 1] == ':')
+            {
+                testMethodName = &(testClassFilterName[classNameLength + 2]);
+            }
+        }                        
+       
+        printf("Only running test class: %s method%s%s\n",
+               testClassName,
+               testMethodName ? ": " : "(s)",
+               testMethodName ? testMethodName : "");
     }
 
     initializeEnvironment();
@@ -258,8 +278,9 @@ void SipxPortUnitTestEnvironment::runTests(const UtlString& testClassName)
 
     for(;sCurrentTestClassIndex < sTotalTestClassCount; sCurrentTestClassIndex++)
     {
-        if(testClassName.isNull() || 
-           testClassName.compareTo(sTestClassesToRun[sCurrentTestClassIndex]->getClassName()) == 0)
+        if(testClassName == NULL || 
+           strcmp(testClassName, "") == 0 ||
+           strcmp(testClassName, sTestClassesToRun[sCurrentTestClassIndex]->getClassName()) == 0)
         {
             assert(sTestClassesToRun[sCurrentTestClassIndex]);
 
@@ -268,7 +289,14 @@ void SipxPortUnitTestEnvironment::runTests(const UtlString& testClassName)
                 sLogHookBegin(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
             }
 
-            sTestClassesToRun[sCurrentTestClassIndex]->runAllMethodsFrom(sCurrentTestMethodIndex);
+            if(testMethodName)
+            {
+                sTestClassesToRun[sCurrentTestClassIndex]->runMethod(testMethodName);
+            }
+            else
+            {
+                sTestClassesToRun[sCurrentTestClassIndex]->runAllMethodsFrom(sCurrentTestMethodIndex);
+            }
 
             // Can now free up the test class, but we keep the test class 
             //constructor around so we can get at the stats
@@ -292,6 +320,40 @@ void SipxPortUnitTestEnvironment::runTests(const UtlString& testClassName)
         signal(SIGFPE, SIG_DFL);
         signal(SIGSEGV, SIG_DFL);
         signal(SIGILL, SIG_DFL);
+    }
+
+    delete testClassName;
+}
+
+void SipxPortUnitTestEnvironment::listTests(const char* testClassName)
+{
+    initializeEnvironment();
+
+    for(int classIndex = 0; classIndex < sTotalTestClassCount; classIndex++)
+    {
+        SipxPortUnitTestConstructor* classConstr = sTestClassesToRun[classIndex];
+        assert(classConstr);
+
+        const char* constructorTestClassName = classConstr->getClassName();
+
+        //printf("testClassName: %s constructorTestClassName: %s\n",
+        //        testClassName, constructorTestClassName);
+        if(testClassName == NULL ||
+           strcmp(testClassName, "") == 0 ||
+           strcmp(testClassName, constructorTestClassName) == 0)
+        {
+            int methodCount = classConstr->getTestMethodCount();
+            //printf("Unit test class: %s with %d methods\n",
+            //       constructorTestClassName, methodCount);
+
+
+            for(int methodIndex = 0; methodIndex < methodCount; methodIndex++)
+            {
+                printf("%s::%s\n",
+                       constructorTestClassName,
+                       classConstr->getTestMethodName(methodIndex));
+            }
+        }
     }
 }
 

@@ -1,10 +1,5 @@
 // 
-//
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2010 SIPez LLC All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2010-2014 SIPez LLCi.  All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -57,6 +52,12 @@ public:
      * @param[in] methodIndex - Hense skipping methods 0 through methodIndex-1
      */
 
+    /// Run the named method for the test class
+    void runMethod(const char* methodName);
+    /**<
+     * @param[i] methodName - name of the method to run
+     */
+
     /// Construct an instance of the test class
     virtual void constructTestClass() = 0;
 
@@ -77,6 +78,9 @@ public:
 
     /// Returns the number of test methods for the test class
     virtual int getTestMethodCount() = 0;
+
+    /// Returns method name for given index
+    virtual const char* getTestMethodName(int methodIndex) const = 0;
 
     /// Return test point success count
     virtual int getPassedTestPointCount() const = 0;

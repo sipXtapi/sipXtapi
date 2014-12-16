@@ -1,10 +1,6 @@
 // 
 // 
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2010 SIPez LLC  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2010-2014 SIPez LLC.  All rights reserved.
 // 
 // $$
 // Author: Daniel Petrie
@@ -62,6 +58,18 @@ void SipxPortUnitTestConstructor::runAllMethodsFrom(int methodIndex)
 
     SipxPortUnitTestEnvironment::setCurrentTestClass(mpTestClass);
     mpTestClass->runAllMethodsFrom(methodIndex);
+}
+
+void SipxPortUnitTestConstructor::runMethod(const char* methodName)
+{
+    if(mpTestClass == 0)
+    {
+        constructTestClass();
+        assert(mpTestClass);
+    }
+
+    SipxPortUnitTestEnvironment::setCurrentTestClass(mpTestClass);
+    mpTestClass->runMethod(methodName);
 }
 
 void SipxPortUnitTestConstructor::releaseTestClass()

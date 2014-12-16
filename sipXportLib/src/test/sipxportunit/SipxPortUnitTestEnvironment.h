@@ -91,7 +91,9 @@ public:
 
     static void registerTestConstructor(SipxPortUnitTestConstructor* testClassToAdd);
 
-    static void runTests(const UtlString& testClassName);
+    static void runTests(const char* testClassName);
+
+    static void listTests(const char* testClassName = NULL);
 
     static void reportResults();
 

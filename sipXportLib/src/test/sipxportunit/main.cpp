@@ -16,7 +16,7 @@
 void usage(const char* name)
 {
     printf("Usage:\n"
-           "\t%s [--help | --nocatchsignals | testclassname]\n"
+           "\t%s [--help | --list | --nocatchsignals | testclassname]\n"
            "Where:\n"
            "\t--help provides this usage help\n"
            "\t--nocatchsignals indicates to abort when signals are thrown.  Default\n"
@@ -28,27 +28,40 @@ void usage(const char* name)
 int main(int argc, char* argv[])
 {
     int testNameArgIndex = 1;
-    if(argc > 1 && strcmp(argv[1], "--help") == 0)
-    {
-        usage(argv[0]);
-        return(-1);
-    }
-
-    // Default is to catch signals
-    if(argc > 1 && strcmp(argv[1], "--nocatchsignals") == 0)
-    {
-        SipxPortUnitTestEnvironment::setCatchSignals(false);
-        testNameArgIndex++;
-    }
-
     int result = 0;
+    if(argc > 1)
+    {
+       if(strcmp(argv[1], "--help") == 0)
+        {
+            usage(argv[0]);
+            result = -1;
+        }
 
-    SipxPortUnitTestEnvironment::runTests(argc > testNameArgIndex ? argv[testNameArgIndex] : "");
+       else if(strcmp(argv[1], "--list") == 0)
+        {
+            SipxPortUnitTestEnvironment::listTests(argc > 2 ? argv[2] : "");
+            result = -2;
+        }
 
-    SipxPortUnitTestEnvironment::reportResults();
+        // Default is to catch signals
+        else if(strcmp(argv[1], "--nocatchsignals") == 0)
+        {
+            SipxPortUnitTestEnvironment::setCatchSignals(false);
+            testNameArgIndex++;
+        }
 
-    result = SipxPortUnitTestEnvironment::getTestPointFailureCount();
-    result += SipxPortUnitTestEnvironment::getTestAbortCount();
+    }
+
+
+    if(result == 0)
+    {
+        SipxPortUnitTestEnvironment::runTests(argc > testNameArgIndex ? argv[testNameArgIndex] : "");
+
+        SipxPortUnitTestEnvironment::reportResults();
+
+        result = SipxPortUnitTestEnvironment::getTestPointFailureCount();
+        result += SipxPortUnitTestEnvironment::getTestAbortCount();
+    }
 
     return(result);
 }
