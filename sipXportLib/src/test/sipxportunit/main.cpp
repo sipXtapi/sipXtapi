@@ -16,12 +16,13 @@
 void usage(const char* name)
 {
     printf("Usage:\n"
-           "\t%s [--help | --list | --nocatchsignals | testclassname]\n"
+           "\t%s [--help | --list | --nocatchsignals | testclassname[::testmethodname]]\n"
            "Where:\n"
            "\t--help provides this usage help\n"
            "\t--nocatchsignals indicates to abort when signals are thrown.  Default\n"
            "\t\tbehavior is to catch signals (e.g. SEGV) and try to continue with next test.\n"
-           "\ttestclassname is the name of a unit test class\n",
+           "\ttestclassname is the name of the unit test class to run\n"
+           "\ttestmethodname is the name of the method to run (member of testclassname)\n",
            name);
 }
 

@@ -136,9 +136,17 @@
  \
     void runMethod(const char* methodName) \
     { \
-        /* TODO */ \
-        printf("runMethod(%s) not implemented\n", \
-               methodName); \
+        int methodCount = getMethodCount(); \
+        for(int methodIndex = 0; methodIndex < methodCount; methodIndex++) \
+        { \
+            if(strcmp(getMethodName(methodIndex), methodName) == 0) \
+            { \
+                printf("runMethod(%s) index: %d running\n", \
+                       methodName, methodIndex); \
+                forEachTestMethod(RUN_ONE, this, methodIndex); \
+                break ; \
+            } \
+        } \
     } \
 \
     void addFailedTestPoint(const char* fileName, \
@@ -218,8 +226,10 @@
                 break; \
  \
             case RUN_ALL_FROM: \
+            case RUN_ONE: \
                 assert(testInstance); \
-                if(methodIndex >= methodIndexStart) \
+                if(methodIndex == methodIndexStart || \
+                   (operation == RUN_ALL_FROM && methodIndex > methodIndexStart)) \
                 { \
                     testInstance->setCurrentMethodIndex(methodIndex); \
                     testInstance->resetTestPointIndex(); \
@@ -257,6 +267,7 @@
                 spMethodStates[mIndex] = NOT_RUN; \
             } \
         } \
+        \
     } \
 
 
@@ -370,7 +381,8 @@ public:
     {
         SET_METHOD_COUNT = 0,
         INIT_TEST_METHOD_INFO,
-        RUN_ALL_FROM
+        RUN_ALL_FROM,
+        RUN_ONE
     } SipxPortTestMethodOperation;
 
     typedef enum
