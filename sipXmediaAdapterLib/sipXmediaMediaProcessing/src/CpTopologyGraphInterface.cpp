@@ -2228,9 +2228,13 @@ OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
                                    *mpTopologyGraph->getMsgQ(), toneId);
 
       // Generate RFC4733 out-of-band tone
-      UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
-      MpResourceTopology::replaceNumInName(encodeName, connectionId);
-      stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
+      if(connectionId > getInvalidConnectionId())
+      {
+          UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+          MpResourceTopology::replaceNumInName(encodeName, connectionId);
+          stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
+      }
+      // else OK to not emit inband DTMF if no connection
    }
    else
    {
@@ -2251,9 +2255,12 @@ OsStatus CpTopologyGraphInterface::stopChannelTone(int connectionId)
                                    *mpTopologyGraph->getMsgQ());
 
       // Stop RFC4733 out-of-band tone
-      UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
-      MpResourceTopology::replaceNumInName(encodeName, connectionId);
-      stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
+      if(connectionId > getInvalidConnectionId())
+      {
+          UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+          MpResourceTopology::replaceNumInName(encodeName, connectionId);
+          stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
+      }
    }
    else
    {
