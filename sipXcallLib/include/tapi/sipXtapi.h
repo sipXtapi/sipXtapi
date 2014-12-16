@@ -1643,6 +1643,24 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
                                                       SIPX_AUDIO_FILE_FORMAT recordFormat = SIPX_WAVE_PCM_16);
 
 /**
+ * Pause recording call to file or buffer.
+ *
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordPause(const SIPX_CALL hCall);
+
+/**
+ * Resume paused recording call to file or buffer.
+ *
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordResume(const SIPX_CALL hCall);
+
+/**
  * Stop recording a call to file.
  *
  * @param hCall Handle to a call.  Call handles are obtained either by 

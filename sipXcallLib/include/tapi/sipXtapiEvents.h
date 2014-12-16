@@ -1,8 +1,7 @@
 //  
-// Copyright (C) 2007 Robert J. Andreasen, Jr.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -537,6 +536,11 @@ typedef enum SIPX_MEDIA_EVENT
                                      will be followed by a MEDIA_RECORDFILE_STOP
                                      when the recording is manually stopped or 
                                      or finished after specified amount of time. */
+    MEDIA_RECORD_PAUSE,         /**< Recording to file or buffer paused after
+                                     being in the MEDIA_RECORDFILE_START or
+                                     MEDIA_RECORDBUFFER_START state. */
+    MEDIA_RECORD_RESUME,        /**< Recording to file or buffer resumed after
+                                     being in the MEDIA_RECORD_PAUSE state. */
     MEDIA_RECORDFILE_STOP,      /**< A recording has been manually stopped,
                                      automatically finished or aborted because
                                      of an error.*/
@@ -671,7 +675,7 @@ typedef struct SIPX_MEDIA_INFO
                                          MEDIA_LOCAL_START and MEDIA_REMOTE_START
                                          events. */
     int                 idleTime;   /**< For MEDIA_REMOTE_SILENT events contains idle
-                                         time (ms). For MEDIA_RECORDFILE_STOP and
+                                         time (ms). For MEDIA_RECORDFILE_STOP, MEDIA_RECORD_PAUSE and
                                          MEDIA_RECORDBUFFER_STOP events contains number
                                          of recorded samples. For other events this
                                          value should be ignored. 
