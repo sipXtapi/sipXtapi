@@ -6,6 +6,8 @@ TESTS = testsuite
 
 check_PROGRAMS = testsuite
 
+testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
+
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     @SIPXMEDIA_LIBS@ \

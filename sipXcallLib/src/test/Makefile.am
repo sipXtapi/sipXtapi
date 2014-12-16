@@ -9,6 +9,8 @@ TESTS = testsuite
 ## Full regression test and not meant for 'make check'
 check_PROGRAMS = testsuite regression
 
+testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
+
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     @SIPXMEDIA_LIBS@ \
@@ -23,6 +25,8 @@ testsuite_SOURCES = \
     cp/CpTestSupport.cpp \
     cp/CpTestSupport.h \
     cp/CallManagerTest.cpp 
+
+regression_CPPFLAGS = @CPPUNIT_CFLAGS@
 
 regression_LDADD = \
     @SIPXUNIT_LIBS@ \

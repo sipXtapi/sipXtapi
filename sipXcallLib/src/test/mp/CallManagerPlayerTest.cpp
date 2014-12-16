@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,8 +10,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 #include <os/OsIntTypes.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
+#include <sipxunit/TestUtilities.h>
 
 #include "test/mp/MpTestConfig.h"
 #include "os/OsDefs.h"
@@ -19,7 +21,7 @@
 #include "mp/MpMisc.h"
 
 
-class CallManagerPlayerTest : public CppUnit::TestCase
+class CallManagerPlayerTest : public SIPX_UNIT_BASE_CLASS
 {
     CPPUNIT_TEST_SUITE(CallManagerPlayerTest);
     CPPUNIT_TEST(testQueuePlayerSimple);

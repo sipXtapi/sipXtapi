@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -56,7 +58,7 @@ OsDatagramSocket* g_pPrimaryStunSeverSocket2 ;
 OsDatagramSocket* g_pSecondaryStunServerSocket ;
 OsDatagramSocket* g_pSecondaryStunServerSocket2 ;
 
-#ifdef ANDROID
+#if defined(ANDROID) || defined(NO_CPPUNIT)
 
 // main gets linked in from the unit test library on android
 
