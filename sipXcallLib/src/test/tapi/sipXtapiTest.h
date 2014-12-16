@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2010 SIPfoundry Inc. All rights reserved.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -158,6 +160,7 @@ class sipXtapiTestSuite : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testCallBasic2) ;
     CPPUNIT_TEST(testCallBasicTCP) ;
     CPPUNIT_TEST(testCallBasicNoRtcp) ;
+    CPPUNIT_TEST(testCallRecord);
 #if 0
     // Per Mike Cohen on May/2006 -- doesn't pass because 
     // audio file isn't available -- remove ifdef when 
@@ -441,6 +444,7 @@ public:
     void testCallBasicTCP();
     void testCallBasicNoRtcp() ;
     void testCallBasic2() ;
+    void testCallRecord();
     void testCallDestroyRinging();
     void testCallPlayAudioFile();
     
