@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -152,7 +151,8 @@ public:
     OsStatus fireSipXMediaEvent(SIPX_MEDIA_EVENT event,
                                 SIPX_MEDIA_CAUSE cause,
                                 SIPX_MEDIA_TYPE  type,
-                                void*            pEventData = NULL);
+                                void*            pEventData = NULL,
+                                UtlBoolean fireIfNoConnection = FALSE);
 
     /* ============================ ACCESSORS ================================= */
 

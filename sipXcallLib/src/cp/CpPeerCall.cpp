@@ -17,7 +17,8 @@
 #include <math.h>
 
 // APPLICATION INCLUDES
-#include "utl/UtlRegex.h"
+#include <utl/UtlRegex.h>
+#include <net/TapiMgr.h>
 #include <cp/CpPeerCall.h>
 #include <cp/CpCallManager.h>
 #include <cp/CpStringMessage.h>
@@ -2329,9 +2330,9 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             int remote =  ((CpMultiStringMessage&)eventMessage).getInt3Data();
 
             Connection* connection = findHandlingConnection(remoteAddress);
-            if (connection && mpMediaInterface)
+            if (/*connection && */ mpMediaInterface)
             {   
-                int connectionId = connection->getConnectionId() ;
+                int connectionId = connection ? connection->getConnectionId() : mpMediaInterface->getInvalidConnectionId();
                 mpMediaInterface->startChannelTone(connectionId, toneId, local, remote) ;
             }                
         }
@@ -2342,9 +2343,9 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             ((CpMultiStringMessage&)eventMessage).getString2Data(remoteAddress) ;
 
             Connection* connection = findHandlingConnection(remoteAddress);
-            if (connection && mpMediaInterface)
+            if (/*connection && */ mpMediaInterface)
             {   
-                int connectionId = connection->getConnectionId() ;
+                int connectionId = connection ? connection->getConnectionId() : mpMediaInterface->getInvalidConnectionId();
                 mpMediaInterface->stopChannelTone(connectionId) ;
             }                
         }
@@ -2385,9 +2386,9 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             ((CpMultiStringMessage&)eventMessage).getString2Data(remoteAddress) ;
 
             Connection* connection = findHandlingConnection(remoteAddress);
-            if (connection && mpMediaInterface)
+            if (/*connection && */ mpMediaInterface)
             {   
-                int connectionId = connection->getConnectionId() ;
+                int connectionId = connection ? connection->getConnectionId() : mpMediaInterface->getInvalidConnectionId();
                 mpMediaInterface->stopChannelAudio(connectionId) ;
             }
         }
@@ -2407,13 +2408,22 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             UtlBoolean bSuccess = false ;
 
             Connection* connection = findHandlingConnection(remoteAddress);
-            if (connection && mpMediaInterface)
+            // Currently connectionId is not used, but potentially in the
+            // future we may allow more specific recording
+            if (/* connection && */ mpMediaInterface)
             {   
-                int connectionId = connection->getConnectionId() ;
+                int connectionId = connection ? connection->getConnectionId() : -1;
                 if (mpMediaInterface->recordChannelAudio(connectionId, file, recordFormat))
                 {
                     bSuccess = true ;
                 }
+            }
+            else
+            {
+                OsSysLog::add(FAC_CP, PRI_WARNING,
+                        "CpPeerCall::handleCallMessage cannot dispatch message subtype: CP_RECORD_AUDIO_CONNECTION_START connection: %p media interface: %p",
+                        connection,
+                        mpMediaInterface);
             }
 
             // If the event has already been signalled, clean up
@@ -2426,6 +2436,8 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         }
         break ;
 
+    case CallManager::CP_RECORD_AUDIO_CONNECTION_PAUSE:
+    case CallManager::CP_RECORD_AUDIO_CONNECTION_RESUME:
     case CallManager::CP_RECORD_AUDIO_CONNECTION_STOP:
         {
             UtlString remoteAddress ;
@@ -2435,13 +2447,39 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             UtlBoolean bSuccess = false ;
 
             Connection* connection = findHandlingConnection(remoteAddress);
-            if (connection && mpMediaInterface)
+            // Currently connectionId is not used, but potentially in the
+            // future we may allow more specific recording
+            if (/* connection && */ mpMediaInterface)
             {   
-                int connectionId = connection->getConnectionId() ;
-                if (mpMediaInterface->stopRecordChannelAudio(connectionId))
+                int connectionId = connection ? connection->getConnectionId() : -1;
+                OsStatus status;
+                switch(msgSubType)
+                {
+                case CallManager::CP_RECORD_AUDIO_CONNECTION_PAUSE:
+                    status = mpMediaInterface->pauseRecordChannelAudio(connectionId);
+                    break;
+                case CallManager::CP_RECORD_AUDIO_CONNECTION_RESUME:
+                    status = mpMediaInterface->resumeRecordChannelAudio(connectionId);
+                    break;
+                case CallManager::CP_RECORD_AUDIO_CONNECTION_STOP:
+                    status = mpMediaInterface->stopRecordChannelAudio(connectionId);
+                    break;
+                default:
+                    assert(0);
+                    break;
+                }
+                if (status == OS_SUCCESS)
                 {
                     bSuccess = true ;
                 }
+            }
+            else
+            {
+                OsSysLog::add(FAC_CP, PRI_WARNING,
+                        "CpPeerCall::handleCallMessage cannot dispatch message subtype: %d connection: %p media interface: %p",
+                        msgSubType,
+                        connection,
+                        mpMediaInterface);
             }
 
             // If the event has already been signalled, clean up
@@ -2637,8 +2675,10 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
    OsReadLock lock(mConnectionMutex);
    UtlDListIterator iterator(mConnections);
    Connection* pConnection;
+   UtlBoolean connectionsExist = FALSE;
    while ((pConnection = (Connection*) iterator()))
    {
+       connectionsExist = TRUE;
       if (connectionId == -1)
       {
          // Send local events to all connections.
@@ -2648,6 +2688,7 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
             pConnection->fireSipXMediaEvent(MEDIA_PLAYFILE_START,
                                             MEDIA_CAUSE_NORMAL,
                                             MEDIA_TYPE_AUDIO) ;
+            processed = TRUE;
             break;
          case MiNotification::MI_NOTF_PLAY_PAUSED:
          case MiNotification::MI_NOTF_PLAY_RESUMED:
@@ -2657,21 +2698,41 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
             pConnection->fireSipXMediaEvent(MEDIA_PLAYFILE_FINISH,
                                             MEDIA_CAUSE_NORMAL,
                                             MEDIA_TYPE_AUDIO) ;
+            processed = TRUE;
             break;
          case MiNotification::MI_NOTF_PLAY_STOPPED:
             pConnection->fireSipXMediaEvent(MEDIA_PLAYFILE_STOP,
                                             MEDIA_CAUSE_NORMAL,
                                             MEDIA_TYPE_AUDIO) ;
+            processed = TRUE;
             break;
          case MiNotification::MI_NOTF_PLAY_ERROR:
             pConnection->fireSipXMediaEvent(MEDIA_PLAYFILE_STOP,
                                             MEDIA_CAUSE_FAILED,
                                             MEDIA_TYPE_AUDIO) ;
+            processed = TRUE;
             break;
          case MiNotification::MI_NOTF_RECORD_STARTED:
             pConnection->fireSipXMediaEvent(MEDIA_RECORDFILE_START,
                                             MEDIA_CAUSE_NORMAL,
                                             MEDIA_TYPE_AUDIO) ;
+            processed = TRUE;
+            break;
+         case MiNotification::MI_NOTF_RECORD_RESUMED:
+            pConnection->fireSipXMediaEvent(MEDIA_RECORD_RESUME,
+                                            MEDIA_CAUSE_NORMAL,
+                                            MEDIA_TYPE_AUDIO) ;
+            processed = TRUE;
+            break;
+         case MiNotification::MI_NOTF_RECORD_PAUSED:
+            {
+               MiIntNotf &intNotif = (MiIntNotf&)notification;
+               pConnection->fireSipXMediaEvent(MEDIA_RECORD_PAUSE,
+                                               MEDIA_CAUSE_NORMAL,
+                                               MEDIA_TYPE_AUDIO,
+                                               (void*)intNotif.getValue());
+            }
+            processed = TRUE;
             break;
          case MiNotification::MI_NOTF_RECORD_STOPPED:
          case MiNotification::MI_NOTF_RECORD_FINISHED:
@@ -2682,11 +2743,13 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                                                MEDIA_TYPE_AUDIO,
                                                (void*)intNotif.getValue());
             }
+            processed = TRUE;
             break;
          case MiNotification::MI_NOTF_RECORD_ERROR:
             pConnection->fireSipXMediaEvent(MEDIA_RECORDFILE_STOP,
                                             MEDIA_CAUSE_FAILED,
                                             MEDIA_TYPE_AUDIO) ;
+            processed = TRUE;
             break;
 
          case MiNotification::MI_NOTF_ENERGY_LEVEL:
@@ -2710,11 +2773,13 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                      isInFocus() ? "true" : "false", resourceName.data(), intNotif.getValue(), ledLevel);
                }
             }                             
+            processed = TRUE;
             break;
 
          default:
-             OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring unhandled MI_NOTIF event: %d",
-                 notification.getMsgSubType());
+             OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring unhandled MI_NOTIF event: %d connectionId: %d",
+                 notification.getMsgSubType(),
+                 connectionId);
             break;
          }
       }
@@ -2783,6 +2848,7 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                                                (void*) id) ;
 
             }
+            processed = TRUE;
             break;
 
          case MiNotification::MI_NOTF_H264_SPS:
@@ -2804,6 +2870,7 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                                                &videoCodec);
 
             }
+            processed = TRUE;
          break;
 
          case MiNotification::MI_NOTF_H264_PPS:
@@ -2825,6 +2892,7 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                                                &videoCodec);
 
             }
+            processed = TRUE;
          break;
 
          default:
@@ -2834,9 +2902,116 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
       }
       else if(notification.getMsgSubType() == MiNotification::MI_NOTF_H264_PPS)
       {
-          printf("MiNotification::MI_NOTF_H264_PPS with no matching connectionId (%d)\n",
+          OsSysLog::add(FAC_CP, PRI_ERR,
+                  "MiNotification::MI_NOTF_H264_PPS with no matching connectionId (%d)\n",
                 connectionId);
       }
+   }
+
+   // Handle events which are independent of the connection
+   if(!connectionsExist)
+   {
+       switch(notification.getMsgSubType())
+       {
+         case MiNotification::MI_NOTF_PLAY_STARTED:
+            fireSipXMediaEvent(MEDIA_PLAYFILE_START,
+                               MEDIA_CAUSE_NORMAL,
+                               MEDIA_TYPE_AUDIO,
+                               NULL,
+                               TRUE);
+            processed = TRUE;
+            break;
+
+         case MiNotification::MI_NOTF_PLAY_FINISHED:
+            fireSipXMediaEvent(MEDIA_PLAYFILE_FINISH,
+                               MEDIA_CAUSE_NORMAL,
+                               MEDIA_TYPE_AUDIO,
+                               NULL,
+                               TRUE);
+            processed = TRUE;
+            break;
+
+         case MiNotification::MI_NOTF_PLAY_STOPPED:
+            fireSipXMediaEvent(MEDIA_PLAYFILE_STOP,
+                               MEDIA_CAUSE_NORMAL,
+                               MEDIA_TYPE_AUDIO,
+                               NULL,
+                               TRUE);
+            processed = TRUE;
+            break;
+
+         case MiNotification::MI_NOTF_PLAY_ERROR:
+            fireSipXMediaEvent(MEDIA_PLAYFILE_STOP,
+                               MEDIA_CAUSE_FAILED,
+                               MEDIA_TYPE_AUDIO,
+                               NULL,
+                               TRUE);
+            processed = TRUE;
+            break;
+
+         case MiNotification::MI_NOTF_RECORD_STARTED:
+            fireSipXMediaEvent(MEDIA_RECORDFILE_START,
+                               MEDIA_CAUSE_NORMAL,
+                               MEDIA_TYPE_AUDIO,
+                               NULL,
+                               TRUE);
+            processed = TRUE;
+            break;
+
+         case MiNotification::MI_NOTF_RECORD_RESUMED:
+            fireSipXMediaEvent(MEDIA_RECORD_RESUME,
+                               MEDIA_CAUSE_NORMAL,
+                               MEDIA_TYPE_AUDIO,
+                               NULL,
+                               TRUE);
+            processed = TRUE;
+            break;
+
+         case MiNotification::MI_NOTF_RECORD_PAUSED:
+           {
+              MiIntNotf &intNotif = (MiIntNotf&)notification;
+              fireSipXMediaEvent(MEDIA_RECORD_PAUSE,
+                                 MEDIA_CAUSE_NORMAL,
+                                 MEDIA_TYPE_AUDIO,
+                                 (void*)intNotif.getValue(),
+                                 TRUE);
+            }
+            processed = TRUE;
+            break;
+
+         case MiNotification::MI_NOTF_RECORD_STOPPED:
+         case MiNotification::MI_NOTF_RECORD_FINISHED:
+            {
+               MiIntNotf &intNotif = (MiIntNotf&)notification;
+              fireSipXMediaEvent(MEDIA_RECORDFILE_STOP,
+                               MEDIA_CAUSE_NORMAL,
+                               MEDIA_TYPE_AUDIO,
+                               (void*)intNotif.getValue(),
+                               TRUE);
+            }
+            processed = TRUE;
+            break;
+
+         case MiNotification::MI_NOTF_RECORD_ERROR:
+            fireSipXMediaEvent(MEDIA_RECORDFILE_STOP,
+                               MEDIA_CAUSE_FAILED,
+                               MEDIA_TYPE_AUDIO,
+                               NULL,
+                               TRUE);
+            processed = TRUE;
+            break;
+
+         default:
+            break;
+       }
+   }
+
+   if(!processed)
+   {
+       OsSysLog::add(FAC_CP, PRI_ERR,
+               "CpPeerCall::handleMiNotificationMessage unhandled message subtype: %d connectionId: %d",
+               notification.getMsgSubType(),
+               connectionId);
    }
 
    return processed;
@@ -3667,20 +3842,31 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
 OsStatus CpPeerCall::fireSipXMediaEvent(SIPX_MEDIA_EVENT event,
                                         SIPX_MEDIA_CAUSE cause,
                                         SIPX_MEDIA_TYPE  type,
-                                        void*            pEventData)
+                                        void*            pEventData,
+                                        UtlBoolean fireIfNoConnections)
 {
    OsStatus status = OS_FAILED;
 
    OsReadLock lock(mConnectionMutex);
    UtlDListIterator iterator(mConnections);
    Connection* pConnection;
+   int connectionCount = 0;
    while ((pConnection = (Connection*) iterator()))
    {
+       connectionCount++;
       pConnection->fireSipXMediaEvent(event, cause, type, pEventData);
       status = OS_SUCCESS;
    }
 
-   return status;
+   if(fireIfNoConnections && connectionCount == 0)
+   {
+       UtlString callId;
+       getCallId(callId);
+       TapiMgr::getInstance().fireMediaEvent(mpManager, callId, "", event, cause, type, pEventData) ;
+       status = OS_SUCCESS;
+   }
+
+   return(status);
 }
 
 UtlBoolean CpPeerCall::hasCallId(const char* callIdString)

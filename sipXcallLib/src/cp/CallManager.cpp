@@ -751,6 +751,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_PLAY_AUDIO_CONNECTION:        
         case CP_STOP_AUDIO_CONNECTION:
         case CP_RECORD_AUDIO_CONNECTION_START:
+        case CP_RECORD_AUDIO_CONNECTION_PAUSE:
+        case CP_RECORD_AUDIO_CONNECTION_RESUME:
         case CP_RECORD_AUDIO_CONNECTION_STOP:
         case CP_RECORD_BUFFER_AUDIO_CONNECTION_START:
         case CP_SET_MEDIA_PASS_THROUGH:
@@ -1546,6 +1548,92 @@ OsStatus CallManager::audioChannelRecordStart(const char* callId,
     else
     {
         OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::audioChannelRecordStart TIMED OUT\n");
+        // If the event has already been signalled, clean up
+        if(OS_ALREADY_SIGNALED == pEvent->signal(0))
+        {
+            eventMgr->release(pEvent);
+        }
+    }
+
+    return status ;
+}
+
+OsStatus CallManager::audioChannelRecordPause(const char* callId, const char* szRemoteAddress) 
+{
+    OsStatus status = OS_FAILED ;
+
+    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+    OsProtectedEvent* pEvent = eventMgr->alloc();
+    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
+
+    CpMultiStringMessage message(CP_RECORD_AUDIO_CONNECTION_PAUSE, 
+                                 callId, 
+                                 szRemoteAddress,
+                                 NULL,
+                                 NULL, 
+                                 NULL,
+                                 (intptr_t) pEvent);
+
+    postMessage(message);
+
+    // Wait for error response
+    if(pEvent->wait(0, maxEventTime) == OS_SUCCESS)
+    {
+        intptr_t success;
+        pEvent->getEventData(success);
+        eventMgr->release(pEvent);
+
+        if (success)
+        {
+            status = OS_SUCCESS  ;
+        } 
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::audioChannelRecordPause TIMED OUT\n");
+        // If the event has already been signalled, clean up
+        if(OS_ALREADY_SIGNALED == pEvent->signal(0))
+        {
+            eventMgr->release(pEvent);
+        }
+    }
+
+    return status ;
+}
+
+OsStatus CallManager::audioChannelRecordResume(const char* callId, const char* szRemoteAddress) 
+{
+    OsStatus status = OS_FAILED ;
+
+    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+    OsProtectedEvent* pEvent = eventMgr->alloc();
+    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
+
+    CpMultiStringMessage message(CP_RECORD_AUDIO_CONNECTION_RESUME, 
+                                 callId, 
+                                 szRemoteAddress,
+                                 NULL,
+                                 NULL, 
+                                 NULL,
+                                 (intptr_t) pEvent);
+
+    postMessage(message);
+
+    // Wait for error response
+    if(pEvent->wait(0, maxEventTime) == OS_SUCCESS)
+    {
+        intptr_t success;
+        pEvent->getEventData(success);
+        eventMgr->release(pEvent);
+
+        if (success)
+        {
+            status = OS_SUCCESS  ;
+        } 
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::audioChannelRecordResume TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == pEvent->signal(0))
         {
@@ -2823,21 +2911,19 @@ OsStatus CallManager::setInboundCodecCPULimit(int limit)
 OsStatus CallManager::setMicGain(const char* callId,
                                  float gain)
 {
-    int iOldLevel = -1 ;
-
     float *pGain = new float(gain);
     CpMultiStringMessage setMicGainMsg(CP_SET_MIC_GAIN, callId, NULL, NULL, NULL, NULL, (intptr_t)pGain);
     OsStatus stat = postMessage(setMicGainMsg);
 
-    return OS_SUCCESS ;
+    return(stat);
 }
 
 OsStatus CallManager::setOutputMixWeight(const char* callId, int bridgeOutputIndex, float gain)
 {
     assert(bridgeOutputIndex >= 0);
     assert(gain >= 0.0f);
-    int gainInt = gain;
-    int gainFrac = (gain - gainInt) * 1000000;
+    int gainInt = (int) gain;
+    int gainFrac = (int)((gain - ((float)gainInt)) * 1000000);
 
     CpMultiStringMessage setMixWeightMsg(CP_SET_OUTPUT_MIX_WEIGHT, callId, NULL, NULL, NULL, NULL, 
        bridgeOutputIndex, gainInt, gainFrac);

@@ -182,6 +182,12 @@ public:
                                             const char* szFile,
                                             CpMediaInterface::CpAudioFileFormat = CpMediaInterface::CP_WAVE_PCM_16);
 
+    /// Pause a file recording that is already started
+    virtual OsStatus audioChannelRecordPause(const char* callId, const char* szRemoteAddress);
+
+    /// Resume a file recording that is paused
+    virtual OsStatus audioChannelRecordResume(const char* callId, const char* szRemoteAddress);
+
     virtual OsStatus audioChannelRecordStop(const char* callId, const char* szRemoteAddress) ;
     virtual OsStatus audioChannelRecordBufferStart(const char* callId, const char* szRemoteAddress, const char* pBuffer, const int bufferSize, const int bufferType, const int maxRecordTime, const int maxSilence);
     virtual OsStatus audioChannelRecordBufferStop(const char* callId, const char* szRemoteAddress);
