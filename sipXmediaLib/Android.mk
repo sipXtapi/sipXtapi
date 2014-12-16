@@ -472,6 +472,7 @@ LOCAL_SRC_FILES := \
     src/test/mp/MprBridgeTestWB.cpp \
     src/test/mp/MprFromMicTest.cpp \
     src/test/mp/MprMixerTest.cpp \
+    src/test/mp/MprRecorderTest.cpp \
     src/test/mp/MprSpeakerSelectorTest.cpp \
     src/test/mp/MprSplitterTest.cpp \
     src/test/mp/MprToSpkrTest.cpp \
