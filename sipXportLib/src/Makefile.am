@@ -42,6 +42,8 @@ libsipXport_la_CXXFLAGS = \
 libsipXport_la_SOURCES =  \
     ../config/sipxportlib-buildstamp.h \
     ../config/sipxportlib-buildstamp.cpp \
+    utl/CircularBuffer.cpp \
+    utl/CircularBufferPtr.cpp \
     utl/UtlLongLongInt.cpp \
     utl/UtlNameValueTokenizer.cpp \
     utl/UtlBool.cpp \
