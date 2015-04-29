@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -61,7 +61,8 @@ public:
       MPRNM_VOICE_STARTED,
       MPRNM_VOICE_STOPPED,
       MPRNM_H264_SPS,
-      MPRNM_H264_PPS
+      MPRNM_H264_PPS,
+      MPRNM_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED
    } RNMsgType;
 
    /* ============================ CREATORS ================================== */

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -60,6 +60,8 @@ MprRecorder::MprRecorder(const UtlString& rName)
 , mBufferSize(0)
 , mpEncoder(NULL)
 , mpResampler(NULL)
+, mpCircularBuffer(NULL)
+, mRecordingBufferNotificationWatermark(0)
 {
 }
 
@@ -81,6 +83,9 @@ MprRecorder::~MprRecorder()
        delete mpResampler;
        mpResampler = NULL;
    }
+
+   if (mpCircularBuffer)
+       mpCircularBuffer->release();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -152,6 +157,29 @@ OsStatus MprRecorder::startBuffer(const UtlString& namedResource,
    msgData.finishSerialize();
 
    return fgQ.send(msg, sOperationQueueTimeout);
+}
+
+OsStatus MprRecorder::startCircularBuffer(const UtlString& namedResource,
+                                          OsMsgQ& fgQ,
+                                          CircularBufferPtr & buffer,
+                                          RecordFileFormat recordingFormat,
+                                          unsigned long recordingBufferNotificationWatermark)
+{
+    int file = -1;
+    OsStatus stat;
+    MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START_CIRCULAR_BUFFER,
+                            namedResource);
+    UtlSerialized &msgData = msg.getData();
+
+    stat = msgData.serialize(&buffer);
+    assert(stat == OS_SUCCESS);
+    stat = msgData.serialize((int)recordingFormat);
+    assert(stat == OS_SUCCESS);
+    stat = msgData.serialize(recordingBufferNotificationWatermark);
+    assert(stat == OS_SUCCESS);
+    msgData.finishSerialize();
+
+    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 OsStatus MprRecorder::pause(const UtlString& namedResource, OsMsgQ& flowgraphQueue)
@@ -232,6 +260,10 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       {
          numRecorded = writeBufferSilence(samplesPerFrame);
       }
+      else if (mRecordDestination == TO_CIRCULAR_BUFFER)
+      {
+          numRecorded = writeCircularBufferSilence(samplesPerFrame);
+      }
       mSamplesRecorded += numRecorded;
       mConsecutiveInactive++;
       if (numRecorded != samplesPerFrame)
@@ -257,11 +289,15 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       int numRecorded;
       if (mRecordDestination == TO_FILE)
       {
-         numRecorded = writeFileSpeech(input, numSamples);
+         numRecorded = writeSamples(input, numSamples, &MprRecorder::writeFile);
       }
       else if (mRecordDestination == TO_BUFFER)
       {
          numRecorded = writeBufferSpeech(input, numSamples);
+      }
+      else if (mRecordDestination == TO_CIRCULAR_BUFFER)
+      {
+         numRecorded = writeSamples(input, numSamples, &MprRecorder::writeCircularBuffer);
       }
       mSamplesRecorded += numRecorded;
 
@@ -277,84 +313,131 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
    return TRUE;
 }
 
+int MprRecorder::writeCircularBuffer(char * data, int dataSize)
+{
+    OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::doProcessFrame - TO_CIRCULAR_BUFFER, non-silence");
+    
+    unsigned long newSize, previousSize;
+    mpCircularBuffer->write(data, dataSize, &newSize, &previousSize);
+
+    if (previousSize < mRecordingBufferNotificationWatermark && newSize >= mRecordingBufferNotificationWatermark)
+        notifyCircularBufferWatermark();
+
+    // the circular buffer is endless, so we can say we have written all in
+    return dataSize;
+}
+
+void MprRecorder::notifyCircularBufferWatermark()
+{
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::notifyCircularBufferWatermark - watermark reached");
+    MprnIntMsg msg(MpResNotificationMsg::MPRNM_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED,
+        getName(),
+        0);
+    sendNotification(msg);
+}
+
+void MprRecorder::createEncoder(const char * mimeSubtype, unsigned int codecSampleRate)
+{
+    OsStatus status = OS_INVALID_ARGUMENT;
+
+    MpCodecFactory* codecFactory = MpCodecFactory::getMpCodecFactory();
+    assert(codecFactory);
+
+    status = codecFactory->createEncoder(mimeSubtype,
+        NULL, // FMTP
+        codecSampleRate, // GSM 8K
+        1, // Num channels
+        111, // Bogus payload as we are writing to file
+        mpEncoder);
+    // Note: we could have a NULL encoder here if the codec plugin is not loaded
+    if (mpEncoder == NULL)
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+            "MprRecorder::createEncoder failed to load the codec for MIME subtype '%s'. Perhaps the plugin is not loaded?",
+            mimeSubtype);
+        OsSysLog::flush();
+    }
+    assert(mpEncoder);
+    mpEncoder->initEncode();
+    assert(mpEncoder->getInfo()->getSampleRate() == codecSampleRate);
+}
+
+void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & codecSampleRate)
+{
+    mRecFormat = recFormat;
+    codecSampleRate = 0;
+    unsigned int flowgraphSampleRate = mpFlowGraph->getSamplesPerSec();
+    OsStatus status = OS_INVALID_ARGUMENT;
+
+    if (mpEncoder)
+    {
+        delete mpEncoder;
+        mpEncoder = NULL;
+    }
+    if (mpResampler)
+    {
+        delete mpResampler;
+        mpResampler = NULL;
+    }
+
+    switch (mRecFormat)
+    {
+        // Encoder needed
+    case MprRecorder::WAV_GSM:
+        codecSampleRate = 8000;
+        createEncoder(MIME_SUBTYPE_GSM_WAVE, codecSampleRate);
+        break;
+
+    case MprRecorder::WAV_ALAW:
+        codecSampleRate = 8000;
+        createEncoder(MIME_SUBTYPE_PCMA, codecSampleRate);
+        break;
+
+    case MprRecorder::WAV_MULAW:
+        codecSampleRate = 8000;
+        createEncoder(MIME_SUBTYPE_PCMU, codecSampleRate);
+        break;
+
+    case MprRecorder::UNINITIALIZED_FORMAT:
+        OsSysLog::add(FAC_MP, PRI_ERR,
+            "MprRecorder::prepareEncoder unset recording format");
+        OsSysLog::flush();
+        assert(mRecFormat > MprRecorder::UNINITIALIZED_FORMAT);
+        break;
+
+        // Encoder not needed
+    case MprRecorder::RAW_PCM_16:
+    case MprRecorder::WAV_PCM_16:
+        //mEncoder = NULL;
+        codecSampleRate = flowgraphSampleRate;
+        break;
+
+    default:
+        OsSysLog::add(FAC_MP, PRI_ERR,
+            "MprRecorder::prepareEncoder invalid recording format: %d",
+            mRecFormat);
+        OsSysLog::flush();
+        assert(0);
+        break;
+    }
+
+    // If the file ecoder needs a different sample rate
+    if (codecSampleRate != flowgraphSampleRate)
+    {
+        mpResampler = MpResamplerBase::createResampler(1, flowgraphSampleRate, codecSampleRate);
+    }
+}
+
 UtlBoolean MprRecorder::handleStartFile(int file,
                                         RecordFileFormat recFormat,
                                         int time,
                                         int silenceLength)
 {
    mFileDescriptor = file;
-   mRecFormat = recFormat;
    mRecordDestination = TO_FILE;
-   unsigned int codecSampleRate = 0;
-   unsigned int flowgraphSampleRate = mpFlowGraph->getSamplesPerSec();
-   OsStatus status = OS_INVALID_ARGUMENT;
 
-   MpCodecFactory* codecFactory = MpCodecFactory::getMpCodecFactory();
-
-   assert(codecFactory);
-
-   if(mpEncoder)
-   {
-       delete mpEncoder;
-       mpEncoder = NULL;
-   }
-   if(mpResampler)
-   {
-       delete mpResampler;
-       mpResampler = NULL;
-   }
-
-   switch(mRecFormat)
-   {
-       // Encoder needed
-   case MprRecorder::WAV_GSM:
-       codecSampleRate = 8000;
-       status = codecFactory->createEncoder(MIME_SUBTYPE_GSM_WAVE, 
-                                            NULL, // FMTP
-                                            codecSampleRate, // GSM 8K
-                                            1, // Num channels
-                                            111, // Bogus payload as we are writing to file
-                                            mpEncoder);
-       // Note: we could have a NULL encoder here if the codec plugin is not loaded
-       if(mpEncoder == NULL)
-       {
-           OsSysLog::add(FAC_MP, PRI_ERR,
-                         "MprRecorder::handleStartFile failed to load GSM codec.  Perhaps GSM plugin is not loaded?");
-           OsSysLog::flush();
-       }
-       assert(mpEncoder);
-       mpEncoder->initEncode();
-       assert(mpEncoder->getInfo()->getSampleRate() == codecSampleRate);
-       break;
-
-   case MprRecorder::UNINITIALIZED_FORMAT:
-       OsSysLog::add(FAC_MP, PRI_ERR,
-                     "MprRecorder::handleStartFile unset recording format");
-       OsSysLog::flush();
-       assert(mRecFormat > MprRecorder::UNINITIALIZED_FORMAT);
-       break;
-
-       // Encoder not needed
-   case MprRecorder::RAW_PCM_16:
-   case MprRecorder::WAV_PCM_16:
-       //mEncoder = NULL;
-       codecSampleRate = flowgraphSampleRate;
-       break;
-
-   default:
-       OsSysLog::add(FAC_MP, PRI_ERR,
-           "MprRecorder::handleStartFile invalid recording format: %d",
-           mRecFormat);
-       OsSysLog::flush();
-       assert(0);
-       break;
-   }
-
-   // If the file ecoder needs a different sample rate
-   if(codecSampleRate != flowgraphSampleRate)
-   {
-       mpResampler = MpResamplerBase::createResampler(1, flowgraphSampleRate, codecSampleRate);
-   }
+   unsigned int codecSampleRate;
+   prepareEncoder(recFormat, codecSampleRate);
 
    // If we are creating a WAV file, write the header.
    // Otherwise we are writing raw PCM data to file.
@@ -385,6 +468,27 @@ UtlBoolean MprRecorder::handleStartBuffer(MpAudioSample *pBuffer,
    OsSysLog::add(FAC_MP, PRI_DEBUG,
                  "MprRecorder::handleStartBuffer(%p, %d, %d, %d) finished",
                  pBuffer, bufferSize, time, silenceLength);
+   return TRUE;
+}
+
+UtlBoolean MprRecorder::handleStartCircularBuffer(CircularBufferPtr * buffer, 
+                                                  RecordFileFormat recordingFormat,
+                                                  unsigned long recordingBufferNotificationWatermark)
+{
+   if (mpCircularBuffer)
+       mpCircularBuffer->release();
+
+   mpCircularBuffer = buffer;
+   mRecordingBufferNotificationWatermark = recordingBufferNotificationWatermark;
+   mRecordDestination = TO_CIRCULAR_BUFFER;
+
+   unsigned int codecSampleRate;
+   prepareEncoder(recordingFormat, codecSampleRate);
+
+   startRecording(0, 0);
+
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MprRecorder::handleStartCircularBuffer() finished");
    return TRUE;
 }
 
@@ -453,6 +557,24 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          stat = msgData.deserialize(silenceLength);
          assert(stat == OS_SUCCESS);
          return handleStartBuffer(pBuffer, bufferSize, time, silenceLength);
+      }
+      break;
+
+   case MPRM_START_CIRCULAR_BUFFER:
+      {
+         OsStatus stat;
+         CircularBufferPtr * buffer;
+         RecordFileFormat recordingFormat;
+         unsigned long recordingBufferNotificationWatermark;
+
+         UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
+         stat = msgData.deserialize((void*&)buffer);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize((int&)recordingFormat);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(recordingBufferNotificationWatermark);
+         assert(stat == OS_SUCCESS);
+         return handleStartCircularBuffer(buffer, recordingFormat, recordingBufferNotificationWatermark);
       }
       break;
 
@@ -595,14 +717,14 @@ int MprRecorder::writeFileSilence(int numSamples)
 {
     assert(((int)MpMisc.mpFgSilence->getSamplesNumber()) >= numSamples);
     const MpAudioSample* silence = MpMisc.mpFgSilence->getSamplesPtr();
-    return(writeFileSpeech(silence, numSamples));
+    return(writeSamples(silence, numSamples, &MprRecorder::writeFile));
 }
 
-int MprRecorder::writeFileSpeech(const MpAudioSample *pBuffer, int numSamples)
+int MprRecorder::writeSamples(const MpAudioSample *pBuffer, int numSamples, WriteMethod writeMethod)
 {
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_MP, PRI_DEBUG,
-            "MprRecorder::writeFileSpeech(pBuffer: %p, numSamples: %d)",
+            "MprRecorder::writeSamples(pBuffer: %p, numSamples: %d)",
             pBuffer, numSamples);
 #endif
     const MpAudioSample* resampledBufferPtr = NULL;
@@ -693,22 +815,27 @@ int MprRecorder::writeFileSpeech(const MpAudioSample *pBuffer, int numSamples)
     if(dataSize)
     {
         int bytesWritten = 
-            write(mFileDescriptor, (char *)encodedSamplesPtr, dataSize);
+            (this->*writeMethod)((char *)encodedSamplesPtr, dataSize);
 
         if(bytesWritten != dataSize)
         {
             OsSysLog::add(FAC_MP, PRI_ERR,
-                          "MprRecorder::writeFileSpeech wrote %d of %d bytes",
+                          "MprRecorder::writeSamples wrote %d of %d bytes",
                           bytesWritten, dataSize);
         }
     }
 
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_MP, PRI_DEBUG,
-            "MprRecorder::writeFileSpeech returning: %d (numSamplesEncoded)",
+            "MprRecorder::writeSamples returning: %d (numSamplesEncoded)",
             numSamplesEncoded);
 #endif
     return(numSamplesEncoded);
+}
+
+int MprRecorder::writeFile(char * data, int dataSize)
+{
+    return write(mFileDescriptor, data, dataSize);
 }
 
 int MprRecorder::writeBufferSilence(int numSamples)
@@ -725,13 +852,40 @@ int MprRecorder::writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples)
    return toWrite;
 }
 
+int MprRecorder::writeCircularBufferSilence(int numSamples)
+{
+    assert(((int)MpMisc.mpFgSilence->getSamplesNumber()) >= numSamples);
+    const MpAudioSample* silence = MpMisc.mpFgSilence->getSamplesPtr();
+    return writeSamples(silence, numSamples, &MprRecorder::writeCircularBuffer);
+}
+
+int16_t MprRecorder::getBitsPerSample(RecordFileFormat format)
+{
+    switch (format)
+    {
+    case MprRecorder::WAV_GSM:
+        return 0;
+
+    case MprRecorder::WAV_PCM_16:
+        return 2; //sizeof(MpAudioSample);
+
+    case MprRecorder::WAV_ALAW:
+        // fall-through
+    case MprRecorder::WAV_MULAW:
+        return 1;
+
+    default:
+        return 2; //sizeof(MpAudioSample);
+    }
+}
+
 UtlBoolean MprRecorder::writeWAVHeader(int handle, 
                                        RecordFileFormat format,
                                        uint32_t samplesPerSecond)
 {
    UtlBoolean retCode = FALSE;
    char tmpbuf[80];
-   int16_t sampleSize = 2; //sizeof(MpAudioSample);
+   int16_t sampleSize = getBitsPerSample(format);
    int16_t bitsPerSample = 0;
    int32_t formatLength = 0;
 
@@ -753,6 +907,10 @@ UtlBoolean MprRecorder::writeWAVHeader(int handle,
            break;
 
        case MprRecorder::WAV_PCM_16:
+           // fall-through
+       case MprRecorder::WAV_ALAW:
+           // fall-through
+       case MprRecorder::WAV_MULAW:
            averageBytesPerSecond = samplesPerSecond*sampleSize;
            blockAlign = sampleSize*numChannels;
            bitsPerSample = sampleSize*8;
@@ -794,7 +952,7 @@ UtlBoolean MprRecorder::writeWAVHeader(int handle,
    bytesWritten += write(handle, (char*)&bitsPerSample, sizeof(bitsPerSample));
 
    // GSM specific part of fmt header
-   if(MprRecorder::WAV_GSM)
+   if (format == MprRecorder::WAV_GSM)
    {
        int16_t extraFormat = 320; // magic number
        int16_t extraFormatBytes = sizeof(extraFormat);
@@ -847,6 +1005,10 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle, RecordFileFormat for
            break;
 
        case MprRecorder::WAV_PCM_16:
+           // fall-through
+       case MprRecorder::WAV_ALAW:
+           // fall-through
+       case MprRecorder::WAV_MULAW:
            //now seek to the data length
            lseek(handle,40,SEEK_SET);
            totalWaveHeaderLength = 44;
