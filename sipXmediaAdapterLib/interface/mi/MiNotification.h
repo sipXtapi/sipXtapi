@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -74,7 +74,8 @@ public:
       MI_NOTF_VOICE_STARTED,
       MI_NOTF_VOICE_STOPPED,
       MI_NOTF_H264_SPS,
-      MI_NOTF_H264_PPS
+      MI_NOTF_H264_PPS,
+      MI_NOTF_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED
    } NotfType;
 
      /// Connection ID that indicates invalid connection or no connection.

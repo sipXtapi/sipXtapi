@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -79,6 +79,7 @@ class MpStreamPlayer;
 class MpStreamQueuePlayer;
 class CpMediaInterfaceFactoryImpl;
 class OsMsgDispatcher;
+class CircularBufferPtr;
 
 /** 
  * @brief Abstract media control interface.
@@ -503,6 +504,13 @@ public:
 
    /// @brief Stop recording to buffer
    virtual OsStatus stopRecordBufferChannelAudio(int connectionId) = 0 ;
+
+   virtual OsStatus recordCircularBufferChannelAudio(int connectionId,
+                                                     CircularBufferPtr & buffer,
+                                                     CpMediaInterface::CpAudioFileFormat recordingFormat,
+                                                     unsigned long recordingBufferNotificationWatermark) = 0;
+
+   virtual OsStatus stopRecordCircularBufferChannelAudio(int connectionId) = 0;
 
      /// @brief Play the specified audio URL to the call.
    virtual OsStatus playAudio(const char* url, 

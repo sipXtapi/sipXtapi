@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -106,6 +106,7 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
       case MpResNotificationMsg::MPRNM_DELAY_QUIESCENCE:
       case MpResNotificationMsg::MPRNM_VOICE_STARTED:
       case MpResNotificationMsg::MPRNM_VOICE_STOPPED:
+      case MpResNotificationMsg::MPRNM_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED:
          {
             MiNotification miNotf(lookupNotfType(notfType), 
                                   resNotf.getOriginatingResourceName(),
@@ -332,6 +333,9 @@ MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgTy
       break;
    case MpResNotificationMsg::MPRNM_VOICE_STOPPED:
       miNotfType = MiNotification::MI_NOTF_VOICE_STOPPED;
+      break;
+   case MpResNotificationMsg::MPRNM_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED:
+      miNotfType = MiNotification::MI_NOTF_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED;
       break;
    default:
       miNotfType = MiNotification::MI_NOTF_MESSAGE_INVALID;

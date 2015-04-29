@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -19,6 +19,7 @@
 #include <utl/UtlDListIterator.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlHashBag.h>
+#include <utl/CircularBuffer.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsNatDatagramSocket.h>
 #include <os/OsMulticastSocket.h>
@@ -46,6 +47,7 @@
 #include <mp/MprToNet.h>
 #include <CpTopologyGraphInterface.h>
 #include <CpTopologyGraphFactoryImpl.h>
+#include <TypeConverter.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>
@@ -732,6 +734,32 @@ OsStatus CpTopologyGraphInterface::getResourceInputPortOnBridge(const UtlString 
       pResource->getOutputInfo(realPortIndex,
                                doNotTouchResource, // not safe to access
                                portOnBridge);
+   }
+   else
+   {
+      portOnBridge = -1;
+   }
+   return retStatus;
+}
+
+OsStatus CpTopologyGraphInterface::getResourceOutputPortOnBridge(const UtlString &resourceName,
+                                                                 int inputPortIdx,
+                                                                 int& portOnBridge)
+{
+   MpResource* pResource = NULL;
+   int realPortIndex;
+
+   OsStatus retStatus = mpTopologyGraph->lookupOutput(resourceName,
+                                                      inputPortIdx,
+                                                      pResource,
+                                                      realPortIndex);
+   if(OS_SUCCESS == retStatus)
+   {
+      MpResource* doNotTouchResource = NULL;
+
+      pResource->getInputInfo(realPortIndex,
+                              doNotTouchResource, // not safe to access
+                              portOnBridge);
    }
    else
    {
@@ -2051,7 +2079,39 @@ OsStatus CpTopologyGraphInterface::stopRecordBufferChannelAudio(int connectionId
    return stat;
 }
 
+OsStatus CpTopologyGraphInterface::recordCircularBufferChannelAudio(int connectionId,
+                                                                    CircularBufferPtr & buffer,
+                                                                    CpMediaInterface::CpAudioFileFormat recordingFormat,
+                                                                    unsigned long recordingBufferNotificationWatermark)
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+       MprRecorder::RecordFileFormat format;
+       stat = TypeConverter::translateRecordingFormat(recordingFormat, format);
 
+       if (stat == OS_SUCCESS)
+       {
+           stat = MprRecorder::startCircularBuffer(DEFAULT_RECORDER_RESOURCE_NAME,
+               *mpTopologyGraph->getMsgQ(),
+               buffer,
+               format,
+               recordingBufferNotificationWatermark);
+       }
+   }
+   return stat;
+}
+
+OsStatus CpTopologyGraphInterface::stopRecordCircularBufferChannelAudio(int connectionId)
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprRecorder::stop(DEFAULT_RECORDER_RESOURCE_NAME,
+                               *mpTopologyGraph->getMsgQ());
+   }
+   return stat;
+}
 
 OsStatus CpTopologyGraphInterface::createPlayer(MpStreamPlayer** ppPlayer, 
                                              const char* szStream, 

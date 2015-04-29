@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2015 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -38,6 +38,7 @@ class MpCallFlowGraph;
 class SdpCodec;
 class OsDatagramSocket;
 class CpPhoneMediaConnection;
+class CircularBufferPtr;
 
 /**
 *  An older media interface
@@ -214,6 +215,13 @@ public:
                                              int maxSilence = -1) ;
 
    virtual OsStatus stopRecordBufferChannelAudio(int connectionId) ;
+
+   virtual OsStatus recordCircularBufferChannelAudio(int connectionId,
+                                                     CircularBufferPtr & buffer,
+                                                     CpMediaInterface::CpAudioFileFormat recordingFormat,
+                                                     unsigned long recordingBufferNotificationWatermark);
+
+   virtual OsStatus stopRecordCircularBufferChannelAudio(int connectionId);
 
    virtual OsStatus createPlayer(MpStreamPlayer** ppPlayer, 
                                  const char* szStream, 
