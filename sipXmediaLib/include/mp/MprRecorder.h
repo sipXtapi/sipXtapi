@@ -81,7 +81,8 @@ public:
                              const char *filename,
                              RecordFileFormat recFormat,
                              int time = 0,
-                             int silenceLength = -1);
+                             int silenceLength = -1,
+                             UtlBoolean append = FALSE);
      /**<
      *  @param[in] namedResource - resource name to send command to.
      *  @param[in] fgQ - flowgraph queue to send command to.
@@ -91,6 +92,10 @@ public:
      *  @param[in] silenceLength - length of silence (in milliseconds) after
      *             which recording is automatically stopped. This feature is
      *             disabled if -1 is passed.
+     *  @param[in] append - TRUE/FALSE if recording file exist, file should be 
+     *             appended as opposed to replaced.  NOTE: It is an error 
+     *             condition to append if the record format is not the same as 
+     *             the original file.
      */
 
      /// Start recording to a buffer with given parameters.
@@ -235,8 +240,19 @@ protected:
                                     int samplesPerSecond);
 
      /// Handle MPRM_START_FILE message.
-   UtlBoolean handleStartFile(int file, RecordFileFormat recFormat, int time,
-                              int silenceLength);
+   UtlBoolean handleStartFile(int file, 
+                              RecordFileFormat recFormat, 
+                              int time,
+                              int silenceLength,
+                              UtlBoolean append);
+   /**
+    * @param[in] file - file handle to record to
+    * @param[in] recFormat - audio format to use for record file
+    * @param[in] time - maximum record length in milliseconds (0 means unlimited)
+    * @param[in] silenceLength - stop recording after this amount of silence in
+    *            milliseconds (-1 means ignore silence and keep recording).
+    * @param[in] append - file is being appended 
+    */
 
      /// Handle MPRM_START_BUFFER message.
    UtlBoolean handleStartBuffer(MpAudioSample *pBuffer, int bufferSize, int time,
@@ -283,7 +299,23 @@ protected:
    inline int writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples);
 
      /// Write out standard 16bit WAV Header
-   static UtlBoolean writeWAVHeader(int handle, RecordFileFormat format, uint32_t samplesPerSecond = 8000);
+   static UtlBoolean writeWaveHeader(int handle, RecordFileFormat format, uint32_t samplesPerSecond = 8000);
+
+   /// Read wave header info
+   static OsStatus readWaveHeader(int fileHandle,
+                                  RecordFileFormat& format,
+                                  uint16_t& samplesPerSecond,
+                                  uint16_t& channels);
+   /**
+    *  @param[in] fileHandle - wave file handle opened for read and positioned at begining of file
+    *  @param[out] format - wave file compression codec id
+    *  @param[out] samplesPerSecond - samples per second for encoding per wave header
+    *  @param[out] channels - number of channels of audio per wave header
+    *
+    *  @returns OS_SUCCESS if wave header was read successfully and it was valid,
+    *           OS_FAILED if the file is empty,
+    *           OS_INVALID if the wave header was invalid (this could be a raw audio file)
+    **/
 
      /// Update WAV-file's header with correct recorded length.
    static UtlBoolean updateWaveHeaderLengths(int handle, RecordFileFormat format);

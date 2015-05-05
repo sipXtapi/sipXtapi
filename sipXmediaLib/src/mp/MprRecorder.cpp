@@ -95,43 +95,162 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                                 const char *filename,
                                 RecordFileFormat recFormat,
                                 int time,
-                                int silenceLength)
+                                int silenceLength,
+                                UtlBoolean append)
 {
-   int file = -1;
-   OsStatus res = OS_FAILED;
+    int fileHandle = -1;
+    OsStatus result = OS_SUCCESS;
 
-   if (NULL != filename)
-   {
-      file = open(filename, O_BINARY | O_CREAT | O_RDWR, 0640);
+    if (NULL == filename)
+    {
+       result = OS_FAILED;
+       OsSysLog::add(FAC_MP, PRI_ERR,
+                     "MprRecorder::startFile null filename");
+    }
+    else
+    {
+        fileHandle = open(filename, O_BINARY | O_CREAT | O_RDWR |
+                          // If append requested open with append mode
+                          (append ? 
+                           0 /* O_APPEND */: // cannot use APPEND mode as when we try to
+                                             // re-write the wave file header in the beginning
+                                             // it ends up appending the writes at the end of
+                                             // of the file instead in the beginning where it
+                                             // was positioned to via lseek (on Linux anyway)
+                           O_TRUNC),
+                          0640);
+
+        if (fileHandle > -1)
+        {
+            if(append)
+            {
+              RecordFileFormat waveFileCodec;
+              uint16_t fileSamplesPerSecond;
+              uint16_t fileChannels;
+              // open with append (O_APPEND) by default positions us at the end 
+              // of the file.  We must read the header at the begining of the
+              // file first.
+              lseek(fileHandle, 0, SEEK_SET);
+              OsStatus waveHeaderReadStatus = readWaveHeader(fileHandle, 
+                                                             waveFileCodec,
+                                                             fileSamplesPerSecond,
+                                                             fileChannels);
+
+              switch(waveHeaderReadStatus)
+              {
+              // Valid wave file header
+                  case OS_SUCCESS:
+                      // same codec, sample rate and channels
+                      if(recFormat == waveFileCodec &&
+                         // TODO: cannot check this here in static method.
+                         // checking needs to occur in handleStartFile
+                         //dddd == fileSamplesPerSecond &&
+                         1 == fileChannels)
+                      {
+                          // The record format is the same as that of the file that already exists.
+                          // Move to the end of the file where we will start appending
+                          lseek(fileHandle, 0, SEEK_END);
+                      }
+
+                      // different recording format requested from existing file
+                      // error out and close the file
+                      else
+                      {
+                          close(fileHandle);
+                          fileHandle = -1;
+                          OsSysLog::add(FAC_MP, PRI_ERR, 
+                                  "MprRecorder::startFile wave header read from append to file: %s "
+                                  "(format: %d samples/sec: %d channels: %d), "
+                                  "differs from requested wave record format: %d samples/sec: %d channels: %d",
+                                  filename,
+                                  waveFileCodec, fileSamplesPerSecond, fileChannels,
+                                  recFormat, fileSamplesPerSecond, 1);
+                          result = OS_FAILED;
+                      }
+
+                      break;
+
+              // Not a valid wave file
+                  case OS_INVALID:
+                      switch(recFormat)
+                      {
+                          // raw audio file will not have a wave header.  So
+                          // this is ok.  We can continue and append at the end
+                          case RAW_PCM_16:
+                              lseek(fileHandle, 0, SEEK_END);
+                              break;
+
+                          // All other file formats are wave files and if we are appending,
+                          // the file must already have a valid wave header.
+                          default:
+                              close(fileHandle);
+                              fileHandle = -1;
+                              OsSysLog::add(FAC_MP, PRI_ERR, 
+                                      "MprRecorder::startFile invalid wave header read from file: %s, cannot append wave format: %d",
+                                      filename,
+                                      recFormat);
+                              result = OS_FAILED;
+                              break;
+                      } // end switch(recFormat)
+                      break;
+
+              // new/empty file.  Ok that file does not have wave header
+                  case OS_FAILED:
+                      // need to tell handleStartFile to write a WAVE header as one does
+                      // not exist.
+                      append = FALSE;
+                      break;
+
+              // Unhandled error case, should not get here
+                  default:
+                      close(fileHandle);
+                      fileHandle = -1;
+                      OsSysLog::add(FAC_MP, PRI_ERR, 
+                              "MprRecorder::startFile wave header read failed: %d",
+                              waveHeaderReadStatus);
+                      result = OS_FAILED;
+                      break;
+              } // end switch(waveHeaderReadStatus)
+            }
+
+            // File is to be replaced, so position to begining of file
+            else
+            {
+                lseek(fileHandle, 0, SEEK_SET);
+            }
+
+        }
+
+        if (fileHandle > -1)
+        {
+          OsStatus stat;
+          MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START_FILE,
+                                  namedResource);
+          UtlSerialized &msgData = msg.getData();
+
+          stat = msgData.serialize(fileHandle);
+          assert(stat == OS_SUCCESS);
+          stat = msgData.serialize((int)recFormat);
+          assert(stat == OS_SUCCESS);
+          stat = msgData.serialize(time);
+          assert(stat == OS_SUCCESS);
+          stat = msgData.serialize(silenceLength);
+          assert(stat == OS_SUCCESS);
+          stat = msgData.serialize(append);
+          assert(stat == OS_SUCCESS);
+          msgData.finishSerialize();
+          
+          result = fgQ.send(msg, sOperationQueueTimeout);
+       }
+       else
+       {
+          OsSysLog::add(FAC_MP, PRI_ERR,
+                        "MprRecorder::startFile() failed to open file %s, error code is %i",
+                        filename, errno);
+       }
    }
 
-   if (file > -1)
-   {
-      OsStatus stat;
-      MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START_FILE,
-                              namedResource);
-      UtlSerialized &msgData = msg.getData();
-
-      stat = msgData.serialize(file);
-      assert(stat == OS_SUCCESS);
-      stat = msgData.serialize((int)recFormat);
-      assert(stat == OS_SUCCESS);
-      stat = msgData.serialize(time);
-      assert(stat == OS_SUCCESS);
-      stat = msgData.serialize(silenceLength);
-      assert(stat == OS_SUCCESS);
-      msgData.finishSerialize();
-      
-      res = fgQ.send(msg, sOperationQueueTimeout);
-   }
-   else
-   {
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MprRecorder::startFile() failed to open file %s, error code is %i",
-                    filename, errno);
-   }
-
-   return res;
+   return(result);
 }
 
 OsStatus MprRecorder::startBuffer(const UtlString& namedResource,
@@ -165,7 +284,6 @@ OsStatus MprRecorder::startCircularBuffer(const UtlString& namedResource,
                                           RecordFileFormat recordingFormat,
                                           unsigned long recordingBufferNotificationWatermark)
 {
-    int file = -1;
     OsStatus stat;
     MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START_CIRCULAR_BUFFER,
                             namedResource);
@@ -367,7 +485,6 @@ void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & code
     mRecFormat = recFormat;
     codecSampleRate = 0;
     unsigned int flowgraphSampleRate = mpFlowGraph->getSamplesPerSec();
-    OsStatus status = OS_INVALID_ARGUMENT;
 
     if (mpEncoder)
     {
@@ -431,7 +548,8 @@ void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & code
 UtlBoolean MprRecorder::handleStartFile(int file,
                                         RecordFileFormat recFormat,
                                         int time,
-                                        int silenceLength)
+                                        int silenceLength, 
+                                        UtlBoolean append)
 {
    mFileDescriptor = file;
    mRecordDestination = TO_FILE;
@@ -441,16 +559,17 @@ UtlBoolean MprRecorder::handleStartFile(int file,
 
    // If we are creating a WAV file, write the header.
    // Otherwise we are writing raw PCM data to file.
-   if (mRecFormat != MprRecorder::RAW_PCM_16)
+   // If we are appending, the wave file header already exists
+   if (mRecFormat != MprRecorder::RAW_PCM_16 && !append)
    {
-      writeWAVHeader(file, recFormat, codecSampleRate);
+      writeWaveHeader(file, recFormat, codecSampleRate);
    }
 
    startRecording(time, silenceLength);
 
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "MprRecorder::handleStartFile(%d, %d, %d, %d) finished",
-                 file, recFormat, time, silenceLength);
+                 "MprRecorder::handleStartFile(%d, %d, %d, %d, %s) finished",
+                 file, recFormat, time, silenceLength, (append ? "TRUE" : "FALSE"));
    return TRUE;
 }
 
@@ -525,6 +644,7 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          RecordFileFormat recFormat;
          int timeMS;
          int silenceLength;
+         UtlBoolean append;
 
          UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
          stat = msgData.deserialize(file);
@@ -535,7 +655,9 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          assert(stat == OS_SUCCESS);
          stat = msgData.deserialize(silenceLength);
          assert(stat == OS_SUCCESS);
-         return handleStartFile(file, recFormat, timeMS, silenceLength);
+         stat = msgData.deserialize(append);
+         assert(stat == OS_SUCCESS);
+         return handleStartFile(file, recFormat, timeMS, silenceLength, append);
       }
       break;
 
@@ -879,9 +1001,62 @@ int16_t MprRecorder::getBitsPerSample(RecordFileFormat format)
     }
 }
 
-UtlBoolean MprRecorder::writeWAVHeader(int handle, 
-                                       RecordFileFormat format,
-                                       uint32_t samplesPerSecond)
+// TODO refactor this out of recorder into separate class
+OsStatus MprRecorder::readWaveHeader(int fileHandle,
+                                     RecordFileFormat& format,
+                                     uint16_t& samplesPerSecond,
+                                     uint16_t& channels)
+{
+    OsStatus status = OS_INVALID;
+    int totalBytesRead = 0;
+    int bytesRead = 0;
+    char riffLabel[5];
+    riffLabel[4] = '\0';
+    char waveLabel[5];
+    waveLabel[4] = '\0';
+    char fmtLabel[5];
+    fmtLabel[4] = '\0';
+    uint32_t length = 0;
+    uint32_t fmtLength = 0;
+    uint16_t compressionCode = 0;
+    if((bytesRead = read(fileHandle, &riffLabel, 4)) == 4 &&
+       (totalBytesRead += bytesRead) &&
+       strcmp(riffLabel, "RIFF") == 0 &&
+       (bytesRead = read(fileHandle, (char*) &length, sizeof(length))) == sizeof(length) &&
+       (totalBytesRead += bytesRead) &&
+       (bytesRead = read(fileHandle, &waveLabel, 4)) == 4 &&
+       (totalBytesRead += bytesRead) &&
+       strcmp(waveLabel, "WAVE") == 0 &&
+       (bytesRead = read(fileHandle, &fmtLabel, 4)) == 4 &&
+       (totalBytesRead += bytesRead) &&
+       strcmp(fmtLabel, "fmt ") == 0 &&
+       (bytesRead = read(fileHandle, (char*) &fmtLength, sizeof(fmtLength))) == sizeof(fmtLength) &&
+       (totalBytesRead += bytesRead) &&
+       // TODO: check codec specific fmt length
+       (bytesRead = read(fileHandle, (char*) &compressionCode, sizeof(compressionCode))) == sizeof(compressionCode) &&
+       (totalBytesRead += bytesRead) &&
+       (bytesRead = read(fileHandle, (char*) &channels, sizeof(channels))) == sizeof(channels) &&
+       (totalBytesRead += bytesRead) &&
+       (bytesRead = read(fileHandle, (char*) &samplesPerSecond, sizeof(samplesPerSecond))) == sizeof(samplesPerSecond) &&
+       (totalBytesRead += bytesRead))
+    {
+        status = OS_SUCCESS;
+    }
+
+    // Empty/new file
+    else if(totalBytesRead == 0)
+    {
+        status = OS_FAILED;
+    }
+
+    format = (MprRecorder::RecordFileFormat) compressionCode;
+    return(status);
+}
+
+// TODO refactor this out of recorder into separate class
+UtlBoolean MprRecorder::writeWaveHeader(int handle, 
+                                        RecordFileFormat format,
+                                        uint32_t samplesPerSecond)
 {
    UtlBoolean retCode = FALSE;
    char tmpbuf[80];
@@ -984,10 +1159,19 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle, RecordFileFormat for
    UtlBoolean retCode = FALSE;
 
    //find out how many bytes were written so far
-   uint32_t length = lseek(handle,0,SEEK_END);
+   uint32_t length = lseek(handle, 0, SEEK_END);
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MprRecorder::updateWaveHeaderLengths wave file length: %d",
+                 (int) length);
 
    //now go back to beginning
-   lseek(handle,4,SEEK_SET);
+   uint32_t waveHeaderLengthOffset = lseek(handle, 4, SEEK_SET);
+   if(waveHeaderLengthOffset != 4)
+   {
+       OsSysLog::add(FAC_MP, PRI_ERR,
+               "MprRecorder::updateWaveHeaderLengths could not index to wave file header length offset (requested 4) got: %d (errno: %d) total length: %d.",
+               (int) waveHeaderLengthOffset, errno, (int) length);
+   }
 
    //and update the RIFF length
    uint32_t rifflength = length-8;
@@ -999,8 +1183,16 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle, RecordFileFormat for
    switch(format)
    {
        case MprRecorder::WAV_GSM:
+           {
            //now seek to the data length
-           lseek(handle,56,SEEK_SET);
+               uint32_t waveDataLengthOffset = lseek(handle, 56, SEEK_SET);
+               if(waveDataLengthOffset != 56)
+               {
+                   OsSysLog::add(FAC_MP, PRI_ERR,
+                           "MprRecorder::updateWaveHeaderLengths could not index to wave header GSM data length offset (requested 56) got: %d (errno: %d) total length: %d.",
+                           (int) waveDataLengthOffset, errno, (int) length);
+               }
+           }
            totalWaveHeaderLength = 60;
            break;
 
@@ -1010,7 +1202,15 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle, RecordFileFormat for
            // fall-through
        case MprRecorder::WAV_MULAW:
            //now seek to the data length
-           lseek(handle,40,SEEK_SET);
+           {
+               uint32_t waveDataLengthOffset = lseek(handle, 40, SEEK_SET);
+               if(waveDataLengthOffset != 40)
+               {
+                   OsSysLog::add(FAC_MP, PRI_ERR,
+                           "MprRecorder::updateWaveHeaderLengths could not index to wave header data length offset (requested 40) got: %d (errno: %d) total length: %d.",
+                           (int) waveDataLengthOffset, errno, (int) length);
+               }
+           }
            totalWaveHeaderLength = 44;
            break;
 
@@ -1022,6 +1222,15 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle, RecordFileFormat for
    uint32_t datalength = length - totalWaveHeaderLength;
    write(handle, (char*)&datalength,sizeof(datalength));
 
+   uint32_t newLength = lseek(handle, 0, SEEK_END);
+   if(length != newLength)
+   {
+       // Something has gone wrong, length should not change we
+       // are supposed to updating the wave file header at the begining of the file
+       OsSysLog::add(FAC_MP, PRI_ERR,
+               "MprRecorder::updateWaveHeaderLengths file length changed from: %d to: %d",
+               length, newLength);
+   }
    return(retCode);
 }
 
