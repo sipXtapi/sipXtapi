@@ -21,6 +21,7 @@ class MprRecorderTest : public MpGenericResourceTest
 {
     CPPUNIT_TEST_SUITE(MprRecorderTest);
     CPPUNIT_TEST(testRecordToFile);
+    CPPUNIT_TEST(testRecordToFileAppendNotExisting);
     CPPUNIT_TEST(testRecordToFileAppend);
     CPPUNIT_TEST(testRecordToPauseResumeFile);
     CPPUNIT_TEST_SUITE_END();
@@ -81,6 +82,193 @@ class MprRecorderTest : public MpGenericResourceTest
                                                             *mpFlowGraph->getMsgQ(),
                                                             recordFilename,
                                                             fileFormat));
+
+
+                // Enable the source resource and the recorder
+                CPPUNIT_ASSERT(mpSourceResource->enable());
+                CPPUNIT_ASSERT(recorder->enable());
+
+                // Process the frames
+                OsStatus frameStatus;
+                for(int frameIndex = 0; frameIndex < framesToProcess; frameIndex++)
+                {
+                    OsStatus frameStatus = mpFlowGraph->processNextFrame();
+                    CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, frameStatus);
+
+                    if(frameIndex == 0)
+                    {
+                        // Should be a start message
+                        CPPUNIT_ASSERT_EQUAL(1, messageDispatcher.numMsgs());
+                    }
+
+                }
+
+                int samplesRecorded = 
+                    sSampleRates[rateIndex] / framesPerSecond * // samples/frame
+                    framesToProcess; // frames
+
+                // Send message to stop the recording
+                CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                     MprRecorder::stop(recorderResourceName,
+                                                       *mpFlowGraph->getMsgQ()));
+                // Should be a start message
+                CPPUNIT_ASSERT_EQUAL(1, messageDispatcher.numMsgs());
+
+                // Process one more frame to be sure recording stop message is handled
+                frameStatus = mpFlowGraph->processNextFrame();
+                CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, frameStatus);
+
+                // Start and stop notifications
+                CPPUNIT_ASSERT_EQUAL(2, messageDispatcher.numMsgs());
+
+                // Get start notification
+                OsTime notificationWait(0, 1000);
+                OsMsg* messagePtr = NULL;
+                messageDispatcher.receive(messagePtr, notificationWait);
+                CPPUNIT_ASSERT(messagePtr);
+                if(messagePtr)
+                {
+                    CPPUNIT_ASSERT_EQUAL(messagePtr->getMsgType(), OsMsg::MP_RES_NOTF_MSG);
+                    CPPUNIT_ASSERT_EQUAL(messagePtr->getMsgSubType(), MpResNotificationMsg::MPRNM_RECORDER_STARTED);
+                }
+
+                // Get stop notification and verify the number of samples recorded
+                messageDispatcher.receive(messagePtr, notificationWait);
+                CPPUNIT_ASSERT(messagePtr);
+                if(messagePtr)
+                {
+                    CPPUNIT_ASSERT_EQUAL(messagePtr->getMsgType(), OsMsg::MP_RES_NOTF_MSG);
+                    CPPUNIT_ASSERT_EQUAL(messagePtr->getMsgSubType(), MpResNotificationMsg::MPRNM_RECORDER_STOPPED);
+                    MprnIntMsg* stopMessage = (MprnIntMsg*) messagePtr;
+                    CPPUNIT_ASSERT_EQUAL(stopMessage->getValue(), samplesRecorded);
+                }
+
+                // Make sure the recorded file is the correct size
+                unsigned long headerSize = 0;
+                unsigned long audioDataSize = 0;
+                switch(fileFormat)
+                {
+                    case MprRecorder::WAV_ALAW:
+                    case MprRecorder::WAV_MULAW:
+                        headerSize = 44;
+                        // Always 8000 samples/second
+                        audioDataSize = samplesRecorded * 8000 / sSampleRates[rateIndex];
+                        break;
+
+                    case MprRecorder::WAV_PCM_16:
+                        headerSize = 44;
+                    case MprRecorder::RAW_PCM_16:
+                        audioDataSize = samplesRecorded *
+                                        sizeof(MpAudioSample); // bytes per sample
+                    break;
+
+                    case MprRecorder::WAV_GSM:
+                        headerSize = 60;
+                        // Frames for GSM in wave files alternate between 32 and 33 bytes.  Hense 65 for
+                        // every 2 GSM frames
+                        // This assumes 10 mSec frames
+                        audioDataSize = framesToProcess / 4 * 65;
+                        CPPUNIT_ASSERT_EQUAL(framesPerSecond, 100);
+                        if(framesToProcess % 2)
+                        {
+                            // Not sure if this should be 32 or 33
+                            audioDataSize += 32;
+                        }
+                    break;
+
+                    default:
+                        CPPUNIT_ASSERT(0);  // Unsupported record file format type
+                    break;
+                }
+
+                OsFile recordFile(recordFilename);
+                OsFileInfo fileInfo;
+                CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                     recordFile.getFileInfo(fileInfo));
+                unsigned long recordedFileSize;
+                CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                     fileInfo.getSize(recordedFileSize));
+                CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
+                                     recordedFileSize);
+
+                // Stop flowgraph
+                haltFramework();
+
+            } // end for iteration over sample rates
+
+        }  // end for iteration over file formats
+
+    } // end testRecordToFile method
+
+    void testRecordToFileAppendNotExisting()
+    {
+        MprRecorder::RecordFileFormat testFileTypes[] =
+        {
+             MprRecorder::RAW_PCM_16,
+             MprRecorder::WAV_PCM_16,
+             MprRecorder::WAV_ALAW,
+             MprRecorder::WAV_MULAW,
+             MprRecorder::WAV_GSM
+        };
+        int numberOfTestFileTypes = sizeof(testFileTypes) / sizeof(MprRecorder::RecordFileFormat);
+        int framesPerSecond = 100; // 10 mSec frames
+
+
+        for(int fileTypeIndex = 0; fileTypeIndex < numberOfTestFileTypes; fileTypeIndex++)
+        {
+            MprRecorder::RecordFileFormat fileFormat = testFileTypes[fileTypeIndex];
+            unsigned int rateIndex;
+            for(rateIndex = 0; rateIndex < sNumRates; rateIndex++)
+            {
+                printf("Test MprRecorder file type: %d media task rate: %d samples/second\n",
+                        fileFormat,
+                       sSampleRates[rateIndex]);
+
+                UtlString recordFilename;
+                recordFilename.appendFormat("testRecordToFile%d_%d.%s",
+                                            sSampleRates[rateIndex],
+                                            fileFormat,
+                                            fileFormat == MprRecorder::RAW_PCM_16 ? "raw" : "wav");
+                // Incase prior test left junk around
+                tearDown();
+
+                // Make sure file never exists so we can test that append is safe in
+                // that case.
+                // Scope to be sure no conflict/copy paste errors with similar code below
+                // and file is closed.
+                {
+                    OsFile recordFile(recordFilename);
+                    recordFile.remove(TRUE);
+                    CPPUNIT_ASSERT(!recordFile.exists());
+                }
+
+                // Set media sample rate
+                setSamplesPerSec(sSampleRates[rateIndex]);
+                setSamplesPerFrame(sSampleRates[rateIndex]/framesPerSecond);
+                setUp();
+
+                int framesToProcess = 500; // 5 seconds
+                UtlString recorderResourceName = "MprRecorder";
+                MprRecorder* recorder = new MprRecorder(recorderResourceName);
+                CPPUNIT_ASSERT(recorder);
+
+                // Build flowgraph with source, MprRecorder and sink resources
+                setupFramework(recorder);
+
+                // Add the notifier so that we get resource events
+                OsMsgQ resourceEventQueue;
+                OsMsgDispatcher messageDispatcher(&resourceEventQueue);
+                mpFlowGraph->setNotificationDispatcher(&messageDispatcher);
+
+                // Start recording
+                CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                     MprRecorder::startFile(recorderResourceName,
+                                                            *mpFlowGraph->getMsgQ(),
+                                                            recordFilename,
+                                                            fileFormat,
+                                                            0, // max record length = unlimited
+                                                            -1, // don't check/stop after silence
+                                                            TRUE)); // append = TRUE
 
 
                 // Enable the source resource and the recorder
