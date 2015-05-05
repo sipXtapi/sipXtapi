@@ -31,6 +31,8 @@ class MprRecorderTest : public MpGenericResourceTest
         {
              MprRecorder::RAW_PCM_16,
              MprRecorder::WAV_PCM_16,
+             MprRecorder::WAV_ALAW,
+             MprRecorder::WAV_MULAW,
              MprRecorder::WAV_GSM
         };
         int numberOfTestFileTypes = sizeof(testFileTypes) / sizeof(MprRecorder::RecordFileFormat);
@@ -148,9 +150,8 @@ class MprRecorderTest : public MpGenericResourceTest
                     case MprRecorder::WAV_ALAW:
                     case MprRecorder::WAV_MULAW:
                         headerSize = 44;
-                        // TODO: set 
-                        // audioDataSize = 
-                        CPPUNIT_ASSERT_MESSAGE("Need to set audioDataSize for codec", audioDataSize);
+                        // Always 8000 samples/second
+                        audioDataSize = samplesRecorded * 8000 / sSampleRates[rateIndex];
                         break;
 
                     case MprRecorder::WAV_PCM_16:
@@ -204,6 +205,8 @@ class MprRecorderTest : public MpGenericResourceTest
         {
              MprRecorder::RAW_PCM_16,
              MprRecorder::WAV_PCM_16,
+             MprRecorder::WAV_ALAW,
+             MprRecorder::WAV_MULAW,
              MprRecorder::WAV_GSM
         };
         int numberOfTestFileTypes = sizeof(testFileTypes) / sizeof(MprRecorder::RecordFileFormat);
@@ -321,9 +324,7 @@ class MprRecorderTest : public MpGenericResourceTest
                     case MprRecorder::WAV_ALAW:
                     case MprRecorder::WAV_MULAW:
                         headerSize = 44;
-                        // TODO: set 
-                        // audioDataSize = 
-                        CPPUNIT_ASSERT_MESSAGE("Need to set audioDataSize for codec", audioDataSize);
+                        audioDataSize = samplesRecorded * 8000 / sSampleRates[rateIndex];
                         break;
 
                     case MprRecorder::WAV_PCM_16:
@@ -477,6 +478,8 @@ class MprRecorderTest : public MpGenericResourceTest
         {
              MprRecorder::RAW_PCM_16,
              MprRecorder::WAV_PCM_16,
+             MprRecorder::WAV_ALAW,
+             MprRecorder::WAV_MULAW,
              MprRecorder::WAV_GSM
         };
         int numberOfTestFileTypes = sizeof(testFileTypes) / sizeof(MprRecorder::RecordFileFormat);
@@ -656,9 +659,7 @@ class MprRecorderTest : public MpGenericResourceTest
                     case MprRecorder::WAV_ALAW:
                     case MprRecorder::WAV_MULAW:
                         headerSize = 44;
-                        // TODO: set 
-                        // audioDataSize = 
-                        CPPUNIT_ASSERT_MESSAGE("Need to set audioDataSize for codec", audioDataSize);
+                        audioDataSize = samplesRecorded * 2 * 8000 / sSampleRates[rateIndex];
                         break;
 
                     case MprRecorder::WAV_PCM_16:
