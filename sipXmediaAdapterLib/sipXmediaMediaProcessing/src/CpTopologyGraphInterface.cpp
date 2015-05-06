@@ -1975,7 +1975,8 @@ OsStatus CpTopologyGraphInterface::stopChannelAudio(int connectionId)
 
 OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
                                                       const char* szFile,
-                                                      CpAudioFileFormat cpFileFormat) 
+                                                      CpAudioFileFormat cpFileFormat,
+                                                      UtlBoolean appendToFile)
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2008,7 +2009,10 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
           stat = MprRecorder::startFile(DEFAULT_RECORDER_RESOURCE_NAME,
                                         *mpTopologyGraph->getMsgQ(),
                                         szFile,
-                                        recordFormat);
+                                        recordFormat,
+                                        0, // max record length = unlimited
+                                        -1, // don't check/stop after silence
+                                        appendToFile);
       }
    }
 
@@ -4182,19 +4186,22 @@ OsStatus CpTopologyGraphInterface::setConnectionToConnectionWeight(CpTopologyMed
                                                                    int destConnectionId,
                                                                    float weight)
 {
-   // Not sure why the following line is here.  Additionally pDestConnection is not used
-   // and complier complains
+   OsStatus stat = OS_INVALID_ARGUMENT;
+   // Verify valid connectionId
    CpTopologyMediaConnection* pDestConnection = getMediaConnection(destConnectionId);
 
-   int destPort;
-   OsStatus stat = getConnectionPortOnBridge(destConnectionId, 0, destPort);
-   if (stat != OS_SUCCESS)
+   if(pDestConnection != NULL)
    {
-      return stat;
-   }
-   assert(destPort >= 0);
+       int destPort;
+       stat = getConnectionPortOnBridge(destConnectionId, 0, destPort);
+       if (stat != OS_SUCCESS)
+       {
+          return stat;
+       }
+       assert(destPort >= 0);
 
-   stat = setConnectionWeightOnBridge(srcConnection, destPort, weight);
+       stat = setConnectionWeightOnBridge(srcConnection, destPort, weight);
+   }
    return stat;
 }
 

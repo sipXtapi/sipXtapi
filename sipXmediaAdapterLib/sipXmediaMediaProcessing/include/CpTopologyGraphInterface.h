@@ -285,7 +285,8 @@ public:
    /// @copydoc CpMediaInterface::recordChannelAudio
    virtual OsStatus recordChannelAudio(int connectionId,
                                        const char* szFile,
-                                       CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16);
+                                       CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16,
+                                       UtlBoolean appendToFile = FALSE);
 
    /// @copydoc CpMediaInterface::pauseRecordChannelAudio
    virtual OsStatus pauseRecordChannelAudio(int connectionId);

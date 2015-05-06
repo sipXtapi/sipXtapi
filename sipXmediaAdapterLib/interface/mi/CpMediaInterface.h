@@ -109,6 +109,8 @@ public:
    {
        CP_UNKNOWN_FORMAT = 0,
        CP_WAVE_PCM_16, ///< Wave file format containing PCM 16 bit signed little endian encoded audio
+       CP_WAVE_ALAW,
+       CP_WAVE_MULAW,
        CP_WAVE_GSM     ///< Wafe file format contain GSM encoded audio
    };
 
@@ -484,7 +486,20 @@ public:
    /// @brief Start recording to file
    virtual OsStatus recordChannelAudio(int connectionId,
                                        const char* szFile,
-                                       CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16) = 0;
+                                       CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16,
+                                       UtlBoolean appendToFile = FALSE) = 0;
+   /**
+    * @param[in] connectionId - handle for media connection to which recorder is relate
+    * @param[in] szFile - name of file to record to
+    * @param[in] cpFileFormat - audio encoding format to use in the file
+    * @param[in] appendToFile - if file exist TRUE/FALSE should append to existing audio
+    *            file.  Note: If file is existing, it must be of the same audio format.
+    *
+    * @returns OS_SUCCESS if file was successfully opened (and if append, format is the same)
+    *          OS_FAILED if existing file was of a different audio format than requested or
+    *                    unable to determine existing file audio format, or error opening
+    *                    file for read and write.
+    */
 
    /// @brief Stop buffer or file recording which has been started
    virtual OsStatus stopRecordChannelAudio(int connectionId) = 0 ;
