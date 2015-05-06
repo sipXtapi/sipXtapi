@@ -1,5 +1,31 @@
+//
+// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+//
+//
+// $$
+///////////////////////////////////////////////////////////////////////////////
+
+// SYSTEM INCLUDES
+
+// APPLICATION INCLUDES
 #include <TypeConverter.h>
 #include <os/OsSysLog.h>
+
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// GLOBAL FUNCTION
+// FORWARD DECLARATIONS
+// STATIC VARIABLE INITIALIZATIONS
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/* ============================ CREATORS ================================== */
+
+// Constructor
+
+
+/* ============================ MANIPULATORS ============================== */
 
 OsStatus TypeConverter::translateRecordingFormat(CpMediaInterface::CpAudioFileFormat cpFileFormat,
 	MprRecorder::RecordFileFormat & recordFormat)
@@ -7,19 +33,19 @@ OsStatus TypeConverter::translateRecordingFormat(CpMediaInterface::CpAudioFileFo
 	recordFormat = MprRecorder::WAV_PCM_16;
 	switch (cpFileFormat)
 	{
-	case CpMediaInterface::CpAudioFileFormat::CP_WAVE_PCM_16:
+	case CpMediaInterface::CP_WAVE_PCM_16:
 		recordFormat = MprRecorder::WAV_PCM_16;
 		return OS_SUCCESS;
 
-	case CpMediaInterface::CpAudioFileFormat::CP_WAVE_GSM:
+	case CpMediaInterface::CP_WAVE_GSM:
 		recordFormat = MprRecorder::WAV_GSM;
 		return OS_SUCCESS;
 
-	case CpMediaInterface::CpAudioFileFormat::CP_WAVE_ALAW:
+	case CpMediaInterface::CP_WAVE_ALAW:
 		recordFormat = MprRecorder::WAV_ALAW;
 		return OS_SUCCESS;
 
-	case CpMediaInterface::CpAudioFileFormat::CP_WAVE_MULAW:
+	case CpMediaInterface::CP_WAVE_MULAW:
 		recordFormat = MprRecorder::WAV_MULAW;
 		return OS_SUCCESS;
 
@@ -32,4 +58,14 @@ OsStatus TypeConverter::translateRecordingFormat(CpMediaInterface::CpAudioFileFo
 		return OS_INVALID_ARGUMENT;
 	}
 }
+
+/* ============================ ACCESSORS ================================= */
+
+/* ============================ INQUIRY =================================== */
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+/* ============================ FUNCTIONS ================================= */
 
