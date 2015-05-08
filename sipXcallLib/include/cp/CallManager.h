@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2014 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2015 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -180,7 +180,8 @@ public:
     virtual OsStatus audioChannelRecordStart(const char* callId, 
                                             const char* szRemoteAddress, 
                                             const char* szFile,
-                                            CpMediaInterface::CpAudioFileFormat = CpMediaInterface::CP_WAVE_PCM_16);
+                                            CpMediaInterface::CpAudioFileFormat = CpMediaInterface::CP_WAVE_PCM_16,
+                                            UtlBoolean appendToFile = FALSE);
 
     /// Pause a file recording that is already started
     virtual OsStatus audioChannelRecordPause(const char* callId, const char* szRemoteAddress);

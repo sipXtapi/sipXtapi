@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2014 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2015 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2299,7 +2299,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall)
 
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
                                                       const char* szFile,
-                                                      SIPX_AUDIO_FILE_FORMAT recordFormat) 
+                                                      const SIPX_AUDIO_FILE_FORMAT recordFormat,
+                                                      const bool appendToFile) 
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAudioRecordFileStart");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -2336,7 +2337,11 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
         sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
     {
 
-        if (pInst->pCallManager->audioChannelRecordStart(callId, remoteAddress, szFile, cpRecordFormat))
+        if (pInst->pCallManager->audioChannelRecordStart(callId, 
+                                                         remoteAddress, 
+                                                         szFile, 
+                                                         cpRecordFormat,
+                                                         appendToFile ? TRUE : FALSE))
         {
             sr = SIPX_RESULT_SUCCESS ;
         }

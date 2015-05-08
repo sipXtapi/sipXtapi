@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -1637,10 +1637,14 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall) ;
  *        a listener interface.
  * @param szFile Filename for the resulting audio file.
  * @param recordFormat - audio file format to use when creating recording file
+ * @param appendToFile - true/false if file exists, append to it as opposed
+ *        to replacing it.  Note: existing file must be of the same audio
+ *        format requested or start record will fail.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
                                                       const char* szFile,
-                                                      SIPX_AUDIO_FILE_FORMAT recordFormat = SIPX_WAVE_PCM_16);
+                                                      const SIPX_AUDIO_FILE_FORMAT recordFormat = SIPX_WAVE_PCM_16,
+                                                      const bool appendToFile = false);
 
 /**
  * Pause recording call to file or buffer.

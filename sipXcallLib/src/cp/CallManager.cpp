@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2014 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2015 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1515,7 +1515,8 @@ void CallManager::audioChannelStop(const char* callId, const char* szRemoteAddre
 OsStatus CallManager::audioChannelRecordStart(const char* callId, 
                                               const char* szRemoteAddress, 
                                               const char* szFile,
-                                              CpMediaInterface::CpAudioFileFormat recordFormat) 
+                                              CpMediaInterface::CpAudioFileFormat recordFormat,
+                                              UtlBoolean appendToFile) 
 {
     OsStatus status = OS_FAILED ;
 
@@ -1530,7 +1531,8 @@ OsStatus CallManager::audioChannelRecordStart(const char* callId,
                                  NULL, 
                                  NULL,
                                  (intptr_t) pEvent,
-                                 recordFormat);
+                                 recordFormat,
+                                 appendToFile);
     postMessage(message);
 
     // Wait for error response

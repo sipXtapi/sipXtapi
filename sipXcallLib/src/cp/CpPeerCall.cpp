@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2014 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2015 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2404,6 +2404,9 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             CpMediaInterface::CpAudioFileFormat recordFormat = 
                 (CpMediaInterface::CpAudioFileFormat)
                     ((CpMultiStringMessage&)eventMessage).getInt2Data();
+            UtlBoolean append = 
+                (CpMediaInterface::CpAudioFileFormat)
+                    ((CpMultiStringMessage&)eventMessage).getInt3Data();
 
             UtlBoolean bSuccess = false ;
 
@@ -2413,7 +2416,7 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             if (/* connection && */ mpMediaInterface)
             {   
                 int connectionId = connection ? connection->getConnectionId() : -1;
-                if (mpMediaInterface->recordChannelAudio(connectionId, file, recordFormat))
+                if (mpMediaInterface->recordChannelAudio(connectionId, file, recordFormat, append))
                 {
                     bSuccess = true ;
                 }
@@ -2768,9 +2771,8 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                else
                {
                   int energyLevel = intNotif.getValue();
-                  double ledLevel = log((double)energyLevel) / log((double)10.0) * 1.2;
-                  OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring MI_NOTF_ENERGY_LEVEL focus: %s resource name: %s energy: %d led: %f",
-                     isInFocus() ? "true" : "false", resourceName.data(), intNotif.getValue(), ledLevel);
+                  OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring MI_NOTF_ENERGY_LEVEL focus: %s resource name: %s energy: %d",
+                     isInFocus() ? "true" : "false", resourceName.data(), intNotif.getValue());
                }
             }                             
             processed = TRUE;
