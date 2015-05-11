@@ -914,6 +914,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sipXmediaMediaProcessing\src\TypeConverter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="interface\MiDtmfNotf.cpp"
 				>
 			</File>
@@ -980,6 +984,10 @@
 			</File>
 			<File
 				RelativePath=".\sipXmediaMediaProcessing\include\MaNotfTranslatorDispatcher.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sipXmediaMediaProcessing\include\TypeConverter.h"
 				>
 			</File>
 			<File
