@@ -1480,7 +1480,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\os\Wnt\OsUtilWnt.cpp"
+				RelativePath="\src\os\Wnt\OsUtilWnt.cpp"
+				>
+			</File>
+			<File
+				RelativePath="src\utl\CircularBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="src\utl\CircularBufferPtr.cpp"
 				>
 			</File>
 			<File
@@ -2118,6 +2126,14 @@
 			</File>
 			<File
 				RelativePath="include\aes\uitypes.h"
+				>
+			</File>
+			<File
+				RelativePath="include\utl\CircularBuffer.h"
+				>
+			</File>
+			<File
+				RelativePath="include\utl\CircularBufferPtr.h"
 				>
 			</File>
 			<File

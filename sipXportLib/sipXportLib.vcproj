@@ -3900,6 +3900,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="src\utl\CircularBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="src\utl\CircularBufferPtr.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\utl\UtlBool.cpp"
 				>
 			</File>
@@ -5658,6 +5666,14 @@
 			</File>
 			<File
 				RelativePath="include\aes\uitypes.h"
+				>
+			</File>
+			<File
+				RelativePath="include\utl\CircularBuffer.h"
+				>
+			</File>
+			<File
+				RelativePath="include\utl\CircularBufferPtr.h"
 				>
 			</File>
 			<File
