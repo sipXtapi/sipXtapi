@@ -115,7 +115,7 @@ public:
       size_t i;
       for(i = nSecs; i > 0; i--)
       {
-         printf("\b\b\b\b\b\b\b\b\b\b%d seconds.", i);
+         printf("\b\b\b\b\b\b\b\b\b\b%d seconds.", (int)i);
          fflush(stdout);
          OsTask::delay(1000);
       }
@@ -568,8 +568,9 @@ public:
       // Get media task ticker.
       pTicker = pMediaTask->getTickerNotification();
 
+#ifdef USE_CCPUNIT_EXCEPTIONS
       try {
-
+#endif
          pSpkrOutDrv = new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
          spkrDevHnd = pOutMgr->addDevice(pSpkrOutDrv);
          CPPUNIT_ASSERT(spkrDevHnd > 0);
@@ -663,6 +664,7 @@ public:
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
          CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
                               (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+#ifdef USE_CCPUNIT_EXCEPTIONS
       } catch(CppUnit::Exception& e) {
          // Shutdown the test.
          tearDownWBMediaTask(*pInMgr, inDevHandles, *pOutMgr, outDevHandles,
@@ -678,6 +680,7 @@ public:
 
          throw(e);
       }
+#endif
 
       // Shutdown the test.
       tearDownWBMediaTask(*pInMgr, inDevHandles, *pOutMgr, outDevHandles,
