@@ -375,7 +375,7 @@ AC_DEFUN([CHECK_LIBRT],
    AC_MSG_CHECKING([for librt])
 
    rt_found="no"
-   for dir in /lib /usr/lib /usr/local/lib; do
+   for dir in /lib /usr/lib /usr/local/lib /lib64; do
       if test -f "$dir/librt.so.1"; then
         rt_found="yes"
         break;
