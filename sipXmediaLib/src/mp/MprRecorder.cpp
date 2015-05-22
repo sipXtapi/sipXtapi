@@ -59,6 +59,7 @@ MprRecorder::MprRecorder(const UtlString& rName)
 , mpBuffer(NULL)
 , mBufferSize(0)
 , mpEncoder(NULL)
+, mEncodedFrames(0)
 , mpResampler(NULL)
 , mpCircularBuffer(NULL)
 , mRecordingBufferNotificationWatermark(0)
@@ -484,6 +485,7 @@ void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & code
 {
     mRecFormat = recFormat;
     codecSampleRate = 0;
+    mEncodedFrames = 0;
     unsigned int flowgraphSampleRate = mpFlowGraph->getSamplesPerSec();
 
     if (mpEncoder)
@@ -822,16 +824,34 @@ UtlBoolean MprRecorder::finish(FinishCause cause)
 
 void MprRecorder::closeFile()
 {
-   if (mFileDescriptor > -1)
-   {
-      // Any WAVE file needs header updates on closing
-      if (mRecFormat != RAW_PCM_16)
-      {
-         updateWaveHeaderLengths(mFileDescriptor, mRecFormat);
-      }
-      close(mFileDescriptor);
-      mFileDescriptor = -1;
-   }
+    if (mFileDescriptor > -1)
+    {
+        // Any WAVE file needs header updates on closing
+        if (mRecFormat != RAW_PCM_16)
+        {
+           // Some codecs require a specific multiple of frames such that we can append
+           // properly.
+           switch(mRecFormat)
+           {
+               // GSM requires every other frame to be a different size.
+               // So we ensure even number of frames to be sure the append works ok.
+               case MprRecorder::WAV_GSM:
+                   if(mEncodedFrames % 2)
+                   {
+                       // Add an extra frame of silence
+                       writeFileSilence(mpFlowGraph->getSamplesPerFrame());
+                   }
+                   break;
+
+               default:
+                   break;
+           }
+
+           updateWaveHeaderLengths(mFileDescriptor, mRecFormat);
+        }
+        close(mFileDescriptor);
+        mFileDescriptor = -1;
+    }
 }
 
 
@@ -919,6 +939,8 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffer, int numSamples, Writ
             {
                 numSamplesEncoded = numSamples;
             }
+
+            mEncodedFrames++;
         }
     }
 

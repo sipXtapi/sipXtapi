@@ -96,6 +96,11 @@ public:
      *             appended as opposed to replaced.  NOTE: It is an error 
      *             condition to append if the record format is not the same as 
      *             the original file.
+     *
+     *  @returns OS_SUCCESS if file was successfully opened (and if append, format is the same)
+     *           OS_FAILED if existing file was of a different audio format than requested or
+     *                     unable to determine existing file audio format, or error opening
+     *                     file for read and write.
      */
 
      /// Start recording to a buffer with given parameters.
@@ -222,6 +227,7 @@ protected:
 //@}
 
    MpEncoderBase* mpEncoder; ///< encoder for non-PCM formats saved to file
+   int mEncodedFrames;      ///< number of audio (flowgraph) frames encoded
 
    MpResamplerBase* mpResampler; ///< Resampler for encoding to file
 
