@@ -838,9 +838,21 @@ void MprRecorder::closeFile()
                case MprRecorder::WAV_GSM:
                    if(mEncodedFrames % 2)
                    {
+                       OsSysLog::add(FAC_MP, PRI_DEBUG,
+                               "MprRecorder::closeFile adding even numbered GSM frame (%d + 1)",
+                               mEncodedFrames);
                        // Add an extra frame of silence
                        writeFileSilence(mpFlowGraph->getSamplesPerFrame());
                    }
+#ifdef TEST_PRINT
+                   else
+                   {
+                       OsSysLog::add(FAC_MP, PRI_DEBUG,
+                               "MprRecorder::closeFile even number of GSM frames: %d",
+                               mEncodedFrames);
+                   }
+#endif
+
                    break;
 
                default:
@@ -940,7 +952,17 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffer, int numSamples, Writ
                 numSamplesEncoded = numSamples;
             }
 
-            mEncodedFrames++;
+            // Only count when we have a fully encoded frame for the 
+            // specific codec
+            if(dataSize > 0)
+            {
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                        "MprRecord:writeSamples incrementing encoded frames(%d)  Datasize: %d",
+                        mEncodedFrames, dataSize);
+#endif
+                mEncodedFrames++;
+            }
         }
     }
 
