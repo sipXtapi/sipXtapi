@@ -838,11 +838,15 @@ void MprRecorder::closeFile()
                case MprRecorder::WAV_GSM:
                    if(mEncodedFrames % 2)
                    {
-                       OsSysLog::add(FAC_MP, PRI_DEBUG,
-                               "MprRecorder::closeFile adding even numbered GSM frame (%d + 1)",
-                               mEncodedFrames);
-                       // Add an extra frame of silence
-                       writeFileSilence(mpFlowGraph->getSamplesPerFrame());
+                       // Should not take more than 3 media frames to fill 1 more GSM frame in the encoder
+                       for(int extraFrameIndex = 0; (mEncodedFrames % 2) && extraFrameIndex < 3; extraFrameIndex++)
+                       {
+                           OsSysLog::add(FAC_MP, PRI_DEBUG,
+                                   "MprRecorder::closeFile adding even numbered GSM frame (%d + 1) added %d media frames",
+                                   mEncodedFrames, extraFrameIndex + 1);
+                           // Add an extra frame of silence
+                           writeFileSilence(mpFlowGraph->getSamplesPerFrame());
+                       }
                    }
 #ifdef TEST_PRINT
                    else
