@@ -424,13 +424,18 @@ class MprRecorderTest : public MpGenericResourceTest
                 setSamplesPerFrame(sSampleRates[rateIndex]/framesPerSecond);
                 setUp();
 
-                int framesToProcess = 500; // 5 seconds
+                // SHould use multiple of 2 as some codecs (e.g. GSM) have frame sizes of 20 msec.
+                // In which case the encoder will not spit out half a frame.
+                int framesToProcess = 502; // 5+ seconds
                 UtlString recorderResourceName = "MprRecorder";
                 MprRecorder* recorder = new MprRecorder(recorderResourceName);
                 CPPUNIT_ASSERT(recorder);
 
                 // Build flowgraph with source, MprRecorder and sink resources
                 setupFramework(recorder);
+                mpSourceResource->setSignalAmplitude(0, (0x1 << 15));
+                mpSourceResource->setOutSignalType(MpTestResource::MP_SINE_SAW);
+
 
                 // Add the notifier so that we get resource events
                 OsMsgQ resourceEventQueue;
@@ -524,16 +529,23 @@ class MprRecorderTest : public MpGenericResourceTest
 
                     case MprRecorder::WAV_GSM:
                         headerSize = 60;
-                        // Frames for GSM in wave files alternate between 32 and 33 bytes.  Hense 65 for
+                        // Frames (20 ms) for GSM in wave files alternate between 32 and 33 bytes.  Hense 65 for
                         // every 2 GSM frames
-                        // This assumes 10 mSec frames
-                        audioDataSize = framesToProcess / 4 * 65;
-                        CPPUNIT_ASSERT_EQUAL(framesPerSecond, 100);
-                        if(framesToProcess % 2)
+                        // Recorder should always record even number of frames so that
+                        // there is no problem appending.  So we add one gsm frame if we
+                        // had an odd number.
                         {
-                            // Not sure if this should be 32 or 33
-                            audioDataSize += 32;
+                            int incompleteFrames = framesToProcess % 4;
+                            //printf("Extra GSM frames: %d\n", incompleteFrames);
+                            // If there is only one extra media frame, we have 1/2 of an incomplete GSM frame
+                            // which is not written, but there was an even number of GSM frames.
+                            // This assumes 10 ms media frames, 20 ms GSM frames.  Even number of GSM frames
+                            // is a multiple of 4 media frames.
+                            audioDataSize = (framesToProcess +
+                                             (incompleteFrames == 1 ? -1 : 0) +
+                                             (incompleteFrames > 1 ? (4 - incompleteFrames) : 0)) * 65 / 4;
                         }
+                        CPPUNIT_ASSERT_EQUAL(framesPerSecond, 100);
                     break;
 
                     default:
@@ -554,6 +566,8 @@ class MprRecorderTest : public MpGenericResourceTest
                     CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
                                          recordedFileSize);
                 }
+
+                mpSourceResource->setSignalAmplitude(0, (0x1 << 13));
 
                 // Now append more audio to the end of the recording
                 for(int appendFileTypeIndex = 0; appendFileTypeIndex < numberOfTestFileTypes; appendFileTypeIndex++)
