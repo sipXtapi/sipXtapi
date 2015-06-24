@@ -63,6 +63,7 @@ MprRecorder::MprRecorder(const UtlString& rName)
 , mpResampler(NULL)
 , mpCircularBuffer(NULL)
 , mRecordingBufferNotificationWatermark(0)
+, mSamplesPerLastFrame(0)
 {
 }
 
@@ -340,6 +341,9 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       return FALSE;
    }
 
+   // Cache the last frame size
+   mSamplesPerLastFrame = samplesPerFrame;
+
    // Take data from the first input
    in.swap(inBufs[0]);
 
@@ -486,6 +490,7 @@ void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & code
     mRecFormat = recFormat;
     codecSampleRate = 0;
     mEncodedFrames = 0;
+    assert(mpFlowGraph);
     unsigned int flowgraphSampleRate = mpFlowGraph->getSamplesPerSec();
 
     if (mpEncoder)
@@ -745,6 +750,7 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
 
 void MprRecorder::startRecording(int time, int silenceLength)
 {
+   assert(mpFlowGraph);
    int iMsPerFrame =
       (1000 * mpFlowGraph->getSamplesPerFrame()) / mpFlowGraph->getSamplesPerSec();
    if (time > 0)
@@ -845,7 +851,7 @@ void MprRecorder::closeFile()
                                    "MprRecorder::closeFile adding even numbered GSM frame (%d + 1) added %d media frames",
                                    mEncodedFrames, extraFrameIndex + 1);
                            // Add an extra frame of silence
-                           writeFileSilence(mpFlowGraph->getSamplesPerFrame());
+                           writeFileSilence(mSamplesPerLastFrame ? mSamplesPerLastFrame : 80);
                        }
                    }
 #ifdef TEST_PRINT

@@ -237,6 +237,8 @@ protected:
    unsigned long mRecordingBufferNotificationWatermark;
 //@}
 
+   int mSamplesPerLastFrame; ///< Cache frame size of last processed buffer
+
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                     MpBufPtr outBufs[],
                                     int inBufsSize,
