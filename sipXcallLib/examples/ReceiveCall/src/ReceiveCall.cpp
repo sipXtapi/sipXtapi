@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2015 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -107,6 +106,7 @@ void usage(const char* szExecutable)
     printf("   -u username (for authentication)\n") ;
     printf("   -a password  (for authentication)\n") ;
     printf("   -m realm  (for authentication)\n") ;
+    printf("   -ref registration refresh period (default=3600 seconds)");
     printf("   -x proxy (outbound proxy)\n");
     printf("   -S stun server\n") ;
     printf("   -v show sipXtapi version\n");
@@ -135,6 +135,7 @@ bool parseArgs(int argc,
                char** pszUsername,
                char** pszPassword,
                char** pszRealm,
+               int* pRefreshPeriod,
                char** pszStunServer,
                char** pszProxy)
 {
@@ -154,6 +155,7 @@ bool parseArgs(int argc,
     *pszUsername = NULL ;
     *pszPassword = NULL ;
     *pszRealm = NULL ;
+    *pRefreshPeriod = 0;
     *pszStunServer = NULL ;
     *pszProxy = NULL;
 
@@ -287,6 +289,19 @@ bool parseArgs(int argc,
             {
                 bRC = false ;
                 break ; // Error
+            }
+        }
+
+        else if (strcmp(argv[i], "-ref") == 0)
+        {
+            if ((i + 1) < argc)
+            {
+                *pRefreshPeriod = atoi(argv[++i]);
+            }
+            else
+            {
+                bRC = false;
+                break; // Error
             }
         }
 
@@ -586,6 +601,7 @@ int local_main(int argc, char* argv[])
     char* szUsername ;
     char* szPassword ;
     char* szRealm ;
+    int refreshPeriod;
     char* szStunServer ;
     char* szProxy ;
     SIPX_INST hInst ;
@@ -606,8 +622,8 @@ int local_main(int argc, char* argv[])
     // Parse Arguments
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szBindAddr,
                   &g_szPlayTones, &g_szFile, &bLoopback, &gbOneCallMode,
-                  &szIdentity, &szUsername, &szPassword, &szRealm, &szStunServer,
-                  &szProxy) &&
+                  &szIdentity, &szUsername, &szPassword, &szRealm, &refreshPeriod,
+                  &szStunServer, &szProxy) &&
         (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         if (bLoopback)
@@ -675,6 +691,11 @@ int local_main(int argc, char* argv[])
                                             address.cIpAddress);
                                                        
                 gContactId = lookupContactId(address.cIpAddress, "flibble", ghTransport);
+            }
+
+            if (refreshPeriod > 0)
+            {
+                sipxConfigSetRegisterExpiration(hInst, refreshPeriod);
             }
 
             hLine = lineInit(hInst, szIdentity, szUsername, szPassword, szRealm) ;
