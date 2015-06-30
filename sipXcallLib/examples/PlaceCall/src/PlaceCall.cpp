@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -43,6 +43,9 @@ SIPX_TRANSPORT ghTransport = SIPX_TRANSPORT_NULL;
 
 SIPX_CALLSTATE_EVENT    g_eRecordEvents[MAX_RECORD_EVENTS] ;    // List of last N events
 int                     g_iNextEvent ;      // Index for g_eRecordEvents ringer buffer
+SIPX_LINESTATE_EVENT g_LineStateEvent;
+SIPX_LINESTATE_CAUSE g_LineStateCause;
+
 #if defined(_WIN32) && defined(VIDEO)
 SIPX_VIDEO_DISPLAY gDisplay;
 SIPX_VIDEO_DISPLAY gPreviewDisplay;
@@ -105,6 +108,7 @@ void usage(const char* szExecutable)
     printf("   -B <string> ip address to bind to\n");
     printf("   -u <string> username (for authentication)\n") ;
     printf("   -a <string> password  (for authentication)\n") ;
+    printf("   -reg register line/URI before placing the call\n");
     printf("   -m <string> realm  (for authentication)\n") ;
     printf("   -i <string> from identity\n") ;
     printf("   -S <string> stun server\n") ;
@@ -125,6 +129,7 @@ void usage(const char* szExecutable)
 #if defined(_WIN32) && defined(VIDEO)
     printf("   -V place a video call\n");
 #endif
+    printf("   -w <int> wait seconds after the call is disconnected before shutting down or starting the next call.\n");
     printf("\n") ;
 }
 
@@ -157,8 +162,10 @@ bool parseArgs(int argc,
                bool*  bAEC,
                bool*  bAGC,
                bool*  bDenoise,
+               bool*  bRegister,
                bool*  bUseCustomTransportReliable,
-               bool*  bUseCustomTransportUnreliable)
+               bool*  bUseCustomTransportUnreliable,
+               int* waitTime)
 {
     bool bRC = false ;
     char szBuffer[64];
@@ -189,6 +196,8 @@ bool parseArgs(int argc,
     *bAEC = false;
     *bAGC = false;
     *bDenoise = false;
+    *bRegister = false;
+    *waitTime = 0;
 
     for (int i=1; i<argc; i++)
     {
@@ -435,6 +444,10 @@ bool parseArgs(int argc,
         {
             *bDenoise = true;
         }
+        else if (strcmp(argv[i], "-reg") == 0)
+        {
+            *bRegister = true;
+        }
         else if (strcmp(argv[i], "-E") == 0)
         {
             *bUseCustomTransportReliable = true;            
@@ -442,6 +455,17 @@ bool parseArgs(int argc,
         else if (strcmp(argv[i], "-e") == 0)
         {
             *bUseCustomTransportUnreliable = true;            
+        }
+        else if (strcmp(argv[i], "-w") == 0)
+        {
+            if ((i + 1) < argc)
+            {
+                *waitTime = atoi(argv[++i]);
+            }
+            else
+            {
+                break; // Error
+            }
         }
         else
         {
@@ -486,11 +510,59 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
        	  break;
        }
     }
+    else if (category == EVENT_CATEGORY_LINESTATE)
+    {
+        SIPX_LINESTATE_INFO* pLineInfo = static_cast<SIPX_LINESTATE_INFO*>(pInfo);
+        char eventString[128];
+        sipxLineEventToString(pLineInfo->event, pLineInfo->cause, eventString, 128);
+        printf("Line: %d %s\n",
+            pLineInfo->hLine,
+            eventString);
+        g_LineStateEvent = pLineInfo->event;
+        g_LineStateCause = pLineInfo->cause;
+    }
     return true;
 }
 
+void clearRegisterState()
+{
+    g_LineStateEvent = LINESTATE_UNKNOWN;
+    g_LineStateCause = LINESTATE_CAUSE_UNKNOWN;
+}
+
+// Wait for line to become registered or timeout
+bool waitUntilRegistered(int timeoutSeconds)
+{
+    // This is a stupid way to do this.
+    // Its much better to use a state machine that reacts to
+    // Event states as they come in as opposed to polling
+    bool registerSucceeded = false;
+    bool notDone = true;
+    int numWaits = 0;
+   
+    while (notDone && numWaits < timeoutSeconds * 10)
+    {
+        switch (g_LineStateEvent)
+        {
+        case LINESTATE_REGISTERED:
+            registerSucceeded = true;
+            notDone = false;
+            break;
+
+        case LINESTATE_REGISTER_FAILED:
+            notDone = false;
+            break;
+
+        default:
+            OsTask::delay(100);
+            numWaits++;
+            break;
+        }
+    }
+    return(registerSucceeded);
+}
 // Wait for the designated event for at worst ~iTimeoutInSecs seconds
-bool WaitForSipXEvent(SIPX_CALLSTATE_EVENT event, int iTimeoutInSecs)
+bool WaitForSipXCallEvent(SIPX_CALLSTATE_EVENT event, int iTimeoutInSecs)
 {
     bool bFound = false ;
     int  tries = 0;
@@ -546,7 +618,7 @@ bool WaitForSipXEvent(SIPX_CALLSTATE_EVENT event, int iTimeoutInSecs)
 }
 
 // Clear the event log
-void ClearSipXEvents()
+void ClearSipXCallEvents()
 {
     for (int i=0;i<MAX_RECORD_EVENTS; i++)
     {
@@ -598,7 +670,7 @@ void dumpLocalContacts(SIPX_CALL hCall)
 
 
 // Place a call to szSipUrl as szFromIdentity
-bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szPassword, char *szRealm)
+bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szPassword, char *szRealm, bool bRegister)
 {
     bool bRC = false ;
 
@@ -615,6 +687,23 @@ bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szP
     {
         sipxLineAddCredential(g_hLine, szUsername, szPassword, szRealm) ;
     }
+
+    bool registerSucceeded = false;
+    if (bRegister)
+    {
+        clearRegisterState();
+
+        // Register line
+        sipxLineRegister(g_hLine, true);
+
+        // Wait until register succeeds or fails
+        registerSucceeded = waitUntilRegistered(20);
+    }
+    else
+    {
+        registerSucceeded = true;
+    }
+
 #if defined(_WIN32) && defined(VIDEO)
     if (bVideo)
     {
@@ -677,7 +766,7 @@ bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szP
     {
         sipxCallConnect(g_hCall, szSipUrl, gContactId);
     }
-    bRC = WaitForSipXEvent(CALLSTATE_CONNECTED, 30) ;
+    bRC = WaitForSipXCallEvent(CALLSTATE_CONNECTED, 30) ;
 
     return bRC ;
 }
@@ -690,12 +779,12 @@ bool shutdownCall()
     {
         printf("<-> Shutting down Call\n") ;
 
-        ClearSipXEvents() ;
+        ClearSipXCallEvents() ;
         sipxCallDestroy(g_hCall) ;
         g_hCall = 0;
         sipxLineRemove(g_hLine) ;
 
-        WaitForSipXEvent(CALLSTATE_DESTROYED, 5) ;
+        WaitForSipXCallEvent(CALLSTATE_DESTROYED, 5) ;
     }
     return true ;
 }
@@ -844,6 +933,8 @@ int local_main(int argc, char* argv[])
     bool bAEC;
     bool bAGC;
     bool bDenoise;
+    bool bRegister;
+    int waitTime;
 
     if ( signal( SIGINT, ctrlCHandler ) == SIG_ERR )
     {
@@ -863,7 +954,8 @@ int local_main(int argc, char* argv[])
             &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
             &szBindAddr, &iRepeatCount, &szInDevice, &szOutDevice, &inputGain, &outputVolume,
             &szCodec, &bCList,
-            &bAEC, &bAGC, &bDenoise, &bUseCustomTransportReliable, &bUseCustomTransportUnreliable) 
+            &bAEC, &bAGC, &bDenoise, &bRegister, &bUseCustomTransportReliable, &bUseCustomTransportUnreliable,
+            &waitTime)
             && (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         // initialize sipx TAPI-like API
@@ -1007,12 +1099,12 @@ int local_main(int argc, char* argv[])
 
         for (int i=0; i<iRepeatCount; i++)
         {
-            ClearSipXEvents() ;
+            ClearSipXCallEvents() ;
 
             printf("<-> Attempt %d of %d\n", i+1, iRepeatCount) ;
 
             // Place a call to designed URL
-            if (placeCall(szSipUrl, szFromIdentity, szUsername, szPassword, szRealm))
+            if (placeCall(szSipUrl, szFromIdentity, szUsername, szPassword, szRealm, bRegister))
             {
                 bError = false ;
 
@@ -1071,7 +1163,7 @@ int local_main(int argc, char* argv[])
 
 
                 // Leave the call up for specified time period (or wait for hangup)
-                WaitForSipXEvent(CALLSTATE_DISCONNECTED, iDuration) ;
+                WaitForSipXCallEvent(CALLSTATE_DISCONNECTED, iDuration) ;
 
                 // Shutdown / cleanup
                 if (!shutdownCall())
@@ -1090,6 +1182,12 @@ int local_main(int argc, char* argv[])
             if (bError)
             {
                 break ;
+            }
+
+            if (waitTime > 0)
+            {
+                printf("Waiting: %d seconds...\n", waitTime);
+                OsTask::delay(waitTime * 1000);
             }
         }        
         sipxEventListenerRemove(g_hInst, EventCallBack, NULL) ;
