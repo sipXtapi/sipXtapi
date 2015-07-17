@@ -1,8 +1,5 @@
 //
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
-//
-// Copyright (C) 2007-2010 SIPfoundry Inc. All rights reserved.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2007-2015 SIPez LLC. All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,8 +20,10 @@
 #include <mp/MpResourceTopology.h>
 #include <mp/MprFromInputDeviceConstructor.h>
 #include <mp/MprToOutputDeviceConstructor.h>
+#include <mp/MprToneDetectConstructor.h>
 #include <mp/MprToneGenConstructor.h>
 #include <mp/MprFromFileConstructor.h>
+#include <mp/MprNotchFilterConstructor.h>
 #include <mp/MprNullConstructor.h>
 #include <mp/MprHookConstructor.h>
 #include <mp/MprBridgeConstructor.h>
@@ -731,6 +730,13 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     // ToneGen
     resourceFactory->addConstructor(*(new MprToneGenConstructor()));
 
+#ifdef NOTCH_FILTER
+    // ToneDetect
+    resourceFactory->addConstructor(*(new MprToneDetectConstructor()));
+
+    // Notch Filter
+    resourceFactory->addConstructor(*(new MprNotchFilterConstructor()));
+#endif
     // FromFile
     resourceFactory->addConstructor(*(new MprFromFileConstructor()));
 
@@ -825,6 +831,10 @@ static MpResourceTopology::ResourceDef localConnectionResources[] =
    {DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE, DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_VAD_RESOURCE_TYPE, DEFAULT_VAD_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+#ifdef NOTCH_FILTER
+   {DEFAULT_TONE_DETECT_RESOURCE_TYPE, DEFAULT_TONE_DETECT_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_NOTCH_FILTER_RESOURCE_TYPE, DEFAULT_NOTCH_FILTER_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
+#endif
 #ifdef INSERT_DELAY_RESOURCE // [
    {DEFAULT_DELAY_RESOURCE_TYPE, DEFAULT_DELAY_RESOURCE_NAME MIC_NAME_SUFFIX, MP_INVALID_CONNECTION_ID, -1},
 #endif // INSERT_DELAY_RESOURCE ]
@@ -847,8 +857,17 @@ static const int localConnectionResourcesNum =
 /// Connection list for Local Connection Topology.
 static MpResourceTopology::ConnectionDef localConnectionConnections[] =
 {
+#ifdef NOTCH_FILTER
+   //  Mic -> Tone Dectect Notifier
+   {DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_TONE_DETECT_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
+    // Mic -> NotchFilter
+   {DEFAULT_TONE_DETECT_RESOURCE_NAME MIC_NAME_SUFFIX, 0, DEFAULT_NOTCH_FILTER_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
+    // NotchFilter -> VAD
+   {DEFAULT_NOTCH_FILTER_RESOURCE_NAME MIC_NAME_SUFFIX, 0, DEFAULT_VAD_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
+#else
     // Mic -> VAD
    {DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_VAD_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
+#endif
     //     -> Voice Activity Notifier
    {NULL, 0, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX, 0},
     //     -> AEC

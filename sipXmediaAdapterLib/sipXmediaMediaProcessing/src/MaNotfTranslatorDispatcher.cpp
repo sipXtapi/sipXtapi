@@ -1,9 +1,6 @@
 //  
 // Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
 //
-// Copyright (C) 2007-2009 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -106,6 +103,8 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
       case MpResNotificationMsg::MPRNM_DELAY_QUIESCENCE:
       case MpResNotificationMsg::MPRNM_VOICE_STARTED:
       case MpResNotificationMsg::MPRNM_VOICE_STOPPED:
+      case MpResNotificationMsg::MPRNM_TONE_DETECT_ON:
+      case MpResNotificationMsg::MPRNM_TONE_DETECT_OFF:
       case MpResNotificationMsg::MPRNM_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED:
          {
             MiNotification miNotf(lookupNotfType(notfType), 
@@ -337,6 +336,12 @@ MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgTy
    case MpResNotificationMsg::MPRNM_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED:
       miNotfType = MiNotification::MI_NOTF_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED;
       break;
+   case MpResNotificationMsg::MPRNM_TONE_DETECT_ON:
+       miNotfType = MiNotification::MI_NOTF_TONE_DETECT_ON;
+       break;
+   case MpResNotificationMsg::MPRNM_TONE_DETECT_OFF:
+       miNotfType = MiNotification::MI_NOTF_TONE_DETECT_OFF;
+       break;
    default:
       miNotfType = MiNotification::MI_NOTF_MESSAGE_INVALID;
    }
