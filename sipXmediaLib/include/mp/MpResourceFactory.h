@@ -1,9 +1,6 @@
 //  
-// Copyright (C) 2006-2009 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2006-2015 SIPfoundry Inc.  All rights reserved.
 //
-// Copyright (C) 2006-2009 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,7 +38,8 @@
 #define DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE "MprVoiceActivityNotifier"
 #define DEFAULT_DELAY_RESOURCE_TYPE "MprDelay"
 #define DEFAULT_SPEAKER_SELECTOR_RESOURCE_TYPE "SpeakerSelector"
-
+#define DEFAULT_TONE_DETECT_RESOURCE_TYPE "MprToneDetect"
+#define DEFAULT_NOTCH_FILTER_RESOURCE_TYPE "MprNotchFilter"
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

@@ -1,8 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
-//
-// Copyright (C) 2006-2009 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,6 +24,7 @@
 #define DEFAULT_VIDEO_MIXER_RESOURCE_NAME "VideoMixer1"
 #define DEFAULT_SPEAKER_SELECTOR_RESOURCE_NAME "SpeakerSelector1"
 #define DEFAULT_TONE_GEN_RESOURCE_NAME "ToneGen1"
+#define DEFAULT_TONE_DETECT_RESOURCE_NAME "ToneDetect"
 #define DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME "ToSpeaker1"
 #define DEFAULT_SPEEX_PREPROCESS_RESOURCE_NAME "SpeexPreprocess"
 #define DEFAULT_NULL_RESOURCE_NAME "Null1"
@@ -41,6 +39,7 @@
 #define DEFAULT_VAD_RESOURCE_NAME "Vad"
 #define DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME "VoiceActivityNotifier"
 #define DEFAULT_DELAY_RESOURCE_NAME "Delay"
+#define DEFAULT_NOTCH_FILTER_RESOURCE_NAME "NotchFilter"
 
 #define CONNECTION_NAME_SUFFIX "-%d"
 #define STREAM_NAME_SUFFIX "-%d"

@@ -42,6 +42,7 @@ libsipXmedia_la_LIBADD = \
 	@SPEEXDSP_LIBS@ \
 	@STATIC_CODEC_LIBS@ \
 	-Lmp/codecs/ \
+	-lasound \
 	-lstdc++
 
 if COREAUDIO_DRIVERS
@@ -53,7 +54,11 @@ AUDIODRIVERS_SOURCE = \
         mp/MpidOss.cpp \
         mp/MpodOss.cpp \
         mp/MpOss.cpp \
-        mp/MpOssContainer.cpp 
+        mp/MpOssContainer.cpp \
+        mp/MpidAlsa.cpp \
+        mp/MpodAlsa.cpp \
+        mp/MpAlsa.cpp \
+        mp/MpAlsaContainer.cpp 
 endif
 
 libsipXmedia_la_SOURCES =  \
@@ -140,6 +145,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprnProgressMsg.cpp \
     mp/MprnRtpStreamActivityMsg.cpp \
     mp/MprnStringMsg.cpp \
+    mp/MprNotchFilter.cpp \
     mp/MprNull.cpp \
     mp/MprNullAec.cpp \
     mp/MprRecorder.cpp \
@@ -153,6 +159,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprSpeexPreProcess.cpp \
     mp/MprSplitter.cpp \
     mp/MprToneGen.cpp \
+    mp/MprToneDetect.cpp \
     mp/MprToNet.cpp \
     mp/MprToOutputDevice.cpp \
     mp/MprToSpkr.cpp \

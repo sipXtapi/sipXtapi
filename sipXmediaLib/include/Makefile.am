@@ -50,6 +50,7 @@ nobase_include_HEADERS =  \
     mp/MpFlowGraphBase.h \
     mp/MpFlowGraphMsg.h \
     mp/MpidOss.h \
+    mp/MpidAlsa.h \
     mp/MpInputDeviceDriver.h \
     mp/MpInputDeviceManager.h \
     mp/MpIntResourceMsg.h \
@@ -67,6 +68,9 @@ nobase_include_HEADERS =  \
     mp/MpodOss.h \
     mp/MpOss.h \
     mp/MpOssContainer.h \
+    mp/MpodAlsa.h \
+    mp/MpAlsa.h \
+    mp/MpAlsaContainer.h \
     mp/MpOutputDeviceDriver.h \
     mp/MpOutputDeviceManager.h \
     mp/MpPackedResourceMsg.h \
@@ -111,6 +115,8 @@ nobase_include_HEADERS =  \
     mp/MprnProgressMsg.h \
     mp/MprnRtpStreamActivityMsg.h \
     mp/MprnStringMsg.h \
+    mp/MprNotchFilter.h \
+    mp/MprNotchFilterConstructor.h \
     mp/MprNull.h \
     mp/MprNullConstructor.h \
     mp/MprRecorder.h \
@@ -128,6 +134,8 @@ nobase_include_HEADERS =  \
     mp/MprSplitterConstructor.h \
     mp/MprToneGen.h \
     mp/MprToneGenConstructor.h \
+    mp/MprToneDetect.h \
+    mp/MprToneDetectConstructor.h \
     mp/MprToNet.h \
     mp/MprToOutputDeviceConstructor.h \
     mp/MprToOutputDeviceWithAecConstructor.h \
