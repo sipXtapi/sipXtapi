@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -63,6 +62,8 @@ MpTestResource::MpTestResource(const UtlString& rName,
 , mpSignalPeriod(NULL)
 , mpSignalAmplitude(NULL)
 , mpSpeechType(NULL)
+, mpBuffer(NULL)
+, mBufferSize(0)
 {
    mLastDoProcessArgs.inBufs = new MpBufPtr[mMaxInputs];
    mLastDoProcessArgs.outBufs = new MpBufPtr[mMaxOutputs];
@@ -86,6 +87,13 @@ MpTestResource::~MpTestResource()
 
    if (mLastDoProcessArgs.outBufs != NULL)
       delete[] mLastDoProcessArgs.outBufs;
+
+   if(mpBuffer)
+   {
+       delete[] mpBuffer;
+       mpBuffer = NULL;
+   }
+
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -141,6 +149,18 @@ void MpTestResource::setSpeechType(int outputIndex, MpSpeechType speech)
 {
    assert(outputIndex < maxOutputs());
    mpSpeechType[outputIndex] = speech;
+}
+
+void MpTestResource::setBuffer(const MpAudioSample samples[], int sampleCount)
+{
+    if(mpBuffer)
+    {
+        delete[] mpBuffer;
+    }
+    mpBuffer = new MpAudioSample[sampleCount];
+
+    memcpy(mpBuffer, samples, sampleCount * sizeof(MpAudioSample));
+    mBufferSize = sampleCount;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -268,6 +288,21 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
                                          * cos(10*2*M_PI*sampleIndex/samplesPerFrame)
                                          / samplesPerFrame;
                }
+            }
+
+            else if(mSignalType == MP_BUFFER)
+            {
+                assert(mpBuffer);
+                assert(mBufferSize > 0);
+                int sampleIndex = (mProcessedCnt * samplesPerFrame) % mBufferSize;
+                // For now just truncate partial frame at end of buffer
+                if(mBufferSize - sampleIndex < samplesPerFrame)
+                {
+                    sampleIndex = 0;
+                }
+                memcpy( pBuf->getSamplesWritePtr(),
+                        &mpBuffer[sampleIndex],
+                        samplesPerFrame * sizeof(MpAudioSample));
             }
 
             pBuf->setSpeechType(mpSpeechType[i]);

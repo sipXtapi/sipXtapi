@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2015 SIPez LLC. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -66,7 +65,8 @@ public:
    {
       MP_TEST_SIGNAL_NULL,    ///< Silence
       MP_TEST_SIGNAL_SQUARE,  ///< Square impulses
-      MP_SINE_SAW             ///< Sine wave, fading to the end of frame
+      MP_SINE_SAW,            ///< Sine wave, fading to the end of frame
+      MP_BUFFER               ///< Buffer of precalculated samples
    };
 
 /* ============================ CREATORS ================================== */
@@ -119,6 +119,13 @@ public:
      /// Set speech type of signal, generated on outputs.
    void setSpeechType(int outputIndex, MpSpeechType speech);
 
+   /// Set buffer samples
+   void setBuffer(const MpAudioSample samples[], int numSamples);
+   /**
+    * Samples are copied
+    */
+
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -163,6 +170,8 @@ protected:
    int*           mpSignalPeriod;     ///< Period of signal if supported (in samples)
    int*           mpSignalAmplitude;  ///< Magnitude of signal if supported
    MpSpeechType*  mpSpeechType;       ///< Speech type of signal
+   MpAudioSample* mpBuffer;           ///< Allocated buffer of samples for output
+   int            mBufferSize;        ///< Number of samples in mpBuffer
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
