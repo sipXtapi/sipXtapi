@@ -42,6 +42,7 @@ testsuite_SOURCES = \
     mp/MprSpeakerSelectorTest.cpp \
     mp/MprSplitterTest.cpp \
     mp/MprToSpkrTest.cpp \
+    mp/MprToneDetectTest.cpp \
     mp/MprToneGenTest.cpp \
     mp/MpBufTest.cpp \
     mp/MpOutputDriverTest.cpp \
