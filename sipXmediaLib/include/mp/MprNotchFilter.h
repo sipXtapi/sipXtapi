@@ -86,6 +86,8 @@ private:
    float mA2;
    float mB1;
    float mB2;
+   float mZ1;
+   float mZ2;
 
    MpFlowGraphBase* mpFlowGraph;
    void initFilter();

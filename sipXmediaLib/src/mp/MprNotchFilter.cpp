@@ -54,6 +54,8 @@ MprNotchFilter::MprNotchFilter(const UtlString& rName)
 , mTargetFreq(DEFAULT_TARGET_FREQ)
 , mSampleRate(DEFAULT_SAMPLING_RATE)
 , mBW(DEFAULT_BW)
+, mZ2(0.0)
+, mZ1(0.0)
 {
    initFilter();
 }
@@ -101,6 +103,13 @@ UtlBoolean MprNotchFilter::doProcessFrame(MpBufPtr inBufs[],
       return TRUE;
    }
 
+   // Handle non-default sample rates
+   if(mSampleRate != samplesPerSecond)
+   {
+       mSampleRate = samplesPerSecond;
+       initFilter();
+   }
+
    return filterSamples(inBufs, inBufsSize, outBufs, outBufsSize, samplesPerFrame);
 }
 
@@ -119,12 +128,14 @@ void MprNotchFilter::initFilter()
    OsSysLog::add(FAC_MP, PRI_INFO, "MprNotchFilter::initFilter %f %f %f %f %f",
                  cosine, R,K,mA1,mB1);
 #else
+    mZ2 = 0.0;
+    mZ1 = 0.0;
     float omega0T = mTargetFreq/(mSampleRate/2.0)*M_PI;
     float deltaT = mBW/(mSampleRate/2.0)*M_PI;
     mA2=(1.0-tan(deltaT/2.0))/(1.0+tan(deltaT/2.0));
     mA1=(1.0+mA2)*cos(omega0T);
-   OsSysLog::add(FAC_MP, PRI_INFO, "MprNotchFilter::initFilter %f %f %f %f ",
-                 omega0T, deltaT,mA1,mA2);
+    OsSysLog::add(FAC_MP, PRI_INFO, "MprNotchFilter::initFilter %f %f %f %f ",
+                  omega0T, deltaT,mA1,mA2);
 #endif
 }
 
@@ -147,19 +158,17 @@ void MprNotchFilter::doFiltering(const MpAudioSample *x, MpAudioSample *y, int n
         y_1 = y[i];
     }
 #else
-    static float z2 = 0.0;
-    static float z1 = 0.0;
     float g = 0.0;
     float h = 0.0;
     float z0 = 0.0;
     for (int i = 0; i < n; i++)
     {
-        g = x[i]+z2;
-        h = mA1*z1 - mA2*g;
+        g = x[i]+mZ2;
+        h = mA1*mZ1 - mA2*g;
         z0 = x[i]+h;
         y[i] = (MpAudioSample)((g-h)/2.0);
-        z2 = z1;
-        z1 = z0;
+        mZ2 = mZ1;
+        mZ1 = z0;
     }
 #endif
 #ifdef ENABLE_FILE_LOGGING
