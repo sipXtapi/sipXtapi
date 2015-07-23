@@ -10,8 +10,9 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "mp/MpFlowGraphMsg.h"
-#include "mp/MpAudioResource.h"
+#include <mp/MpFlowGraphMsg.h>
+#include <mp/MpResourceMsg.h>
+#include <mp/MpAudioResource.h>
 
 // DEFINES
 // MACROS
