@@ -1,10 +1,6 @@
 // 
 //
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2010 SIPez LLC All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2010-2015 SIPez LLC.  All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -60,7 +56,7 @@
                     const char* className = currentTestClass->getClassName(); \
                     const char* methodName = currentTestClass->getCurrentMethodName(); /* spMethodNames[getCurrentMethodIndex()]; */ \
                     int testPoint = currentTestClass->getTestPointIndex(); \
-                    SipxPortUnitTestEnvironment::makeAssertNotEqualMessage(_sipxportunit_message, ((char*)NOT_EQ_MSG), #EQ_ARG1, #EQ_ARG2, \
+                    SipxPortUnitTestEnvironment::makeAssertNotEqualMessage(_sipxportunit_message, ((const char*)NOT_EQ_MSG), #EQ_ARG1, #EQ_ARG2, \
                         __FILE__, className, methodName, testPoint, __LINE__, EQ_ARG1, EQ_ARG2); \
                     SipxPortUnitTestEnvironment::printOut(_sipxportunit_message); \
                     currentTestClass->addFailedTestPoint(__FILE__, \
