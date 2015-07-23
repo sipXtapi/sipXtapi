@@ -38,6 +38,7 @@ testsuite_SOURCES = \
     mp/MprFromFileTest.cpp \
     mp/MprFromMicTest.cpp \
     mp/MprMixerTest.cpp \
+    mp/MprNotchFilterTest.cpp \
     mp/MprRecorderTest.cpp \
     mp/MprSpeakerSelectorTest.cpp \
     mp/MprSplitterTest.cpp \
