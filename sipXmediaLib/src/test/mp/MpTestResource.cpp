@@ -67,13 +67,13 @@ MpTestResource::MpTestResource(const UtlString& rName,
 {
    mLastDoProcessArgs.inBufs = new MpBufPtr[mMaxInputs];
    mLastDoProcessArgs.outBufs = new MpBufPtr[mMaxOutputs];
-   mpSignalPeriod = new int[maxOutputs];
+   mpSignalPeriod = new float[maxOutputs];
    mpSignalAmplitude = new int[maxOutputs];
    mpSpeechType = new MpSpeechType[maxOutputs];
    int outIndex;
    for(outIndex = 0; outIndex < maxOutputs; outIndex++)
    {
-      mpSignalPeriod[outIndex] = 0;
+      mpSignalPeriod[outIndex] = 0.0;
       mpSignalAmplitude[outIndex] = 0;
       mpSpeechType[outIndex] = MP_SPEECH_UNKNOWN;
    }
@@ -133,7 +133,7 @@ void MpTestResource::setOutSignalType(MpTestOutSignal signalType)
    mSignalType = signalType;
 }
 
-void MpTestResource::setSignalPeriod(int outputIndex, int periodInSamples)
+void MpTestResource::setSignalPeriod(int outputIndex, float periodInSamples)
 {
    assert(outputIndex < maxOutputs());
    mpSignalPeriod[outputIndex] = periodInSamples;
@@ -181,11 +181,30 @@ int MpTestResource::numMsgsProcessed(void)
 MpAudioSample MpTestResource::getSquareSampleValue(int outputIndex,
                                                    int sampleIndex)
 {
-   return squareSampleValue(mpSignalPeriod[outputIndex],
+   return squareSampleValue((int)mpSignalPeriod[outputIndex],
                             mpSignalAmplitude[outputIndex],
                             sampleIndex);
 }
 
+int MpTestResource::getLastInputFrameMagnitude(int inputIndex)
+{
+    double sumSquares = 0.0;
+    if(mLastDoProcessArgs.inBufs[inputIndex].isValid())
+    {
+        MpAudioBufPtr pBuf = mLastDoProcessArgs.inBufs[inputIndex];
+        int numSamples = pBuf->getSamplesNumber();
+        const MpAudioSample* samples = pBuf->getSamplesPtr();
+
+        for(int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++)
+        {
+            sumSquares += samples[sampleIndex] * samples[sampleIndex];
+        }
+
+        sumSquares /= (double) numSamples;
+    }
+
+    return(sqrt(sumSquares));
+}
 
 /* ============================ INQUIRY =================================== */
 
@@ -283,11 +302,28 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
                assert(samples);
                for(sampleIndex = 0; sampleIndex < (unsigned)samplesNum; sampleIndex++)
                {
-                  samples[sampleIndex] =   mpSignalAmplitude[i]
+                  samples[sampleIndex] = (MpAudioSample) 
+                                         ( mpSignalAmplitude[i]
                                          * (samplesPerFrame-sampleIndex)
                                          * cos(10*2*M_PI*sampleIndex/samplesPerFrame)
-                                         / samplesPerFrame;
+                                         / samplesPerFrame);
                }
+            }
+
+            else if (mSignalType == MP_SINE)
+            {
+                unsigned sampleIndex;
+                MpAudioSample* samples = pBuf->getSamplesWritePtr();
+                int samplesNum = pBuf->getSamplesNumber();
+                assert(samples);
+                for(sampleIndex = 0; sampleIndex < (unsigned)samplesNum; sampleIndex++)
+                {
+                    samples[sampleIndex] = (MpAudioSample)
+                                           (((float) mpSignalAmplitude[i]) *
+                                            sin((2.0 * M_PI * (float)(sampleIndex + mProcessedCnt * samplesPerFrame)) /
+                                            mpSignalPeriod[i]));
+
+                }
             }
 
             else if(mSignalType == MP_BUFFER)

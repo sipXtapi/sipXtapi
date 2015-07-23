@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2015 SIPez LLC. 
+// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -66,6 +66,7 @@ public:
       MP_TEST_SIGNAL_NULL,    ///< Silence
       MP_TEST_SIGNAL_SQUARE,  ///< Square impulses
       MP_SINE_SAW,            ///< Sine wave, fading to the end of frame
+      MP_SINE,                ///< Sine wave
       MP_BUFFER               ///< Buffer of precalculated samples
    };
 
@@ -111,7 +112,7 @@ public:
    void setOutSignalType(MpTestOutSignal signalType);
 
      /// Set period of signal (for signal types, supporting period).
-   void setSignalPeriod(int outputIndex, int periodInSamples);
+   void setSignalPeriod(int outputIndex, float periodInSamples);
 
      /// Set amplitude of signal (for signal types, supporting amplitude).
    void setSignalAmplitude(int outputIndex, int maxMinValue);
@@ -138,6 +139,9 @@ public:
      /// @brief Returns the count of the number of messages successfully
      /// processed by this resource.
    int numMsgsProcessed(void);
+
+   /// Returns root mean square of last input frame for given input port
+   int getLastInputFrameMagnitude(int inputIndex);
 
    MpAudioSample getSquareSampleValue(int outputIndex,
                                       int sampleIndex);
@@ -167,7 +171,7 @@ protected:
    int            mProcessedCnt;      ///< Number of processed frames
    int            mMsgCnt;            ///< Number received messages
    MpTestOutSignal mSignalType;       ///< Output signal type
-   int*           mpSignalPeriod;     ///< Period of signal if supported (in samples)
+   float*           mpSignalPeriod;   ///< Period of signal if supported (in samples)
    int*           mpSignalAmplitude;  ///< Magnitude of signal if supported
    MpSpeechType*  mpSpeechType;       ///< Speech type of signal
    MpAudioSample* mpBuffer;           ///< Allocated buffer of samples for output
