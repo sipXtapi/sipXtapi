@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2010-2014 SIPez LLC  All rights reserved.
+// Copyright (C) 2010-2015 SIPez LLC  All rights reserved.
 // 
 // $$
 // Author: Daniel Petrie
@@ -214,7 +214,14 @@ void SipxPortUnitTestEnvironment::runTests(const char* testClassFilterName)
             {
                 testMethodName = &(testClassFilterName[classNameLength + 2]);
             }
-        }                        
+        }
+        else
+        {
+            int classNameLength = strlen(testClassFilterName);
+            testClassName = new char[classNameLength + 1];
+            memcpy(testClassName, testClassFilterName, classNameLength);
+            testClassName[classNameLength] = '\0';
+        }
        
         printf("Only running test class: %s method%s%s\n",
                testClassName,
