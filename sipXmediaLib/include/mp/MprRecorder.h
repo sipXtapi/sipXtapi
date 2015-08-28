@@ -95,7 +95,11 @@ public:
      *  @param[in] append - TRUE/FALSE if recording file exist, file should be 
      *             appended as opposed to replaced.  NOTE: It is an error 
      *             condition to append if the record format is not the same as 
-     *             the original file.
+     *             the original file.  Note: when stopping and starting in rapid
+     *             succession, application SHOULD wait for stop notification before
+     *             starting and appending recording to the same file or there is risk
+     *             of the multiple file descriptors being open on the same file with
+     *             unpredictable results.
      *
      *  @returns OS_SUCCESS if file was successfully opened (and if append, format is the same)
      *           OS_FAILED if existing file was of a different audio format than requested or
@@ -209,6 +213,7 @@ protected:
    State mState;            ///< Internal recorder state.
    RecordDestination mRecordDestination; ///< Where to store recorded samples.
    int mFramesToRecord;
+   int mNumFramesProcessed;
    int mSamplesRecorded;
    int mConsecutiveInactive;
    int mSilenceLength;
@@ -228,6 +233,7 @@ protected:
 
    MpEncoderBase* mpEncoder; ///< encoder for non-PCM formats saved to file
    int mEncodedFrames;      ///< number of audio (flowgraph) frames encoded
+   int mLastEncodedFrameSize;///< Size in bytes of last encoded frame recorded
 
    MpResamplerBase* mpResampler; ///< Resampler for encoding to file
 
@@ -238,6 +244,7 @@ protected:
 //@}
 
    int mSamplesPerLastFrame; ///< Cache frame size of last processed buffer
+   int mSamplesPerSecond;    ///< Cache sample rate of last processed buffer
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                     MpBufPtr outBufs[],

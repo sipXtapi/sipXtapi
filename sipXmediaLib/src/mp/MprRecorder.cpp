@@ -51,6 +51,7 @@ MprRecorder::MprRecorder(const UtlString& rName)
 , mState(STATE_IDLE)
 , mRecordDestination(TO_UNDEFINED)
 , mFramesToRecord(0)
+, mNumFramesProcessed(0)
 , mSamplesRecorded(0)
 , mConsecutiveInactive(0)
 , mSilenceLength(0)
@@ -60,10 +61,12 @@ MprRecorder::MprRecorder(const UtlString& rName)
 , mBufferSize(0)
 , mpEncoder(NULL)
 , mEncodedFrames(0)
+, mLastEncodedFrameSize(0)
 , mpResampler(NULL)
 , mpCircularBuffer(NULL)
 , mRecordingBufferNotificationWatermark(0)
 , mSamplesPerLastFrame(0)
+, mSamplesPerSecond(0)
 {
 }
 
@@ -122,6 +125,9 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                            O_TRUNC),
                           0640);
 
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MprRecord::startFile opened file %s descriptor: %d",
+                filename, fileHandle);
         if (fileHandle > -1)
         {
             if(append)
@@ -316,8 +322,20 @@ OsStatus MprRecorder::resume(const UtlString& namedResource, OsMsgQ& flowgraphQu
 
 OsStatus MprRecorder::stop(const UtlString& namedResource, OsMsgQ& fgQ)
 {
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+           "MprRecord::stop(%s, %p)",
+           namedResource.data(), &fgQ);
    MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_STOP, namedResource);
-   return fgQ.send(msg, sOperationQueueTimeout);
+   OsStatus status = fgQ.send(msg, sOperationQueueTimeout);
+
+   // To prevent a race/collision with this stop file and a subsequent startFile,
+   // adding a media frame delay to be sure file gets closes.  This is a bit of a 
+   // hack.  Could use a flowgraph synchronize, to reduce the delay.  The problem 
+   // is most prominent when we close a record file and then immediately reopen it
+   // for append.  We could end up with 2 file descriptors for the same file and
+   // unpredictable stuff happens with the file seeks and writes.
+   OsTask::delay(10);
+   return(status);
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -343,6 +361,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 
    // Cache the last frame size
    mSamplesPerLastFrame = samplesPerFrame;
+   mSamplesPerSecond = samplesPerSecond;
 
    // Take data from the first input
    in.swap(inBufs[0]);
@@ -433,6 +452,8 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       outBufs[0].swap(in);
    }
 
+   mNumFramesProcessed++;
+
    return TRUE;
 }
 
@@ -487,17 +508,33 @@ void MprRecorder::createEncoder(const char * mimeSubtype, unsigned int codecSamp
 
 void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & codecSampleRate)
 {
-    mRecFormat = recFormat;
     codecSampleRate = 0;
-    mEncodedFrames = 0;
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MprRecorder::prepareEncoder format: %d media frame size: %d sample rate: %d processed frames: %d encoded frames: %d last encoded size: %d",
+            mRecFormat, mSamplesPerLastFrame, mSamplesPerSecond, mNumFramesProcessed, mEncodedFrames, mLastEncodedFrameSize);
     assert(mpFlowGraph);
     unsigned int flowgraphSampleRate = mpFlowGraph->getSamplesPerSec();
 
     if (mpEncoder)
     {
+        // Should always be even number of GSM frames (alternating between 32 and 33 bytes).
+        // If last frame written is not 33, something went wrong.
+        if(mRecFormat == WAV_GSM && 
+           (mEncodedFrames % 2 || (mLastEncodedFrameSize != 0 && mLastEncodedFrameSize != 33)))
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                    "MprRecord::prepareEncoder deleting GSM codec, last of %d frames written was: %d bytes, should be 33",
+                    mEncodedFrames, mLastEncodedFrameSize);
+        }
+
         delete mpEncoder;
         mpEncoder = NULL;
     }
+
+    mNumFramesProcessed = 0;
+    mRecFormat = recFormat;
+    mEncodedFrames = 0;
+    mLastEncodedFrameSize = 0;
     if (mpResampler)
     {
         delete mpResampler;
@@ -558,6 +595,14 @@ UtlBoolean MprRecorder::handleStartFile(int file,
                                         int silenceLength, 
                                         UtlBoolean append)
 {
+    // If the file descriptor is already set, its busy already recording.
+    if(mFileDescriptor > -1)
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                "MprRecord::handleFileStart file already set: %d new: %d",
+                mFileDescriptor, file);
+    }
+
    mFileDescriptor = file;
    mRecordDestination = TO_FILE;
 
@@ -839,6 +884,9 @@ void MprRecorder::closeFile()
            // properly.
            switch(mRecFormat)
            {
+               OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MprRecorder::closeFile format: %d media frame size: %d sample rate: %d processed frames: %d",
+                       mRecFormat, mSamplesPerLastFrame, mSamplesPerSecond, mNumFramesProcessed);
                // GSM requires every other frame to be a different size.
                // So we ensure even number of frames to be sure the append works ok.
                case MprRecorder::WAV_GSM:
@@ -848,10 +896,13 @@ void MprRecorder::closeFile()
                        for(int extraFrameIndex = 0; (mEncodedFrames % 2) && extraFrameIndex < 3; extraFrameIndex++)
                        {
                            OsSysLog::add(FAC_MP, PRI_DEBUG,
-                                   "MprRecorder::closeFile adding even numbered GSM frame (%d + 1) added %d media frames",
-                                   mEncodedFrames, extraFrameIndex + 1);
+                                   "MprRecorder::closeFile adding even numbered GSM frame (%d + 1) added %d media frames, last frame size: %d",
+                                   mEncodedFrames, extraFrameIndex + 1, mLastEncodedFrameSize);
                            // Add an extra frame of silence
                            writeFileSilence(mSamplesPerLastFrame ? mSamplesPerLastFrame : 80);
+                           OsSysLog::add(FAC_MP, PRI_DEBUG,
+                                   "MprRecorder::closeFile added %d samples, total GSM frames: %d, last frame size: %d",
+                                   (mSamplesPerLastFrame ? mSamplesPerLastFrame : 80), mEncodedFrames, mLastEncodedFrameSize);
                        }
                    }
 #ifdef TEST_PRINT
@@ -870,6 +921,12 @@ void MprRecorder::closeFile()
            }
 
            updateWaveHeaderLengths(mFileDescriptor, mRecFormat);
+           if(mRecFormat == WAV_GSM && mLastEncodedFrameSize != 33)
+           {
+                   OsSysLog::add(FAC_MP, PRI_ERR,
+                           "MprRecord::updateWaveHeaderLength last GSM frame written was: %d bytes, should be 33",
+                           mLastEncodedFrameSize);
+           }
         }
         close(mFileDescriptor);
         mFileDescriptor = -1;
@@ -990,6 +1047,25 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffer, int numSamples, Writ
     // Depending upon the encoder framing, there may not always be stuff to write
     if(dataSize)
     {
+        if(mRecFormat == WAV_GSM)
+        {
+            if(mLastEncodedFrameSize == 32 && dataSize == 32)
+            {
+                OsSysLog::add(FAC_MP, PRI_ERR,
+                              "MprRecorder::writeSamples GSM dataSize: %d last frame was: %d bytes",
+                              dataSize, mLastEncodedFrameSize);
+
+            }
+            else if((mLastEncodedFrameSize == 0 || mLastEncodedFrameSize == 33) && dataSize == 33)
+            {
+                OsSysLog::add(FAC_MP, PRI_ERR,
+                              "MprRecorder::writeSamples GSM dataSize: %d last frame was: %d bytes",
+                              dataSize, mLastEncodedFrameSize);
+
+            }
+        }
+        mLastEncodedFrameSize = dataSize;
+
         int bytesWritten = 
             (this->*writeMethod)((char *)encodedSamplesPtr, dataSize);
 
@@ -1247,6 +1323,13 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle, RecordFileFormat for
                            (int) waveDataLengthOffset, errno, (int) length);
                }
            }
+           if((length - 60) % 65)
+           {
+                   OsSysLog::add(FAC_MP, PRI_ERR,
+                           "MprRecord::updateWaveHeaderLength should be even number GSM frames written was: %d frames + %d bytes",
+                           (length - 60) / 65 * 2, (length - 60) % 65);
+           }
+
            totalWaveHeaderLength = 60;
            break;
 
