@@ -29,6 +29,9 @@ DWORD WINAPI ConsoleStart(LPVOID lpParameter);
 #include "tapi/sipXtapiEvents.h"
 #include "ExternalTransport.h"
 
+// sipXtapi apps should not be digging into the lower layers
+//#include <mi/CpMediaInterfaceFactoryImpl.h>
+
 #define SAMPLES_PER_FRAME   80          // Number of samples per frame time
 #define LOOPBACK_LENGTH     200         // Frames for loopback delay (10ms per frame)
 
@@ -363,7 +366,8 @@ bool parseArgs(int argc,
 bool playFile(char* szFile, SIPX_CALL hCall)
 {
     bool bRC = false ;
-    sipxCallAudioPlayFileStart(hCall, g_szFile, false, true, true) ;
+    bool repeat = true;
+    sipxCallAudioPlayFileStart(hCall, g_szFile, repeat, true, true) ;
 
     return true ;
 }
@@ -631,17 +635,42 @@ int local_main(int argc, char* argv[])
             initLoopback() ;
         }
 
+        // For testing reasons it is convenient to put the codec plugins in the current directory.
+        // This is not generally a safe thing to do in production.
+        //UtlString cwd(".");
+        //CpMediaInterfaceFactoryImpl::addCodecPaths(1, &cwd);
+
         // Initialize sipX TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("ReceiveCall.log");
-        if (sipxInitialize(&hInst, iSipPort, iSipPort, 5061, iRtpPort, 16, szIdentity, szBindAddr) == SIPX_RESULT_SUCCESS)
+        int mediaEngineSampleRate = 8000;
+        if (sipxInitialize(&hInst, 
+                           iSipPort, 
+                           iSipPort, 
+                           5061, 
+                           iRtpPort, 
+                           16, 
+                           szIdentity, 
+                           szBindAddr,
+                           false, // use sequential RTP/RTCP ports
+                           NULL, // cert. nickname
+                           NULL, // cert. password
+                           NULL, // DB location
+                           true, // Enable local audio
+                           mediaEngineSampleRate,
+                           48000 // Audio device sample rate
+           ) == SIPX_RESULT_SUCCESS)
         {            
             g_hInst = hInst;
             if (szProxy)
             {
                 sipxConfigSetOutboundProxy(hInst, szProxy);
             }
-            sipxConfigEnableRport(hInst, true) ;
+
+            sipxConfigEnableRport(hInst, true);
+            // Don't use Rport mapping discovered for future contact headers
+            sipxConfigEnableRportMapping(g_hInst, false);
+
             if (szStunServer)
             {
                 sipxConfigEnableStun(hInst, szStunServer, DEFAULT_STUN_PORT, 28) ;
