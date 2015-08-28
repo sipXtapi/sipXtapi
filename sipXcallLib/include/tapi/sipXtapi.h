@@ -1640,6 +1640,11 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall) ;
  * @param appendToFile - true/false if file exists, append to it as opposed
  *        to replacing it.  Note: existing file must be of the same audio
  *        format requested or start record will fail.
+ *
+ * Note: If recording with append in rapid stop, start situations, be sure to
+ * wait for the MEDIA_RECORDFILE_STOP media event before starting to append
+ * to the same record file or you risk having multiple file handles open on
+ * the same file with unpredictable results.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
                                                       const char* szFile,
