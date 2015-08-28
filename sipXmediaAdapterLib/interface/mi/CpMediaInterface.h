@@ -494,6 +494,9 @@ public:
     * @param[in] cpFileFormat - audio encoding format to use in the file
     * @param[in] appendToFile - if file exist TRUE/FALSE should append to existing audio
     *            file.  Note: If file is existing, it must be of the same audio format.
+    *            Also be aware that when stopping and starting in rapid succession, you
+    *            should wait for the stop notification before starting to record again
+    *            with the same file or results are unpredictable.
     *
     * @returns OS_SUCCESS if file was successfully opened (and if append, format is the same)
     *          OS_FAILED if existing file was of a different audio format than requested or
