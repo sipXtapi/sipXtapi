@@ -426,7 +426,7 @@ class MprRecorderTest : public MpGenericResourceTest
 
                 // SHould use multiple of 2 as some codecs (e.g. GSM) have frame sizes of 20 msec.
                 // In which case the encoder will not spit out half a frame.
-                int framesToProcess = 502; // 5+ seconds
+                int framesToProcess = 503; // 5+ seconds
                 UtlString recorderResourceName = "MprRecorder";
                 MprRecorder* recorder = new MprRecorder(recorderResourceName);
                 CPPUNIT_ASSERT(recorder);
@@ -499,6 +499,7 @@ class MprRecorderTest : public MpGenericResourceTest
                 }
 
                 // Get stop notification and verify the number of samples recorded
+                messagePtr = NULL;
                 messageDispatcher.receive(messagePtr, notificationWait);
                 CPPUNIT_ASSERT(messagePtr);
                 if(messagePtr)
@@ -624,6 +625,7 @@ class MprRecorderTest : public MpGenericResourceTest
                         CPPUNIT_ASSERT_EQUAL(2, messageDispatcher.numMsgs());
 
                         // Get start notification
+                        messagePtr = NULL;
                         messageDispatcher.receive(messagePtr, notificationWait);
                         CPPUNIT_ASSERT(messagePtr);
                         if(messagePtr)
@@ -633,6 +635,7 @@ class MprRecorderTest : public MpGenericResourceTest
                         }
 
                         // Get stop notification and verify the number of samples recorded
+                        messagePtr = NULL;
                         messageDispatcher.receive(messagePtr, notificationWait);
                         CPPUNIT_ASSERT(messagePtr);
                         if(messagePtr)
@@ -659,11 +662,72 @@ class MprRecorderTest : public MpGenericResourceTest
                             CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
                                                  appendRecordedFileSize);
                         }
+
+                        // Append a 2nd time.
+                        appendStatus =  MprRecorder::startFile(recorderResourceName,
+                                                               *mpFlowGraph->getMsgQ(),
+                                                               recordFilename,
+                                                               appendFileFormat,
+                                                               0, // max record length = unlimited
+                                                               -1, // don't check/stop after silence
+                                                               TRUE); // append = TRUE
+
+                        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, appendStatus);
+
+                        // Record some more by Processing the frames
+                        for(int frameIndex = 0; frameIndex < framesToProcess; frameIndex++)
+                        {
+                            OsStatus frameStatus = mpFlowGraph->processNextFrame();
+                            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, frameStatus);
+
+                            if(frameIndex == 0)
+                            {
+                                // Should be a start message
+                                CPPUNIT_ASSERT_EQUAL(1, messageDispatcher.numMsgs());
+                            }
+
+                        }
+
+                        // Should be a start message
+                        CPPUNIT_ASSERT_EQUAL(1, messageDispatcher.numMsgs());
+
+                        // Get start notification
+                        messagePtr = NULL;
+                        messageDispatcher.receive(messagePtr, notificationWait);
+                        CPPUNIT_ASSERT(messagePtr);
+                        if(messagePtr)
+                        {
+                            CPPUNIT_ASSERT_EQUAL(messagePtr->getMsgType(), OsMsg::MP_RES_NOTF_MSG);
+                            CPPUNIT_ASSERT_EQUAL(messagePtr->getMsgSubType(), MpResNotificationMsg::MPRNM_RECORDER_STARTED);
+                        }
+
+                        // No stop notification as we want the MprRecord destructor to close the file
+
+                        // Verify the file size
+                        audioDataSize += (audioDataSize / 2);
+
                     }
                 }
 
                 // Stop flowgraph
                 haltFramework();
+
+                // This should force the recorder to close the file.
+                tearDown();
+
+                // Scope to be sure no conflict/copy paste errors with similar check above
+                // and file is closed.
+                {
+                    OsFile appendRecordFile(recordFilename);
+                    OsFileInfo appendFileInfo;
+                    CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                         appendRecordFile.getFileInfo(appendFileInfo));
+                    unsigned long appendRecordedFileSize;
+                    CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                         appendFileInfo.getSize(appendRecordedFileSize));
+                    CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
+                                         appendRecordedFileSize);
+                }
 
             } // end for iteration over sample rates
 
