@@ -51,35 +51,35 @@ public:
    bool is_lock_free() const
    {return false;}
 
-   void store(T val, memory_order  = memory_order_seq_cst)
+   void store(T val, ::memory_order  = memory_order_seq_cst)
    {OsLock lock(mMutex); mVal = val;}
 
-   T load(memory_order = memory_order_seq_cst) const
+   T load(::memory_order = memory_order_seq_cst) const
    {OsLock lock(mMutex); return mVal;}
 
    operator T() const
    {return load();}
 
-//   T exchange(T val, memory_order = memory_order_seq_cst);
-//   bool compare_exchange(T &, T , memory_order, memory_order);
-//   bool compare_exchange(T &, T , memory_order = memory_order_seq_cst);
+//   T exchange(T val, ::memory_order = memory_order_seq_cst);
+//   bool compare_exchange(T &, T , ::memory_order, ::memory_order);
+//   bool compare_exchange(T &, T , ::memory_order = memory_order_seq_cst);
 
-   void fence(memory_order) const
+   void fence(::memory_order) const
    {};
 
-   T fetch_add(T val, memory_order = memory_order_seq_cst)
+   T fetch_add(T val, ::memory_order = memory_order_seq_cst)
    {OsLock lock(mMutex); T temp = mVal; mVal += val; return temp;}
 
-   T fetch_sub(T val, memory_order = memory_order_seq_cst)
+   T fetch_sub(T val, ::memory_order = memory_order_seq_cst)
    {OsLock lock(mMutex); T temp = mVal; mVal -= val; return temp;}
 
-   T fetch_and(T val, memory_order = memory_order_seq_cst)
+   T fetch_and(T val, ::memory_order = memory_order_seq_cst)
    {OsLock lock(mMutex); T temp = mVal; mVal &= val; return temp;}
 
-   T fetch_or(T val, memory_order = memory_order_seq_cst)
+   T fetch_or(T val, ::memory_order = memory_order_seq_cst)
    {OsLock lock(mMutex); T temp = mVal; mVal |= val; return temp;}
 
-   T fetch_xor(T val, memory_order = memory_order_seq_cst)
+   T fetch_xor(T val, ::memory_order = memory_order_seq_cst)
    {OsLock lock(mMutex); T temp = mVal; mVal ^= val; return temp;}
 
    OsAtomic<T>() : mMutex(0) {};
@@ -139,10 +139,10 @@ public:
 
    explicit OsAtomicBool(bool val) : mVal(val), mMutex(0) {};
 
-   void store(bool val, memory_order  = memory_order_seq_cst)
+   void store(bool val, ::memory_order  = ::memory_order_seq_cst)
    {OsLock lock(mMutex); mVal = val;}
 
-   bool load(memory_order = memory_order_seq_cst) const
+   bool load(::memory_order = ::memory_order_seq_cst) const
    {OsLock lock(mMutex); return mVal;}
 
    bool operator=(bool val)
@@ -151,11 +151,11 @@ public:
    operator bool() const
    {return load();}
 
-//   bool exchange(bool, memory_order = memory_order_seq_cst);
-//   bool compare_exchange(bool&, bool, memory_order, memory_order);
-//   bool compare_exchange(bool&, bool, memory_order = memory_order_seq_cst);
+//   bool exchange(bool, ::memory_order = ::memory_order_seq_cst);
+//   bool compare_exchange(bool&, bool, ::memory_order, ::memory_order);
+//   bool compare_exchange(bool&, bool, ::memory_order = ::memory_order_seq_cst);
 
-   void fence(memory_order) const
+   void fence(::memory_order) const
    {}
 
 private:
@@ -173,26 +173,26 @@ public:
    bool is_lock_free() const
    {return false;}
 
-   void store(void* val, memory_order  = memory_order_seq_cst)
+   void store(void* val, ::memory_order  = ::memory_order_seq_cst)
    {OsLock lock(mMutex); mVal = val;}
 
-   void* load(memory_order = memory_order_seq_cst) const
+   void* load(::memory_order = ::memory_order_seq_cst) const
    {OsLock lock(mMutex); return mVal;}
 
    operator void*() const
    {return load();}
 
-//   void* exchange(void* val, memory_order = memory_order_seq_cst);
-//   bool compare_exchange(void* &, void* , memory_order, memory_order);
-//   bool compare_exchange(void* &, void* , memory_order = memory_order_seq_cst);
+//   void* exchange(void* val, ::memory_order = ::memory_order_seq_cst);
+//   bool compare_exchange(void* &, void* , ::memory_order, ::memory_order);
+//   bool compare_exchange(void* &, void* , ::memory_order = ::memory_order_seq_cst);
 
-   void fence(memory_order) const
+   void fence(::memory_order) const
    {};
 
-   void* fetch_add(ptrdiff_t val, memory_order = memory_order_seq_cst)
+   void* fetch_add(ptrdiff_t val, ::memory_order = ::memory_order_seq_cst)
    {OsLock lock(mMutex); void* temp = mVal; mVal = (int8_t*)mVal + val; return temp;}
 
-   void* fetch_sub(ptrdiff_t val, memory_order = memory_order_seq_cst)
+   void* fetch_sub(ptrdiff_t val, ::memory_order = ::memory_order_seq_cst)
    {OsLock lock(mMutex); void* temp = mVal; mVal = (int8_t*)mVal - val; return temp;}
 
    OsAtomicVoidPtr() : mMutex(0) {};
@@ -224,26 +224,26 @@ public:
    bool is_lock_free() const
    {return false;}
 
-   void store(T* val, memory_order mo = memory_order_seq_cst)
+   void store(T* val, ::memory_order mo = ::memory_order_seq_cst)
    {OsAtomicVoidPtr::store((void*)val, mo);}
 
-   T* load(memory_order mo = memory_order_seq_cst) const
+   T* load(::memory_order mo = ::memory_order_seq_cst) const
    {return (T*)OsAtomicVoidPtr::load(mo);}
 
    operator T*() const
    {return (T*)OsAtomicVoidPtr::operator void*();}
 
-//   T* exchange(T* val, memory_order mo = memory_order_seq_cst);
-//   bool compare_exchange(T* &, T* , memory_order mo, memory_order mo);
-//   bool compare_exchange(T* &, T* , memory_order mo = memory_order_seq_cst);
+//   T* exchange(T* val, ::memory_order mo = ::memory_order_seq_cst);
+//   bool compare_exchange(T* &, T* , ::memory_order mo, ::memory_order mo);
+//   bool compare_exchange(T* &, T* , ::memory_order mo = ::memory_order_seq_cst);
 
-   void fence(memory_order mo) const
+   void fence(::memory_order mo) const
    {OsAtomicVoidPtr::fence(mo);}
 
-   T* fetch_add(ptrdiff_t val, memory_order mo = memory_order_seq_cst)
+   T* fetch_add(ptrdiff_t val, ::memory_order mo = ::memory_order_seq_cst)
    {return (T*)OsAtomicVoidPtr::fetch_add(val, mo);}
 
-   T* fetch_sub(ptrdiff_t val, memory_order mo = memory_order_seq_cst)
+   T* fetch_sub(ptrdiff_t val, ::memory_order mo = ::memory_order_seq_cst)
    {return (T*)OsAtomicVoidPtr::fetch_sub(val, mo);}
 
    OsAtomicPtr() {};
@@ -274,16 +274,16 @@ public:
    bool is_lock_free() const
    {return true;}
 
-   void store(T val, memory_order  = memory_order_relaxed)
+   void store(T val, ::memory_order  = ::memory_order_relaxed)
    {mVal = val;}
 
-   T load(memory_order = memory_order_relaxed) const
+   T load(::memory_order = ::memory_order_relaxed) const
    {return mVal;}
 
    operator T() const
    {return load();}
 
-   void fence(memory_order) const
+   void fence(::memory_order) const
    {};
 
    OsAtomicLight<T>() {};
@@ -309,13 +309,13 @@ public:
    bool is_lock_free() const
    {return true;}
 
-   void store(T* val, memory_order mo = memory_order_relaxed)
+   void store(T* val, ::memory_order mo = ::memory_order_relaxed)
    {mVal = val;}
 
-   const T* load(memory_order mo = memory_order_relaxed) const
+   const T* load(::memory_order mo = ::memory_order_relaxed) const
    {return mVal;}
 
-   T* load(memory_order mo = memory_order_relaxed)
+   T* load(::memory_order mo = ::memory_order_relaxed)
    {return mVal;}
 
    operator const T*() const
@@ -324,7 +324,7 @@ public:
    operator T*()
    {return load();}
 
-   void fence(memory_order mo) const
+   void fence(::memory_order mo) const
    {}
 
    OsAtomicLightPtr() {};
