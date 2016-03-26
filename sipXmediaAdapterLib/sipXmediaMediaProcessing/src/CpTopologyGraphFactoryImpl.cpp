@@ -471,11 +471,14 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
     pIf->setValue(miInterfaceId);
     miInterfaceId++;
 
-    // Set the default input device in the MprToInputDevice resource
-    MprFromInputDevice::setDeviceId(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, *(pIf->getMsgQ()), mDefaultToInputDevice);
-
-    // Set the default output device in the MprToOutputDevice resource
-    MprToOutputDevice::setDeviceId(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, *(pIf->getMsgQ()), mDefaultToOutputDevice);
+    if (mIsLocalAudioEnabled)
+    {
+        // Set the default input device in the MprToInputDevice resource
+        MprFromInputDevice::setDeviceId(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, *(pIf->getMsgQ()), mDefaultToInputDevice);
+ 
+        // Set the default output device in the MprToOutputDevice resource
+        MprToOutputDevice::setDeviceId(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, *(pIf->getMsgQ()), mDefaultToOutputDevice);
+    }
 
     return(pIf);
 }
