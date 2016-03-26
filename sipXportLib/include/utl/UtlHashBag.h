@@ -20,7 +20,11 @@
 
 // DEFINES
 // MACROS
+#if defined(_WIN64) || defined(__x86_64__) || defined(__ppc64__)
+#define NUM_HASHBAG_BUCKETS(bits) (1ull<<bits)
+#else
 #define NUM_HASHBAG_BUCKETS(bits) (1<<bits)
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

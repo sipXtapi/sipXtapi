@@ -90,6 +90,9 @@ public:
    SERIALIZE_POD_DEFINE(unsigned short);
    SERIALIZE_POD_DEFINE(unsigned int);
    SERIALIZE_POD_DEFINE(unsigned long);
+#if defined(_WIN64) || defined(__x86_64__) || defined(__ppc64__)
+   SERIALIZE_POD_DEFINE(size_t);
+#endif
 
    SERIALIZE_POD_DEFINE(void *);
 #undef SERIALIZE_POD_DEFINE

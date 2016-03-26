@@ -28,7 +28,7 @@
 /* ============================ INLINE METHODS ============================ */
 
 
-#if !defined(_WIN32) || !defined(_MSC_VER)
+#if !defined(_WIN32) || !defined(_MSC_VER) || defined(_WIN64)
 // Use plain C implementation.
 uint32_t MpDspUtils::sqrt(uint32_t val)
 {

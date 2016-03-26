@@ -629,7 +629,7 @@ void SetThreadName(DWORD dwThreadID, LPCTSTR szThreadName)
    __try
    {
       RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(DWORD),
-                     (DWORD *)&info);
+          (ULONG_PTR *)&info);
    }
    __except (EXCEPTION_CONTINUE_EXECUTION)
    {

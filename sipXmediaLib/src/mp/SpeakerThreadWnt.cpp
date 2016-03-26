@@ -93,7 +93,7 @@ static HWAVEOUT selectSpeakerDevice()
     return hOut ;
 }
 
-static void CALLBACK TimerCallbackProc(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWORD dw2) 
+static void CALLBACK TimerCallbackProc(UINT wTimerID, UINT msg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
    OsIntPtrMsg *pMsg = (OsIntPtrMsg*)gSpeakerStatusPool->findFreeMsg();
 
