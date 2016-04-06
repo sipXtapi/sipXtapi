@@ -256,7 +256,7 @@ OsStatus MprDecode::pushPacket(MpRtpBufPtr &pRtp)
 #endif // RTL_ENABLED ]
    RTL_EVENT(str_fg+"_pushPacket_seq", pRtp->getRtpSequenceNumber());
    RTL_EVENT(str_fg+"_pushPacket_TS", pRtp->getRtpTimestamp());
-   dprintf("> %"PRIu16" %"PRIu32" %d",
+   dprintf("> %" PRIu16 " %" PRIu32 " %d",
            pRtp->getRtpSequenceNumber(), pRtp->getRtpTimestamp(),
            pRtp->getRtpPayloadType());
 
@@ -452,7 +452,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
    mStreamState.playbackStreamPosition += mStreamState.playbackFrameSize;
 
    // Pull packets from JB queue, until we get enough samples to playback
-   dprintf("# pos:%"PRIu32, mStreamState.playbackStreamPosition);
+   dprintf("# pos:%" PRIu32, mStreamState.playbackStreamPosition);
    RTL_EVENT(str_fg+"_PF_stream_position", mStreamState.playbackStreamPosition);
    dprintf(" buf=%-3d", mpJB->getSamplesNum());
    RTL_EVENT(str_fg+"_PF_buffered_samples", mpJB->getSamplesNum());
@@ -467,7 +467,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       // Step 1. Pull next packet from JB queue (MprDejitter)
       RTL_EVENT(str_fg+"_PF_dej_pull_position",
                 mStreamState.rtpStreamPosition);
-      dprintf(" pull[?%"PRIu32, mStreamState.rtpStreamPosition);
+      dprintf(" pull[?%" PRIu32, mStreamState.rtpStreamPosition);
       dprintf(" JBlength=%d/%d",
               mpMyDJ->getNumLatePackets(), mpMyDJ->getNumPackets());
       RTL_EVENT(str_fg+"_PF_JB_length", mpMyDJ->getNumPackets());
@@ -507,7 +507,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
 
       if (rtp.isValid())
       {
-         dprintf(" <%"PRIu32" n=%d", rtp->getRtpTimestamp(), nextPacketAvailable);
+         dprintf(" <%" PRIu32 " n=%d", rtp->getRtpTimestamp(), nextPacketAvailable);
       }
       else
       {
@@ -560,7 +560,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
          decodedLength /= 2;
       }
       dprintf(" decoded=%d", decodedLength);
-      dprintf(" adj[h=%"PRId32" ?%d %d p?%d",
+      dprintf(" adj[h=%" PRId32 " ?%d %d p?%d",
               mStreamState.rtpStreamHint, wantedBufferSamples, adjustment,
               int(isPlayed));
       RTL_EVENT(str_fg+"_PF_rtp_stream _hint", mStreamState.rtpStreamHint);

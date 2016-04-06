@@ -37,8 +37,13 @@
 #endif
 
 #ifdef _MSC_VER
+#if (_MSC_VER < 1900)
 // Microsoft Visual Studio C/C++ compiler
 #  include <os/msinttypes/inttypes.h>
+#else
+#  include <limits.h>
+#  include <inttypes.h>
+#endif
 
 #elif __GNUC__
 // GNU C/C++ compiler

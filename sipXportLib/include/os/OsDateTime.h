@@ -25,7 +25,7 @@
 // CONSTANTS
 
 // STRUCTS
-#if defined(_WIN32) && !defined(_TIMESPEC_T)
+#if defined(_WIN32) && (_MSC_VER < 1900) && !defined(_TIMESPEC_T)
 #define _TIMESPEC_T
 struct timespec
 {

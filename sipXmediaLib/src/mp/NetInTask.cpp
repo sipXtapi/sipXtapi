@@ -339,14 +339,14 @@ int findPoisonFds(int pipeFD)
         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             if (ppr->pRtpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%"PRIdPTR"], socket=%p, socketDescriptor=%d (poison)\n", ppr-pairs, ppr->pRtpSocket, ppr->pRtpSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%" PRIdPTR "], socket=%p, socketDescriptor=%d (poison)\n", ppr-pairs, ppr->pRtpSocket, ppr->pRtpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtpSocket = NULL;
                 if (NULL == ppr->pRtcpSocket) ppr->fwdTo = NULL;
             }
             if (ppr->pRtcpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtcpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%"PRIdPTR"], socket=%p, socketDescriptor=%d (poison)\n", ppr-pairs, ppr->pRtcpSocket, ppr->pRtcpSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%" PRIdPTR "], socket=%p, socketDescriptor=%d (poison)\n", ppr-pairs, ppr->pRtcpSocket, ppr->pRtcpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtcpSocket = NULL;
                 if (NULL == ppr->pRtpSocket) ppr->fwdTo = NULL;

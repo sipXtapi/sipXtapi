@@ -463,10 +463,18 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
 
     char tz[4] = {"   "};
 #if !defined(_VXWORKS) && !defined(WINCE)
+#ifdef _MSC_VER && _MSC_VER >= 1900
+    UtlString timezone = _tzname[0];
+#else
     UtlString timezone = tzname[0];
+#endif
 
     if (today->tm_isdst == 1)
-      timezone = tzname[1];
+#ifdef _MSC_VER && _MSC_VER >= 1900
+        timezone = _tzname[1];
+#else
+        timezone = tzname[1];
+#endif
 
     int  len = timezone.length();
 
