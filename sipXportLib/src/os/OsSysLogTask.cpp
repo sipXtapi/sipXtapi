@@ -768,6 +768,8 @@ OsStatus OsSysLogTask::processAddSocket(const char* remoteHost)
             mpSockets[i] = pSocket ;
 
             syslog(FAC_LOG, PRI_ERR, "added output socket (host=%s port=%d)", host, port) ;
+
+            break;
          }
       }
    }
