@@ -44,7 +44,7 @@ typedef int UtlBoolean ;
 #  define inline __inline
 #endif // _DEBUG
 
-#if _MSC_VER < 1900
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
 #define snprintf _snprintf
 #endif
 
