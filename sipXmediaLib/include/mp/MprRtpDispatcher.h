@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -282,6 +281,15 @@ void MprRtpDispatcher::MpRtpStream::pushPacket(MpRtpBufPtr &pRtp)
 /// Mark stream as active.
 void MprRtpDispatcher::MpRtpStream::activate(int fromIp, int fromPort)
 {
+   // Make sure that the output resource has been enabled
+   // otherwise no audio
+   if (mpOutputResource && !mpOutputResource->isEnabled())
+   {
+      // Reset decoder in preparation to handle new stream
+      mpOutputResource->reset();
+      mpOutputResource->enable();
+   }
+
    // Mark stream as active and save sender IP.
    mStreamActive = TRUE;
    mAddress = fromIp;
