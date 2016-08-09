@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2015 SIPez LLC. All rights reserved.
+// Copyright (C) 2006-2016 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -44,6 +44,7 @@ static short* g_loopback_samples[LOOPBACK_LENGTH] ; // loopback buffer
 static short g_loopback_head = 0 ;      // index into loopback
 static char* g_szPlayTones = NULL ;     // tones to play on answer
 static char* g_szFile = NULL ;          // file to play on answer
+static char* g_szRecordFile = NULL;     // Filename to record to
 
 #if defined(_WIN32) && defined(VIDEO)
 extern HWND ghPreview;
@@ -109,6 +110,7 @@ void usage(const char* szExecutable)
     printf("   -u username (for authentication)\n") ;
     printf("   -a password  (for authentication)\n") ;
     printf("   -m realm  (for authentication)\n") ;
+    printf("   -rec Record to wave file (PCM)\n");
     printf("   -ref registration refresh period (default=3600 seconds)");
     printf("   -x proxy (outbound proxy)\n");
     printf("   -S stun server\n") ;
@@ -140,7 +142,8 @@ bool parseArgs(int argc,
                char** pszRealm,
                int* pRefreshPeriod,
                char** pszStunServer,
-               char** pszProxy)
+               char** pszProxy,
+               char** pRecordFile)
 {
     bool bRC = true ;
     char szBuffer[64];
@@ -161,6 +164,7 @@ bool parseArgs(int argc,
     *pRefreshPeriod = 0;
     *pszStunServer = NULL ;
     *pszProxy = NULL;
+    *pRecordFile = NULL;
 
     for (int i=1; i<argc; i++)
     {
@@ -294,6 +298,18 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+        else if (strcmp(argv[i], "-rec") == 0)
+        {
+            if ((i + 1) < argc)
+            {
+                *pRecordFile = strdup(argv[++i]);
+            }
+            else
+            {
+                bRC = false;
+                break; // Error
+            }
+        }
 
         else if (strcmp(argv[i], "-ref") == 0)
         {
@@ -408,6 +424,13 @@ bool playTones(char* szPlayTones, SIPX_CALL hCall)
     return bRC ;
 }
 
+SIPX_RESULT recordFile(char* szFile, SIPX_CALL hCall)
+{
+    return(sipxCallAudioRecordFileStart(hCall, 
+                                        szFile, 
+                                        SIPX_WAVE_PCM_16, // format
+                                        false));  // append to recording file
+}
 
 void SpkrAudioHook(const int nSamples, short* pSamples)
 {
@@ -488,6 +511,19 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
         case CALLSTATE_CONNECTED:
             SLEEP(1000) ;   // BAD: Do not block the callback thread
 
+            // Start recording if option provided
+            if(g_szRecordFile)
+            {
+                SIPX_RESULT recReturn =
+                    recordFile(g_szRecordFile, pCallInfo->hCall);
+                if(recReturn != SIPX_RESULT_SUCCESS)
+                {
+                    printf("Failed to start recording to file: %s return: %d\n",
+                           g_szRecordFile,
+                           recReturn);
+                }
+            }
+
             // Play file if provided
             if (g_szFile)
             {
@@ -507,6 +543,19 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
             }
             break ;
         case CALLSTATE_DISCONNECTED:
+            // Stop recording if option provided
+            if(g_szRecordFile)
+            {
+                SIPX_RESULT recReturn =
+                    sipxCallAudioRecordFileStop(pCallInfo->hCall);
+                if(recReturn != SIPX_RESULT_SUCCESS)
+                {
+                    printf("Failed to stop recording to file: %s return: %d\n",
+                           g_szRecordFile,
+                           recReturn);
+                }
+            }
+
             sipxCallDestroy(pCallInfo->hCall) ;
             break ;
         case CALLSTATE_DESTROYED:
@@ -627,7 +676,7 @@ int local_main(int argc, char* argv[])
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szBindAddr,
                   &g_szPlayTones, &g_szFile, &bLoopback, &gbOneCallMode,
                   &szIdentity, &szUsername, &szPassword, &szRealm, &refreshPeriod,
-                  &szStunServer, &szProxy) &&
+                  &szStunServer, &szProxy, &g_szRecordFile) &&
         (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         if (bLoopback)
