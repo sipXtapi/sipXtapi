@@ -55,7 +55,7 @@
 // EXTERNAL VARIABLES
 
 // CONSTANTS
-static const char gSalt[] =
+static const unsigned char gSalt[] =
 {
     (unsigned char)0xc9, (unsigned char)0x36, (unsigned char)0x78, (unsigned char)0x99,
     (unsigned char)0x52, (unsigned char)0x3e, (unsigned char)0xea, (unsigned char)0xf2
