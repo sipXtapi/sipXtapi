@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <signal.h>
+#include <math.h>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -576,6 +577,20 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
            printf("* Negotiated codec: %s, payload type %d\n",
                   pMediaInfo->codec.audioCodec.cName, pMediaInfo->codec.audioCodec.iPayloadType);
        	  break;
+
+       case MEDIA_MIC_ENERGY_LEVEL:
+           {
+               int level = (int)(log10((double)pMediaInfo->idleTime) * 1.8) - 8;
+               if(level < 0) level = 0;
+               if(level > 8) level = 8;
+               //printf("Mic: %d\n", pMediaInfo->idleTime);
+               printf("Mic: %.*s%.*s\n",
+                      level,
+                      "=====***",
+                      8 - level,
+                      "________");
+           }
+           break;
        }
     }
     return true;
