@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <math.h>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -110,6 +111,7 @@ void usage(const char* szExecutable)
     printf("   -a <string> password  (for authentication)\n") ;
     printf("   -reg register line/URI before placing the call\n");
     printf("   -m <string> realm  (for authentication)\n") ;
+    printf("   -mute mute the mic during the call\n");
     printf("   -i <string> from identity\n") ;
     printf("   -S <string> stun server\n") ;
     printf("   -x <string> proxy (outbound proxy)\n");
@@ -162,6 +164,7 @@ bool parseArgs(int argc,
                bool*  bAEC,
                bool*  bAGC,
                bool*  bDenoise,
+               bool*  bMute,
                bool*  bRegister,
                bool*  bUseCustomTransportReliable,
                bool*  bUseCustomTransportUnreliable,
@@ -196,6 +199,7 @@ bool parseArgs(int argc,
     *bAEC = false;
     *bAGC = false;
     *bDenoise = false;
+    *bMute = false;
     *bRegister = false;
     *waitTime = 0;
 
@@ -444,6 +448,11 @@ bool parseArgs(int argc,
         {
             *bDenoise = true;
         }
+        else if (strcmp(argv[i], "-mute") == 0)
+        {
+            *bMute = true;
+        }
+
         else if (strcmp(argv[i], "-reg") == 0)
         {
             *bRegister = true;
@@ -508,6 +517,20 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
            printf("* Negotiated codec: %s, payload type %d\n",
                   pMediaInfo->codec.audioCodec.cName, pMediaInfo->codec.audioCodec.iPayloadType);
        	  break;
+
+       case MEDIA_MIC_ENERGY_LEVEL:
+           {
+               int level = (int)(log10((double)pMediaInfo->idleTime) * 1.8) - 8;
+               printf("Mic: %d (%d)\n", pMediaInfo->idleTime, level);
+               if(level < 0) level = 0;
+               if(level > 8) level = 8;
+               printf("Mic: %.*s%.*s\n",
+                      level,
+                      "=====***",
+                      8 - level,
+                      "________");
+           }
+           break;
        }
     }
     else if (category == EVENT_CATEGORY_LINESTATE)
@@ -933,6 +956,7 @@ int local_main(int argc, char* argv[])
     bool bAEC;
     bool bAGC;
     bool bDenoise;
+    bool bMute;
     bool bRegister;
     int waitTime;
 
@@ -954,7 +978,7 @@ int local_main(int argc, char* argv[])
             &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
             &szBindAddr, &iRepeatCount, &szInDevice, &szOutDevice, &inputGain, &outputVolume,
             &szCodec, &bCList,
-            &bAEC, &bAGC, &bDenoise, &bRegister, &bUseCustomTransportReliable, &bUseCustomTransportUnreliable,
+            &bAEC, &bAGC, &bDenoise, &bMute, &bRegister, &bUseCustomTransportReliable, &bUseCustomTransportUnreliable,
             &waitTime)
             && (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
@@ -1108,6 +1132,11 @@ int local_main(int argc, char* argv[])
             {
                 bError = false ;
 
+                // Mute requested
+                if(bMute)
+                {
+                    inputGain = 0.0;
+                }
                 // If the mic gain was expelicitly given
                 if(inputGain >= 0.0)
                 {
