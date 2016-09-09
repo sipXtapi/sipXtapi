@@ -46,6 +46,8 @@ static short g_loopback_head = 0 ;      // index into loopback
 static char* g_szPlayTones = NULL ;     // tones to play on answer
 static char* g_szFile = NULL ;          // file to play on answer
 static char* g_szRecordFile = NULL;     // Filename to record to
+static bool gbConf = false;             // Act as conference bridge for all incoming calls
+SIPX_CONF g_conf = SIPX_CONF_NULL;      // Single conference instance
 
 #if defined(_WIN32) && defined(VIDEO)
 extern HWND ghPreview;
@@ -105,6 +107,7 @@ void usage(const char* szExecutable)
     printf("   -p SIP port (default = 5060)\n") ;
     printf("   -r RTP port start (default = 9000)\n") ;
     printf("   -B ip address to bind to\n");
+    printf("   -conf\n");
     printf("   -l loopback audio (2 second delay)\n") ;
     printf("   -1 one call mode (exit after first call end)\n") ;
     printf("   -i line identity (e.g. sip:122@pingtel.com)\n") ;
@@ -247,6 +250,10 @@ bool parseArgs(int argc,
         else if (strcmp(argv[i], "-1") == 0)
         {
            *bOneCallMode = true ;
+        }
+        else if (strcmp(argv[i], "-conf") == 0)
+        {
+           gbConf = true;
         }
         else if (strcmp(argv[i], "-i") == 0)
         {
@@ -501,15 +508,143 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
             }
             else
 #endif
+ 
             {
                 sipxCallAccept(pCallInfo->hCall);
             }
-            break ;
+            break;
+
         case CALLSTATE_ALERTING:
-            clearLoopback() ;
-            sipxCallAnswer(pCallInfo->hCall) ;
-            break ;
+            clearLoopback();
+            sipxCallAnswer(pCallInfo->hCall, 
+                           // First call takes focus (mic and speaker), then
+                           // the conference holds the focus after that.
+                           !gbConf || g_conf == SIPX_CONF_NULL);
+            break;
+
         case CALLSTATE_CONNECTED:
+
+            if(gbConf)
+            {
+                // First call becomes the conference host
+                if(g_conf == SIPX_CONF_NULL)
+                {
+                    SIPX_RESULT result = 
+                        sipxConferenceCreate(g_hInst, &g_conf);
+                    if(result == SIPX_RESULT_SUCCESS)
+                    {
+                        printf("Conference: %d created\n", g_conf);
+                    }
+                    else                    {
+                        printf("Error: sipxConferenceCreate returned: %d\n",
+                               result);
+                    }
+
+                    result = 
+                        sipxConferenceJoin(g_conf, pCallInfo->hCall);
+                    if(result == SIPX_RESULT_SUCCESS)
+                    {
+                        printf("Initial call: %d joined to conference: %d\n", 
+                               pCallInfo->hCall,
+                               g_conf);
+                    }
+                    else                    {
+                        printf("Error: sipxConferenceJoin(call=%d, conf=%d) returned: %d\n",
+                               pCallInfo->hCall,
+                               g_conf,
+                               result);
+                    }
+
+                    SIPX_CONF callConf = SIPX_CONF_NULL;
+
+                    result =
+                         sipxCallGetConference(pCallInfo->hCall, callConf);
+                    if(result == SIPX_RESULT_SUCCESS)
+                    {
+                    }
+                    else if(g_conf != callConf)
+                    {
+                        printf("Call: %d not joined to conference: %d (%d)\n",
+                               pCallInfo->hCall,
+                               g_conf,
+                               callConf);
+                    }
+                    else
+                    {
+                        printf("Error sipxCallGetConference unable to get initial conference from call: %d return: %d\n",
+                               pCallInfo->hCall,
+                               result);
+                    }
+                }
+
+                // Subsequent calls get joined to first call/conference
+                else
+                {
+                    // Conference has focus, subsequent calls will not get focus and will
+                    // be in BRIDGED state.  So we will not get here.  In the bridged state
+                    // put call on hold so that it can be joined to the conference
+                    // Calls must be on hold to be joined to a conference.  So we must:
+                    //   1) Hold the call
+                    //   2) Join it to the conferences
+                    //   3) Unhold the call
+                }
+
+                SIPX_CALL callHandleArray[10];
+                int arraySize = sizeof(callHandleArray)/sizeof(SIPX_CALL);
+                size_t numCalls = 0;
+                for(int callIndex = 0; callIndex < arraySize; callIndex++)
+                {
+                    callHandleArray[callIndex] = pCallInfo->hCall;
+                }
+
+                SIPX_RESULT result =
+                    sipxConferenceGetCalls(g_conf, callHandleArray, arraySize, numCalls);
+
+                if(result != SIPX_RESULT_SUCCESS)
+                {
+                    printf("Error: sipxConferenceGetCalls(%d, ...) returned: %d\n",
+                           g_conf,
+                           result);
+                }
+                else if(numCalls < 0)
+                {
+                    printf("Error: invalid number of calls (%d) in conference: %d\n",
+                           numCalls,
+                           g_conf);
+                }
+                else
+                {
+                    bool callAlreadyJoined = false;
+                    for(size_t callIndex = 0; callIndex < numCalls; callIndex++)
+                    {
+                        if(callHandleArray[callIndex] == pCallInfo->hCall)
+                        {
+                            callAlreadyJoined = true;
+                            break;
+                        }
+                    }
+
+                    if(!callAlreadyJoined)
+                    {
+                        // Stop RTP stream so we can easily join it to conference
+                        result = sipxCallHold(pCallInfo->hCall, true);
+                        if(result == SIPX_RESULT_SUCCESS)
+                        {
+                            printf("Putting call: %d on hold to join with conference: %d\n",
+                                   pCallInfo->hCall,
+                                   g_conf);
+                        }
+                        else 
+                        {
+                            printf("Error: sipxCallHold(%d, true) returned: %d\n",
+                                   pCallInfo->hCall,
+                                   g_conf);
+                        }
+                    }
+                }
+                
+            }
+
             SLEEP(1000) ;   // BAD: Do not block the callback thread
 
             // Start recording if option provided
@@ -542,7 +677,158 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                     printf("Failed to play tones: %s\n", g_szPlayTones) ;
                 }
             }
-            break ;
+            break;
+
+        // Call is CONNECTED, but not in focus (mic and speaker are not mixed in)
+        // Once, iniitial call and conference are created, all subsequent calls will
+        // not get focus (hense BRIDGED when answered).
+        case CALLSTATE_BRIDGED:
+            if(gbConf)
+            {
+                SIPX_CALL callHandleArray[10];
+                int arraySize = sizeof(callHandleArray)/sizeof(SIPX_CALL);
+                size_t numCalls = 0;
+                for(int callIndex = 0; callIndex < arraySize; callIndex++)
+                {
+                    callHandleArray[callIndex] = pCallInfo->hCall;
+                }
+
+                // Get call IDs for calls already in the conference
+                SIPX_RESULT result =
+                    sipxConferenceGetCalls(g_conf, callHandleArray, arraySize, numCalls);
+
+                if(result != SIPX_RESULT_SUCCESS)
+                {
+                    printf("Error: sipxConferenceGetCalls(%d, ...) returned: %d\n",
+                           g_conf,
+                           result);
+                }
+                else if(numCalls < 0)
+                {
+                    printf("Error: invalid number of calls (%d) in conference: %d\n",
+                           numCalls,
+                           g_conf);
+                }
+                else
+                {
+                    // Check if this call is already joined
+                    bool callAlreadyJoined = false;
+                    for(size_t callIndex = 0; callIndex < numCalls; callIndex++)
+                    {
+                        if(callHandleArray[callIndex] == pCallInfo->hCall)
+                        {
+                            callAlreadyJoined = true;
+                            break;
+                        }
+                    }
+
+                    // This call is not already joined to the conference
+                    if(!callAlreadyJoined)
+                    {
+                        // Stop RTP stream so we can easily join it to conference
+                        result = sipxCallHold(pCallInfo->hCall, true);
+                        if(result == SIPX_RESULT_SUCCESS)
+                        {
+                            printf("Putting call: %d on hold to join with conference: %d\n",
+                                   pCallInfo->hCall,
+                                   g_conf);
+                        }
+                        else 
+                        {
+                            printf("Error: sipxCallHold(%d, true) returned: %d\n",
+                                   pCallInfo->hCall,
+                                   g_conf);
+                        }
+                    }
+                }
+                
+            }
+            break;
+
+        case CALLSTATE_HELD:
+            // This is a new incoming call held, so that it can be joined to the conferece
+            if(gbConf)
+            {
+                SIPX_CALL callHandleArray[10];
+                int arraySize = sizeof(callHandleArray)/sizeof(SIPX_CALL);
+                size_t numCalls = 0;
+                for(int callIndex = 0; callIndex < arraySize; callIndex++)
+                {
+                    callHandleArray[callIndex] = pCallInfo->hCall;
+                }
+
+                // Get list of calls already in the conference
+                SIPX_RESULT result =
+                    sipxConferenceGetCalls(g_conf, callHandleArray, arraySize, numCalls);
+
+                if(result != SIPX_RESULT_SUCCESS)
+                {
+                    printf("Error: sipxConferenceGetCalls(%d, ...) returned: %d\n",
+                           g_conf,
+                           result);
+                }
+                else if(numCalls < 0)
+                {
+                    printf("Error: invalid number of calls (%d) in conference: %d\n",
+                           numCalls,
+                           g_conf);
+                }
+                else
+                {
+                    // Check that call is not already in the conference
+                    bool callAlreadyJoined = false;
+                    for(size_t callIndex = 0; callIndex < numCalls; callIndex++)
+                    {
+                        if(callHandleArray[callIndex] == pCallInfo->hCall)
+                        {
+                            callAlreadyJoined = true;
+                            break;
+                        }
+                    }
+
+                    if(!callAlreadyJoined)
+                    {
+                        // Join the call to the conference
+                        result = 
+                            sipxConferenceJoin(g_conf, pCallInfo->hCall);
+                        if(result == SIPX_RESULT_SUCCESS)
+                        {
+                            printf("Joining call: %d to %d existing calls in conference: %d\n",
+                                   pCallInfo->hCall,
+                                   numCalls,
+                                   g_conf);
+                        }
+                        else
+                        {
+                            printf("Error: sipxConferenceJoin(conf=%d, call=%d) returned: %d\n",
+                                   g_conf,
+                                   pCallInfo->hCall,
+                                   result);
+                        }
+
+                        // Unhold this call so audio streams and gets mixed into conference
+                        result = 
+                            sipxCallUnhold(pCallInfo->hCall);
+                        if(result == SIPX_RESULT_SUCCESS)
+                        {
+                            printf("Taking call: %d off hold after joining to conference: %d\n",
+                                   pCallInfo->hCall,
+                                   g_conf);
+                        }
+                        else
+                        {
+                            printf("Error: sipxCallUnhold(%d) returned: %d\n",
+                                   pCallInfo->hCall,
+                                   result);
+                        }
+                    }
+                }
+            }
+            break;
+
+        case CALLSTATE_REMOTE_HELD:
+            break;
+
         case CALLSTATE_DISCONNECTED:
             // Stop recording if option provided
             if(g_szRecordFile)
