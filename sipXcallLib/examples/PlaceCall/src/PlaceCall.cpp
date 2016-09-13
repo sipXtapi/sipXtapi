@@ -519,12 +519,27 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
        	  break;
 
        case MEDIA_MIC_ENERGY_LEVEL:
+       case MEDIA_SPEAKER_ENERGY_LEVEL:
            {
-               int level = (int)(log10((double)pMediaInfo->idleTime) * 1.8) - 8;
-               printf("Mic: %d (%d)\n", pMediaInfo->idleTime, level);
+               const char* label = "";
+               if(pMediaInfo->event == MEDIA_MIC_ENERGY_LEVEL)
+               {
+                   label = "Mic";
+               }
+               else if(pMediaInfo->event == MEDIA_SPEAKER_ENERGY_LEVEL)
+               {
+                   label = "Speaker";
+               }
+               int level = 0;
+               if(pMediaInfo->idleTime > 0)
+               {
+                   level = (int)(log10((double)pMediaInfo->idleTime) * 1.8) - 8;
+               }
+               //printf("%s: %d\n", label, pMediaInfo->idleTime);
                if(level < 0) level = 0;
                if(level > 8) level = 8;
-               printf("Mic: %.*s%.*s\n",
+               printf("%s: %.*s%.*s\n",
+                      label,
                       level,
                       "=====***",
                       8 - level,
