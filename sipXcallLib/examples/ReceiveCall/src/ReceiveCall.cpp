@@ -107,7 +107,7 @@ void usage(const char* szExecutable)
     printf("   -p SIP port (default = 5060)\n") ;
     printf("   -r RTP port start (default = 9000)\n") ;
     printf("   -B ip address to bind to\n");
-    printf("   -conf\n");
+    printf("   -conf mix all calls to a conference\n");
     printf("   -l loopback audio (2 second delay)\n") ;
     printf("   -1 one call mode (exit after first call end)\n") ;
     printf("   -i line identity (e.g. sip:122@pingtel.com)\n") ;
@@ -865,12 +865,27 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
        	  break;
 
        case MEDIA_MIC_ENERGY_LEVEL:
+       case MEDIA_SPEAKER_ENERGY_LEVEL:
            {
-               int level = (int)(log10((double)pMediaInfo->idleTime) * 1.8) - 8;
+               const char* label = "";
+               if(pMediaInfo->event == MEDIA_MIC_ENERGY_LEVEL)
+               {
+                   label = "Mic";
+               }
+               else if(pMediaInfo->event == MEDIA_SPEAKER_ENERGY_LEVEL)
+               {
+                   label = "Speaker";
+               }
+               int level = 0;
+               if(pMediaInfo->idleTime > 0)
+               {
+                   level = (int)(log10((double)pMediaInfo->idleTime) * 1.8) - 8;
+               }
                if(level < 0) level = 0;
                if(level > 8) level = 8;
-               //printf("Mic: %d\n", pMediaInfo->idleTime);
-               printf("Mic: %.*s%.*s\n",
+               //printf("%s: %d\n", label, pMediaInfo->idleTime);
+               printf("%s: %.*s%.*s\n",
+                      label,
                       level,
                       "=====***",
                       8 - level,
