@@ -2768,6 +2768,26 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                                                   MEDIA_TYPE_AUDIO,
                                                   (void*)intNotif.getValue());
                }
+               // No speaker energy levels unless call is in focus
+               else if(isInFocus() && resourceName.compareTo(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX) == 0)
+               {
+                  pConnection->fireSipXMediaEvent(MEDIA_SPEAKER_ENERGY_LEVEL,
+                                                  MEDIA_CAUSE_NORMAL,
+                                                  MEDIA_TYPE_AUDIO,
+                                                  (void*)intNotif.getValue());
+               }
+               // TODO: input RTP stream energy levels
+               // DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME CONNECTION_NAME_SUFFIX "-0"
+               // Unicast RTP streams will look like: "VoiceActivityNotifier-%d-0"
+               // Multicaste RTP streams will look like: "VoiceActivityNotifier-%d-%d"
+               else if(0 /*TODO*/)
+               {
+                  pConnection->fireSipXMediaEvent(MEDIA_RTP_ENERGY_LEVEL,
+                                                  MEDIA_CAUSE_NORMAL,
+                                                  MEDIA_TYPE_AUDIO,
+                                                  (void*)intNotif.getValue());
+               }
+
                else
                {
                   int energyLevel = intNotif.getValue();
