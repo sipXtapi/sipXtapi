@@ -1,10 +1,6 @@
 // 
 //
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2010 SIPez LLC All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2010-2016 SIPez LLC. All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -16,9 +12,9 @@
 #define _sipxunittests_h_
 
 
-#if !defined(NO_CPPUNIT) && defined(ANDROID)
+//#if !defined(NO_CPPUNIT) && defined(ANDROID)
 #define NO_CPPUNIT 1
-#endif
+//#endif
 
 #if defined(NO_CPPUNIT)
 
