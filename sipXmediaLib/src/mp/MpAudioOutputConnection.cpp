@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -85,7 +85,12 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
 
    if (mpDeviceDriver->isEnabled())
    {
-      return OS_INVALID_STATE;
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+              "MpAudioOutputConnection::enableDevice() device (%s id: %d) already enabled status: %d",
+              mpDeviceDriver->getDeviceName().data(),
+              getValue(),
+              OS_INVALID_STATE);
+      return(OS_INVALID_STATE);
    }
 
    // Mixer buffer length can't be zero.
