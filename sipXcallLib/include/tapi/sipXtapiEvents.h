@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -557,6 +557,8 @@ typedef enum SIPX_MEDIA_EVENT
                                      already in use. */
     MEDIA_REMOTE_ACTIVE,        /**< Media has been received */
     MEDIA_MIC_ENERGY_LEVEL,     /**< Mic energy level - value in idleTime */
+    MEDIA_SPEAKER_ENERGY_LEVEL, /**< Speaker energy level - value in idleTime */
+    MEDIA_RTP_ENERGY_LEVEL,     /**< Incoming RTP stream energy level - value in idelTime */
     MEDIA_H264_SPS,             /**< H.264 SPS parameter set recieved */
     MEDIA_H264_PPS              /**< H.264 PPS parameter set recieved */
 
@@ -679,7 +681,7 @@ typedef struct SIPX_MEDIA_INFO
                                          MEDIA_RECORDBUFFER_STOP events contains number
                                          of recorded samples. For other events this
                                          value should be ignored. 
-                                         For MEDIA_MIC_ENERGY_LEVEL contains energy level*/
+                                         For MEDIA_*_ENERGY_LEVEL contains energy level*/
     SIPX_TONE_ID        toneId;	    /**< DTMF tone received from remote party;
                                          only supplied on MEDIA_REMOTE_DTMF event).
                                          Note: Only RFC 2833 DTMF detection is supported
