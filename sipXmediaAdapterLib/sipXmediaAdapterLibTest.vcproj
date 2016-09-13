@@ -183,7 +183,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\sipXcallLib\bin\sipXtapi.dll Debug\sipXtapid.dll"
+				CommandLine="copy ..\sipXcallLib\bin\sipXtapid.dll Debug\sipXtapid.dll"
 			/>
 		</Configuration>
 	</Configurations>
