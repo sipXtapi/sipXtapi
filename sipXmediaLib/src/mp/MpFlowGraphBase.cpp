@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1975,10 +1975,8 @@ OsStatus MpFlowGraphBase::processMessages(void)
                // From the resource message, get the name of the resource, and look it up.
                // If we find it, we call the resource's handleMessage method.
                res = lookupResourcePrivate(pResourceMsg->getDestResourceName(), pMsgDest);
-               assert(res == OS_SUCCESS);
-               assert(pMsgDest != NULL);
 
-               if (pMsgDest != NULL)
+               if (res == OS_SUCCESS && pMsgDest != NULL)
                {
 #ifdef RTL_ENABLED
                   RTL_EVENT("MpFlowGraphBase.processMessages.resource", 1 + getExecOrderIndex(pMsgDest));
@@ -2001,10 +1999,14 @@ OsStatus MpFlowGraphBase::processMessages(void)
                      "MpFlowGraphBase::processMessages - "
                      "Failed looking up resource!: "
                      "name=\"%s\", lookupResource status=0x%X, "
-                     "resource pointer returned = %p",
+                     "resource pointer returned = %p, "
+                     "msgSubType=0x%X",
                      pResourceMsg->getDestResourceName().data(), 
-                     res, pMsgDest);
+                     res, pMsgDest,
+                     pMsg->getMsgSubType());
                }
+               assert(res == OS_SUCCESS);
+               assert(pMsgDest != NULL);
             }
          }
          else // pResourceMsg == NULL
