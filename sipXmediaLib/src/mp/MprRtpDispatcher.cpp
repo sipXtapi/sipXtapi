@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2016 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -97,15 +96,18 @@ OsStatus MprRtpDispatcher::MpRtpStream::postStreamNotif(OsMsgDispatcher *pMsgQ,
       switch (state)
       {
       case MprnRtpStreamActivityMsg::STREAM_START:
-         osPrintf(" ---------------> MprRtpDispatcher: NOT ACTIVE -> ACTIVE, 0x%08X:%d, ssrc = 0x%x\n", 
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       " ---------------> MprRtpDispatcher: NOT ACTIVE -> ACTIVE, 0x%08X:%d, ssrc = 0x%x\n", 
                   mAddress, mPort, getSSRC());
          break;
       case MprnRtpStreamActivityMsg::STREAM_STOP:
-         osPrintf(" ---------------> MprRtpDispatcher: ACTIVE -> NOT ACTIVE, 0x%08X:%d, ssrc = 0x%x\n", 
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       " ---------------> MprRtpDispatcher: ACTIVE -> NOT ACTIVE, 0x%08X:%d, ssrc = 0x%x\n", 
                   mAddress, mPort, getSSRC());
          break;
       case MprnRtpStreamActivityMsg::STREAM_CHANGE:
-         osPrintf(" ---------------> MprRtpDispatcher: CHANGE,               0x%08X:%d, ssrc = 0x%x\n", 
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       " ---------------> MprRtpDispatcher: CHANGE,               0x%08X:%d, ssrc = 0x%x\n", 
                   mAddress, mPort, getSSRC());
          break;
       }
