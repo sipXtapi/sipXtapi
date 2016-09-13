@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2010-2015 SIPez LLC  All rights reserved.
+// Copyright (C) 2010-2016 SIPez LLC  All rights reserved.
 // 
 // $$
 // Author: Daniel Petrie
@@ -200,7 +200,7 @@ void SipxPortUnitTestEnvironment::runTests(const char* testClassFilterName)
     const char* testMethodName = NULL;
     if(testClassFilterName)
     {
-        const char* classNameEnd = index(testClassFilterName, ':');
+        const char* classNameEnd = strchr(testClassFilterName, ':');
         if(classNameEnd)
         {
             // Get just the class name (text prior to ':')
