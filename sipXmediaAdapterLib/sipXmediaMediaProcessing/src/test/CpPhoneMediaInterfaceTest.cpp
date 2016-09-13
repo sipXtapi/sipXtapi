@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2005-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -10,19 +10,23 @@
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #include <os/OsIntTypes.h>
+#include <os/OsFS.h>
 #include <sipxunittests.h>
-#include "mi/CpMediaInterfaceFactory.h"
-#include "mi/CpMediaInterfaceFactoryFactory.h"
-#include "CpTopologyGraphInterface.h"
-#include "mi/CpMediaInterface.h"
-#include "mi/MiNotification.h"
-#include "mi/MiDtmfNotf.h"
-#include "mi/MiRtpStreamActivityNotf.h"
+#include <mi/CpMediaInterfaceFactory.h>
+#include <mi/CpMediaInterfaceFactoryFactory.h>
+#include <CpTopologyGraphInterface.h>
+#include <mi/CpMediaInterface.h>
+#include <mi/MiNotification.h>
+#include <mi/MiDtmfNotf.h>
+#include <mi/MiRtpStreamActivityNotf.h>
+#include <mi/MiIntNotf.h>
 #include <os/OsTask.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlHashBag.h>
 #include <os/OsMsgDispatcher.h>
+#include <mp/MpResourceTopology.h>
+#include <mp/MprVoiceActivityNotifier.h>
 #include "sine_330hz_16b_8k_signed.h"
 #include "sine_530hz_16b_8k_signed.h"
 
@@ -81,6 +85,8 @@ public:
 private:
 };
 
+UtlBoolean sUseLocalAudioDevices = TRUE;
+
 // Unittest for CpPhoneMediaInterface
 
 class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
@@ -97,6 +103,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testConnectionNotifications);
     CPPUNIT_TEST(testThreeGraphs);
     CPPUNIT_TEST(testStreamNotifications);
+    CPPUNIT_TEST(testVoiceNotifications);
     CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -119,7 +126,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
            printf("setUp mMediaInterfaces contains: %d\n", mMediaInterfaces.entries());
         }
         CpMediaInterface *pInterface = NULL;
-        while (pInterface = (CpMediaInterface*)mMediaInterfaces.get())
+        while ((pInterface = (CpMediaInterface*)mMediaInterfaces.get()))
         {
            printf("setUp releasing: %p line: %d\n", pInterface, __LINE__);
            pInterface->release();
@@ -146,16 +153,26 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
                              CpMediaInterfaceFactory::addCodecPaths(codecPathsNum, codecPaths));
 
+      
+        sUseLocalAudioDevices = TRUE;
+#if defined(__pingtel_on_posix__)
+        sUseLocalAudioDevices = OsFileSystem::exists("/dev/dsp");
+        if(!sUseLocalAudioDevices)
+        {
+            printf("WARNING: /dev/dsp does not exist.  Not using local audio.  Not all tests may be ran.\n");
+        }
+#endif
         // Initialize the factory factory
         mpMediaFactory = 
            sipXmediaFactoryFactory(NULL, FRAME_SIZE_MS, 
-                                   MAX_SAMPLE_RATE, DEFAULT_SAMPLE_RATE, TRUE);
+                                   MAX_SAMPLE_RATE, DEFAULT_SAMPLE_RATE, 
+                                   sUseLocalAudioDevices); // Enable local audio
     } 
 
     virtual void tearDown()
     {
         CpMediaInterface *pInterface;
-        while (pInterface = (CpMediaInterface*)mMediaInterfaces.get())
+        while ((pInterface = (CpMediaInterface*)mMediaInterfaces.get()))
         {
            pInterface->release();
         }
@@ -2539,6 +2556,560 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         delete[] codecArray2;
     };
 
+    void checkForEnergyNotifications(OsMsgDispatcher& dispatcher)
+    {
+        MiNotification* pNotification = NULL;
+        int micNotifCount = 0;
+        int speakerNotifCount = 0;
+        int rtp1NotifCount = 0;
+        int rtp2NotifCount = 0;
+        int waitTimes = 100;
+        for(int eventWaitCount = 0; eventWaitCount < waitTimes; eventWaitCount++)
+        {
+            pNotification = NULL;
+            // Wait for energy level notification
+            OsStatus stat = waitForNotf(dispatcher, //pSource1NotfDispatcher,
+                               MiNotification::MI_NOTF_ENERGY_LEVEL,
+                               3000,
+                               &pNotification);
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+            CPPUNIT_ASSERT(pNotification);
+
+            // Could be energy level for mic, speaker or RTP stream
+            UtlString resourceName = pNotification->getSourceId();
+            MiIntNotf* intNotif = (MiIntNotf*) pNotification;
+            printf("Energy notif from %s\n", resourceName.data());
+
+            // Mic:
+            if(resourceName == 
+               DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX)
+            {
+                CPPUNIT_ASSERT_EQUAL(-1, pNotification->getConnectionId());
+                CPPUNIT_ASSERT_EQUAL(-1, pNotification->getStreamId());
+                printf("Mic energy: %d\n", intNotif->getValue());
+                CPPUNIT_ASSERT(intNotif->getValue() >=0);
+                micNotifCount++;
+            }
+
+            // Speaker:
+            else if(resourceName == 
+               DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX)
+            {
+                CPPUNIT_ASSERT_EQUAL(-1, pNotification->getConnectionId());
+                CPPUNIT_ASSERT_EQUAL(-1, pNotification->getStreamId());
+                printf("Speaker energy: %d\n", intNotif->getValue());
+                CPPUNIT_ASSERT(intNotif->getValue() >=0);
+                speakerNotifCount++;
+            }
+
+            // DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME CONNECTION_NAME_SUFFIX "-0"
+            // Unicast RTP streams will look like: "VoiceActivityNotifier-%d-0"
+            // Multicaste RTP streams will look like: "VoiceActivityNotifier-%d-%d"
+
+            // Unicast RTP stream from source 1 flowgraph
+            else if(resourceName == DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME "-1-0")
+            {
+                // TODO: input RTP stream energy levels
+                CPPUNIT_ASSERT_EQUAL(1, pNotification->getConnectionId());
+                CPPUNIT_ASSERT_EQUAL(0, pNotification->getStreamId());
+                printf("RTP connection: %d energy: %d\n", 
+                       pNotification->getConnectionId(),
+                       intNotif->getValue());
+                rtp1NotifCount++;
+            }
+
+            // Unicast RTP stream from source 2 flowgraph
+            else if(resourceName == DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME "-2-0")
+            {
+                // TODO: input RTP stream energy levels
+                CPPUNIT_ASSERT_EQUAL(2, pNotification->getConnectionId());
+                CPPUNIT_ASSERT_EQUAL(0, pNotification->getStreamId());
+                printf("RTP connection: %d energy: %d\n", 
+                       pNotification->getConnectionId(),
+                       intNotif->getValue());
+                rtp2NotifCount++;
+            }
+
+            else
+            {
+                // Unaccounted for energy notification
+                CPPUNIT_ASSERT_EQUAL(resourceName, "");
+            }
+        }
+
+        CPPUNIT_ASSERT_EQUAL(micNotifCount, waitTimes / 4);
+        CPPUNIT_ASSERT_EQUAL(speakerNotifCount, waitTimes / 4);
+        CPPUNIT_ASSERT_EQUAL(rtp1NotifCount, waitTimes / 4);
+        CPPUNIT_ASSERT_EQUAL(rtp2NotifCount, waitTimes / 4);
+    }
+        
+    // This test is based on testThreeGraphs(), but is focused on testing
+    // energy level notifications, fired from the VoiceActivityNotifiers
+    void testVoiceNotifications()
+    {
+        OsStatus stat;
+
+        RTL_START(2400000);
+
+        CPPUNIT_ASSERT(mpMediaFactory);
+
+        mInterestingNotifactions.insert(new UtlInt(MiNotification::MI_NOTF_ENERGY_LEVEL));
+
+        // If we wanted to supply a different set of codecs than the
+        // defaults, then we would do the below, and supply 
+        // numCodecs and codecArray when creating a mediaInterface.
+        // SdpCodecList* codecFactory = new SdpCodecList();
+        // CPPUNIT_ASSERT(codecFactory);
+        // int numCodecs;
+        // SdpCodec** codecArray = NULL;
+        // codecFactory->getCodecs(numCodecs, codecArray);
+
+        UtlString localRtpInterfaceAddress("127.0.0.1");
+        OsSocket::getHostIp(&localRtpInterfaceAddress);
+        UtlString locale;
+        int tosOptions = 0;
+        UtlString stunServerAddress;
+        int stunOptions = 0;
+        int stunKeepAlivePeriodSecs = 25;
+        UtlString turnServerAddress;
+        int turnPort = 0 ;
+        UtlString turnUser;
+        UtlString turnPassword;
+        int turnKeepAlivePeriodSecs = 25;
+        bool enableIce = false ;
+        OsMsgDispatcher *pMixedNotfDispatcher = new OsMsgDispatcher();
+
+        // Create a flowgraph (sink) to receive and mix 2 sources
+        CpMediaInterface* mixedInterface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 0, NULL, // use default codecs
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce,
+                                                 0,
+                                                 pMixedNotfDispatcher);
+        // Add created media interface to the list, to allow it be
+        // freed in tearDown() if assertion occurs.
+        mMediaInterfaces.append(mixedInterface);
+
+        // Create connections for mixed(sink) flowgraph
+        int mixedConnection1Id = -1;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->createConnection(mixedConnection1Id, NULL));
+        CPPUNIT_ASSERT(mixedConnection1Id > 0);
+        int mixedConnection2Id = -1;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->createConnection(mixedConnection2Id, NULL));
+        CPPUNIT_ASSERT(mixedConnection2Id > 0);
+        
+        // Get the address of the connections so we can send RTP to them
+        // capabilities of first connection on mixed(sink) flowgraph
+        const int maxAddresses = 1;
+        UtlString rtpHostAddresses1[maxAddresses];
+        int rtpAudioPorts1[maxAddresses];
+        int rtcpAudioPorts1[maxAddresses];
+        int rtpVideoPorts1[maxAddresses];
+        int rtcpVideoPorts1[maxAddresses];
+        RTP_TRANSPORT transportTypes1[maxAddresses];
+        int numActualAddresses1;
+        SdpCodecList supportedCodecs1;
+        SdpSrtpParameters srtpParameters1;
+        int bandWidth1 = 0;
+        int videoBandwidth1;
+        int videoFramerate1;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->getCapabilitiesEx(mixedConnection1Id, 
+                                                               maxAddresses,
+                                                               rtpHostAddresses1, 
+                                                               rtpAudioPorts1,
+                                                               rtcpAudioPorts1,
+                                                               rtpVideoPorts1,
+                                                               rtcpVideoPorts1,
+                                                               transportTypes1,
+                                                               numActualAddresses1,
+                                                               supportedCodecs1,
+                                                               srtpParameters1,
+                                                               bandWidth1,
+                                                               videoBandwidth1,
+                                                               videoFramerate1));
+
+        // capabilities of second connection on mixed(sink) flowgraph
+        UtlString rtpHostAddresses2[maxAddresses];
+        int rtpAudioPorts2[maxAddresses];
+        int rtcpAudioPorts2[maxAddresses];
+        int rtpVideoPorts2[maxAddresses];
+        int rtcpVideoPorts2[maxAddresses];
+        RTP_TRANSPORT transportTypes2[maxAddresses];
+        int numActualAddresses2;
+        SdpCodecList supportedCodecs2;
+        SdpSrtpParameters srtpParameters2;
+        int bandWidth2 = 0;
+        int videoBandwidth2;
+        int videoFramerate2;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->getCapabilitiesEx(mixedConnection2Id, 
+                                                               maxAddresses,
+                                                               rtpHostAddresses2, 
+                                                               rtpAudioPorts2,
+                                                               rtcpAudioPorts2,
+                                                               rtpVideoPorts2,
+                                                               rtcpVideoPorts2,
+                                                               transportTypes2,
+                                                               numActualAddresses2,
+                                                               supportedCodecs2,
+                                                               srtpParameters2,
+                                                               bandWidth2,
+                                                               videoBandwidth2,
+                                                               videoFramerate2));
+
+        // Prep the sink connections to receive RTP
+        int numCodecsFactory1;
+        SdpCodec** codecArray1 = NULL;
+        supportedCodecs1.getCodecs(numCodecsFactory1, codecArray1);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->startRtpReceive(mixedConnection1Id,
+                                                             numCodecsFactory1,
+                                                             codecArray1));
+
+        // Want to hear what is on the mixed flowgraph
+        mixedInterface->giveFocus();
+
+        int numCodecsFactory2;
+        SdpCodec** codecArray2 = NULL;
+        supportedCodecs2.getCodecs(numCodecsFactory2, codecArray2);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->startRtpReceive(mixedConnection2Id,
+                                                             numCodecsFactory2,
+                                                             codecArray2));
+
+        if(sUseLocalAudioDevices)
+        {
+            MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                                              *(mixedInterface->getMsgQ()),
+                                                              1000);
+        }
+
+        OsMsgDispatcher *pSource1NotfDispatcher = new OsMsgDispatcher();
+
+        // Second flowgraph to be one of two sources
+        CpMediaInterface* source1Interface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 0, NULL, // use default codecs
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce,
+                                                 0,
+                                                 pSource1NotfDispatcher);
+        // Add created media interface to the list, to allow it be
+        // freed in tearDown() if assertion occurs.
+        mMediaInterfaces.append(source1Interface);
+
+        // Create connection for source 1 flowgraph
+        int source1ConnectionId = -1;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source1Interface->createConnection(source1ConnectionId, NULL));
+        CPPUNIT_ASSERT(source1ConnectionId > 0);
+
+        // Set the destination for sending RTP from source 1 to connection 1 on
+        // the mix flowgraph
+        printf("rtpHostAddresses1: \"%s\"\nrtpAudioPorts1: %d\nrtcpAudioPorts1: %d\nrtpVideoPorts1: %d\nrtcpVideoPorts1: %d\n",
+            rtpHostAddresses1->data(), 
+            *rtpAudioPorts1,
+            *rtcpAudioPorts1,
+            *rtpVideoPorts1,
+            *rtcpVideoPorts1);
+
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source1Interface->setConnectionDestination(source1ConnectionId,
+                                                                        rtpHostAddresses1->data(), 
+                                                                        *rtpAudioPorts1,
+                                                                        *rtcpAudioPorts1,
+                                                                        *rtpVideoPorts1,
+                                                                        *rtcpVideoPorts1));
+
+        OsMsgDispatcher *pSource2NotfDispatcher = new OsMsgDispatcher();
+
+        // Second flowgraph to be one of two sources
+        CpMediaInterface* source2Interface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 0, NULL, // use default codecs
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce,
+                                                 0,
+                                                 pSource2NotfDispatcher);
+        // Add created media interface to the list, to allow it be
+        // freed in tearDown() if assertion occurs.
+        mMediaInterfaces.append(source2Interface);
+
+        // Create connection for source 2 flowgraph
+        int source2ConnectionId = -1;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source2Interface->createConnection(source2ConnectionId, NULL));
+        CPPUNIT_ASSERT(source2ConnectionId > 0);
+
+        // Set the destination for sending RTP from source 2 to connection 2 on
+        // the mix flowgraph
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source2Interface->setConnectionDestination(source2ConnectionId,
+                                                                        *rtpHostAddresses2, 
+                                                                        *rtpAudioPorts2,
+                                                                        *rtcpAudioPorts2,
+                                                                        *rtpVideoPorts2,
+                                                                        *rtcpVideoPorts2));
+
+
+        // Start sending RTP from source 1 to the mix flowgraph
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source1Interface->startRtpSend(source1ConnectionId, 
+                                                            numCodecsFactory1,
+                                                            codecArray1));
+
+        RTL_EVENT("Prompt", 0);
+
+        // Start sending RTP from source 2 to the mix flowgraph
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source2Interface->startRtpSend(source2ConnectionId, 
+                                                            numCodecsFactory2,
+                                                            codecArray2));
+
+        //  -------------------------< TEST PHASE 1 >-------------------------
+        // Testing that notification fired and contain correct information.
+        printf("\nTest notifications emission\n");
+
+        RTL_EVENT("Prompt", 1);
+        printf("playing prompt in source 1\n");
+        int waveHeaderSize = 116;
+        CPPUNIT_ASSERT_EQUAL((size_t)160116, sizeof(sine_330hz_16b_8k_signed));
+        source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
+                                     sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
+                                     PROMPTBUF_SAMPLERATE,
+                                     0, //type, 
+                                     FALSE, // repeat,
+                                     FALSE, // local, 
+                                     TRUE //remote,
+                                     );
+
+        RTL_EVENT("Prompt", 2);
+        printf("playing prompt in source 2 as well\n");
+        //source2Interface->startTone(2, true, true);
+        source2Interface->playBuffer((char*)&sine_530hz_16b_8k_signed[waveHeaderSize], 
+                                     sizeof(sine_530hz_16b_8k_signed) - waveHeaderSize, 
+                                     PROMPTBUF_SAMPLERATE,
+                                     0, //type, 
+                                     FALSE, // repeat,
+                                     FALSE, // local, 
+                                     TRUE //remote,
+                                     //OsProtectedEvent* event = NULL,
+                                     //UtlBoolean mixWithMic = false,
+                                     //int downScaling = 100
+                                     );
+
+        checkForEnergyNotifications(*pMixedNotfDispatcher);
+
+        RTL_EVENT("Prompt", 1);
+        printf("stopping prompt in source 1\n");
+        source1Interface->stopAudio();
+
+        RTL_EVENT("Prompt", 0);
+        printf("stopping prompt in source 2\n");
+        source2Interface->stopAudio();
+
+        //  -------------------------< TEST PHASE 2 >-------------------------
+        // Test all notifications disable.
+        printf("\nTest all notifications disable\n");
+
+        // Disable all notifications.
+        stat = source1Interface->setNotificationsEnabled(false);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+        stat = mixedInterface->setNotificationsEnabled(false);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+
+        RTL_EVENT("Prompt", 1);
+        printf("playing prompt in source 1\n");
+        CPPUNIT_ASSERT_EQUAL((size_t)160116, sizeof(sine_330hz_16b_8k_signed));
+        source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
+                                     sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
+                                     PROMPTBUF_SAMPLERATE,
+                                     0, //type, 
+                                     FALSE, // repeat,
+                                     FALSE, // local, 
+                                     TRUE //remote,
+                                     );
+
+        // Check that START_TX notification is not fired
+        //stat = waitForNotf(*pSource1NotfDispatcher,
+        //                   MiNotification::MI_NOTF_RX_STREAM_ACTIVITY,
+        //                   1000,
+        //                   &pNotification);
+        //CPPUNIT_ASSERT_EQUAL(OS_WAIT_TIMEOUT, stat);
+
+        RTL_EVENT("Prompt", 0);
+        printf("stopping prompt in source 1\n");
+        source1Interface->stopAudio();
+
+        //  -------------------------< TEST PHASE 3 >-------------------------
+        // Test all notifications enable.
+        printf("\nTest all notifications enable\n");
+
+        // Enable all notifications.
+        stat = source1Interface->setNotificationsEnabled(true);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+        stat = mixedInterface->setNotificationsEnabled(true);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+
+        RTL_EVENT("Prompt", 1);
+        printf("playing prompt in source 1\n");
+        CPPUNIT_ASSERT_EQUAL((size_t)160116, sizeof(sine_330hz_16b_8k_signed));
+        source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
+                                     sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
+                                     PROMPTBUF_SAMPLERATE,
+                                     0, //type, 
+                                     FALSE, // repeat,
+                                     FALSE, // local, 
+                                     TRUE //remote,
+                                     );
+
+        // Check that START_TX notification is not fired
+        //stat = waitForNotf(*pSource1NotfDispatcher,
+        //                   MiNotification::MI_NOTF_RX_STREAM_ACTIVITY,
+        //                   1000,
+        //                   &pNotification);
+        //CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+
+        RTL_EVENT("Prompt", 0);
+        printf("stopping prompt in source 1\n");
+        source1Interface->stopAudio();
+
+        //  -------------------------< TEST PHASE 4 >-------------------------
+        // Test stream notifications enable/disable (part 1).
+        printf("\nTest stream notifications enable/disable (part 1)\n");
+
+        // Disable stream notifications.
+        stat = source1Interface->setNotificationsEnabled(false, "InRtp-1");
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+        stat = source1Interface->setNotificationsEnabled(false, "Encode-1");
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+        stat = mixedInterface->setNotificationsEnabled(true, "InRtp-1");
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+        stat = mixedInterface->setNotificationsEnabled(true, "Encode-1");
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+
+        RTL_EVENT("Prompt", 1);
+        printf("playing prompt in source 1\n");
+        CPPUNIT_ASSERT_EQUAL((size_t)160116, sizeof(sine_330hz_16b_8k_signed));
+        source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
+                                     sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
+                                     PROMPTBUF_SAMPLERATE,
+                                     0, //type, 
+                                     FALSE, // repeat,
+                                     FALSE, // local, 
+                                     TRUE //remote,
+                                     );
+
+        RTL_EVENT("Prompt", 0);
+        printf("stopping prompt in source 1\n");
+        source1Interface->stopAudio();
+
+        //  -------------------------< TEST PHASE 4 >-------------------------
+        // Test stream notifications enable/disable (part 2).
+        printf("\nTest stream notifications enable/disable (part 2)\n");
+
+        // Disable stream notifications.
+        stat = source1Interface->setNotificationsEnabled(true, "InRtp-1");
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+        stat = source1Interface->setNotificationsEnabled(true, "Encode-1");
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+        stat = mixedInterface->setNotificationsEnabled(false, "InRtp-1");
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+        stat = mixedInterface->setNotificationsEnabled(false, "Encode-1");
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+
+        RTL_EVENT("Prompt", 1);
+        printf("playing prompt in source 1\n");
+        CPPUNIT_ASSERT_EQUAL((size_t)160116, sizeof(sine_330hz_16b_8k_signed));
+        source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
+                                     sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
+                                     PROMPTBUF_SAMPLERATE,
+                                     0, //type, 
+                                     FALSE, // repeat,
+                                     FALSE, // local, 
+                                     TRUE //remote,
+                                     );
+
+        // Check that START_TX notification is not fired
+        //stat = waitForNotf(*pSource1NotfDispatcher,
+        //                   MiNotification::MI_NOTF_RX_STREAM_ACTIVITY,
+        //                   1000,
+        //                   &pNotification);
+        //CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, stat);
+
+        RTL_EVENT("Prompt", 0);
+        printf("stopping prompt in source 1\n");
+        source1Interface->stopAudio();
+
+        printf("\ntest done\n");        
+
+        //  ---------------------------< TEST END >---------------------------
+
+        // Delete connections
+        mixedInterface->deleteConnection(mixedConnection1Id);
+        mixedInterface->deleteConnection(mixedConnection2Id);
+        source1Interface->deleteConnection(source1ConnectionId);
+        source2Interface->deleteConnection(source2ConnectionId);
+
+        // delete interfaces
+        mMediaInterfaces.remove(mixedInterface);
+        mixedInterface->release();
+        mMediaInterfaces.remove(source1Interface);
+        source1Interface->release();
+        mMediaInterfaces.remove(source2Interface);
+        source2Interface->release();
+
+        OsTask::delay(500) ;
+
+        RTL_WRITE("testVoiceNotifications.rtl");
+        RTL_STOP;
+
+        // delete codecs set
+        for ( numCodecsFactory1--; numCodecsFactory1>=0; numCodecsFactory1--)
+        {
+           delete codecArray1[numCodecsFactory1];
+        }
+        delete[] codecArray1;
+        for ( numCodecsFactory2--; numCodecsFactory2>=0; numCodecsFactory2--)
+        {
+           delete codecArray2[numCodecsFactory2];
+        }
+        delete[] codecArray2;
+    };
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CpPhoneMediaInterfaceTest);
