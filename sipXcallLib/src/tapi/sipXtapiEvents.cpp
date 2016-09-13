@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -327,6 +327,12 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
             break ;
         case MEDIA_MIC_ENERGY_LEVEL:
             str = "MEDIA_MIC_ENERGY_LEVEL";
+            break;
+        case MEDIA_SPEAKER_ENERGY_LEVEL:
+            str = "MEDIA_SPEAKER_ENERGY_LEVEL";
+            break;
+        case MEDIA_RTP_ENERGY_LEVEL:
+            str = "MEDIA_RTP_ENERGY_LEVEL";
             break;
         case MEDIA_H264_SPS:
             str = "MEDIA_H264_SPS";
@@ -1642,6 +1648,8 @@ void sipxFireMediaEvent(const void* pSrc,
                                 break ;
 
                             case MEDIA_MIC_ENERGY_LEVEL:
+                            case MEDIA_SPEAKER_ENERGY_LEVEL:
+                            case MEDIA_RTP_ENERGY_LEVEL:
                                 mediaInfo.idleTime = (intptr_t) pEventData;
                                 break;
 
@@ -2080,6 +2088,14 @@ SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
 
         case MEDIA_MIC_ENERGY_LEVEL:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_MIC_ENERGY_LEVEL");
+            break;
+
+        case MEDIA_SPEAKER_ENERGY_LEVEL:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_SPEAKER_ENERGY_LEVEL");
+            break;
+
+        case MEDIA_RTP_ENERGY_LEVEL:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_RTP_ENERGY_LEVEL");
             break;
 
         case MEDIA_H264_SPS:
