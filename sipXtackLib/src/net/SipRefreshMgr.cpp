@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -537,8 +537,8 @@ SipRefreshMgr::unRegisterUser (
             
             // clear out any pending register requests
             removeAllFromRequestList(&sipMsg);
-            sendRequest(sipMsg, SIP_REGISTER_METHOD);
             addToRegisterList(&sipMsg);
+            sendRequest(sipMsg, SIP_REGISTER_METHOD);
             }
         }
     }
