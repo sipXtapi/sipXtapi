@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -54,6 +54,18 @@ class OsNotification;
 struct rtpSession;
 
 // STRUCTS
+struct rtpSession {
+    uint8_t vpxcc; ///< Usually: ((2<<6) | (0<<5) | (0<<4) | 0)
+    uint8_t mpt;   ///< Usually: ((0<<7) | 0)
+    RtpSeq seq;
+    RtpTimestamp timestamp;
+    RtpSRC ssrc;
+    OsSocket* socket;
+    int dir;
+    uint32_t packets;
+    uint32_t octets;
+    uint16_t cycles;
+};
 
 #ifndef INCLUDE_RTCP /* [ */
 struct __MprRtcpStats {
