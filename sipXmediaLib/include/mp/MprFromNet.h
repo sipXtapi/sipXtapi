@@ -29,6 +29,8 @@
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/IRTPDispatch.h"
 #include "rtcp/INetDispatch.h"
+#else
+#include <mp/NetInTask.h>
 #endif /* INCLUDE_RTCP ] */
 
 // DEFINES
