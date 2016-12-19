@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -204,7 +204,13 @@ OsStatus MprFromNet::rtcpStats(struct RtpHeader* rtpH)
 {
    if (mInRtpHandle->ssrc != rtpH->ssrc)
    {
-      const char* name = getName();
+       const char* name =
+#ifdef INCLUDE_RTCP /* [ */
+           getName();
+#else
+           "";
+#endif /* INCLUDE_RTCP ] */
+
       static int firstfew = 0;
 
       if (firstfew++ < 20)
