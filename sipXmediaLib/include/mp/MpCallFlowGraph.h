@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -14,17 +14,18 @@
 #ifndef _MpCallFlowGraph_h_
 #define _MpCallFlowGraph_h_
 
-#include "rtcp/RtcpConfig.h"
+#include <rtcp/RtcpConfig.h>
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "mp/MpMisc.h"
-#include "mp/MpFlowGraphBase.h"
-#include "mp/StreamDefs.h"
-#include "mp/MpStreamMsg.h"
-#include "os/OsProtectEvent.h"
-#include "mp/MprRecorder.h"
+#include <mp/MpMisc.h>
+#include <mp/MpFlowGraphBase.h>
+#include <mp/StreamDefs.h>
+#include <mp/MpStreamMsg.h>
+#include <os/OsProtectEvent.h>
+#include <mp/MprRecorder.h>
+#include <os/OsSocket.h>
 
 // DEFINES
 #define DEBUG_POSTPONE
