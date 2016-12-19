@@ -54,8 +54,10 @@ int MpFlowGraphBase::gFgMaxNumber = 0;
 MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec,
                                  OsMsgDispatcher *pNotifDispatcher)
 :
-CBaseClass(CBASECLASS_CALL_ARGS("MpFlowGraphBase", __LINE__))
-, mRWMutex(OsRWMutex::Q_PRIORITY)
+#ifdef INCLUDE_RTCP /* [ */
+CBaseClass(CBASECLASS_CALL_ARGS("MpFlowGraphBase", __LINE__)),
+#endif /* INCLUDE_RTCP ] */
+  mRWMutex(OsRWMutex::Q_PRIORITY)
 , mFgNumber(gFgMaxNumber++)
 , mResourceDict()
 , mCurState(STOPPED)
