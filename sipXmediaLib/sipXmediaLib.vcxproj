@@ -1,0 +1,1167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_NoVideo|Win32">
+      <Configuration>Debug_NoVideo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_NoVideo|Win32">
+      <Configuration>Release_NoVideo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0EC8287A-481E-45DC-8F95-BAD940AE1038}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\Debug\</OutDir>
+    <IntDir>.\Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\Release\</OutDir>
+    <IntDir>.\Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>include;contrib\libgsm\inc;contrib\libspeex\include;contrib\libilbc\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\FFmpeg\include\ffmpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DISABLE_STREAM_PLAYER;HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;SIPX_VIDEO;_DEBUG;WIN32;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>include;contrib\libgsm\inc;contrib\libspeex\include;contrib\libilbc\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\FFmpeg\include\ffmpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DISABLE_STREAM_PLAYER;HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;SIPX_VIDEO;NDEBUG;WIN32;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat />
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>include;contrib\libgsm\inc;contrib\libspeex\include;contrib\libilbc\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;_DEBUG;WIN32;_LIB;EXTERNAL_AGC;EXTERNAL_VAD;EXTERNAL_PLC;EXTERNAL_JB_ESTIMATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>include;contrib\libgsm\inc;contrib\libspeex\include;contrib\libilbc\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;NDEBUG;WIN32;_LIB;EXTERNAL_PLC;EXTERNAL_AGC;EXTERNAL_VAD;EXTERNAL_JB_ESTIMATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat />
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\mp\dft.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\dmaTaskWnt.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\DSPlib.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\dtmflib.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\FilterBank.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\HandsetFilterBank.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MicThreadWnt.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAgcBase.cpp" />
+    <ClCompile Include="src\mp\MpAgcSimple.cpp" />
+    <ClCompile Include="src\mp\MpArrayBuf.cpp" />
+    <ClCompile Include="src\mp\mpau.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioAbstract.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioBuf.cpp" />
+    <ClCompile Include="src\mp\MpAudioFileDecompress.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioFileOpen.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioFileUtils.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioOutputConnection.cpp" />
+    <ClCompile Include="src\mp\MpAudioResource.cpp" />
+    <ClCompile Include="src\mp\MpAudioUtils.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioWaveFileRead.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpBridgeAlgLinear.cpp" />
+    <ClCompile Include="src\mp\MpBridgeAlgSimple.cpp" />
+    <ClCompile Include="src\mp\MpBuf.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpBufferMsg.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpBufPool.cpp" />
+    <ClCompile Include="src\mp\MpCallFlowGraph.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpCodec.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpCodecFactory.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpDataBuf.cpp" />
+    <ClCompile Include="src\mp\MpDecoderBase.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpDecoderPayloadMap.cpp" />
+    <ClCompile Include="src\mp\MpDspUtils.cpp" />
+    <ClCompile Include="src\mp\MpDTMFDetector.cpp" />
+    <ClCompile Include="src\mp\MpEncoderBase.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpFlowGraphBase.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpFlowGraphMsg.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\mpG711.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpidWinMM.cpp" />
+    <ClCompile Include="src\mp\MpInputDeviceDriver.cpp" />
+    <ClCompile Include="src\mp\MpInputDeviceManager.cpp" />
+    <ClCompile Include="src\mp\MpJbeFixed.cpp" />
+    <ClCompile Include="src\mp\MpJitterBuffer.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpJitterBufferEstimation.cpp" />
+    <ClCompile Include="src\mp\MpMediaTask.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpMediaTaskMsg.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpMisc.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpMMTimer.cpp" />
+    <ClCompile Include="src\mp\MpMMTimerWnt.cpp" />
+    <ClCompile Include="src\mp\MpodBufferRecorder.cpp" />
+    <ClCompile Include="src\mp\MpodWinMM.cpp" />
+    <ClCompile Include="src\mp\MpOutputDeviceDriver.cpp" />
+    <ClCompile Include="src\mp\MpOutputDeviceManager.cpp" />
+    <ClCompile Include="src\mp\MpPlayer.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpPlayerEvent.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpPlcBase.cpp" />
+    <ClCompile Include="src\mp\MpPlcSilence.cpp" />
+    <ClCompile Include="src\mp\MpPlgStaffV1.cpp" />
+    <ClCompile Include="src\mp\MprAudioFrameBuffer.cpp" />
+    <ClCompile Include="src\mp\MprBridge.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprDecode.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprDejitter.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprDelay.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprEchoSuppress.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprEncode.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResampler.cpp" />
+    <ClCompile Include="src\mp\MpResamplerSpeex.cpp" />
+    <ClCompile Include="src\mp\MpResNotificationMsg.cpp" />
+    <ClCompile Include="src\mp\MpResource.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResourceFactory.cpp" />
+    <ClCompile Include="src\mp\MpResourceMsg.cpp" />
+    <ClCompile Include="src\mp\MpResourceSortAlg.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResourceTopology.cpp" />
+    <ClCompile Include="src\mp\MprFromFile.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprFromInputDevice.cpp" />
+    <ClCompile Include="src\mp\MprFromMic.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprFromNet.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprFromStream.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprHook.cpp" />
+    <ClCompile Include="src\mp\MprMixer.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprnDTMFMsg.cpp" />
+    <ClCompile Include="src\mp\MprnIntMsg.cpp" />
+    <ClCompile Include="src\mp\MprnProgressMsg.cpp" />
+    <ClCompile Include="src\mp\MprnRtpStreamActivityMsg.cpp" />
+    <ClCompile Include="src\mp\MprnStringMsg.cpp" />
+    <ClCompile Include="src\mp\MprNull.cpp" />
+    <ClCompile Include="src\mp\MprNullAec.cpp" />
+    <ClCompile Include="src\mp\MprRecorder.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprRtpDispatcher.cpp" />
+    <ClCompile Include="src\mp\MprRtpDispatcherActiveSsrcs.cpp" />
+    <ClCompile Include="src\mp\MprRtpDispatcherIpAffinity.cpp" />
+    <ClCompile Include="src\mp\MprSpeakerSelector.cpp" />
+    <ClCompile Include="src\mp\MprSpeexEchoCancel.cpp" />
+    <ClCompile Include="src\mp\MprSpeexPreprocess.cpp" />
+    <ClCompile Include="src\mp\MprSplitter.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprToneGen.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprToNet.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprToOutputDevice.cpp" />
+    <ClCompile Include="src\mp\MprToSpkr.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpRtpBuf.cpp" />
+    <ClCompile Include="src\mp\MpRtpInputConnection.cpp" />
+    <ClCompile Include="src\mp\MpRtpOutputConnection.cpp" />
+    <ClCompile Include="src\mp\MprVad.cpp" />
+    <ClCompile Include="src\mp\MprVoiceActivityNotifier.cpp" />
+    <ClCompile Include="src\mp\MpSineWaveGeneratorDeviceDriver.cpp" />
+    <ClCompile Include="src\mp\MpSpeakerSelectBase.cpp" />
+    <ClCompile Include="src\mp\MpStaticCodecInit.cpp" />
+    <ClCompile Include="src\mp\MpStreamFeeder.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpStreamMsg.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpStreamPlayer.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpStreamPlaylistPlayer.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpStreamQueuePlayer.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpTopologyGraph.cpp" />
+    <ClCompile Include="src\mp\MpTypes.cpp" />
+    <ClCompile Include="src\mp\MpUdpBuf.cpp" />
+    <ClCompile Include="src\mp\MpVadBase.cpp" />
+    <ClCompile Include="src\mp\MpVadSimple.cpp" />
+    <ClCompile Include="src\mp\NetInTask.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\SpeakerThreadWnt.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamBufferDataSource.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamDataSource.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamDataSourceListener.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamDecoderListener.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamFileDataSource.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamFormatDecoder.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamHttpDataSource.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamQueueingFormatDecoder.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamQueueMsg.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamRAWFormatDecoder.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamWAVFormatDecoder.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\BaseClass.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\ByeReport.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\Message.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\MsgQueue.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\NetworkChannel.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\ReceiverReport.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCManager.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPConnection.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPHeader.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPRender.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPSession.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPSource.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPTimer.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTPHeader.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\SenderReport.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\SourceDescription.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">MaxSpeed</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\mp\codecs\PlgDefsV1.h" />
+    <ClInclude Include="include\mp\dmaTask.h" />
+    <ClInclude Include="include\mp\dsplib.h" />
+    <ClInclude Include="include\mp\dtmflib.h" />
+    <ClInclude Include="include\mp\FilterBank.h" />
+    <ClInclude Include="include\mp\HandsetFilterBank.h" />
+    <ClInclude Include="include\mp\HandsetFilterbankWindows.h" />
+    <ClInclude Include="include\mp\MpAgcBase.h" />
+    <ClInclude Include="include\mp\MpAgcSimple.h" />
+    <ClInclude Include="include\mp\MpArrayBuf.h" />
+    <ClInclude Include="include\mp\mpau.h" />
+    <ClInclude Include="include\mp\MpAudioAbstract.h" />
+    <ClInclude Include="include\mp\MpAudioBuf.h" />
+    <ClInclude Include="include\mp\MpAudioFileDecompress.h" />
+    <ClInclude Include="include\mp\MpAudioFileOpen.h" />
+    <ClInclude Include="include\mp\MpAudioFileUtils.h" />
+    <ClInclude Include="include\mp\MpAudioOutputConnection.h" />
+    <ClInclude Include="include\mp\MpAudioResource.h" />
+    <ClInclude Include="include\mp\MpAudioResourceConstructor.h" />
+    <ClInclude Include="include\mp\MpAudioUtils.h" />
+    <ClInclude Include="include\mp\MpAudioWaveFileRead.h" />
+    <ClInclude Include="include\mp\MpBridgeAlgBase.h" />
+    <ClInclude Include="include\mp\MpBridgeAlgLinear.h" />
+    <ClInclude Include="include\mp\MpBridgeAlgSimple.h" />
+    <ClInclude Include="include\mp\MpBuf.h" />
+    <ClInclude Include="include\mp\MpBufferMsg.h" />
+    <ClInclude Include="include\mp\MpBufPool.h" />
+    <ClInclude Include="include\mp\MpCallFlowGraph.h" />
+    <ClInclude Include="include\mp\MpCodec.h" />
+    <ClInclude Include="include\mp\MpCodecFactory.h" />
+    <ClInclude Include="include\mp\MpCodecInfo.h" />
+    <ClInclude Include="include\mp\MpDataBuf.h" />
+    <ClInclude Include="include\mp\MpDecoderBase.h" />
+    <ClInclude Include="include\mp\MpDecoderPayloadMap.h" />
+    <ClInclude Include="include\mp\MpDspUtils.h" />
+    <ClInclude Include="include\mp\MpDspUtilsConvertVect.h" />
+    <ClInclude Include="include\mp\MpDspUtilsIntSqrt.h" />
+    <ClInclude Include="include\mp\MpDspUtilsSerials.h" />
+    <ClInclude Include="include\mp\MpDspUtilsShift.h" />
+    <ClInclude Include="include\mp\MpDspUtilsSum.h" />
+    <ClInclude Include="include\mp\MpDspUtilsSumVect.h" />
+    <ClInclude Include="include\mp\MpDTMFDetector.h" />
+    <ClInclude Include="include\mp\MpEncoderBase.h" />
+    <ClInclude Include="include\mp\MpFlowGraphBase.h" />
+    <ClInclude Include="include\mp\MpFlowGraphMsg.h" />
+    <ClInclude Include="include\mp\MpidWinMM.h" />
+    <ClInclude Include="include\mp\MpInputDeviceDriver.h" />
+    <ClInclude Include="include\mp\MpInputDeviceManager.h" />
+    <ClInclude Include="include\mp\MpIntResourceMsg.h" />
+    <ClInclude Include="include\mp\MpJbeFixed.h" />
+    <ClInclude Include="include\mp\MpJitterBuffer.h" />
+    <ClInclude Include="include\mp\MpJitterBufferEstimation.h" />
+    <ClInclude Include="include\mp\MpMediaTask.h" />
+    <ClInclude Include="include\mp\MpMediaTaskMsg.h" />
+    <ClInclude Include="include\mp\MpMisc.h" />
+    <ClInclude Include="include\mp\MpMMTimer.h" />
+    <ClInclude Include="include\mp\MpMMTimerWnt.h" />
+    <ClInclude Include="include\mp\MpodBufferRecorder.h" />
+    <ClInclude Include="include\mp\MpodWinMM.h" />
+    <ClInclude Include="include\mp\MpOutputDeviceDriver.h" />
+    <ClInclude Include="include\mp\MpOutputDeviceManager.h" />
+    <ClInclude Include="include\mp\MpPackedResourceMsg.h" />
+    <ClInclude Include="include\mp\MpPlayer.h" />
+    <ClInclude Include="include\mp\MpPlayerEvent.h" />
+    <ClInclude Include="include\mp\MpPlayerListener.h" />
+    <ClInclude Include="include\mp\MpPlcBase.h" />
+    <ClInclude Include="include\mp\MpPlcSilence.h" />
+    <ClInclude Include="include\mp\MpPlgStaffV1.h" />
+    <ClInclude Include="include\mp\MpQueuePlayerListener.h" />
+    <ClInclude Include="include\mp\MprAudioFrameBuffer.h" />
+    <ClInclude Include="include\mp\MprBridge.h" />
+    <ClInclude Include="include\mp\MprBridgeConstructor.h" />
+    <ClInclude Include="include\mp\MprDecode.h" />
+    <ClInclude Include="include\mp\MprDecodeConstructor.h" />
+    <ClInclude Include="include\mp\MprDecodeSelectCodecsMsg.h" />
+    <ClInclude Include="include\mp\MprDejitter.h" />
+    <ClInclude Include="include\mp\MprDelay.h" />
+    <ClInclude Include="include\mp\MprDelayConstructor.h" />
+    <ClInclude Include="include\mp\MprEchoSuppress.h" />
+    <ClInclude Include="include\mp\MprEncode.h" />
+    <ClInclude Include="include\mp\MprEncodeConstructor.h" />
+    <ClInclude Include="include\mp\MpResampler.h" />
+    <ClInclude Include="include\mp\MpResamplerSpeex.h" />
+    <ClInclude Include="include\mp\MpResNotificationMsg.h" />
+    <ClInclude Include="include\mp\MpResource.h" />
+    <ClInclude Include="include\mp\MpResourceConstructor.h" />
+    <ClInclude Include="include\mp\MpResourceFactory.h" />
+    <ClInclude Include="include\mp\MpResourceMsg.h" />
+    <ClInclude Include="include\mp\MpResourceSortAlg.h" />
+    <ClInclude Include="include\mp\MpResourceTopology.h" />
+    <ClInclude Include="include\mp\MprFromFile.h" />
+    <ClInclude Include="include\mp\MprFromFileConstructor.h" />
+    <ClInclude Include="include\mp\MprFromInputDevice.h" />
+    <ClInclude Include="include\mp\MprFromInputDeviceConstructor.h" />
+    <ClInclude Include="include\mp\MprFromMic.h" />
+    <ClInclude Include="include\mp\MprFromNet.h" />
+    <ClInclude Include="include\mp\MprFromStream.h" />
+    <ClInclude Include="include\mp\MprHook.h" />
+    <ClInclude Include="include\mp\MprHookConstructor.h" />
+    <ClInclude Include="include\mp\MprMixer.h" />
+    <ClInclude Include="include\mp\MprnDTMFMsg.h" />
+    <ClInclude Include="include\mp\MprnIntMsg.h" />
+    <ClInclude Include="include\mp\MprnProgressMsg.h" />
+    <ClInclude Include="include\mp\MprnRtpStreamActivityMsg.h" />
+    <ClInclude Include="include\mp\MprnStringMsg.h" />
+    <ClInclude Include="include\mp\MprNull.h" />
+    <ClInclude Include="include\mp\MprNullAec.h" />
+    <ClInclude Include="include\mp\MprNullAecConstructor.h" />
+    <ClInclude Include="include\mp\MprNullConstructor.h" />
+    <ClInclude Include="include\mp\MprRecorder.h" />
+    <ClInclude Include="include\mp\MprRecorderConstructor.h" />
+    <ClInclude Include="include\mp\MprRtpDispatcher.h" />
+    <ClInclude Include="include\mp\MprRtpDispatcherActiveSsrcs.h" />
+    <ClInclude Include="include\mp\MprRtpDispatcherIpAffinity.h" />
+    <ClInclude Include="include\mp\MprRtpInputConnectionConstructor.h" />
+    <ClInclude Include="include\mp\MprRtpOutputConnectionConstructor.h" />
+    <ClInclude Include="include\mp\MprRtpStartReceiveMsg.h" />
+    <ClInclude Include="include\mp\MprSpeakerSelector.h" />
+    <ClInclude Include="include\mp\MprSpeakerSelectorConstructor.h" />
+    <ClInclude Include="include\mp\MprSpeexEchoCancel.h" />
+    <ClInclude Include="include\mp\MprSpeexPreprocess.h" />
+    <ClInclude Include="include\mp\MprSpeexPreProcessConstructor.h" />
+    <ClInclude Include="include\mp\MprSplitter.h" />
+    <ClInclude Include="include\mp\MprSplitterConstructor.h" />
+    <ClInclude Include="include\mp\MprToneGen.h" />
+    <ClInclude Include="include\mp\MprToneGenConstructor.h" />
+    <ClInclude Include="include\mp\MprToNet.h" />
+    <ClInclude Include="include\mp\MprToOutputDevice.h" />
+    <ClInclude Include="include\mp\MprToOutputDeviceConstructor.h" />
+    <ClInclude Include="include\mp\MprToOutputDeviceWithAecConstructor.h" />
+    <ClInclude Include="include\mp\MprToSpkr.h" />
+    <ClInclude Include="include\mp\MpRtpBuf.h" />
+    <ClInclude Include="include\mp\MpRtpInputConnection.h" />
+    <ClInclude Include="include\mp\MpRtpOutputConnection.h" />
+    <ClInclude Include="include\mp\MprVad.h" />
+    <ClInclude Include="include\mp\MprVadConstructor.h" />
+    <ClInclude Include="include\mp\MprVoiceActivityNotifier.h" />
+    <ClInclude Include="include\mp\MprVoiceActivityNotifierConstructor.h" />
+    <ClInclude Include="include\mp\MpSineWaveGeneratorDeviceDriver.h" />
+    <ClInclude Include="include\mp\MpSpeakerSelectBase.h" />
+    <ClInclude Include="include\mp\MpStaticCodecInit.h" />
+    <ClInclude Include="include\mp\MpStreamFeeder.h" />
+    <ClInclude Include="include\mp\MpStreamMsg.h" />
+    <ClInclude Include="include\mp\MpStreamPlayer.h" />
+    <ClInclude Include="include\mp\MpStreamPlaylistPlayer.h" />
+    <ClInclude Include="include\mp\MpStreamQueuePlayer.h" />
+    <ClInclude Include="include\mp\MpStringResourceMsg.h" />
+    <ClInclude Include="include\mp\MpSyncFlowgraphMsg.h" />
+    <ClInclude Include="include\mp\MpToneResourceMsg.h" />
+    <ClInclude Include="include\mp\MpTopologyGraph.h" />
+    <ClInclude Include="include\mp\MpTypes.h" />
+    <ClInclude Include="include\mp\MpUdpBuf.h" />
+    <ClInclude Include="include\mp\MpVadBase.h" />
+    <ClInclude Include="include\mp\MpVadSimple.h" />
+    <ClInclude Include="include\mp\NetInTask.h" />
+    <ClInclude Include="include\mp\RtpHeader.h" />
+    <ClInclude Include="include\mp\StreamBufferDataSource.h" />
+    <ClInclude Include="include\mp\StreamDataSource.h" />
+    <ClInclude Include="include\mp\StreamDataSourceListener.h" />
+    <ClInclude Include="include\mp\StreamDecoderListener.h" />
+    <ClInclude Include="include\mp\StreamDefs.h" />
+    <ClInclude Include="include\mp\StreamFileDataSource.h" />
+    <ClInclude Include="include\mp\StreamFormatDecoder.h" />
+    <ClInclude Include="include\mp\StreamHttpDataSource.h" />
+    <ClInclude Include="include\mp\StreamQueueingFormatDecoder.h" />
+    <ClInclude Include="include\mp\StreamQueueMsg.h" />
+    <ClInclude Include="include\mp\StreamRAWFormatDecoder.h" />
+    <ClInclude Include="include\mp\StreamWAVFormatDecoder.h" />
+    <ClInclude Include="include\rtcp\BaseClass.h" />
+    <ClInclude Include="include\rtcp\ByeReport.h" />
+    <ClInclude Include="include\rtcp\IBaseClass.h" />
+    <ClInclude Include="include\rtcp\IByeReport.h" />
+    <ClInclude Include="include\rtcp\IGetByeInfo.h" />
+    <ClInclude Include="include\rtcp\IGetReceiverStatistics.h" />
+    <ClInclude Include="include\rtcp\IGetSenderStatistics.h" />
+    <ClInclude Include="include\rtcp\IGetSrcDescription.h" />
+    <ClInclude Include="include\rtcp\INetDispatch.h" />
+    <ClInclude Include="include\rtcp\INetworkChannel.h" />
+    <ClInclude Include="include\rtcp\INetworkRender.h" />
+    <ClInclude Include="include\rtcp\INetworkSource.h" />
+    <ClInclude Include="include\rtcp\IReceiverReport.h" />
+    <ClInclude Include="include\rtcp\IRTCPConnection.h" />
+    <ClInclude Include="include\rtcp\IRTCPControl.h" />
+    <ClInclude Include="include\rtcp\IRTCPHeader.h" />
+    <ClInclude Include="include\rtcp\IRTCPNotify.h" />
+    <ClInclude Include="include\rtcp\IRTCPRegister.h" />
+    <ClInclude Include="include\rtcp\IRTCPRender.h" />
+    <ClInclude Include="include\rtcp\IRTCPSession.h" />
+    <ClInclude Include="include\rtcp\IRTCPStatistics.h" />
+    <ClInclude Include="include\rtcp\IRTPDispatch.h" />
+    <ClInclude Include="include\rtcp\IRTPHeader.h" />
+    <ClInclude Include="include\rtcp\ISDESReport.h" />
+    <ClInclude Include="include\rtcp\ISenderReport.h" />
+    <ClInclude Include="include\rtcp\ISetReceiverStatistics.h" />
+    <ClInclude Include="include\rtcp\ISetSenderStatistics.h" />
+    <ClInclude Include="include\rtcp\ISetSrcDescription.h" />
+    <ClInclude Include="include\rtcp\Message.h" />
+    <ClInclude Include="include\rtcp\MsgQueue.h" />
+    <ClInclude Include="include\rtcp\NetworkChannel.h" />
+    <ClInclude Include="include\rtcp\ReceiverReport.h" />
+    <ClInclude Include="include\rtcp\RTCManager.h" />
+    <ClInclude Include="include\rtcp\RtcpConfig.h" />
+    <ClInclude Include="include\rtcp\RTCPConnection.h" />
+    <ClInclude Include="include\rtcp\RTCPHeader.h" />
+    <ClInclude Include="include\rtcp\RTCPRender.h" />
+    <ClInclude Include="include\rtcp\RTCPSession.h" />
+    <ClInclude Include="include\rtcp\RTCPSource.h" />
+    <ClInclude Include="include\rtcp\RTCPTimer.h" />
+    <ClInclude Include="include\rtcp\RTPHeader.h" />
+    <ClInclude Include="include\rtcp\SenderReport.h" />
+    <ClInclude Include="include\rtcp\SourceDescription.h" />
+    <ClInclude Include="include\rtcp\TLink.h" />
+    <ClInclude Include="include\rtcp\TLinkedList.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="contrib\libspeex\win32\VS2003\libspeexdsp\libspeexdsp.vcxproj">
+      <Project>{03207781-0d1c-4db3-a71d-45c608f28dbd}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="src\mp\codecs\plgamrwb\plgamrwb.vcxproj">
+      <Project>{8bab1fbb-9ead-4ef2-8b72-4b4d0397adeb}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="src\mp\codecs\plgamr\plgamr.vcxproj">
+      <Project>{8bab1fbb-9ead-4ef2-8b72-4b4d0397adea}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="src\mp\codecs\plgg722\plgg722.vcxproj">
+      <Project>{f5e037b1-f23e-422c-8772-f230bebe00bd}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="src\mp\codecs\plgg726\plgg726.vcxproj">
+      <Project>{718ec989-9d48-463d-b5e9-6e7018b8476c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="src\mp\codecs\plggsm\plggsm.vcxproj">
+      <Project>{8ae1ab5c-9815-42d8-9a09-0b4f1e64b4bb}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="src\mp\codecs\plgilbc\plgilbc.vcxproj">
+      <Project>{6442c7de-e500-4ba2-b821-98092f1edcaf}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="src\mp\codecs\plgpcmapcmu\plgpcmapcmu.vcxproj">
+      <Project>{a9c94d26-c90d-4860-8195-56929e893757}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="src\mp\codecs\plgspeex\plgspeex.vcxproj">
+      <Project>{4f7fda11-42a4-4556-a631-15aa785cd1c1}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="src\mp\codecs\plgtones\plgtones.vcxproj">
+      <Project>{50e09c77-6077-4149-8b80-996217363a2f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

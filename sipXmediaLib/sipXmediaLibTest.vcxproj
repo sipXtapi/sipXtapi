@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F84B8F14-AD8A-4E35-9CB8-65B8D0F438B7}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>include;src\test;..\sipXportLib\include;..\sipXportLib\src\test;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\CPPUnit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Ws2_32.lib;winmm.lib;cppunitd.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\CPPUnit\lib;..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>include;src\test;..\sipXportLib\include;..\sipXportLib\src\test;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\CPPUnit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_SPEEX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Ws2_32.lib;winmm.lib;cppunit.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\CPPUnit\lib;..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\test\mp\MpAudioBufTest.cpp" />
+    <ClCompile Include="src\test\mp\MpBufTest.cpp" />
+    <ClCompile Include="src\test\mp\MpCodecsPerformanceTest.cpp" />
+    <ClCompile Include="src\test\mp\MpDspUtilsTest.cpp" />
+    <ClCompile Include="src\test\mp\MpFlowGraphTest.cpp" />
+    <ClCompile Include="src\test\mp\MpGenericResourceTest.cpp" />
+    <ClCompile Include="src\test\mp\MpInputDeviceDriverTest.cpp" />
+    <ClCompile Include="src\test\mp\MpInputDeviceManagerTest.cpp" />
+    <ClCompile Include="src\test\mp\MpInputOutputFrameworkTest.cpp" />
+    <ClCompile Include="src\test\mp\MpMediaTaskTest.cpp" />
+    <ClCompile Include="src\test\mp\MpMMTimerTest.cpp" />
+    <ClCompile Include="src\test\mp\MpOutputDriverTest.cpp" />
+    <ClCompile Include="src\test\mp\MpOutputFrameworkTest.cpp" />
+    <ClCompile Include="src\test\mp\MpOutputManagerTest.cpp" />
+    <ClCompile Include="src\test\mp\MprBridgeTest.cpp" />
+    <ClCompile Include="src\test\mp\MprBridgeTestWB.cpp" />
+    <ClCompile Include="src\test\mp\MprDelayTest.cpp" />
+    <ClCompile Include="src\test\mp\MpResourceTest.cpp" />
+    <ClCompile Include="src\test\mp\MpResourceTopologyTest.cpp" />
+    <ClCompile Include="src\test\mp\MprFromFileTest.cpp" />
+    <ClCompile Include="src\test\mp\MprFromMicTest.cpp" />
+    <ClCompile Include="src\test\mp\MprMixerTest.cpp" />
+    <ClCompile Include="src\test\mp\MprRecorderTest.cpp" />
+    <ClCompile Include="src\test\mp\MprSpeakerSelectorTest.cpp" />
+    <ClCompile Include="src\test\mp\MprSplitterTest.cpp" />
+    <ClCompile Include="src\test\mp\MprToneGenTest.cpp" />
+    <ClCompile Include="src\test\mp\MprToSpkrTest.cpp" />
+    <ClCompile Include="src\test\mp\MpTestResource.cpp" />
+    <ClCompile Include="src\test\mp\MpWBInputOutputDeviceTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\test\mp\dtmf5_48khz_16b_signed.h" />
+    <ClInclude Include="src\test\mp\MpGenericResourceTest.h" />
+    <ClInclude Include="src\test\mp\MpTestResource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\sipXportLib\sipXportLib.vcxproj">
+      <Project>{14631055-9d3f-47e5-b6a7-16bfc0cc8091}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\sipXsdpLib\sipXsdpLib.vcxproj">
+      <Project>{e1d81ea9-4ac3-4cf5-b600-090fd822b1f6}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\sipXtackLib\sipXtackLib_NoSecurity.vcxproj">
+      <Project>{0d0ce4bc-3884-4abe-9795-8cca6c3bc646}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="sipXmediaLib.vcxproj">
+      <Project>{0ec8287a-481e-45dc-8f95-bad940ae1038}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

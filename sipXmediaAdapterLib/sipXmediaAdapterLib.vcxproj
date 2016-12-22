@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_NoVideo|Win32">
+      <Configuration>Debug_NoVideo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_NoVideo|Win32">
+      <Configuration>Release_NoVideo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0E229E54-9234-44DC-8B74-8C6BA553D3C5}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DISABLE_STREAM_PLAYER;HAVE_SPEEX;SIPX_VIDEO;WIN32;_DEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DISABLE_STREAM_PLAYER;SIPX_VIDEO;HAVE_SPEEX;WIN32;NDEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoVideo|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DISABLE_STREAM_PLAYER;HAVE_SPEEX;WIN32;_DEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_NoVideo|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DISABLE_STREAM_PLAYER;HAVE_SPEEX;WIN32;NDEBUG;_LIB;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="interface\CpMediaInterface.cpp" />
+    <ClCompile Include="interface\CpMediaInterfaceFactory.cpp" />
+    <ClCompile Include="interface\CpMediaInterfaceFactoryImpl.cpp" />
+    <ClCompile Include="interface\MiDtmfNotf.cpp" />
+    <ClCompile Include="interface\MiIntNotf.cpp" />
+    <ClCompile Include="interface\MiNotification.cpp" />
+    <ClCompile Include="interface\MiProgressNotf.cpp" />
+    <ClCompile Include="interface\MiRtpStreamActivityNotf.cpp" />
+    <ClCompile Include="interface\MiStringNotf.cpp" />
+    <ClCompile Include="sipXmediaMediaProcessing\src\CpPhoneMediaInterface.cpp" />
+    <ClCompile Include="sipXmediaMediaProcessing\src\CpTopologyGraphFactoryImpl.cpp" />
+    <ClCompile Include="sipXmediaMediaProcessing\src\CpTopologyGraphInterface.cpp" />
+    <ClCompile Include="sipXmediaMediaProcessing\src\MaNotfTranslatorDispatcher.cpp" />
+    <ClCompile Include="sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp" />
+    <ClCompile Include="sipXmediaMediaProcessing\src\TypeConverter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="interface\mi\CpMediaInterface.h" />
+    <ClInclude Include="interface\mi\CpMediaInterfaceFactory.h" />
+    <ClInclude Include="interface\mi\CpMediaInterfaceFactoryFactory.h" />
+    <ClInclude Include="interface\mi\CpMediaInterfaceFactoryImpl.h" />
+    <ClInclude Include="interface\mi\MiDtmfNotf.h" />
+    <ClInclude Include="interface\mi\MiIntNotf.h" />
+    <ClInclude Include="interface\mi\MiNotification.h" />
+    <ClInclude Include="interface\mi\MiProgressNotf.h" />
+    <ClInclude Include="interface\mi\MiRtpStreamActivityNotf.h" />
+    <ClInclude Include="interface\mi\MiStringNotf.h" />
+    <ClInclude Include="sipXmediaMediaProcessing\include\CpPhoneMediaInterface.h" />
+    <ClInclude Include="sipXmediaMediaProcessing\include\CpTopologyGraphFactoryImpl.h" />
+    <ClInclude Include="sipXmediaMediaProcessing\include\CpTopologyGraphInterface.h" />
+    <ClInclude Include="sipXmediaMediaProcessing\include\MaNotfTranslatorDispatcher.h" />
+    <ClInclude Include="sipXmediaMediaProcessing\include\sipXmediaFactoryImpl.h" />
+    <ClInclude Include="sipXmediaMediaProcessing\include\TypeConverter.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

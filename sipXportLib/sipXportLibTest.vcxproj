@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AB8F7343-BC81-4077-B1A5-37CA389FCA93}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>include;src\test;src\test\sipxportunit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NO_CPPUNIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Ws2_32.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\CPPUnit\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>include;src\test;src\test\sipxportunit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NO_CPPUNIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Ws2_32.lib;cppunit.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\CPPUnit\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\test\os\OsCallbackTest.cpp" />
+    <ClCompile Include="src\test\os\OsConfigDbTest.cpp" />
+    <ClCompile Include="src\test\os\OsContactListTest.cpp" />
+    <ClCompile Include="src\test\os\OsContactTest.cpp" />
+    <ClCompile Include="src\test\os\OsDirTest.cpp" />
+    <ClCompile Include="src\test\os\OsEventTest.cpp" />
+    <ClCompile Include="src\test\os\OsFileIteratorTest.cpp" />
+    <ClCompile Include="src\test\os\OsFileSystemTest.cpp" />
+    <ClCompile Include="src\test\os\OsFileTest.cpp" />
+    <ClCompile Include="src\test\os\OsLockTest.cpp" />
+    <ClCompile Include="src\test\os\OsMsgDispatcherTest.cpp" />
+    <ClCompile Include="src\test\os\OsMsgQTest.cpp" />
+    <ClCompile Include="src\test\os\OsMutexTest.cpp" />
+    <ClCompile Include="src\test\os\OsNameDbTest.cpp" />
+    <ClCompile Include="src\test\os\OsPathTest.cpp" />
+    <ClCompile Include="src\test\os\OsProcessIteratorTest.cpp" />
+    <ClCompile Include="src\test\os\OsProcessMgrTest.cpp" />
+    <ClCompile Include="src\test\os\OsProcessTest.cpp" />
+    <ClCompile Include="src\test\os\OsSemTest.cpp" />
+    <ClCompile Include="src\test\os\OsServerTaskTest.cpp" />
+    <ClCompile Include="src\test\os\OsSharedLibMgrTest.cpp" />
+    <ClCompile Include="src\test\os\OsSocketTest.cpp" />
+    <ClCompile Include="src\test\os\OsTestUtilities.cpp" />
+    <ClCompile Include="src\test\os\OsTimerTaskTest.cpp" />
+    <ClCompile Include="src\test\os\OsTimerTest.cpp" />
+    <ClCompile Include="src\test\os\OsTimeTest.cpp" />
+    <ClCompile Include="src\test\sipxportunit\main.cpp" />
+    <ClCompile Include="src\test\sipxportunit\SipxPortUnitTestClass.cpp" />
+    <ClCompile Include="src\test\sipxportunit\SipxPortUnitTestConstructor.cpp" />
+    <ClCompile Include="src\test\sipxportunit\SipxPortUnitTestEnvironment.cpp" />
+    <ClCompile Include="src\test\sipxportunit\SipxPortUnitTestPointFailure.cpp" />
+    <ClCompile Include="src\test\sipxunit\TestUtilities.cpp" />
+    <ClCompile Include="src\test\utl\UtlChainTest.cpp" />
+    <ClCompile Include="src\test\utl\UtlContainableTestStub.cpp" />
+    <ClCompile Include="src\test\utl\UtlCrc32Test.cpp" />
+    <ClCompile Include="src\test\utl\UtlCryptoTest.cpp" />
+    <ClCompile Include="src\test\utl\UtlDList.cpp" />
+    <ClCompile Include="src\test\utl\UtlHashBag.cpp" />
+    <ClCompile Include="src\test\utl\UtlHashBagIterator.cpp" />
+    <ClCompile Include="src\test\utl\UtlHashMap.cpp" />
+    <ClCompile Include="src\test\utl\UtlHashMapIterator.cpp" />
+    <ClCompile Include="src\test\utl\UtlInt.cpp" />
+    <ClCompile Include="src\test\utl\UtlLinkTest.cpp" />
+    <ClCompile Include="src\test\utl\UtlLongLongInt.cpp" />
+    <ClCompile Include="src\test\utl\UtlRegex.cpp" />
+    <ClCompile Include="src\test\utl\UtlSList.cpp" />
+    <ClCompile Include="src\test\utl\UtlSListIteratorTest.cpp" />
+    <ClCompile Include="src\test\utl\UtlSortedList.cpp" />
+    <ClCompile Include="src\test\utl\UtlSortedListIteratorTest.cpp" />
+    <ClCompile Include="src\test\utl\UtlStringTest.cpp" />
+    <ClCompile Include="src\test\utl\UtlStringTest_ConstructiveManipulators.cpp" />
+    <ClCompile Include="src\test\utl\UtlStringTest_DestructiveManipulators.cpp" />
+    <ClCompile Include="src\test\utl\UtlStringTest_NonMutating.cpp" />
+    <ClCompile Include="src\test\utl\UtlTokenizerTest.cpp" />
+    <ClCompile Include="src\test\utl\UtlVoidPtr.cpp" />
+    <ClCompile Include="src\test\utl\XmlContentTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\test\os\OsTestUtilities.h" />
+    <ClInclude Include="src\test\os\StunMessageTest.h" />
+    <ClInclude Include="src\test\os\TurnMessageTest.h" />
+    <ClInclude Include="src\test\sipxportunit\SipxPortUnitTest.h" />
+    <ClInclude Include="src\test\sipxportunit\SipxPortUnitTestAsserts.h" />
+    <ClInclude Include="src\test\sipxunittests.h" />
+    <ClInclude Include="src\test\utl\UtlContainableTestStub.h" />
+    <ClInclude Include="src\test\utl\UtlPerformanceStrings.h" />
+    <ClInclude Include="src\test\utl\UtlStringTest.h" />
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="sipXportLib.vcxproj">
+      <Project>{14631055-9d3f-47e5-b6a7-16bfc0cc8091}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
