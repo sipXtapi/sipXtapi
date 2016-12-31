@@ -1,9 +1,6 @@
 //  
-// Copyright (C) 2008-2012 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2008-2016 SIPez LLC.  All rights reserved.
 //  
-// Copyright (C) 2008 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -23,6 +20,19 @@
 // DEFINES
 #define DEBUG_AGC
 #undef DEBUG_AGC
+
+//#define RTL_ENABLED
+//#define RTL_AUDIO_ENABLED
+
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+#  ifdef RTL_AUDIO_ENABLED
+#     include <SeScopeAudioBuffer.h>
+#  endif
+#endif
+
+//#define DISABLE_AGC_GAIN
+//#define TEST_PRINT_MIXING
 
 // MACROS
 // STATIC VARIABLE INITIALIZATIONS
@@ -510,19 +520,55 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
    //
    initMixDataStack();
 
+#ifdef RTL_ENABLED
+   char ampLabel[32];
+   char prevAmpLabel[32];
+   strcpy(ampLabel, "Bridge_in_0_amplitude");
+   strcpy(prevAmpLabel, "Bridge_in_0_prev_amplitude");
+#endif
+
    // Initialize amplitudes if they haven't been initialized yet.
    for (int i=0; i<inBufsSize; i++)
    {
       if (mpPrevAmplitudes[i] < 0 && inBufs[i].isValid())
       {
          MpAudioBufPtr pAudioBuf = inBufs[i];
-         MpAudioSample amplitude = pAudioBuf->getAmplitude();
+         MpAudioSample amplitude =
+#if defined(DISABLE_AGC_GAIN)
+             MpSpeechParams::MAX_AMPLITUDE;
+#else
+             pAudioBuf->getAmplitude();
+#endif
+
          mpPrevAmplitudes[i] = amplitude == 0 ? 1 : amplitude;
       }
+
+
+#ifdef RTL_ENABLED
+      if (inBufs[i].isValid())
+      {
+          // To minimize in loop operations, hack the input index into string
+          if (i <= 9)
+          {
+              ampLabel[8] = '0' + i;
+              prevAmpLabel[8] = '0' + i;
+          }
+          else
+          {
+              ampLabel[8] = 'A' + i - 10;
+              prevAmpLabel[8] = 'A' + i - 10;
+          }
+          
+          MpAudioBufPtr tempIn = inBufs[i];
+          RTL_EVENT(ampLabel, tempIn->getAmplitude());
+          RTL_EVENT(prevAmpLabel, mpPrevAmplitudes[i]);
+      }
+#endif
+
    }
 
 #ifdef TEST_PRINT_MIXING // [
-   printf("-----------------------------------\n");
+   //printf("-----------------------------------\n");
 #endif // TEST_PRINT_MIXING ]
 #ifdef DEBUG_AGC
    static int debugCounter = 0;
@@ -630,7 +676,13 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
             const int origInput = mExtendedInputs.getOrigin(extInput);
             const MpAudioBufPtr pInBuf(inBufs[origInput]);
             MpAudioSample prevAmplitude = mpPrevAmplitudes[origInput];
-            MpAudioSample curAmplitude = pInBuf->getAmplitude();
+            MpAudioSample curAmplitude = 
+#if defined(DISABLE_AGC_GAIN)
+                MpSpeechParams::MAX_AMPLITUDE;
+#else
+                pInBuf->getAmplitude();
+#endif
+
             if (curAmplitude == 0)
             {
                curAmplitude = 1;
@@ -739,8 +791,17 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
 #endif
 
    // Save input amplitudes for later use.
+#ifdef DISABLE_AGC_GAIN
+   for (int i = 0; i<inBufsSize; i++)
+   {
+       if (inBufs[i].isValid())
+       {
+           mpPrevAmplitudes[i] = MpSpeechParams::MAX_AMPLITUDE;
+       }
+   }
+#else
    saveAmplitudes(inBufs, inBufsSize);
-
+#endif
    return TRUE;
 }
 
