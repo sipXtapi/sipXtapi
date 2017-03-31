@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2015 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -326,6 +326,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_MGCP_CAPS_MESSAGE:
         case CP_SIP_MESSAGE:
             {
+                UtlBoolean newCallCreated = FALSE;
                 OsWriteLock lock(mCallListMutex);
                 CpCall* handlingCall = NULL;
 
@@ -483,6 +484,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                     {
                         handlingCall->start();
                         pushCall(handlingCall);
+                        newCallCreated = TRUE;
                     }
                 }
 
@@ -491,6 +493,22 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 {
                     handlingCall->postMessage(eventMessage);
                     messageProcessed = TRUE;
+
+                    // Yield to be sure that the INVITE
+                    // message is handled by the Call task.  This is to
+                    // mitigate the risk that another message comes in for
+                    // the same call, but is not matched because the Call
+                    // task has not initialized call state as it has not 
+                    // had time to process the INVITE yet.
+                    if(newCallCreated)
+                    {
+                        OsMsgQ* callMessageQueue = handlingCall->getMessageQueue();
+                        while(callMessageQueue &&
+                              callMessageQueue->numMsgs() > 0)
+                        {
+                            yield();
+                        }
+                    }
                 }
             }
             break;
