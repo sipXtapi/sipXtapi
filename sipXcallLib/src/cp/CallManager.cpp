@@ -503,9 +503,20 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                     if(newCallCreated)
                     {
                         OsMsgQ* callMessageQueue = handlingCall->getMessageQueue();
+                        // Wait until call process has started and it removes the INVITE from 
+                        // its message queue
                         while(callMessageQueue &&
                               callMessageQueue->numMsgs() > 0)
                         {
+                            yield();
+                        }
+
+                        while (msgSubType == CP_SIP_MESSAGE &&
+                               !handlingCall->willHandleMessage(eventMessage))
+                        {
+                            // Wait until the call process had processed the INVITE
+                            // message and has setup enough of the call state to match
+                            // any future SIP messages with the same dialog
                             yield();
                         }
                     }
