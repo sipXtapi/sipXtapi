@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2015 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -393,7 +393,18 @@ public:
                                     const char* remoteAddress,
                                     UtlString& userAgent);
 
-
+    virtual OsStatus getInviteHeaderValue(const char* callId, 
+                                          const char* remoteAddress,
+                                          const char* headerName, 
+                                          UtlString& headerValueString,
+                                          UtlBoolean& inviteIsFromRemote,
+                                          const int headerInstanceIndex);
+     //: Get the named header field value from the INVITE for the indicated call.
+     //: @param callId for the CpPeerCall
+     //: @param remoteAddress for the CpConnection
+     //: @param headerName for the SIP INVITE header to retrieve
+     //: @param inviteIsFromRemote - TRUE/FALSE if INVITE is received (vs sent)
+     //: @param headerInstanceIndex - index to headers of the same name
 
    virtual UtlBoolean canAddConnection(const char* szCallId);
    //: Can a new connection be added to the specified call?  This method is 

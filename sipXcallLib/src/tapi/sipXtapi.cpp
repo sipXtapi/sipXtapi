@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2015 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2092,9 +2092,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteUserAgent(const SIPX_CALL hCall,
             UtlString userAgent;
 
             sipxCallReleaseLock(pData, SIPX_LOCK_READ, stackLogger) ;
-
+       
             pCallManager->getRemoteUserAgent(callId, remoteAddress, userAgent);
-
+       
             if (iMaxLength)
             {
                 strncpy(szAgent, userAgent.data(), iMaxLength) ;
@@ -2109,6 +2109,87 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteUserAgent(const SIPX_CALL hCall,
     }
 
     return sr ;
+}
+
+SIPXTAPI_API SIPX_RESULT sipxCallGetInviteHeader(const SIPX_CALL hCall, 
+                                                 const char* headerName, 
+                                                 char* headerValue, 
+                                                 const size_t maxValueLength,
+                                                 bool* inviteFromRemote,
+                                                 const size_t headerInstanceIndex)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallGetInviteHeader");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallGetInviteHeader hCall=%d, header=\"%s\", maxValueLenght=%d, headerInstanceIndex=%d",
+        hCall,
+        headerName,
+        maxValueLength,
+        headerInstanceIndex);
+
+    SIPX_RESULT sipxReturn = SIPX_RESULT_FAILURE;
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, stackLogger);
+        
+    if (pData)        
+    {
+        if (pData->pInst && pData->pInst->pCallManager && pData->callId && 
+                pData->remoteAddress)
+        {
+            CallManager* pCallManager = pData->pInst->pCallManager;
+            UtlString callId(*pData->callId);
+            UtlString remoteAddress(*pData->remoteAddress);
+            UtlString headerValueString;
+            UtlBoolean inviteIsFromRemote;
+
+            sipxCallReleaseLock(pData, SIPX_LOCK_READ, stackLogger);
+       
+            OsStatus cpReturn = 
+                pCallManager->getInviteHeaderValue(callId, remoteAddress, 
+                                                   headerName, headerValueString,
+                                                   inviteIsFromRemote,
+                                                   headerInstanceIndex);
+
+            if(inviteIsFromRemote)
+            {
+                *inviteFromRemote = true;
+            }
+            else
+            {
+                *inviteFromRemote = false;
+            }
+       
+            if (maxValueLength)
+            {
+                strncpy(headerValue, headerValueString.data(), maxValueLength);
+                headerValue[maxValueLength - 1] = 0;
+
+                switch(cpReturn)
+                {
+                case OS_SUCCESS:
+                    sipxReturn = SIPX_RESULT_SUCCESS;
+                    break;
+
+                case OS_NOT_FOUND:
+                    sipxReturn = SIPX_RESULT_FAILURE;
+                    break;
+
+                case OS_INVALID_STATE:
+                    sipxReturn = SIPX_RESULT_INVALID_STATE;
+                    break;
+
+                default:
+                    sipxReturn = SIPX_RESULT_FAILURE;
+                    break;
+
+                }
+            }
+        }
+        else
+        {
+            sipxCallReleaseLock(pData, SIPX_LOCK_READ, stackLogger) ;
+        }    
+    }
+
+    return(sipxReturn);
 }
 
 SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall,

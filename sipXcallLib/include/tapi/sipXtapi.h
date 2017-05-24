@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -1536,6 +1536,30 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteUserAgent(const SIPX_CALL hCall,
                                                     char* szAgent, 
                                                     const size_t iMaxLength) ;
 
+/**
+ * Get the named header value from the last SIP INVITE request (sent or received) in the
+ * context of the given call handle.
+ *
+ * @param hCall handle to a call.
+ * @param headerName - name of the header field for which the value is to be retrieved (case insensative)
+ * @param headerValue - SIP header field value retrieved from the INVITE if it exist and this is a SIP call
+ * @param maxValueLength - maximum number of characters including null terminator that may be set in headerValue
+ * @param inviteFromRemote - TRUE/FALSE the SIP INVITE was received from the remote end of the call (as opposed to sent
+ *        by this end)
+ * @param headerInstanceIndex - some SIP header fields may have multiple instances.  This index indicates which
+ *        instance of the header field of the given name. The first instance has index = 0.
+ * @returns
+ *        SIPX_RESULT_SUCCESS if the named header field was found
+ *        SIPX_RESULT_FAILURE if the INVITE message exists, but the named header was not set in the INVITE
+ *        SIPX_RESULT_INVALID_STATE if this is not a SIP call or the call has not yet been initiated by an INVITE
+ **/
+
+SIPXTAPI_API SIPX_RESULT sipxCallGetInviteHeader(const SIPX_CALL hCall, 
+                                                 const char* headerName, 
+                                                 char* headerValue, 
+                                                 const size_t maxValueLength,
+                                                 bool* inviteFromRemote,
+                                                 const size_t headerInstanceIndex = 0);
 
 /**
  * Play a tone (DTMF, dialtone, ring back, etc) to the local and/or

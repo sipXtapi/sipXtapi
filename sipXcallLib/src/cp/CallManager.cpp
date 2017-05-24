@@ -1166,6 +1166,18 @@ void CallManager::getRemoteUserAgent(const char* callId, const char* remoteAddre
     }
 }
 
+OsStatus CallManager::getInviteHeaderValue(const char* callId, 
+                                           const char* remoteAddress,
+                                           const char* headerName, 
+                                           UtlString& headerValueString,
+                                           UtlBoolean& inviteIsFromRemote,
+                                           const int headerInstanceIndex)
+{
+    OsStatus status = OS_FAILED;
+
+    return(status);
+}
+
 PtStatus CallManager::connect(const char* callId,
                               const char* toAddressString,
                               const char* fromAddressString,
