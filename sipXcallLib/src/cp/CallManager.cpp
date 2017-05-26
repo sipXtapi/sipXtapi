@@ -834,6 +834,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_GET_USERAGENT:
         case CP_FLOWGRAPH_MESSAGE:
         case CP_LIMIT_CODECS:
+        case CP_GET_INVITE_HEADER_VALUE:
             // Forward the message to the call
             {
                 UtlString callId;
@@ -880,7 +881,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         msgSubType == CP_RECORD_BUFFER_AUDIO_CONNECTION_STOP ||
                         msgSubType == CP_OUTGOING_INFO ||
                         msgSubType == CP_GET_USERAGENT ||
-                        msgSubType == CP_CREATE_MEDIA_CONNECTION)
+                        msgSubType == CP_CREATE_MEDIA_CONNECTION ||
+                        msgSubType == CP_GET_INVITE_HEADER_VALUE)
                     {
                         // Get the OsProtectedEvent and signal it to go away
                         OsProtectedEvent* eventWithoutCall = (OsProtectedEvent*)
@@ -1174,6 +1176,48 @@ OsStatus CallManager::getInviteHeaderValue(const char* callId,
                                            const int headerInstanceIndex)
 {
     OsStatus status = OS_FAILED;
+    inviteIsFromRemote = TRUE;
+
+    // Construct a message containing event to notify when header value is set
+    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+    OsProtectedEvent* setValueEvent = eventMgr->alloc();
+    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
+    UtlString* pHeaderValue = new UtlString;
+    // Pass a UtlString in event to retrieve header value
+    setValueEvent->setIntData((intptr_t) pHeaderValue);
+    CpMultiStringMessage getValueMessage(CP_GET_INVITE_HEADER_VALUE, callId, remoteAddress, headerName,
+        NULL, NULL, (intptr_t)setValueEvent, headerInstanceIndex);
+
+    // Send the message to the peer call
+    postMessage(getValueMessage);
+
+    // Wait until the peer call handles the message
+    if(setValueEvent->wait(0, maxEventTime) == OS_SUCCESS)
+    {
+        headerValueString = *pHeaderValue;
+        // Get the return code to determine if INVITE exists and header exists
+        setValueEvent->getEventData((intptr_t&)status);
+
+        // get if INVITE was from remote or local side
+        setValueEvent->getIntData(inviteIsFromRemote);
+
+        delete pHeaderValue;
+        eventMgr->release(setValueEvent);
+    }
+
+    // Timeout occurred and message was not handled
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getInviteHeaderValue TIMED OUT\n");
+        status = OS_WAIT_TIMEOUT;
+
+        // If the event has already been signalled, clean up
+        if(OS_ALREADY_SIGNALED == setValueEvent->signal(0))
+        {
+            delete pHeaderValue;
+            eventMgr->release(setValueEvent);
+        }
+    }
 
     return(status);
 }

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -325,6 +325,9 @@ protected:
     UtlBoolean handleSendInfo(OsMsg* pEventMessage);
     //: Handles the processing of a CP_INFO message, and sends an INFO message
     
+    UtlBoolean handleGetInviteHeaderValue(OsMsg* pEventMessage);
+    //: Handles CP_GET_INVITE_HEADER_VALUE event to retrieve SIP INVITE header value
+
     UtlBoolean handleGetMediaConnectionId(OsMsg* pEventMessage);
     //: Handles the processing of a CP_GET_MEDIA_CONNECTION_ID message
 

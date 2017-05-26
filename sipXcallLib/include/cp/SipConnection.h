@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -184,6 +184,8 @@ public:
 
     int getNextCseq();
 
+    virtual OsStatus getInviteHeaderValue(const char* headerName, int headerIndex, UtlString& headerValue) const;
+
     /* ============================ INQUIRY =================================== */
 
     virtual UtlBoolean isInstanceOf(const UtlContainableType type) const;
@@ -206,6 +208,8 @@ public:
     void setSecurity(const SIPXTACK_SECURITY_ATTRIBUTES* const pSecurity);
 
     void getRemoteUserAgent(UtlString* userAgent);
+
+    virtual UtlBoolean isInviteFromThisSide() const;
 
     virtual UtlBoolean isLocallyInitiatedRemoteHold() const ;
 

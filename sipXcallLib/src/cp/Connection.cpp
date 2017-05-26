@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -612,6 +612,12 @@ const UtlString& Connection::getRemoteRtpAddress() const
     return remoteRtpAddress ;
 }
 
+OsStatus Connection::getInviteHeaderValue(const char* headerName, int headerIndex, UtlString& headerValue) const
+{
+    headerValue = "";
+    return(OS_NOT_YET_IMPLEMENTED);
+}
+
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean Connection::isInstanceOf(const UtlContainableType type) const
@@ -659,6 +665,12 @@ UtlBoolean Connection::isTransferHeld() const
 UtlBoolean Connection::isLocallyInitiatedRemoteHold() const
 {
     return false ;
+}
+
+
+UtlBoolean Connection::isInviteFromThisSide() const
+{
+    return(FALSE);
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -352,9 +352,11 @@ public:
     //: Set the held state for a transfer operation (did we put the connection
     // on hold as part of the transfer)
 
-   const UtlString& getRemoteRtpAddress() const ;
+    const UtlString& getRemoteRtpAddress() const ;
 
-   virtual void getRemoteUserAgent(UtlString* pUserAgent) = 0;
+    virtual void getRemoteUserAgent(UtlString* pUserAgent) = 0;
+
+    virtual OsStatus getInviteHeaderValue(const char* headerName, int headerIndex, UtlString& headerValue) const;
 
 /* ============================ INQUIRY =================================== */
 
@@ -390,6 +392,7 @@ public:
 
     virtual UtlBoolean isLocallyInitiatedRemoteHold() const ;
 
+    virtual UtlBoolean isInviteFromThisSide() const;
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
  

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2015 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1621,6 +1621,57 @@ UtlBoolean CpPeerCall::handleGetUserAgent(OsMsg* pEventMessage)
     return TRUE ;
 }
 
+// Handles CP_GET_INVITE_HEADER_VALUE event
+UtlBoolean CpPeerCall::handleGetInviteHeaderValue(OsMsg* pEventMessage)
+{
+    UtlString* pHeaderValue = NULL;
+    CpMultiStringMessage* pMultiMessage = (CpMultiStringMessage*) pEventMessage;
+
+    OsProtectedEvent* getValueEvent = (OsProtectedEvent*) 
+        pMultiMessage->getInt1Data();
+
+    getValueEvent->getIntData((intptr_t&)pHeaderValue);
+    assert(pHeaderValue);
+    *pHeaderValue = "";
+
+    int headerIndex = 0;
+    headerIndex = pMultiMessage->getInt2Data();
+ 
+    UtlString remoteAddress;
+    UtlString headerName;
+    pMultiMessage->getString2Data(remoteAddress);
+    pMultiMessage->getString3Data(headerName);
+
+    OsStatus status = OS_INVALID_STATE; // connection not found
+    getValueEvent->setIntData(TRUE);
+
+    Connection* connection = NULL;
+    OsReadLock lock(mConnectionMutex);
+    UtlDListIterator iterator(mConnections);
+    while ((connection = (Connection*) iterator()))
+    {
+        UtlString connectionRemoteAddress;
+        
+        connection->getRemoteAddress(&connectionRemoteAddress);
+        if (remoteAddress.isNull() || connectionRemoteAddress == remoteAddress)
+        {
+            status = connection->getInviteHeaderValue(headerName, headerIndex, *pHeaderValue);
+            UtlBoolean inviteFromRemote = connection->isInviteFromThisSide() ? FALSE : TRUE;
+            getValueEvent->setIntData(inviteFromRemote);
+        }
+    }    
+
+    // Signal the caller that we are done.
+    // If the event has already been signalled, clean up
+    if(OS_ALREADY_SIGNALED == getValueEvent->signal(status))
+    {
+        // The other end must have timed out on the wait
+        OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+        eventMgr->release(getValueEvent);
+    }
+
+    return(TRUE);
+}
 
 // Handles the processing of a CallManager::CP_GET_CONNECTIONSTATE 
 // message
@@ -2321,6 +2372,10 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         handleGetUserAgent( &eventMessage );
         break;
 
+    case CallManager::CP_GET_INVITE_HEADER_VALUE:
+        handleGetInviteHeaderValue(&eventMessage);
+        break;
+
     case CallManager::CP_START_TONE_CONNECTION:        
         {
             UtlString remoteAddress ;
@@ -2792,7 +2847,7 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
                {
                   int energyLevel = intNotif.getValue();
                   OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring MI_NOTF_ENERGY_LEVEL focus: %s resource name: %s energy: %d",
-                     isInFocus() ? "true" : "false", resourceName.data(), intNotif.getValue());
+                     isInFocus() ? "true" : "false", resourceName.data(), energyLevel);
                }
             }                             
             processed = TRUE;

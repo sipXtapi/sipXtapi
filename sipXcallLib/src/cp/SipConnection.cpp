@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -6392,6 +6392,28 @@ int SipConnection::getNextCseq()
     return(iCSeq);
 }
 
+
+OsStatus SipConnection::getInviteHeaderValue(const char* headerName, int headerIndex, UtlString& headerValue) const
+{
+    OsStatus status = OS_INVALID_STATE;
+    if(inviteMsg)
+    {
+        const char* valueCharPtr = inviteMsg->getHeaderValue(headerIndex, headerName);
+        if(valueCharPtr)
+        {
+            headerValue = valueCharPtr;
+            status = OS_SUCCESS;
+        }
+        else
+        {
+            headerValue = "";
+            status = OS_NOT_FOUND;
+        }
+    }
+
+    return(status);
+}
+
 OsStatus SipConnection::getFromField(UtlString* fromField)
 {
     OsStatus ret = OS_SUCCESS;
@@ -6619,6 +6641,11 @@ void SipConnection::setSecurity(const SIPXTACK_SECURITY_ATTRIBUTES* const pSecur
 UtlBoolean SipConnection::isLocallyInitiatedRemoteHold() const
 {
     return mbLocallyInitiatedRemoteHold ;
+}
+
+UtlBoolean SipConnection::isInviteFromThisSide() const
+{
+    return(inviteFromThisSide);
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

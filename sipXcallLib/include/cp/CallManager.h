@@ -405,6 +405,10 @@ public:
      //: @param headerName for the SIP INVITE header to retrieve
      //: @param inviteIsFromRemote - TRUE/FALSE if INVITE is received (vs sent)
      //: @param headerInstanceIndex - index to headers of the same name
+     //: @return 
+     //:     OS_SUCCESS
+     //:     OS_NOT_FOUND - INVITE exists, header not found
+     //:     OS_INVALID_STATE - call or INVITE does not exist
 
    virtual UtlBoolean canAddConnection(const char* szCallId);
    //: Can a new connection be added to the specified call?  This method is 
