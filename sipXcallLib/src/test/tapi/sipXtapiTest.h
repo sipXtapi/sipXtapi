@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2010 SIPfoundry Inc. All rights reserved.
 // Licensed by SIPfoundry under the LGPL license.
@@ -183,6 +183,7 @@ class sipXtapiTestSuite : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testSendInfoFailure);
     CPPUNIT_TEST(testCallDestroyRinging);
     CPPUNIT_TEST(testCallGetRemoteUserAgent);
+    CPPUNIT_TEST(testCallGetInviteHeader);
 
     /*CPPUNIT_TEST(testCallBasicSecure);
     CPPUNIT_TEST(testCallHoldSecure);
@@ -463,6 +464,7 @@ public:
     void testCallCancel();
     void testCallCancel2();
     void testCallGetRemoteUserAgent();
+    void testCallGetInviteHeader();
     void testCallBasicSecure();
     void testCallHoldSecure();
     void testCallSecurityCallerUnsupported();

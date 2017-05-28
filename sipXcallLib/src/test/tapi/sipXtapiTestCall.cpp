@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2116,6 +2116,134 @@ void sipXtapiTestSuite::testCallGetRemoteUserAgent()
         char agent[64];
         sipxCallGetRemoteUserAgent(hCall, agent, 64);
         CPPUNIT_ASSERT_EQUAL(0, strcmp(agent, "TestCalled"));
+
+        // Called side with automatically hang up
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerHangupCallbackLine, g_hAutoAnswerHangupCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerHangupCallbackLine, g_hAutoAnswerHangupCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+
+        // Calling side should disconnect
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+
+
+        SIPX_CALL hDestroyedCall = hCall;
+        destroyCall(hCall);
+
+        // Finally, calling side is cleaned up
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+
+
+
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, AutoAnswerHangupCallback, NULL), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled), SIPX_RESULT_SUCCESS);
+
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine), SIPX_RESULT_SUCCESS);
+    }
+
+    OsTask::delay(TEST_DELAY);
+
+    checkForLeaks();
+}
+
+// A calls B, B answers, B hangs up
+void sipXtapiTestSuite::testCallGetInviteHeader()
+{
+    bool bRC;
+    EventValidator validatorCalling("testCallGetInviteHeader.calling");
+    EventValidator validatorCalled("testCallGetInviteHeader.called");
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestCallGetInviteHeader (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+        SIPX_CALL hCall;
+        SIPX_LINE hLine;
+        SIPX_LINE hReceivingLine;
+
+        validatorCalling.reset();
+        validatorCalling.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+        validatorCalled.reset();
+        validatorCalled.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+
+        sipxConfigSetUserAgentName(g_hInst, "TestCaller", false);
+        sipxConfigSetUserAgentName(g_hInst2, "TestCalled", false);
+
+        // Setup Auto-answer call back
+        sipxEventListenerAdd(g_hInst2, AutoAnswerHangupCallback, NULL);
+        sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled);
+        sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling);
+
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
+
+        bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+
+        createCall(&hLine, &hCall);
+
+        bRC = validatorCalling.waitForLineEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+
+        // No INVITE created, yet.  SHould get invalid state
+        char headerValue[128];
+        headerValue[0] = '\0';
+        int maxHeaderValueLength = sizeof(headerValue);
+        bool inviteFromRemote;
+        SIPX_RESULT sipxReturn = 
+            sipxCallGetInviteHeader(hCall, "FOO", headerValue, maxHeaderValueLength, &inviteFromRemote, 0);
+        CPPUNIT_ASSERT_EQUAL(0, strcmp(headerValue, ""));
+        CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_INVALID_STATE, sipxReturn)
+
+        sipxCallConnect(hCall, "sip:foo@127.0.0.1:9100");
+
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_DIALTONE, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+
+        // Read bogus header from the sent INVITE on the caller side
+        sipxReturn = 
+            sipxCallGetInviteHeader(hCall, "FOO", headerValue, maxHeaderValueLength, &inviteFromRemote, 0);
+        CPPUNIT_ASSERT_EQUAL(headerValue, (const UtlString) "");
+        CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_FAILURE, sipxReturn)
+        CPPUNIT_ASSERT_EQUAL(FALSE, inviteFromRemote);
+
+        // Content-Type header from the sent INVITE on the caller side
+        sipxReturn = 
+            sipxCallGetInviteHeader(hCall, "Content-Type", headerValue, maxHeaderValueLength, &inviteFromRemote, 0);
+        CPPUNIT_ASSERT_EQUAL(headerValue, (const UtlString) "application/sdp");
+        CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxReturn);
+        CPPUNIT_ASSERT_EQUAL(FALSE, inviteFromRemote);
+
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerHangupCallbackLine, g_hAutoAnswerHangupCallbackCall, CALLSTATE_NEWCALL, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+
+        char agent[64];
+        sipxCallGetRemoteUserAgent(hCall, agent, 64);
+        CPPUNIT_ASSERT_EQUAL(0, strcmp(agent, "TestCalled"));
+
+        // Read the Agent header from the received INVITE on the called side
+        sipxCallGetInviteHeader(g_hAutoAnswerHangupCallbackCall, "USER-AGENT", headerValue, maxHeaderValueLength, &inviteFromRemote, 0);
+        printf("%s: \"%s\"", "User-Agent", headerValue);
+        CPPUNIT_ASSERT_EQUAL(headerValue, (const UtlString) "TestCaller");
+        CPPUNIT_ASSERT_EQUAL(TRUE, inviteFromRemote);
+
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerHangupCallbackLine, g_hAutoAnswerHangupCallbackCall, CALLSTATE_OFFERING, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerHangupCallbackLine, g_hAutoAnswerHangupCallbackCall, CALLSTATE_ALERTING, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerHangupCallbackLine, g_hAutoAnswerHangupCallbackCall, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
 
         // Called side with automatically hang up
         bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerHangupCallbackLine, g_hAutoAnswerHangupCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, true);
