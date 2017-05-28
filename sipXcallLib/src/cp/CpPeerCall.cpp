@@ -1642,6 +1642,13 @@ UtlBoolean CpPeerCall::handleGetInviteHeaderValue(OsMsg* pEventMessage)
     pMultiMessage->getString2Data(remoteAddress);
     pMultiMessage->getString3Data(headerName);
 
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "CpPeerCall::handleGetInviteHeaderValue(headerName=\"%s\", index=%d)",
+        headerName.data(),
+        headerIndex);
+#endif
+
     OsStatus status = OS_INVALID_STATE; // connection not found
     getValueEvent->setIntData(TRUE);
 
@@ -1655,9 +1662,20 @@ UtlBoolean CpPeerCall::handleGetInviteHeaderValue(OsMsg* pEventMessage)
         connection->getRemoteAddress(&connectionRemoteAddress);
         if (remoteAddress.isNull() || connectionRemoteAddress == remoteAddress)
         {
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                "CpPeerCall::handleGetInviteHeaderValue found connection");
+#endif
+
             status = connection->getInviteHeaderValue(headerName, headerIndex, *pHeaderValue);
             UtlBoolean inviteFromRemote = connection->isInviteFromThisSide() ? FALSE : TRUE;
             getValueEvent->setIntData(inviteFromRemote);
+
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                "CpPeerCall::handleGetInviteHeaderValue inviteFromRemote=%d)",
+                inviteFromRemote);
+#endif
         }
     }    
 
@@ -1669,6 +1687,13 @@ UtlBoolean CpPeerCall::handleGetInviteHeaderValue(OsMsg* pEventMessage)
         OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
         eventMgr->release(getValueEvent);
     }
+
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "CpPeerCall::handleGetInviteHeaderValue headerValue=\"%s\", status=%d)",
+        pHeaderValue->data(),
+        status);
+#endif
 
     return(TRUE);
 }

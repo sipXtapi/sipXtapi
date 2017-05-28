@@ -6399,6 +6399,10 @@ OsStatus SipConnection::getInviteHeaderValue(const char* headerName, int headerI
     if(inviteMsg)
     {
         const char* valueCharPtr = inviteMsg->getHeaderValue(headerIndex, headerName);
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "SipConnection::getInviteHeaderValue(name=\"%s\", index=%d value=\"%s\")",
+            headerName, headerIndex, 
+            valueCharPtr ? valueCharPtr : "NULL");
         if(valueCharPtr)
         {
             headerValue = valueCharPtr;
@@ -6408,7 +6412,21 @@ OsStatus SipConnection::getInviteHeaderValue(const char* headerName, int headerI
         {
             headerValue = "";
             status = OS_NOT_FOUND;
+
+#ifdef TEST_PRINT
+            UtlString msgString;
+            int msgLen;
+            inviteMsg->getBytes(&msgString, &msgLen);
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                "SipConnection::getInviteHeaderValue INVITE does not contain header=\"%s\"\n%s",
+                headerName, msgString.data());
+#endif
         }
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "SipConnection::getInviteHeaderValue NULL INVITE");
     }
 
     return(status);
