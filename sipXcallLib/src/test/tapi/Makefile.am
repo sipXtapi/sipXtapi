@@ -18,6 +18,7 @@ testsuite_LDADD = \
     ../../libsipXcall.la
 
 testsuite_SOURCES = \
+  ../../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
   callbacks.cpp \
   EventRecorder.cpp \
   EventValidator.cpp \
