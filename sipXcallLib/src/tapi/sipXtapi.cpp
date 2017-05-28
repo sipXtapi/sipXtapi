@@ -2123,10 +2123,10 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetInviteHeader(const SIPX_CALL hCall,
         "sipxCallGetInviteHeader hCall=%d, header=\"%s\", maxValueLenght=%d, headerInstanceIndex=%d",
         hCall,
         headerName,
-        maxValueLength,
-        headerInstanceIndex);
+        (int)maxValueLength,
+        (int)headerInstanceIndex);
 
-    SIPX_RESULT sipxReturn = SIPX_RESULT_FAILURE;
+    SIPX_RESULT sipxReturn = SIPX_RESULT_INVALID_STATE;
     SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, stackLogger);
         
     if (pData)        
@@ -2186,7 +2186,20 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetInviteHeader(const SIPX_CALL hCall,
         else
         {
             sipxCallReleaseLock(pData, SIPX_LOCK_READ, stackLogger) ;
+            OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                "sipxCallGetInviteHeader hCall=%d inst=%p callMgr: %p callId: %s remoteAddr: %s",
+                hCall,
+                pData->pInst,
+                pData->pInst->pCallManager,
+                pData->callId ? pData->callId->data() : "",
+                pData->remoteAddress ? pData->remoteAddress->data() : "");
         }    
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+            "sipxCallGetInviteHeader hCall=%d info not found",
+            hCall);
     }
 
     return(sipxReturn);
