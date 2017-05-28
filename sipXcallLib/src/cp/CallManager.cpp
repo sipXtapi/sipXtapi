@@ -1199,7 +1199,7 @@ OsStatus CallManager::getInviteHeaderValue(const char* callId,
         setValueEvent->getEventData((intptr_t&)status);
 
         // get if INVITE was from remote or local side
-        setValueEvent->getIntData(inviteIsFromRemote);
+        setValueEvent->getIntData((intptr_t&)inviteIsFromRemote);
 
         delete pHeaderValue;
         eventMgr->release(setValueEvent);
