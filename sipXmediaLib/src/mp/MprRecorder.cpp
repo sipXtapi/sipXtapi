@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -47,9 +47,10 @@
 
 // Constructor
 MprRecorder::MprRecorder(const UtlString& rName)
-: MpAudioResource(rName, 1, 1, 0, 1)
+: MpAudioResource(rName, 1, MAXIMUM_RECORDER_CHANNELS, 0, MAXIMUM_RECORDER_CHANNELS)
 , mState(STATE_IDLE)
 , mRecordDestination(TO_UNDEFINED)
+, mChannels(1)
 , mFramesToRecord(0)
 , mNumFramesProcessed(0)
 , mSamplesRecorded(0)
@@ -101,10 +102,19 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                                 RecordFileFormat recFormat,
                                 int time,
                                 int silenceLength,
-                                UtlBoolean append)
+                                UtlBoolean append,
+                                int numChannels)
 {
     int fileHandle = -1;
     OsStatus result = OS_SUCCESS;
+
+    if(recFormat == WAV_GSM && numChannels > 1)
+    {
+       OsSysLog::add(FAC_MP, PRI_WARNING,
+          "MprRecorder::startFile multi-channel (%d) recording with GSM not supported, assuming 1 channel",
+          numChannels);
+          numChannels = 1;
+    }
 
     if (NULL == filename)
     {
@@ -153,7 +163,7 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                          // TODO: cannot check this here in static method.
                          // checking needs to occur in handleStartFile
                          //dddd == fileSamplesPerSecond &&
-                         1 == fileChannels)
+                         numChannels == fileChannels)
                       {
                           // The record format is the same as that of the file that already exists.
                           // Move to the end of the file where we will start appending
@@ -172,7 +182,7 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                                   "differs from requested wave record format: %d samples/sec: %d channels: %d",
                                   filename,
                                   waveFileCodec, fileSamplesPerSecond, fileChannels,
-                                  recFormat, fileSamplesPerSecond, 1);
+                                  recFormat, fileSamplesPerSecond, numChannels);
                           result = OS_FAILED;
                       }
 
@@ -246,6 +256,8 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
           assert(stat == OS_SUCCESS);
           stat = msgData.serialize(append);
           assert(stat == OS_SUCCESS);
+          stat = msgData.serialize(numChannels);
+          assert(stat == OS_SUCCESS);
           msgData.finishSerialize();
           
           result = fgQ.send(msg, sOperationQueueTimeout);
@@ -266,7 +278,8 @@ OsStatus MprRecorder::startBuffer(const UtlString& namedResource,
                                   MpAudioSample *pBuffer,
                                   int bufferSize,
                                   int time,
-                                  int silenceLength)
+                                  int silenceLength,
+                                  int numChannels)
 {
    OsStatus stat;
    MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START_BUFFER,
@@ -281,6 +294,8 @@ OsStatus MprRecorder::startBuffer(const UtlString& namedResource,
    assert(stat == OS_SUCCESS);
    stat = msgData.serialize(silenceLength);
    assert(stat == OS_SUCCESS);
+   stat = msgData.serialize(numChannels);
+   assert(stat == OS_SUCCESS);
    msgData.finishSerialize();
 
    return fgQ.send(msg, sOperationQueueTimeout);
@@ -290,7 +305,8 @@ OsStatus MprRecorder::startCircularBuffer(const UtlString& namedResource,
                                           OsMsgQ& fgQ,
                                           CircularBufferPtr & buffer,
                                           RecordFileFormat recordingFormat,
-                                          unsigned long recordingBufferNotificationWatermark)
+                                          unsigned long recordingBufferNotificationWatermark,
+                                          int numChannels)
 {
     OsStatus stat;
     MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START_CIRCULAR_BUFFER,
@@ -302,6 +318,8 @@ OsStatus MprRecorder::startCircularBuffer(const UtlString& namedResource,
     stat = msgData.serialize((int)recordingFormat);
     assert(stat == OS_SUCCESS);
     stat = msgData.serialize(recordingBufferNotificationWatermark);
+    assert(stat == OS_SUCCESS);
+    stat = msgData.serialize(numChannels);
     assert(stat == OS_SUCCESS);
     msgData.finishSerialize();
 
@@ -352,7 +370,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
                                        int samplesPerFrame,
                                        int samplesPerSecond)
 {
-   MpAudioBufPtr in;
+   MpAudioBufPtr in[MAXIMUM_RECORDER_CHANNELS];
 
    if (inBufsSize == 0 || outBufsSize == 0)
    {
@@ -364,13 +382,25 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
    mSamplesPerSecond = samplesPerSecond;
 
    // Take data from the first input
-   in.swap(inBufs[0]);
+   int channelIndex;
+   UtlBoolean validInput = FALSE;
+   for(channelIndex = 0; channelIndex < inBufsSize; channelIndex++)
+   {
+       if(inBufs[channelIndex].isValid())
+       {
+           validInput = TRUE;
+       }
+       in[channelIndex].swap(inBufs[channelIndex]);
+   }
 
    if (!isEnabled || mState != STATE_RECORDING)
    {
-      // Push data further downstream
-      outBufs[0].swap(in);
-      return TRUE;
+       for(channelIndex = 0; channelIndex < inBufsSize; channelIndex++)
+       {
+          // Push data further downstream
+          outBufs[channelIndex].swap(in[channelIndex]);
+       }
+       return TRUE;
    }
 
    // maximum record time reached or final silence timeout.
@@ -385,12 +415,15 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       finish(FINISHED_AUTO);
 
       // Push data further downstream
-      outBufs[0].swap(in);
+      for(channelIndex = 0; channelIndex < inBufsSize; channelIndex++)
+      {
+         outBufs[channelIndex].swap(in[channelIndex]);
+      }
       return TRUE;
    }
 
    // Now write the buffer out
-   if (!in.isValid())
+   if (!validInput)
    {
       // Write silence.
       int numRecorded;
@@ -417,39 +450,62 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
    {
       // Write speech data.
 
-      if (isActiveAudio(in->getSpeechType()))
+      // Keep track of inactive audio frames for auto record stop
+      mConsecutiveInactive++;
+      for(channelIndex = 0; channelIndex < inBufsSize; channelIndex++)
       {
-         mConsecutiveInactive = 0;
-      }
-      else
-      {
-         mConsecutiveInactive++;
+          // If any channel has active audio, reset the inactivety counter
+          if (isActiveAudio(in[channelIndex]->getSpeechType()))
+          {
+             mConsecutiveInactive = 0;
+             break;
+          }
       }
 
-      const MpAudioSample* input = in->getSamplesPtr();
-      int numSamples = in->getSamplesNumber();
+      const MpAudioSample* inputSamplesPtrArray[MAXIMUM_RECORDER_CHANNELS];
+      for(channelIndex = 0; channelIndex < inBufsSize; channelIndex++)
+      {
+          if(in[channelIndex].isValid())
+          {
+              inputSamplesPtrArray[channelIndex] = in[channelIndex]->getSamplesPtr();
+          }
+          else
+          {
+              inputSamplesPtrArray[channelIndex] = MpMisc.mpFgSilence->getSamplesPtr();
+          }
+      }
+      int numSamples = in[0]->getSamplesNumber();
       int numRecorded;
       if (mRecordDestination == TO_FILE)
       {
-         numRecorded = writeSamples(input, numSamples, &MprRecorder::writeFile);
+         numRecorded = writeSamples(inputSamplesPtrArray, numSamples, &MprRecorder::writeFile);
       }
       else if (mRecordDestination == TO_BUFFER)
       {
-         numRecorded = writeBufferSpeech(input, numSamples);
+         numRecorded = writeBufferSpeech(inputSamplesPtrArray[0], numSamples);
       }
       else if (mRecordDestination == TO_CIRCULAR_BUFFER)
       {
-         numRecorded = writeSamples(input, numSamples, &MprRecorder::writeCircularBuffer);
+         numRecorded = writeSamples(inputSamplesPtrArray, numSamples, &MprRecorder::writeCircularBuffer);
       }
       mSamplesRecorded += numRecorded;
 
       if (numRecorded != numSamples)
       {
+         OsSysLog::add(FAC_MP, PRI_ERR,
+             "MprRecorder::doProcessFrame numRecorded=%d numSamples=%d channels=%d",
+             numRecorded, 
+             numSamples, 
+             mChannels);
+
          finish(FINISHED_ERROR);
       }
 
       // Push data further downstream
-      outBufs[0].swap(in);
+      for(channelIndex = 0; channelIndex < inBufsSize; channelIndex++)
+      {
+         outBufs[channelIndex].swap(in[channelIndex]);
+      }
    }
 
    mNumFramesProcessed++;
@@ -457,18 +513,36 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
    return TRUE;
 }
 
-int MprRecorder::writeCircularBuffer(char * data, int dataSize)
+int MprRecorder::writeCircularBuffer(char* channelData[], int dataSize)
 {
     OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::doProcessFrame - TO_CIRCULAR_BUFFER, non-silence");
     
-    unsigned long newSize, previousSize;
-    mpCircularBuffer->write(data, dataSize, &newSize, &previousSize);
+    unsigned long newSize, previousSize, iterPreviousSize;
+    int bytesPerSample = getBytesPerSample(mRecFormat);
+    assert(bytesPerSample > 0);
+
+    int dataIndex;
+    int channelIndex;
+    if(bytesPerSample > 0)
+    {
+        for(dataIndex = 0; dataIndex < dataSize; dataIndex += bytesPerSample)
+        {
+            for(channelIndex = 0; channelIndex < mChannels; channelIndex++)
+            {
+                mpCircularBuffer->write(&((channelData[channelIndex])[dataIndex]), bytesPerSample, &newSize, &iterPreviousSize);
+                if(dataIndex == 0)
+                {
+                    previousSize = iterPreviousSize;
+                }
+            }
+        }
+    }
 
     if (previousSize < mRecordingBufferNotificationWatermark && newSize >= mRecordingBufferNotificationWatermark)
         notifyCircularBufferWatermark();
 
     // the circular buffer is endless, so we can say we have written all in
-    return dataSize;
+    return dataSize * mChannels;
 }
 
 void MprRecorder::notifyCircularBufferWatermark()
@@ -593,7 +667,8 @@ UtlBoolean MprRecorder::handleStartFile(int file,
                                         RecordFileFormat recFormat,
                                         int time,
                                         int silenceLength, 
-                                        UtlBoolean append)
+                                        UtlBoolean append,
+                                        int numChannels)
 {
     // If the file descriptor is already set, its busy already recording.
     if(mFileDescriptor > -1)
@@ -602,10 +677,25 @@ UtlBoolean MprRecorder::handleStartFile(int file,
                 "MprRecord::handleFileStart file already set: %d new: %d",
                 mFileDescriptor, file);
     }
+    mFileDescriptor = file;
+    mRecordDestination = TO_FILE;
 
-   mFileDescriptor = file;
-   mRecordDestination = TO_FILE;
+    mChannels = numChannels;
+    if(numChannels < 1)
+    {
+        mChannels = 1;
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                "MprRecord::handleFileStart number of channels requested: %d, assuming 1",
+                numChannels);
+    }
 
+    if(mChannels > MAXIMUM_RECORDER_CHANNELS)
+    {
+        mChannels = MAXIMUM_RECORDER_CHANNELS;
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                "MprRecord::handleFileStart number of channels requested: %d exceeds maximum, assuming maximum: %d",
+                numChannels, MAXIMUM_RECORDER_CHANNELS);
+    }
    unsigned int codecSampleRate;
    prepareEncoder(recFormat, codecSampleRate);
 
@@ -614,25 +704,34 @@ UtlBoolean MprRecorder::handleStartFile(int file,
    // If we are appending, the wave file header already exists
    if (mRecFormat != MprRecorder::RAW_PCM_16 && !append)
    {
-      writeWaveHeader(file, recFormat, codecSampleRate);
+      writeWaveHeader(file, recFormat, codecSampleRate, numChannels);
    }
 
    startRecording(time, silenceLength);
 
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "MprRecorder::handleStartFile(%d, %d, %d, %d, %s) finished",
-                 file, recFormat, time, silenceLength, (append ? "TRUE" : "FALSE"));
+                 "MprRecorder::handleStartFile(%d, %d, %d, %d, %s, %d) finished",
+                 file, recFormat, time, silenceLength, (append ? "TRUE" : "FALSE"), numChannels);
    return TRUE;
 }
 
 UtlBoolean MprRecorder::handleStartBuffer(MpAudioSample *pBuffer,
                                           int bufferSize,
                                           int time,
-                                          int silenceLength)
+                                          int silenceLength,
+                                          int numChannels)
 {
    mpBuffer = pBuffer;
    mBufferSize = bufferSize;
    mRecordDestination = TO_BUFFER;
+   mChannels = numChannels < 1 ? 1 : numChannels;
+
+   if(mChannels != 1)
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+         "Multi-channel (%d) record not supported for record to buffer",
+         mChannels);
+   }
 
    startRecording(time, silenceLength);
 
@@ -644,7 +743,8 @@ UtlBoolean MprRecorder::handleStartBuffer(MpAudioSample *pBuffer,
 
 UtlBoolean MprRecorder::handleStartCircularBuffer(CircularBufferPtr * buffer, 
                                                   RecordFileFormat recordingFormat,
-                                                  unsigned long recordingBufferNotificationWatermark)
+                                                  unsigned long recordingBufferNotificationWatermark,
+                                                  int numChannels)
 {
    if (mpCircularBuffer)
        mpCircularBuffer->release();
@@ -652,6 +752,14 @@ UtlBoolean MprRecorder::handleStartCircularBuffer(CircularBufferPtr * buffer,
    mpCircularBuffer = buffer;
    mRecordingBufferNotificationWatermark = recordingBufferNotificationWatermark;
    mRecordDestination = TO_CIRCULAR_BUFFER;
+   mChannels = numChannels < 1 ? 1 : numChannels;
+
+   if(mChannels != 1)
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+         "Multi-channel (%d) record not supported for record to buffer",
+         mChannels);
+   }
 
    unsigned int codecSampleRate;
    prepareEncoder(recordingFormat, codecSampleRate);
@@ -697,6 +805,7 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          int timeMS;
          int silenceLength;
          UtlBoolean append;
+         int numChannels;
 
          UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
          stat = msgData.deserialize(file);
@@ -709,7 +818,9 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          assert(stat == OS_SUCCESS);
          stat = msgData.deserialize(append);
          assert(stat == OS_SUCCESS);
-         return handleStartFile(file, recFormat, timeMS, silenceLength, append);
+         stat = msgData.deserialize(numChannels);
+         assert(stat == OS_SUCCESS);
+         return handleStartFile(file, recFormat, timeMS, silenceLength, append, numChannels);
       }
       break;
 
@@ -720,6 +831,7 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          int bufferSize;
          int time;
          int silenceLength;
+         int numChannels;
 
          UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
          stat = msgData.deserialize((void*&)pBuffer);
@@ -730,7 +842,9 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          assert(stat == OS_SUCCESS);
          stat = msgData.deserialize(silenceLength);
          assert(stat == OS_SUCCESS);
-         return handleStartBuffer(pBuffer, bufferSize, time, silenceLength);
+         stat = msgData.deserialize(numChannels);
+         assert(stat == OS_SUCCESS);
+         return handleStartBuffer(pBuffer, bufferSize, time, silenceLength, numChannels);
       }
       break;
 
@@ -740,6 +854,7 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          CircularBufferPtr * buffer;
          RecordFileFormat recordingFormat;
          unsigned long recordingBufferNotificationWatermark;
+         int numChannels;
 
          UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
          stat = msgData.deserialize((void*&)buffer);
@@ -748,7 +863,9 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          assert(stat == OS_SUCCESS);
          stat = msgData.deserialize(recordingBufferNotificationWatermark);
          assert(stat == OS_SUCCESS);
-         return handleStartCircularBuffer(buffer, recordingFormat, recordingBufferNotificationWatermark);
+         stat = msgData.deserialize(numChannels);
+         assert(stat == OS_SUCCESS);
+         return handleStartCircularBuffer(buffer, recordingFormat, recordingBufferNotificationWatermark, numChannels);
       }
       break;
 
@@ -937,54 +1054,66 @@ void MprRecorder::closeFile()
 int MprRecorder::writeFileSilence(int numSamples)
 {
     assert(((int)MpMisc.mpFgSilence->getSamplesNumber()) >= numSamples);
-    const MpAudioSample* silence = MpMisc.mpFgSilence->getSamplesPtr();
+    const MpAudioSample* silence[MAXIMUM_RECORDER_CHANNELS];
+    int channelIndex;
+    for(channelIndex = 0; channelIndex < mChannels; channelIndex++)
+    {
+       silence[channelIndex] = MpMisc.mpFgSilence->getSamplesPtr();
+    }
     return(writeSamples(silence, numSamples, &MprRecorder::writeFile));
 }
 
-int MprRecorder::writeSamples(const MpAudioSample *pBuffer, int numSamples, WriteMethod writeMethod)
+int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, WriteMethod writeMethod)
 {
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_MP, PRI_DEBUG,
             "MprRecorder::writeSamples(pBuffer: %p, numSamples: %d)",
-            pBuffer, numSamples);
+            pBuffers[0], numSamples);
 #endif
-    const MpAudioSample* resampledBufferPtr = NULL;
+    const MpAudioSample* resampledBufferPtrArray[MAXIMUM_RECORDER_CHANNELS];
     const int localBufferSize = 1500; // No audio codecs exceed an MTU
-    MpAudioSample localBuffer[localBufferSize];
+    MpAudioSample localBuffer[localBufferSize * MAXIMUM_RECORDER_CHANNELS];
     OsStatus status = OS_FAILED;
 
     // If the resampler exists, we resample
     uint32_t samplesConsumed;
     uint32_t numResampled = 0;
+    int channelIndex;
     if(mpResampler)
     {
-        resampledBufferPtr = localBuffer;
-        status = mpResampler->resample(0, 
-                                       pBuffer, 
-                                       numSamples, 
-                                       samplesConsumed,
-                                       localBuffer, 
-                                       localBufferSize, 
-                                       numResampled);
-        if(status != OS_SUCCESS)
+        for(channelIndex = 0; channelIndex < mChannels; channelIndex++)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
-                          "MprRecoder::writeFileSpeech resample returned: %d",
-                          status);
+            resampledBufferPtrArray[channelIndex] = &localBuffer[localBufferSize * channelIndex];
+            status = mpResampler->resample(0, 
+                                           pBuffers[channelIndex], 
+                                           numSamples, 
+                                           samplesConsumed,
+                                           (MpAudioSample*)resampledBufferPtrArray[channelIndex], 
+                                           localBufferSize, 
+                                           numResampled);
+            if(status != OS_SUCCESS)
+            {
+                OsSysLog::add(FAC_MP, PRI_ERR,
+                              "MprRecoder::writeFileSpeech resample returned: %d",
+                              status);
+            }
+            assert(samplesConsumed == (uint32_t) numSamples);
         }
-        assert(samplesConsumed == (uint32_t) numSamples);
     }
 
     // No resampler, pass it straight through
     else
     {
         numResampled = numSamples;
-        resampledBufferPtr = pBuffer;
+        for(channelIndex = 0; channelIndex < mChannels; channelIndex++)
+        {
+            resampledBufferPtrArray[channelIndex] = pBuffers[channelIndex];
+        }
     }
 
     // Some encoders are frame based and do not create a complete
-    const MpAudioSample* encodedSamplesPtr = NULL;
-    MpAudioSample localEncodeBuffer[localBufferSize]; // Should never get larger after encoding
+    const MpAudioSample* encodedSamplesPtrArray[MAXIMUM_RECORDER_CHANNELS];
+    MpAudioSample localEncodeBuffer[localBufferSize * MAXIMUM_RECORDER_CHANNELS]; // Should never get larger after encoding
 
     // If there is an encoder, encode
     int dataSize = 0;
@@ -994,41 +1123,44 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffer, int numSamples, Writ
     UtlBoolean shouldSetMarker = FALSE;
     if(mpEncoder)
     {
-        encodedSamplesPtr = localEncodeBuffer;
-        status = mpEncoder->encode(resampledBufferPtr, 
-                                   numResampled, 
-                                   numSamplesEncoded, 
-                                   (unsigned char*)localEncodeBuffer, 
-                                   numResampled * sizeof(MpAudioSample), 
-                                   dataSize, 
-                                   isEndOfFrame,
-                                   isPacketSilent,
-                                   shouldSetMarker);
-        if(status != OS_SUCCESS)
+        for(channelIndex = 0; channelIndex < mChannels; channelIndex++)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
-                "MprRecorder::writeFileSpeech encode returned: %d",
-                status);
-        }
-        else
-        {
-            // The upper lay does not know or care about resampling.
-            // So we tell it that we encoded all of the samples passed in.
-            if(numSamplesEncoded == (int)numResampled)
+            encodedSamplesPtrArray[channelIndex] = &localEncodeBuffer[channelIndex * localBufferSize ];
+            status = mpEncoder->encode(resampledBufferPtrArray[channelIndex], 
+                                       numResampled, 
+                                       numSamplesEncoded, 
+                                       (unsigned char*) encodedSamplesPtrArray[channelIndex],
+                                       numResampled * sizeof(MpAudioSample), 
+                                       dataSize, 
+                                       isEndOfFrame,
+                                       isPacketSilent,
+                                       shouldSetMarker);
+            if(status != OS_SUCCESS)
             {
-                numSamplesEncoded = numSamples;
+                OsSysLog::add(FAC_MP, PRI_ERR,
+                    "MprRecorder::writeFileSpeech encode returned: %d",
+                    status);
             }
-
-            // Only count when we have a fully encoded frame for the 
-            // specific codec
-            if(dataSize > 0)
+            else
             {
+                // The upper lay does not know or care about resampling.
+                // So we tell it that we encoded all of the samples passed in.
+                if(numSamplesEncoded == (int)numResampled)
+                {
+                    numSamplesEncoded = numSamples;
+                }
+
+                // Only count when we have a fully encoded frame for the 
+                // specific codec
+                if(dataSize > 0)
+                {
 #ifdef TEST_PRINT
-                OsSysLog::add(FAC_MP, PRI_DEBUG,
-                        "MprRecord:writeSamples incrementing encoded frames(%d)  Datasize: %d",
-                        mEncodedFrames, dataSize);
+                    OsSysLog::add(FAC_MP, PRI_DEBUG,
+                            "MprRecord:writeSamples incrementing encoded frames(%d)  Datasize: %d",
+                            mEncodedFrames, dataSize);
 #endif
-                mEncodedFrames++;
+                    mEncodedFrames++;
+                }
             }
         }
     }
@@ -1041,7 +1173,10 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffer, int numSamples, Writ
         // So we tell it that we encoded all of the samples passed in.
         //numSamplesEncoded = numResampled;
         numSamplesEncoded = numSamples;
-        encodedSamplesPtr = resampledBufferPtr;
+        for(channelIndex = 0; channelIndex < mChannels; channelIndex++)
+        {
+            encodedSamplesPtrArray[channelIndex] = resampledBufferPtrArray[channelIndex];
+        }
     }
    
     // Depending upon the encoder framing, there may not always be stuff to write
@@ -1067,7 +1202,7 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffer, int numSamples, Writ
         mLastEncodedFrameSize = dataSize;
 
         int bytesWritten = 
-            (this->*writeMethod)((char *)encodedSamplesPtr, dataSize);
+            (this->*writeMethod)((char**)encodedSamplesPtrArray, dataSize);
 
         if(bytesWritten != dataSize)
         {
@@ -1085,9 +1220,43 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffer, int numSamples, Writ
     return(numSamplesEncoded);
 }
 
-int MprRecorder::writeFile(char * data, int dataSize)
+int MprRecorder::writeFile(char* channelData[], int dataSize)
 {
-    return write(mFileDescriptor, data, dataSize);
+    int bytesWritten = 0;
+    int totalWritten = 0;
+    int bytesPerSample = getBytesPerSample(mRecFormat);
+
+    // For single channel audio, we can short circuit the channel interlace
+    // and write in one big chunk.
+    if(mChannels == 1)
+    {
+        bytesPerSample = dataSize;
+    }
+    assert(bytesPerSample > 0);
+
+    int dataIndex;
+    int channelIndex;
+    // TODO:  this may be really inefficient to make some may writes.
+    // It may be much better to interlace the channels in a buffer first and
+    // then write it all out at once.
+    if(bytesPerSample > 0)
+    {
+        // Interlace a sample from each channel
+        for(dataIndex = 0; dataIndex < dataSize; dataIndex += bytesPerSample)
+        {
+            for(channelIndex = 0; channelIndex < mChannels; channelIndex++)
+            {
+                bytesWritten = write(mFileDescriptor, &((channelData[channelIndex])[dataIndex]), bytesPerSample);
+                if(bytesWritten < 1)
+                {
+                    break;
+                }
+                totalWritten += bytesWritten;
+            }
+        }
+    }
+
+    return(bytesWritten > 0 ? totalWritten : bytesWritten);
 }
 
 int MprRecorder::writeBufferSilence(int numSamples)
@@ -1107,11 +1276,16 @@ int MprRecorder::writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples)
 int MprRecorder::writeCircularBufferSilence(int numSamples)
 {
     assert(((int)MpMisc.mpFgSilence->getSamplesNumber()) >= numSamples);
-    const MpAudioSample* silence = MpMisc.mpFgSilence->getSamplesPtr();
+    const MpAudioSample* silence[MAXIMUM_RECORDER_CHANNELS];
+    int channelIndex;
+    for(channelIndex = 0; channelIndex < mChannels; channelIndex++)
+    {
+       silence[channelIndex] = MpMisc.mpFgSilence->getSamplesPtr();
+    }
     return writeSamples(silence, numSamples, &MprRecorder::writeCircularBuffer);
 }
 
-int16_t MprRecorder::getBitsPerSample(RecordFileFormat format)
+int16_t MprRecorder::getBytesPerSample(RecordFileFormat format)
 {
     switch (format)
     {
@@ -1186,16 +1360,16 @@ OsStatus MprRecorder::readWaveHeader(int fileHandle,
 // TODO refactor this out of recorder into separate class
 UtlBoolean MprRecorder::writeWaveHeader(int handle, 
                                         RecordFileFormat format,
-                                        uint32_t samplesPerSecond)
+                                        uint32_t samplesPerSecond,
+                                        int16_t numChannels)
 {
    UtlBoolean retCode = FALSE;
    char tmpbuf[80];
-   int16_t sampleSize = getBitsPerSample(format);
+   int16_t sampleSize = getBytesPerSample(format);
    int16_t bitsPerSample = 0;
    int32_t formatLength = 0;
 
    int16_t compressionCode = (int16_t) format;
-   int16_t numChannels = 1;
    uint32_t averageBytesPerSecond = 0;
    int16_t blockAlign = 0;
    unsigned long bytesWritten = 0;

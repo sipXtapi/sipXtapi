@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -31,6 +31,10 @@
 #include "os/OsProtectEvent.h"
 
 // DEFINES
+#ifndef MAXIMUM_RECORDER_CHANNELS
+#  define MAXIMUM_RECORDER_CHANNELS 1
+#endif
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -82,7 +86,8 @@ public:
                              RecordFileFormat recFormat,
                              int time = 0,
                              int silenceLength = -1,
-                             UtlBoolean append = FALSE);
+                             UtlBoolean append = FALSE,
+                             int numChannels = 1);
      /**<
      *  @param[in] namedResource - resource name to send command to.
      *  @param[in] fgQ - flowgraph queue to send command to.
@@ -100,6 +105,7 @@ public:
      *             starting and appending recording to the same file or there is risk
      *             of the multiple file descriptors being open on the same file with
      *             unpredictable results.
+     *  @param[in] numChannels - the number of channels to record (>1 not supported for all formats)
      *
      *  @returns OS_SUCCESS if file was successfully opened (and if append, format is the same)
      *           OS_FAILED if existing file was of a different audio format than requested or
@@ -113,7 +119,8 @@ public:
                                MpAudioSample *pBuffer,
                                int bufferSize,
                                int time = 0,
-                               int silenceLength = -1);
+                               int silenceLength = -1,
+                               int numChannels = 1);
      /**<
      *  @param[in] namedResource - resource name to send command to.
      *  @param[in] fgQ - flowgraph queue to send command to.
@@ -124,6 +131,7 @@ public:
      *             which recording is automatically stopped. This feature is
      *             disabled if -1 is passed.
      *  @param[in] event - an optional OsEvent to signal on completion (DEPRECATED!).
+     *  @param[in] numChannels - the number of channels to record (>1 not supported for all formats)
      */
 
      /// Pause recording if it is already recording.
@@ -145,12 +153,14 @@ public:
                                        OsMsgQ& fgQ,
                                        CircularBufferPtr & buffer,
                                        RecordFileFormat recordingFormat,
-                                       unsigned long recordingBufferNotificationWatermark);
+                                       unsigned long recordingBufferNotificationWatermark,
+                                       int numChannels = 1);
      /**<
      *  @param[in] namedResource - resource name to send command to.
      *  @param[in] fgQ - flowgraph queue to send command to.
      *  @param[in] buffer - circular buffer store the samples into.
      *  @param[in] recordingBufferNotificationWatermark - buffer usage level (in samples) to send notifications for.
+     *  @param[in] numChannels - the number of channels to record (>1 not supported for all formats)
      */
 
      /// Stop recording if it has not stopped automatically yet.
@@ -212,6 +222,7 @@ protected:
 
    State mState;            ///< Internal recorder state.
    RecordDestination mRecordDestination; ///< Where to store recorded samples.
+   int mChannels;
    int mFramesToRecord;
    int mNumFramesProcessed;
    int mSamplesRecorded;
@@ -259,7 +270,8 @@ protected:
                               RecordFileFormat recFormat, 
                               int time,
                               int silenceLength,
-                              UtlBoolean append);
+                              UtlBoolean append,
+                              int numChannels);
    /**
     * @param[in] file - file handle to record to
     * @param[in] recFormat - audio format to use for record file
@@ -267,16 +279,18 @@ protected:
     * @param[in] silenceLength - stop recording after this amount of silence in
     *            milliseconds (-1 means ignore silence and keep recording).
     * @param[in] append - file is being appended 
+    * @param[in] numChannels - channels to record to file
     */
 
      /// Handle MPRM_START_BUFFER message.
    UtlBoolean handleStartBuffer(MpAudioSample *pBuffer, int bufferSize, int time,
-                                int silenceLength);
+                                int silenceLength, int numChannels);
 
      /// Handle MPRM_START_CIRCULAR_BUFFER message.
    UtlBoolean handleStartCircularBuffer(CircularBufferPtr * buffer, 
                                         RecordFileFormat recordingFormat,
-                                        unsigned long recordingBufferNotificationWatermark);
+                                        unsigned long recordingBufferNotificationWatermark,
+                                        int numChannels);
 
      /// Handle MPRM_STOP message.
    UtlBoolean handleStop();
@@ -296,13 +310,13 @@ protected:
      /// Close file if it is opened and  update WAV header if needed.
    void closeFile();
 
-   typedef int (MprRecorder::*WriteMethod)(char *, int);
+   typedef int (MprRecorder::*WriteMethod)(char * channelBuffers[], int);
 
      /// Write silence to the file
    inline int writeFileSilence(int numSamples);
 
      /// Write given data to the specified target
-   inline int writeSamples(const MpAudioSample *pBuffer, int numSamples, WriteMethod writeMethod);
+   inline int writeSamples(const MpAudioSample *pBuffer[], int numSamples, WriteMethod writeMethod);
 
      /// Write silence to the buffer
    inline int writeBufferSilence(int numSamples);
@@ -314,7 +328,9 @@ protected:
    inline int writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples);
 
      /// Write out standard 16bit WAV Header
-   static UtlBoolean writeWaveHeader(int handle, RecordFileFormat format, uint32_t samplesPerSecond = 8000);
+   static UtlBoolean writeWaveHeader(int handle, RecordFileFormat format, 
+                                     uint32_t samplesPerSecond = 8000,
+                                     int16_t numChannels = 1);
 
    /// Read wave header info
    static OsStatus readWaveHeader(int fileHandle,
@@ -344,12 +360,12 @@ private:
      /// Assignment operator (not implemented for this class)
    MprRecorder& operator=(const MprRecorder& rhs);
 
-   int writeFile(char * data, int dataSize);
-   int writeCircularBuffer(char * data, int dataSize);
+   int writeFile(char* channelData[], int dataSize);
+   int writeCircularBuffer(char* channelData[], int dataSize);
    void notifyCircularBufferWatermark();
    void createEncoder(const char * mimeSubtype, unsigned int codecSampleRate);
    void prepareEncoder(RecordFileFormat recFormat, unsigned int & codecSampleRate);
-   static int16_t getBitsPerSample(RecordFileFormat format);
+   static int16_t getBytesPerSample(RecordFileFormat format);
 };
 
 /* ============================ INLINE METHODS ============================ */
