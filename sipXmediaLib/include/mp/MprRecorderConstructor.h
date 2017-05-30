@@ -1,10 +1,6 @@
 //  
-// Copyright (C) 2009 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2009 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+//  
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -39,8 +35,8 @@ public:
      */
     MprRecorderConstructor() 
     : MpAudioResourceConstructor(DEFAULT_RECORDER_RESOURCE_TYPE,
-                                 1, 1, //minInputs, maxInputs,
-                                 0, 1) //minOutputs, maxOutputs
+                                 1, MAXIMUM_RECORDER_CHANNELS, //minInputs, maxInputs,
+                                 0, MAXIMUM_RECORDER_CHANNELS) //minOutputs, maxOutputs
     {
     };
 
