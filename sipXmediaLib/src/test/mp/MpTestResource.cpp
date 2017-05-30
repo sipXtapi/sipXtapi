@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -203,7 +203,7 @@ int MpTestResource::getLastInputFrameMagnitude(int inputIndex)
         sumSquares /= (double) numSamples;
     }
 
-    return(sqrt(sumSquares));
+    return((int)sqrt(sumSquares));
 }
 
 /* ============================ INQUIRY =================================== */
@@ -322,6 +322,14 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
                                            (((float) mpSignalAmplitude[i]) *
                                             sin((2.0 * M_PI * (float)(sampleIndex + mProcessedCnt * samplesPerFrame)) /
                                             mpSignalPeriod[i]));
+#if 0
+                    printf("sample[%d]=%d amp: %d period: %f t: %d\n",
+                           sampleIndex,
+                           samples[sampleIndex],
+                           mpSignalAmplitude[i],
+                           mpSignalPeriod[i],
+                           (sampleIndex + mProcessedCnt * samplesPerFrame));
+#endif
 
                 }
             }
