@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2015 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -800,8 +800,17 @@ static MpResourceTopology::ResourceDef initialTopologyResources[] =
 #endif // INSERT_SPEAKER_SELECTOR ]
    {DEFAULT_FROM_FILE_RESOURCE_TYPE, DEFAULT_FROM_FILE_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
    {DEFAULT_TONE_GEN_RESOURCE_TYPE, DEFAULT_TONE_GEN_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
-   {DEFAULT_RECORDER_RESOURCE_TYPE, DEFAULT_RECORDER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1},
+   {DEFAULT_RECORDER_RESOURCE_TYPE, DEFAULT_RECORDER_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
+
+   // This is probably not needed, but if the recorder is only a single channel, we
+   // insert a Null resource on the bridge output opposite the tone gen resource
+   // When the recorder takes two output channels, there is no need for the NULL resource.
+   // When the recorder takes 3 or 4 channels of input, we use the NULL resource to
+   // fill input slot(s) opposite the recoder outputs 4 and/or 3.
+#if MAXIMUM_RECORDER_CHANNELS != 2 
+   ,
    {DEFAULT_NULL_RESOURCE_TYPE, DEFAULT_NULL_RESOURCE_NAME, MP_INVALID_CONNECTION_ID, -1}
+#endif
 };
 static const int initialTopologyResourcesNum =
    sizeof(initialTopologyResources)/sizeof(MpResourceTopology::ResourceDef);
@@ -811,19 +820,38 @@ static const int initialTopologyInputResourcesNum = 2;
 static MpResourceTopology::ConnectionDef initialTopologyConnections[] =
 {
     // FromFile -> Bridge(0)
-   {DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0},
+   {DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT},
     // ToneGen -> Bridge(1)
-   {DEFAULT_TONE_GEN_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1},
+   {DEFAULT_TONE_GEN_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT},
 
     // If INSERT_SPEAKER_SELECTOR is defined, a Speaker Selector will be
     // manually connected to the Bridge.
 
-    // Bridge(0) -> Buffer Recorder
+    // Bridge(0) ->  Recorder(0)
     // This buffer recorder records full call to a buffer.
    {DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_RECORDER_RESOURCE_NAME, 0},
+#if MAXIMUM_RECORDER_CHANNELS == 1
     // Bridge(1) -> Null(0)
-    // This file recorder records full call to a file.
    {DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_NULL_RESOURCE_NAME, 0},
+#endif
+#if MAXIMUM_RECORDER_CHANNELS >= 2
+    // Bridge(1) ->  Recorder(1)
+   {DEFAULT_BRIDGE_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT, DEFAULT_RECORDER_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT},
+#endif
+#if MAXIMUM_RECORDER_CHANNELS >= 3
+    // Null(0) -> Bridge(2)
+   {DEFAULT_NULL_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT, DEFAULT_BRIDGE_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT},
+    // Bridge(2) ->  Recorder(2)
+   {DEFAULT_BRIDGE_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT, DEFAULT_RECORDER_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT},
+#endif
+#if MAXIMUM_RECORDER_CHANNELS == 4
+    // Null(0) -> Bridge(3)
+   {DEFAULT_NULL_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT, DEFAULT_BRIDGE_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT},
+    // Bridge(3) ->  Recorder(3)
+   {DEFAULT_BRIDGE_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT, DEFAULT_RECORDER_RESOURCE_NAME, MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT},
+#elif MAXIMUM_RECORDER_CHANNELS > 4
+# error Topology not defined for recorder with more than 4 channels
+#endif
 };
 static const int initialTopologyConnectionsNum =
    sizeof(initialTopologyConnections)/sizeof(MpResourceTopology::ConnectionDef);
