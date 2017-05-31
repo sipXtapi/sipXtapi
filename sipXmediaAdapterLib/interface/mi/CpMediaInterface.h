@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -487,7 +487,8 @@ public:
    virtual OsStatus recordChannelAudio(int connectionId,
                                        const char* szFile,
                                        CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16,
-                                       UtlBoolean appendToFile = FALSE) = 0;
+                                       UtlBoolean appendToFile = FALSE,
+                                       int numChannels = 1) = 0;
    /**
     * @param[in] connectionId - handle for media connection to which recorder is relate
     * @param[in] szFile - name of file to record to
@@ -497,6 +498,7 @@ public:
     *            Also be aware that when stopping and starting in rapid succession, you
     *            should wait for the stop notification before starting to record again
     *            with the same file or results are unpredictable.
+    * @param[in] numChannels - number of channels of audio to record to file
     *
     * @returns OS_SUCCESS if file was successfully opened (and if append, format is the same)
     *          OS_FAILED if existing file was of a different audio format than requested or

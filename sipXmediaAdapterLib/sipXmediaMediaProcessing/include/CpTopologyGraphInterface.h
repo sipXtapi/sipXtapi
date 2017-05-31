@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -286,7 +286,8 @@ public:
    virtual OsStatus recordChannelAudio(int connectionId,
                                        const char* szFile,
                                        CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16,
-                                       UtlBoolean appendToFile = FALSE);
+                                       UtlBoolean appendToFile = FALSE,
+                                       int numChannels = 1);
 
    /// @copydoc CpMediaInterface::pauseRecordChannelAudio
    virtual OsStatus pauseRecordChannelAudio(int connectionId);

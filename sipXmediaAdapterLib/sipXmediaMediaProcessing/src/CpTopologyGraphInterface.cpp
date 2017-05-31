@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1976,7 +1976,8 @@ OsStatus CpTopologyGraphInterface::stopChannelAudio(int connectionId)
 OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
                                                       const char* szFile,
                                                       CpAudioFileFormat cpFileFormat,
-                                                      UtlBoolean appendToFile)
+                                                      UtlBoolean appendToFile,
+                                                      int numChannels)
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2012,7 +2013,8 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
                                         recordFormat,
                                         0, // max record length = unlimited
                                         -1, // don't check/stop after silence
-                                        appendToFile);
+                                        appendToFile,
+                                        numChannels);
       }
    }
 
