@@ -1,8 +1,7 @@
 /*
 // 
 // 
-// Copyright (C) 2005-2009 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2017 SIPez LLC.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -193,6 +192,10 @@ void osPrintf(const char* format , ...)
    }
 #endif
 
+
+/* Silence unused vailable warnings
+ * May be present for the purpose of debugging */
+#define SIPX_UNUSED(VAR) if(0){(void) VAR;}
 
 
 #include "stdlib.h"
