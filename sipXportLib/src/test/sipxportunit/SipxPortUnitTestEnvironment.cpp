@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2010-2016 SIPez LLC  All rights reserved.
+// Copyright (C) 2010-2017 SIPez LLC  All rights reserved.
 // 
 // $$
 // Author: Daniel Petrie
@@ -235,6 +235,7 @@ void SipxPortUnitTestEnvironment::runTests(const char* testClassFilterName)
     if(SipxPortUnitTestEnvironment::sCatchSignals)
     {
         // Prepare to run tests and catch signals if something bad happends
+        signal(SIGABRT, SipxPortUnitTestEnvironment::signalHandler);
         signal(SIGFPE, SipxPortUnitTestEnvironment::signalHandler);
         signal(SIGSEGV, SipxPortUnitTestEnvironment::signalHandler);
         signal(SIGILL, SipxPortUnitTestEnvironment::signalHandler);
