@@ -455,7 +455,8 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       for(channelIndex = 0; channelIndex < inBufsSize; channelIndex++)
       {
           // If any channel has active audio, reset the inactivety counter
-          if (isActiveAudio(in[channelIndex]->getSpeechType()))
+          if (in[channelIndex].isValid() &&
+              isActiveAudio(in[channelIndex]->getSpeechType()))
           {
              mConsecutiveInactive = 0;
              break;
@@ -1204,7 +1205,7 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
         int bytesWritten = 
             (this->*writeMethod)((char**)encodedSamplesPtrArray, dataSize);
 
-        if(bytesWritten != dataSize)
+        if(bytesWritten != dataSize * mChannels)
         {
             OsSysLog::add(FAC_MP, PRI_ERR,
                           "MprRecorder::writeSamples wrote %d of %d bytes",
