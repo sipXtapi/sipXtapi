@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -289,7 +289,7 @@ void CRTCPRender::ForwardRTPHeader(IRTPHeader *piRTPHeader)
         // SSRC ID has changed
         if (m_iRemoteSSRCFound < 20) 
         {
-            OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRdr::FwdRTPHdr(): SSRC Changed from 0x%lX to 0x%lX\n", m_ulRemoteSSRC, ulRemoteSSRC);
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRdr::FwdRTPHdr(): SSRC Changed from 0x%X to 0x%lX\n", m_ulRemoteSSRC, ulRemoteSSRC);
         }
         m_ulRemoteSSRC = ulRemoteSSRC;
         m_iRemoteSSRCFound++;
