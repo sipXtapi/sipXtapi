@@ -461,7 +461,7 @@ public:
                 &chars_consumed);
          sprintf(msg, "Cannot parse call ID '%s'", callId.data());
          CPPUNIT_ASSERT_MESSAGE(msg,
-                                chars_consumed == callId.length());
+                                chars_consumed == (int)callId.length());
          sprintf(msg, "Actual prefix '%s' does not match expected prefix '%s' in call ID '%s'",
                  actual_prefix, expected_prefix, callId.data());
          CPPUNIT_ASSERT_MESSAGE(msg,
@@ -488,7 +488,7 @@ public:
      void testGetNewCallId_hose_stack()
       {
          int buffer[1024];
-         int i;
+         unsigned int i;
          // Access buffer through p, to confuse simple optimizers.
          int *p = &buffer[0];
 
