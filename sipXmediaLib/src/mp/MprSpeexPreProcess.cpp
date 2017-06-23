@@ -1,13 +1,12 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC. All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2006 ProfitFuel Inc.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +102,7 @@ UtlBoolean MprSpeexPreprocess::doProcessFrame(MpBufPtr inBufs[],
    // If the object is not enabled or we don't have valid input, pass input to output
    if (  isEnabled
       && inputBuffer.isValid()
-      && (inputBuffer->getSamplesNumber() == samplesPerFrame))
+      && ((int)(inputBuffer->getSamplesNumber()) == samplesPerFrame))
    {
       // This buffer will be modified in place. Make sure we're the only owner.
       res = inputBuffer.requestWrite();
