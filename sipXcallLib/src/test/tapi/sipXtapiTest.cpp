@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -179,7 +179,7 @@ void sipXtapiTestSuite::tearDown()
         rc = sipxUnInitialize(g_hInst);
         if (rc != SIPX_RESULT_SUCCESS)
         {
-            printf("\nERROR: sipxTapiTest -- Forcing shutdown of g_hInst (0x%08X)\n", g_hInst) ;
+            printf("\nERROR: sipxTapiTest -- Forcing shutdown of g_hInst (%p)\n", g_hInst) ;
             rc = sipxUnInitialize(g_hInst, true);
         }        
         g_hInst = NULL;
@@ -190,7 +190,7 @@ void sipXtapiTestSuite::tearDown()
         rc = sipxUnInitialize(g_hInst2);
         if (rc != SIPX_RESULT_SUCCESS)
         {
-            printf("\nERROR: sipxTapiTest -- Forcing shutdown of g_hInst2 (0x%08X)\n", g_hInst2) ;
+            printf("\nERROR: sipxTapiTest -- Forcing shutdown of g_hInst2 (%p)\n", g_hInst2) ;
             rc = sipxUnInitialize(g_hInst2, true);
         }        
         g_hInst2 = NULL;
@@ -201,7 +201,7 @@ void sipXtapiTestSuite::tearDown()
         rc = sipxUnInitialize(g_hInst3);
         if (rc != SIPX_RESULT_SUCCESS)
         {
-            printf("\nERROR: sipxTapiTest -- Forcing shutdown of g_hInst3 (0x%08X)\n", g_hInst3) ;
+            printf("\nERROR: sipxTapiTest -- Forcing shutdown of g_hInst3 (%p)\n", g_hInst3) ;
             rc = sipxUnInitialize(g_hInst3, true);
         }        
         g_hInst3 = NULL;
@@ -212,7 +212,7 @@ void sipXtapiTestSuite::tearDown()
         rc = sipxUnInitialize(g_hInst4);
         if (rc != SIPX_RESULT_SUCCESS)
         {
-            printf("\nERROR: sipxTapiTest -- Forcing shutdown of g_hInst4 (0x%08X)\n", g_hInst4) ;
+            printf("\nERROR: sipxTapiTest -- Forcing shutdown of g_hInst4 (%p)\n", g_hInst4) ;
             rc = sipxUnInitialize(g_hInst4, true);
         }                
         g_hInst4 = NULL;
@@ -223,7 +223,7 @@ void sipXtapiTestSuite::tearDown()
         rc = sipxUnInitialize(g_hInst5);
         if (rc != SIPX_RESULT_SUCCESS)
         {
-            printf("\nERROR: sipxTapiTest -- Forcing shutdown of g_hInst5 (0x%08X)\n", g_hInst5) ;
+            printf("\nERROR: sipxTapiTest -- Forcing shutdown of g_hInst5 (%p)\n", g_hInst5) ;
             rc = sipxUnInitialize(g_hInst5, true);
         }                        
         g_hInst5 = NULL;
