@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -446,9 +448,9 @@ void TaoMessage::serialize()
                 subType,
                 mMsgID,
                 mCmd,
-                mTaoObjHandle,
-                mSocketHandle,
-                mMessageQueueHandle,
+                (int)mTaoObjHandle,
+                (int)mSocketHandle,
+                (int)mMessageQueueHandle,
                 mArgCnt);
 
         mBody = (const char*) buf;
@@ -469,9 +471,9 @@ void TaoMessage::deSerialize()
                 &subType,
                 &mMsgID,
                 &mCmd,
-                &mTaoObjHandle,
-                &mSocketHandle,
-                &mMessageQueueHandle,
+                (int*)&mTaoObjHandle,
+                (int*)&mSocketHandle,
+                (int*)&mMessageQueueHandle,
                 &mArgCnt,
                 pArg);
 
