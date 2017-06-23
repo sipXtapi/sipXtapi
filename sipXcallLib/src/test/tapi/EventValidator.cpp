@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -746,7 +748,7 @@ UtlString* EventValidator::allocInfoStatusEvent(SIPX_INFO hInfo, int status, int
     char szBuffer[1024] ;    
     
     sprintf(szBuffer, "<INFO STATUS> hInfo=%d: status=%d, responseCode=%d, responseText=%s",
-            hInfo, 
+            (int)hInfo, 
             status, 
             responseCode, 
             szResponseText ? szResponseText : "") ;
@@ -912,8 +914,8 @@ UtlString* EventValidator::allocNotifyEvent(SIPX_NOTIFY_INFO* pInfo)
         memcpy(szTemp, pInfo->pContent, pInfo->nContentLength) ;
     }
 
-    sprintf(szBuffer, "<NOTIFY> hSub=%d, contentType=%s, contentLength=%d, content=%s", 
-                        pInfo->hSub, 
+    sprintf(szBuffer, "<NOTIFY> hSub=%d, contentType=%s, contentLength=%lu, content=%s", 
+                        (int)pInfo->hSub, 
                         pInfo->szContentType, 
                         pInfo->nContentLength, 
                         szTemp); 
