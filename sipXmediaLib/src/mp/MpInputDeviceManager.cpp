@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -639,7 +639,7 @@ int MpInputDeviceManager::removeAllDevices()
             OsWriteLock lock(mRwMutex);
             MpAudioInputConnection* connection = NULL;
             UtlHashBagIterator iterator(mConnectionsByDeviceId);
-            if(connection = (MpAudioInputConnection*) iterator())
+            if((connection = (MpAudioInputConnection*) iterator()))
             {
                 deviceId = connection->getValue();
             }
@@ -685,7 +685,6 @@ OsStatus MpInputDeviceManager::setupDevice(MpInputDeviceHandle deviceId,
    UtlInt deviceKey(deviceId);
    connectionFound =
       (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
-   MpInputDeviceDriver* deviceDriver = NULL;
 
    if (connectionFound)
    {
@@ -704,7 +703,6 @@ OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
    UtlInt deviceKey(deviceId);
    connectionFound =
       (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
-   MpInputDeviceDriver* deviceDriver = NULL;
 
    if (connectionFound)
    {
@@ -735,7 +733,6 @@ OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
    UtlBoolean okToDisable = FALSE;  
    MpAudioInputConnection* connectionFound = NULL;
    UtlInt deviceKey(deviceId);
-   MpInputDeviceDriver* deviceDriver = NULL;
 
    // try 10 times (this is a blind guess) -- checking every
    // 10ms over 100ms seems reasonable.
@@ -819,7 +816,7 @@ OsStatus MpInputDeviceManager::disableAllDevicesExcept(int exceptCount, MpInputD
         OsWriteLock lock(mRwMutex);
         MpAudioInputConnection* connection = NULL;
         UtlHashBagIterator iterator(mConnectionsByDeviceId);
-        while(connection = (MpAudioInputConnection*) iterator())
+        while((connection = (MpAudioInputConnection*) iterator()))
         {
             // If not in the exception list, add to the list to be disabled
             UtlInt deviceIdInt(connection->getValue());
@@ -937,7 +934,7 @@ OsStatus MpInputDeviceManager::getDeviceName(MpInputDeviceHandle deviceId,
    else
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, "MpInputDeviceManager::getDeviceName deviceId=%d not found, device count: %d",
-                    deviceId, mConnectionsByDeviceId.entries());
+                    deviceId, (int)mConnectionsByDeviceId.entries());
    }
 
    return(status);
