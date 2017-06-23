@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2016 SIPez LLC. All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -48,6 +48,7 @@ static char* g_szFile = NULL ;          // file to play on answer
 static char* g_szRecordFile = NULL;     // Filename to record to
 static bool gbConf = false;             // Act as conference bridge for all incoming calls
 SIPX_CONF g_conf = SIPX_CONF_NULL;      // Single conference instance
+static bool g_recordingFile = false;
 
 #if defined(_WIN32) && defined(VIDEO)
 extern HWND ghPreview;
@@ -648,7 +649,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
             SLEEP(1000) ;   // BAD: Do not block the callback thread
 
             // Start recording if option provided
-            if(g_szRecordFile)
+            if(g_szRecordFile && ! g_recordingFile)
             {
                 SIPX_RESULT recReturn =
                     recordFile(g_szRecordFile, pCallInfo->hCall);
@@ -657,6 +658,10 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                     printf("Failed to start recording to file: %s return: %d\n",
                            g_szRecordFile,
                            recReturn);
+                }
+                else
+                {
+                    g_recordingFile = true;
                 }
             }
 
@@ -841,6 +846,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                            g_szRecordFile,
                            recReturn);
                 }
+                g_recordingFile = false;
             }
 
             sipxCallDestroy(pCallInfo->hCall) ;
