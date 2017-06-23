@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -65,7 +65,7 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
         SIPX_SUB hSub2_lunch  = 0;
         TransportTask* pTask1 = NULL;
         TransportTask* pTask2 = NULL;
-        int j;
+        size_t j;
         size_t nDummy;
         SIPX_CONTACT_ADDRESS aAddress[32];
         SIPX_CONTACT_ID contactId = CONTACT_LOCAL;
