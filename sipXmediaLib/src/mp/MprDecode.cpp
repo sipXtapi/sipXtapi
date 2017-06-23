@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -752,10 +752,12 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
    UtlString fmtp;
    OsStatus ret;
    MpDecoderBase* pNewDecoder;
+#if 0
    MpDecoderBase* pOldDecoder;
+   int canReuse;
+#endif
    MpCodecFactory* pFactory = MpCodecFactory::getMpCodecFactory();
    int allReusable = 0;
-   int canReuse;
 #if 0
    osPrintf("MprDecode::handleSelectCodecs(%d codec%s):\n",
       numCodecs, ((1 == numCodecs) ? "" : "s"));
