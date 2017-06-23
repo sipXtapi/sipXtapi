@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -203,7 +203,7 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
    }
 
    // Check to see if the resampler needs it's rate adjusted.
-   if(mpResampler->getInputRate() != samplesPerSecond)
+   if((int)(mpResampler->getInputRate()) != samplesPerSecond)
       mpResampler->setInputRate(samplesPerSecond);
    if(mpResampler->getOutputRate() != devSampleRate)
       mpResampler->setOutputRate(devSampleRate);
