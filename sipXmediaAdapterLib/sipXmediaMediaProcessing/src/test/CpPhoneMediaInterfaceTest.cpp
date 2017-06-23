@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2016 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2005-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -123,7 +123,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         // Clean up if there is something left over from a prior test run
         if(mMediaInterfaces.entries() > 0)
         {
-           printf("setUp mMediaInterfaces contains: %d\n", mMediaInterfaces.entries());
+           printf("setUp mMediaInterfaces contains: %d\n", (int)mMediaInterfaces.entries());
         }
         CpMediaInterface *pInterface = NULL;
         while ((pInterface = (CpMediaInterface*)mMediaInterfaces.get()))
@@ -186,7 +186,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 
         if(mMediaInterfaces.entries())
         {
-           printf("tearDown exit mMediaInterfaces contains: %d\n", mMediaInterfaces.entries());
+           printf("tearDown exit mMediaInterfaces contains: %d\n", (int)mMediaInterfaces.entries());
         }
     }
 
@@ -490,7 +490,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
      
         StoreSignalNotification playAudNote;
 #ifdef EMBED_PROMPTS
-        printf("Playing record_prompt from RAM bytes: %d samples: %d frames: %d\n",
+        printf("Playing record_prompt from RAM bytes: %lu samples: %lu frames: %lu\n",
                 sizeof(record_prompt),
                 sizeof(record_prompt) / 2,
                 sizeof(record_prompt) / 2 / 80);
@@ -526,7 +526,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         //enableConsoleOutput(0);
 
         // Check via old OsNotification mechanism if the file finished playing.
-        printf("%d event(s) on play event queue:  ", playAudNote.mEDataList.entries());
+        printf("%d event(s) on play event queue:  ", (int)playAudNote.mEDataList.entries());
         int evtData = -1;
         while((evtData = playAudNote.popLastEvent(evtData)) != OS_NOT_FOUND)
         {
@@ -567,7 +567,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         mediaInterface->stopTone() ;
 
 #ifdef EMBED_PROMPTS
-        printf("Playing playback_prompt from RAM bytes: %d samples: %d frames: %d\n",
+        printf("Playing playback_prompt from RAM bytes: %lu samples: %lu frames: %lu\n",
                 sizeof(playback_prompt),
                 sizeof(playback_prompt) / 2,
                 sizeof(playback_prompt) / 2 / 80);
@@ -719,7 +719,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         mediaInterface->recordChannelAudio(-1, "testPlayPauseResumeStop_call_recording.wav");
         
 #ifdef EMBED_PROMPTS
-        printf("Playing record_prompt from RAM bytes: %d samples: %d frames: %d\n",
+        printf("Playing record_prompt from RAM bytes: %lu samples: %lu frames: %lu\n",
                 sizeof(record_prompt),
                 sizeof(record_prompt) / 2,
                 sizeof(record_prompt) / 2 / 80);
