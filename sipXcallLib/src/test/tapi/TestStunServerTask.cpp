@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -98,7 +100,7 @@ void TestStunServerTask::setTestMode(STUN_TEST_MODE testMode)
 
     if (mpEventValidator)
     {
-        char* testModes[] =
+        const char* testModes[] =
         {
             "TEST_NORMAL",
             "TEST_NO_RESPONSE",
