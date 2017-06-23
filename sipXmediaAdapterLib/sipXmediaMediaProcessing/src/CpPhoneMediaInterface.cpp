@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2015 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1354,8 +1354,8 @@ OsStatus CpPhoneMediaInterface::recordChannelAudio(int connectionId,
     // TODO:: This API is designed to record the audio from a single channel.  
     // If the connectionId is -1, record all.
 
-    double duration = 0 ; // this means it will record for very long time
-    int dtmf = 0 ;
+    //double duration = 0 ; // this means it will record for very long time
+    //int dtmf = 0 ;
 
     /* use new call recorder
        from now on, call recorder records both mic, speaker and local dtmf      
