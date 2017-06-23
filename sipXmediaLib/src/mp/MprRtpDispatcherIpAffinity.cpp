@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -65,7 +64,7 @@ OsStatus MprRtpDispatcherIpAffinity::pushPacket(MpRtpBufPtr &pRtp)
    OsStatus    ret = OS_SUCCESS;
    RtpSRC      thisSsrc;
    const in_addr* fromIP = &pRtp->getIP();
-   int         fromPort = pRtp->getUdpPort();
+   int fromPort = pRtp->getUdpPort();
 
    mNumPushed++;
    if (0 == (mNumPushed & ((1<<11)-1)))
@@ -91,7 +90,8 @@ OsStatus MprRtpDispatcherIpAffinity::pushPacket(MpRtpBufPtr &pRtp)
       mNumNonPrefPackets = 0;
 
       // Track when the source IP changes
-      if ((mRtpStream.mAddress != fromIP->s_addr) || (mRtpStream.mPort != fromPort))
+      if ((mRtpStream.mAddress != (int)(fromIP->s_addr)) ||
+          (mRtpStream.mPort != fromPort))
       {
          mRtpStream.mAddress = fromIP->s_addr;
          mRtpStream.mPort = fromPort;
@@ -120,12 +120,13 @@ OsStatus MprRtpDispatcherIpAffinity::pushPacket(MpRtpBufPtr &pRtp)
          OsSocket::inet_ntoa_pt(*fromIP, New);
          if (OsSysLog::willLog(FAC_MP, PRI_DEBUG))
             osPrintf("**MprFromNet recvd RTP pkt from SSRC %d (%s:%d), "
-                     "expected SSRC %d (%s:%d)\n",
+                     "expected SSRC %d (%s:%u)\n",
                      thisSsrc, New.data(), fromPort,
                      getPrefSsrc(), Old.data(), mRtpDestPort);
       }
       // If it's from the same IP:port, SSRC must have changed
-      if ((fromIP->s_addr == mRtpDestIp) && (fromPort == mRtpDestPort))
+      if ((fromIP->s_addr == mRtpDestIp) && 
+          (fromPort == mRtpDestPort))
       {
          setPrefSsrc(thisSsrc);
          // Notify about stream change
