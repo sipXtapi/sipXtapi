@@ -367,6 +367,8 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
 
       // Free input device driver
       int inDevicesRemoved = mpInputDeviceManager->removeAllDevices();
+      // Local varible just for debugging purposes
+      SIPX_UNUSED(inDevicesRemoved);
 
       // Free output device driver
       int outDevicesRemoved = mpOutputDeviceManager->removeAllDevices();
