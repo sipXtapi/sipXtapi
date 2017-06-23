@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -142,7 +141,7 @@ UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
    if (!out.isValid())
       return FALSE;
    out->setSamplesNumber(samplesPerFrame);
-   assert(out->getSamplesNumber() == samplesPerFrame);
+   assert((int)(out->getSamplesNumber()) == samplesPerFrame);
    out->setSpeechType(MP_SPEECH_UNKNOWN);
 
    // Fill buffer with silence
@@ -157,7 +156,7 @@ UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
          MpAudioBufPtr  in = inBufs[i];
          MpAudioSample* output = outstart;
          const MpAudioSample* input = in->getSamplesPtr();
-         int n = sipx_min(in->getSamplesNumber(), samplesPerFrame);
+         int n = sipx_min((int)(in->getSamplesNumber()), samplesPerFrame);
          if (wgt == 1)
          {
             for (int j=0; j<n; j++)
