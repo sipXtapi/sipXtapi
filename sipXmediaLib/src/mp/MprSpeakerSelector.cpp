@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2008-2017 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -614,7 +613,7 @@ void MprSpeakerSelector::updateMapping(MprSpeakerSelector::RankIndexPair *topRan
          }
          else if (mOutToInMap[mInToOutMap[speaker]] != speaker)
          {
-            if (mChangeMapTime[mInToOutMap[speaker]] != mMapTime)
+            if (mChangeMapTime[mInToOutMap[speaker]] != (int)mMapTime)
             {
                // This input may know its place and may reside on it.
                // Its competitor has not been active for a while.
