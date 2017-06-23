@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -189,6 +191,8 @@ void MpPlayer::fireEvent(PlayerState state)
             case PlayerFailed:
                mListenerDb[i].pListener->playerFailed(event) ;
                break ;
+            case PlayerDestroyed:
+               break;
          }
       }
    }   
