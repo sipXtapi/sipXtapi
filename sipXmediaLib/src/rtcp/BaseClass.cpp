@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -155,7 +155,7 @@ unsigned long CBaseClass::Release CBASECLASS_PROTO_ARGS((int callLineNum))
     sulTotalReferenceCount--;
     m_ulReferences--;
 
-    if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG, "BaseClass: %p->Release(%d), count: %2ld", this, callLineNum, m_ulReferences);
+    if (callLineNum > 0) OsSysLog::add(FAC_MP, PRI_DEBUG, "BaseClass: %p->Release(%d), count: %2d", this, callLineNum, m_ulReferences);
     return(m_ulReferences);
 
 }
@@ -176,14 +176,39 @@ void InitializeCriticalSection(CRITICAL_SECTION *csSynchronized)
 
 void EnterCriticalSection(CRITICAL_SECTION *csSynchronized)
 {
+#if TEST_PRINT
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "EnterCriticalSection entered semiphore: %p",
+            csSynchronized);
+#
 //  Attempt to gain exclusive access to a protected resource by taking
 //  its semaphore
     if(*csSynchronized)
-        (*csSynchronized)->acquire();
+    {
+        OsTime timeOut(1, 0);
+        OsStatus status = OS_FAILED;
+        do
+        {
+            status = (*csSynchronized)->acquire(timeOut);
+            if(status != OS_SUCCESS)
+            {
+                OsSysLog::add(FAC_MP, PRI_ERR,
+                    "RTCP EnterCriticalSection acquire returned: %d dead lock semiphore: %p",
+                    status,
+                    csSynchronized);
+            }
+
+        } while(status != OS_SUCCESS);
+    }
 }
 
 void LeaveCriticalSection(CRITICAL_SECTION *csSynchronized)
 {
+#if TEST_PRINT
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "LeaveCriticalSection entered semiphore: %p",
+            csSynchronized);
+#
 //  Attempt to relinquish exclusive access to a protected resource by giving
 //  back its semaphore
     if(*csSynchronized)
