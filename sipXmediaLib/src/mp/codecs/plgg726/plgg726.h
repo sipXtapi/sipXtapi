@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -13,7 +12,9 @@
 #ifndef _plgg726_h_
 #define _plgg726_h_
 #ifdef __pingtel_on_posix__
+#  include <mp/MpTypes.h>
 #  include <config.h>
+#  include <spandsp/telephony.h>
 #else
    // On Windows we always could use latest SpanDSP, so we do not need HAVE_OLD_LIBSPANDSP
 #  undef HAVE_OLD_LIBSPANDSP
