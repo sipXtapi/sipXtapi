@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 // 
 // $$ 
 /////////////////////////////////////////////////////////////////////////////// 
@@ -1006,7 +1006,6 @@ int MpAlsa::alsaSetupPcmDevice(const char* devname, bool capture, unsigned& sugg
     int       bothEnableResampling = 1;
     int       playResampling = -1;
     int       capResampling = -1;
-    unsigned  periodSize = N_SAMPLES;
     unsigned  bothPeriodTime = 0;
     unsigned  playPeriodTime = -1;
     unsigned  capPeriodTime = -1;
