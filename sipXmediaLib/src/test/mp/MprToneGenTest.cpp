@@ -1,9 +1,8 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC. All rights reserved.
+//  
 // Copyright (C) 2007-2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -74,7 +73,6 @@ public:
 
          // Tell our MprToneGen to generate a '4' DTMF tone playing.
          MprToneGen::startTone("MprToneGen", *(mpFlowGraph->getMsgQ()), '4');
-            UtlBoolean dtmfDetected = FALSE;
 
          int j;
          for(j = 0; j < framesToProcess; j++)
