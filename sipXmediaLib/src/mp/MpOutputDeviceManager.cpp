@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -148,7 +148,7 @@ int MpOutputDeviceManager::removeAllDevices()
             OsWriteLock lock(mRwMutex);
             MpAudioOutputConnection* connection = NULL;
             UtlHashBagIterator iterator(mConnectionsByDeviceId);
-            if(connection = (MpAudioOutputConnection*) iterator())
+            if((connection = (MpAudioOutputConnection*) iterator()))
             {
                 deviceId = connection->getValue();
             }
@@ -294,7 +294,7 @@ OsStatus MpOutputDeviceManager::disableAllDevicesExcept(int exceptCount, MpOutpu
         OsWriteLock lock(mRwMutex);
         MpAudioOutputConnection* connection = NULL;
         UtlHashBagIterator iterator(mConnectionsByDeviceId);
-        while(connection = (MpAudioOutputConnection*) iterator())
+        while((connection = (MpAudioOutputConnection*) iterator()))
         {
             // If not in the exception list, add to the list to be disabled
             UtlInt deviceIdInt(connection->getValue());
