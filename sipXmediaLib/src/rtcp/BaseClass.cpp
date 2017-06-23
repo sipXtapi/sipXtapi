@@ -180,7 +180,7 @@ void EnterCriticalSection(CRITICAL_SECTION *csSynchronized)
     OsSysLog::add(FAC_MP, PRI_DEBUG,
             "EnterCriticalSection entered semiphore: %p",
             csSynchronized);
-#
+#endif
 //  Attempt to gain exclusive access to a protected resource by taking
 //  its semaphore
     if(*csSynchronized)
@@ -208,7 +208,7 @@ void LeaveCriticalSection(CRITICAL_SECTION *csSynchronized)
     OsSysLog::add(FAC_MP, PRI_DEBUG,
             "LeaveCriticalSection entered semiphore: %p",
             csSynchronized);
-#
+#endif
 //  Attempt to relinquish exclusive access to a protected resource by giving
 //  back its semaphore
     if(*csSynchronized)
