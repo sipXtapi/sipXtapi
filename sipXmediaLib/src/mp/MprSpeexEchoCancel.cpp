@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2014 SIPez LLC.  All right reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All right reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -105,7 +105,6 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
    MpAudioBufPtr   inputBuffer;
    MpAudioBufPtr   echoRefBuffer;
    MpBufferMsg*    bufferMsg;
-   bool            res = false;
 
    // If disabled pass buffer through
    if (  smGlobalEnableState == GLOBAL_DISABLE
@@ -127,7 +126,7 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
 
          // Check for valid input
    if (  inputBuffer.isValid()
-      && (inputBuffer->getSamplesNumber() == samplesPerFrame)
+      && ((int)(inputBuffer->getSamplesNumber()) == samplesPerFrame)
          // Speaker data should be delayed by mSpkrQDelayFrames frames
       && mpSpkrQ->numMsgs() > mSpkrQDelayFrames)
    {
@@ -152,7 +151,7 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
          {
             echoRefBuffer = mpSilenceBuf;
          }
-         if (echoRefBuffer->getSamplesNumber() == samplesPerFrame)
+         if ((int)(echoRefBuffer->getSamplesNumber()) == samplesPerFrame)
          {
             mStartedCanceling = true;
 
@@ -160,7 +159,7 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
             outBuffer = MpMisc.RawAudioPool->getBuffer();
             assert(outBuffer.isValid());
             outBuffer->setSamplesNumber(samplesPerFrame);
-            assert(outBuffer->getSamplesNumber() == samplesPerFrame);
+            assert((int)(outBuffer->getSamplesNumber()) == samplesPerFrame);
             outBuffer->setSpeechType(inputBuffer->getSpeechType());
 
             // Do echo cancellation
