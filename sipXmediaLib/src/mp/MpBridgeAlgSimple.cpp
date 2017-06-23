@@ -1,9 +1,8 @@
 //  
+// Copyright (C) 2008-2017 SIPez LLC. All rights reserved.
+//  
 // Copyright (C) 2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -139,7 +138,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
              pInputGains[inputNum] != MP_BRIDGE_GAIN_MUTED)
          {
             MpAudioBufPtr pFrame = inBufs[inputNum];
-            assert(pFrame->getSamplesNumber() == samplesPerFrame);
+            assert((int)(pFrame->getSamplesNumber()) == samplesPerFrame);
 
             // Do not mix muted audio.
             if (pFrame->getSpeechType() == MP_SPEECH_MUTED)
