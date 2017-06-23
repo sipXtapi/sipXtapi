@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,6 +160,8 @@ public:
    {
       CallbackUserData userData;
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+      printf("testEnableDisable created driver: %p\n",
+              &driver);
       CPPUNIT_ASSERT(!driver.isEnabled());
 
       userData.mDriver = &driver;
@@ -308,7 +310,7 @@ public:
                for(int frame=0; frame<numFrames; frame++)
                {
                   curTmpBufLen = snprintf(tmpBuf, TMPBUFLEN, "%d",
-                     jitterTimes[curRunIdx][frame].cvtToMsecs()-jitterTimes[curRunIdx][0].cvtToMsecs());
+                     (int)(jitterTimes[curRunIdx][frame].cvtToMsecs()-jitterTimes[curRunIdx][0].cvtToMsecs()));
                   jitterDataStr += tmpBuf;
                   jitterDataStr += ",";
                }
