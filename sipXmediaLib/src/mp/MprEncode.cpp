@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -637,7 +637,8 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
       }
 
       if (  (mPayloadBytesUsed > 0)
-         && (isPacketReady || mSamplesPacked+codecFrameSamples > mMaxPacketSamples))
+         && (isPacketReady || 
+            (int)(mSamplesPacked + codecFrameSamples) > mMaxPacketSamples))
       {
          if (mActiveAudio1)
          {
