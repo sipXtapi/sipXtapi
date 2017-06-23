@@ -1,9 +1,8 @@
 //  
+// Copyright (C) 2008-2017 SIPez LLC. All rights reserved.
+//  
 // Copyright (C) 2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -104,7 +103,7 @@ UtlBoolean MprDelay::doDelay(MpBufPtr& iBuf,
    MpAudioBufPtr inBuf = iBuf;
 
    if (inBuf.isValid())
-      assert(inBuf->getSamplesNumber() == samplesPerFrame);
+      assert((int)(inBuf->getSamplesNumber()) == samplesPerFrame);
 
    switch (mState)
    {
