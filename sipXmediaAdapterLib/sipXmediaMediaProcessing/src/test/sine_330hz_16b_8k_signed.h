@@ -1,6 +1,5 @@
 /* 
-// Copyright (C) 2007 SIPez LLC
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2017 SIPez LLC
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -13358,3 +13357,4 @@ unsigned char sine_330hz_16b_8k_signed[160116]=
  0x6C,0x64,0x77,0x61,0x76,0x65,0x2E,0x63,0x6F,0x6D,0x00,0x00,
  
 };
+
