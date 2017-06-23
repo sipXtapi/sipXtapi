@@ -227,6 +227,9 @@ public:
      *  @retval OS_FAILED if some other failure in queuing the message occurred.
      */
 
+     /// Return the number of ports on the bridge (by default, not implemented in base class)
+   virtual int getNumBridgePorts() {return(0);};
+
      /// @brief Set the secure RTP parameters.
    virtual OsStatus setSrtpParams(SdpSrtpParameters& srtpParameters);
      /**<
