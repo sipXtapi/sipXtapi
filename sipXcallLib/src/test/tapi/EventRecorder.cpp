@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -107,7 +109,7 @@ void EventRecorder::addEvent(SIPX_INFO_INFO* pInfoInfo)
 {
     char szBuffer[1024] ;
     
-    sprintf(szBuffer, "INFO MSG: %s, %d", pInfoInfo->pContent, pInfoInfo->nContentLength);
+    sprintf(szBuffer, "INFO MSG: %s, %lu", pInfoInfo->pContent, pInfoInfo->nContentLength);
     m_events[m_numEvents++] = strdup(szBuffer) ;
     return;
 }
@@ -116,7 +118,7 @@ void EventRecorder::addCompareEvent(SIPX_INFO_INFO* pInfoInfo)
 {
     char szBuffer[1024] ;
     
-    sprintf(szBuffer, "INFO MSG: %s, %d", pInfoInfo->pContent, pInfoInfo->nContentLength);
+    sprintf(szBuffer, "INFO MSG: %s, %lu", pInfoInfo->pContent, pInfoInfo->nContentLength);
     m_compareEvents[m_numCompareEvents++] = strdup(szBuffer) ;
     return;
 }
