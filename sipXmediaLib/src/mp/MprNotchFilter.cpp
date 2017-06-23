@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008-2015 SIPez LLC. All rights reserved.
+// Copyright (C) 2008-2017 SIPez LLC. All rights reserved.
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -54,8 +54,8 @@ MprNotchFilter::MprNotchFilter(const UtlString& rName)
 , mTargetFreq(DEFAULT_TARGET_FREQ)
 , mSampleRate(DEFAULT_SAMPLING_RATE)
 , mBW(DEFAULT_BW)
-, mZ2(0.0)
 , mZ1(0.0)
+, mZ2(0.0)
 {
    initFilter();
 }
