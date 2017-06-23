@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -467,8 +467,8 @@ MpCodecSubInfo* MpCodecFactory::searchByMIME(const UtlString& mime,
    MpCodecSubInfo* pInfo;
    while ((pInfo = (MpCodecSubInfo*)iter()))
    { 
-      if (pInfo->getCodecInfo()->sampleRate == sampleRate &&
-          pInfo->getCodecInfo()->numChannels == numChannels)
+      if ((int)(pInfo->getCodecInfo()->sampleRate) == sampleRate &&
+          (int)(pInfo->getCodecInfo()->numChannels) == numChannels)
       {
          return pInfo;
       }
