@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2017 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
@@ -25,8 +25,11 @@ int internal_decode_g726(void* handle, const void* pCodedData,
    int samples;
    int maxBytesToDecode;
 
-   maxBytesToDecode = min(cbCodedPacketSize, cbBufferSize*8/((g726_state_t*)handle)->bits_per_sample);
-   assert(maxBytesToDecode == cbCodedPacketSize);
+   // TODO: fix this hack
+   maxBytesToDecode = cbCodedPacketSize;
+   // g726_state_t is now opaque.  Can no longer access bits_per_sample bits_per_sample 
+   //maxBytesToDecode = min(cbCodedPacketSize, cbBufferSize*8/((g726_state_t*)handle)->bits_per_sample);
+   //assert(maxBytesToDecode == cbCodedPacketSize);
    
    samples = g726_decode((g726_state_t*)handle, (int16_t*)pAudioBuffer, pCodedData, maxBytesToDecode);
 //   printf("G726 decoded %d frames.\n", samples);
