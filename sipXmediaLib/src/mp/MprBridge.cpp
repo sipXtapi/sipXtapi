@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -238,10 +238,37 @@ OsStatus MprBridge::setMixWeightsForOutput(const UtlString& namedResource,
                                            int numWeights,
                                            const MpBridgeGain gains[])
 {
-   MprBridgeSetGainsMsg msg(namedResource, bridgeOutputPort, numWeights,
-                            gains,
-                            MprBridgeSetGainsMsg::GAINS_ROW);
-   return fgQ.send(msg, sOperationQueueTimeout);
+    if(OsSysLog::willLog(FAC_MP, PRI_DEBUG))
+    {
+        UtlString gainsString("[");
+        for(int gainIndex = 0; gainIndex < numWeights; gainIndex++)
+        {
+            if(gainIndex > 0)
+            {
+                gainsString.append(", ");
+            }
+            gainsString.appendFormat("%.2f", 
+#ifdef MP_FIXED_POINT
+                    ((float)gains[gainIndex]) / ((float)(1 << MP_BRIDGE_FRAC_LENGTH)));
+#else
+                    gains[gainIndex]);
+#endif
+        }
+        gainsString.append("]");
+
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MprBridge::setMixWeightsForOutput(\"%s\", %p, %d, %d,\n%s)",
+                namedResource.data(),
+                &fgQ,
+                bridgeOutputPort,
+                numWeights,
+                gainsString.data());
+    }
+
+    MprBridgeSetGainsMsg msg(namedResource, bridgeOutputPort, numWeights,
+                             gains,
+                             MprBridgeSetGainsMsg::GAINS_ROW);
+    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 OsStatus MprBridge::setMixWeightsForInput(int bridgeInputPort,
