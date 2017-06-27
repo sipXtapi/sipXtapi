@@ -2485,8 +2485,9 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
                 (CpMediaInterface::CpAudioFileFormat)
                     ((CpMultiStringMessage&)eventMessage).getInt2Data();
             UtlBoolean append = 
-                (CpMediaInterface::CpAudioFileFormat)
                     ((CpMultiStringMessage&)eventMessage).getInt3Data();
+            int numChannels =
+                    ((CpMultiStringMessage&)eventMessage).getInt4Data();
 
             UtlBoolean bSuccess = false ;
 
@@ -2496,7 +2497,7 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             if (/* connection && */ mpMediaInterface)
             {   
                 int connectionId = connection ? connection->getConnectionId() : -1;
-                if (mpMediaInterface->recordChannelAudio(connectionId, file, recordFormat, append))
+                if (mpMediaInterface->recordChannelAudio(connectionId, file, recordFormat, append, numChannels))
                 {
                     bSuccess = true ;
                 }
