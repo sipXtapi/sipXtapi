@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -166,6 +166,9 @@ public:
         OsMulticastSocket* reader = new OsMulticastSocket(8022, "224.10.11.12",
                                                           8022, "224.10.11.12");
         writer->setHopCount(1);
+
+        CPPUNIT_ASSERT(writer->isOk());
+        CPPUNIT_ASSERT(reader->isOk());
 
         // Make sure we'll receive our own message.
         // * In Winsock, the IP_MULTICAST_LOOP option applies only to the receive path.
