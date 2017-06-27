@@ -1600,8 +1600,9 @@ void CallManager::audioChannelStop(const char* callId, const char* szRemoteAddre
 OsStatus CallManager::audioChannelRecordStart(const char* callId, 
                                               const char* szRemoteAddress, 
                                               const char* szFile,
-                                              CpMediaInterface::CpAudioFileFormat recordFormat,
-                                              UtlBoolean appendToFile) 
+                                              const CpMediaInterface::CpAudioFileFormat recordFormat,
+                                              const UtlBoolean appendToFile,
+                                              const int numChannels)
 {
     OsStatus status = OS_FAILED ;
 
@@ -1617,7 +1618,8 @@ OsStatus CallManager::audioChannelRecordStart(const char* callId,
                                  NULL,
                                  (intptr_t) pEvent,
                                  recordFormat,
-                                 appendToFile);
+                                 appendToFile,
+                                 numChannels);
     postMessage(message);
 
     // Wait for error response
@@ -1962,7 +1964,7 @@ OsStatus CallManager::audioChannelRecordBufferStart(const char* callId,
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::audioChannelRecordStart TIMED OUT\n");
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::audioChannelRecordBufferStart TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == pEvent->signal(0))
         {

@@ -180,8 +180,9 @@ public:
     virtual OsStatus audioChannelRecordStart(const char* callId, 
                                             const char* szRemoteAddress, 
                                             const char* szFile,
-                                            CpMediaInterface::CpAudioFileFormat = CpMediaInterface::CP_WAVE_PCM_16,
-                                            UtlBoolean appendToFile = FALSE);
+                                            const CpMediaInterface::CpAudioFileFormat = CpMediaInterface::CP_WAVE_PCM_16,
+                                            const UtlBoolean appendToFile = FALSE,
+                                            const int numChannels = 1);
 
     /// Pause a file recording that is already started
     virtual OsStatus audioChannelRecordPause(const char* callId, const char* szRemoteAddress);
