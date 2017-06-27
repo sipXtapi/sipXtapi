@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -37,21 +36,29 @@ UtlRandom::UtlRandom()
 
     OsTaskId_t iTaskId = 0 ;
     OsTime now ;
-    unsigned int seed ;
 
     OsTask::getCurrentTaskId(iTaskId) ;      
     OsDateTime::getCurTime(now) ;
 
-    seed = (now.cvtToMsecs() ^ (now.usecs() + (now.usecs() << 16)) ^ 
-            iTaskId) + siCounter++ ;
+    mSeed = (now.cvtToMsecs() ^ (now.usecs() + (now.usecs() << 16)) ^ 
+            iTaskId) + siCounter++;
 
-    srand(seed) ;
+#ifdef __pingtel_on_posix__
+    // using rand_r which takes seed/state at every invocation
+#else
+    srand(mSeed);
+#endif
 }
 
 // Constructor
-UtlRandom::UtlRandom(int seed)
+UtlRandom::UtlRandom(int seed) :
+    mSeed(seed)
 {
-    srand(seed) ;
+#ifdef __pingtel_on_posix__
+    // using rand_r which takes seed/state at every invocation
+#else
+    srand(mSeed);
+#endif
 }
 
 // Destructor
@@ -66,7 +73,11 @@ UtlRandom::~UtlRandom()
 
 int UtlRandom::rand()
 {
-    return ::rand() ;
+#ifdef __pingtel_on_posix__
+    return ::rand_r(&mSeed);
+#else
+    return ::rand();
+#endif
 }
 
 /* ============================ INQUIRY =================================== */
