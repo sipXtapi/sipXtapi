@@ -2394,12 +2394,15 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall)
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
                                                       const char* szFile,
                                                       const SIPX_AUDIO_FILE_FORMAT recordFormat,
-                                                      const bool appendToFile) 
+                                                      const bool appendToFile,
+                                                      const int numChannels) 
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAudioRecordFileStart");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxCallAudioRecordFileStart hCall=%d szFile=%s recordFormat: %d", 
-        hCall, szFile, recordFormat);
+        "sipxCallAudioRecordFileStart hCall=%d szFile=%s recordFormat: %d append: %s channels: %d", 
+        hCall, szFile, recordFormat,
+        appendToFile ? "TRUE" : "FALSE",
+        numChannels);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA *pInst ;
@@ -2435,7 +2438,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
                                                          remoteAddress, 
                                                          szFile, 
                                                          cpRecordFormat,
-                                                         appendToFile ? TRUE : FALSE))
+                                                         appendToFile ? TRUE : FALSE,
+                                                         numChannels))
         {
             sr = SIPX_RESULT_SUCCESS ;
         }

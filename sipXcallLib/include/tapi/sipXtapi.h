@@ -1664,6 +1664,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall) ;
  * @param appendToFile - true/false if file exists, append to it as opposed
  *        to replacing it.  Note: existing file must be of the same audio
  *        format requested or start record will fail.
+ * @param numChannels - the number of channels to record in the wav file.
+ *        Must be less than compile time maximum channels for recording.
  *
  * Note: If recording with append in rapid stop, start situations, be sure to
  * wait for the MEDIA_RECORDFILE_STOP media event before starting to append
@@ -1673,7 +1675,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall) ;
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
                                                       const char* szFile,
                                                       const SIPX_AUDIO_FILE_FORMAT recordFormat = SIPX_WAVE_PCM_16,
-                                                      const bool appendToFile = false);
+                                                      const bool appendToFile = false,
+                                                      const int numChannels = 1);
 
 /**
  * Pause recording call to file or buffer.
