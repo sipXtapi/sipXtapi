@@ -49,6 +49,11 @@
 #include <CpTopologyGraphFactoryImpl.h>
 #include <TypeConverter.h>
 
+#if MAXIMUM_RECORDER_CHANNELS > 1
+#  include <mp/MpResourceFactory.h>
+#  include <mp/MprBridgeConstructor.h>
+#endif
+
 #if defined(_VXWORKS)
 #   include <socket.h>
 #   include <resolvLib.h>
@@ -1982,7 +1987,49 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
-       MprRecorder::RecordFileFormat recordFormat = MprRecorder::WAV_PCM_16;
+#if MAXIMUM_RECORDER_CHANNELS > 1
+      {
+          int numLocalBridgePorts = MAXIMUM_RECORDER_CHANNELS < 3 ? 3 : MAXIMUM_RECORDER_CHANNELS + 1;
+          // getNumBridgePorts provides the number of used ports, not the maximum
+          //int totalBridgePorts = getNumBridgePorts();
+          int totalBridgePorts = DEFAULT_BRIDGE_MAX_IN_OUTPUTS;
+          float* recorderWeights = new float[totalBridgePorts];
+          for(int channelIndex = 0; channelIndex < MAXIMUM_RECORDER_CHANNELS; channelIndex++)
+          {
+              for(int portIndex = 0; portIndex < totalBridgePorts; portIndex++)
+              {
+                  recorderWeights[portIndex] = 0.0;
+
+                  // If first channel, all the local ports are eanbles
+                  if(channelIndex == 0 && 
+                     portIndex < numLocalBridgePorts)
+                  {
+                      recorderWeights[portIndex] = 1.0;
+                  }
+
+                  // If middle channel only a single remote stream is recorded
+                  if(channelIndex > 0 && channelIndex < MAXIMUM_RECORDER_CHANNELS -1 &&
+                     portIndex == numLocalBridgePorts + channelIndex - 1)
+                  {
+                      recorderWeights[portIndex] = 1.0;
+                  }
+
+                  // If last channel, all remaining remote streams are mixed in
+                  if(channelIndex == MAXIMUM_RECORDER_CHANNELS - 1 &&
+                     portIndex >= numLocalBridgePorts + channelIndex - 1)
+                  {
+                      recorderWeights[portIndex] = 1.0;
+                  }
+              }
+
+              // Set the weights for this channel on the recorder
+              setMixWeightsForOutput(channelIndex, totalBridgePorts, recorderWeights);
+          }
+          delete[] recorderWeights;
+      }
+#endif
+
+      MprRecorder::RecordFileFormat recordFormat = MprRecorder::WAV_PCM_16;
       switch(cpFileFormat)
       {
           case CP_WAVE_PCM_16:
