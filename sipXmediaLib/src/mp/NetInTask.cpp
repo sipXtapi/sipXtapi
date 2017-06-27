@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -41,17 +41,18 @@
 #endif /* __pingtel_on_posix__ ] */
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsTask.h"
-#include "os/OsServerSocket.h"
-#include "os/OsConnectionSocket.h"
-#include "os/OsEvent.h"
-#include "mp/NetInTask.h"
-#include "mp/MpUdpBuf.h"
-#include "mp/MprFromNet.h"
+#include <os/OsDefs.h>
+#include <os/OsTask.h>
+#include <os/OsServerSocket.h>
+#include <os/OsConnectionSocket.h>
+#include <os/OsEvent.h>
+#include <mp/NetInTask.h>
+#include <mp/MpUdpBuf.h>
+#include <mp/MprFromNet.h>
+#include <utl/UtlRandom.h>
 #ifdef _VXWORKS /* [ */
 #ifdef CPU_XSCALE /* [ */
-#include "mp/pxa255.h"
+#include <mp/pxa255.h">
 #define OSTIMER_COUNTER_POINTER ((int*) PXA250_OSTIMER_OSCR)
 #else /* CPU_XSCALE ] [ */
 #include "mp/sa1100.h"
@@ -846,17 +847,18 @@ static  uint32_t last_timer = 0x12345678;
 #if defined(_WIN32) || defined(__pingtel_on_posix__) /* [ */
 // Otherwise, call rand() 3 times, using 12 or 8 bits from each call (15 max)
         static int firstTime = 1;
+        static UtlRandom* spNetInRandom = NULL;
         uint32_t x, y, z;
         uint32_t ret;
 
         if (firstTime) {
+            spNetInRandom = new UtlRandom();
             assert(RAND_MAX > 0xfff);
-            srand((unsigned)time(NULL));
             firstTime = 0;
         }
-        x = rand();
-        y = rand();
-        z = rand();
+        x = spNetInRandom->rand();
+        y = spNetInRandom->rand();
+        z = spNetInRandom->rand();
         ret = ((x&0xFFF) | ((y<<12)&0xFFF000) | ((z<<24)&0xFF000000));
         // OsSysLog::add(FAC_MP, PRI_DEBUG, "rand_timer32(): x=0x%X=%d, y=0x%X=%d, z=0x%X=%d, ret=0x%08X", x, x, y, y, z, z, ret);
         return ret;
