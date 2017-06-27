@@ -443,6 +443,12 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       mConsecutiveInactive++;
       if (numRecorded != samplesPerFrame)
       {
+         OsSysLog::add(FAC_MP, PRI_ERR,
+                 "MprRecorder::doProcessFrame line %d numRecorded (%d) != numSamples (%d) channels=%d",
+                 __LINE__,
+                 numRecorded,
+                 samplesPerFrame,
+                 mChannels);
          finish(FINISHED_ERROR);
       }
    }
@@ -494,7 +500,8 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       if (numRecorded != numSamples)
       {
          OsSysLog::add(FAC_MP, PRI_ERR,
-             "MprRecorder::doProcessFrame numRecorded=%d numSamples=%d channels=%d",
+             "MprRecorder::doProcessFrame line %d numRecorded (%d) != numSamples (%d) channels=%d",
+             __LINE__,
              numRecorded, 
              numSamples, 
              mChannels);
@@ -995,6 +1002,10 @@ void MprRecorder::closeFile()
 {
     if (mFileDescriptor > -1)
     {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MprRecorder::closeFile (%d) format: %d channels: %d media frame size: %d sample rate: %d processed frames: %d",
+                mFileDescriptor,  mRecFormat, mChannels, mSamplesPerLastFrame, mSamplesPerSecond, mNumFramesProcessed);
+
         // Any WAVE file needs header updates on closing
         if (mRecFormat != RAW_PCM_16)
         {
@@ -1002,9 +1013,6 @@ void MprRecorder::closeFile()
            // properly.
            switch(mRecFormat)
            {
-               OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprRecorder::closeFile format: %d media frame size: %d sample rate: %d processed frames: %d",
-                       mRecFormat, mSamplesPerLastFrame, mSamplesPerSecond, mNumFramesProcessed);
                // GSM requires every other frame to be a different size.
                // So we ensure even number of frames to be sure the append works ok.
                case MprRecorder::WAV_GSM:
@@ -1049,6 +1057,15 @@ void MprRecorder::closeFile()
         close(mFileDescriptor);
         mFileDescriptor = -1;
     }
+
+    // Invalid file descriptor
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MprRecorder::closeFile file (%d) already closed",
+                mFileDescriptor);
+    }
+
 }
 
 
