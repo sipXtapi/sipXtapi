@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -526,39 +526,61 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
 {
 
     // Check the each entry of the connection list
+    UtlBoolean collisionFound = FALSE;
+    
     TakeLock();
     CRTCPConnection *poRTCPConnection = GetFirstEntry();
-
+    
     // Iterate through the list until all entries have been exhausted
     while(poRTCPConnection != NULL)
     {
         // Bump Reference Count of Connection Object
         poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
-
+    
         // Get the SSRC ID of the connection to determine whether it is
         //  conflicting with ours
         if (collide() || (poRTCPConnection->isRemoteSSRCValid() && ((SSRC_SESSION_MASK & poRTCPConnection->GetRemoteSSRC()) == m_ulSSRC)))
         {
+            collisionFound = TRUE;
             OsSysLog::add(FAC_MP, PRI_WARNING, "CRTCPSession::CheckLocalSSRCCollisions: COLLISION:  Session: %p RTCPCxn: %p, SSRC: 0x%08X", this, poRTCPConnection, m_ulSSRC);
-            // A collision has been detected.
-            // Let's reset all the connections.
-            ResetAllConnections((unsigned char *)"SSRC Collision");
-
-            // Let's inform the RTC Manager and its subscribing clients of
-            //  this occurence.
+            // Adding reference count to connection and session so that
+            // we can send a notification referencing connection and session
+            // in the collision handling code down below
             poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
             ((IRTCPSession *)this)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
-            m_piRTCPNotify->LocalSSRCCollision(
-                   (IRTCPConnection *)poRTCPConnection, (IRTCPSession *)this);
-        }
 
+            // As we are bailing on this loop, we must release the ref count
+            // on the connection that is normally done below
+            poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
+
+            break;
+        }
+    
         // Release Reference to Connection Object
         poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
-
+    
         // Get the next connection from the list
         poRTCPConnection = GetNextEntry();
     }
     ReleaseLock();
+
+    // Found a connection with a collision
+    if(collisionFound)
+    {
+        // A collision has been detected.
+        // Let's reset all the connections.
+        // ResetAllConnections does not actual change the SSRC
+        ResetAllConnections((unsigned char *)"SSRC Collision");
+    
+        // Let's inform the RTC Manager and its subscribing clients of
+        //  this occurence.  Its the receiver of the notification
+        // that is responsible for changing the SSRC to address the
+        // collision
+        TakeLock();
+        m_piRTCPNotify->LocalSSRCCollision(
+               (IRTCPConnection *)poRTCPConnection, (IRTCPSession *)this);
+        ReleaseLock();
+    }
 
 }
 
@@ -1477,9 +1499,10 @@ void CRTCPSession::RTCPConnectionStopped(IRTCPConnection *piRTCPConnection,
     unsigned long ulCSRCs = 0;
     CRTCPConnection *poRTCPConnection;
 
+    poRTCPConnection = GetEntry(RTCPConnectionComparitor, (void *)piRTCPConnection);
+
     // Get the associated RTCP Connection object from the collection list
-    if((poRTCPConnection = GetEntry(RTCPConnectionComparitor,
-                                   (void *)piRTCPConnection)) != NULL)
+    if(poRTCPConnection != NULL)
     {
 #if RTCP_DEBUG /* [ */
         if(bPingtelDebug)
