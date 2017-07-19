@@ -224,6 +224,7 @@ public:
 private:
     UtlSList mObservers;
 
+    static UtlRandom* sRandom;
 
     /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

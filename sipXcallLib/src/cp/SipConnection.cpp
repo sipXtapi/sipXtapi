@@ -23,6 +23,7 @@
 #include <os/OsTimer.h>
 #include <os/OsUtil.h>
 #include <os/OsProcess.h>
+#include <utl/UtlRandom.h>
 #include <net/NetMd5Codec.h>
 #include <net/SipMessageEvent.h>
 #include <net/SipUserAgent.h>
@@ -57,6 +58,7 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType SipConnection::TYPE = "SipConnection";
+UtlRandom* SipConnection::sRandom = NULL;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -81,6 +83,11 @@ SipConnection::SipConnection(const char* outboundLineAddress,
                              busyBehavior, forwardOnBusyUrl),
                              mpPassThroughData(NULL)
 {
+    if(sRandom == NULL)
+    {
+        sRandom = new UtlRandom();
+    }
+
     inviteFromThisSide = 0 ;
     mIsEarlyMediaFor180 = true ;
     mContactId = 0 ;
@@ -103,7 +110,7 @@ SipConnection::SipConnection(const char* outboundLineAddress,
     mContactType = CONTACT_AUTO ;
 
     // Build a from tag
-    int fromTagInt = rand();
+    int fromTagInt = sRandom->rand();
     char fromTagBuffer[60];
     sprintf(fromTagBuffer, "%dc%d", call->getCallIndex(), fromTagInt);
     mFromTag = fromTagBuffer;
@@ -3492,7 +3499,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     // The tag is not set, add it
     if(tag.isNull())
     {
-        tagNum = rand();
+        tagNum = sRandom->rand();
     }
 
     // Record Allow Field
@@ -4148,10 +4155,13 @@ void SipConnection::processAckRequest(const SipMessage* request)
 
 void SipConnection::processByeRequest(const SipMessage* request)
 {
-#ifdef TEST_PRINT
+// DO NOT CHECK IN
+//#ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_WARNING,
-        "Entering SipConnection::processByeRequest inviteMsg=0x%08x ", (int)inviteMsg);
-#endif
+        "Entering SipConnection::processByeRequest inviteMsg=%p last CSeq: %d", 
+        inviteMsg,
+        lastRemoteSequenceNumber);
+//#endif
     int requestSequenceNum = 0;
     UtlString requestSeqMethod;
 
@@ -4205,7 +4215,7 @@ void SipConnection::processByeRequest(const SipMessage* request)
     }
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_WARNING,
-        "Leaving SipConnection::processByeRequest inviteMsg=0x%08x ", (int)inviteMsg);
+        "Leaving SipConnection::processByeRequest inviteMsg=%p", inviteMsg);
 #endif
 
     if (!mVoiceQualityReportTarget.isNull())
@@ -4797,7 +4807,7 @@ void SipConnection::processInviteResponseRequestPending(const SipMessage* respon
     OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
             (intptr_t)sipMsgEvent);
 
-    OsTime timerTime((rand() % 3), (rand() % 1000) * 1000);
+    OsTime timerTime((sRandom->rand() % 3), (sRandom->rand() % 1000) * 1000);
     timer->oneshotAfter(timerTime);
 }
 
@@ -6191,7 +6201,7 @@ void SipConnection::sendVoiceQualityReport(const char* szTargetSipUrl)
                     from,
                     szTargetSipUrl,
                     notifyCallId,
-                    rand() % 32768,
+                    sRandom->rand() % 32768,
                     "vq-rtcpxr",
                     NULL,
                     NULL,
@@ -6246,7 +6256,7 @@ void SipConnection::sendVoiceQualityReport(const char* szTargetSipUrl)
                             from,
                             uriTargetURL.toString(),
                             notifyCallId,
-                            rand() % 32768,
+                            sRandom->rand() % 32768,
                             "vq-rtcpxr",
                             NULL,
                             NULL,
