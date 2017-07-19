@@ -35,6 +35,7 @@ DWORD WINAPI ConsoleStart(LPVOID lpParameter);
 
 #define SAMPLES_PER_FRAME   80          // Number of samples per frame time
 #define LOOPBACK_LENGTH     200         // Frames for loopback delay (10ms per frame)
+#define MAX_CONFERENCE_LEGS 10          // Maximum number of calls per conference
 
 #define portIsValid(p) ((p) >= 1 && (p) <= 65535)
 
@@ -44,6 +45,7 @@ SIPX_INST g_hInst = NULL ;              // Handle to the sipXtapi instance
 static short* g_loopback_samples[LOOPBACK_LENGTH] ; // loopback buffer
 static short g_loopback_head = 0 ;      // index into loopback
 static char* g_szPlayTones = NULL ;     // tones to play on answer
+static SIPX_CALL g_playTonesNow = SIPX_CALL_NULL;
 static char* g_szFile = NULL ;          // file to play on answer
 static char* g_szRecordFile = NULL;     // Filename to record to
 static bool gbConf = false;             // Act as conference bridge for all incoming calls
@@ -438,7 +440,8 @@ SIPX_RESULT recordFile(char* szFile, SIPX_CALL hCall)
     return(sipxCallAudioRecordFileStart(hCall, 
                                         szFile, 
                                         SIPX_WAVE_PCM_16, // format
-                                        false));  // append to recording file
+                                        false, // append to recording file
+                                        4)); // channels
 }
 
 void SpkrAudioHook(const int nSamples, short* pSamples)
@@ -677,10 +680,9 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
             // Play tones if provided
             if (g_szPlayTones)
             {
-                if (!playTones(g_szPlayTones, pCallInfo->hCall))
-                {
-                    printf("Failed to play tones: %s\n", g_szPlayTones) ;
-                }
+                // Do not block sipXtapi callback to play tones.
+                // Set flag to start and play in different thread context
+                g_playTonesNow = pCallInfo->hCall;
             }
             break;
 
@@ -838,25 +840,151 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
             // Stop recording if option provided
             if(g_szRecordFile)
             {
-                SIPX_RESULT recReturn =
-                    sipxCallAudioRecordFileStop(pCallInfo->hCall);
-                if(recReturn != SIPX_RESULT_SUCCESS)
+                size_t remainingLegs = 0;
+                SIPX_CALL callHandles[MAX_CONFERENCE_LEGS];
+                if(g_conf != SIPX_CONF_NULL)
                 {
-                    printf("Failed to stop recording to file: %s return: %d\n",
-                           g_szRecordFile,
-                           recReturn);
+                    SIPX_RESULT callCountReturn = 
+                        sipxConferenceGetCalls(g_conf,
+                                               callHandles,
+                                               MAX_CONFERENCE_LEGS,
+                                               remainingLegs);
+                    if(callCountReturn != SIPX_RESULT_SUCCESS)
+                    {
+                        printf("CALLSTATE_DISCONNECTED hCall=%d sipxConferenceGetCalls(%d) returned: %d",
+                               pCallInfo->hCall,
+                               g_conf,
+                               callCountReturn);
+                        remainingLegs = 0;
+                    }
+                    else
+                    {
+                        UtlString callHandleString;
+                        for(int callIndex = 0; callIndex < remainingLegs; callIndex++)
+                        {
+                            callHandleString.appendFormat("%s%d",
+                                                          callIndex ? ", " : "",
+                                                          callHandles[callIndex]);
+                        }
+                                                          
+                        printf("CALLSTATE_DISCONNECTED hCall=%d %d calls [%s] remain in conference", 
+                               pCallInfo->hCall,
+                               remainingLegs,
+                               callHandleString.data());
+                    }
                 }
-                g_recordingFile = false;
+
+                // If we have a conference and this is the last leg
+                // disconnecting, then we stop the recording
+                if(remainingLegs < 2)
+                {
+                    SIPX_RESULT recReturn =
+                        sipxCallAudioRecordFileStop(pCallInfo->hCall);
+                    if(recReturn != SIPX_RESULT_SUCCESS)
+                    {
+                        printf("Failed to stop recording to file: %s return: %d\n",
+                               g_szRecordFile,
+                               recReturn);
+                        if(remainingLegs > 0)
+                        {
+                            recReturn = sipxCallAudioRecordFileStop(callHandles[0]);
+                            if(recReturn != SIPX_RESULT_SUCCESS)
+                            {
+                                printf("Failed to stop recording to file: %s hCall: %d return: %d\n",
+                                       g_szRecordFile,
+                                       callHandles[0],
+                                       recReturn);
+                            }
+                        }
+                    }
+                    g_recordingFile = false;
+                }
             }
 
             sipxCallDestroy(pCallInfo->hCall) ;
-            break ;
+            break;
+
         case CALLSTATE_DESTROYED:
             if (gbOneCallMode)
             {
                gbShutdown = true;
             }
-            break ;
+            size_t remainingLegs = 0;
+            SIPX_CALL callHandles[MAX_CONFERENCE_LEGS];
+            if(g_conf != SIPX_CONF_NULL)
+            {
+                SIPX_RESULT callCountReturn = 
+                    sipxConferenceGetCalls(g_conf,
+                                           callHandles,
+                                           MAX_CONFERENCE_LEGS,
+                                           remainingLegs);
+                if(callCountReturn != SIPX_RESULT_SUCCESS)
+                {
+                    printf("CALLSTATE_DESTROYED hCall=%d sipxConferenceGetCalls(%d) returned: %d",
+                           pCallInfo->hCall,
+                           g_conf,
+                           callCountReturn);
+                    remainingLegs = 0;
+                }
+                else
+                {
+                    UtlString callHandleString;
+                    for(int callIndex = 0; callIndex < remainingLegs; callIndex++)
+                    {
+                        callHandleString.appendFormat("%s%d",
+                                                      callIndex ? ", " : "",
+                                                      callHandles[callIndex]);
+                    }
+                                                      
+                    printf("CALLSTATE_DESTROYED hCall=%d %d calls [%s] remain in conference", 
+                           pCallInfo->hCall,
+                           remainingLegs,
+                           callHandleString.data());
+                }
+
+                // If we have a conference and this is the last leg
+                // disconnecting, then we stop the recording
+                if(remainingLegs < 2)
+                {
+                    SIPX_RESULT recReturn =
+                        sipxCallAudioRecordFileStop(pCallInfo->hCall);
+                    if(recReturn != SIPX_RESULT_SUCCESS)
+                    {
+                        printf("Failed to stop recording to file: %s return: %d\n",
+                               g_szRecordFile,
+                               recReturn);
+                        if(remainingLegs > 0)
+                        {
+                            recReturn = sipxCallAudioRecordFileStop(callHandles[0]);
+                            if(recReturn != SIPX_RESULT_SUCCESS)
+                            {
+                                printf("Failed to stop recording to file: %s hCall: %d return: %d\n",
+                                       g_szRecordFile,
+                                       callHandles[0],
+                                       recReturn);
+                            }
+                        }
+                    }
+                    g_recordingFile = false;
+                }
+
+                // Never destroy conference
+                // Uncomment other if statement if you want to kill conference 
+                // after call count goes back down to zero
+                if(0) 
+                // if(remainingLegs == 0)
+                {
+                    SIPX_RESULT confDestResult = sipxConferenceDestroy(g_conf);
+                    if(confDestResult != SIPX_RESULT_SUCCESS)
+                    {
+                        printf("sipxConferenceDestroy(%d) FAILED, return: %d",
+                               g_conf,
+                               confDestResult);
+                    }
+                }
+
+            }
+            break;
         }
     }
     else if (category == EVENT_CATEGORY_MEDIA)
@@ -900,6 +1028,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
            break;
        }
     }
+    printf("event done\n");
     return true;
 }
 
@@ -1104,7 +1233,15 @@ int local_main(int argc, char* argv[])
 
             while (!gbShutdown)
             {
-                SLEEP(200) ;
+                SLEEP(100);
+                if(g_playTonesNow != SIPX_CALL_NULL)
+                {
+                    if (!playTones(g_szPlayTones, g_playTonesNow ))
+                    {
+                        printf("Failed to play tones: %s\n", g_szPlayTones) ;
+                    }
+                    g_playTonesNow = SIPX_CALL_NULL;
+                }
             }
 
             sipxUnInitialize(hInst, true);
