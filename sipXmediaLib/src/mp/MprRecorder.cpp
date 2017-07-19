@@ -76,7 +76,7 @@ MprRecorder::~MprRecorder()
 {
    // If when we get to the destructor and our file descriptor is not set to -1
    // then close it now.
-   closeFile();
+   closeFile("~MprRecorder");
 
    if(mpEncoder)
    {
@@ -682,8 +682,8 @@ UtlBoolean MprRecorder::handleStartFile(int file,
     if(mFileDescriptor > -1)
     {
         OsSysLog::add(FAC_MP, PRI_ERR,
-                "MprRecord::handleFileStart file already set: %d new: %d",
-                mFileDescriptor, file);
+                "MprRecord::handleFileStart this: %p file already set: %d new: %d",
+                this, mFileDescriptor, file);
     }
     mFileDescriptor = file;
     mRecordDestination = TO_FILE;
@@ -718,8 +718,8 @@ UtlBoolean MprRecorder::handleStartFile(int file,
    startRecording(time, silenceLength);
 
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "MprRecorder::handleStartFile(%d, %d, %d, %d, %s, %d) finished",
-                 file, recFormat, time, silenceLength, (append ? "TRUE" : "FALSE"), numChannels);
+                 "MprRecorder::handleStartFile(%d, %d, %d, %d, %s, %d) this: %p finished",
+                 file, recFormat, time, silenceLength, (append ? "TRUE" : "FALSE"), numChannels, this);
    return TRUE;
 }
 
@@ -962,7 +962,7 @@ UtlBoolean MprRecorder::finish(FinishCause cause)
    if (mRecordDestination == TO_FILE)
    {
       // Update WAV-header and close file.
-      closeFile();
+      closeFile("finish");
    }
    else if (mRecordDestination == TO_BUFFER)
    {
@@ -998,13 +998,13 @@ UtlBoolean MprRecorder::finish(FinishCause cause)
    return res;
 }
 
-void MprRecorder::closeFile()
+void MprRecorder::closeFile(const char* fromWhereLabel)
 {
     if (mFileDescriptor > -1)
     {
         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MprRecorder::closeFile (%d) format: %d channels: %d media frame size: %d sample rate: %d processed frames: %d",
-                mFileDescriptor,  mRecFormat, mChannels, mSamplesPerLastFrame, mSamplesPerSecond, mNumFramesProcessed);
+                "MprRecorder::closeFile(%s) this: %p fd: %d format: %d channels: %d media frame size: %d sample rate: %d processed frames: %d",
+                fromWhereLabel, this, mFileDescriptor,  mRecFormat, mChannels, mSamplesPerLastFrame, mSamplesPerSecond, mNumFramesProcessed);
 
         // Any WAVE file needs header updates on closing
         if (mRecFormat != RAW_PCM_16)
@@ -1062,8 +1062,8 @@ void MprRecorder::closeFile()
     else
     {
         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MprRecorder::closeFile file (%d) already closed",
-                mFileDescriptor);
+                "MprRecorder::closeFile(%s) this: %p fd: %d already closed",
+                fromWhereLabel, this, mFileDescriptor);
     }
 
 }

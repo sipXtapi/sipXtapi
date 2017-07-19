@@ -31,6 +31,7 @@
 #include "os/OsProtectEvent.h"
 
 // DEFINES
+// Note: only tested with 1-4 channels
 #ifndef MAXIMUM_RECORDER_CHANNELS
 #  define MAXIMUM_RECORDER_CHANNELS 1
 #endif
@@ -308,7 +309,7 @@ protected:
    UtlBoolean finish(FinishCause cause);
 
      /// Close file if it is opened and  update WAV header if needed.
-   void closeFile();
+   void closeFile(const char* fromWhereLabel);
 
    typedef int (MprRecorder::*WriteMethod)(char * channelBuffers[], int);
 
