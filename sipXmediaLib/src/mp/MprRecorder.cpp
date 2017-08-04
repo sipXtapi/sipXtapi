@@ -1408,9 +1408,9 @@ UtlBoolean MprRecorder::writeWaveHeader(int handle,
        case MprRecorder::WAV_ALAW:
            // fall-through
        case MprRecorder::WAV_MULAW:
-           averageBytesPerSecond = samplesPerSecond*sampleSize;
-           blockAlign = sampleSize*numChannels;
-           bitsPerSample = sampleSize*8;
+           averageBytesPerSecond = samplesPerSecond * numChannels * sampleSize;
+           blockAlign = sampleSize * numChannels;
+           bitsPerSample = sampleSize * 8;
            formatLength = 16;
            totalHeaderSize = 44;
            break;
