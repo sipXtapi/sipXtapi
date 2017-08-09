@@ -1,0 +1,46 @@
+--- configure	2017-07-28 16:42:23.629736434 -0400
++++ configure.debug	2017-07-28 16:39:56.855536644 -0400
+@@ -302,6 +302,26 @@
+ }
+ as_unset=as_fn_unset
+ 
++#DGP
++# as_fn_set_status STATUS
++# -----------------------
++# Set $? to STATUS, without forking.
++as_fn_set_status ()
++{
++  return $1
++} # as_fn_set_status
++
++# as_fn_exit STATUS
++# -----------------
++# Exit the shell with STATUS, even in a "trap 0" or "set -e" context.
++as_fn_exit ()
++{
++  set +e
++  as_fn_set_status $1
++  exit $1
++} # as_fn_exit
++#DGP
++
+ # as_fn_mkdir_p
+ # -------------
+ # Create "$as_dir" as a directory, including parents if necessary.
+@@ -415,6 +435,16 @@
+   as_dirname=false
+ fi
+ 
++#DGP
++# Avoid depending upon Character Ranges.
++as_cr_letters='abcdefghijklmnopqrstuvwxyz'
++as_cr_LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
++as_cr_Letters=$as_cr_letters$as_cr_LETTERS
++as_cr_digits='0123456789'
++as_cr_alnum=$as_cr_Letters$as_cr_digits
++
++#DGP
++
+ ECHO_C= ECHO_N= ECHO_T=
+ case `echo -n x` in #(((((
+ -n*)
