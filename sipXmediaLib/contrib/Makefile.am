@@ -14,6 +14,9 @@ endif
 
 if SPEEX_CONTRIB
 
+libspeex/Makefile: libspeex/configure
+	(cd libspeex; ./configure)
+
 libspeex/libspeex/.libs/libspeex.so libspeex/libspeex/libspeex.la: libspeex/Makefile
 	$(MAKE) -C libspeex
 
