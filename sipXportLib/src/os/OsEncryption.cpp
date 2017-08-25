@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -57,8 +59,8 @@
 // CONSTANTS
 static const char gSalt[] =
 {
-    (unsigned char)0xc9, (unsigned char)0x36, (unsigned char)0x78, (unsigned char)0x99,
-    (unsigned char)0x52, (unsigned char)0x3e, (unsigned char)0xea, (unsigned char)0xf2
+    (char)0xc9, (char)0x36, (char)0x78, (char)0x99,
+    (char)0x52, (char)0x3e, (char)0xea, (char)0xf2
 };
 
 // STATIC VARIABLE INITIALIZATIONS
