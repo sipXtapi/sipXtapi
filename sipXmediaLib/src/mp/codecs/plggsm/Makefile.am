@@ -1,8 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @GSM_CFLAGS@
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @GSM_CFLAGS@
 
-pkgdata_LTLIBRARIES = codec_gsm.la
+mpcodecsdir = $(datadir)/@PACKAGE@
+mpcodecs_LTLIBRARIES = codec_gsm.la
 
 codec_gsm_la_SOURCES = PlgGsm.c
 codec_gsm_la_LIBADD = @GSM_LIBS@

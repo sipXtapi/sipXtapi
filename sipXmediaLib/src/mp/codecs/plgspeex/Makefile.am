@@ -1,8 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @SPEEX_CFLAGS@
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @SPEEX_CFLAGS@
 
-pkgdata_LTLIBRARIES = codec_speex.la
+mpcodecsdir = $(datadir)/@PACKAGE@
+mpcodecs_LTLIBRARIES = codec_speex.la
 
 codec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c
 

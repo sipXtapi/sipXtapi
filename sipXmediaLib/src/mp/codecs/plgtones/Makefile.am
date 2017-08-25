@@ -1,8 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include
 
-pkgdata_LTLIBRARIES = codec_tones.la
+mpcodecsdir = $(datadir)/@PACKAGE@
+mpcodecs_LTLIBRARIES = codec_tones.la
 
 codec_tones_la_SOURCES = PlgTones.c
 

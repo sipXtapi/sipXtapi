@@ -3,9 +3,10 @@
 LIBAMRNB_SUBDIR = ../../../../contrib/libamrnb
 LIBAMRNB_LIB = @AMRNB_LIB_ROOT@/.libs/libamrnb.la
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @AMRNB_INCLUDE@
+AM_CPPFLAGS  = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @AMRNB_INCLUDE@
 
-pkgdata_LTLIBRARIES = codec_amr.la
+mpcodecsdir = $(datadir)/@PACKAGE@
+mpcodecs_LTLIBRARIES = codec_amr.la
 
 codec_amr_la_SOURCES = PlgAmr.c
 codec_amr_la_LIBADD = @AMRNB_STATIC_LIB@

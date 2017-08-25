@@ -2,12 +2,13 @@
 
 SUBDIRS = ../../../../contrib/libilbc
 
-INCLUDES = -I$(top_srcdir)/include \
+AM_CPPFLAGS = -I$(top_srcdir)/include \
  -I@SIPXPORTINC@ \
  -I$(top_srcdir)/contrib/libilbc/include \
  @ILBC_INCLUDE@
 
-pkgdata_LTLIBRARIES = codec_ilbc.la
+mpcodecsdir = $(datadir)/@PACKAGE@
+mpcodecs_LTLIBRARIES = codec_ilbc.la
 
 codec_ilbc_la_SOURCES = PlgIlbc.c
 codec_ilbc_la_LIBADD = @ILBC_LIB_ROOT@/.libs/libilbc.la

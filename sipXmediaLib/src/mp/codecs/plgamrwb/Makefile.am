@@ -3,9 +3,10 @@
 LIBAMRWB_SUBDIR = ../../../../contrib/libamrwb
 LIBAMRWB_LIB = @AMRWB_LIB_ROOT@/.libs/libamrwb.la
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @AMRWB_INCLUDE@
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @AMRWB_INCLUDE@
 
-pkgdata_LTLIBRARIES = codec_amrwb.la
+mpcodecsdir = $(datadir)/@PACKAGE@
+mpcodecs_LTLIBRARIES = codec_amrwb.la
 
 codec_amrwb_la_SOURCES = PlgAmrWB.c
 codec_amrwb_la_LIBADD = @AMRWB_STATIC_LIB@

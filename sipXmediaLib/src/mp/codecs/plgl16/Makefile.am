@@ -1,8 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include
 
-pkgdata_LTLIBRARIES = codec_l16.la
+mpcodecsdir = $(datadir)/@PACKAGE@
+mpcodecs_LTLIBRARIES = codec_l16.la
 
 codec_l16_la_SOURCES = \
 	CodecL16.c \

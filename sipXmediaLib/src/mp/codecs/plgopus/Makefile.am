@@ -1,8 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @OPUS_INCLUDE@
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @OPUS_INCLUDE@
 
-pkgdata_LTLIBRARIES = codec_opus.la
+mpcodecsdir = $(datadir)/@PACKAGE@
+mpcodecs_LTLIBRARIES = codec_opus.la
 
 codec_opus_la_SOURCES = plgopus.c
 codec_opus_la_LIBADD = @OPUS_STATIC_LIB@

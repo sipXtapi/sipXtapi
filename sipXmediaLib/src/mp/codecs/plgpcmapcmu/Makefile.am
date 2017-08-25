@@ -1,8 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include -I$(top_srcdir)/contrib/libspandsp/src
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include -I$(top_srcdir)/contrib/libspandsp/src
 
-pkgdata_LTLIBRARIES = codec_pcmapcmu.la
+mpcodecsdir = $(datadir)/@PACKAGE@
+mpcodecs_LTLIBRARIES = codec_pcmapcmu.la
 
 codec_pcmapcmu_la_SOURCES = \
 	CodecPcmaWrapper.c \
