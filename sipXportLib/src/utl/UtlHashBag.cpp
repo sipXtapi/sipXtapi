@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -444,7 +446,7 @@ size_t UtlHashBag::bucketNumber(unsigned hash) const
    for ( (foldedHash = hash & lowBitsMask, // get the low bits we want into the folded value
           highBits   = hash                // don't bother masking off the low bits
           );
-         highBits = highBits >> mBucketBits;  // shift out bits already used until zero 
+         (highBits = highBits >> mBucketBits);  // shift out bits already used until zero 
          foldedHash ^= highBits & lowBitsMask // incorporate non-zero
         )
    {

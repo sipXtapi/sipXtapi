@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -55,7 +57,7 @@ UtlCopyableSList& UtlCopyableSList::operator=(const UtlCopyableSList& rhs)
    destroyAll();
    UtlSListIterator it(rhs);
    UtlCopyableContainable* item;
-   while(item = static_cast<UtlCopyableContainable*>(it()))
+   while((item = static_cast<UtlCopyableContainable*>(it())))
    {
       insert(item->clone());
    }

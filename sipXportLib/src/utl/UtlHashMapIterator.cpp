@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -179,7 +181,7 @@ UtlContainable* UtlHashMapIterator::value() const
 void UtlHashMapIterator::removing(const UtlPair* key)
 {
    // the caller already holds the mContainerLock
-   if (key = mpCurrentPair)
+   if ((key = mpCurrentPair))
    {
       mPairIsValid = false;
       mpCurrentPair  = static_cast<UtlPair*>(mpCurrentPair->UtlChain::prev);
