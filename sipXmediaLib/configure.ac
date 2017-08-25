@@ -5,7 +5,7 @@ AC_PREREQ([2.60])
 AC_INIT(sipXmediaLib, 3.3, sipxtapi-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AC_PREFIX_DEFAULT([/usr/local/sipx])
-AM_INIT_AUTOMAKE(foreign)
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 SFAC_AUTOMAKE_VERSION([1.6])
 CHECK_AUTOCONF
 
