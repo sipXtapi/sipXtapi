@@ -2,7 +2,7 @@
 
 SUBDIRS = test mp/codecs
 
-INCLUDES = -I$(top_srcdir)/include 
+AM_CPPFLAGS = -I$(top_srcdir)/include 
 
 lib_LTLIBRARIES = libsipXmedia.la
 
