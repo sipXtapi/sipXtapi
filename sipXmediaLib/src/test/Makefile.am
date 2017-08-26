@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include 
 
 TESTS = testsuite
 
@@ -15,7 +15,10 @@ testsuite_LDADD = \
     ../libsipXmedia.la \
     $(GIPS_OBJS)
 
+# Had to add the following as AM_CPPFLAGS gets inserted in the Makefile after
+# the initial declairation of CXXCOMPILE
 testsuite_CXXFLAGS = -I$(SIPXUNITINC) \
+		     $(AM_CPPFLAGS) \
                      @CPPUNIT_CFLAGS@
 
 testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
