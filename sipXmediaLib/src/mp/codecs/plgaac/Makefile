@@ -18,12 +18,12 @@ OBJ_DIR=obj
 
 ifeq ($(UNAME),Darwin)
 LIBEXT=dylib
-SHLIB=$(CPP) $(LDFLAGS) -dynamiclib -Wl,--no-undefined
+SHLIB=$(CPP) dynamiclib -Wl,--no-undefined
 PLATFORM_CFLAGS=-I/sw/include
 endif
 ifeq ($(UNAME),Linux)
 LIBEXT=so
-SHLIB=$(CPP) -shared -Wl,--no-undefined $(LDFLAGS) 
+SHLIB=$(CPP) -shared -Wl,--no-undefined
 PLATFORM_CFLAGS=
 endif
 
@@ -43,7 +43,7 @@ clean:
 	rm -rf $(OBJ_DIR)
 
 $(LIB_DIR)/codec_aac.$(LIBEXT): $(SRC_PLGAAC_OBJECTS)
-	$(SHLIB) -o $@ $^
+	$(SHLIB) $^ $(LDFLAGS) -o $@
 
 $(OBJ_DIR)/%.o: %.c
 	if [ ! -d $(OBJ_DIR) ] ; then mkdir -p $(OBJ_DIR) ; fi
