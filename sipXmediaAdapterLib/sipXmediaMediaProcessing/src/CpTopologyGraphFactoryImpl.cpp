@@ -80,6 +80,11 @@
 #     define INPUT_DRIVER_DEFAULT_NAME "default"
 #     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (MpidAndroid::AUDIO_SOURCE_DEFAULT), (manager)
 #     define MP_LATE_DEVICE_ENABLE
+#  elif defined(USE_ALSA_INTERFACE)
+#     include <mp/MpidAlsa.h>
+#     define INPUT_DRIVER MpidAlsa
+#     define INPUT_DRIVER_DEFAULT_NAME "hw:0,0"
+#     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
 #  else
 #     include <mp/MpidOss.h>
 #     define INPUT_DRIVER MpidOss
@@ -116,6 +121,11 @@
 #     define OUTPUT_DRIVER MpodAndroid
 #     define OUTPUT_DRIVER_DEFAULT_NAME "default"
 #     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (MpAndroidAudioBindingInterface::VOICE_CALL)
+#  elif defined(USE_ALSA_INTERFACE)
+#     include <mp/MpodAlsa.h>
+#     define OUTPUT_DRIVER MpodAlsa
+#     define OUTPUT_DRIVER_DEFAULT_NAME "hw:0,0"
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 #  else
 #     include <mp/MpodOss.h>
 #     define OUTPUT_DRIVER MpodOss
