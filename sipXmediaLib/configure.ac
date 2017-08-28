@@ -23,6 +23,7 @@ AC_PROG_LIBTOOL
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
+AM_PROG_CC_C_O
 
 # Check for cross compilation
 AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
