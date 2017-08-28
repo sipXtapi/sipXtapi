@@ -718,6 +718,24 @@ AC_DEFUN([SFAC_FEATURE_SIP_TLS],
 ])
 
 
+AC_DEFUN([ENABLE_ALSA_AUDIO],
+[
+   AC_ARG_ENABLE(alsa-audio, 
+                 [AS_HELP_STRING([--enable-alsa-audio],
+                                [Enable support for the Alsa audio interface.  Default is to use OSS. (no)])],
+                 [], [enable_alsa_audio=no])
+   AC_MSG_CHECKING([Support for Alsa Audio])
+   AC_MSG_RESULT(${enable_alsa_audio})
+
+   if test "${enable_alsa_audio}" = "yes"
+   then
+      CFLAGS="-DUSE_ALSA_INTERFACE $CFLAGS"
+      CXXFLAGS="-DUSE_ALSA_INTERFACE $CXXFLAGS"
+   fi
+   AM_CONDITIONAL(BUILDTLS, test x$enable_alsa_audio = xyes)
+])
+
+
 AC_DEFUN([SFAC_FEATURE_SIPX_EZPHONE],
 [
    AC_REQUIRE([CHECK_WXWIDGETS])
