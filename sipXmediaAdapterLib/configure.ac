@@ -74,6 +74,10 @@ CHECK_CPPUNIT
 # Enable use of code that uses speex dsp library
 ENABLE_SPEEX_DSP
 
+# Enable Alsa Audio Interface
+# The default is to use OSS
+ENABLE_ALSA_AUDIO
+
 # Look for GSM and Speex codecs
 CHECK_GSM
 CHECK_SPEEX
