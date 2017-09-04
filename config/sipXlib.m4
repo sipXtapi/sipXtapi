@@ -646,7 +646,7 @@ AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ include_path=$withval ],
-        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/interface [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/src/test" ]
+        [ include_path="$includedir $prefix/include [$abs_srcdir]/../[$4]/interface [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/src/test" ]
     )
 
     for dir in $include_path ; do
