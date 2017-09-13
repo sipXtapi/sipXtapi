@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -43,7 +43,7 @@
 extern "C" char* strdup(const char* str);
 #else
 #ifndef WIN32
-extern char* strdup(const char*) ;
+//extern char* strdup(const char*) ;
 #endif
 #endif
 
