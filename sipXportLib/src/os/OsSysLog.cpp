@@ -45,7 +45,7 @@
 extern "C" char* strdup(const char* str);
 #else
 #ifndef WIN32
-extern char* strdup(const char*) ;
+//extern char* strdup(const char*) ;
 #endif
 #endif
 
