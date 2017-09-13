@@ -5,8 +5,9 @@ AC_PREREQ(2.57)
 AC_INIT(sipXtackLib, 3.3, sipxtapi-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AC_PREFIX_DEFAULT([/usr/local/sipx])
-AM_INIT_AUTOMAKE(foreign)
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 SFAC_AUTOMAKE_VERSION([1.6])
+CHECK_AUTOCONF
 
 # Configure pkg-config
 PKG_PROG_PKG_CONFIG
@@ -18,6 +19,10 @@ AC_PROG_LIBTOOL
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
+AM_PROG_CC_C_O
+
+# Check for cross compilation
+AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 
 # Checks for libraries.
 
