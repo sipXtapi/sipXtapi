@@ -114,6 +114,9 @@ fi
 SFAC_LIB_PORT
 SFAC_LIB_SDP
 SFAC_LIB_STACK
+
+SFAC_INIT_FLAGS
+
 SFAC_FEATURE_SIP_TLS
 
 # Enable local audio support (microphone / speaker)
