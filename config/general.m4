@@ -1287,19 +1287,30 @@ AC_DEFUN([AM_SET_OPUS],
     AC_SUBST(OPUS_TARGET)
     AC_SUBST(OPUS_STATIC_LIB)
     
+    AC_CONFIG_SUBDIRS([contrib/libopus/opus/])
 ])dnl
 AC_DEFUN([CHECK_OPUS],
 [
     AC_ARG_ENABLE([codec-opus],
                   [AS_HELP_STRING([--enable-codec-opus],
                                   [Enable support for opus codec @<:@default=yes@:>@])],
-                  [ case "${enableval}" in
-                       auto) AM_SET_OPUS ;;
-                       yes) AM_SET_OPUS ;;
-                       no) AC_MSG_RESULT(Codec opus was disabled) ;;
-                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-opus) ;;
-                    esac],
-                  [AM_SET_OPUS])
+                  [ if test ${enableval} = yes; 
+                    then
+                           opus_enable=true;
+                    else
+                       if test ${enableval} = no; then
+                           AC_MSG_RESULT(Codec OPUS was disabled)
+                       else
+                           AC_MSG_ERROR(bad value ${enableval} for --enable-codec-opus)
+                       fi
+                    fi],
+                  opus_enable=false)
+    if (test "x$opus_enable" = "xtrue"); then 
+        AM_SET_OPUS
+    fi
+
+    AM_CONDITIONAL(OPUS, [test "x$opus_enable" == "xtrue"])    
+
 ])dnl
 
 
