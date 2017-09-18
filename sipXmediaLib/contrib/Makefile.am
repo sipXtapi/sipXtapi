@@ -7,7 +7,7 @@ if AMRWB
 AMRWB_DIR = libamrwb
 endif
 
-# This resursion does not seem to work on all platforms.  The Makefiles
+# This recursion does not seem to work on all platforms.  The Makefiles
 # do not seem to get created by configure.  So explicit, manual steps
 # are taken below to force configure to be run in libamr*
 # SUBDIRS = $(AMRNB_DIR) $(AMRWB_DIR)
@@ -60,11 +60,14 @@ else
 
 endif
 
+if OPUS
+OPUS_CONFIG_ARGS = --with-pic $(CONFIGURE_ARGS)
+
 # Opus targets
 libopus/opus/Makefile: $(top_srcdir)/contrib/libopus/opus/configure
 	pwd
 	if [ ! -d libopus/opus ]; then mkdir -p libopus/opus; fi
-	(cd libopus/opus; $(top_srcdir)/../../contrib/libopus/opus/configure $(OPUS_CONFIG_OPTS))
+	(cd libopus/opus; ../../$(top_srcdir)/contrib/libopus/opus/configure $(OPUS_CONFIG_ARGS))
 
 libopus/opus/.libs/libopus.so libopus/opus/libopus.la: libopus/opus/Makefile
 	pwd
@@ -84,13 +87,14 @@ opus_distclean: libopus/opus/Makefile
 ALL_TARGETS := $(ALL_TARGETS) opus
 
 CLEAN_TARGETS := $(CLEAN_TARGETS) opus_clean
+endif
 
 if AMRNB
 # AMR narrow band targets
 libamrnb/Makefile: $(top_srcdir)/contrib/libamrnb/configure
 	pwd
 	if [ ! -d libamrnb ]; then mkdir -p libamrnb; fi
-	(cd libamrnb; $(top_srcdir)/../contrib/libamrnb/configure)
+	(cd libamrnb; ../$(top_srcdir)/contrib/libamrnb/configure)
 
 libamrnb/.libs/libamrnb.so libamrnb/libamrnb.la: libamrnb/Makefile
 	pwd
@@ -119,7 +123,7 @@ if AMRWB
 libamrwb/Makefile: $(top_srcdir)/contrib/libamrwb/configure
 	pwd
 	if [ ! -d libamrwb ]; then mkdir -p libamrwb; fi
-	(cd libamrwb; $(top_srcdir)/../contrib/libamrwb/configure)
+	(cd libamrwb; ../$(top_srcdir)/contrib/libamrwb/configure)
 
 libamrwb/.libs/libamrwb.so libamrwb/libamrwb.la: libamrwb/Makefile
 	pwd
