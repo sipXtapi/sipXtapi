@@ -37,37 +37,47 @@
 #include "entdec.h"
 #include "modes.h"
 
+#if (defined(OPUS_X86_MAY_HAVE_SSE2) && !defined(FIXED_POINT))
+#include "x86/vq_sse.h"
+#endif
+
+#if defined(MIPSr1_ASM)
+#include "mips/vq_mipsr1.h"
+#endif
+
+void exp_rotation(celt_norm *X, int len, int dir, int stride, int K, int spread);
+
+opus_val16 op_pvq_search_c(celt_norm *X, int *iy, int K, int N, int arch);
+
+#if !defined(OVERRIDE_OP_PVQ_SEARCH)
+#define op_pvq_search(x, iy, K, N, arch) \
+    (op_pvq_search_c(x, iy, K, N, arch))
+#endif
+
 /** Algebraic pulse-vector quantiser. The signal x is replaced by the sum of
   * the pitch and a combination of pulses such that its norm is still equal
   * to 1. This is the function that will typically require the most CPU.
- * @param x Residual signal to quantise/encode (returns quantised version)
- * @param W Perceptual weight to use when optimising (currently unused)
+ * @param X Residual signal to quantise/encode (returns quantised version)
  * @param N Number of samples to encode
  * @param K Number of pulses to use
- * @param p Pitch vector (it is assumed that p+x is a unit vector)
  * @param enc Entropy encoder state
  * @ret A mask indicating which blocks in the band received pulses
 */
-unsigned alg_quant(celt_norm *X, int N, int K, int spread, int B,
-      ec_enc *enc
-#ifdef RESYNTH
-      , opus_val16 gain
-#endif
-      );
+unsigned alg_quant(celt_norm *X, int N, int K, int spread, int B, ec_enc *enc,
+      opus_val16 gain, int resynth, int arch);
 
 /** Algebraic pulse decoder
- * @param x Decoded normalised spectrum (returned)
+ * @param X Decoded normalised spectrum (returned)
  * @param N Number of samples to decode
  * @param K Number of pulses to use
- * @param p Pitch vector (automatically added to x)
  * @param dec Entropy decoder state
  * @ret A mask indicating which blocks in the band received pulses
  */
 unsigned alg_unquant(celt_norm *X, int N, int K, int spread, int B,
       ec_dec *dec, opus_val16 gain);
 
-void renormalise_vector(celt_norm *X, int N, opus_val16 gain);
+void renormalise_vector(celt_norm *X, int N, opus_val16 gain, int arch);
 
-int stereo_itheta(celt_norm *X, celt_norm *Y, int stereo, int N);
+int stereo_itheta(const celt_norm *X, const celt_norm *Y, int stereo, int N, int arch);
 
 #endif /* VQ_H */

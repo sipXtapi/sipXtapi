@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 Xiph.Org Foundation
+/* Copyright (c) 2011-2013 Xiph.Org Foundation
    Written by Gregory Maxwell */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -104,12 +104,16 @@ int test_decoder_code0(int no_fuzz)
       int factor=48000/fsv[t>>1];
       for(fec=0;fec<2;fec++)
       {
-         int dur;
+         opus_int32 dur;
          /*Test PLC on a fresh decoder*/
          out_samples = opus_decode(dec[t], 0, 0, outbuf, 120/factor, fec);
          if(out_samples!=120/factor)test_failed();
          if(opus_decoder_ctl(dec[t], OPUS_GET_LAST_PACKET_DURATION(&dur))!=OPUS_OK)test_failed();
          if(dur!=120/factor)test_failed();
+
+         /*Test on a size which isn't a multiple of 2.5ms*/
+         out_samples = opus_decode(dec[t], 0, 0, outbuf, 120/factor+2, fec);
+         if(out_samples!=OPUS_BAD_ARG)test_failed();
 
          /*Test null pointer input*/
          out_samples = opus_decode(dec[t], 0, -1, outbuf, 120/factor, fec);
@@ -131,7 +135,14 @@ int test_decoder_code0(int no_fuzz)
          outbuf[0]=32749;
          out_samples = opus_decode(dec[t], packet, 0, outbuf, 0, fec);
          if(out_samples>0)test_failed();
+#if !defined(OPUS_BUILD) && (OPUS_GNUC_PREREQ(4, 6) || (defined(__clang_major__) && __clang_major__ >= 3))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnonnull"
+#endif
          out_samples = opus_decode(dec[t], packet, 0, 0, 0, fec);
+#if !defined(OPUS_BUILD) && (OPUS_GNUC_PREREQ(4, 6) || (defined(__clang_major__) && __clang_major__ >= 3))
+#pragma GCC diagnostic pop
+#endif
          if(out_samples>0)test_failed();
          if(outbuf[0]!=32749)test_failed();
 
@@ -156,7 +167,7 @@ int test_decoder_code0(int no_fuzz)
    /*Count code 0 tests*/
    for(i=0;i<64;i++)
    {
-      int dur;
+      opus_int32 dur;
       int j,expected[5*2];
       packet[0]=i<<2;
       packet[1]=255;
@@ -230,8 +241,8 @@ int test_decoder_code0(int no_fuzz)
      /*We only test a subset of the modes here simply because the longer
        durations end up taking a long time.*/
       static const int cmodes[4]={16,20,24,28};
-      static const opus_uint32 cres[4]={116290185,2172123586,2172123586,2172123586};
-      static const opus_uint32 lres[3]={3285687739,1481572662,694350475};
+      static const opus_uint32 cres[4]={116290185,2172123586u,2172123586u,2172123586u};
+      static const opus_uint32 lres[3]={3285687739u,1481572662,694350475};
       static const int lmodes[3]={0,4,8};
       int mode=fast_rand()%4;
 
@@ -310,7 +321,7 @@ int test_decoder_code0(int no_fuzz)
       if(opus_decode(decbak,  0, 0, outbuf, MAX_FRAME_SAMP, 0)<20)test_failed();
       for(t=0;t<5*2;t++)
       {
-         int dur;
+         opus_int32 dur;
          out_samples = opus_decode(dec[t], packet, plen+1, outbuf, MAX_FRAME_SAMP, 0);
          if(out_samples!=expected[t])test_failed();
          if(t==0)dec_final_range2=dec_final_range1;
@@ -369,6 +380,49 @@ int test_decoder_code0(int no_fuzz)
    return 0;
 }
 
+#ifndef DISABLE_FLOAT_API
+void test_soft_clip(void)
+{
+   int i,j;
+   float x[1024];
+   float s[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+   fprintf(stdout,"  Testing opus_pcm_soft_clip... ");
+   for(i=0;i<1024;i++)
+   {
+      for (j=0;j<1024;j++)
+      {
+        x[j]=(j&255)*(1/32.f)-4.f;
+      }
+      opus_pcm_soft_clip(&x[i],1024-i,1,s);
+      for (j=i;j<1024;j++)
+      {
+        if(x[j]>1.f)test_failed();
+        if(x[j]<-1.f)test_failed();
+      }
+   }
+   for(i=1;i<9;i++)
+   {
+      for (j=0;j<1024;j++)
+      {
+        x[j]=(j&255)*(1/32.f)-4.f;
+      }
+      opus_pcm_soft_clip(x,1024/i,i,s);
+      for (j=0;j<(1024/i)*i;j++)
+      {
+        if(x[j]>1.f)test_failed();
+        if(x[j]<-1.f)test_failed();
+      }
+   }
+   opus_pcm_soft_clip(x,0,1,s);
+   opus_pcm_soft_clip(x,1,0,s);
+   opus_pcm_soft_clip(x,1,1,0);
+   opus_pcm_soft_clip(x,1,-1,s);
+   opus_pcm_soft_clip(x,-1,1,s);
+   opus_pcm_soft_clip(0,1,1,s);
+   printf("OK.\n");
+}
+#endif
+
 int main(int _argc, char **_argv)
 {
    const char * oversion;
@@ -389,7 +443,7 @@ int main(int _argc, char **_argv)
       iseed=atoi(env_seed);
       env_used=1;
    }
-   else iseed=(opus_uint32)time(NULL)^((getpid()&65535)<<16);
+   else iseed=(opus_uint32)time(NULL)^(((opus_uint32)getpid()&65535)<<16);
    Rw=Rz=iseed;
 
    oversion=opus_get_version_string();
@@ -401,6 +455,9 @@ int main(int _argc, char **_argv)
      into the decoders. This is helpful because garbage data
      may cause the decoders to clip, which angers CLANG IOC.*/
    test_decoder_code0(getenv("TEST_OPUS_NOFUZZ")!=NULL);
+#ifndef DISABLE_FLOAT_API
+   test_soft_clip();
+#endif
 
    return 0;
 }

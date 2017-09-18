@@ -1,6 +1,6 @@
-wget http://downloads.xiph.org/releases/opus/opus-1.0.3.tar.gz
-tar -zxvf opus-1.0.3.tar.gz
-mv opus-1.0.3 opus
+wget http://downloads.xiph.org/releases/opus/opus-1.2.1.tar.gz
+tar -zxvf opus-1.2.1.tar.gz
+mv opus-1.2.1 opus
 
-# Copied config.h from linux build (after .configure --enable-fixed-point)
+# For Android build copied config.h from linux build (after .configure --enable-fixed-point)
 

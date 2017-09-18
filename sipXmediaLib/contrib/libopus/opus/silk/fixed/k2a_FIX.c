@@ -8,11 +8,11 @@ this list of conditions and the following disclaimer.
 - Redistributions in binary form must reproduce the above copyright
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
-- Neither the name of Internet Society, IETF or IETF Trust, nor the 
+- Neither the name of Internet Society, IETF or IETF Trust, nor the
 names of specific contributors, may be used to endorse or promote
 products derived from this software without specific prior written
 permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
@@ -39,14 +39,15 @@ void silk_k2a(
 )
 {
     opus_int   k, n;
-    opus_int32 Atmp[ SILK_MAX_ORDER_LPC ];
+    opus_int32 rc, tmp1, tmp2;
 
     for( k = 0; k < order; k++ ) {
-        for( n = 0; n < k; n++ ) {
-            Atmp[ n ] = A_Q24[ n ];
-        }
-        for( n = 0; n < k; n++ ) {
-            A_Q24[ n ] = silk_SMLAWB( A_Q24[ n ], silk_LSHIFT( Atmp[ k - n - 1 ], 1 ), rc_Q15[ k ] );
+        rc = rc_Q15[ k ];
+        for( n = 0; n < (k + 1) >> 1; n++ ) {
+            tmp1 = A_Q24[ n ];
+            tmp2 = A_Q24[ k - n - 1 ];
+            A_Q24[ n ]         = silk_SMLAWB( tmp1, silk_LSHIFT( tmp2, 1 ), rc );
+            A_Q24[ k - n - 1 ] = silk_SMLAWB( tmp2, silk_LSHIFT( tmp1, 1 ), rc );
         }
         A_Q24[ k ] = -silk_LSHIFT( (opus_int32)rc_Q15[ k ], 9 );
     }

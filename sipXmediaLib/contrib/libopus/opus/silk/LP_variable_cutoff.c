@@ -8,11 +8,11 @@ this list of conditions and the following disclaimer.
 - Redistributions in binary form must reproduce the above copyright
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
-- Neither the name of Internet Society, IETF or IETF Trust, nor the 
+- Neither the name of Internet Society, IETF or IETF Trust, nor the
 names of specific contributors, may be used to endorse or promote
 products derived from this software without specific prior written
 permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
@@ -38,7 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "main.h"
 
 /* Helper function, interpolates the filter taps */
-static inline void silk_LP_interpolate_filter_taps(
+static OPUS_INLINE void silk_LP_interpolate_filter_taps(
     opus_int32           B_Q28[ TRANSITION_NB ],
     opus_int32           A_Q28[ TRANSITION_NA ],
     const opus_int       ind,
@@ -130,6 +130,6 @@ void silk_LP_variable_cutoff(
 
         /* ARMA low-pass filtering */
         silk_assert( TRANSITION_NB == 3 && TRANSITION_NA == 2 );
-        silk_biquad_alt( frame, B_Q28, A_Q28, psLP->In_LP_State, frame, frame_length, 1);
+        silk_biquad_alt_stride1( frame, B_Q28, A_Q28, psLP->In_LP_State, frame, frame_length);
     }
 }

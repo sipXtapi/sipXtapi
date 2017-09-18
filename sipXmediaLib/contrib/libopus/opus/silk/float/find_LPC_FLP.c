@@ -8,11 +8,11 @@ this list of conditions and the following disclaimer.
 - Redistributions in binary form must reproduce the above copyright
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
-- Neither the name of Internet Society, IETF or IETF Trust, nor the 
+- Neither the name of Internet Society, IETF or IETF Trust, nor the
 names of specific contributors, may be used to endorse or promote
 products derived from this software without specific prior written
 permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
@@ -73,7 +73,7 @@ void silk_find_LPC_FLP(
             silk_interpolate( NLSF0_Q15, psEncC->prev_NLSFq_Q15, NLSF_Q15, k, psEncC->predictLPCOrder );
 
             /* Convert to LPC for residual energy evaluation */
-            silk_NLSF2A_FLP( a_tmp, NLSF0_Q15, psEncC->predictLPCOrder );
+            silk_NLSF2A_FLP( a_tmp, NLSF0_Q15, psEncC->predictLPCOrder, psEncC->arch );
 
             /* Calculate residual energy with LSF interpolation */
             silk_LPC_analysis_filter_FLP( LPC_res, a_tmp, x, 2 * subfr_length, psEncC->predictLPCOrder );
@@ -99,6 +99,6 @@ void silk_find_LPC_FLP(
         silk_A2NLSF_FLP( NLSF_Q15, a, psEncC->predictLPCOrder );
     }
 
-    silk_assert( psEncC->indices.NLSFInterpCoef_Q2 == 4 || 
+    silk_assert( psEncC->indices.NLSFInterpCoef_Q2 == 4 ||
         ( psEncC->useInterpolatedNLSFs && !psEncC->first_frame_after_reset && psEncC->nb_subfr == MAX_NB_SUBFR ) );
 }

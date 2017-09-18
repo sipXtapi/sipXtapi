@@ -8,11 +8,11 @@ this list of conditions and the following disclaimer.
 - Redistributions in binary form must reproduce the above copyright
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
-- Neither the name of Internet Society, IETF or IETF Trust, nor the 
+- Neither the name of Internet Society, IETF or IETF Trust, nor the
 names of specific contributors, may be used to endorse or promote
 products derived from this software without specific prior written
 permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
@@ -38,13 +38,12 @@ double silk_inner_product_FLP(
     opus_int            dataSize
 )
 {
-    opus_int  i, dataSize4;
+    opus_int i;
     double   result;
 
     /* 4x unrolled loop */
     result = 0.0;
-    dataSize4 = dataSize & 0xFFFC;
-    for( i = 0; i < dataSize4; i += 4 ) {
+    for( i = 0; i < dataSize - 3; i += 4 ) {
         result += data1[ i + 0 ] * (double)data2[ i + 0 ] +
                   data1[ i + 1 ] * (double)data2[ i + 1 ] +
                   data1[ i + 2 ] * (double)data2[ i + 2 ] +

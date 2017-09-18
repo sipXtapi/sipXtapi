@@ -8,11 +8,11 @@ this list of conditions and the following disclaimer.
 - Redistributions in binary form must reproduce the above copyright
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
-- Neither the name of Internet Society, IETF or IETF Trust, nor the 
+- Neither the name of Internet Society, IETF or IETF Trust, nor the
 names of specific contributors, may be used to endorse or promote
 products derived from this software without specific prior written
 permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
@@ -36,6 +36,11 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "debug.h"
 #include "entenc.h"
 
+#if ((defined(OPUS_ARM_ASM) && defined(FIXED_POINT)) \
+   || defined(OPUS_ARM_MAY_HAVE_NEON_INTR))
+#include "fixed/arm/warped_autocorrelation_FIX_arm.h"
+#endif
+
 #ifndef FORCE_CPP_BUILD
 #ifdef __cplusplus
 extern "C"
@@ -46,6 +51,9 @@ extern "C"
 #define silk_encoder_state_Fxx      silk_encoder_state_FIX
 #define silk_encode_do_VAD_Fxx      silk_encode_do_VAD_FIX
 #define silk_encode_frame_Fxx       silk_encode_frame_FIX
+
+#define QC  10
+#define QS  13
 
 /*********************/
 /* Encoder Functions */
@@ -73,27 +81,17 @@ opus_int silk_encode_frame_FIX(
 
 /* Initializes the Silk encoder state */
 opus_int silk_init_encoder(
-    silk_encoder_state_Fxx          *psEnc                                  /* I/O  Pointer to Silk FIX encoder state                                           */
+    silk_encoder_state_Fxx          *psEnc,                                 /* I/O  Pointer to Silk FIX encoder state                                           */
+    int                              arch                                   /* I    Run-time architecture                                                       */
 );
 
 /* Control the Silk encoder */
 opus_int silk_control_encoder(
     silk_encoder_state_Fxx          *psEnc,                                 /* I/O  Pointer to Silk encoder state                                               */
     silk_EncControlStruct           *encControl,                            /* I    Control structure                                                           */
-    const opus_int32                TargetRate_bps,                         /* I    Target max bitrate (bps)                                                    */
     const opus_int                  allow_bw_switch,                        /* I    Flag to allow switching audio bandwidth                                     */
     const opus_int                  channelNb,                              /* I    Channel number                                                              */
     const opus_int                  force_fs_kHz
-);
-
-/****************/
-/* Prefiltering */
-/****************/
-void silk_prefilter_FIX(
-    silk_encoder_state_FIX          *psEnc,                                 /* I/O  Encoder state                                                               */
-    const silk_encoder_control_FIX  *psEncCtrl,                             /* I    Encoder control                                                             */
-    opus_int32                      xw_Q10[],                               /* O    Weighted signal                                                             */
-    const opus_int16                x[]                                     /* I    Speech signal                                                               */
 );
 
 /**************************/
@@ -104,11 +102,12 @@ void silk_noise_shape_analysis_FIX(
     silk_encoder_state_FIX          *psEnc,                                 /* I/O  Encoder state FIX                                                           */
     silk_encoder_control_FIX        *psEncCtrl,                             /* I/O  Encoder control FIX                                                         */
     const opus_int16                *pitch_res,                             /* I    LPC residual from pitch analysis                                            */
-    const opus_int16                *x                                      /* I    Input signal [ frame_length + la_shape ]                                    */
+    const opus_int16                *x,                                     /* I    Input signal [ frame_length + la_shape ]                                    */
+    int                              arch                                   /* I    Run-time architecture                                                       */
 );
 
 /* Autocorrelations for a warped frequency axis */
-void silk_warped_autocorrelation_FIX(
+void silk_warped_autocorrelation_FIX_c(
           opus_int32                *corr,                                  /* O    Result [order + 1]                                                          */
           opus_int                  *scale,                                 /* O    Scaling of the correlation vector                                           */
     const opus_int16                *input,                                 /* I    Input data to correlate                                                     */
@@ -116,6 +115,11 @@ void silk_warped_autocorrelation_FIX(
     const opus_int                  length,                                 /* I    Length of input                                                             */
     const opus_int                  order                                   /* I    Correlation order (even)                                                    */
 );
+
+#if !defined(OVERRIDE_silk_warped_autocorrelation_FIX)
+#define silk_warped_autocorrelation_FIX(corr, scale, input, warping_Q16, length, order, arch) \
+        ((void)(arch), silk_warped_autocorrelation_FIX_c(corr, scale, input, warping_Q16, length, order))
+#endif
 
 /* Calculation of LTP state scaling */
 void silk_LTP_scale_ctrl_FIX(
@@ -132,7 +136,8 @@ void silk_find_pitch_lags_FIX(
     silk_encoder_state_FIX          *psEnc,                                 /* I/O  encoder state                                                               */
     silk_encoder_control_FIX        *psEncCtrl,                             /* I/O  encoder control                                                             */
     opus_int16                      res[],                                  /* O    residual                                                                    */
-    const opus_int16                x[]                                     /* I    Speech signal                                                               */
+    const opus_int16                x[],                                    /* I    Speech signal                                                               */
+    int                             arch                                    /* I    Run-time architecture                                                       */
 );
 
 /* Find LPC and LTP coefficients */
@@ -154,16 +159,13 @@ void silk_find_LPC_FIX(
 
 /* LTP analysis */
 void silk_find_LTP_FIX(
-    opus_int16                      b_Q14[ MAX_NB_SUBFR * LTP_ORDER ],      /* O    LTP coefs                                                                   */
-    opus_int32                      WLTP[ MAX_NB_SUBFR * LTP_ORDER * LTP_ORDER ], /* O    Weight for LTP quantization                                           */
-    opus_int                        *LTPredCodGain_Q7,                      /* O    LTP coding gain                                                             */
-    const opus_int16                r_lpc[],                                /* I    residual signal after LPC signal + state for first 10 ms                    */
+    opus_int32                      XXLTP_Q17[ MAX_NB_SUBFR * LTP_ORDER * LTP_ORDER ], /* O    Correlation matrix                                               */
+    opus_int32                      xXLTP_Q17[ MAX_NB_SUBFR * LTP_ORDER ],  /* O    Correlation vector                                                          */
+    const opus_int16                r_lpc[],                                /* I    Residual signal after LPC                                                   */
     const opus_int                  lag[ MAX_NB_SUBFR ],                    /* I    LTP lags                                                                    */
-    const opus_int32                Wght_Q15[ MAX_NB_SUBFR ],               /* I    weights                                                                     */
-    const opus_int                  subfr_length,                           /* I    subframe length                                                             */
-    const opus_int                  nb_subfr,                               /* I    number of subframes                                                         */
-    const opus_int                  mem_offset,                             /* I    number of samples in LTP memory                                             */
-    opus_int                        corr_rshifts[ MAX_NB_SUBFR ]            /* O    right shifts applied to correlations                                        */
+    const opus_int                  subfr_length,                           /* I    Subframe length                                                             */
+    const opus_int                  nb_subfr,                               /* I    Number of subframes                                                         */
+    int                             arch                                    /* I    Run-time architecture                                                       */
 );
 
 void silk_LTP_analysis_filter_FIX(
@@ -187,7 +189,8 @@ void silk_residual_energy_FIX(
     const opus_int32                gains[ MAX_NB_SUBFR ],                  /* I    Quantization gains                                                          */
     const opus_int                  subfr_length,                           /* I    Subframe length                                                             */
     const opus_int                  nb_subfr,                               /* I    Number of subframes                                                         */
-    const opus_int                  LPC_order                               /* I    LPC order                                                                   */
+    const opus_int                  LPC_order,                              /* I    LPC order                                                                   */
+    int                             arch                                    /* I    Run-time architecture                                                       */
 );
 
 /* Residual energy: nrg = wxx - 2 * wXx * c + c' * wXX * c */
@@ -215,9 +218,10 @@ void silk_corrMatrix_FIX(
     const opus_int16                *x,                                     /* I    x vector [L + order - 1] used to form data matrix X                         */
     const opus_int                  L,                                      /* I    Length of vectors                                                           */
     const opus_int                  order,                                  /* I    Max lag for correlation                                                     */
-    const opus_int                  head_room,                              /* I    Desired headroom                                                            */
     opus_int32                      *XX,                                    /* O    Pointer to X'*X correlation matrix [ order x order ]                        */
-    opus_int                        *rshifts                                /* I/O  Right shifts of correlations                                                */
+    opus_int32                      *nrg,                                   /* O    Energy of x vector                                                          */
+    opus_int                        *rshifts,                               /* O    Right shifts of correlations                                                */
+    int                              arch                                   /* I    Run-time architecture                                                       */
 );
 
 /* Calculates correlation vector X'*t */
@@ -227,23 +231,8 @@ void silk_corrVector_FIX(
     const opus_int                  L,                                      /* I    Length of vectors                                                           */
     const opus_int                  order,                                  /* I    Max lag for correlation                                                     */
     opus_int32                      *Xt,                                    /* O    Pointer to X'*t correlation vector [order]                                  */
-    const opus_int                  rshifts                                 /* I    Right shifts of correlations                                                */
-);
-
-/* Add noise to matrix diagonal */
-void silk_regularize_correlations_FIX(
-    opus_int32                      *XX,                                    /* I/O  Correlation matrices                                                        */
-    opus_int32                      *xx,                                    /* I/O  Correlation values                                                          */
-    opus_int32                      noise,                                  /* I    Noise to add                                                                */
-    opus_int                        D                                       /* I    Dimension of XX                                                             */
-);
-
-/* Solves Ax = b, assuming A is symmetric */
-void silk_solve_LDL_FIX(
-    opus_int32                      *A,                                     /* I    Pointer to symetric square matrix A                                         */
-    opus_int                        M,                                      /* I    Size of matrix                                                              */
-    const opus_int32                *b,                                     /* I    Pointer to b vector                                                         */
-    opus_int32                      *x_Q16                                  /* O    Pointer to x solution vector                                                */
+    const opus_int                  rshifts,                                /* I    Right shifts of correlations                                                */
+    int                             arch                                    /* I    Run-time architecture                                                       */
 );
 
 #ifndef FORCE_CPP_BUILD

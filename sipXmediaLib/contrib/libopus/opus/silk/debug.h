@@ -8,11 +8,11 @@ this list of conditions and the following disclaimer.
 - Redistributions in binary form must reproduce the above copyright
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
-- Neither the name of Internet Society, IETF or IETF Trust, nor the 
+- Neither the name of Internet Society, IETF or IETF Trust, nor the
 names of specific contributors, may be used to endorse or promote
 products derived from this software without specific prior written
 permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
@@ -28,10 +28,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef SILK_DEBUG_H
 #define SILK_DEBUG_H
 
-#ifdef _WIN32
-#define _CRT_SECURE_NO_DEPRECATE    1
-#endif
-
 #include "typedef.h"
 #include <stdio.h>      /* file writing */
 #include <string.h>     /* strcpy, strcmp */
@@ -43,23 +39,10 @@ extern "C"
 
 unsigned long GetHighResolutionTime(void); /* O  time in usec*/
 
-/* make SILK_DEBUG dependent on compiler's _DEBUG */
-#if defined _WIN32
-    #ifdef _DEBUG
-        #define SILK_DEBUG  1
-    #else
-        #define SILK_DEBUG  0
-    #endif
-
-    /* overrule the above */
-    #if 0
-    /*  #define NO_ASSERTS*/
-    #undef  SILK_DEBUG
-    #define SILK_DEBUG  1
-    #endif
-#else
-    #define SILK_DEBUG  0
-#endif
+/* Set to 1 to enable DEBUG_STORE_DATA() macros for dumping
+ * intermediate signals from the codec.
+ */
+#define SILK_DEBUG 0
 
 /* Flag for using timers */
 #define SILK_TIC_TOC    0
@@ -69,7 +52,6 @@ unsigned long GetHighResolutionTime(void); /* O  time in usec*/
 
 #if (defined(_WIN32) || defined(_WINCE))
 #include <windows.h>    /* timer */
-#pragma warning( disable : 4996 )       /* stop bitching about strcpy in TIC()*/
 #else   /* Linux or Mac*/
 #include <sys/time.h>
 #endif

@@ -33,9 +33,9 @@
 #define FIXED_DEBUG_H
 
 #include <stdio.h>
+#include "opus_defines.h"
 
 #ifdef CELT_C
-#include "opus_defines.h"
 OPUS_EXPORT opus_int64 celt_mips=0;
 #else
 extern opus_int64 celt_mips;
@@ -59,7 +59,15 @@ extern opus_int64 celt_mips;
 #define SHR(a,b) SHR32(a,b)
 #define PSHR(a,b) PSHR32(a,b)
 
-static inline short NEG16(int x)
+/** Add two 32-bit values, ignore any overflows */
+#define ADD32_ovflw(a,b) (celt_mips+=2,(opus_val32)((opus_uint32)(a)+(opus_uint32)(b)))
+/** Subtract two 32-bit values, ignore any overflows */
+#define SUB32_ovflw(a,b) (celt_mips+=2,(opus_val32)((opus_uint32)(a)-(opus_uint32)(b)))
+/* Avoid MSVC warning C4146: unary minus operator applied to unsigned type */
+/** Negate 32-bit value, ignore any overflows */
+#define NEG32_ovflw(a) (celt_mips+=2,(opus_val32)(0-(opus_uint32)(a)))
+
+static OPUS_INLINE short NEG16(int x)
 {
    int res;
    if (!VERIFY_SHORT(x))
@@ -80,7 +88,7 @@ static inline short NEG16(int x)
    celt_mips++;
    return res;
 }
-static inline int NEG32(opus_int64 x)
+static OPUS_INLINE int NEG32(opus_int64 x)
 {
    opus_int64 res;
    if (!VERIFY_INT(x))
@@ -103,7 +111,7 @@ static inline int NEG32(opus_int64 x)
 }
 
 #define EXTRACT16(x) EXTRACT16_(x, __FILE__, __LINE__)
-static inline short EXTRACT16_(int x, char *file, int line)
+static OPUS_INLINE short EXTRACT16_(int x, char *file, int line)
 {
    int res;
    if (!VERIFY_SHORT(x))
@@ -119,7 +127,7 @@ static inline short EXTRACT16_(int x, char *file, int line)
 }
 
 #define EXTEND32(x) EXTEND32_(x, __FILE__, __LINE__)
-static inline int EXTEND32_(int x, char *file, int line)
+static OPUS_INLINE int EXTEND32_(int x, char *file, int line)
 {
    int res;
    if (!VERIFY_SHORT(x))
@@ -135,7 +143,7 @@ static inline int EXTEND32_(int x, char *file, int line)
 }
 
 #define SHR16(a, shift) SHR16_(a, shift, __FILE__, __LINE__)
-static inline short SHR16_(int a, int shift, char *file, int line)
+static OPUS_INLINE short SHR16_(int a, int shift, char *file, int line)
 {
    int res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(shift))
@@ -157,7 +165,7 @@ static inline short SHR16_(int a, int shift, char *file, int line)
    return res;
 }
 #define SHL16(a, shift) SHL16_(a, shift, __FILE__, __LINE__)
-static inline short SHL16_(int a, int shift, char *file, int line)
+static OPUS_INLINE short SHL16_(int a, int shift, char *file, int line)
 {
    int res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(shift))
@@ -179,7 +187,7 @@ static inline short SHL16_(int a, int shift, char *file, int line)
    return res;
 }
 
-static inline int SHR32(opus_int64 a, int shift)
+static OPUS_INLINE int SHR32(opus_int64 a, int shift)
 {
    opus_int64  res;
    if (!VERIFY_INT(a) || !VERIFY_SHORT(shift))
@@ -201,7 +209,7 @@ static inline int SHR32(opus_int64 a, int shift)
    return res;
 }
 #define SHL32(a, shift) SHL32_(a, shift, __FILE__, __LINE__)
-static inline int SHL32_(opus_int64 a, int shift, char *file, int line)
+static OPUS_INLINE int SHL32_(opus_int64 a, int shift, char *file, int line)
 {
    opus_int64  res;
    if (!VERIFY_INT(a) || !VERIFY_SHORT(shift))
@@ -227,14 +235,13 @@ static inline int SHL32_(opus_int64 a, int shift, char *file, int line)
 #define VSHR32(a, shift) (((shift)>0) ? SHR32(a, shift) : SHL32(a, -(shift)))
 
 #define ROUND16(x,a) (celt_mips--,EXTRACT16(PSHR32((x),(a))))
+#define SROUND16(x,a) (celt_mips--,EXTRACT16(SATURATE(PSHR32(x,a), 32767)));
+
 #define HALF16(x)  (SHR16(x,1))
 #define HALF32(x)  (SHR32(x,1))
 
-//#define SHR(a,shift) ((a) >> (shift))
-//#define SHL(a,shift) ((a) << (shift))
-
 #define ADD16(a, b) ADD16_(a, b, __FILE__, __LINE__)
-static inline short ADD16_(int a, int b, char *file, int line)
+static OPUS_INLINE short ADD16_(int a, int b, char *file, int line)
 {
    int res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -257,7 +264,7 @@ static inline short ADD16_(int a, int b, char *file, int line)
 }
 
 #define SUB16(a, b) SUB16_(a, b, __FILE__, __LINE__)
-static inline short SUB16_(int a, int b, char *file, int line)
+static OPUS_INLINE short SUB16_(int a, int b, char *file, int line)
 {
    int res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -280,7 +287,7 @@ static inline short SUB16_(int a, int b, char *file, int line)
 }
 
 #define ADD32(a, b) ADD32_(a, b, __FILE__, __LINE__)
-static inline int ADD32_(opus_int64 a, opus_int64 b, char *file, int line)
+static OPUS_INLINE int ADD32_(opus_int64 a, opus_int64 b, char *file, int line)
 {
    opus_int64 res;
    if (!VERIFY_INT(a) || !VERIFY_INT(b))
@@ -303,7 +310,7 @@ static inline int ADD32_(opus_int64 a, opus_int64 b, char *file, int line)
 }
 
 #define SUB32(a, b) SUB32_(a, b, __FILE__, __LINE__)
-static inline int SUB32_(opus_int64 a, opus_int64 b, char *file, int line)
+static OPUS_INLINE int SUB32_(opus_int64 a, opus_int64 b, char *file, int line)
 {
    opus_int64 res;
    if (!VERIFY_INT(a) || !VERIFY_INT(b))
@@ -327,7 +334,7 @@ static inline int SUB32_(opus_int64 a, opus_int64 b, char *file, int line)
 
 #undef UADD32
 #define UADD32(a, b) UADD32_(a, b, __FILE__, __LINE__)
-static inline unsigned int UADD32_(opus_uint64 a, opus_uint64 b, char *file, int line)
+static OPUS_INLINE unsigned int UADD32_(opus_uint64 a, opus_uint64 b, char *file, int line)
 {
    opus_uint64 res;
    if (!VERIFY_UINT(a) || !VERIFY_UINT(b))
@@ -351,7 +358,7 @@ static inline unsigned int UADD32_(opus_uint64 a, opus_uint64 b, char *file, int
 
 #undef USUB32
 #define USUB32(a, b) USUB32_(a, b, __FILE__, __LINE__)
-static inline unsigned int USUB32_(opus_uint64 a, opus_uint64 b, char *file, int line)
+static OPUS_INLINE unsigned int USUB32_(opus_uint64 a, opus_uint64 b, char *file, int line)
 {
    opus_uint64 res;
    if (!VERIFY_UINT(a) || !VERIFY_UINT(b))
@@ -381,7 +388,7 @@ static inline unsigned int USUB32_(opus_uint64 a, opus_uint64 b, char *file, int
 }
 
 /* result fits in 16 bits */
-static inline short MULT16_16_16(int a, int b)
+static OPUS_INLINE short MULT16_16_16(int a, int b)
 {
    int res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -404,7 +411,7 @@ static inline short MULT16_16_16(int a, int b)
 }
 
 #define MULT16_16(a, b) MULT16_16_(a, b, __FILE__, __LINE__)
-static inline int MULT16_16_(int a, int b, char *file, int line)
+static OPUS_INLINE int MULT16_16_(int a, int b, char *file, int line)
 {
    opus_int64 res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -429,7 +436,7 @@ static inline int MULT16_16_(int a, int b, char *file, int line)
 #define MAC16_16(c,a,b)     (celt_mips-=2,ADD32((c),MULT16_16((a),(b))))
 
 #define MULT16_32_QX(a, b, Q) MULT16_32_QX_(a, b, Q, __FILE__, __LINE__)
-static inline int MULT16_32_QX_(int a, opus_int64 b, int Q, char *file, int line)
+static OPUS_INLINE int MULT16_32_QX_(int a, opus_int64 b, int Q, char *file, int line)
 {
    opus_int64 res;
    if (!VERIFY_SHORT(a) || !VERIFY_INT(b))
@@ -462,7 +469,7 @@ static inline int MULT16_32_QX_(int a, opus_int64 b, int Q, char *file, int line
 }
 
 #define MULT16_32_PX(a, b, Q) MULT16_32_PX_(a, b, Q, __FILE__, __LINE__)
-static inline int MULT16_32_PX_(int a, opus_int64 b, int Q, char *file, int line)
+static OPUS_INLINE int MULT16_32_PX_(int a, opus_int64 b, int Q, char *file, int line)
 {
    opus_int64 res;
    if (!VERIFY_SHORT(a) || !VERIFY_INT(b))
@@ -496,8 +503,9 @@ static inline int MULT16_32_PX_(int a, opus_int64 b, int Q, char *file, int line
 
 #define MULT16_32_Q15(a,b) MULT16_32_QX(a,b,15)
 #define MAC16_32_Q15(c,a,b) (celt_mips-=2,ADD32((c),MULT16_32_Q15((a),(b))))
+#define MAC16_32_Q16(c,a,b) (celt_mips-=2,ADD32((c),MULT16_32_Q16((a),(b))))
 
-static inline int SATURATE(int a, int b)
+static OPUS_INLINE int SATURATE(int a, int b)
 {
    if (a>b)
       a=b;
@@ -507,7 +515,17 @@ static inline int SATURATE(int a, int b)
    return a;
 }
 
-static inline int MULT16_16_Q11_32(int a, int b)
+static OPUS_INLINE opus_int16 SATURATE16(opus_int32 a)
+{
+   celt_mips+=3;
+   if (a>32767)
+      return 32767;
+   else if (a<-32768)
+      return -32768;
+   else return a;
+}
+
+static OPUS_INLINE int MULT16_16_Q11_32(int a, int b)
 {
    opus_int64 res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -529,7 +547,7 @@ static inline int MULT16_16_Q11_32(int a, int b)
    celt_mips+=3;
    return res;
 }
-static inline short MULT16_16_Q13(int a, int b)
+static OPUS_INLINE short MULT16_16_Q13(int a, int b)
 {
    opus_int64 res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -551,7 +569,7 @@ static inline short MULT16_16_Q13(int a, int b)
    celt_mips+=3;
    return res;
 }
-static inline short MULT16_16_Q14(int a, int b)
+static OPUS_INLINE short MULT16_16_Q14(int a, int b)
 {
    opus_int64 res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -575,7 +593,7 @@ static inline short MULT16_16_Q14(int a, int b)
 }
 
 #define MULT16_16_Q15(a, b) MULT16_16_Q15_(a, b, __FILE__, __LINE__)
-static inline short MULT16_16_Q15_(int a, int b, char *file, int line)
+static OPUS_INLINE short MULT16_16_Q15_(int a, int b, char *file, int line)
 {
    opus_int64 res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -598,7 +616,7 @@ static inline short MULT16_16_Q15_(int a, int b, char *file, int line)
    return res;
 }
 
-static inline short MULT16_16_P13(int a, int b)
+static OPUS_INLINE short MULT16_16_P13(int a, int b)
 {
    opus_int64 res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -628,7 +646,7 @@ static inline short MULT16_16_P13(int a, int b)
    celt_mips+=4;
    return res;
 }
-static inline short MULT16_16_P14(int a, int b)
+static OPUS_INLINE short MULT16_16_P14(int a, int b)
 {
    opus_int64 res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -658,7 +676,7 @@ static inline short MULT16_16_P14(int a, int b)
    celt_mips+=4;
    return res;
 }
-static inline short MULT16_16_P15(int a, int b)
+static OPUS_INLINE short MULT16_16_P15(int a, int b)
 {
    opus_int64 res;
    if (!VERIFY_SHORT(a) || !VERIFY_SHORT(b))
@@ -691,7 +709,7 @@ static inline short MULT16_16_P15(int a, int b)
 
 #define DIV32_16(a, b) DIV32_16_(a, b, __FILE__, __LINE__)
 
-static inline int DIV32_16_(opus_int64 a, opus_int64 b, char *file, int line)
+static OPUS_INLINE int DIV32_16_(opus_int64 a, opus_int64 b, char *file, int line)
 {
    opus_int64 res;
    if (b==0)
@@ -726,7 +744,7 @@ static inline int DIV32_16_(opus_int64 a, opus_int64 b, char *file, int line)
 }
 
 #define DIV32(a, b) DIV32_(a, b, __FILE__, __LINE__)
-static inline int DIV32_(opus_int64 a, opus_int64 b, char *file, int line)
+static OPUS_INLINE int DIV32_(opus_int64 a, opus_int64 b, char *file, int line)
 {
    opus_int64 res;
    if (b==0)
@@ -756,6 +774,16 @@ static inline int DIV32_(opus_int64 a, opus_int64 b, char *file, int line)
    celt_mips+=70;
    return res;
 }
+
+static OPUS_INLINE opus_val16 SIG2WORD16_generic(celt_sig x)
+{
+   x = PSHR32(x, SIG_SHIFT);
+   x = MAX32(x, -32768);
+   x = MIN32(x, 32767);
+   return EXTRACT16(x);
+}
+#define SIG2WORD16(x) (SIG2WORD16_generic(x))
+
 
 #undef PRINT_MIPS
 #define PRINT_MIPS(file) do {fprintf (file, "total complexity = %llu MIPS\n", celt_mips);} while (0);

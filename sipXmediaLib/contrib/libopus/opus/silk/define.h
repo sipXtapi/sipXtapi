@@ -8,11 +8,11 @@ this list of conditions and the following disclaimer.
 - Redistributions in binary form must reproduce the above copyright
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
-- Neither the name of Internet Society, IETF or IETF Trust, nor the 
+- Neither the name of Internet Society, IETF or IETF Trust, nor the
 names of specific contributors, may be used to endorse or promote
 products derived from this software without specific prior written
 permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
@@ -56,6 +56,7 @@ extern "C"
 /* DTX settings */
 #define NB_SPEECH_FRAMES_BEFORE_DTX             10      /* eq 200 ms */
 #define MAX_CONSECUTIVE_DTX                     20      /* eq 400 ms */
+#define DTX_ACTIVITY_THRESHOLD                  0.1f
 
 /* Maximum sampling frequency */
 #define MAX_FS_KHZ                              16
@@ -147,7 +148,7 @@ extern "C"
 #define USE_HARM_SHAPING                        1
 
 /* Max LPC order of noise shaping filters */
-#define MAX_SHAPE_LPC_ORDER                     16
+#define MAX_SHAPE_LPC_ORDER                     24
 
 #define HARM_SHAPE_FIR_TAPS                     3
 
@@ -157,8 +158,7 @@ extern "C"
 #define LTP_BUF_LENGTH                          512
 #define LTP_MASK                                ( LTP_BUF_LENGTH - 1 )
 
-#define DECISION_DELAY                          32
-#define DECISION_DELAY_MASK                     ( DECISION_DELAY - 1 )
+#define DECISION_DELAY                          40
 
 /* Number of subframes for excitation entropy coding */
 #define SHELL_CODEC_FRAME_LENGTH                16
@@ -169,15 +169,11 @@ extern "C"
 #define N_RATE_LEVELS                           10
 
 /* Maximum sum of pulses per shell coding frame */
-#define MAX_PULSES                              16
+#define SILK_MAX_PULSES                         16
 
 #define MAX_MATRIX_SIZE                         MAX_LPC_ORDER /* Max of LPC Order and LTP order */
 
-#if( MAX_LPC_ORDER > DECISION_DELAY )
 # define NSQ_LPC_BUF_LENGTH                     MAX_LPC_ORDER
-#else
-# define NSQ_LPC_BUF_LENGTH                     DECISION_DELAY
-#endif
 
 /***************************/
 /* Voice activity detector */
@@ -205,7 +201,6 @@ extern "C"
 /******************/
 #define NLSF_W_Q                                2
 #define NLSF_VQ_MAX_VECTORS                     32
-#define NLSF_VQ_MAX_SURVIVORS                   32
 #define NLSF_QUANT_MAX_AMPLITUDE                4
 #define NLSF_QUANT_MAX_AMPLITUDE_EXT            10
 #define NLSF_QUANT_LEVEL_ADJ                    0.1
