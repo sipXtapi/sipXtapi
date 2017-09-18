@@ -28,6 +28,11 @@ AM_PROG_CC_C_O
 # Check for cross compilation
 AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 
+# Cause configure args to be passed through to subordiant configure script 
+# which are invoked automatically via AC_CONFIG_SUBDIRS construct
+CONFIGURE_ARGS="$ac_configure_args"
+AC_SUBST(CONFIGURE_ARGS)
+
 # Dynamic extenition
 CHECH_DYNEXT
 
