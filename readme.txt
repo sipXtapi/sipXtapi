@@ -1,9 +1,9 @@
 Documentation for the sipXtapi API can be found in:
-  sipXcallLib\doc\sipXtapi\html\index.html
+  sipXcallLib/doc/sipXtapi/html/index.html
 
 Android Build Instructions
 =========================
-see http://sipxtapi.sipfoundry.org/wiki/SipX_Android_Build_Environment
+see http://sipxwiki.sipez.com/wiki/SipX_Android_Build_Environment
 
 
 Windows Build Hints
@@ -11,20 +11,26 @@ Windows Build Hints
 
 Please see the instructions in the INSTALL doc in sipXportLib for all the required 3rd party dependencies.  Next, open sipXtapi.sln project within the sipXcallLib project.  This project will build sipXtapi, PlaceCall, ReceiveCall, and sipXezPhone.  You may need to copy the "sipXtapi[d].dll" into your working directory before you can run PlaceCall or ReceiveCall.  sipXezphone has a post-process build setup that copies those DLLs for you.
 
-For step-by-step guide read thi page:
-http://sipx-wiki.calivia.com/index.php/SipXtapi_and_sipXezPhone_Build_Environment_for_Windows
-
 Linux Build Hints
 =================
 The Linux build has been tested on Fedora Core 6 and Ubuntu 6.10 (Edgy).  Automake and autoconf should do the trick for you.  If you find any missing components, you will need to install those.  See the INSTALL doc in sipXportLib for more info on these dependences.
 
-Under FC6: 'yum install pcre-devel alsa-lib-devel'
-Debian/Ubuntu: apt-get install subversion libpcre3-dev libasound2-dev g++ gdb make autoconf automake libtool
+For CentOS/Fedora/Red Hat Linux distros to setup your development environment for sipX:
+  yum install subversion gcc-c++ gdb make pcre pcre-devel autoconf automake pkgconfig libtool valgrind alsa-lib alsa-lib-devel alsa-utils epel-release openssl-devel patch speex-devel
+
+  The epel-release repo must be installed first to get access to spandsp
+  yum install spandsp-devel
+
+  If you want to build or use codecs from FFMEPG like AAC:
+  yum install yasm
+
+For Debian/Ubuntu Linux distros to setup your development environment for sipX:
+  apt-get install g++ subversion gdb make libpcre3-dev autoconf automake libtool pkg-config valgrind libasound2-dev alsa-utils libssl-dev patch libspeex-dev libspandsp-dev bc
 
 In order to build with GSM and Speex codec support you will need to install libgsm (version >= 1.0.10) and libspeex (version >= 1.1) development libraries.  Their presence will be detected during 'configure' stage automatically.  If do NOT want include GSM or Speex support even if appropriate libraries are present, use "--disable-codec-gsm" and "--disable-codec-speex" switch when configuring sipXtackLib, sipXmediaLib and sipXmediaAdapterLib.
 
-Under Ubuntu: 'apt-get install libspeex-dev libgsm1-dev' to install libgsm and libspeex.
-Under FC6: 'yum install speex-devel gsm-devel'
+Under Ubuntu: 'apt-get install libgsm1-dev' to install libgsm.
+Under Fedora: 'yum install gsm-devel'
    note: you may need to add the linva repository: 
    'rpm -ivh http://rpm.livna.org/livna-release-6.rpm'
 
@@ -197,5 +203,3 @@ following:
 	Once the batch file completes, sipXportLib, sipXtackLib, sipXmediaLib, 
 	sipXmediaAdapterLib, and all associated unit tests are built.
 
----
-rjandreasen@gmail.com
