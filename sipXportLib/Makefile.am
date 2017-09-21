@@ -30,6 +30,9 @@ else
 BUILDPARM=--define="buildno $(RELEASE)"
 endif
 
+tests:
+	$(MAKE) check TESTS=
+
 rpm : dist
 	rpmbuild -ta $(BUILDPARM) $(PACKAGE)-$(VERSION).tar.gz
 	mv -f $(RPMBUILD_TOPDIR)/SRPMS/$(PACKAGE)-$(VERSION)-*.rpm .
