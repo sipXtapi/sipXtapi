@@ -34,6 +34,10 @@ endif
 config.properties : config.properties.in Makefile
 	$(LocalizeSipXconfig) $(srcdir)/config.properties.in > config.properties
 
+# Make unit tests, but don't run them
+tests:
+	$(MAKE) check TESTS=
+
 .PHONY : rpm
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')

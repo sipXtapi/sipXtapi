@@ -20,6 +20,10 @@ include $(srcdir)/config/sipXprojtop.mak
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 RELEASE = 2
 
+# Make unit tests, but don't run them
+tests:
+	$(MAKE) check TESTS=
+
 .PHONY : rpm
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')

@@ -30,6 +30,7 @@ else
 BUILDPARM=--define="buildno $(RELEASE)"
 endif
 
+# Make unit tests, but don't run them
 tests:
 	$(MAKE) check TESTS=
 
