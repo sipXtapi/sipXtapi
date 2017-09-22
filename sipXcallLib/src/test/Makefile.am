@@ -7,7 +7,10 @@ SUBDIRS = tapi
 TESTS = testsuite
 
 ## Full regression test and not meant for 'make check'
-check_PROGRAMS = testsuite regression
+#check_PROGRAMS = testsuite regression
+# Stream player is not used anymore that I am aware of
+# So exclude regression from tests
+check_PROGRAMS = testsuite
 
 testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 
@@ -16,6 +19,7 @@ testsuite_LDADD = \
     @SIPXMEDIA_LIBS@ \
     @SIPXMEDIA_MP_LIBS@ \
     @SIPXTACK_LIBS@ \
+    @SIPXSDP_LIBS@ \
     @SIPXPORT_LIBS@ \
     @CA_LIBS@ \
     ../libsipXcall.la
