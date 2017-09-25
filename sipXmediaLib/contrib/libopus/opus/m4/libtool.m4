@@ -3394,11 +3394,13 @@ m4_defun([_LT_PATH_DD],
 [printf 0123456789abcdef0123456789abcdef >conftest.i
 cat conftest.i conftest.i >conftest2.i
 : ${lt_DD:=$DD}
-AC_PATH_PROGS_FEATURE_CHECK([lt_DD], [dd],
-[if "$ac_path_lt_DD" bs=32 count=1 <conftest2.i >conftest.out 2>/dev/null; then
-  cmp -s conftest.i conftest.out \
-  && ac_cv_path_lt_DD="$ac_path_lt_DD" ac_path_lt_DD_found=:
-fi])
+#AC_PATH_PROGS_FEATURE_CHECK([lt_DD], [dd],
+#[if "$ac_path_lt_DD" bs=32 count=1 <conftest2.i >conftest.out 2>/dev/null; then
+#  cmp -s conftest.i conftest.out \
+#  && ac_cv_path_lt_DD="$ac_path_lt_DD" ac_path_lt_DD_found=:
+#fi])
+# Hack to short circuit check and make work on autotools 2.61
+ac_cv_path_lt_DD=`which $DD` ac_path_lt_DD_found=:
 rm -f conftest.i conftest2.i conftest.out])
 ])# _LT_PATH_DD
 
