@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2008-2017 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2008 SIPfoundry Inc.
@@ -36,7 +36,7 @@ int sipxL16decode(const void* pCodedData, unsigned cbCodedPacketSize,
    int i;
    int samples;
 
-   samples = min(cbCodedPacketSize/sizeof(audio_sample_t), cbBufferSize);
+   samples = PLG_MIN(cbCodedPacketSize/sizeof(audio_sample_t), cbBufferSize);
    for (i=0; i<samples; i++)
    {
       ((audio_sample_t*)pAudioBuffer)[i] = ntohs(((const audio_sample_t*)pCodedData)[i]);

@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2017 SIPez LLC. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -372,7 +371,7 @@ CODEC_API int PLG_ENCODE_V1(amrwb)(void* handle, const void* pAudioBuffer,
 
    // Calculate amount of audio data to be consumed and store it
    // to intermediate buffer.
-   *rSamplesConsumed = min(cbAudioSamples, FRAME_SIZE-pCodecData->mBufferLoad);
+   *rSamplesConsumed = PLG_MIN(cbAudioSamples, FRAME_SIZE-pCodecData->mBufferLoad);
    memcpy(&pCodecData->mpBuffer[pCodecData->mBufferLoad], pAudioBuffer,
           SIZE_OF_SAMPLE*(*rSamplesConsumed));
    pCodecData->mBufferLoad = pCodecData->mBufferLoad + cbAudioSamples;

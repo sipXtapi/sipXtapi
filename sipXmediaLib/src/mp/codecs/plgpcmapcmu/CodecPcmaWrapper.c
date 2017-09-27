@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
+// Copyright (C) 2007-2017 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -112,7 +112,7 @@ CODEC_API int PLG_DECODE_V1(sipxPcma)(void* handle, const void* pCodedData,
    if (cbBufferSize == 0)
       return RPLG_INVALID_ARGUMENT;
 
-   samples = min(cbCodedPacketSize, cbBufferSize);
+   samples = PLG_MIN(cbCodedPacketSize, cbBufferSize);
 #ifdef USE_BUGGY_G711 // [
    G711A_Decoder(samples, (uint8_t*)pCodedData, (MpAudioSample *)pAudioBuffer);
 #else // USE_BUGGY_G711 ][

@@ -28,7 +28,7 @@ int internal_decode_g726(void* handle, const void* pCodedData,
    // TODO: fix this hack
    maxBytesToDecode = cbCodedPacketSize;
    // g726_state_t is now opaque.  Can no longer access bits_per_sample bits_per_sample 
-   //maxBytesToDecode = min(cbCodedPacketSize, cbBufferSize*8/((g726_state_t*)handle)->bits_per_sample);
+   //maxBytesToDecode = PLG_MIN(cbCodedPacketSize, cbBufferSize*8/((g726_state_t*)handle)->bits_per_sample);
    //assert(maxBytesToDecode == cbCodedPacketSize);
    
    samples = g726_decode((g726_state_t*)handle, (int16_t*)pAudioBuffer, pCodedData, maxBytesToDecode);

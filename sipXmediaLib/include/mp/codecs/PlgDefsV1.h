@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -307,12 +306,12 @@ typedef int   (*dlPlgFreeV1)(void* handle, int isDecoder);
 typedef int16_t audio_sample_t;
 
 
-#ifndef max
-#define max(a, b) (((a) > (b)) ? (a) : (b))
+#ifndef PLG_MAX
+#define PLG_MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
-#ifndef min
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+#ifndef PLG_MIN
+#define PLG_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
 #ifdef __cplusplus
