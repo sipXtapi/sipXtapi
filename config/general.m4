@@ -1053,9 +1053,11 @@ AC_DEFUN([AM_SET_STATIC_SPEEX],
 ])dnl
 AC_DEFUN([AM_SET_SPEEX],
 [
+    #AC_MSG_WARN(top of xAM_SET_SPEEX codec: $codec_speex_enabled detected: $speex_detected)
     # Check to see if speex dsp was selected, and speex usage has not been
     # checked and configured
     if test "x$codec_speex_enabled" == "xyes" -a "x$speex_detected" == "x"; then
+        #AC_MSG_WARN(xAM_SET_SPEEX about to xCHECK_SPEEX)
         CHECK_SPEEX
     fi
     PLUGINS="${PLUGINS} SPEEX"
@@ -1069,7 +1071,7 @@ AC_DEFUN([ENABLE_CODEC_SPEEX],
                                   [Enable support for SPEEX codec @<:@default=no@:>@])],
                   [ case "${enableval}" in
                        static) AM_SET_STATIC_SPEEX ;;
-                       yes) AM_SET_SPEEX ;;
+                       yes) codec_speex_enabled="yes"; AM_SET_SPEEX ;;
                        no) ;;
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
                     esac])
@@ -1086,6 +1088,7 @@ dnl CHECK_SPEEX because it can only be specified once, and CHECK_SPEEX has the
 dnl possibility of being specified more than once (and does in sipXmediaLib).
 AC_DEFUN([CHECK_SPEEX],
 [
+    #AC_MSG_WARN(Top of xCHECK_SPEEX)
     AC_MSG_CHECKING([for libspeex >= 1.2.0])
 
     # Check if the user wished to force usage of contrib version of speex
@@ -1106,17 +1109,40 @@ AC_DEFUN([CHECK_SPEEX],
         PKG_CHECK_MODULES([SPEEX],
                           [speex >= 1.2.0], 
                           speex_detected=yes, 
-                          speex_detected=no; contrib_speex_enabled=yes)
+                          speex_detected=no )
         pkg_failed=no
         _PKG_CONFIG([SPEEX_LIBDIR], [variable=libdir], [speex >= 1.2.0])
         if test "x$pkg_failed" = "xuntried"; then
             AC_MSG_ERROR(Failed to get the speex library directory from pkg-config!)
         else
-            SPEEX_STATIC_LIB=${SPEEX_LIBDIR}/libspeex.a
-            SPEEXDSP_STATIC_LIB=${SPEEX_LIBDIR}/libspeexdsp.a
+            if test "xspeex_detected" == "xyes" 
+            then
+              #AC_MSG_WARN([pkg found speex libdir: $SPEEX_LIBDIR])
+            else
+              #AC_MSG_WARN([checking for with-speex-libraries])
+              SFAC_ARG_WITH_LIB([libspeex.la],
+                      [speex-libraries],
+                      [ --with-speex-libraries=<dir> speex library path ],
+                      [speex])
+
+              if test "x$foundpath" != "x" 
+              then
+                SPEEX_LIBDIR=$foundpath
+                speex_detected=yes
+                #AC_MSG_WARN([xSFAC_ARG_WITH_LIB set speex libdir: $SPEEX_LIBDIR])
+              else
+                AC_MSG_WARN([pkg and xSFAC_ARG_WITH_LIB did not find speex lib, defaulting to contrib])
+                contrib_speex_enabled=yes
+              fi
+            fi
+
+            SPEEX_STATIC_LIB=${SPEEX_LIBDIR}/libspeex.la
+            SPEEXDSP_STATIC_LIB=${SPEEX_LIBDIR}/libspeexdsp.la
         fi
     fi
 
+    AC_MSG_WARN(speex contrib: ${contrib_speex_enabled} subdir)
+    AC_MSG_WARN(speex installed: ${speex_detected} here)
     # if contrib speex is selected, use it.
     if test "x$contrib_speex_enabled" == "xyes" ; then
         AC_MSG_RESULT([using svn version])
@@ -1135,6 +1161,7 @@ AC_DEFUN([CHECK_SPEEX],
         AC_SUBST(SPEEXDSP_LIBS)
     elif test "x$speex_detected" == "xyes"; then
         AC_MSG_RESULT([ok])
+        #AC_MSG_WARN([installed speex detected])
         AC_SUBST(SPEEX_CFLAGS)
         AC_SUBST(SPEEX_LIBS)
         AC_SUBST(SPEEX_STATIC_LIB)
@@ -1313,6 +1340,32 @@ AC_DEFUN([CHECK_OPUS],
 
 ])dnl
 
+AC_DEFUN([CHECK_NE10],
+[
+    foundpath=""
+
+    SFAC_ARG_WITH_LIB([libNE10.a],
+            [NE10-libraries],
+            [ --with-NE10-libraries=<dir> ARM Neon optimization library path ],
+            [NE10])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+        SIPX_NE10_LIBS="$foundpath/libNE10.la"
+        SIPX_NE10_STATIC_LIBS="$foundpath/libNE10.a"
+        SIPX_NE10_LDFLAGS="-L$foundpath"
+        AM_CONDITIONAL(NE10, [test "xtrue" == "xtrue"])    
+    else
+        AC_MSG_RESULT(not found)
+        SIPX_NE10_LIBS=""
+        SIPX_NE10_STATIC_LIBS=""
+        SIPX_NE10_LDFLAGS=""
+        AM_CONDITIONAL(NE10, [test "x" == "xtrue"])    
+    fi
+    AC_SUBST(SIPX_NE10_LIBS)
+    AC_SUBST(SIPX_NE10_STATIC_LIBS)
+    AC_SUBST(SIPX_NE10_LDFLAGS)
+])dnl
 
 # == D E C L A R E _ C O D E C S _ S T A F F ==
 AC_DEFUN([DECLARE_CODECS_STAFF],
