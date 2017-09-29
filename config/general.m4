@@ -1344,8 +1344,11 @@ AC_DEFUN([CHECK_OPUS],
 
 AC_DEFUN([CHECK_NE10],
 [
-    foundpath=""
+  AC_MSG_CHECKING([NE10])
+  foundpath=""
 
+  if test "$TARGET" == 'arm'
+  then
     SFAC_ARG_WITH_LIB([libNE10.a],
             [NE10-libraries],
             [ --with-NE10-libraries=<dir> ARM Neon optimization library path ],
@@ -1364,9 +1367,17 @@ AC_DEFUN([CHECK_NE10],
         SIPX_NE10_LDFLAGS=""
         AM_CONDITIONAL(NE10, [test "x" == "xtrue"])    
     fi
-    AC_SUBST(SIPX_NE10_LIBS)
-    AC_SUBST(SIPX_NE10_STATIC_LIBS)
-    AC_SUBST(SIPX_NE10_LDFLAGS)
+  else
+    AC_MSG_RESULT(N/A. Non-arm target: $TARGET)
+    SIPX_NE10_LIBS=""
+    SIPX_NE10_STATIC_LIBS=""
+    SIPX_NE10_LDFLAGS=""
+    AM_CONDITIONAL(NE10, [test "x" == "xtrue"])    
+  fi
+
+  AC_SUBST(SIPX_NE10_LIBS)
+  AC_SUBST(SIPX_NE10_STATIC_LIBS)
+  AC_SUBST(SIPX_NE10_LDFLAGS)
 ])dnl
 
 # == D E C L A R E _ C O D E C S _ S T A F F ==
