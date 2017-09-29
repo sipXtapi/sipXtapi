@@ -1118,6 +1118,8 @@ AC_DEFUN([CHECK_SPEEX],
             if test "xspeex_detected" == "xyes" 
             then
               #AC_MSG_WARN([pkg found speex libdir: $SPEEX_LIBDIR])
+              # no op to keep bash happy with then/else
+              xxxfoo=noop
             else
               #AC_MSG_WARN([checking for with-speex-libraries])
               SFAC_ARG_WITH_LIB([libspeex.la],
