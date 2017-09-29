@@ -34,8 +34,8 @@ class SocketsTest : public SIPX_UNIT_BASE_CLASS
 
 public:
     static UtlString mLocalHost;
-   
-    void testSocketUtils()
+
+    void setUp()
     {
         OsSocket::getHostIp(&mLocalHost);
 
@@ -46,6 +46,10 @@ public:
         }
 
         printf("testSocketUtils setting mLocalHost=\"%s\"\n", mLocalHost.data());
+    }
+   
+    void testSocketUtils()
+    {
         CPPUNIT_ASSERT(!mLocalHost.isNull());
         CPPUNIT_ASSERT(OsSocket::isIp4Address(mLocalHost));
     }
@@ -55,10 +59,14 @@ public:
      */
     void testWriteMsg()
     {
-        OsSocket* s = new OsDatagramSocket(8020, mLocalHost);
+        int port = 8020;
+        OsSocket* s = new OsDatagramSocket(port, mLocalHost);
         if(!s->isOk() || s->getSocketDescriptor() < 0)
         {
-            printf("socket descripter not valid: %d\n", s->getSocketDescriptor());
+            printf("socket descripter on %s:%d not valid: %d\n", 
+                   mLocalHost.data(),
+                   port,
+                   s->getSocketDescriptor());
         }
 
         CPPUNIT_ASSERT(s->getSocketDescriptor() >= 0);
