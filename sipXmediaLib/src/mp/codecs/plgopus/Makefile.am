@@ -6,10 +6,17 @@ mpcodecsdir = $(datadir)/@PACKAGE@
 mpcodecs_LTLIBRARIES = codec_opus.la
 
 codec_opus_la_SOURCES = plgopus.c
-codec_opus_la_LIBADD = @OPUS_STATIC_LIB@
-codec_opus_la_LDFLAGS = -module -avoid-version
+
+if NE10
+codec_opus_la_LIBADD = @OPUS_STATIC_LIB@ -lNE10
+else
+codec_opus_la_LIBADD = @OPUS_STATIC_LIB@ 
+endif
+
+codec_opus_la_LDFLAGS = -module -avoid-version @SIPX_NE10_LDFLAGS@
 
 all-local: codec_opus.la
+	echo "LIBS: $(LIBS) 2 ${LIBS} 3 @SIPX_NE10_STATIC_LIB@"
 	echo "Installing plugin codec_opus.so ..."
 	cp -f .libs/codec_opus.so @DEFAULT_CODECS_PATH@
 

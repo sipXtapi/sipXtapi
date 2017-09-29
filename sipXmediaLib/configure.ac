@@ -86,6 +86,7 @@ CHECK_L16
 CHECK_G726
 CHECK_G722
 CHECK_OPUS
+CHECK_NE10
 CHECK_AMR_AMRWB
 
 # Use external components, if requested.
@@ -96,7 +97,9 @@ EXTERNAL_EXTENITIONS_MEDIA
 # SPEEX detection and configuration code inside general.m4 cannot do
 # sub-configure with AC_CONFIG_SUBDIRS, since it would be called more
 # than once, so do it here, where we know it only happens once.
+#AC_MSG_RESULT(speex contrib: ${contrib_speex_enabled} subdir)
 if test "x$contrib_speex_enabled" == "xyes"; then
+        #AC_MSG_RESULT(adding speex contrib: ${contrib_speex_enabled} subdir)
         # speex codec has it's own configure, so be sure to call it.
         AC_CONFIG_SUBDIRS([contrib/libspeex])
 fi
