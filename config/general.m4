@@ -1347,7 +1347,9 @@ AC_DEFUN([CHECK_NE10],
   AC_MSG_CHECKING([NE10])
   foundpath=""
 
-  if test "$TARGET" == 'arm'
+  # NE10 is a math optimization package for arm Neon targets
+  # If this is an arm based target
+  if test x"$target" != "x" -a x"$target" != x"${target#arm}"
   then
     SFAC_ARG_WITH_LIB([libNE10.a],
             [NE10-libraries],
@@ -1368,7 +1370,7 @@ AC_DEFUN([CHECK_NE10],
         AM_CONDITIONAL(NE10, [test "x" == "xtrue"])    
     fi
   else
-    AC_MSG_RESULT(N/A. Non-arm target: $TARGET)
+    AC_MSG_RESULT(N/A. Non-arm target: $target)
     SIPX_NE10_LIBS=""
     SIPX_NE10_STATIC_LIBS=""
     SIPX_NE10_LDFLAGS=""
