@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -7,13 +7,14 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "utl/UtlInit.h"
-#include "mp/MpAlsaContainer.h"
-#include "mp/MpAlsa.h"
-#include "utl/UtlHashMapIterator.h"
-#include "utl/UtlHashMap.h"
-#include "utl/UtlVoidPtr.h"
-#include "os/OsLock.h"
+#include <utl/UtlInit.h>
+#include <mp/MpAlsaContainer.h>
+#include <mp/MpAlsa.h>
+#include <utl/UtlHashMapIterator.h>
+#include <utl/UtlHashMap.h>
+#include <utl/UtlVoidPtr.h>
+#include <os/OsLock.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -112,6 +113,9 @@ UtlBoolean MpAlsaContainer::excludeWrapperFromContainer(MpAlsa* pDev)
    {
       assert(mpCont != NULL);
       mpCont->excludeFromContainer(pDev);
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+          "MpAlsaContainer::excludeWrapperFromContainer removing ALSA device: %p from container",
+          pDev);
 
       return TRUE;
    }
