@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ public:
      */
 
      /// @brief Destructor
-   ~MpodAlsa();
+   virtual ~MpodAlsa();
 
 //@}
 
