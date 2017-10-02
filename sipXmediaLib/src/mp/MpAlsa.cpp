@@ -26,9 +26,10 @@
 #include <alsa/pcm_plugin.h>
 
 // APPLICATION INCLUDES
-#include "mp/MpidAlsa.h"
-#include "mp/MpodAlsa.h"
-#include "os/OsTask.h"
+#include <mp/MpidAlsa.h>
+#include <mp/MpodAlsa.h>
+#include <os/OsTask.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -97,6 +98,14 @@ MpAlsa::~MpAlsa()
    int res;
    void *dummy;
 
+   if(mReader)
+   {
+     freeInputDevice();
+   }
+   if(mWriter)
+   {
+     freeOutputDevice();
+   }
    assert((mReader == NULL) && (mWriter == NULL));
 
    threadKill();
@@ -175,6 +184,22 @@ OsStatus MpAlsa::setOutputDevice(MpodAlsa* pODD)
 
 OsStatus MpAlsa::freeInputDevice()
 {
+   if (mReader != NULL)
+   {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+          "MpAlsa::freeInputDevice closing ALSA input stream");
+      int closeRet = snd_pcm_close(pPcmIn);
+      if(closeRet != 0)
+      {
+          OsSysLog::add(FAC_MP, PRI_DEBUG,
+              "snd_pcm_close %p input returned: %d",
+              pPcmIn,
+              closeRet,
+              snd_strerror(closeRet));
+      }
+      pPcmIn = NULL;
+   }
+
    OsStatus ret = OS_SUCCESS;
    if (mStReader)
    {
@@ -183,7 +208,11 @@ OsStatus MpAlsa::freeInputDevice()
    }
 
    if (mReader != NULL)
+   {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+          "MpAlsa::freeInputDevice setting mReader to NULL");
       mReader = NULL;
+   }
    else
       ret = OS_FAILED;
 
@@ -196,6 +225,22 @@ OsStatus MpAlsa::freeInputDevice()
 
 OsStatus MpAlsa::freeOutputDevice()
 {
+   if (mWriter != NULL)
+   {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+          "MpAlsa::freeOutputDevice closing ALSA output stream");
+      int closeRet = snd_pcm_close(pPcmOut);
+      if(closeRet != 0)
+      {
+          OsSysLog::add(FAC_MP, PRI_DEBUG,
+              "snd_pcm_close %p output returned: %d",
+              pPcmOut,
+              closeRet,
+              snd_strerror(closeRet));
+      }
+      pPcmOut = NULL;
+   }
+
    OsStatus ret = OS_SUCCESS;
    if (mStWriter)
    {
@@ -205,6 +250,8 @@ OsStatus MpAlsa::freeOutputDevice()
 
    if (mWriter != NULL)
    {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+          "MpAlsa::freeOutputDevice setting mWriter to NULL");
       mWriter = NULL;
    }
    else
@@ -315,6 +362,10 @@ OsStatus MpAlsa::initDevice(const char* devname)
    int res;
    int samplesize = 8 * sizeof(MpAudioSample);
 #endif
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+        "MpAlsa::initDevice(%s) this: %p",
+        devname,
+        this);
     unsigned suggestedRate = 8000;
     OsStatus ret = OS_FAILED;
 
@@ -337,7 +388,7 @@ OsStatus MpAlsa::initDevice(const char* devname)
    if ((mbReadCap == FALSE) && (mbWriteCap == FALSE))
    {
        OsSysLog::add(FAC_MP, PRI_EMERG,
-		     "OSS: could not open %s, "
+		     "ALSA: could not open %s, "
 		     " *** NO SOUND! ***",
 		     devname);
        ret = OS_INVALID_ARGUMENT;
@@ -667,8 +718,9 @@ OsStatus MpAlsa::doOutput(const char* buffer, int size)
       }
       else if (samplesJustWritten < 0) 
       {             
-	  OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA:snd_pcm_writei returned %d",
-			samplesJustWritten);
+	  OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA:snd_pcm_writei returned %d %s",
+			samplesJustWritten,
+                        snd_strerror(samplesJustWritten));
 //	  if (!isWriteDeviceReady())
 //	      break;
 	  samplesJustWritten = snd_pcm_recover(pPcmOut, samplesJustWritten, 0);
@@ -991,8 +1043,9 @@ int MpAlsa::alsaSetupPcmDevice(const char* devname, bool capture, unsigned& sugg
 		    SND_PCM_NONBLOCK);
     if (ret != 0)
     {
-	OsSysLog::add(FAC_MP, PRI_WARNING, "ALSA: can't open %s for %s", 
-		      devname, (capture ? "capture" : "playback"));
+	OsSysLog::add(FAC_MP, PRI_WARNING, "ALSA: can't open %s for %s, snd_pcm_open returned: %d %s", 
+		      devname, (capture ? "capture" : "playback"), 
+                      ret, snd_strerror(ret));
 	return ret;
     }
     snd_pcm_t* pPcm = (capture ? pPcmIn : pPcmOut);
