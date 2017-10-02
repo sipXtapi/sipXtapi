@@ -1,9 +1,5 @@
 //  
-// Copyright (C) 2007-2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
-// Copyright (C) 2007 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2007-2017 SIPez LLC. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,6 +15,7 @@
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
+#include <os/OsSysLog.h>
 
 #define TEST_SAMPLES_PER_FRAME_SIZE   80    ///< in samples
 #define BUFFER_NUM                    500
@@ -54,10 +51,20 @@
 #define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-#include <mp/MpodOss.h>
-#define OUTPUT_DRIVER MpodOss
-#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
-
+#define USE_ALSA_INTERFACE
+#  if defined(USE_ALSA_INTERFACE)
+// ALSA on Linux
+#    include <mp/MpodAlsa.h>
+#    define OUTPUT_DRIVER MpodAlsa
+#    define OUTPUT_DRIVER_DEFAULT_NAME 
+//#    define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "hw:0,0"
+#    define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "plughw:0,0"
+#  else
+// OSS on Linux
+#    include <mp/MpodOss.h>
+#    define OUTPUT_DRIVER MpodOss
+#    define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
+#  endif
 #else // __pingtel_on_possix__ ]
 #error Unknown platform!
 #endif
@@ -184,23 +191,30 @@ public:
 
       for (int i=0; i<ENABLE_DISABLE_TEST_RUNS_NUMBER; i++)
       {
+         OsSysLog::add(FAC_MP, PRI_DEBUG, 
+             "MpOutputManagerTest::testEnableDisable iteration: %d", i);
          // Test with mixer mode
          MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
                                              TEST_SAMPLES_PER_SECOND,
                                              TEST_MIXER_BUFFER_LENGTH);
 
+         UtlString loopMessage;
+         loopMessage.appendFormat("iteration: %d", i);
          deviceId = deviceManager.addDevice(&device);
-         CPPUNIT_ASSERT(deviceId > 0);
+         CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), deviceId > 0);
 
          deviceManager.enableDevice(deviceId);
-         CPPUNIT_ASSERT(deviceManager.isDeviceEnabled(deviceId));
+         CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), deviceManager.isDeviceEnabled(deviceId));
 
          OsTask::delay(50);
 
          deviceManager.disableDevice(deviceId);
-         CPPUNIT_ASSERT(!deviceManager.isDeviceEnabled(deviceId));
+         CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), !deviceManager.isDeviceEnabled(deviceId));
 
-         CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &device);
+         CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), deviceManager.removeDevice(deviceId) == &device);
+
+         CPPUNIT_ASSERT_MESSAGE(loopMessage.data(),
+                                ! device.isEnabled())
       }
    }
 
