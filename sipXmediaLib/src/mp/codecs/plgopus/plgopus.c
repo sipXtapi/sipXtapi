@@ -1,5 +1,5 @@
 /*  
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //
 //
 // $$
@@ -215,8 +215,15 @@ CODEC_API int PLG_DECODE_V1(opus_48000)(void* opaqueCodecContext, const void* en
     {
         *decodedSamples = 0;
         status = OpusToPluginError(numSamples);
-        mppLogError("opus_decode(decoderContext: %p, packet: %p, packetSize: %d, audioBuf: %p, bufSize: %d, useFec: %d)",
-                                  decoderContext->mpDecoderContext, encodedData, encodedPacketSize, pcmAudioBuffer, pcmBufferSize, useFec);
+        mppLogError("opus_decode(decoderContext: %p, packet: %p, packetSize: %d, audioBuf: %p, bufSize: %d, useFec: %d) returned: %d (%d)",
+                    decoderContext->mpDecoderContext, 
+                    encodedData, 
+                    encodedPacketSize, 
+                    pcmAudioBuffer, 
+                    pcmBufferSize, 
+                    useFec, 
+                    numSamples,
+                    status);
     }
 
     // Successful decode
