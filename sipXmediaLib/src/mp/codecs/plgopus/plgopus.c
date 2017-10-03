@@ -208,7 +208,11 @@ CODEC_API int PLG_DECODE_V1(opus_48000)(void* opaqueCodecContext, const void* en
     assert(decoderContext->mCodecType == CODEC_DECODE);
     assert(decoderContext->mpDecoderContext);
 
-    int useFec = 1; /* 1=true, 0=false */
+    /* Not sure why, we need to set useFec to 0 or the pcmBufferSize must
+     * be the size of the expected frame and a multiple of 2.5 mSec. So
+     * for the short term.  Turn off FEC.
+     */
+    int useFec = 0; /* 1=true, 0=false */
     int numSamples = opus_decode(decoderContext->mpDecoderContext, encodedData, encodedPacketSize,
                                 pcmAudioBuffer, pcmBufferSize, useFec);
     if(numSamples < 0)
