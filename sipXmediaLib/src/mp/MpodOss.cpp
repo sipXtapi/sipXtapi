@@ -1,8 +1,6 @@
 //
-// Copyright (C) 2007-2014 SIPez LLC. All rights reserved
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved
 //
-// Copyright (C) 2007 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,14 +20,15 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "mp/MpodOss.h"
-#include "mp/MpOutputDeviceManager.h"
-#include "os/OsTask.h"
-#include "os/OsNotification.h"
-#include "os/OsCallback.h"
+#include <mp/MpodOss.h>
+#include <mp/MpOutputDeviceManager.h>
+#include <os/OsTask.h>
+#include <os/OsNotification.h>
+#include <os/OsCallback.h>
+#include <os/OsFS.h>
 
 #ifdef RTL_ENABLED // [
-#  include "rtl_macro.h"
+#  include <rtl_macro.h>
 #else  // RTL_ENABLED ][
 #  define RTL_BLOCK(x)
 #  define RTL_EVENT(x, y)
@@ -194,6 +193,25 @@ OsStatus MpodOss::pushFrame(unsigned int numSamples,
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
+
+OsStatus MpodOss::canEnable()
+{
+    OsStatus status = OS_FAILED;
+
+    OsFile deviceFile(getDeviceName());
+    if(deviceFile.exists())
+    {
+        status = deviceFile.open();
+        deviceFile.close();
+    }
+    else
+    {
+        status = OS_NOT_FOUND;
+    }
+
+    return(status);
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 OsStatus MpodOss::signalForNextFrame()

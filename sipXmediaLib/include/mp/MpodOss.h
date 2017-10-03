@@ -1,9 +1,6 @@
 //
-// Copyright (C) 2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2017 SIPez LLC.
 //
-// Copyright (C) 2007 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,6 +92,10 @@ public:
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
 //@{
+
+   /// Check if this device can connect
+   virtual OsStatus canEnable();
+   /* @see MpOutputDeviceDriver::canEnable */
 
      /// @brief Inquire if the OSS device is valid
    inline UtlBoolean isDeviceValid();

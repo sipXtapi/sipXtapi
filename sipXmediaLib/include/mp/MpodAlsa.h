@@ -90,6 +90,10 @@ public:
 ///@name Inquiry
 //@{
 
+   /// Check if this device can connect
+   virtual OsStatus canEnable();
+   /* @see MpOutputDeviceDriver::canEnable */
+
      /// @brief Inquire if the ALSA device is valid
    inline UtlBoolean isDeviceValid();
 

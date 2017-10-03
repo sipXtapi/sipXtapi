@@ -1,8 +1,6 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
-// Copyright (C) 2007 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -182,6 +180,15 @@ public:
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
 //@{
+   /// Check if this device can connect
+   virtual OsStatus canEnable() {return(OS_SUCCESS);};
+   /**
+     @returns -
+         OS_SUCCESS if the device can be enabled
+         OS_NOT_FOUND if the named device does not exist
+         OS_NOT_OWNER if the user does not have permission to connect
+         OS_BUSY if the device is already in use and cannot be shared
+    */
 
      /// Inquire if this driver is enabled
    virtual UtlBoolean isEnabled() const;

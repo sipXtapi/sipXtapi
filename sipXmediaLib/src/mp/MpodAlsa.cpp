@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2015 SIPez LLC. All rights reserved
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -189,6 +189,50 @@ OsStatus MpodAlsa::pushFrame(unsigned int numSamples,
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
+
+OsStatus MpodAlsa::canEnable()
+{
+    OsStatus status = OS_FAILED;
+    snd_pcm_t* pcmOut = NULL;
+
+    int openStatus = 
+        snd_pcm_open(&pcmOut, 
+                     getDeviceName(),
+		     SND_PCM_STREAM_PLAYBACK,
+		     SND_PCM_NONBLOCK);
+    switch(openStatus)
+    {
+    case 0:
+        status = OS_SUCCESS;
+        snd_pcm_close(pcmOut);
+        break;
+
+    case -2:
+        status = OS_NOT_FOUND;
+        break;
+
+    case 16:
+        status = OS_BUSY;
+        break;
+
+    default:
+        status = OS_FAILED;
+        break;
+    }
+    if(openStatus != 0)
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "MposAlsa::canEnable snd_pcm_open(%p, \"%s\", %s) returned: %d %s",
+                      pcmOut,
+                      getDeviceName().data(),
+                      "SND_PCM_STREAM_PLAYBACK",
+                      openStatus,
+                      snd_strerror(openStatus));
+    }
+
+    return(status);
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 OsStatus MpodAlsa::signalForNextFrame()
