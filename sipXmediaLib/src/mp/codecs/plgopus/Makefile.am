@@ -1,6 +1,11 @@
 ## Process this file with automake to produce Makefile.in
+# When not building/running configure in sipX/sipXmediaLib
+# Need to add relative include path not from topsrc
+if OPUS
+OPUS_CONFIG_INCLUDE=-I../../../../contrib/libopus
+endif
 
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @OPUS_INCLUDE@
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @OPUS_INCLUDE@ ${OPUS_CONFIG_INCLUDE}
 
 mpcodecsdir = $(datadir)/@PACKAGE@
 mpcodecs_LTLIBRARIES = codec_opus.la
