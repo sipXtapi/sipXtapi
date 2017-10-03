@@ -38,32 +38,45 @@
 #define DIRECT_WRITE_TEST_RUNS_NUMBER        3
 #define TICKER_TEST_WRITE_RUNS_NUMBER        3
 
-#define USE_TEST_DRIVER
 
-#ifdef USE_TEST_DRIVER // USE_TEST_DRIVER [
 #include <mp/MpodBufferRecorder.h>
-#define OUTPUT_DRIVER MpodBufferRecorder
-#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "default", TEST_SAMPLE_FRAMES*TEST_SAMPLES_PER_FRAME_SIZE*1000/TEST_SAMPLES_PER_SECOND
+#define OUTPUT_DRIVER_TEST MpodBufferRecorder
+#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_TEST "default", TEST_SAMPLE_FRAMES*TEST_SAMPLES_PER_FRAME_SIZE*1000/TEST_SAMPLES_PER_SECOND
+
+
+
+//#define USE_TEST_DRIVER
+#ifdef USE_TEST_DRIVER // USE_TEST_DRIVER [
+#define OUTPUT_DRIVER OUTPUT_DRIVER_TEST
+#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_TEST
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
-#include <mp/MpodWinMM.h>
-#define OUTPUT_DRIVER MpodWinMM
-#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
+#  define NUM_DEVICE_TYPES 1
+#  include <mp/MpodWinMM.h>
+#  define OUTPUT_DRIVER MpodWinMM
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
+#  define NUM_DEVICE_TYPES 3
 #define USE_ALSA_INTERFACE
-#  if defined(USE_ALSA_INTERFACE)
 // ALSA on Linux
-#    include <mp/MpodAlsa.h>
-#    define OUTPUT_DRIVER MpodAlsa
-#    define OUTPUT_DRIVER_DEFAULT_NAME 
-//#    define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "hw:0,0"
-#    define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "plughw:0,0"
+#  include <mp/MpodAlsa.h>
+#  define OUTPUT_DRIVER_ALSA MpodAlsa
+//#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_ALSA "hw:0,0"
+//#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_ALSA "plughw:0,0"
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_ALSA "sysdefault"
+
+#  include <mp/MpodOss.h>
+#  define OUTPUT_DRIVER_OSS MpodOss
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_OSS "/dev/dsp"
+
+#  if defined(USE_ALSA_INTERFACE)
+#    define OUTPUT_DRIVER OUTPUT_DRIVER_ALSA
+#    define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_ALSA
 #  else
 // OSS on Linux
-#    include <mp/MpodOss.h>
-#    define OUTPUT_DRIVER MpodOss
-#    define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
+#    define OUTPUT_DRIVER OUTPUT_DRIVER_OSS
+#    define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_OSS
 #  endif
 #else // __pingtel_on_possix__ ]
 #error Unknown platform!
@@ -101,7 +114,32 @@ class MpOutputDeviceManagerTest : public SIPX_UNIT_BASE_CLASS
 
 
 public:
+   int getOutputDrivers(const char* interfaceType, MpOutputDeviceDriver* drivers[] )
+   {
+      int driverCount = 0;
+#if defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
+      drivers[driverCount] = new OUTPUT_DRIVER_TEST(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_TEST);
+      driverCount++;
 
+      const char* alsaDeviceName = getenv("SIPX_ALSA_DEVICE_NAME");
+      drivers[driverCount] = 
+        new OUTPUT_DRIVER_ALSA(alsaDeviceName ?
+                               alsaDeviceName :
+                               OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_ALSA);
+      driverCount++;
+
+      const char* ossDeviceName = getenv("SIPX_OSS_DEVICE_NAME");
+      drivers[driverCount] = 
+          new OUTPUT_DRIVER_OSS(ossDeviceName ?
+                                ossDeviceName :
+                                OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_OSS);
+      driverCount++;
+#else
+      drivers[driverCount] = new OUTPUT_DRIVER device(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+      driverCount++;
+#endif
+      return(driverCount);
+   }
    void setUp()
    {
       // Create pool for data buffers
@@ -185,37 +223,57 @@ public:
    void testEnableDisable()
    {
       MpOutputDeviceHandle deviceId;
+      MpOutputDeviceDriver* devices[NUM_DEVICE_TYPES];
+      int deviceCount = getOutputDrivers(NULL, devices);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE("No audio device configured", deviceCount, NUM_DEVICE_TYPES);
 
-      OUTPUT_DRIVER device(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      CPPUNIT_ASSERT(!device.isEnabled());
-
-      for (int i=0; i<ENABLE_DISABLE_TEST_RUNS_NUMBER; i++)
+      for(int deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++)
       {
-         OsSysLog::add(FAC_MP, PRI_DEBUG, 
-             "MpOutputManagerTest::testEnableDisable iteration: %d", i);
-         // Test with mixer mode
-         MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
-                                             TEST_SAMPLES_PER_SECOND,
-                                             TEST_MIXER_BUFFER_LENGTH);
+          printf("Device: %d\n", deviceIndex);
+          CPPUNIT_ASSERT(!devices[deviceIndex]->isEnabled());
 
-         UtlString loopMessage;
-         loopMessage.appendFormat("iteration: %d", i);
-         deviceId = deviceManager.addDevice(&device);
-         CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), deviceId > 0);
+          UtlString deviceLoopMessage;
+          deviceLoopMessage.appendFormat("Skipping testing of device %d \"%s\"", 
+                                         deviceIndex,
+                                         devices[deviceIndex]->getDeviceName().data());
+          OsStatus deviceUsableStatus = devices[deviceIndex]->canEnable();
+          CPPUNIT_ASSERT_EQUAL_MESSAGE(deviceLoopMessage.data(),
+                                       deviceUsableStatus,
+                                       OS_SUCCESS);
+          if(deviceUsableStatus != OS_SUCCESS) continue;
 
-         deviceManager.enableDevice(deviceId);
-         CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), deviceManager.isDeviceEnabled(deviceId));
+          for (int i=0; i<ENABLE_DISABLE_TEST_RUNS_NUMBER; i++)
+          {
+             OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                 "MpOutputManagerTest::testEnableDisable device: %d iteration: %d",
+                 deviceIndex,
+                 i);
+             // Test with mixer mode
+             MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
+                                                 TEST_SAMPLES_PER_SECOND,
+                                                 TEST_MIXER_BUFFER_LENGTH);
 
-         OsTask::delay(50);
+             UtlString loopMessage;
+             loopMessage.appendFormat("iteration: %d", i);
+             deviceId = deviceManager.addDevice(devices[deviceIndex]);
+             CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), deviceId > 0);
 
-         deviceManager.disableDevice(deviceId);
-         CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), !deviceManager.isDeviceEnabled(deviceId));
+             deviceManager.enableDevice(deviceId);
+             CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), deviceManager.isDeviceEnabled(deviceId));
 
-         CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), deviceManager.removeDevice(deviceId) == &device);
+             OsTask::delay(50);
 
-         CPPUNIT_ASSERT_MESSAGE(loopMessage.data(),
-                                ! device.isEnabled())
-      }
+             deviceManager.disableDevice(deviceId);
+             CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), !deviceManager.isDeviceEnabled(deviceId));
+
+             CPPUNIT_ASSERT_MESSAGE(loopMessage.data(), deviceManager.removeDevice(deviceId) == devices[deviceIndex]);
+
+             CPPUNIT_ASSERT_MESSAGE(loopMessage.data(),
+                                    ! devices[deviceIndex]->isEnabled())
+          }
+          delete (devices[deviceIndex]);
+          devices[deviceIndex] = NULL;
+       }
    }
 
    void testEnableDisableFast()
