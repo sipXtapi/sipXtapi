@@ -14,8 +14,11 @@ codec_opus_la_SOURCES = plgopus.c
 
 if NE10
 codec_opus_la_LIBADD = @OPUS_STATIC_LIB@ -lNE10
+# TODO: add NE10 as dependency
+EXTRA_codec_opus_la_DEPENDENCIES = @OPUS_STATIC_LIB@
 else
 codec_opus_la_LIBADD = @OPUS_STATIC_LIB@ 
+EXTRA_codec_opus_la_DEPENDENCIES = @OPUS_STATIC_LIB@
 endif
 
 codec_opus_la_LDFLAGS = -module -avoid-version @SIPX_NE10_LDFLAGS@
