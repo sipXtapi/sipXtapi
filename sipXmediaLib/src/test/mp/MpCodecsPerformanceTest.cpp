@@ -1,8 +1,6 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //  
-// Copyright (C) 2006-2010 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -21,7 +19,7 @@
 /// Duration of one frame in milliseconds
 #define FRAME_MS                 20
 /// Maximum length of audio data we expect from decoder (in samples).
-#define DECODED_FRAME_MAX_SIZE   1600
+#define DECODED_FRAME_MAX_SIZE   3200
 /// Maximum size of encoded frame (in bytes).
 #define ENCODED_FRAME_MAX_SIZE   1480
 /// Number of RTP packets to encode/decode.
@@ -234,6 +232,9 @@ protected:
          OsTime         stop;
          OsTime         diff;
 
+         UtlString loopMessage;
+         loopMessage.appendFormat("%s packet: %d", codecMime.data(), i);
+
          if(rtpDataStart == NULL)
          {
              rtpDataStart = pRtpPayloadPtr;
@@ -295,7 +296,8 @@ protected:
          tmpSamplesConsumed = pDecoder->decode(pRtpPacket, DECODED_FRAME_MAX_SIZE,
                                                pDecoded);
          OsDateTime::getCurTime(stop);
-         CPPUNIT_ASSERT_EQUAL(samplesInPacket, tmpSamplesConsumed);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage.data(),
+                                      samplesInPacket, tmpSamplesConsumed);
 
          printf("RTP payload first byte: %x payload size: %d\n",
              *(pRtpPacket->getDataPtr()), pRtpPacket->getPayloadSize());
