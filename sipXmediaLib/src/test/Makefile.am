@@ -19,6 +19,7 @@ testsuite_LDADD = \
 # the initial declairation of CXXCOMPILE
 testsuite_CXXFLAGS = -I$(SIPXUNITINC) \
 		     $(AM_CPPFLAGS) \
+                     -DMP_CODECS_DIR=\"$(datadir)/@PACKAGE@\" \
                      @CPPUNIT_CFLAGS@
 
 testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@

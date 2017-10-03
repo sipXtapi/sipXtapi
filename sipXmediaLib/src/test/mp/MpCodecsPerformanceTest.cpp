@@ -36,6 +36,9 @@ static UtlString sCodecPaths[] = {
                                   "../../../../bin",
                                   "../../../bin",
                                   "../../bin",
+#  ifdef MP_CODECS_DIR
+                                  MP_CODECS_DIR,
+#  endif
 //                                  "/usr/local/sipx/share/sipxmedialib",
 #else
 #                                 error "Unknown platform"
