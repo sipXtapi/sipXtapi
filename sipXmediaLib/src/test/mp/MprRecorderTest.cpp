@@ -784,14 +784,14 @@ class MprRecorderTest : public MpGenericResourceTest
 
                     // Build flowgraph with source, MprRecorder and sink resources
                     setupFramework(recorder);
-                    mpSourceResource->setSignalAmplitude(0, (0x1 << 12));
-                    mpSourceResource->setSignalAmplitude(1, (0x1 << 11));
-                    mpSourceResource->setSignalAmplitude(2, (0x1 << 10));
-                    mpSourceResource->setSignalAmplitude(3, (0x1 << 9));
-                    mpSourceResource->setSignalPeriod(0, sSampleRates[rateIndex] / 250);
-                    mpSourceResource->setSignalPeriod(1, sSampleRates[rateIndex] / 500);
-                    mpSourceResource->setSignalPeriod(2, sSampleRates[rateIndex] / 1000);
-                    mpSourceResource->setSignalPeriod(3, sSampleRates[rateIndex] / 2000);
+
+                    for(int inputIndex = 0; inputIndex < recorder->maxInputs(); inputIndex++)
+                    {
+                        mpSourceResource->setSignalAmplitude(inputIndex, 
+                                                          (0x1 << (12 - inputIndex)));
+                        mpSourceResource->setSignalPeriod(inputIndex, 
+                              sSampleRates[rateIndex] / (250 * (0x1 << inputIndex)));
+                    }
 
                     mpSourceResource->setOutSignalType(MpTestResource::MP_SINE);
 
@@ -931,10 +931,11 @@ class MprRecorderTest : public MpGenericResourceTest
                                              recordedFileSize);
                     }
 
-                    mpSourceResource->setSignalAmplitude(0, (0x1 << 10));
-                    mpSourceResource->setSignalAmplitude(1, (0x1 << 9));
-                    mpSourceResource->setSignalAmplitude(2, (0x1 << 8));
-                    mpSourceResource->setSignalAmplitude(3, (0x1 << 7));
+                    for(int inputIndex = 0; inputIndex < recorder->maxInputs(); inputIndex++)
+                    {
+                        mpSourceResource->setSignalAmplitude(inputIndex, 
+                                                          (0x1 << (10 - inputIndex)));
+                    }
 
                     // Now append more audio to the end of the recording
                     for(int appendFileTypeIndex = 0; appendFileTypeIndex < numberOfTestFileTypes; appendFileTypeIndex++)
