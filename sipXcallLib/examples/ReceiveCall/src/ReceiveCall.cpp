@@ -1101,6 +1101,7 @@ int local_main(int argc, char* argv[])
     int iDuration, iSipPort, iRtpPort ;
     char* szBindAddr;
     bool bLoopback ;
+    bool bAEC = false;
     char* szIdentity ;
     char* szUsername ;
     char* szPassword ;
@@ -1177,6 +1178,16 @@ int local_main(int argc, char* argv[])
             }
             sipxEventListenerAdd(hInst, EventCallBack, NULL) ;
                 
+            // Enable/disable AEC.
+            if (bAEC)
+            {
+                sipxAudioSetAECMode(g_hInst, SIPX_AEC_CANCEL_AUTO);
+            }
+            else
+            {
+                sipxAudioSetAECMode(g_hInst, SIPX_AEC_DISABLED);
+            }
+
 #if defined(_WIN32) && defined(VIDEO)
             if (bVideo)
             {
