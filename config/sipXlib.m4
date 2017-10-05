@@ -732,9 +732,30 @@ AC_DEFUN([ENABLE_ALSA_AUDIO],
       CFLAGS="-DUSE_ALSA_INTERFACE $CFLAGS"
       CXXFLAGS="-DUSE_ALSA_INTERFACE $CXXFLAGS"
    fi
-   AM_CONDITIONAL(BUILDTLS, test x$enable_alsa_audio = xyes)
+   AM_CONDITIONAL(ALSA, test x$enable_alsa_audio = xyes)
 ])
 
+AC_DEFUN([SIPX_FEATURE_RECEIVECALL],
+[
+   AC_ARG_ENABLE(receivecall, 
+                 [AS_HELP_STRING([--enable-receivecall],
+                                [Enable the build of the ReceiveCall command line user agent. (no)])],
+                 [], [enable_receivecall=no])
+   AC_MSG_CHECKING([Building ReceiveCall])
+   AM_CONDITIONAL(RECEIVECALL, test x$enable_receivecall = xyes)
+   AC_MSG_RESULT(${enable_receivecall})
+])
+
+AC_DEFUN([SIPX_FEATURE_PLACECALL],
+[
+   AC_ARG_ENABLE(placecall, 
+                 [AS_HELP_STRING([--enable-placecall],
+                                [Enable the build of the PlaceCall command line user agent. (no)])],
+                 [], [enable_placecall=no])
+   AC_MSG_CHECKING([Building PlaceCall])
+   AM_CONDITIONAL(PLACECALL, test x$enable_placecall = xyes)
+   AC_MSG_RESULT(${enable_placecall})
+])
 
 AC_DEFUN([SFAC_FEATURE_SIPX_EZPHONE],
 [
