@@ -17,6 +17,24 @@
 #include <mp/MprnIntMsg.h>
 #include <mp/MpGenericResourceTest.h>
 
+MprRecorder::RecordFileFormat testFileTypes[] =
+{
+     MprRecorder::RAW_PCM_16,
+     MprRecorder::WAV_PCM_16,
+     MprRecorder::WAV_ALAW,
+     MprRecorder::WAV_MULAW,
+     MprRecorder::WAV_GSM
+};
+
+const char* testFileTypeStrings[] = 
+{
+     "RAW_PCM_16",
+     "WAV_PCM_16",
+     "WAV_ALAW",
+     "WAV_MULAW",
+     "WAV_GSM"
+};
+    
 class MprRecorderTest : public MpGenericResourceTest
 {
     CPPUNIT_TEST_SUITE(MprRecorderTest);
@@ -29,14 +47,6 @@ class MprRecorderTest : public MpGenericResourceTest
 
     void testRecordToFile()
     {
-        MprRecorder::RecordFileFormat testFileTypes[] =
-        {
-             MprRecorder::RAW_PCM_16,
-             MprRecorder::WAV_PCM_16,
-             MprRecorder::WAV_ALAW,
-             MprRecorder::WAV_MULAW,
-             MprRecorder::WAV_GSM
-        };
         int numberOfTestFileTypes = sizeof(testFileTypes) / sizeof(MprRecorder::RecordFileFormat);
         int framesPerSecond = 100; // 10 mSec frames
 
@@ -47,6 +57,12 @@ class MprRecorderTest : public MpGenericResourceTest
             unsigned int rateIndex;
             for(rateIndex = 0; rateIndex < sNumRates; rateIndex++)
             {
+                UtlString loopLabel;
+                loopLabel.appendFormat("%s(%d) rate: %d",
+                                       testFileTypeStrings[fileTypeIndex],
+                                       testFileTypes[fileTypeIndex],
+                                       sSampleRates[rateIndex]);
+
                 printf("Test MprRecorder file type: %d media task rate: %d samples/second\n",
                         fileFormat,
                        sSampleRates[rateIndex]);
@@ -189,7 +205,7 @@ class MprRecorderTest : public MpGenericResourceTest
                 unsigned long recordedFileSize;
                 CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                      fileInfo.getSize(recordedFileSize));
-                CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopLabel.data(), headerSize + audioDataSize,
                                      recordedFileSize);
 
                 // Stop flowgraph
@@ -203,14 +219,6 @@ class MprRecorderTest : public MpGenericResourceTest
 
     void testRecordToFileAppendNotExisting()
     {
-        MprRecorder::RecordFileFormat testFileTypes[] =
-        {
-             MprRecorder::RAW_PCM_16,
-             MprRecorder::WAV_PCM_16,
-             MprRecorder::WAV_ALAW,
-             MprRecorder::WAV_MULAW,
-             MprRecorder::WAV_GSM
-        };
         int numberOfTestFileTypes = sizeof(testFileTypes) / sizeof(MprRecorder::RecordFileFormat);
         int framesPerSecond = 100; // 10 mSec frames
 
@@ -221,6 +229,12 @@ class MprRecorderTest : public MpGenericResourceTest
             unsigned int rateIndex;
             for(rateIndex = 0; rateIndex < sNumRates; rateIndex++)
             {
+                UtlString loopLabel;
+                loopLabel.appendFormat("%s(%d) rate: %d",
+                                       testFileTypeStrings[fileTypeIndex],
+                                       testFileTypes[fileTypeIndex],
+                                       sSampleRates[rateIndex]);
+
                 printf("Test MprRecorder file type: %d media task rate: %d samples/second\n",
                         fileFormat,
                        sSampleRates[rateIndex]);
@@ -376,8 +390,9 @@ class MprRecorderTest : public MpGenericResourceTest
                 unsigned long recordedFileSize;
                 CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                      fileInfo.getSize(recordedFileSize));
-                CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
-                                     recordedFileSize);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopLabel.data(),
+                                             headerSize + audioDataSize,
+                                             recordedFileSize);
 
                 // Stop flowgraph
                 haltFramework();
@@ -390,14 +405,6 @@ class MprRecorderTest : public MpGenericResourceTest
 
     void testRecordToFileAppend()
     {
-        MprRecorder::RecordFileFormat testFileTypes[] =
-        {
-             MprRecorder::RAW_PCM_16,
-             MprRecorder::WAV_PCM_16,
-             MprRecorder::WAV_ALAW,
-             MprRecorder::WAV_MULAW,
-             MprRecorder::WAV_GSM
-        };
         int numberOfTestFileTypes = sizeof(testFileTypes) / sizeof(MprRecorder::RecordFileFormat);
         int framesPerSecond = 100; // 10 mSec frames
 
@@ -408,6 +415,12 @@ class MprRecorderTest : public MpGenericResourceTest
             unsigned int rateIndex;
             for(rateIndex = 0; rateIndex < sNumRates; rateIndex++)
             {
+                UtlString loopLabel;
+                loopLabel.appendFormat("%s(%d) rate: %d",
+                                       testFileTypeStrings[fileTypeIndex],
+                                       testFileTypes[fileTypeIndex],
+                                       sSampleRates[rateIndex]);
+
                 printf("Test MprRecorder file type: %d media task rate: %d samples/second\n",
                         fileFormat,
                        sSampleRates[rateIndex]);
@@ -565,8 +578,9 @@ class MprRecorderTest : public MpGenericResourceTest
                     unsigned long recordedFileSize;
                     CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                          fileInfo.getSize(recordedFileSize));
-                    CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
-                                         recordedFileSize);
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(loopLabel.data(),
+                                                headerSize + audioDataSize,
+                                                recordedFileSize);
                 }
 
                 mpSourceResource->setSignalAmplitude(0, (0x1 << 13));
@@ -660,8 +674,9 @@ class MprRecorderTest : public MpGenericResourceTest
                             unsigned long appendRecordedFileSize;
                             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                                  appendFileInfo.getSize(appendRecordedFileSize));
-                            CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
-                                                 appendRecordedFileSize);
+                            CPPUNIT_ASSERT_EQUAL_MESSAGE(loopLabel.data(),
+                                                         headerSize + audioDataSize,
+                                                         appendRecordedFileSize);
                         }
 
                         // Append a 2nd time.
@@ -726,8 +741,9 @@ class MprRecorderTest : public MpGenericResourceTest
                     unsigned long appendRecordedFileSize;
                     CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                          appendFileInfo.getSize(appendRecordedFileSize));
-                    CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
-                                         appendRecordedFileSize);
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(loopLabel.data(),
+                                                 headerSize + audioDataSize,
+                                                 appendRecordedFileSize);
                 }
 
             } // end for iteration over sample rates
@@ -738,14 +754,6 @@ class MprRecorderTest : public MpGenericResourceTest
 
     void testRecordChannelToFileAppend()
     {
-        MprRecorder::RecordFileFormat testFileTypes[] =
-        {
-             MprRecorder::RAW_PCM_16,
-             MprRecorder::WAV_PCM_16,
-             MprRecorder::WAV_ALAW,
-             MprRecorder::WAV_MULAW,
-             MprRecorder::WAV_GSM
-        };
         int numberOfTestFileTypes = sizeof(testFileTypes) / sizeof(MprRecorder::RecordFileFormat);
         int framesPerSecond = 100; // 10 mSec frames
 
@@ -757,6 +765,12 @@ class MprRecorderTest : public MpGenericResourceTest
                 unsigned int rateIndex;
                 for(rateIndex = 0; rateIndex < sNumRates; rateIndex++)
                 {
+                    UtlString loopLabel;
+                    loopLabel.appendFormat("%s(%d) rate: %d",
+                                           testFileTypeStrings[fileTypeIndex],
+                                           testFileTypes[fileTypeIndex],
+                                           sSampleRates[rateIndex]);
+
                     printf("Test MprRecorder file type: %d media task rate: %d samples/second\n",
                             fileFormat,
                            sSampleRates[rateIndex]);
@@ -927,8 +941,9 @@ class MprRecorderTest : public MpGenericResourceTest
                         unsigned long recordedFileSize;
                         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                              fileInfo.getSize(recordedFileSize));
-                        CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
-                                             recordedFileSize);
+                        CPPUNIT_ASSERT_EQUAL_MESSAGE(loopLabel.data(),
+                                                     headerSize + audioDataSize,
+                                                     recordedFileSize);
                     }
 
                     for(int inputIndex = 0; inputIndex < recorder->maxInputs(); inputIndex++)
@@ -1094,8 +1109,9 @@ class MprRecorderTest : public MpGenericResourceTest
                         unsigned long appendRecordedFileSize;
                         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                              appendFileInfo.getSize(appendRecordedFileSize));
-                        CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
-                                             appendRecordedFileSize);
+                        CPPUNIT_ASSERT_EQUAL_MESSAGE(loopLabel.data(),
+                                                     headerSize + audioDataSize,
+                                                     appendRecordedFileSize);
                     }
 
                 } // end for iteration over sample rates
@@ -1111,14 +1127,6 @@ class MprRecorderTest : public MpGenericResourceTest
 
     void testRecordToPauseResumeFile()
     {
-        MprRecorder::RecordFileFormat testFileTypes[] =
-        {
-             MprRecorder::RAW_PCM_16,
-             MprRecorder::WAV_PCM_16,
-             MprRecorder::WAV_ALAW,
-             MprRecorder::WAV_MULAW,
-             MprRecorder::WAV_GSM
-        };
         int numberOfTestFileTypes = sizeof(testFileTypes) / sizeof(MprRecorder::RecordFileFormat);
         int framesPerSecond = 100; // 10 mSec frames
 
@@ -1129,6 +1137,12 @@ class MprRecorderTest : public MpGenericResourceTest
             unsigned int rateIndex;
             for(rateIndex = 0; rateIndex < sNumRates; rateIndex++)
             {
+                UtlString loopLabel;
+                loopLabel.appendFormat("%s(%d) rate: %d",
+                                       testFileTypeStrings[fileTypeIndex],
+                                       testFileTypes[fileTypeIndex],
+                                       sSampleRates[rateIndex]);
+
                 printf("Test MprRecorder file type: %d media task rate: %d samples/second\n",
                         fileFormat,
                        sSampleRates[rateIndex]);
@@ -1332,8 +1346,9 @@ class MprRecorderTest : public MpGenericResourceTest
                 unsigned long recordedFileSize;
                 CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                      fileInfo.getSize(recordedFileSize));
-                CPPUNIT_ASSERT_EQUAL(headerSize + audioDataSize,
-                                     recordedFileSize);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopLabel.data(), 
+                                             headerSize + audioDataSize, 
+                                             recordedFileSize);
 
                 // Stop flowgraph
                 haltFramework();
