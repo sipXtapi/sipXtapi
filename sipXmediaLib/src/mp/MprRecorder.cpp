@@ -583,9 +583,11 @@ void MprRecorder::createEncoder(const char * mimeSubtype, unsigned int codecSamp
             mimeSubtype);
         OsSysLog::flush();
     }
-    assert(mpEncoder);
-    mpEncoder->initEncode();
-    assert(mpEncoder->getInfo()->getSampleRate() == codecSampleRate);
+    if(mpEncoder)
+    {
+        mpEncoder->initEncode();
+        assert(mpEncoder->getInfo()->getSampleRate() == codecSampleRate);
+    }
 }
 
 void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & codecSampleRate)

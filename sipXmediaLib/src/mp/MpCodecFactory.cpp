@@ -366,12 +366,11 @@ OsStatus MpCodecFactory::createEncoder(const UtlString &mime,
    }
    else
    {
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
+      OsSysLog::add(FAC_MP, PRI_ERR, 
                     "MpCodecFactory::createEncoder unknown codec type "
                     "%s, fmtp=%s"
                     "payloadType = %d",
                     mime.data(), fmtp.data(), payloadType);
-      assert(!"Could not find codec of given type!");
       rpEncoder=NULL;
    }
 
