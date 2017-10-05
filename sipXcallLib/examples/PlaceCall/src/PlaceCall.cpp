@@ -476,6 +476,11 @@ bool parseArgs(int argc,
                 break; // Error
             }
         }
+        else if (strcmp(argv[i], "--help") == 0 ||
+                 argv[i][0] == '-') // Unhandled option
+        {
+            break;  //  Error out to display options
+        }
         else
         {
             if ((i+1) == argc)
@@ -545,6 +550,9 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                       8 - level,
                       "________");
            }
+           break;
+
+       default:
            break;
        }
     }
@@ -708,7 +716,7 @@ void dumpLocalContacts(SIPX_CALL hCall)
 
 
 // Place a call to szSipUrl as szFromIdentity
-bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szPassword, char *szRealm, bool bRegister)
+bool placeCall(char* szSipUrl, const char* szFromIdentity, char* szUsername, char* szPassword, char *szRealm, bool bRegister)
 {
     bool bRC = false ;
 
@@ -741,6 +749,7 @@ bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szP
     {
         registerSucceeded = true;
     }
+    if(registerSucceeded) printf("register SUCCESS");
 
 #if defined(_WIN32) && defined(VIDEO)
     if (bVideo)
@@ -921,23 +930,23 @@ void dumpInputOutputDevices()
 
     if (sipxAudioGetNumInputDevices(g_hInst, numDevices) == SIPX_RESULT_SUCCESS)
     {
-        printf("Input Devices: %d\n", numDevices) ;
+        printf("Input Devices: %d\n", (int)numDevices) ;
         for (size_t i=0; i<numDevices; i++)
         {
             const char* szDevice ;
             sipxAudioGetInputDevice(g_hInst, i, szDevice) ;
-            printf("\t#%d: %s\n", i, szDevice) ;
+            printf("\t#%d: %s\n", (int)i, szDevice) ;
         }
     }
 
     if (sipxAudioGetNumOutputDevices(g_hInst, numDevices) == SIPX_RESULT_SUCCESS)
     {
-        printf("Output Devices: %d\n", numDevices) ;
+        printf("Output Devices: %d\n", (int)numDevices) ;
         for (size_t i=0; i<numDevices; i++)
         {
             const char* szDevice ;
             sipxAudioGetOutputDevice(g_hInst, i, szDevice) ;
-            printf("\t#%d: %s\n", i, szDevice) ;
+            printf("\t#%d: %s\n", (int)i, szDevice) ;
         }
     }
 
@@ -1042,10 +1051,12 @@ int local_main(int argc, char* argv[])
         if (bCList)
         {
             int numAudioCodecs;
-            int numVideoCodecs;
             int index;
             SIPX_AUDIO_CODEC audioCodec;
+#ifdef VIDEO
+            int numVideoCodecs;
             SIPX_VIDEO_CODEC videoCodec;
+#endif
 
             printf("Audio codecs:\n");
             if (sipxConfigGetNumAudioCodecs(g_hInst, &numAudioCodecs) == SIPX_RESULT_SUCCESS)
