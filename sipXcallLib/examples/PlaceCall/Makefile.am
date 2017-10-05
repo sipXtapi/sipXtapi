@@ -2,7 +2,7 @@ include $(top_builddir)/config/sipXcommon.mak
 
 bin_PROGRAMS = PlaceCall
 
-INCLUDES = -Iinclude
+INCLUDES = -Iinclude -I$(top_srcdir)/examples/PlaceCall/include
 
 PlaceCall_LDADD = \
 	$(top_builddir)/src/libsipXcall.la \

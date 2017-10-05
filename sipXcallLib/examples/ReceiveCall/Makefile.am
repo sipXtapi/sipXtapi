@@ -2,7 +2,7 @@ include $(top_builddir)/config/sipXcommon.mak
 
 bin_PROGRAMS = ReceiveCall
 
-INCLUDES = -Iinclude -I../PlaceCall/include
+INCLUDES = -Iinclude -I$(top_srcdir)/examples/ReceiveCall/include -I$(top_srcdir)/examples/PlaceCall/include
 
 ReceiveCall_LDADD = \
     $(top_builddir)/src/libsipXcall.la \
