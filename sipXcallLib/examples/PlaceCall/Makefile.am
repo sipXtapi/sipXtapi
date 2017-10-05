@@ -7,6 +7,10 @@ INCLUDES = -Iinclude
 PlaceCall_LDADD = \
 	$(top_builddir)/src/libsipXcall.la \
     @SIPXMEDIA_MP_LIBS@ \
+    @SIPXMEDIA_LIBS@ \
+    @SIPXTACK_LIBS@ \
+    @SIPXSDP_LIBS@ \
+    @SIPXPORT_LIBS@ \
     @CA_LIBS@
 #    @SIPXMEDIA_VE_LIBS@  \
 #    @CA_LIBS@

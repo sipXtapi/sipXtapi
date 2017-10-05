@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -24,7 +26,7 @@
 #include <rtcp/RTCManager.h>
 #endif // INCLUDE_RTCP
 #include <net/SipUserAgent.h>
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodecFactory.h>
 #include <cp/CallManager.h>
 #include <ptapi/PtProvider.h>
 #include <listener.h>
