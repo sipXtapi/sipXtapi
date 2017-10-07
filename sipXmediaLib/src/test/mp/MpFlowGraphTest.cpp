@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2017 SIPez LLC. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -23,19 +22,7 @@
 #include <os/OsTask.h>
 
 // Setup codec paths..
-static UtlString sCodecPaths[] = {
-#ifdef WIN32
-                                  "bin",
-                                  "..\\bin",
-#elif __pingtel_on_posix__
-                                  "../../../../bin",
-                                  "../../../bin",
-#else
-#                                 error "Unknown platform"
-#endif
-                                  "."
-                                 };
-static int sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);
+#include <../test/mp/MpTestCodecPaths.h>
 
 /**
  * Unittest for MpFlowGraph

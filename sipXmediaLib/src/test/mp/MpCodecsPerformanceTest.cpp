@@ -16,6 +16,9 @@
 
 #include <sipxunittests.h>
 
+// Setup codec paths..
+#include <../test/mp/MpTestCodecPaths.h>
+
 /// Duration of one frame in milliseconds
 #define FRAME_MS                 20
 /// Maximum length of audio data we expect from decoder (in samples).
@@ -26,27 +29,6 @@
 #define NUM_PACKETS_TO_TEST      3
 /// Maximum number of milliseconds in packet.
 #define MAX_PACKET_TIME          20
-
-// Setup codec paths..
-static UtlString sCodecPaths[] = {
-#ifdef WIN32
-                                  "bin",
-                                  "..\\bin",
-#elif defined(__pingtel_on_posix__)
-                                  "../../../../bin",
-                                  "../../../bin",
-                                  "../../bin",
-#  ifdef MP_CODECS_DIR
-                                  MP_CODECS_DIR,
-#  endif
-//                                  "/usr/local/sipx/share/sipxmedialib",
-#else
-#                                 error "Unknown platform"
-#endif
-                                  "."
-                                 };
-static size_t sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);
-
 
 ///  Unit test for testing performance of supported codecs.
 class MpCodecsPerformanceTest : public SIPX_UNIT_BASE_CLASS

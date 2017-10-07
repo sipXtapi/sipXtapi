@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 20082010 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2008-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -12,6 +11,9 @@
 
 #include <os/OsIntTypes.h>
 #include <sipxunittests.h>
+
+// Setup codec paths..
+#include <../test/mp/MpTestCodecPaths.h>
 
 #include "MpTestResource.h"
 #include "mp/MprToneGen.h"
@@ -51,22 +53,11 @@ public:
    {
       //enableConsoleOutput(1);
 
-      UtlString codecPaths[] = { 
-#ifdef WIN32
-         "..\\sipXmediaLib\\bin",
-#else
-         "../../../../../sipXmediaLib/bin",
-         "../../../../sipXmediaLib/bin",
-#endif
-         "."
-      };
-      int codecPathsNum = sizeof(codecPaths)/sizeof(codecPaths[0]);
-
       // Setup media task
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            mpStartUp(TEST_SAMPLES_PER_SECOND,
                                      TEST_SAMPLES_PER_FRAME, 3*100, 0,
-                                     codecPathsNum, codecPaths));
+                                     sNumCodecPaths, sCodecPaths));
 
       // Create flowgraph
       mpFlowGraph = new MpFlowGraphBase(TEST_SAMPLES_PER_FRAME,

@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2010 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -16,26 +15,13 @@
 #include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
 
+// Setup codec paths..
+#include <../test/mp/MpTestCodecPaths.h>
+
 #include <mp/MpMediaTask.h>
 #include <mp/MpFlowGraphBase.h>
 
 #include <mp/MpMisc.h>
-
-
-// Setup codec paths..
-static UtlString sCodecPaths[] = {
-#ifdef WIN32
-                                  "bin",
-                                  "..\\bin",
-#elif __pingtel_on_posix__
-                                  "../../../../bin",
-                                  "../../../bin",
-#else
-#                                 error "Unknown platform"
-#endif
-                                  "."
-};
-static int sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);
 
 /**
  * Unittest for MpMediaTask

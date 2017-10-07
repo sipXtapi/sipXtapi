@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -18,6 +18,10 @@
 #include "mp/MpMisc.h"
 #include "mp/MpMediaTask.h"
 #include "os/OsTask.h"
+
+// Setup codec paths..
+#include <../test/mp/MpTestCodecPaths.h>
+
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
 #else
@@ -164,22 +168,11 @@ public:
    {
       //enableConsoleOutput(1);
 
-      UtlString codecPaths[] = { 
-#ifdef WIN32
-         "..\\sipXmediaLib\\bin",
-#else
-         "../../../../../sipXmediaLib/bin",
-         "../../../../sipXmediaLib/bin",
-#endif
-         "."
-      };
-      int codecPathsNum = sizeof(codecPaths)/sizeof(codecPaths[0]);
-
       // Setup media task
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            mpStartUp(TEST_SAMPLES_PER_SECOND,
                                      TEST_SAMPLES_PER_FRAME, 6*10, 0,
-                                     codecPathsNum, codecPaths));
+                                     sNumCodecPaths, sCodecPaths));
 
       // Create flowgraph
       mpFlowGraph = new MpFlowGraphBase(TEST_SAMPLES_PER_FRAME,

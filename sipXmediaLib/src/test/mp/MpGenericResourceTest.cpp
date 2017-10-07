@@ -2,14 +2,15 @@
 // Copyright (C) 2006-2010 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2017 SIPez LLC. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
 
 #include "mp/MpGenericResourceTest.h"
 
+// Setup codec paths..
+#include <../test/mp/MpTestCodecPaths.h>
 
 // Static data initialization
 // Sample rates that can be used for wideband testing.
@@ -32,24 +33,9 @@ void MpGenericResourceTest::setUp()
    MpMediaTask* pMediaTask = NULL;
 
    // Setup codec paths..
-   UtlString codecPaths[] = {
-#ifdef WIN32
-                             "bin",
-                             "..\\bin",
-#elif __pingtel_on_posix__
-                             "../../../../bin",
-                             "../../../bin",
-                             "../../bin",
-#else
-#                               error "Unknown platform"
-#endif
-                             "."
-   };
-   int numCodecPaths = sizeof(codecPaths)/sizeof(codecPaths[0]);
-
    // Setup media task
    res = mpStartUp(mSamplesPerSec, mSamplesPerFrame, 512,
-                   NULL, numCodecPaths, codecPaths);
+                   NULL, sNumCodecPaths, sCodecPaths);
    CPPUNIT_ASSERT(res == OS_SUCCESS);
 
    mpFlowGraph = new MpFlowGraphBase(mSamplesPerFrame, mSamplesPerSec);
