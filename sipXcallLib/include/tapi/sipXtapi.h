@@ -80,7 +80,7 @@
 #define VOLUME_MAX              100     /**< Max acceptable volume value */
 #define VOLUME_DEFAULT          70      /**< Nominal volume value */
 
-#define MAX_AUDIO_DEVICES       16      /**< Max number of input/output audio devices */
+#define MAX_AUDIO_DEVICES       64      /**< Max number of input/output audio devices */
 #define MAX_VIDEO_DEVICES       8       /**< Max number of video capture devices. */
 #define MAX_VIDEO_DEVICE_LENGTH 256     /**< Max length of video capture device string. */
 
