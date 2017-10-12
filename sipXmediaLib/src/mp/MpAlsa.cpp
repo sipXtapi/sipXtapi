@@ -192,7 +192,7 @@ OsStatus MpAlsa::freeInputDevice()
       if(closeRet != 0)
       {
           OsSysLog::add(FAC_MP, PRI_DEBUG,
-              "snd_pcm_close %p input returned: %d",
+              "snd_pcm_close %p input returned: %d (%s)",
               pPcmIn,
               closeRet,
               snd_strerror(closeRet));
@@ -355,6 +355,76 @@ OsStatus MpAlsa::detachWriter()
 }
 #define BITS_PER_SAMPLE 16
 
+/* //////////////////////////// ACCESSORS ///////////////////////////////// */
+
+
+int MpAlsa::getDeviceNames(UtlSList& deviceNames, bool capture)
+{
+    int deviceCount = 0;
+    void** hints = NULL;
+    // Get array of hints about sound iterfaces
+    int hintCount = snd_device_name_hint(-1, "pcm", &hints);
+    if(hintCount >= 0)
+    {
+        void** aHint = hints;
+        // hints is a NULL terminated array of pointers
+        while( *aHint != NULL)
+        {
+            // Looking for:
+            // capture == true: Input device names
+            // capture == false: Output device names
+            char* ioSense = snd_device_name_get_hint(*aHint, "IOID");
+            // Note: ipSense == NULL means input and output
+            if(ioSense == NULL || strcmp(ioSense, capture ? "Input" : "Output") == 0)
+            {
+                char* name = snd_device_name_get_hint(*aHint, "NAME");
+                if(name)
+                {
+                    // Add the name to the list
+                    UtlString* newDeviceName = new UtlString(name); 
+                    deviceNames.append(newDeviceName);
+
+                    if(OsSysLog::willLog(FAC_MP, PRI_DEBUG))
+                    {
+                        char* description = snd_device_name_get_hint(*aHint, "DESC");
+                        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                                      "MpAlsa::getDeviceNames device[%d]: %s\n%s\n%s",
+                                      deviceCount,
+                                      name,
+                                      description,
+                                      ioSense ? ioSense : "Input and Output");
+                        free(description);
+                        description = NULL;
+                    }
+
+                    deviceCount++;
+                    free(name);
+                    name = NULL;
+                }
+            }
+            if(ioSense)
+            {
+                free(ioSense);
+                ioSense = NULL;
+            }
+
+            // next hint, NULL if no more
+            aHint++;
+        }
+
+        snd_device_name_free_hint(hints);
+    }
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "MpAlsa::getDeviceNames snd_device_name_hint returned: %d (%s)",
+                      hintCount,
+                      snd_strerror(hintCount));
+    }
+
+    return(deviceCount);
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 OsStatus MpAlsa::initDevice(const char* devname)
 {
@@ -388,7 +458,7 @@ OsStatus MpAlsa::initDevice(const char* devname)
    if ((mbReadCap == FALSE) && (mbWriteCap == FALSE))
    {
        OsSysLog::add(FAC_MP, PRI_EMERG,
-		     "ALSA: could not open %s, "
+		     "ALSA: could not open %s, for input or output"
 		     " *** NO SOUND! ***",
 		     devname);
        ret = OS_INVALID_ARGUMENT;

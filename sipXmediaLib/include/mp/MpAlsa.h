@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,14 @@ public:
    /* ============================ ACCESSORS ================================= */
    ///@name Accessors
    //@{
-
+   /// @brief get list of available input or output Alsa device names
+   static int getDeviceNames(UtlSList& deviceNames, bool capture);
+   /**
+    * @param deviceNames output - list of device names
+    * @param capture input - true - get input device names
+    *                        false - get output device names
+    * @returns count of device names
+    */
 
    //@}
 
