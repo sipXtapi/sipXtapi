@@ -13,7 +13,6 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <utl/UtlContainer.h>
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpOutputDeviceManager.h>
 #include <mp/MpMisc.h>
@@ -1238,7 +1237,7 @@ int CpTopologyGraphFactoryImpl::getInputDeviceList(UtlContainer& deviceNames)
 #  else // OSS
 // TODO: get list of OSS devices
 // Use OsFile iterator on /dev/dsp*
-    deviceNames.append(new UtlString(INPUT_DRIVER_DEFAULT_NAME));
+    deviceNames.insert(new UtlString(INPUT_DRIVER_DEFAULT_NAME));
     deviceCount++;
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "CpTopologyGraphFactoryImpl::getInputDeviceList not implemented for this interface");
@@ -1254,7 +1253,7 @@ int CpTopologyGraphFactoryImpl::getInputDeviceList(UtlContainer& deviceNames)
         waveInGetDevCaps(deviceIndex, &inputCaps, sizeof(WAVEINCAPS));
         if(inputCap.szPname && inputCaps.szPname[0])
         {
-            deviceNames.append(new UtlString(inputCaps.szPname);
+            deviceNames.insert(new UtlString(inputCaps.szPname);
             deviceCount++;
         }
     }
@@ -1280,7 +1279,7 @@ int CpTopologyGraphFactoryImpl::getOutputDeviceList(UtlContainer& deviceNames)
 #  else // OSS
 // TODO: get list of OSS devices
 // Use OsFile iterator on /dev/dsp*
-    deviceNames.append(new UtlString(OUTPUT_DRIVER_DEFAULT_NAME));
+    deviceNames.insert(new UtlString(OUTPUT_DRIVER_DEFAULT_NAME));
     deviceCount++;
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "CpTopologyGraphFactoryImpl::getOutputDeviceList not implemented for this interface");
@@ -1296,7 +1295,7 @@ int CpTopologyGraphFactoryImpl::getOutputDeviceList(UtlContainer& deviceNames)
         waveOutGetDevCaps(deviceIndex, &outputCaps, sizeof(WAVEOUTCAPS));
         if(outputCap.szPname && outputCaps.szPname[0])
         {
-            deviceNames.append(new UtlString(outputCaps.szPname);
+            deviceNames.insert(new UtlString(outputCaps.szPname);
             deviceCount++;
         }
     }
