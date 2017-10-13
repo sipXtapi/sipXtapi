@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <utl/UtlContainer.h>
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpOutputDeviceManager.h>
 #include <mp/MpMisc.h>
