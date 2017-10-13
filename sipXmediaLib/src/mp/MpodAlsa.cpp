@@ -34,6 +34,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+char MpodAlsa::spDefaultDeviceName[MAX_DEVICE_NAME_SIZE];
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 /* ============================ CREATORS ================================== */
@@ -90,6 +91,8 @@ OsStatus MpodAlsa::enableDevice(unsigned samplesPerFrame,
    //Opening ALSA device
    if (pDevWrapper)
    {
+       mSamplesPerFrame = samplesPerFrame;
+       mSamplesPerSec = samplesPerSec;
        OsStatus res = pDevWrapper->setOutputDevice(this);
        if (res != OS_SUCCESS)
        {
@@ -110,8 +113,6 @@ OsStatus MpodAlsa::enableDevice(unsigned samplesPerFrame,
    }
 
    // Set some wave header stat information.
-   mSamplesPerFrame = samplesPerFrame;
-   mSamplesPerSec = samplesPerSec;
    mCurrentFrameTime = currentFrameTime;
    mpTickerNotification = &frameTicker;
 
@@ -188,6 +189,32 @@ OsStatus MpodAlsa::pushFrame(unsigned int numSamples,
 
 /* ============================ ACCESSORS ================================= */
 
+const char* MpodAlsa::getDefaultDeviceName()
+{
+    UtlSList deviceNames;
+
+    // Get the list of available output devices
+    getDeviceNames(deviceNames);
+
+    // The first one is the default
+    UtlString* firstDevice = (UtlString*) deviceNames.get();
+    strncpy(spDefaultDeviceName, 
+            firstDevice ? firstDevice->data() : "",
+            MAX_DEVICE_NAME_SIZE);
+    deviceNames.destroyAll();
+
+    return(spDefaultDeviceName);
+}
+
+int MpodAlsa::getDeviceNames(UtlContainer& deviceNames)
+{
+    int deviceCount = 
+        MpAlsa::getDeviceNames(deviceNames, 
+                               false);  // output device names
+
+    return(deviceCount);
+}
+
 /* ============================ INQUIRY =================================== */
 
 OsStatus MpodAlsa::canEnable()
@@ -238,8 +265,12 @@ OsStatus MpodAlsa::canEnable()
 OsStatus MpodAlsa::signalForNextFrame()
 {
    OsStatus ret = OS_FAILED;
-
    ret = mpTickerNotification->signal(mCurrentFrameTime);
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpodAlsa::signalForNextFrame %s",
+                 data());
+#endif
    return ret;
 }
 

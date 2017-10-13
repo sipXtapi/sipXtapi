@@ -26,10 +26,13 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define MAX_DEVICE_NAME_SIZE 256
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpOutputDeviceManager;
+class UtlContainer;
 
 
 /**
@@ -83,7 +86,14 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+    /// @brief Get the name of the default output ALSA PCM audio device
+    static const char* getDefaultDeviceName();
 
+    /// @brief Get the list of names of the available output ALSA PCM audio device(s)
+    static int getDeviceNames(UtlContainer& devicesNames);
+    /**
+     *  @returns the number of output devices found
+     */
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -116,6 +126,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    MpAlsa *pDevWrapper;
+   static char spDefaultDeviceName[MAX_DEVICE_NAME_SIZE];
 
      /// @brief Copy constructor (not implemented for this class)
    MpodAlsa(const MpodAlsa& rMpOutputDeviceDriver);

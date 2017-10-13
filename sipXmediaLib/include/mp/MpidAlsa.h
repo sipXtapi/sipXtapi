@@ -22,10 +22,13 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define MAX_DEVICE_NAME_SIZE 256
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpInputDeviceManager;
+class UtlContainer;
 
 /**
 *  @brief Container for device specific input ALSA driver.
@@ -92,7 +95,14 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+    /// @brief Get the name of the default input ALSA PCM audio device
+    static const char* getDefaultDeviceName();
 
+    /// @brief Get the list of names of the available input ALSA PCM audio device(s)
+    static int getDeviceNames(UtlContainer& devicesNames);
+    /**
+     *  @returns the number of input devices found
+     */
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -127,6 +137,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    MpAlsa *pDevWrapper;
+   static char spDefaultDeviceName[MAX_DEVICE_NAME_SIZE];
 
      /// @brief Copy constructor (not implemented for this class).
    MpidAlsa(const MpidAlsa& rMpInputDeviceDriver);

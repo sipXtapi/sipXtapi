@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2015 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+char MpidAlsa::spDefaultDeviceName[MAX_DEVICE_NAME_SIZE];
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 /* ============================ CREATORS ================================== */
@@ -74,6 +75,8 @@ OsStatus MpidAlsa::enableDevice(unsigned samplesPerFrame,
 
    if (pDevWrapper)
    {
+      mSamplesPerFrame = samplesPerFrame;
+      mSamplesPerSec = samplesPerSec;
       OsStatus res = pDevWrapper->setInputDevice(this);
       if (res != OS_SUCCESS) {
          pDevWrapper = NULL;
@@ -92,8 +95,6 @@ OsStatus MpidAlsa::enableDevice(unsigned samplesPerFrame,
    }
 
    // Set some wave header stat information.
-   mSamplesPerFrame = samplesPerFrame;
-   mSamplesPerSec = samplesPerSec;
    mCurrentFrameTime = currentFrameTime;
 
    // Get buffer and fill it with silence
@@ -142,6 +143,33 @@ OsStatus MpidAlsa::disableDevice()
    return ret;
 }
 /* ============================ ACCESSORS ================================= */
+
+const char* MpidAlsa::getDefaultDeviceName()
+{
+    UtlSList deviceNames;
+
+    // Get the list of available input devices
+    getDeviceNames(deviceNames);
+
+    // The first one is the default
+    UtlString* firstDevice = (UtlString*) deviceNames.get();
+    strncpy(spDefaultDeviceName, 
+            firstDevice ? firstDevice->data() : "",
+            MAX_DEVICE_NAME_SIZE);
+    deviceNames.destroyAll();
+
+    return(spDefaultDeviceName);
+}
+
+int MpidAlsa::getDeviceNames(UtlContainer& deviceNames)
+{
+    int deviceCount = 
+        MpAlsa::getDeviceNames(deviceNames, 
+                               true);  // input device names
+
+    return(deviceCount);
+}
+
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 void MpidAlsa::pushFrame()
