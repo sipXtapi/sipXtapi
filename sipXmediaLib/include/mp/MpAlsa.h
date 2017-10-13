@@ -78,7 +78,7 @@ public:
    ///@name Accessors
    //@{
    /// @brief get list of available input or output Alsa device names
-   static int getDeviceNames(UtlSList& deviceNames, bool capture);
+   static int getDeviceNames(UtlContainer& deviceNames, bool capture);
    /**
     * @param deviceNames output - list of device names
     * @param capture input - true - get input device names
@@ -137,7 +137,7 @@ protected:
    sem_t mSignalSem;     ///< Use for parameters synchronization
 
    /// @brief Pre initializations for ALSA device
-   OsStatus initDevice(const char* devname);
+   OsStatus initDevice(const char* devname, int samplesPerSecond);
    /// @brief Final initializations for ALSA device
    OsStatus initDeviceFinal(unsigned samplesPerSec, unsigned samplerPerFrame);
    /// @brief Free ALSA device

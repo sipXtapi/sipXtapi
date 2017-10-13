@@ -140,7 +140,7 @@ OsStatus MpAlsa::setInputDevice(MpidAlsa* pIDD)
    } else {
        OsSysLog::add(FAC_MP, PRI_INFO,"MpAlsa::setInputDevice initDevice");
       //Device didn't open
-      ret = initDevice(*pIDD);
+      ret = initDevice(*pIDD, pIDD->getSamplesPerSec());
    }
    if (ret != OS_SUCCESS)
    {
@@ -173,7 +173,7 @@ OsStatus MpAlsa::setOutputDevice(MpodAlsa* pODD)
    } else {
       //Device didn't open
        OsSysLog::add(FAC_MP, PRI_INFO,"MpAlsa::setOuputDevice initDevice");
-      ret = initDevice(*pODD);
+      ret = initDevice(*pODD, pODD->getSamplesPerSec());
    }
    if (ret != OS_SUCCESS)
    {
@@ -233,7 +233,7 @@ OsStatus MpAlsa::freeOutputDevice()
       if(closeRet != 0)
       {
           OsSysLog::add(FAC_MP, PRI_DEBUG,
-              "snd_pcm_close %p output returned: %d",
+              "snd_pcm_close %p output returned: %d (%s)",
               pPcmOut,
               closeRet,
               snd_strerror(closeRet));
@@ -358,7 +358,7 @@ OsStatus MpAlsa::detachWriter()
 /* //////////////////////////// ACCESSORS ///////////////////////////////// */
 
 
-int MpAlsa::getDeviceNames(UtlSList& deviceNames, bool capture)
+int MpAlsa::getDeviceNames(UtlContainer& deviceNames, bool capture)
 {
     int deviceCount = 0;
     void** hints = NULL;
@@ -382,7 +382,7 @@ int MpAlsa::getDeviceNames(UtlSList& deviceNames, bool capture)
                 {
                     // Add the name to the list
                     UtlString* newDeviceName = new UtlString(name); 
-                    deviceNames.append(newDeviceName);
+                    deviceNames.insert(newDeviceName);
 
                     if(OsSysLog::willLog(FAC_MP, PRI_DEBUG))
                     {
@@ -426,17 +426,18 @@ int MpAlsa::getDeviceNames(UtlSList& deviceNames, bool capture)
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-OsStatus MpAlsa::initDevice(const char* devname)
+OsStatus MpAlsa::initDevice(const char* devname, int samplesPerSecond)
 {
 #if 0
    int res;
    int samplesize = 8 * sizeof(MpAudioSample);
 #endif
     OsSysLog::add(FAC_MP, PRI_DEBUG,
-        "MpAlsa::initDevice(%s) this: %p",
+        "MpAlsa::initDevice(%s, %d) this: %p",
         devname,
+        samplesPerSecond,
         this);
-    unsigned suggestedRate = 8000;
+    unsigned suggestedRate = samplesPerSecond;
     OsStatus ret = OS_FAILED;
 
    mbReadCap = TRUE;
@@ -788,13 +789,25 @@ OsStatus MpAlsa::doOutput(const char* buffer, int size)
       }
       else if (samplesJustWritten < 0) 
       {             
-	  OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA:snd_pcm_writei returned %d %s",
+	  OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA:snd_pcm_writei(%d,%p,%d) returned %d %s",
+                        pPcmOut, 
+                        &buffer[samplesWritedSoFar],
+                        samplesToWrite - samplesWritedSoFar,
 			samplesJustWritten,
                         snd_strerror(samplesJustWritten));
 //	  if (!isWriteDeviceReady())
 //	      break;
 	  samplesJustWritten = snd_pcm_recover(pPcmOut, samplesJustWritten, 0);
       }
+#ifdef TEST_PRINT
+      else
+      {
+           OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                         "ALSA:snd_pcm_writei wrote: %d/%d",
+                         samplesJustWritten,
+                         samplesToWrite);
+      }
+#endif
       // still have somekind of error, close and bail
       if (samplesJustWritten < 0)
       {
@@ -1101,7 +1114,7 @@ const int MS_PER_FRAME = 10;
 
 int MpAlsa::alsaSetupPcmDevice(const char* devname, bool capture, unsigned& suggestedRate)
 {
-    suggestedRate = 0;
+    //suggestedRate = 0;
     OsSysLog::add(FAC_MP, PRI_INFO, "ALSA: Opening %s for %s",
 		  devname,
 		  (capture ? "capture" : "playback"));
@@ -1197,12 +1210,12 @@ int MpAlsa::alsaSetupPcmDevice(const char* devname, bool capture, unsigned& sugg
     //***** Set rate *****
 
     int dir = 0;
-    ret = snd_pcm_hw_params_set_rate(pPcm, pHwParms, SAMPLES_PER_SEC, dir);
+    ret = snd_pcm_hw_params_set_rate(pPcm, pHwParms, suggestedRate, dir);
     if (ret != 0)
     {
 	int origRet = ret;
 	char tmp[128];
-	sprintf(tmp, "Set rate to %d", SAMPLES_PER_SEC);
+	sprintf(tmp, "Set rate to %d", suggestedRate);
 	alsaSetupWarning(devname, ret, capture, tmp);
 
 	// What rates are supported?
@@ -1236,6 +1249,12 @@ int MpAlsa::alsaSetupPcmDevice(const char* devname, bool capture, unsigned& sugg
 
 	suggestedRate = bestRate;
 	return origRet;
+    }
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                      "ALSA: Set rate: %d",
+                      suggestedRate);
     }
 
 
