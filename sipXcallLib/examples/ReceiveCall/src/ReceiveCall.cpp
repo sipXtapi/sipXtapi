@@ -113,6 +113,8 @@ void usage(const char* szExecutable)
     printf("   -conf mix all calls to a conference\n");
     printf("   -l loopback audio (2 second delay)\n") ;
     printf("   -1 one call mode (exit after first call end)\n") ;
+    printf("   -I <string> call input device name\n");
+    printf("   -O <string> call output device name\n");
     printf("   -i line identity (e.g. sip:122@pingtel.com)\n") ;
     printf("   -u username (for authentication)\n") ;
     printf("   -a password  (for authentication)\n") ;
@@ -139,6 +141,8 @@ bool parseArgs(int argc,
                int* pSipPort,
                int* pRtpPort,
                char** pszBindAddress,
+               char** pszInputDevice,
+               char** pszOutputDevice,
                char** pszPlayTones,
                char** pszFile,
                bool* bLoopback,
@@ -160,6 +164,8 @@ bool parseArgs(int argc,
     *pSipPort = 5060 ;
     *pRtpPort = 9000 ;
     *pszBindAddress = NULL;
+    *pszInputDevice = NULL;
+    *pszOutputDevice = NULL;
     *pszPlayTones = NULL ;
     *pszFile = NULL ;
     *bLoopback = false ;
@@ -365,12 +371,37 @@ bool parseArgs(int argc,
             printf("%s\n", szBuffer);
             exit(0);
         }
-#ifdef VIDEO
+        else if (strcmp(argv[i], "-I") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *pszInputDevice = strdup(argv[++i]) ;
+            }
+            else
+            {
+                break ; // Error
+            }
+        }
+        else if (strcmp(argv[i], "-O") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *pszOutputDevice = strdup(argv[++i]) ;
+            }
+            else
+            {
+                break ; // Error
+            }
+        }
         else if (strcmp(argv[i], "-V") == 0)
         {
+#ifdef VIDEO
             bVideo = true;
-        }
+#else
+            printf("Build with VIDEO not defined/enabled\n");
+            break;  // Error
 #endif
+        }
         else if (strcmp(argv[i], "-E") == 0)
         {
             bUseCustomTransportReliable = true;            
@@ -392,7 +423,6 @@ bool parseArgs(int argc,
 // Play a file (8000 samples/sec, 16 bit unsigned, mono PCM)
 bool playFile(char* szFile, SIPX_CALL hCall)
 {
-    bool bRC = false ;
     bool repeat = true;
     sipxCallAudioPlayFileStart(hCall, g_szFile, repeat, true, true) ;
 
@@ -537,7 +567,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                         sipxConferenceCreate(g_hInst, &g_conf);
                     if(result == SIPX_RESULT_SUCCESS)
                     {
-                        printf("Conference: %d created\n", g_conf);
+                        printf("Conference: %d created\n", (int)g_conf);
                     }
                     else                    {
                         printf("Error: sipxConferenceCreate returned: %d\n",
@@ -550,12 +580,12 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                     {
                         printf("Initial call: %d joined to conference: %d\n", 
                                pCallInfo->hCall,
-                               g_conf);
+                               (int)g_conf);
                     }
                     else                    {
                         printf("Error: sipxConferenceJoin(call=%d, conf=%d) returned: %d\n",
                                pCallInfo->hCall,
-                               g_conf,
+                               (int)g_conf,
                                result);
                     }
 
@@ -570,8 +600,8 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                     {
                         printf("Call: %d not joined to conference: %d (%d)\n",
                                pCallInfo->hCall,
-                               g_conf,
-                               callConf);
+                               (int)g_conf,
+                               (int)callConf);
                     }
                     else
                     {
@@ -607,14 +637,14 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                 if(result != SIPX_RESULT_SUCCESS)
                 {
                     printf("Error: sipxConferenceGetCalls(%d, ...) returned: %d\n",
-                           g_conf,
+                           (int)g_conf,
                            result);
                 }
                 else if(numCalls < 0)
                 {
                     printf("Error: invalid number of calls (%d) in conference: %d\n",
-                           numCalls,
-                           g_conf);
+                           (int)numCalls,
+                           (int)g_conf);
                 }
                 else
                 {
@@ -636,13 +666,13 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                         {
                             printf("Putting call: %d on hold to join with conference: %d\n",
                                    pCallInfo->hCall,
-                                   g_conf);
+                                   (int)g_conf);
                         }
                         else 
                         {
                             printf("Error: sipxCallHold(%d, true) returned: %d\n",
                                    pCallInfo->hCall,
-                                   g_conf);
+                                   (int)g_conf);
                         }
                     }
                 }
@@ -707,14 +737,14 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                 if(result != SIPX_RESULT_SUCCESS)
                 {
                     printf("Error: sipxConferenceGetCalls(%d, ...) returned: %d\n",
-                           g_conf,
+                           (int)g_conf,
                            result);
                 }
                 else if(numCalls < 0)
                 {
                     printf("Error: invalid number of calls (%d) in conference: %d\n",
-                           numCalls,
-                           g_conf);
+                           (int)numCalls,
+                           (int)g_conf);
                 }
                 else
                 {
@@ -738,13 +768,13 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                         {
                             printf("Putting call: %d on hold to join with conference: %d\n",
                                    pCallInfo->hCall,
-                                   g_conf);
+                                   (int)g_conf);
                         }
                         else 
                         {
                             printf("Error: sipxCallHold(%d, true) returned: %d\n",
                                    pCallInfo->hCall,
-                                   g_conf);
+                                   (int)g_conf);
                         }
                     }
                 }
@@ -771,14 +801,14 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                 if(result != SIPX_RESULT_SUCCESS)
                 {
                     printf("Error: sipxConferenceGetCalls(%d, ...) returned: %d\n",
-                           g_conf,
+                           (int)g_conf,
                            result);
                 }
                 else if(numCalls < 0)
                 {
                     printf("Error: invalid number of calls (%d) in conference: %d\n",
-                           numCalls,
-                           g_conf);
+                           (int)numCalls,
+                           (int)g_conf);
                 }
                 else
                 {
@@ -802,13 +832,13 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                         {
                             printf("Joining call: %d to %d existing calls in conference: %d\n",
                                    pCallInfo->hCall,
-                                   numCalls,
-                                   g_conf);
+                                   (int)numCalls,
+                                   (int)g_conf);
                         }
                         else
                         {
                             printf("Error: sipxConferenceJoin(conf=%d, call=%d) returned: %d\n",
-                                   g_conf,
+                                   (int)g_conf,
                                    pCallInfo->hCall,
                                    result);
                         }
@@ -820,7 +850,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                         {
                             printf("Taking call: %d off hold after joining to conference: %d\n",
                                    pCallInfo->hCall,
-                                   g_conf);
+                                   (int)g_conf);
                         }
                         else
                         {
@@ -853,14 +883,14 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                     {
                         printf("CALLSTATE_DISCONNECTED hCall=%d sipxConferenceGetCalls(%d) returned: %d",
                                pCallInfo->hCall,
-                               g_conf,
+                               (int)g_conf,
                                callCountReturn);
                         remainingLegs = 0;
                     }
                     else
                     {
                         UtlString callHandleString;
-                        for(int callIndex = 0; callIndex < remainingLegs; callIndex++)
+                        for(size_t callIndex = 0; callIndex < remainingLegs; callIndex++)
                         {
                             callHandleString.appendFormat("%s%d",
                                                           callIndex ? ", " : "",
@@ -869,7 +899,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                                                           
                         printf("CALLSTATE_DISCONNECTED hCall=%d %d calls [%s] remain in conference", 
                                pCallInfo->hCall,
-                               remainingLegs,
+                               (int)remainingLegs,
                                callHandleString.data());
                     }
                 }
@@ -905,6 +935,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
             break;
 
         case CALLSTATE_DESTROYED:
+        {
             if (gbOneCallMode)
             {
                gbShutdown = true;
@@ -922,14 +953,14 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                 {
                     printf("CALLSTATE_DESTROYED hCall=%d sipxConferenceGetCalls(%d) returned: %d",
                            pCallInfo->hCall,
-                           g_conf,
+                           (int)g_conf,
                            callCountReturn);
                     remainingLegs = 0;
                 }
                 else
                 {
                     UtlString callHandleString;
-                    for(int callIndex = 0; callIndex < remainingLegs; callIndex++)
+                    for(size_t callIndex = 0; callIndex < remainingLegs; callIndex++)
                     {
                         callHandleString.appendFormat("%s%d",
                                                       callIndex ? ", " : "",
@@ -938,7 +969,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                                                       
                     printf("CALLSTATE_DESTROYED hCall=%d %d calls [%s] remain in conference", 
                            pCallInfo->hCall,
-                           remainingLegs,
+                           (int)remainingLegs,
                            callHandleString.data());
                 }
 
@@ -978,12 +1009,16 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                     if(confDestResult != SIPX_RESULT_SUCCESS)
                     {
                         printf("sipxConferenceDestroy(%d) FAILED, return: %d",
-                               g_conf,
+                               (int)g_conf,
                                confDestResult);
                     }
                 }
 
             }
+        }
+            break;
+
+        default:
             break;
         }
     }
@@ -1026,6 +1061,8 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                       "________");
            }
            break;
+       default:
+           break;
        }
     }
     printf("event done\n");
@@ -1035,7 +1072,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
 
 SIPX_LINE lineInit(SIPX_INST hInst, char* szIdentity, char* szUsername, char* szPassword, char* szRealm)
 {
-    SIPX_LINE hLine = NULL ;
+    SIPX_LINE hLine = SIPX_LINE_NULL ;
 
     if (szIdentity && strlen(szIdentity))
     {
@@ -1082,6 +1119,12 @@ void dumpLocalContacts(SIPX_INST hInst)
                 case CONTACT_CONFIG:
                     szType = "CONFIG" ;
                     break ;
+                case CONTACT_AUTO:
+                    szType = "AUTO";
+                    break;
+                case CONTACT_ALL:
+                    szType = "ALL";
+                    break;
             }
             printf("<-> Type %s, Interface: %s, Ip %s, Port %d\n",
                     szType, contacts[i].cInterface, contacts[i].cIpAddress,
@@ -1100,6 +1143,8 @@ int local_main(int argc, char* argv[])
     bool bError = true ;
     int iDuration, iSipPort, iRtpPort ;
     char* szBindAddr;
+    char* szOutDevice;
+    char* szInDevice;
     bool bLoopback ;
     bool bAEC = false;
     char* szIdentity ;
@@ -1126,6 +1171,7 @@ int local_main(int argc, char* argv[])
 
     // Parse Arguments
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szBindAddr,
+                   &szInDevice, &szOutDevice,
                   &g_szPlayTones, &g_szFile, &bLoopback, &gbOneCallMode,
                   &szIdentity, &szUsername, &szPassword, &szRealm, &refreshPeriod,
                   &szStunServer, &szProxy, &g_szRecordFile) &&
@@ -1159,7 +1205,10 @@ int local_main(int argc, char* argv[])
                            NULL, // DB location
                            true, // Enable local audio
                            mediaEngineSampleRate,
-                           48000 // Audio device sample rate
+                           48000, // Audio device sample rate
+                           10, // internal media frame size (milliseconds)
+                           szInDevice ? szInDevice : "", // Audio input device
+                           szOutDevice ? szOutDevice : ""  // Audio output device
            ) == SIPX_RESULT_SUCCESS)
         {            
             g_hInst = hInst;
@@ -1175,6 +1224,35 @@ int local_main(int argc, char* argv[])
             if (szStunServer)
             {
                 sipxConfigEnableStun(hInst, szStunServer, DEFAULT_STUN_PORT, 28) ;
+            }
+
+            // Set in sipxInitialize.  Keeping this for testing device change after initialization
+            if (0) // (szOutDevice)
+            {
+                SIPX_RESULT sipxStatus = sipxAudioSetCallOutputDevice(g_hInst, szOutDevice);
+                if (sipxStatus != SIPX_RESULT_SUCCESS)
+                {
+                    printf("!! Setting output device %s failed: %d !!\n", szOutDevice, sipxStatus);
+                }
+                else
+                {
+                    printf("Successfully set output device to: %s\n", szOutDevice);
+                }
+            }
+
+            // Set in sipxInitialize.  Keeping this for testing device change after initialization
+            if (0) //(szInDevice)
+            {
+                SIPX_RESULT sipxStatus = sipxAudioSetCallInputDevice(g_hInst, szInDevice);
+                if (sipxStatus != SIPX_RESULT_SUCCESS)
+                { 
+                    printf("!! Setting input device %s failed: %d !!\n", szOutDevice, sipxStatus);
+                }
+                else
+                {
+                    printf("Successfully set input device to: %s\n", szInDevice);
+                }
+
             }
             sipxEventListenerAdd(hInst, EventCallBack, NULL) ;
                 
@@ -1239,6 +1317,7 @@ int local_main(int argc, char* argv[])
             }
 
             hLine = lineInit(hInst, szIdentity, szUsername, szPassword, szRealm) ;
+            printf("Line: %d initized\n", hLine);
 
             dumpLocalContacts(hInst) ;
 
