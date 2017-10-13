@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1024,7 +1024,11 @@ int local_main(int argc, char* argv[])
                        NULL, // DB location
                        true, // Enable local audio
                        mediaEngineSampleRate,
-                       48000); // Audio device sample rate 
+                       48000, // Audio device sample rate
+                       10, // internal media frame size (milliseconds)
+                       szInDevice ? szInDevice : "", // Audio input device
+                       szOutDevice ? szOutDevice : ""  // Audio output device
+                      );
         sipxConfigEnableRport(g_hInst, bUseRport) ;
         if(bUseRport)
         {
@@ -1122,7 +1126,9 @@ int local_main(int argc, char* argv[])
                 printf("Successfully set output device to: %s\n", szOutDevice);
             }
         }
-        if (szInDevice)
+
+        // Set in sipxInitialize.  Keeping this for testing device change after initialization
+        if (0) //(szInDevice)
         {
             SIPX_RESULT sipxStatus = sipxAudioSetCallInputDevice(g_hInst, szInDevice);
             if (sipxStatus != SIPX_RESULT_SUCCESS)
@@ -1135,7 +1141,8 @@ int local_main(int argc, char* argv[])
             }
 
         }
-        if (szCodec)
+        // Set in sipxInitialize.  Keeping this for testing device change after initialization
+        if (0) //(szCodec)
         {
             if (sipxConfigSetAudioCodecByName(g_hInst, szCodec) == SIPX_RESULT_FAILURE)
             {
