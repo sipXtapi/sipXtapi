@@ -27,22 +27,24 @@
 #include <math.h>
 
 // APPLICATION INCLUDES
-#include "tapi/sipXtapi.h"
-#include "tapi/sipXtapiEvents.h"
-#include "tapi/sipXtapiInternal.h"
-#include "tapi/SipXHandleMap.h"
-#include "tapi/SipXMessageObserver.h"
-#include "tapi/SipXEventDispatcher.h"
-//#include "rtcp/RTCManager.h"
-#include "net/SipUserAgent.h"
-#include "sdp/SdpCodecList.h"
-#include "sdp/SdpDefaultCodecFactory.h"
-#include "cp/CallManager.h"
+#include <tapi/sipXtapi.h>
+#include <tapi/sipXtapiEvents.h>
+#include <tapi/sipXtapiInternal.h>
+#include <tapi/SipXHandleMap.h>
+#include <tapi/SipXMessageObserver.h>
+#include <tapi/SipXEventDispatcher.h>
+//#include <rtcp/RTCManager.h>
+#include <net/SipUserAgent.h>
+#include <sdp/SdpCodecList.h>
+#include <sdp/SdpDefaultCodecFactory.h>
+#include <cp/CallManager.h>
 #include <mp/MprVoiceActivityNotifier.h>
 #include <mp/MpResourceTopology.h>
-#include "mi/CpMediaInterfaceFactory.h"
-#include "mi/CpMediaInterfaceFactoryImpl.h"
-#include "mi/CpMediaInterfaceFactoryFactory.h"
+#include <mi/CpMediaInterfaceFactory.h>
+#include <mi/CpMediaInterfaceFactoryImpl.h>
+// This is poluting the interface indepenence a bit:
+#include <CpTopologyGraphFactoryImpl.h>
+#include <mi/CpMediaInterfaceFactoryFactory.h>
 
 
 #include "ptapi/PtProvider.h"
@@ -203,28 +205,45 @@ static void initAudioDevices(SIPX_INSTANCE_DATA* pInst)
         pInst->outputAudioDevices[i] = NULL ;
     }
 
-#if defined(WIN32)
-    WAVEOUTCAPS outcaps ;
-    WAVEINCAPS  incaps ;
-    int numDevices ;
+    UtlSList inputDeviceList;
+    int inputDevicesFound = CpTopologyGraphFactoryImpl::getInputDeviceList(inputDeviceList);
+    OsSysLog::add(FAC_SIPXTAPI, inputDevicesFound > 0 ? PRI_DEBUG : PRI_ERR,
+                  "initAudioDevices found: %d input devices",
+                  inputDevicesFound);
 
-    numDevices = waveInGetNumDevs();
-    for (i=0; i<numDevices && i<MAX_AUDIO_DEVICES; i++)
+    UtlSListIterator inputIterator(inputDeviceList);
+    UtlString* inputDeviceName = NULL;
+    int numInputDevices = 0;
+    while(numInputDevices < MAX_AUDIO_DEVICES && 
+          (inputDeviceName = (UtlString*) inputIterator()))
     {
-        waveInGetDevCaps(i, &incaps, sizeof(WAVEINCAPS)) ;
-        pInst->inputAudioDevices[i] = strdup(incaps.szPname) ;
+        pInst->inputAudioDevices[numInputDevices] = strdup(inputDeviceName->data());
+        OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                      "initAudioDevices adding input device[%d]: %s",
+                      numInputDevices,
+                      inputDeviceName->data());
+        numInputDevices++;
     }
 
-    numDevices = waveOutGetNumDevs();
-    for (i=0; i<numDevices && i<MAX_AUDIO_DEVICES; i++)
+    UtlSList outputDeviceList;
+    int outputDevicesFound = CpTopologyGraphFactoryImpl::getOutputDeviceList(outputDeviceList);
+    OsSysLog::add(FAC_SIPXTAPI, outputDevicesFound > 0 ? PRI_DEBUG : PRI_ERR,
+                  "initAudioDevices found: %d output devices",
+                  inputDevicesFound);
+
+    UtlSListIterator outputIterator(outputDeviceList);
+    UtlString* outputDeviceName = NULL;
+    int numOutputDevices = 0;
+    while(numOutputDevices < MAX_AUDIO_DEVICES && 
+          (outputDeviceName = (UtlString*) outputIterator()))
     {
-        waveOutGetDevCaps(i, &outcaps, sizeof(WAVEOUTCAPS)) ;
-        pInst->outputAudioDevices[i] = strdup(outcaps.szPname) ;
+        pInst->outputAudioDevices[numOutputDevices] = strdup(outputDeviceName->data());
+        OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                      "initAudioDevices adding output device[%d]: %s",
+                      numOutputDevices,
+                      outputDeviceName->data());
+        numOutputDevices++;
     }
-#else
-    pInst->inputAudioDevices[0] = strdup("Default") ;
-    pInst->outputAudioDevices[0] = strdup("Default") ;
-#endif
 }
 
 
@@ -259,7 +278,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 
     char cVersion[80] ;
     sipxConfigGetVersion(cVersion, sizeof(cVersion)) ;
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, cVersion) ;
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "%s", cVersion);
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxInitialize tcpPort=%d udpPort=%d tlsPort=%d rtpPortStart=%d"
@@ -724,8 +743,8 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             }
         } while (iAttempts < 10) ;
 
-        if ( bForceShutdown || (nCalls == 0) && (nConferences == 0) && 
-                (nLines == 0) && (nCallManagerCalls == 0) )
+        if ( bForceShutdown || ((nCalls == 0) && (nConferences == 0) && 
+                (nLines == 0) && (nCallManagerCalls == 0)) )
         {
 #ifdef VOICE_ENGINE
             sipxDestroyLocalAudioConnection(pInst) ;
@@ -5698,7 +5717,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
 
         // Get existing device
         OsStatus status = pInterface->getMicrophoneDevice(oldDevice) ;
-        assert(status == OS_SUCCESS) ;
+        //assert(status == OS_SUCCESS) ;
 
         // Lazy Init
         if (!pInst->micSetting.bInitialized)
