@@ -1,8 +1,6 @@
 //
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //
-// Copyright (C) 2007-2009 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -115,6 +113,12 @@ public:
     virtual OsStatus getSpeakerDevice(UtlString& device) const;
       /// @copydoc CpMediaInterfaceFactoryImpl::getMicrophoneDevice()
     virtual OsStatus getMicrophoneDevice(UtlString& device) const;
+
+    /// @brief Get the list of available input devices
+    static int getInputDeviceList(UtlContainer& deviceNames);
+
+    /// @brief Get the list of available output devices
+    static int getOutputDeviceList(UtlContainer& deviceNames);
 
       /// Set the resource topology to be used when creating new flowgraph.
     // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)

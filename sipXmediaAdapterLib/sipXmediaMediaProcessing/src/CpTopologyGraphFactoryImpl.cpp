@@ -53,7 +53,8 @@
 
 // REMOVE THIS when device enumerator/monitor is implemented
 #define USE_DEVICE_ADD_HACK
-
+// TODO:
+// All these device defines should all be refactored into an audio device factory
 #ifdef USE_DEVICE_ADD_HACK // [
 
 #ifdef USE_TEST_INPUT_DRIVER // USE_TEST_DRIVER [
@@ -83,7 +84,7 @@
 #  elif defined(USE_ALSA_INTERFACE)
 #     include <mp/MpidAlsa.h>
 #     define INPUT_DRIVER MpidAlsa
-#     define INPUT_DRIVER_DEFAULT_NAME "hw:0,0"
+#     define INPUT_DRIVER_DEFAULT_NAME MpidAlsa::getDefaultDeviceName()
 #     define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), (manager)
 #  else
 #     include <mp/MpidOss.h>
@@ -124,7 +125,7 @@
 #  elif defined(USE_ALSA_INTERFACE)
 #     include <mp/MpodAlsa.h>
 #     define OUTPUT_DRIVER MpodAlsa
-#     define OUTPUT_DRIVER_DEFAULT_NAME "hw:0,0"
+#     define OUTPUT_DRIVER_DEFAULT_NAME MpodAlsa::getDefaultDeviceName()
 #     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
 #  else
 #     include <mp/MpodOss.h>
@@ -244,8 +245,8 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
        OsSysLog::add(FAC_CP, PRI_INFO, "CpTopologyGraphFactoryImpl: enabling local audio");
 #ifdef USE_DEVICE_ADD_HACK // [
        // Create source (input) device and add it to manager.
-       UtlString tmpInputDeviceName = inputDeviceName.isNull()?INPUT_DRIVER_DEFAULT_NAME:
-                                                               inputDeviceName;
+       UtlString tmpInputDeviceName = inputDeviceName.isNull() ? INPUT_DRIVER_DEFAULT_NAME:
+                                                                 inputDeviceName.data();
        INPUT_DRIVER *sourceDevice =
           new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*mpInputDeviceManager,
                                                            tmpInputDeviceName));
@@ -257,8 +258,8 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
        assert(sourceDeviceId > 0);
 
        // Create sink (output) device and add it to manager.
-       UtlString tmpOutputDeviceName = outputDeviceName.isNull()?OUTPUT_DRIVER_DEFAULT_NAME:
-                                                                 outputDeviceName;
+       UtlString tmpOutputDeviceName = outputDeviceName.isNull() ? OUTPUT_DRIVER_DEFAULT_NAME:
+                                                                   outputDeviceName.data();
        OUTPUT_DRIVER *sinkDevice =
           new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(tmpOutputDeviceName));
        MpOutputDeviceHandle sinkDeviceId = mpOutputDeviceManager->addDevice(sinkDevice);
@@ -1220,6 +1221,89 @@ OsStatus CpTopologyGraphFactoryImpl::getMicrophoneDevice(UtlString& device) cons
     OsStatus status = mpInputDeviceManager->getDeviceName(mDefaultToInputDevice, device);
     
     return(status);
+}
+
+int CpTopologyGraphFactoryImpl::getInputDeviceList(UtlContainer& deviceNames)
+{
+    int deviceCount = 0;
+#ifdef __pingtel_on_posix__
+#  if defined(USE_ALSA_INTERFACE)
+    deviceCount = INPUT_DRIVER::getDeviceNames(deviceNames);
+//#  ifdef USE_TEST_INPUT_DRIVER // USE_TEST_DRIVER [
+//#  elif defined(__APPLE__)
+// TODO: get list on core audio
+//#  elif defined(ANDROID)
+// TODO: get list on ANDROID
+#  else // OSS
+// TODO: get list of OSS devices
+// Use OsFile iterator on /dev/dsp*
+    deviceNames.append(new UtlString(INPUT_DRIVER_DEFAULT_NAME));
+    deviceCount++;
+    OsSysLog::add(FAC_MP, PRI_ERR,
+                  "CpTopologyGraphFactoryImpl::getInputDeviceList not implemented for this interface");
+#  endif
+#elif defined(WIN32)
+    // TODO move this code to MpidWinMM::getInputDeviceNames
+    WAVEINCAPS  inputCaps;
+    int numDevices;
+
+    int numDevices = waveInGetNumDevs();
+    for (int deviceIndex = 0; deviceIndex < numDevices; deviceIndex++)
+    {
+        waveInGetDevCaps(deviceIndex, &inputCaps, sizeof(WAVEINCAPS));
+        if(inputCap.szPname && inputCaps.szPname[0])
+        {
+            deviceNames.append(new UtlString(inputCaps.szPname);
+            deviceCount++;
+        }
+    }
+#else
+#  error Unsupported platform.  No audio interface implemented
+#endif
+
+    return(deviceCount);
+}
+
+
+int CpTopologyGraphFactoryImpl::getOutputDeviceList(UtlContainer& deviceNames)
+{
+    int deviceCount = 0;
+#ifdef __pingtel_on_posix__
+#  if defined(USE_ALSA_INTERFACE)
+    deviceCount = OUTPUT_DRIVER::getDeviceNames(deviceNames);
+//#  ifdef USE_TEST_OUTPUT_DRIVER // USE_TEST_DRIVER [
+//#  elif defined(__APPLE__)
+// TODO: get list on core audio
+//#  elif defined(ANDROID)
+// TODO: get list on ANDROID
+#  else // OSS
+// TODO: get list of OSS devices
+// Use OsFile iterator on /dev/dsp*
+    deviceNames.append(new UtlString(OUTPUT_DRIVER_DEFAULT_NAME));
+    deviceCount++;
+    OsSysLog::add(FAC_MP, PRI_ERR,
+                  "CpTopologyGraphFactoryImpl::getOutputDeviceList not implemented for this interface");
+#  endif
+#elif defined(WIN32)
+    // TODO move this code to MpodWinMM::getOutputDeviceNames
+    WAVEOUTCAPS  outputCaps;
+    int numDevices;
+
+    int numDevices = waveOutGetNumDevs();
+    for (int deviceIndex = 0; deviceIndex < numDevices; deviceIndex++)
+    {
+        waveOutGetDevCaps(deviceIndex, &outputCaps, sizeof(WAVEOUTCAPS));
+        if(outputCap.szPname && outputCaps.szPname[0])
+        {
+            deviceNames.append(new UtlString(outputCaps.szPname);
+            deviceCount++;
+        }
+    }
+#else
+#  error Unsupported platform.  No audio interface implemented
+#endif
+
+    return(deviceCount);
 }
 
 void CpTopologyGraphFactoryImpl::setInitialResourceTopology(MpResourceTopology& resourceTopology)
