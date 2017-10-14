@@ -50,7 +50,10 @@ MpAlsaContainer::~MpAlsaContainer()
          MpAlsa *pDev = static_cast<MpAlsa*>(findValue(pDevName));
          if (pDev)
          {
-            excludeFromContainer(pDev);
+             OsSysLog::add(FAC_MP, PRI_DEBUG,
+                           "MpAlsaContainer::~MpAlsaContainer removing ALSA device: %p from container",
+                           pDev);
+             excludeFromContainer(pDev);
          }
       }
       else
@@ -76,16 +79,22 @@ void MpAlsaContainer::excludeFromContainer(MpAlsa* pDevWrap)
       }
    }
 
-   assert (pDevName != NULL);
+   // I think this ok if not found.  I think that it is possible
+   // for MpidAlsa and MpodAlsa to both disable, the second of which
+   // should remove the MpAlsa from the container.  Then later in the
+   // MpAlsa destructor, it may check again to remove the MpAlsa/itself.
+   //assert (pDevName != NULL);
+   if(pDevName != NULL)
+   {
+       UtlContainable* pDevTmp;
+       UtlString* pRetName;
 
-   UtlContainable* pDevTmp;
-   UtlString* pRetName;
+       pRetName = static_cast<UtlString*>(removeKeyAndValue(pDevName, pDevTmp));
+       delete pRetName;
 
-   pRetName = static_cast<UtlString*>(removeKeyAndValue(pDevName, pDevTmp));
-   delete pRetName;
-
-   MpAlsa *pDev = static_cast<MpAlsa*>(pDevTmp);
-   delete pDev;
+       MpAlsa *pDev = static_cast<MpAlsa*>(pDevTmp);
+       delete pDev;
+   }
 }
 
 MpAlsa* MpAlsaContainer::getALSADeviceWrapper(const UtlString& ossdev)
@@ -112,10 +121,10 @@ UtlBoolean MpAlsaContainer::excludeWrapperFromContainer(MpAlsa* pDev)
    if (refCount == 0)
    {
       assert(mpCont != NULL);
-      mpCont->excludeFromContainer(pDev);
       OsSysLog::add(FAC_MP, PRI_DEBUG,
-          "MpAlsaContainer::excludeWrapperFromContainer removing ALSA device: %p from container",
-          pDev);
+                    "MpAlsaContainer::excludeWrapperFromContainer removing ALSA device: %p from container",
+                    pDev);
+      mpCont->excludeFromContainer(pDev);
 
       return TRUE;
    }
