@@ -119,7 +119,7 @@ void usage(const char* szExecutable)
     printf("   -c <int> repeat count/Prank mode (call end point N times)\n") ;
     printf("   -I <string> call input device name\n");
     printf("   -O <string> call output device name\n");
-    printf("   -g <float> set input device gain (0.001-10.0) (default = 1.0)n");
+    printf("   -g <float> set input device gain (0.001-10.0) (default = 1.0)\n");
     printf("   -volume <int> set output volume (1-100) (default = 70)\n");
     printf("   -C <string> codec name (default all available)\n");
     printf("   -L list all supported codecs\n");
@@ -1114,7 +1114,9 @@ int local_main(int argc, char* argv[])
         {
             sipxConfigEnableStun(g_hInst, szStunServer, DEFAULT_STUN_PORT, 28) ;
         }
-        if (szOutDevice)
+
+        // Set in sipxInitialize.  Keeping this for testing device change after initialization
+        if (0) //(szOutDevice)
         {
             SIPX_RESULT sipxStatus = sipxAudioSetCallOutputDevice(g_hInst, szOutDevice);
             if (sipxStatus != SIPX_RESULT_SUCCESS)
@@ -1141,8 +1143,8 @@ int local_main(int argc, char* argv[])
             }
 
         }
-        // Set in sipxInitialize.  Keeping this for testing device change after initialization
-        if (0) //(szCodec)
+
+        if (szCodec)
         {
             if (sipxConfigSetAudioCodecByName(g_hInst, szCodec) == SIPX_RESULT_FAILURE)
             {
