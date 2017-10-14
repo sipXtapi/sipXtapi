@@ -1,8 +1,6 @@
 //  
 // Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
-// Copyright (C) 2007-2008 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -92,6 +90,8 @@ extern "C" {
 #  define CODEC_ENCODER            0
 //@}
 
+// c wrapper for OsSysLog::add(FAC_MP, PRI_ERR, const char* format, ...);
+void mppLogError(const char* format, ...);
 
 /**
 *  @brief Generic information about codec.
@@ -221,10 +221,13 @@ typedef int   (*dlPlgFreeV1)(void* handle, int isDecoder);
 #define IPLG_ENUM_CODEC(x)         #x ,
 #define IPLG_ENUM_CODEC_END        NULL};
 #define IPLG_ENUM_CODEC_FUNC      \
-   CODEC_API int PLG_GET_CODEC_NAME (int iNum, const char** pCodecModuleName)  {       \
-   int i = (sizeof ( IPLG_ENUM_CODEC_NAME ) / sizeof ( IPLG_ENUM_CODEC_NAME[0] )) - 1; \
-   if ((iNum < 0) || (iNum > i)) return RPLG_FAILED;                                   \
-   *pCodecModuleName = IPLG_ENUM_CODEC_NAME [iNum]; return RPLG_SUCCESS; }
+   CODEC_API int PLG_GET_CODEC_NAME (int iNum, const char** pCodecModuleName); /* prototype */ \
+   CODEC_API int PLG_GET_CODEC_NAME (int iNum, const char** pCodecModuleName)  /* implementation */ \
+   { \
+       int i = (sizeof ( IPLG_ENUM_CODEC_NAME ) / sizeof ( IPLG_ENUM_CODEC_NAME[0] )) - 1; \
+       if ((iNum < 0) || (iNum > i)) return RPLG_FAILED;                                   \
+       *pCodecModuleName = IPLG_ENUM_CODEC_NAME [iNum]; return RPLG_SUCCESS; \
+   }
 
 #define DEFINE_STATIC_REGISTRATOR                                             \
    void callbackRegisterStaticCodec(const char* moduleName,                   \
