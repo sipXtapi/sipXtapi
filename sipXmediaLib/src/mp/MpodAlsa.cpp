@@ -82,6 +82,10 @@ OsStatus MpodAlsa::enableDevice(unsigned samplesPerFrame,
                                MpFrameTime currentFrameTime,
                                OsCallback &frameTicker)
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpodAlsa::enableDevice start");
+#endif
    OsStatus ret;
    if (isEnabled())
    {
@@ -129,6 +133,10 @@ OsStatus MpodAlsa::enableDevice(unsigned samplesPerFrame,
    {
       return ret;
    }
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpodAlsa::enableDevice set");
+#endif
    mIsEnabled = TRUE;
 
    return ret;
@@ -136,24 +144,57 @@ OsStatus MpodAlsa::enableDevice(unsigned samplesPerFrame,
 
 OsStatus MpodAlsa::disableDevice()
 {
-   OsStatus ret;
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpodAlsa::disableDevice start");
+#endif
+   OsStatus ret = OS_SUCCESS;
    if (!isEnabled())
    {
+#ifdef TEST_PRINT
+       OsSysLog::add(FAC_MP, PRI_DEBUG,
+                     "MpodAlsa::disableDevice not enabled");
+#endif
        return OS_FAILED;
    }
 
    // If the device is not valid, let the user know it's bad.
    if (!isDeviceValid())
    {
-      return OS_INVALID_STATE;
+#ifdef TEST_PRINT
+       OsSysLog::add(FAC_MP, PRI_DEBUG,
+                     "MpodAlsa::disableDevice not valid");
+#endif
+      ret = OS_INVALID_STATE;
    }
 
-   ret = pDevWrapper->detachWriter();
-   if (ret != OS_SUCCESS)
+   if(ret != OS_SUCCESS)
    {
-      return ret;
+       // Attempt the detach despite the prior error, but
+       // don't hide the prior error.
+       pDevWrapper->detachWriter();
+#ifdef TEST_PRINT
+       OsSysLog::add(FAC_MP, PRI_DEBUG,
+                     "MpodAlsa::disableDevice detach no ret check");
+#endif
+   }
+   else
+   { 
+       ret = pDevWrapper->detachWriter();
+       if (ret != OS_SUCCESS)
+       {
+#ifdef TEST_PRINT
+           OsSysLog::add(FAC_MP, PRI_DEBUG,
+                         "MpodAlsa::disableDevice detach ret: %d",
+                         ret);
+#endif
+       }
    }
    delete[] mAudioFrame;
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpodAlsa::disableDevice set");
+#endif
    mIsEnabled = FALSE;
 
    pDevWrapper->freeOutputDevice();
