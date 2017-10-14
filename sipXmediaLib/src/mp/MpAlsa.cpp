@@ -62,8 +62,7 @@ static MpAudioSample gTrashBuffer[SOUND_MAXBUFFER];
 /* ============================ CREATORS ================================== */
 // Default constructor
 MpAlsa::MpAlsa()
-: mfdDevice(-1)
-, mbReadCap(FALSE)
+: mbReadCap(FALSE)
 , mbWriteCap(FALSE)
 , mReader(NULL)
 , mWriter(NULL)
@@ -184,6 +183,15 @@ OsStatus MpAlsa::setOutputDevice(MpodAlsa* pODD)
 
 OsStatus MpAlsa::freeInputDevice()
 {
+   OsStatus ret = OS_SUCCESS;
+   // Need to detach reader (noitify read/writer thread)
+   // before closing down the pcm
+   if (mStReader)
+   {
+      //It's very bad freeing device when it is enabled
+      ret = detachReader();
+   }
+
    if (mReader != NULL)
    {
       OsSysLog::add(FAC_MP, PRI_DEBUG,
@@ -198,17 +206,7 @@ OsStatus MpAlsa::freeInputDevice()
               snd_strerror(closeRet));
       }
       pPcmIn = NULL;
-   }
 
-   OsStatus ret = OS_SUCCESS;
-   if (mStReader)
-   {
-      //It's very bad freeing device when it is enabled
-      ret = detachReader();
-   }
-
-   if (mReader != NULL)
-   {
       OsSysLog::add(FAC_MP, PRI_DEBUG,
           "MpAlsa::freeInputDevice setting mReader to NULL");
       mReader = NULL;
@@ -225,6 +223,15 @@ OsStatus MpAlsa::freeInputDevice()
 
 OsStatus MpAlsa::freeOutputDevice()
 {
+   OsStatus ret = OS_SUCCESS;
+   // Need to detach writer (noitify read/writer thread)
+   // before closing down the pcm
+   if (mStWriter)
+   {
+      //It's very bad freeing device when it is enabled
+      ret = detachWriter();
+   }
+
    if (mWriter != NULL)
    {
       OsSysLog::add(FAC_MP, PRI_DEBUG,
@@ -239,17 +246,7 @@ OsStatus MpAlsa::freeOutputDevice()
               snd_strerror(closeRet));
       }
       pPcmOut = NULL;
-   }
 
-   OsStatus ret = OS_SUCCESS;
-   if (mStWriter)
-   {
-      //It's very bad freeing device when it is enabled
-      ret = detachWriter();
-   }
-
-   if (mWriter != NULL)
-   {
       OsSysLog::add(FAC_MP, PRI_DEBUG,
           "MpAlsa::freeOutputDevice setting mWriter to NULL");
       mWriter = NULL;
@@ -275,7 +272,6 @@ void MpAlsa::noMoreNeeded()
    }
 
    //Free ALSA device If it no longer using
-   freeDevice();
    MpAlsaContainer::excludeWrapperFromContainer(this);
 }
 
@@ -336,7 +332,11 @@ OsStatus MpAlsa::detachReader()
    if (!((mReader == NULL) || (mStReader == FALSE)))
    {
       mStReader = FALSE;
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpAlsa::detachReader mStReader = FALSE");
       threadIoStatusChanged();
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpAlsa::detachReader threadIoStatusChanged");
       ret = OS_SUCCESS;
    }
    return ret;
@@ -348,7 +348,11 @@ OsStatus MpAlsa::detachWriter()
    if (!((mWriter == NULL) || (mStWriter == FALSE)))
    {
       mStWriter = FALSE;
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpAlsa::detachWriter mStWriter = FALSE");
       threadIoStatusChanged();
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpAlsa::detachWriter threadIoStatusChanged");
       ret = OS_SUCCESS;
    }
    return ret;
@@ -515,23 +519,6 @@ OsStatus MpAlsa::initDevice(const char* devname, int samplesPerSecond)
    }
 #endif
    return OS_SUCCESS;
-}
-
-OsStatus MpAlsa::freeDevice()
-{
-   OsStatus ret = OS_SUCCESS;
-   //Closing device
-   if (mfdDevice != -1)
-   {
-      int res = close(mfdDevice);
-      if (res != 0)
-         ret = OS_FAILED;
-
-      mfdDevice = -1;
-      mUsedSamplesPerSec = 0;
-      mUsedSamplesPerFrame = 0;
-   }
-   return ret;
 }
 
 OsStatus MpAlsa::setSampleRate(unsigned samplesPerSec, unsigned samplesPerFrame)
@@ -724,9 +711,25 @@ OsStatus MpAlsa::doInput(char* buffer, int samplesToRead)
        {
 	   OsSysLog::add(FAC_MP, PRI_INFO, "MpAlsa::doInput should assert");
        }
-       int samplesJustRead = snd_pcm_readi(pPcmIn, tmpBuffer,sampsToRead);
 
-       if (samplesJustRead == 0)
+       int samplesJustRead = 0;
+
+       // This is a bit of a hack, but I cannot seem to groc enough of the state
+       // machine to prevent from getting here when pPcmIn is NULL after close
+       if(pPcmIn)
+       {
+           samplesJustRead = snd_pcm_readi(pPcmIn, tmpBuffer,sampsToRead);
+       }
+       else
+       {
+           loopBailFlag = true;
+       }
+
+       if(pPcmIn == NULL)
+       {
+	   OsSysLog::add(FAC_MP, PRI_INFO, "MpAlsa::doInput snd_pcm_readi skipped, pPcmIn NULL");
+       }
+       else if (samplesJustRead == 0)
        {
 	   OsSysLog::add(FAC_MP, PRI_INFO, "MpAlsa::doInput snd_pcm_readi returned 0");
        }
@@ -789,7 +792,7 @@ OsStatus MpAlsa::doOutput(const char* buffer, int size)
       }
       else if (samplesJustWritten < 0) 
       {             
-	  OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA:snd_pcm_writei(%d,%p,%d) returned %d %s",
+	  OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA:snd_pcm_writei(%p,%p,%d) returned %d %s",
                         pPcmOut, 
                         &buffer[samplesWritedSoFar],
                         samplesToWrite - samplesWritedSoFar,
@@ -893,9 +896,6 @@ void MpAlsa::soundIoThread()
          mModeChanged = FALSE;
          if (!bStWriter && !bStReader && !bShutdown)
          {
-            RTL_EVENT("MpAlsa::io_thread", 10);
-            ioctl(mfdDevice, SNDCTL_DSP_SYNC, NULL);
-
             RTL_EVENT("MpAlsa::io_thread", 11);
             alsaSetTrigger(false);
             
@@ -936,6 +936,8 @@ void MpAlsa::soundIoThread()
 
             if (bWakeUp)
             {
+               OsSysLog::add(FAC_MP, PRI_DEBUG,
+                             "MpAlsa::soundIoThread bWakeUp");
                unsigned precharge;
                i = 0;
                RTL_EVENT("MpAlsa::io_thread", -1);
@@ -1035,6 +1037,9 @@ void MpAlsa::threadKill()
 
 void* MpAlsa::soundCardIoWrapper(void* arg)
 {
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpAlsa::soundCardIoWrapper start MpAlsa: %p",
+                arg);
    MpAlsa* pALSADW = (MpAlsa*)arg;
 
 #if defined(_REALTIME_LINUX_AUDIO_THREADS) && defined(__linux__) /* [ */
@@ -1064,6 +1069,9 @@ void* MpAlsa::soundCardIoWrapper(void* arg)
 #endif /* _REALTIME_LINUX_AUDIO_THREADS ] */
 
    pALSADW->soundIoThread();
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpAlsa::soundCardIoWrapper exit MpAlsa: %p",
+                arg);
    return NULL;
 }
 // MER change this

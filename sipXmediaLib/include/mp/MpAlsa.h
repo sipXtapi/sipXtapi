@@ -112,7 +112,6 @@ public:
 
    /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   int mfdDevice;               ///< The fd of the POSIX device (e.g. /dev/dsp)
    UtlBoolean mbReadCap;        ///< Device is able to play audio
    UtlBoolean mbWriteCap;       ///< Device is able to capture audio
 
@@ -140,8 +139,6 @@ protected:
    OsStatus initDevice(const char* devname, int samplesPerSecond);
    /// @brief Final initializations for ALSA device
    OsStatus initDeviceFinal(unsigned samplesPerSec, unsigned samplerPerFrame);
-   /// @brief Free ALSA device
-   OsStatus freeDevice();
 
    /// @brief Because ALSA device works in duplex mode we must ensure that
    /// input and output driver use one sample rate and perfrom final init
