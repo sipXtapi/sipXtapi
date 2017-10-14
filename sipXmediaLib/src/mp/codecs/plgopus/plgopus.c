@@ -66,6 +66,8 @@ struct MpCodecOpusCodecState
     OpusDecoder* mpDecoderContext;
 };
 
+int OpusToPluginError(int opusError);
+
 int OpusToPluginError(int opusError)
 {
     int status;
@@ -132,7 +134,11 @@ CODEC_API void* PLG_INIT_V1_2(opus_48000)(const char* fmtp, int isDecoder,
     /* Fill general codec information */
     codecInfo->signalingCodec = FALSE;
     /* It could do PLC, but wrapper should be fixed to support it. */
+#ifdef ENABLE_CODEC_FEC
     codecInfo->packetLossConcealment = CODEC_PLC_INTERNAL;
+#else
+    codecInfo->packetLossConcealment = CODEC_PLC_NONE;
+#endif
     /* It could do DTX+CNG, but wrapper should be fixed to support it. */
     codecInfo->vadCng = CODEC_CNG_NONE;
 
@@ -212,7 +218,12 @@ CODEC_API int PLG_DECODE_V1(opus_48000)(void* opaqueCodecContext, const void* en
      * be the size of the expected frame and a multiple of 2.5 mSec. So
      * for the short term.  Turn off FEC.
      */
+#ifdef ENABLE_CODEC_FEC
+    int useFec = 1; /* 1=true, 0=false */
+#else
     int useFec = 0; /* 1=true, 0=false */
+#endif
+ 
     int numSamples = opus_decode(decoderContext->mpDecoderContext, encodedData, encodedPacketSize,
                                 pcmAudioBuffer, pcmBufferSize, useFec);
     if(numSamples < 0)
@@ -298,7 +309,7 @@ CODEC_API int PLG_FREE_V1(opus_48000)(void* opaqueCodecContext, int isDecoder)
 
             if(codecContext->mpDecoderContext)
             {
-                opus_encoder_destroy(codecContext->mpDecoderContext);
+                opus_decoder_destroy(codecContext->mpDecoderContext);
                 status = RPLG_BAD_HANDLE;
                 codecContext->mpDecoderContext = NULL;
             }
@@ -317,7 +328,7 @@ CODEC_API int PLG_FREE_V1(opus_48000)(void* opaqueCodecContext, int isDecoder)
 
             if(codecContext->mpEncoderContext)
             {
-                opus_decoder_destroy(codecContext->mpEncoderContext);
+                opus_encoder_destroy(codecContext->mpEncoderContext);
                 status = RPLG_BAD_HANDLE;
                 codecContext->mpEncoderContext = NULL;
             }
