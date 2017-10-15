@@ -32,6 +32,9 @@ DWORD WINAPI ConsoleStart(LPVOID lpParameter);
 #include "tapi/sipXtapiEvents.h"
 #include "ExternalTransport.h"
 
+// sipXtapi apps should not be digging into the lower layers
+#include <mi/CpMediaInterfaceFactoryImpl.h>
+
 #define MAX_RECORD_EVENTS       16
 #define portIsValid(p) ((p) >= 1 && (p) <= 65535)
 
@@ -123,6 +126,7 @@ void usage(const char* szExecutable)
     printf("   -volume <int> set output volume (1-100) (default = 70)\n");
     printf("   -C <string> codec name (default all available)\n");
     printf("   -L list all supported codecs\n");
+    printf("   -path <string> add the given path in which to search for codec plugins\n");
     printf("   -aec enable acoustic echo cancelation\n");
     printf("   -agc enable automatic gain control\n");
     printf("   -denoise enable speex denoiser\n");
@@ -160,6 +164,7 @@ bool parseArgs(int argc,
                float*   inputGain,
                int*   outputVolume,
                char** pszCodecName,
+               char** pszCodecPath,
                bool*  bCodecList,
                bool*  bAEC,
                bool*  bAGC,
@@ -196,6 +201,7 @@ bool parseArgs(int argc,
     *outputVolume = -1;
     *pszCodecName = NULL;
     *bCodecList = false;
+    *pszCodecPath = NULL;
     *bAEC = false;
     *bAGC = false;
     *bDenoise = false;
@@ -424,6 +430,17 @@ bool parseArgs(int argc,
             if ((i+1) < argc)
             {
                 *pszCodecName = strdup(argv[++i]) ;
+            }
+            else
+            {
+                break ; // Error
+            }
+        }
+        else if (strcmp(argv[i], "-path") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *pszCodecPath = strdup(argv[++i]) ;
             }
             else
             {
@@ -975,6 +992,7 @@ int local_main(int argc, char* argv[])
     float inputGain;
     int outputVolume;
     char* szCodec;
+    char* szCodecPath;
     bool bUseRport;
     bool bCList;
     bool bAEC;
@@ -1001,11 +1019,19 @@ int local_main(int argc, char* argv[])
             &szFile, &szFileBuffer, &szSipUrl, &bUseRport, &szUsername, 
             &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
             &szBindAddr, &iRepeatCount, &szInDevice, &szOutDevice, &inputGain, &outputVolume,
-            &szCodec, &bCList,
+            &szCodec, &szCodecPath, &bCList,
             &bAEC, &bAGC, &bDenoise, &bMute, &bRegister, &bUseCustomTransportReliable, &bUseCustomTransportUnreliable,
             &waitTime)
             && (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
+        // Set the codec path if provided
+        if(szCodecPath)
+        {
+            UtlString path(szCodecPath);
+            printf("Adding \"%s\" to codec path\n", path.data());
+            CpMediaInterfaceFactoryImpl::addCodecPaths(1, &path);
+        }
+
         // initialize sipx TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("PlaceCall.log");
