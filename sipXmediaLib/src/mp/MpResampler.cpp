@@ -1,9 +1,6 @@
 //  
-// Copyright (C) 2007-2008 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -204,9 +201,12 @@ OsStatus MpResamplerBase::resampleBufPtr(const MpAudioBufPtr& inBuf,
       {
          OsSysLog::add(FAC_MP, PRI_WARNING,
             "MprToOutputDevice::resampleAndReplace - Failed while resampling.  "
-            "Input sample rate %dHz, output sample rate %dHz"
-            "%s.\n",
-            inRate, outRate, optionalIdStr.data());
+            "Input sample rate %d Hz, output sample rate %d Hz %s.\n"
+            "resample(0, %p, %d, %d, %p, %d, %d) returned: %d",
+            inRate, outRate, optionalIdStr.data(),
+            inBuf->getSamplesPtr(), inBuf->getSamplesNumber(), 
+            nDevSamplesProcessed, resampledOut->getSamplesWritePtr(), 
+            resampledOut->getSamplesNumber(), nSamplesWritten, stat);
          return OS_FAILED;
       }
 
