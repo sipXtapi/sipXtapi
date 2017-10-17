@@ -136,6 +136,7 @@ void usage(const char* szExecutable)
     printf("   -V place a video call\n");
 #endif
     printf("   -w <int> wait seconds after the call is disconnected before shutting down or starting the next call.\n");
+    printf("   -W <int> wait seconds after the last call before shutting down.\n");
     printf("\n") ;
 }
 
@@ -173,7 +174,8 @@ bool parseArgs(int argc,
                bool*  bRegister,
                bool*  bUseCustomTransportReliable,
                bool*  bUseCustomTransportUnreliable,
-               int* waitTime)
+               int* waitTime,
+               int* waitTimeAtEnd)
 {
     bool bRC = false ;
     char szBuffer[64];
@@ -208,6 +210,7 @@ bool parseArgs(int argc,
     *bMute = false;
     *bRegister = false;
     *waitTime = 0;
+    *waitTimeAtEnd = 0;
 
     for (int i=1; i<argc; i++)
     {
@@ -487,6 +490,17 @@ bool parseArgs(int argc,
             if ((i + 1) < argc)
             {
                 *waitTime = atoi(argv[++i]);
+            }
+            else
+            {
+                break; // Error
+            }
+        }
+        else if (strcmp(argv[i], "-W") == 0)
+        {
+            if ((i + 1) < argc)
+            {
+                *waitTimeAtEnd = atoi(argv[++i]);
             }
             else
             {
@@ -909,6 +923,8 @@ bool playFileBuffer(char* szFile)
 {
     bool bRC = false ;
     FILE* fp = fopen(szFile, "rb") ;
+    size_t bytesRead = 0; // just used to get rid of an annoying compiler warning
+
     if (fp)
     {
         fseek(fp, 0, SEEK_END) ;
@@ -920,7 +936,7 @@ bool playFileBuffer(char* szFile)
             char* pBuf = (char*) malloc(length) ;
             if (pBuf)
             {
-                fread(pBuf, 1, (size_t) length, fp) ;
+                bytesRead += fread(pBuf, 1, (size_t) length, fp) ;
                 sipxCallPlayBufferStart(g_hCall, pBuf, (int) length, RAW_PCM_16, false, true, true) ;
                 free(pBuf) ;
                 bRC = true ;
@@ -1001,6 +1017,7 @@ int local_main(int argc, char* argv[])
     bool bMute;
     bool bRegister;
     int waitTime;
+    int waitTimeAtEnd;
 
     if ( signal( SIGINT, ctrlCHandler ) == SIG_ERR )
     {
@@ -1021,7 +1038,7 @@ int local_main(int argc, char* argv[])
             &szBindAddr, &iRepeatCount, &szInDevice, &szOutDevice, &inputGain, &outputVolume,
             &szCodec, &szCodecPath, &bCList,
             &bAEC, &bAGC, &bDenoise, &bMute, &bRegister, &bUseCustomTransportReliable, &bUseCustomTransportUnreliable,
-            &waitTime)
+            &waitTime, &waitTimeAtEnd)
             && (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         // Set the codec path if provided
@@ -1274,12 +1291,17 @@ int local_main(int argc, char* argv[])
                 break ;
             }
 
-            if (waitTime > 0)
+            if ((waitTime > 0) && (i < (iRepeatCount-1)))
             {
-                printf("Waiting: %d seconds...\n", waitTime);
+                printf("Waiting: %d seconds before next call...\n", waitTime);
                 OsTask::delay(waitTime * 1000);
             }
         }        
+        if (waitTimeAtEnd > 0)
+        {
+            printf("Waiting: %d seconds before exiting...\n", waitTimeAtEnd);
+            OsTask::delay(waitTimeAtEnd * 1000);
+        }
         sipxEventListenerRemove(g_hInst, EventCallBack, NULL) ;
 
         sipxUnInitialize(g_hInst, true);
