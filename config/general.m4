@@ -1151,9 +1151,9 @@ AC_DEFUN([CHECK_SPEEX],
         SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
         SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
         SPEEX_CFLAGS+=' -I${top_builddir}/contrib/libspeex/include'
-        SPEEX_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeex.a'
+        SPEEX_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeex.la'
         SPEEX_LIBS=${SPEEX_STATIC_LIB}
-        SPEEXDSP_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeexdsp.a'
+        SPEEXDSP_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeexdsp.la'
         SPEEXDSP_LIBS=${SPEEXDSP_STATIC_LIB}
         AC_SUBST(SPEEX_ROOT)
         AC_SUBST(SPEEX_CFLAGS)
@@ -1428,8 +1428,8 @@ AC_DEFUN([CHECK_SPANDSP],
 
     # Check for spansdp.h in the specified include directory if any, and a number
     # of other likely places.
-    for dir in $includeval /usr/local/include /usr/include /sw/include; do
-        if test -f "$dir/spandsp.h"; then
+    for dir in $includeval /usr/local/include /usr/include /sw/include /usr/include/x86_64-linux-gnu; do
+        if test -f "$dir/spandsp/g722.h"; then
             found_spandsp_include="yes";
             includeval=$dir
             break;
@@ -1438,7 +1438,7 @@ AC_DEFUN([CHECK_SPANDSP],
 
     # Check for libspansdp.{so,a} in the specified lib directory if any, and a
     # number of other likely places.
-    for dir in $libval /usr/local/lib /usr/lib /usr/lib64 /sw/lib; do
+    for dir in $libval /usr/local/lib /usr/lib /usr/lib64 /sw/lib /usr/lib/x86_64-linux-gnu; do
         if test -f "$dir/libspandsp.so" -o -f "$dir/libspandsp.la"; then
             found_spandsp_lib="yes";
             libval=$dir
@@ -1463,6 +1463,7 @@ AC_DEFUN([CHECK_SPANDSP],
             CFLAGS+=" -I$includeval"
             LDFLAGS+=" -L$libval  -lspandsp"
 
+            #AC_MSG_WARN(Trying spandsp/bitstream.h)
             AC_TRY_COMPILE([
                     #include <stdint.h>
                     #include <spandsp/bitstream.h>
@@ -1475,8 +1476,10 @@ AC_DEFUN([CHECK_SPANDSP],
                 ],
                 ac_libspandsp_newstyle=true,
                 ac_libspandsp_newstyle=false)
+            #AC_MSG_WARN(ac_libspandsp_newstyle: $ac_libspandsp_newstyle)
             
             if test "$ac_libspandsp_newstyle" = false; then
+                #AC_MSG_WARN(Trying spandsp/telephony.h)
                 AC_TRY_COMPILE([
                         #include <stdint.h>
                         #include <spandsp/telephony.h>
@@ -1489,6 +1492,7 @@ AC_DEFUN([CHECK_SPANDSP],
                     ],
                     ac_libspandsp_newstyle=true,
                     ac_libspandsp_newstyle=false)
+                #AC_MSG_WARN(ac_libspandsp_newstyle: $ac_libspandsp_newstyle)
              fi
             
                 CFLAGS=$OLD_CFLAGS
