@@ -115,6 +115,9 @@ void usage(const char* szExecutable)
     printf("   -1 one call mode (exit after first call end)\n") ;
     printf("   -I <string> call input device name\n");
     printf("   -O <string> call output device name\n");
+    printf("   -drate <int> device sample rate (e.g. 16000, 32000, 48000)\n");
+    printf("          Generally should run device sampling at the hardware native rate\n");
+    printf("   -mrate <int> media/flowgraph sample rate (e.g. 8000, 16000, 32000, 48000)\n");
     printf("   -i line identity (e.g. sip:122@pingtel.com)\n") ;
     printf("   -u username (for authentication)\n") ;
     printf("   -a password  (for authentication)\n") ;
@@ -152,6 +155,8 @@ bool parseArgs(int argc,
                char** pszPassword,
                char** pszRealm,
                int* pRefreshPeriod,
+               int* pDeviceRate,
+               int* pMediaRate,
                char** pszStunServer,
                char** pszProxy,
                char** pRecordFile)
@@ -175,6 +180,8 @@ bool parseArgs(int argc,
     *pszPassword = NULL ;
     *pszRealm = NULL ;
     *pRefreshPeriod = 0;
+    *pDeviceRate = 48000;
+    *pMediaRate = 8000;
     *pszStunServer = NULL ;
     *pszProxy = NULL;
     *pRecordFile = NULL;
@@ -393,6 +400,33 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+
+        else if (strcmp(argv[i], "-drate") == 0)
+        {
+            if ((i + 1) < argc)
+            {
+                *pDeviceRate = atoi(argv[++i]);
+            }
+            else
+            {
+                bRC = false;
+                break; // Error
+            }
+        }
+
+        else if (strcmp(argv[i], "-mrate") == 0)
+        {
+            if ((i + 1) < argc)
+            {
+                *pMediaRate = atoi(argv[++i]);
+            }
+            else
+            {
+                bRC = false;
+                break; // Error
+            }
+        }
+
         else if (strcmp(argv[i], "-V") == 0)
         {
 #ifdef VIDEO
@@ -1152,6 +1186,8 @@ int local_main(int argc, char* argv[])
     char* szPassword ;
     char* szRealm ;
     int refreshPeriod;
+    int deviceRate;
+    int mediaRate;
     char* szStunServer ;
     char* szProxy ;
     SIPX_INST hInst ;
@@ -1174,6 +1210,7 @@ int local_main(int argc, char* argv[])
                    &szInDevice, &szOutDevice,
                   &g_szPlayTones, &g_szFile, &bLoopback, &gbOneCallMode,
                   &szIdentity, &szUsername, &szPassword, &szRealm, &refreshPeriod,
+                  &deviceRate, &mediaRate,
                   &szStunServer, &szProxy, &g_szRecordFile) &&
         (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
@@ -1186,11 +1223,12 @@ int local_main(int argc, char* argv[])
         // This is not generally a safe thing to do in production.
         //UtlString cwd(".");
         //CpMediaInterfaceFactoryImpl::addCodecPaths(1, &cwd);
+        printf("Attempting to use audio device sample rate: %d samples/sec.\n", deviceRate);
+        printf("Using media/flowgraph frame sample rate: %d samples/sec.\n", mediaRate);
 
         // Initialize sipX TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("ReceiveCall.log");
-        int mediaEngineSampleRate = 8000;
         if (sipxInitialize(&hInst, 
                            iSipPort, 
                            iSipPort, 
@@ -1204,8 +1242,8 @@ int local_main(int argc, char* argv[])
                            NULL, // cert. password
                            NULL, // DB location
                            true, // Enable local audio
-                           mediaEngineSampleRate,
-                           48000, // Audio device sample rate
+                           mediaRate, // Flowgraph internal sample rate
+                           deviceRate, // Audio device sample rate
                            10, // internal media frame size (milliseconds)
                            szInDevice ? szInDevice : "", // Audio input device
                            szOutDevice ? szOutDevice : ""  // Audio output device

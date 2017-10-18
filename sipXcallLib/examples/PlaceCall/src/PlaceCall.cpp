@@ -122,6 +122,9 @@ void usage(const char* szExecutable)
     printf("   -c <int> repeat count/Prank mode (call end point N times)\n") ;
     printf("   -I <string> call input device name\n");
     printf("   -O <string> call output device name\n");
+    printf("   -drate <int> device sample rate (e.g. 16000, 32000, 48000)\n");
+    printf("          Generally should run device sampling at the hardware native rate\n");
+    printf("   -mrate <int> media/flowgraph sample rate (e.g. 8000, 16000, 32000, 48000)\n");
     printf("   -g <float> set input device gain (0.001-10.0) (default = 1.0)\n");
     printf("   -volume <int> set output volume (1-100) (default = 70)\n");
     printf("   -C <string> codec name (default all available)\n");
@@ -160,6 +163,8 @@ bool parseArgs(int argc,
                char** pszProxy,
                char** pszBindAddress,
                int*   pRepeatCount,
+               int*   pDeviceRate,
+               int*   pMediaRate,
                char** pszInputDevice,
                char** pszOutputDevice,
                float*   inputGain,
@@ -185,6 +190,8 @@ bool parseArgs(int argc,
     *pSipPort = 5060 ;
     *pRtpPort = 9000 ;
     *pRepeatCount = 1 ;
+    *pDeviceRate = 48000;
+    *pMediaRate = 8000;
     *pszPlayTones = NULL ;
     *pszFile = NULL ;
     *pszFileBuffer = NULL ;
@@ -384,6 +391,7 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+
         else if (strcmp(argv[i], "-I") == 0)
         {
             if ((i+1) < argc)
@@ -395,6 +403,7 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+
         else if (strcmp(argv[i], "-O") == 0)
         {
             if ((i+1) < argc)
@@ -406,6 +415,33 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+
+        else if (strcmp(argv[i], "-drate") == 0)
+        {
+            if ((i + 1) < argc)
+            {
+                *pDeviceRate = atoi(argv[++i]);
+            }
+            else
+            {
+                bRC = false;
+                break; // Error
+            }
+        }
+
+        else if (strcmp(argv[i], "-mrate") == 0)
+        {
+            if ((i + 1) < argc)
+            {
+                *pMediaRate = atoi(argv[++i]);
+            }
+            else
+            {
+                bRC = false;
+                break; // Error
+            }
+        }
+
         else if (strcmp(argv[i], "-g") == 0)
         {
             if ((i+1) < argc)
@@ -992,6 +1028,8 @@ int local_main(int argc, char* argv[])
 {
     bool bError = false ;
     int iDuration, iSipPort, iRtpPort, iRepeatCount ;
+    int deviceRate;
+    int mediaRate;
     char* szPlayTones;
     char* szSipUrl;
     char* szFile;
@@ -1035,7 +1073,8 @@ int local_main(int argc, char* argv[])
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szPlayTones,
             &szFile, &szFileBuffer, &szSipUrl, &bUseRport, &szUsername, 
             &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
-            &szBindAddr, &iRepeatCount, &szInDevice, &szOutDevice, &inputGain, &outputVolume,
+            &szBindAddr, &iRepeatCount, &deviceRate, &mediaRate,
+            &szInDevice, &szOutDevice, &inputGain, &outputVolume,
             &szCodec, &szCodecPath, &bCList,
             &bAEC, &bAGC, &bDenoise, &bMute, &bRegister, &bUseCustomTransportReliable, &bUseCustomTransportUnreliable,
             &waitTime, &waitTimeAtEnd)
@@ -1049,10 +1088,12 @@ int local_main(int argc, char* argv[])
             CpMediaInterfaceFactoryImpl::addCodecPaths(1, &path);
         }
 
+        printf("Attempting to use audio device sample rate: %d samples/sec.\n", deviceRate);
+        printf("Using media/flowgraph frame sample rate: %d samples/sec.\n", mediaRate);
+
         // initialize sipx TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("PlaceCall.log");
-        int mediaEngineSampleRate = 16000;
         sipxInitialize(&g_hInst, 
                        iSipPort, 
                        iSipPort, 
@@ -1066,8 +1107,8 @@ int local_main(int argc, char* argv[])
                        NULL, // cert. password
                        NULL, // DB location
                        true, // Enable local audio
-                       mediaEngineSampleRate,
-                       48000, // Audio device sample rate
+                       mediaRate, // media/flowgraph frame sample rate
+                       deviceRate, // Audio device sample rate
                        10, // internal media frame size (milliseconds)
                        szInDevice ? szInDevice : "", // Audio input device
                        szOutDevice ? szOutDevice : ""  // Audio output device
