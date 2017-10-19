@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008-2016 SIPez LLC.  All rights reserved.
+// Copyright (C) 2008-2017 SIPez LLC.  All rights reserved.
 //  
 //  
 // $$ 
@@ -724,7 +724,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                                &mpMixDataStack[mMixDataStackStep * extOutput],
                                mMixDataStackStep);
                // Update output amplitude value.
-               mpMixDataAmplitude[extOutput] = (curAmplitude*scaledGain)>>MP_BRIDGE_FRAC_LENGTH;
+               mpMixDataAmplitude[extOutput] = ((int)(curAmplitude*scaledGain))>>MP_BRIDGE_FRAC_LENGTH;
 #ifdef DEBUG_AGC
                if ( debugFlag && (origInput==0 || origInput==3) )
                {
@@ -759,7 +759,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                                      &mpMixDataStack[mMixDataStackStep * extOutput],
                                      mMixDataStackStep);
                MpBridgeGain scaledGainMax = MpDspUtils::maximum(scaledGainStart, scaledGainEnd);
-               mpMixDataAmplitude[extOutput] = (curAmplitude*scaledGainMax) >> MP_BRIDGE_FRAC_LENGTH;
+               mpMixDataAmplitude[extOutput] = ((int)(curAmplitude*scaledGainMax)) >> MP_BRIDGE_FRAC_LENGTH;
 #ifdef DEBUG_AGC
                if ( debugFlag && (origInput==0 || origInput==3) )
                {

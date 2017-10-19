@@ -1,8 +1,6 @@
 //  
 // Copyright (C) 2008-2017 SIPez LLC. All rights reserved.
 //  
-// Copyright (C) 2008 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -181,7 +179,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
                                     samplesPerFrame);
 
                // Update output amplitude value.
-               amplitude += (curAmplitude*scaledGain)>>MP_BRIDGE_FRAC_LENGTH;
+               amplitude += ((int)(curAmplitude*scaledGain))>>MP_BRIDGE_FRAC_LENGTH;
 #ifdef DEBUG_AGC
                if ( debugFlag && (outputNum==0 || outputNum==3) )
                {
@@ -206,7 +204,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
 
                // Update output amplitude value.
                MpBridgeGain scaledGainMax = MpDspUtils::maximum(scaledGainStart, scaledGainEnd);
-               amplitude += (curAmplitude*scaledGainMax) >> MP_BRIDGE_FRAC_LENGTH;
+               amplitude += ((int)(curAmplitude*scaledGainMax)) >> MP_BRIDGE_FRAC_LENGTH;
 #ifdef DEBUG_AGC
                if ( debugFlag && (outputNum==0 || outputNum==3) )
                {
