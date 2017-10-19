@@ -1,9 +1,6 @@
 //  
-// Copyright (C) 2007 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -74,6 +71,11 @@ void MpDspUtils::add_I(int32_t &a, int32_t b)
 }
 
 #ifndef MP_FIXED_POINT // [
+
+float MpDspUtils::maximum(float a, float b)
+{
+   return (a > b) ? a : b;
+}
 
 float MpDspUtils::add(float a, float b)
 {

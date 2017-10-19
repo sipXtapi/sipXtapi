@@ -1,8 +1,6 @@
 //  
-// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //  
-// Copyright (C) 2007-2008 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -149,6 +147,10 @@ public:
    void addMul_I(int32_t &a, int16_t b, int16_t c);
 
 #ifndef MP_FIXED_POINT // [
+
+     /// Perform maximum value calculation
+   static inline
+   float maximum(float a, float b);
 
      /// Return (a+b) NOT saturated (float).
    static inline
@@ -479,11 +481,22 @@ public:
    }
 
      /// Convert type of source vector.
-   static MP_DSP_VECTOR_API
-   OsStatus convert(const int16_t *pSrc, float *pDst, int dataLength);
+   static inline
+   OsStatus convert(const int16_t *pSrc, float *pDst, int dataLength)
      /**<
      *  @todo Write unittest!!!
      */
+   {
+       const int16_t* srcIntPtr = pSrc;
+       float* dstFloatPtr = pDst;
+       for(int dataIndex = 0; dataIndex < dataLength; dataIndex++)
+       {
+           *dstFloatPtr = float(*srcIntPtr);
+           dstFloatPtr++;
+           srcIntPtr++;
+       }
+       return(OS_SUCCESS);
+   }
 
      /// Stub for fixed-point mode compatibility. It DOES NOT gains values.
    static inline
