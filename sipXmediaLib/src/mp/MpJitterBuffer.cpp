@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -634,21 +634,38 @@ int MpJitterBuffer::adjustStream(MpAudioSample *pBuffer,
       // Do we want to expand or to shrink?
       if (wantedAdjustment > 0)
       {
-         // Expand
-         memmove(pBuffer+2*E_FRAME_WINDOW+pos, pBuffer+E_FRAME_WINDOW,
-                 (numSamples-E_FRAME_WINDOW)*sizeof(MpAudioSample));
-         crossJoin8(pBuffer+E_FRAME_WINDOW+pos, pBuffer);
-         RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", pos + E_FRAME_WINDOW);
-         return pos + E_FRAME_WINDOW;
+         if(numSamples <= E_FRAME_WINDOW)
+         {
+             // Not enough samples to work with
+             return(0);
+         }
+
+         else
+         {
+             // Expand
+             memmove(pBuffer+2*E_FRAME_WINDOW+pos, pBuffer+E_FRAME_WINDOW,
+                     (numSamples-E_FRAME_WINDOW)*sizeof(MpAudioSample));
+             crossJoin8(pBuffer+E_FRAME_WINDOW+pos, pBuffer);
+             RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", pos + E_FRAME_WINDOW);
+             return pos + E_FRAME_WINDOW;
+         }
       }
       else //if (wantedAdjustment > 0) // wantedAdjustment can't be 0
       {
-         // Shrink
-         crossJoin8(pBuffer, pBuffer+E_FRAME_WINDOW+pos);
-         memmove(pBuffer+E_FRAME_WINDOW, pBuffer+2*E_FRAME_WINDOW+pos,
-                 (numSamples-pos-2*E_FRAME_WINDOW)*sizeof(MpAudioSample));
-         RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", -(pos + E_FRAME_WINDOW));
-         return -(pos + E_FRAME_WINDOW);
+         if(numSamples <= (pos + 2 * E_FRAME_WINDOW))
+         {
+             // Not enough samples to work with
+             return(0);
+         }
+         else
+         {
+             // Shrink
+             crossJoin8(pBuffer, pBuffer+E_FRAME_WINDOW+pos);
+             memmove(pBuffer+E_FRAME_WINDOW, pBuffer+2*E_FRAME_WINDOW+pos,
+                     (numSamples-pos-2*E_FRAME_WINDOW)*sizeof(MpAudioSample));
+             RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", -(pos + E_FRAME_WINDOW));
+             return -(pos + E_FRAME_WINDOW);
+          }
       }
    }
 
