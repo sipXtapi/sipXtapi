@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1123,6 +1123,9 @@ void SdpBody::getBestAudioCodecs(SdpCodecList& localRtpCodecs,
    for(int codecIndex = 0; codecIndex < localRtpCodecs.getCodecCount(); codecIndex++)
    {
        commonCodecsForDecoder[codecIndex] = NULL;
+       // TODO:
+       //commonCodecsForEncoder[codecIndex] = NULL;
+
    }
    SdpSrtpParameters remoteSrtpParams;
 
@@ -1510,9 +1513,9 @@ void SdpBody::getCodecsInCommon(int audioMediaSetIndex,
                   commonCodecsForDecoder[numCodecsInCommon]->setPacketSize(frameSize*1000);
                }
 
+               numCodecsInCommon++;
             }
          
-            numCodecsInCommon++;
 
          }
       }
