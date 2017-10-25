@@ -123,7 +123,7 @@ void usage(const char* szExecutable)
     printf("   -a password  (for authentication)\n") ;
     printf("   -m realm  (for authentication)\n") ;
     printf("   -rec Record to wave file (PCM)\n");
-    printf("   -ref registration refresh period (default=3600 seconds)");
+    printf("   -ref registration refresh period (default=3600 seconds)\n");
     printf("   -x proxy (outbound proxy)\n");
     printf("   -S stun server\n") ;
     printf("   -v show sipXtapi version\n");

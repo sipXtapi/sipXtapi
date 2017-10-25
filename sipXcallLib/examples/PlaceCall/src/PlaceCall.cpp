@@ -816,7 +816,7 @@ bool placeCall(char* szSipUrl, const char* szFromIdentity, char* szUsername, cha
     {
         registerSucceeded = true;
     }
-    if(registerSucceeded) printf("register SUCCESS");
+    if(registerSucceeded) printf("register SUCCESS\n");
 
 #if defined(_WIN32) && defined(VIDEO)
     if (bVideo)
@@ -1341,11 +1341,15 @@ int local_main(int argc, char* argv[])
         if (waitTimeAtEnd > 0)
         {
             printf("Waiting: %d seconds before exiting...\n", waitTimeAtEnd);
-            OsTask::delay(waitTimeAtEnd * 1000);
+            OsTask::delay(waitTimeAtEnd * 800);
         }
         sipxEventListenerRemove(g_hInst, EventCallBack, NULL) ;
 
         sipxUnInitialize(g_hInst, true);
+        if (waitTimeAtEnd > 0)
+        {
+            OsTask::delay(waitTimeAtEnd * 200);
+        }
     }
     else
     {
