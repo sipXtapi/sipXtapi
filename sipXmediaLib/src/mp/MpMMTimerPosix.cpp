@@ -62,6 +62,7 @@ MpMMTimerPosix::PosixSignalReg gPosixTimerReg(TIMER_SIGNAL, MpMMTimerPosix::sign
 MpMMTimerPosix::MpMMTimerPosix(MpMMTimer::MMTimerType type)
 : MpMMTimer(type)
 , mbTimerStarted(FALSE)
+, mbTerminate(FALSE)
 {
    if (mTimerType == Linear)
    {
@@ -79,8 +80,8 @@ MpMMTimerPosix::MpMMTimerPosix(MpMMTimer::MMTimerType type)
 
 MpMMTimerPosix::~MpMMTimerPosix()
 {
-   if (mbTimerStarted)
-      stop();
+   mbTerminate = TRUE;
+   stop();
 
    if (mTimerType == Linear)
    {
@@ -313,25 +314,12 @@ MpMMTimerPosix::PosixSignalReg* MpMMTimerPosix::getSignalDescriptor()
 MpMMTimerPosix::PosixSignalReg::PosixSignalReg(int sigNum, void (*sa)(int, siginfo_t *, void *))
 : mSigNum(sigNum)
 {
-   sigset_t mask;
-   sigemptyset(&mask);
-   sigaddset(&mask, mSigNum);
-
    sigemptyset (&mBlockSigMask);
    sigaddset (&mBlockSigMask, mSigNum);
 
    // Block this signal for all the threads by defalut
    // Interested in signal thread should use unblockThreadSig() to allow to catch it
    sigprocmask (SIG_BLOCK, &mBlockSigMask, NULL);   
-/*
-   struct sigaction act;
-   act.sa_sigaction = sa;
-   act.sa_flags = SA_SIGINFO | SA_RESTART;
-   act.sa_mask = mask;
-
-   int res = sigaction(mSigNum, &act, &mOldAction);
-   assert (res == 0);
-*/
 }
 
 int MpMMTimerPosix::PosixSignalReg::getSignalNum() const

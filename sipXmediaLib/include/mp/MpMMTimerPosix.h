@@ -137,6 +137,7 @@ private:
    static PosixSignalReg sPosixTimerReg;
    pthread_t mThread;              ///< Sync-signal wait thread
    sem_t mIoSem;                   ///< Startup initialization semaphore
+   UtlBoolean mbTerminate;         ///< Should the timer thread exit?
 
    static void* threadIoWrapper(void* arg);
 };
