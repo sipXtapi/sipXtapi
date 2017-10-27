@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2010 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -152,7 +151,7 @@ public:
                     "\n  test case %d decodedSize"
                     "\n     expected %d"
                     "\n     actual   %d",
-                    test, tests[test].inputSize, decodedSize
+                    test, (int)tests[test].inputSize, decodedSize
                     );
             CPPUNIT_ASSERT_MESSAGE(msg, decodedSize == (int)tests[test].inputSize);
          }
@@ -182,7 +181,7 @@ public:
                     "\n     expected size %d data '%s'"
                     "\n     actual   size %d data '%s'",
                     test,
-                    strlen(tests[test].output), tests[test].output,
+                    (int)strlen(tests[test].output), tests[test].output,
                     encodedSize, encodedData
                     );
             CPPUNIT_ASSERT_MESSAGE(msg,
@@ -204,7 +203,7 @@ public:
                     "\n     expected size %d data '%s'"
                     "\n     actual   size %d data '%s'",
                     test, decodedOk ? "ok" : "failed",
-                    tests[test].inputSize, tests[test].inputData,
+                    (int)tests[test].inputSize, tests[test].inputData,
                     decodedSize, decodedData
                     );
             CPPUNIT_ASSERT_MESSAGE(msg,
@@ -239,8 +238,8 @@ public:
                     "\n     expected size %d data '%s'"
                     "\n     actual   size %d data '%s'",
                     test,
-                    strlen(tests[test].output), tests[test].output,
-                    encoded.length(), encoded.data()
+                    (int) strlen(tests[test].output), tests[test].output,
+                    (int) encoded.length(), encoded.data()
                     );
             CPPUNIT_ASSERT_MESSAGE(msg,
                                    (   (encoded.length() == strlen(tests[test].output))
@@ -269,8 +268,8 @@ public:
                     "\n     expected size %d data '%s'"
                     "\n     actual   size %d data '%s'",
                     test,
-                    strlen(tests[test].output), tests[test].output,
-                    encoded.length(), encoded.data()
+                    (int) strlen(tests[test].output), tests[test].output,
+                    (int) encoded.length(), encoded.data()
                     );
             CPPUNIT_ASSERT_MESSAGE(msg,
                                    (   (encoded.length() == strlen(tests[test].output))
@@ -286,8 +285,8 @@ public:
                     "\n     expected size %d data '%s'"
                     "\n     actual   size %d data '%s'",
                     test, decodedOk ? "ok" : "failed",
-                    tests[test].inputSize, tests[test].inputData,
-                    decoded.length(), decoded.data()
+                    (int) tests[test].inputSize, tests[test].inputData,
+                    (int) decoded.length(), decoded.data()
                     );
             CPPUNIT_ASSERT_MESSAGE(msg,
                                    (   decodedOk
