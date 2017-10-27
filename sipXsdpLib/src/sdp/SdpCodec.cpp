@@ -968,11 +968,11 @@ UtlBoolean SdpCodec::compareFmtp(const UtlString& fmtp, int& compares) const
 
 UtlBoolean SdpCodec::compareFmtp(const UtlString& mimeType, const UtlString& mimeSubtype, const UtlString& fmtp1, const UtlString& fmtp2, int& compares)
 {
-#ifdef TEST_PRINT
+//#ifdef TEST_PRINT
     OsSysLog::add(FAC_SDP, PRI_DEBUG,
             "SdpCodec::compareFmtp(%s, %s, %s, %s,",
             mimeType.data(), mimeSubtype.data(), fmtp1.data(), fmtp2.data());
-#endif
+//#endif
 
     UtlBoolean isCompatible = FALSE;
     if(mimeType.compareTo(MIME_TYPE_VIDEO, UtlString::ignoreCase) == 0)
@@ -1081,16 +1081,30 @@ UtlBoolean SdpCodec::compareFmtp(const UtlString& mimeType, const UtlString& mim
             UtlBoolean foundMode2 = getFmtpParameter(fmtp2, "mode", mode2);
             if(
                (!foundMode1 && !foundMode2) ||
-               (!foundMode1 && mode2 == 20) ||
-               (!foundMode1 && mode2 == 0) ||
-               (!foundMode2 && mode1 == 20) ||
-               (!foundMode2 && mode1 == 0) ||
                (mode1 == mode2)
+              )
+            {
+                isCompatible = TRUE;
+                compares = 1;
+            }
+
+            else if(
+               (!foundMode1 && mode2 == 30) ||
+               (!foundMode2 && mode1 == 30) ||
+               (mode1 == 20 && mode2 == 0)  ||
+               (mode2 == 20 && mode1 == 0)
               )
             {
                 isCompatible = TRUE;
                 compares = 0;
             }
+            OsSysLog::add(FAC_SDP, PRI_DEBUG,
+                          "SdpCodec::compareFmtp ILBC fmtp1=%s fmtp2=%s mode1=%d mode2=%d compatible: %s",
+                          fmtp1.data(),
+                          fmtp2.data(),
+                          mode1,
+                          mode2,
+                          isCompatible ? "TRUE" : "FALSE");
         }
 
         // telephone-events theoretically need to compare event type codes, but we just assume they overlap
@@ -1119,6 +1133,32 @@ UtlBoolean SdpCodec::compareFmtp(const UtlString& mimeType, const UtlString& mim
             // "0-16" (e.g. Snom phones), "0-11".
             isCompatible = TRUE;
 #endif // !SDP_RFC4733_STRICT_FMTP_CHECK ]
+        }
+
+        else if((mimeSubtype.compareTo(MIME_SUBTYPE_AMR, UtlString::ignoreCase) == 0) ||
+                (mimeSubtype.compareTo(MIME_SUBTYPE_AMRWB, UtlString::ignoreCase) == 0))
+        {
+            if(fmtp1 == fmtp2)
+            {
+                isCompatible = TRUE;
+                compares = 1;
+            }
+            else if((fmtp1 == "" && fmtp2 == "octet-align=0")  ||
+                    (fmtp2 == "" && fmtp1 == "octet-align=0"))
+            {
+                isCompatible = TRUE;
+                compares = 0;
+            }
+        }
+
+        else if(mimeSubtype.compareTo(MIME_SUBTYPE_SPEEX, UtlString::ignoreCase) == 0)
+        {
+            if(fmtp1 == fmtp2)
+            {
+                isCompatible = TRUE;
+                compares = 1;
+            }
+            // TODO:  are softer compares needed?
         }
 
         // All other Audio Mime subtypes:
