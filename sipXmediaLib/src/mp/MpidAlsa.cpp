@@ -67,6 +67,10 @@ OsStatus MpidAlsa::enableDevice(unsigned samplesPerFrame,
                                unsigned samplesPerSec,
                                MpFrameTime currentFrameTime)
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpidAlsa::enableDevice start");
+#endif
    OsStatus ret;
    if (isEnabled())
    {
@@ -110,6 +114,10 @@ OsStatus MpidAlsa::enableDevice(unsigned samplesPerFrame,
    {
       return ret;
    }
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpidAlsa::enableDevice set");
+#endif
    mIsEnabled = TRUE;
 
    return ret;
@@ -117,6 +125,10 @@ OsStatus MpidAlsa::enableDevice(unsigned samplesPerFrame,
 
 OsStatus MpidAlsa::disableDevice()
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpidAlsa::disableDevice start");
+#endif
    OsStatus ret;
 
    if (!isEnabled())
@@ -136,6 +148,10 @@ OsStatus MpidAlsa::disableDevice()
    }
 
    delete[] mAudioFrame;
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpidAlsa::disableDevice set");
+#endif
    mIsEnabled = FALSE;
 
    pDevWrapper->freeInputDevice();
