@@ -1,6 +1,6 @@
 // 
 //
-// Copyright (C) 2010-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2010-2017 SIPez LLC.  All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -97,7 +97,7 @@
                     int testPoint = currentTestClass->getTestPointIndex(); \
                     snprintf(_sipxportunit_message, SIPX_PORT_UNIT_MAX_ERROR_MESSAGE_SIZE - 1, \
                             "%s, \"%s\" is not true, file: %s %s::%s test point: %d line: %d\n", \
-                            ((char*)ERROR_MESSAGE), #TRUE_VALUE, \
+                            ((const char*)ERROR_MESSAGE), #TRUE_VALUE, \
                             __FILE__, className, methodName, testPoint, __LINE__); \
                     SipxPortUnitTestEnvironment::printOut(_sipxportunit_message); \
                     currentTestClass->addFailedTestPoint(__FILE__, \
