@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -50,7 +50,6 @@ public:
 
 #ifdef __linux__
        // /proc parsing stolen from OsProcessIteratorLinux.cpp
-       OsStatus retval = OS_FAILED;
        char pidString[20];
        snprintf(pidString, 20, "%d", PID);
 
@@ -83,9 +82,6 @@ public:
 
                        ptr = strtok(NULL,"\n");
                    }
-
-                   //say we are successful
-                   retval = OS_SUCCESS;
                }
                else
                    osPrintf("Couldn't read bytes in readProcFile\n");
