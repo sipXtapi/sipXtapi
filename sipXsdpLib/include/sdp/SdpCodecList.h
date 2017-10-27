@@ -70,6 +70,11 @@ public:
      *  @returns Number of unknown codecs in the list. Zero for full success.
      */
 
+     /// Add specified codecs to the list.
+   int addCodecs(UtlSList& codecNameList);
+     /**<
+     *  @returns Number of unknown codecs in the list. Zero for full success.
+     */
      /// Add codecs specified by array of codec token names and assign given payload ID
    int addCodecs(int numTokens, const char* codecTokens[], int payloadIds[]);
 

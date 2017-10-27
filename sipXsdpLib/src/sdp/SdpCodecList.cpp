@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -166,6 +166,35 @@ int SdpCodecList::addCodecs(const UtlString &codecList)
        codecStringIndex++;
        UtlNameValueTokenizer::getSubField(codecList, codecStringIndex,
                                           ", \n\r\t", &oneCodec);
+   }
+
+   return numRejected;
+}
+
+int SdpCodecList::addCodecs(UtlSList& codecNameList)
+{
+   UtlString* oneCodec = NULL;
+   int numRejected = 0;
+   SdpCodec::SdpCodecTypes codecs[1];
+   SdpCodec::SdpCodecTypes internalCodecId;
+   UtlSListIterator iterator(codecNameList);
+ 
+   while((oneCodec = (UtlString*) iterator()))
+   {
+       internalCodecId = SdpDefaultCodecFactory::getCodecType(oneCodec->data());
+       if (internalCodecId != SdpCodec::SDP_CODEC_UNKNOWN)
+       {
+           codecs[0] = internalCodecId;
+           numRejected += addCodecs(1,codecs);
+       }
+       else
+       {
+          numRejected++;
+#ifdef TEST_PRINT
+          OsSysLog::add(FAC_SDP, PRI_ERROR, "Invalid codec token: %s",
+              oneCodec->data());
+#endif
+       }
    }
 
    return numRejected;
@@ -542,6 +571,13 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
                         {
                             bestCodecFound = codecFound;
                             bestCodecCompares = compares;
+#ifdef TEST_PRINT
+                            UtlString codecDump;
+                            bestCodecFound->toString(codecDump);
+                            OsSysLog::add(FAC_SDP, PRI_DEBUG,
+                                          "SdpCodecList::getCodec new best codec:\n%s",
+                                          codecDump.data());
+#endif
                         }
                     }
                 }
@@ -549,6 +585,13 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
                 {
                     bestCodecFound = codecFound;
                     bestCodecCompares = compares;
+#ifdef TEST_PRINT
+                    UtlString codecDump;
+                    bestCodecFound->toString(codecDump);
+                    OsSysLog::add(FAC_SDP, PRI_DEBUG,
+                                  "SdpCodecList::getCodec first best codec:\n%s",
+                                   codecDump.data());
+#endif
                 }
 
 
@@ -602,8 +645,9 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
     {
         UtlString codecDump;
         bestCodecFound->toString(codecDump);
-        osPrintf("SdpCodecList::getCodec found:\n%s",
-            codecDump.data());
+        OsSysLog::add(FAC_SDP, PRI_DEBUG,
+                      "SdpCodecList::getCodec found:\n%s",
+                      codecDump.data());
     }
 #endif
 
@@ -820,8 +864,9 @@ void SdpCodecList::addCodecNoLock(const SdpCodec& newCodec)
 #ifdef TEST_PRINT
     UtlString codecDump;
     newCodec.toString(codecDump);
-    osPrintf("SdpCodecList::addCodec adding:\n%s",
-        codecDump.data());
+    OsSysLog::add(FAC_SDP, PRI_DEBUG,
+                  "SdpCodecList::addCodec adding:\n%s",
+                  codecDump.data());
 #endif
 }
 
