@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -14,11 +14,25 @@
 #include <sipxunit/TestUtilities.h>
 
 #include <os/OsDefs.h>
+#include <utl/UtlHashBag.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
 #include <sdp/SdpCodecList.h>
 #include <sdp/SdpMediaLine.h>
+#include <sdp/SdpDefaultCodecFactory.h>
 #include <net/NetBase64Codec.h>
+
+const char* sBadCodecs[] = 
+{
+    "ISAC",
+    "IPCMWB",
+    "EG711A",
+    "EG711U",
+    "G729A-FOR-CISCO-7960",
+    "AVT", // duplicate of TELEPHONE-EVENT
+    "AVT-TONES", // duplicate of TELEPHONE-EVENT
+    "AUDIO/TELEPHONE-EVENT" // duplicate of TELEPHONE-EVENT
+};
 
 
 /**
@@ -47,9 +61,22 @@ class SdpBodyTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testCryptoParser);
     CPPUNIT_TEST(test3Mlines);
     CPPUNIT_TEST(test5Mlines);
+    CPPUNIT_TEST(testGetCodecsInCommonFull);
     CPPUNIT_TEST_SUITE_END();
 
+    UtlHashBag mCodecsToIgnore;
+
 public:
+    void setUp()
+    {
+        // In case there is garbage from prior runs, delete contents
+        mCodecsToIgnore.destroyAll();
+
+        for(size_t badCodecIndex = 0; badCodecIndex < sizeof(sBadCodecs)/sizeof(const char*); badCodecIndex++)
+        {
+            mCodecsToIgnore.insert(new UtlString(sBadCodecs[badCodecIndex]));
+        }
+    }
 
     void testParser()
     {
@@ -2534,6 +2561,312 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
         CPPUNIT_ASSERT_EQUAL(sdpAnswer.getMediaStreamDirection(4, direction), TRUE);
         CPPUNIT_ASSERT_EQUAL(direction, SdpBody::Inactive);
 
+    }
+    void testGetCodecsInCommonFull()
+    {
+            // Intensionally no rtpmaps for 0 and 9 (PCMA and G722)
+            // Payload IDs 122 and 97 intensionally in m line, but not defined in rtpmap
+            // TODO: add G729 and G723 rtpmaps to SDP
+        const char* sdpBodyText =
+            "v=0\n"
+            "o=sipX 5 5 IN IP4 192.168.0.101\n"
+            "s=call\n"
+            "t=0 0\n"
+            "m=audio 9000 RTP/AVP 8 124 108 115 109 96 123 126 104 105 106 107 100 101 102 103 110 111 98 99 125 112 113 114 116 118 119 120 121 117 0 9 122 127 97 128 129 130 131 132 133 134 135 136 137 138 139 140 141\n"
+            "c=IN IP4 192.168.0.101\n"
+            "a=rtpmap:8 PCMA/8000/1\n"
+            "a=rtpmap:124 G726-24/8000/1\n"
+            "a=rtpmap:108 OPUS/48000/2\n"
+            "a=fmtp:108 stereo=0; sprop-stereo=0\n"
+            "a=rtpmap:115 AMR/8000/1\n"
+            "a=fmtp:115 octet-align=1\n"
+            "a=rtpmap:136 AMR/8000/1\n"
+            "a=fmtp:136 octet-align=0\n"
+            "a=rtpmap:109 ILBC/8000/1\n"
+            "a=rtpmap:96 ILBC/8000/1\n"
+            "a=fmtp:96 mode=20\n"
+            "a=rtpmap:123 G726-32/8000/1\n"
+            "a=rtpmap:126 G726-16/8000/1\n"
+            "a=rtpmap:104 SPEEX/32000/1\n"
+            "a=rtpmap:105 SPEEX/32000/1\n"
+            "a=fmtp:105 mode=1\n"
+            "a=rtpmap:106 SPEEX/32000/1\n"
+            "a=fmtp:106 mode=6\n"
+            "a=rtpmap:107 SPEEX/32000/1\n"
+            "a=fmtp:107 mode=10\n"
+            "a=rtpmap:100 SPEEX/16000/1\n"
+            "a=rtpmap:101 SPEEX/16000/1\n"
+            "a=fmtp:101 mode=1\n"
+            "a=rtpmap:102 SPEEX/16000/1\n"
+            "a=fmtp:102 mode=6\n"
+            "a=rtpmap:103 SPEEX/16000/1\n"
+            "a=fmtp:103 mode=10\n"
+            "a=rtpmap:110 SPEEX/8000/1\n"
+            "a=rtpmap:111 SPEEX/8000/1\n"
+            "a=fmtp:111 mode=2\n"
+            "a=rtpmap:98 SPEEX/8000/1\n"
+            "a=fmtp:98 mode=5\n"
+            "a=rtpmap:99 SPEEX/8000/1\n"
+            "a=fmtp:99 mode=7\n"
+            "a=rtpmap:125 G726-40/8000/1\n"
+            "a=rtpmap:112 L16/48000/1\n"
+            "a=rtpmap:113 L16/44100/1\n"
+            "a=rtpmap:114 L16/32000/1\n"
+            "a=rtpmap:116 L16/24000/1\n"
+            "a=rtpmap:118 L16/22050/1\n"
+            "a=rtpmap:119 L16/16000/1\n"
+            "a=rtpmap:120 L16/11025/1\n"
+            "a=rtpmap:121 L16/8000/1\n"
+            "a=rtpmap:127 L16/48000/2\n"
+            "a=rtpmap:128 L16/44100/2\n"
+            "a=rtpmap:129 L16/32000/2\n"
+            "a=rtpmap:130 L16/24000/2\n"
+            "a=rtpmap:131 L16/22050/2\n"
+            "a=rtpmap:132 L16/16000/2\n"
+            "a=rtpmap:133 L16/11025/2\n"
+            "a=rtpmap:134 L16/8000/2\n"
+            "a=rtpmap:135 gsm/8000/1\n"
+            "a=rtpmap:117 AMR-WB/16000/1\n"
+            "a=fmtp:117 octet-align=1\n"
+            "a=rtpmap:137 AMR-WB/16000/1\n"
+            "a=rtpmap:138 AAC_LC/32000/1\n"
+            "a=rtpmap:139 MPEG4-GENERIC/32000/1\n"
+            "a=fmtp:139 streamtype=5; profile-level-id=15; mode=AAC-hbr; config=1288; SizeLength=13; IndexLength=3; IndexDeltaLength=3; Profile=1\n"
+            "a=rtpmap:140 MPEG4-GENERIC/16000/1\n"
+            "a=fmtp:140 streamtype=5; profile-level-id=15; mode=AAC-hbr; config=1408; SizeLength=13; IndexLength=3; IndexDeltaLength=3; Profile=1\n"
+            "a=rtpmap:141 MPEG4-GENERIC/48000/1\n"
+            "a-fmtp:141 streamtype=5; profile-level-id=15; mode=AAC-hbr; config=1188; SizeLength=13; IndexLength=3; IndexDeltaLength=3; Profile=1\n"
+            "a=ptime:30\n"
+            "a=control:trackID=1\n";
+
+        SdpBody sdpBody(sdpBodyText);
+        UtlSList allCodecNames;
+        int allCodecCount = SdpDefaultCodecFactory::getCodecNames(allCodecNames);
+        CPPUNIT_ASSERT(100 < allCodecCount);
+        CPPUNIT_ASSERT_EQUAL(allCodecCount, allCodecNames.entries());
+        SdpCodecList enabledCodecs;
+
+        // Number of rejected or unknown codecs in list
+        CPPUNIT_ASSERT_EQUAL(0, enabledCodecs.addCodecs(allCodecNames));
+
+        int numCommonCodecs = 0;
+        SdpCodec** codecsInCommonArray = NULL;
+        UtlString rtpAddress;
+        int rtpPort = 0;
+        int rtcpPort = 0;
+        int videoRtpPort = 0;
+        int videoRtcpPort = 0;
+        SdpSrtpParameters localSrtpParameters;
+        memset((void*)&localSrtpParameters, 0, sizeof(SdpSrtpParameters));
+        SdpSrtpParameters matchingSrtpParameters;
+        memset((void*)&matchingSrtpParameters, 0, sizeof(SdpSrtpParameters));
+        int localBandwidth = 0;
+        int matchingBandwidth = 0;
+        int localVideoFramerate = 0;
+        int matchingVideoFramerate = 0;
+
+        sdpBody.getBestAudioCodecs(enabledCodecs,
+                                   numCommonCodecs,
+                                   codecsInCommonArray,
+                                   //SdpCodec**& commonCodecsForDecoder,
+                                   rtpAddress,
+                                   rtpPort,
+                                   rtcpPort,
+                                   videoRtpPort,
+                                   videoRtcpPort,
+                                   localSrtpParameters,
+                                   matchingSrtpParameters,
+                                   localBandwidth,
+                                   matchingBandwidth,
+                                   localVideoFramerate,
+                                   matchingVideoFramerate);
+
+
+        CPPUNIT_ASSERT_EQUAL(numCommonCodecs, 47);
+        if(numCommonCodecs != 47)
+        {
+            SdpCodecList codecsInCommonList(numCommonCodecs, codecsInCommonArray);
+            UtlString codecsInCommonString;
+            codecsInCommonList.toString(codecsInCommonString);
+            printf("codecs in common: \n%s\n", codecsInCommonString.data());
+            
+
+        }
+
+        // Non-static payload IDs should be initialized to -1
+        int numEnabledCodecs = 0;
+        SdpCodec** enabledCodecsArray = NULL;
+        UtlString codecName;
+        enabledCodecs.getCodecs(numEnabledCodecs, enabledCodecsArray);
+        for(int enabledCodecIndex = 0; enabledCodecIndex < numEnabledCodecs; enabledCodecIndex++)
+        {
+            enabledCodecsArray[enabledCodecIndex]->getEncodingName(codecName);
+
+            if(mCodecsToIgnore.contains(&codecName))
+            {
+                printf("Skipping payload id check for codec: %s\n", codecName.data());
+                continue;
+            }
+
+            switch(enabledCodecsArray[enabledCodecIndex]->getCodecType())
+            {
+            // PCMA, PCMU, G722 are the only static codec payload IDs we support
+            case SdpCodec::SDP_CODEC_PCMU:
+            case SdpCodec::SDP_CODEC_PCMA:
+            case SdpCodec::SDP_CODEC_GSM:
+            case SdpCodec::SDP_CODEC_G722:
+            case SdpCodec::SDP_CODEC_G723:
+            case SdpCodec::SDP_CODEC_G729:
+            case SdpCodec::SDP_CODEC_L16_44100_STEREO:
+            case SdpCodec::SDP_CODEC_L16_44100_MONO:
+            case SdpCodec::SDP_CODEC_H263:
+
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(codecName, 
+                                             enabledCodecsArray[enabledCodecIndex]->getCodecType(), 
+                                             enabledCodecsArray[enabledCodecIndex]->getCodecPayloadFormat());
+
+            // This codecs have internal codec IDs different from their static payload id
+            case SdpCodec::SDP_CODEC_H263_CIF:
+            case SdpCodec::SDP_CODEC_H263_QCIF:
+            case SdpCodec::SDP_CODEC_H263_SQCIF:
+            case SdpCodec::SDP_CODEC_H263_QVGA:
+            case SdpCodec::SDP_CODEC_G729A:
+            case SdpCodec::SDP_CODEC_G729AB:
+
+                CPPUNIT_ASSERT_MESSAGE(codecName, 
+                                       SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC >=
+                                       enabledCodecsArray[enabledCodecIndex]->getCodecPayloadFormat());
+                break;
+
+            // Dynamic codec payload types should not be bound yet (i.e. -1)
+            default:
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(codecName, 
+                                             -1, enabledCodecsArray[enabledCodecIndex]->getCodecPayloadFormat());
+                break;
+            }
+        }
+        SdpCodecList::freeArray(numEnabledCodecs, enabledCodecsArray);
+        numEnabledCodecs = 0;
+        enabledCodecsArray = NULL;
+
+        // Bind the payload IDs in the enabled set of codecs to match those from
+        // the SDP.
+        enabledCodecs.copyPayloadTypes(numCommonCodecs, (const SdpCodec**)codecsInCommonArray);
+
+        SdpCodecList::freeArray(numCommonCodecs, codecsInCommonArray);
+        numCommonCodecs = 0;
+        codecsInCommonArray = NULL;
+
+        const UtlString* aSupportedCodec = NULL;
+        UtlSListIterator iterator(allCodecNames);
+        while((aSupportedCodec = (const UtlString*) iterator()))
+        {
+            if(mCodecsToIgnore.contains(aSupportedCodec))
+            {
+                printf("Skipping codec: %s\n", aSupportedCodec->data());
+                continue;
+            }
+            enabledCodecs.clearCodecs();
+            // Pretend we only support one codec
+            enabledCodecs.addCodecs(*aSupportedCodec);
+
+            // Find codec in common
+            sdpBody.getBestAudioCodecs(enabledCodecs,
+                                       numCommonCodecs,
+                                       codecsInCommonArray,
+                                       //SdpCodec**& commonCodecsForDecoder,
+                                       rtpAddress,
+                                       rtpPort,
+                                       rtcpPort,
+                                       videoRtpPort,
+                                       videoRtcpPort,
+                                       localSrtpParameters,
+                                       matchingSrtpParameters,
+                                       localBandwidth,
+                                       matchingBandwidth,
+                                       localVideoFramerate,
+                                       matchingVideoFramerate);
+
+            SdpCodec::SdpCodecTypes internalCodecId = SdpDefaultCodecFactory::getCodecType(*aSupportedCodec);
+            CPPUNIT_ASSERT_MESSAGE(*aSupportedCodec, internalCodecId != SdpCodec::SDP_CODEC_UNKNOWN);
+
+            const SdpCodec* localCodec = enabledCodecs.getCodec(internalCodecId);
+            CPPUNIT_ASSERT_MESSAGE(*aSupportedCodec, localCodec);
+            UtlString mediaType;
+            if(localCodec)
+            {
+                localCodec->getMediaType(mediaType);
+                mediaType.toUpper();
+            }
+
+            // There is only audio codecs in the SDP body
+            if(mediaType == "AUDIO")
+            {
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(*aSupportedCodec, 1, numCommonCodecs);
+                if(numCommonCodecs > 1)
+                {
+                    printf("multiple matches (%d) found\n", numCommonCodecs);
+                    for(int matchIndex = 0; matchIndex < numCommonCodecs; matchIndex++)
+                    {
+                        UtlString codecString;
+                        codecsInCommonArray[matchIndex]->toString(codecString);
+                        printf("\t%s", codecString.data());
+                    }
+                }
+            }
+
+            if(numCommonCodecs && localCodec)
+            {
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(*aSupportedCodec, 
+                                             codecsInCommonArray[0]->getCodecType(), internalCodecId);
+
+                // This assume literal string blob to be the same on both sides.
+                //  If the FMTP field has more than one parameter, and order does
+                // not matter, this check may be too rigid.  We would have to iterate
+                // through the parameters.
+                UtlString localFmtp;
+                UtlString remoteFmtp;
+                localCodec->getSdpFmtpField(localFmtp);
+                codecsInCommonArray[0]->getSdpFmtpField(remoteFmtp);
+                if(*aSupportedCodec == "AMR" && localFmtp == "")
+                {
+                    // fmpt not specified (i.e. "") is the same as "octet-align=0"
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(*aSupportedCodec, "octet-align=0", remoteFmtp);
+                }
+                else
+                {
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(*aSupportedCodec, localFmtp, remoteFmtp);
+                }
+
+                // Compare MIME sub type
+                UtlString localSubtype;
+                UtlString remoteSubtype;
+                localCodec->getEncodingName(localSubtype);
+                codecsInCommonArray[0]->getEncodingName(remoteSubtype);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(*aSupportedCodec, localSubtype, remoteSubtype);
+
+                // Compare sample rates
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(*aSupportedCodec,
+                                             localCodec->getSampleRate(), codecsInCommonArray[0]->getSampleRate());
+
+                // Compare channels
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(*aSupportedCodec,
+                                             localCodec->getNumChannels(), codecsInCommonArray[0]->getNumChannels());
+            }
+            else if(mediaType == "AUDIO")
+            {
+                printf("Codec %s not matched in SDP:\n", aSupportedCodec->data());
+                if(localCodec)
+                {
+                    UtlString codecString;
+                    localCodec->toString(codecString);
+                    printf("\t%s\n", codecString.data());
+                }
+            }
+
+            SdpCodecList::freeArray(numCommonCodecs, codecsInCommonArray);
+            codecsInCommonArray = NULL;
+        }
     }
 };
 
