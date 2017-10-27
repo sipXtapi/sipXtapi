@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -325,7 +325,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_L16_44100_MONO:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_L16_44100_MONO,
-                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         SdpCodec::SDP_CODEC_L16_44100_MONO, // This is a static type
                          MIME_TYPE_AUDIO,
                          "L16",
                          44100,
@@ -345,6 +345,118 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          48000,
                          20000,
                          1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_8000_STEREO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_8000_STEREO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         8000,
+                         20000,
+                         2,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_11025_STEREO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_11025_STEREO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         11025,
+                         20000,
+                         2,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_16000_STEREO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_16000_STEREO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         16000,
+                         20000,
+                         2,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_22050_STEREO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_22050_STEREO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         22050,
+                         20000,
+                         2,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_24000_STEREO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_24000_STEREO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         24000,
+                         20000,
+                         2,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_32000_STEREO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_32000_STEREO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         32000,
+                         20000,
+                         2,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_44100_STEREO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_44100_STEREO,
+                         SdpCodec::SDP_CODEC_L16_44100_STEREO, // This is a static type
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         44100,
+                         20000,
+                         2,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_48000_STEREO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_48000_STEREO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         48000,
+                         20000,
+                         2,
                          "",
                          SdpCodec::SDP_CODEC_CPU_LOW);
       }
@@ -471,7 +583,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_G726_16:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G726_16,
-                         SdpCodec::SDP_CODEC_G726_16,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_G726_16,
                          8000,
@@ -486,7 +598,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_G726_24:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G726_24,
-                         SdpCodec::SDP_CODEC_G726_24,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_G726_24,
                          8000,
@@ -501,7 +613,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_G726_32:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G726_32,
-                         SdpCodec::SDP_CODEC_G726_32,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_G726_32,
                          8000,
@@ -516,7 +628,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_G726_40:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G726_40,
-                         SdpCodec::SDP_CODEC_G726_40,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_G726_40,
                          8000,
@@ -649,7 +761,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX,
-                         SdpCodec::SDP_CODEC_SPEEX,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          8000,
@@ -663,7 +775,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_5:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_5,
-                         SdpCodec::SDP_CODEC_SPEEX_5,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          8000,
@@ -677,7 +789,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_15:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_15,
-                         SdpCodec::SDP_CODEC_SPEEX_15,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          8000,
@@ -691,7 +803,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_24:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_24,
-                         SdpCodec::SDP_CODEC_SPEEX_24,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          8000,
@@ -706,7 +818,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_WB:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB,
-                         SdpCodec::SDP_CODEC_SPEEX_WB,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          16000,
@@ -720,7 +832,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_WB_5:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB_5,
-                         SdpCodec::SDP_CODEC_SPEEX_WB_5,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          16000,
@@ -734,7 +846,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_WB_21:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB_21,
-                         SdpCodec::SDP_CODEC_SPEEX_WB_21,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          16000,
@@ -748,7 +860,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_WB_42:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB_42,
-                         SdpCodec::SDP_CODEC_SPEEX_WB_42,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          16000,
@@ -763,7 +875,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_UWB:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB,
-                         SdpCodec::SDP_CODEC_SPEEX_UWB,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          32000,
@@ -777,7 +889,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_UWB_8:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB_8,
-                         SdpCodec::SDP_CODEC_SPEEX_UWB_8,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          32000,
@@ -791,7 +903,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_UWB_22:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB_22,
-                         SdpCodec::SDP_CODEC_SPEEX_UWB_22,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          32000,
@@ -805,7 +917,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_UWB_44:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB_44,
-                         SdpCodec::SDP_CODEC_SPEEX_UWB_44,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_SPEEX,
                          32000,
@@ -820,7 +932,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_AMR:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_AMR,
-                         SdpCodec::SDP_CODEC_AMR,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_AMR,
                          8000,
@@ -834,7 +946,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_AMR_ALIGNED:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_AMR_ALIGNED,
-                         SdpCodec::SDP_CODEC_AMR_ALIGNED,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_AMR,
                          8000,
@@ -849,7 +961,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_AMRWB:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_AMRWB,
-                         SdpCodec::SDP_CODEC_AMRWB,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_AMRWB,
                          16000,
@@ -863,7 +975,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_AMRWB_ALIGNED:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_AMRWB_ALIGNED,
-                         SdpCodec::SDP_CODEC_AMRWB_ALIGNED,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_AMRWB,
                          16000,
@@ -1538,7 +1650,7 @@ SdpCodec::SdpCodecTypes SdpDefaultCodecFactory::getCodecType(const char* pCodecN
 {
    UtlString compareString(pCodecName);
 
-   for (int i = 0; i < SIZEOF_CODEC_NAMES_MAP; i++)
+   for (size_t i = 0; i < SIZEOF_CODEC_NAMES_MAP; i++)
    {
       if (compareString.compareTo(sgCodecNamesMap[i].codecName, UtlString::ignoreCase) == 0)
       {
@@ -1551,7 +1663,7 @@ SdpCodec::SdpCodecTypes SdpDefaultCodecFactory::getCodecType(const char* pCodecN
 
 OsStatus SdpDefaultCodecFactory::getCodecNameByType(SdpCodec::SdpCodecTypes type, UtlString& codecName)
 {
-   for (int i = 0; i < SIZEOF_CODEC_NAMES_MAP; i++)
+   for (size_t i = 0; i < SIZEOF_CODEC_NAMES_MAP; i++)
    {
       if (sgCodecNamesMap[i].codecType == type)
       {
@@ -1569,7 +1681,7 @@ OsStatus SdpDefaultCodecFactory::getMimeInfoByType(SdpCodec::SdpCodecTypes codec
                                                    UtlString& mimeSubtype,
                                                    UtlString& fmtp)
 {
-   for (int i = 0; i < SIZEOF_MIME_INFO_MAP; i++)
+   for (size_t i = 0; i < SIZEOF_MIME_INFO_MAP; i++)
    {
       if (sgMimeInfoMap[i].codecType == codecType)
       {
@@ -1588,7 +1700,7 @@ OsStatus SdpDefaultCodecFactory::getCodecType(const UtlString &mimeSubtype,
                                               const UtlString &fmtp,
                                               SdpCodec::SdpCodecTypes &codecType)
 {
-   for (int i = 0; i < SIZEOF_MIME_INFO_MAP; i++)
+   for (size_t i = 0; i < SIZEOF_MIME_INFO_MAP; i++)
    {
       if (  mimeSubtype.compareTo(sgMimeInfoMap[i].mimeSubtype, UtlString::ignoreCase) == 0
          && sgMimeInfoMap[i].sampleRate == sampleRate
@@ -1601,6 +1713,16 @@ OsStatus SdpDefaultCodecFactory::getCodecType(const UtlString &mimeSubtype,
    }
 
    return OS_NOT_FOUND;
+}
+
+int SdpDefaultCodecFactory::getCodecNames(UtlContainer& codecNames)
+{
+    size_t codecCount = 0;
+    for(codecCount = 0; codecCount < SIZEOF_CODEC_NAMES_MAP; codecCount++)
+    {
+        codecNames.insert(new UtlString(sgCodecNamesMap[codecCount].codecName));
+    }
+    return(codecCount);
 }
 
 /* ============================ INQUIRY =================================== */

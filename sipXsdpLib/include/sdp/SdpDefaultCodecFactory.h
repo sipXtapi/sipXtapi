@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2008 SIPez LLC.
+// Copyright (C) 2007-2017 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -98,6 +98,9 @@ public:
      *  @retval OS_SUCESS if appropriate mapping found and \p codecType set.
      *  @retval OS_NOT_FOUND if appropriate mapping not found.
      */
+
+    /// Get the string names for all of the codec types known by the codec factory
+    static int getCodecNames(UtlContainer& codecNames);
 
 //@}
 
