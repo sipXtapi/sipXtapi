@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2017 SIPez LLC  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -392,7 +391,7 @@ public:
             (int)contentTypeParameters.entries(), 5);
         
         //UtlHashMapIterator iterator(contentTypeParameters);
-        UtlString* paramName = NULL;
+        //UtlString* paramName = NULL;
         UtlString* paramValue = NULL;
         //while(paramName = (UtlString*)iterator())
         {
@@ -458,7 +457,7 @@ public:
             (int)contentTypeParameters.entries(), 3);
         
         //UtlHashMapIterator iterator2(contentTypeParameters);
-        paramName = NULL;
+        //paramName = NULL;
         paramValue = NULL;
         //while(paramName = (UtlString*)iterator2())
         {
@@ -521,7 +520,7 @@ public:
             (int)contentTypeParameters.entries(), 5);
         
         //UtlHashMapIterator iterator3(contentTypeParameters);
-        paramName = NULL;
+        //paramName = NULL;
         paramValue = NULL;
         //while(paramName = (UtlString*)iterator3())
         {
