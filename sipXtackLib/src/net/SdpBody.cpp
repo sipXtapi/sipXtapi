@@ -32,7 +32,7 @@
 #include <net/NetBase64Codec.h>
 
 #define MAXIMUM_LONG_INT_CHARS 20
-#define MAXIMUM_MEDIA_TYPES 30
+#define MAXIMUM_MEDIA_TYPES 128
 #define MAXIMUM_VIDEO_SIZES 6
 //#define TEST_PRINT
 
@@ -731,11 +731,9 @@ UtlBoolean SdpBody::getFramerateField(int mediaIndex,
     const char* value;
     UtlString aFieldMatch("a");
     UtlString rateString;
-    int size;
     UtlString temp;
     videoFramerate = 0;
 
-    size = sdpFields->entries();
     while((nv = (NameValuePair*) iterator.findNext(&aFieldMatch)) != NULL)
     {
         value =  nv->getValue();
@@ -1118,13 +1116,13 @@ void SdpBody::getBestAudioCodecs(SdpCodecList& localRtpCodecs,
    int audioPayloadTypes[MAXIMUM_MEDIA_TYPES];
    int videoPayloadTypes[MAXIMUM_MEDIA_TYPES];
    numCodecsInCommon = 0;
-   commonCodecsForEncoder = new SdpCodec*[localRtpCodecs.getCodecCount()];
-   SdpCodec** commonCodecsForDecoder = new SdpCodec*[localRtpCodecs.getCodecCount()];
-   for(int codecIndex = 0; codecIndex < localRtpCodecs.getCodecCount(); codecIndex++)
+   int maxCodecs = sipx_max(getMediaSetCount() * MAXIMUM_MEDIA_TYPES, localRtpCodecs.getCodecCount());
+   commonCodecsForEncoder = new SdpCodec*[maxCodecs];
+   SdpCodec** commonCodecsForDecoder = new SdpCodec*[maxCodecs];
+   for(int codecIndex = 0; codecIndex < maxCodecs; codecIndex++)
    {
        commonCodecsForDecoder[codecIndex] = NULL;
-       // TODO:
-       //commonCodecsForEncoder[codecIndex] = NULL;
+       commonCodecsForEncoder[codecIndex] = NULL;
 
    }
    SdpSrtpParameters remoteSrtpParams;
@@ -1193,7 +1191,7 @@ void SdpBody::getBestAudioCodecs(SdpCodecList& localRtpCodecs,
 
    if(commonCodecsForDecoder)
    {
-      SdpCodecList::freeArray(localRtpCodecs.getCodecCount(), commonCodecsForDecoder);
+      SdpCodecList::freeArray(maxCodecs, commonCodecsForDecoder);
    }
 }
 
@@ -1475,13 +1473,20 @@ void SdpBody::getCodecsInCommon(int audioMediaSetIndex,
             if (matchingCodec->getCodecType() == SdpCodec::SDP_CODEC_ILBC)
             {
                 frameSize = codecMode;
-                if (frameSize == 20 || frameSize == 30 || frameSize == 0)
+                //OsSysLog::add(FAC_NET, PRI_DEBUG,
+                //              "SdpBody::getCodecsInCommon ILBC codec framesize: %d",
+                //              frameSize);
+                if(frameSize == -1)
                 {
-                   if (frameSize == 0)
-                   {
-                       frameSize = 20;
-                   }
-
+                    // Unspecified mode assume 30
+                    frameSize = 30;
+                }
+                else if (frameSize == 20 || frameSize == 30 )
+                {
+                }
+                else if (frameSize == 0)
+                {
+                    frameSize = 20;
                 }
                 else
                 {
@@ -1513,6 +1518,11 @@ void SdpBody::getCodecsInCommon(int audioMediaSetIndex,
                   commonCodecsForDecoder[numCodecsInCommon]->setPacketSize(frameSize*1000);
                }
 
+               if(!fmtp.isNull())
+               {
+                  commonCodecsForEncoder[numCodecsInCommon]->setSdpFmtpField(fmtp);
+                  commonCodecsForDecoder[numCodecsInCommon]->setSdpFmtpField(fmtp);
+               }
                numCodecsInCommon++;
             }
          
