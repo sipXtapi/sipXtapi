@@ -335,7 +335,7 @@ OsStatus MpCodecFactory::createDecoder(const UtlString &mime,
                     "%s, fmtp=%s"
                     "payloadType = %d",
                     mime.data(), fmtp.data(), payloadType);
-
+      OsSysLog::flush();
       assert(!"Could not find codec of given type!");
       rpDecoder=NULL;
    }
