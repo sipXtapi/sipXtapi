@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -463,14 +462,14 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
 
     char tz[4] = {"   "};
 #if !defined(_VXWORKS) && !defined(WINCE)
-#ifdef _MSC_VER && _MSC_VER >= 1900
+#if defined(_MSC_VER) && _MSC_VER >= 1900
     UtlString timezone = _tzname[0];
 #else
     UtlString timezone = tzname[0];
 #endif
 
     if (today->tm_isdst == 1)
-#ifdef _MSC_VER && _MSC_VER >= 1900
+#if defined(_MSC_VER) && _MSC_VER >= 1900
         timezone = _tzname[1];
 #else
         timezone = tzname[1];
