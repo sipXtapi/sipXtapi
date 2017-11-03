@@ -679,7 +679,7 @@ AC_DEFUN([SFAC_ARG_WITH_LIB],
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ lib_path=$withval ],
-        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src `pwd`/../[$4]/src/test/sipxunit `pwd`/../[$4]/src/test/sipxportunit"]
+        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src `pwd`/../[$4]/src/test/sipxunit `pwd`/../[$4]/src/test/sipxportunit"]
     )
     foundpath=""
     for dir in $lib_path ; do
