@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -432,6 +432,7 @@ void OsTimerTask::fireTimer(OsTimer* timer)
       {
           OsSysLog::add(FAC_KERNEL, PRI_ERR,
                   "OsTimer event %p returned error: %d from signal",
+                  timer->mpNotifier,
                   status);
       }
 

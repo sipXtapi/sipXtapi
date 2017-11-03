@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -101,7 +101,7 @@ OsStatus OsQueuedEvent::doSendEventMsg(const int msgType,
       {
           OsSysLog::add(FAC_KERNEL, PRI_ERR,
               "OsQueuedEvent failed to queue \"%s\" (%p) event %p due to timeout (%d.%6d).  Queue contains %d messages with a max of %d",
-              mpMsgQ->getName().data(), mpMsgQ, this, mSignalTimeout.seconds(), mSignalTimeout.usecs(), 
+              mpMsgQ->getName().data(), mpMsgQ, this, (int)mSignalTimeout.seconds(), (int)mSignalTimeout.usecs(), 
               mpMsgQ->numMsgs(), mpMsgQ->maxMsgs());
       }
    }

@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2006 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
@@ -141,7 +143,7 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
         if (mpRawData)
             memcpy(mpRawData, pBuf, mnRawData) ;
         else
-            mnRawData = NULL ;
+            mnRawData = 0;
 
         char* pTraverse = (char*) pBuf ;
 
@@ -163,7 +165,7 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
             bValid = true ;
 
             // Loop through each attribute
-            int iBytesLeft = mMsgHeader.length ;
+            size_t iBytesLeft = mMsgHeader.length ;
             while (bValid && (iBytesLeft >= sizeof(STUN_ATTRIBUTE_HEADER))) 
             {
                 STUN_ATTRIBUTE_HEADER header ;

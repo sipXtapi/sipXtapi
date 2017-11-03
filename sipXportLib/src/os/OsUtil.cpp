@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -104,8 +106,9 @@ OsStatus OsUtil::insertKeyValue(const UtlString& rPrefix,
             break;          // success, do nothing
          case OS_NAME_IN_USE:
             OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                               "OsUtil::insertKeyValue - "
-                               "name already in use: " + rPrefix + rName);
+                          "OsUtil::insertKeyValue - " "name already in use: %s%s", 
+                          rPrefix.data(), 
+                          rName.data());
             break;
          default:
             OsSysLog::add(FAC_KERNEL, PRI_ERR,
@@ -332,6 +335,8 @@ void OsUtil::getCurDate(UtlString& dateStr, const struct tm* pCurTime,
                         int maxLen)
 {
    int  len;
+   // Used for debug purposes only
+   SIPX_NOTUSED(len);
    char str[20];
 
    if (maxLen >= 16)

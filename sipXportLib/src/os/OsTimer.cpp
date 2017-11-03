@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2005-2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -46,13 +45,13 @@ static char dummy;
 OsTimer::OsTimer(OsMsgQ* pQueue, intptr_t userData) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
+   mWasFired(FALSE),
    mTaskState(0),
    // Always initialize mDeleting, as we may print its value.
    mDeleting(FALSE),
    mpNotifier(new OsQueuedEvent(*pQueue, userData)) ,
    mbManagedNotifier(TRUE),
    mOutstandingMessages(0),
-   mWasFired(FALSE),
    mTimerQueueLink(0)
 {
 #ifdef VALGRIND_TIMER_ERROR
@@ -67,13 +66,13 @@ OsTimer::OsTimer(OsMsgQ* pQueue, intptr_t userData) :
 OsTimer::OsTimer(OsNotification& rNotifier) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
+   mWasFired(FALSE),
    mTaskState(0),
    // Always initialize mDeleting, as we may print its value.
    mDeleting(FALSE),
    mpNotifier(&rNotifier) ,
    mbManagedNotifier(FALSE),
    mOutstandingMessages(0),
-   mWasFired(FALSE),
    mTimerQueueLink(0)
 {
 #ifdef VALGRIND_TIMER_ERROR
