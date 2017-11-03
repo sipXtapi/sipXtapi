@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1194,7 +1193,6 @@ UtlBoolean OsNatAgentTask::addStunKeepAlive(IStunSocket*    pSocket,
         OsSocket* pActualSocket = pSocket->getSocket();
         
         pActualSocket->getLocalHostIp(&localHostIp) ;
-        int port = pActualSocket->getLocalHostPort();
         OsSysLog::add(FAC_NET, PRI_INFO, "Enabled STUN keep alive %s:%d --> %s:%d every %d secs" ,
                 localHostIp.data(),         
                 pSocket->getSocket()->getLocalHostPort(),
@@ -1300,7 +1298,6 @@ UtlBoolean OsNatAgentTask::removeStunKeepAlive(IStunSocket* pSocket,
 
 UtlBoolean OsNatAgentTask::removeKeepAlives(IStunSocket* pSocket) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean bSuccess = FALSE ;
 
@@ -1332,7 +1329,6 @@ UtlBoolean OsNatAgentTask::removeKeepAlives(IStunSocket* pSocket)
 
 UtlBoolean OsNatAgentTask::removeStunProbes(IStunSocket* pSocket) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean bSuccess = FALSE ;
 
@@ -1382,7 +1378,6 @@ void OsNatAgentTask::synchronize()
 // Determines if probes of a higher priority are still outstanding
 UtlBoolean OsNatAgentTask::areProbesOutstanding(IStunSocket* pSocket, int priority) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean bOutstanding = false ;
 
@@ -1415,7 +1410,6 @@ UtlBoolean OsNatAgentTask::doesBindingExist(IStunSocket*   pSocket,
                                             const UtlString&       serverIp,
                                             int                    serverPort)
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean bFound = false ;
 
@@ -1446,7 +1440,6 @@ UtlBoolean OsNatAgentTask::findContactAddress(const UtlString& destHost,
                                               int*             pContactPort,
                                               int              iTimeoutMs) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean  bFound = false ;
     int         iAttempts = 0 ;
@@ -1888,7 +1881,6 @@ UtlBoolean OsNatAgentTask::sendStunRequest(NAT_AGENT_CONTEXT* pBinding)
 {
     UtlBoolean bSuccess = false ;
     StunMessage msgSend ;
-    bool bStunProbe = (pBinding->type == STUN_PROBE);
 
     msgSend.allocTransactionId() ;
     msgSend.setType(MSG_STUN_BIND_REQUEST) ;
