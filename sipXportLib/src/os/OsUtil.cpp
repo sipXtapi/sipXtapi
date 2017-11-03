@@ -336,7 +336,7 @@ void OsUtil::getCurDate(UtlString& dateStr, const struct tm* pCurTime,
 {
    int  len;
    // Used for debug purposes only
-   SIPX_NOTUSED(len);
+   SIPX_UNUSED(len);
    char str[20];
 
    if (maxLen >= 16)
