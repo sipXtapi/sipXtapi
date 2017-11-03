@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2006-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -57,9 +56,9 @@ OsNatConnectionSocket::OsNatConnectionSocket(int connectedSocketDescriptor,
       mRole(role),
       mRoleMutex(OsMutex::Q_FIFO),
       mStreamHandlerMutex(OsMutex::Q_FIFO),
-      mFragmentSize(0),
       mpDatagramSocket(NULL),
-      mpNatAgent(NULL)
+      mpNatAgent(NULL),
+      mFragmentSize(0)
 {    
     if (0 == mRole)
     {
@@ -79,9 +78,9 @@ OsNatConnectionSocket::OsNatConnectionSocket(const char* szLocalIp,
       mRole(role),
       mRoleMutex(OsMutex::Q_FIFO),
       mStreamHandlerMutex(OsMutex::Q_FIFO),
-      mFragmentSize(0),
       mpDatagramSocket(NULL),
-      mpNatAgent(NULL)
+      mpNatAgent(NULL),
+      mFragmentSize(0)
       
 {
     if (0 == mRole)
@@ -107,9 +106,9 @@ OsNatConnectionSocket::OsNatConnectionSocket(int serverPort,
           mRole(role),
           mRoleMutex(OsMutex::Q_FIFO),
           mStreamHandlerMutex(OsMutex::Q_FIFO),
-          mFragmentSize(0),
           mpDatagramSocket(NULL),
-          mpNatAgent(NULL)
+          mpNatAgent(NULL),
+          mFragmentSize(0)
 {    
     if (0 == mRole)
     {
@@ -657,7 +656,6 @@ const char* OsNatConnectionSocket::frameBuffer(TURN_FRAMING_TYPE type,
     *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     *
     */
-    char* pBuff = NULL;
     char* szFramedBuffer = (char*) malloc(MAX_RTP_BYTES + 4);
     
     
