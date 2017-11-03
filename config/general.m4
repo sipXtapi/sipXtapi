@@ -1115,14 +1115,14 @@ AC_DEFUN([CHECK_SPEEX],
         if test "x$pkg_failed" = "xuntried"; then
             AC_MSG_ERROR(Failed to get the speex library directory from pkg-config!)
         else
-            if test "xspeex_detected" == "xyes" 
+            if test "x$speex_detected" == "xyes" 
             then
-              #AC_MSG_WARN([pkg found speex libdir: $SPEEX_LIBDIR])
+              AC_MSG_WARN([pkg found speex libdir: $SPEEX_LIBDIR])
               # no op to keep bash happy with then/else
               xxxfoo=noop
             else
               #AC_MSG_WARN([checking for with-speex-libraries])
-              SFAC_ARG_WITH_LIB([libspeex.la],
+              SFAC_ARG_WITH_LIB([libspeex.a],
                       [speex-libraries],
                       [ --with-speex-libraries=<dir> speex library path ],
                       [speex])
@@ -1132,19 +1132,37 @@ AC_DEFUN([CHECK_SPEEX],
                 SPEEX_LIBDIR=$foundpath
                 speex_detected=yes
                 #AC_MSG_WARN([xSFAC_ARG_WITH_LIB set speex libdir: $SPEEX_LIBDIR])
-              else
-                AC_MSG_WARN([pkg and xSFAC_ARG_WITH_LIB did not find speex lib, defaulting to contrib])
-                contrib_speex_enabled=yes
               fi
             fi
 
-            SPEEX_STATIC_LIB=${SPEEX_LIBDIR}/libspeex.la
-            SPEEXDSP_STATIC_LIB=${SPEEX_LIBDIR}/libspeexdsp.la
+            # Use the .la if it exists, fallback to .a
+            if test -f ${SPEEX_LIBDIR}/libspeex.la
+            then
+              SPEEX_STATIC_LIB=${SPEEX_LIBDIR}/libspeex.la
+            else
+              SPEEX_STATIC_LIB=${SPEEX_LIBDIR}/libspeex.a
+            fi
+            # Use the .la if it exists, fallback to .a
+            if test -f ${SPEEX_LIBDIR}/libspeexdsp.la
+            then
+              SPEEXDSP_STATIC_LIB=${SPEEX_LIBDIR}/libspeexdsp.la
+            else
+              SPEEXDSP_STATIC_LIB=${SPEEX_LIBDIR}/libspeexdsp.a
+            fi
+
+            if test -f ${SPEEX_LIBDIR}/libspeexdsp.so -o -h ${SPEEX_LIBDIR}/libspeexdsp.so
+            then
+              AC_MSG_WARN(found ${SPEEX_LIBDIR}/libspeexdsp.so)
+              SPEEXDSP_LIBS=" -L${SPEEX_LIBDIR} -lspeexdsp "
+            else
+              AC_MSG_WARN(${SPEEX_LIBDIR}/libspeexdsp.so does not exist)
+              SPEEXDSP_LIBS=${SPEEXDSP_STATIC_LIB}
+            fi
         fi
     fi
 
-    AC_MSG_WARN(speex contrib: ${contrib_speex_enabled} subdir)
-    AC_MSG_WARN(speex installed: ${speex_detected} here)
+    AC_MSG_WARN(speex contrib: ${contrib_speex_enabled})
+    AC_MSG_WARN(speex installed: ${speex_detected})
     # if contrib speex is selected, use it.
     if test "x$contrib_speex_enabled" == "xyes" ; then
         AC_MSG_RESULT([using svn version])
@@ -1168,7 +1186,6 @@ AC_DEFUN([CHECK_SPEEX],
         AC_SUBST(SPEEX_LIBS)
         AC_SUBST(SPEEX_STATIC_LIB)
         AC_SUBST(SPEEXDSP_STATIC_LIB)
-        SPEEXDSP_LIBS=${SPEEXDSP_STATIC_LIB}
         AC_SUBST(SPEEXDSP_LIBS)
     else
         AC_MSG_ERROR([No speex found!])
