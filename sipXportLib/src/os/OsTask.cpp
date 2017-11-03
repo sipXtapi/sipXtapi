@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2017 SIPez LLC.  ALrights Reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -73,12 +75,10 @@ OsStatus OsTaskBase::syslog(const OsSysLogFacility facility,
                                                     ...)
 {
    OsTaskId_t taskId;
-   int processId;
 
    if (OsSysLog::willLog(facility, priority))
    {
       id(taskId);
-      processId = 0;
 
       va_list ap;
       va_start(ap, format);
@@ -197,6 +197,8 @@ OsTaskBase::~OsTaskBase()
    if (mName != "")
    {
       res = OsUtil::deleteKeyValue(TASK_PREFIX, mName);
+      // Silence warning of unused var, used in debugging.
+      SIPX_UNUSED(res);
       //assert(res == OS_SUCCESS);
    }
 
