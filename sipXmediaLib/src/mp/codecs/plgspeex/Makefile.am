@@ -5,7 +5,13 @@ AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @SP
 mpcodecsdir = $(datadir)/@PACKAGE@
 mpcodecs_LTLIBRARIES = codec_speex.la
 
-codec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c
+if SPEEX_CONTRIB_ENABLED
+speex_utils =
+else
+speex_utils = bits_extensions.c
+endif
+
+codec_speex_la_SOURCES= PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c $(speex_utils)
 
 if SPEEX_STATIC
 codec_speex_la_CFLAGS  = -DCODEC_STATIC
