@@ -1150,6 +1150,15 @@ AC_DEFUN([CHECK_SPEEX],
               SPEEXDSP_STATIC_LIB=${SPEEX_LIBDIR}/libspeexdsp.a
             fi
 
+            if test -f ${SPEEX_LIBDIR}/libspeex.so -o -h ${SPEEX_LIBDIR}/libspeex.so
+            then
+              AC_MSG_WARN(found ${SPEEX_LIBDIR}/libspeex.so)
+              SPEEX_LIBS=" -L${SPEEX_LIBDIR} -lspeex"
+            else
+              AC_MSG_WARN(${SPEEX_LIBDIR}/libspeex.so does not exist)
+              SPEEX_LIBS=${SPEEX_STATIC_LIB}
+            fi
+
             if test -f ${SPEEX_LIBDIR}/libspeexdsp.so -o -h ${SPEEX_LIBDIR}/libspeexdsp.so
             then
               AC_MSG_WARN(found ${SPEEX_LIBDIR}/libspeexdsp.so)
@@ -1179,6 +1188,7 @@ AC_DEFUN([CHECK_SPEEX],
         AC_SUBST(SPEEX_STATIC_LIB)
         AC_SUBST(SPEEXDSP_STATIC_LIB)
         AC_SUBST(SPEEXDSP_LIBS)
+        AM_CONDITIONAL(SPEEX_CONTRIB_ENABLED, test "x$contrib_speex_enabled" == "xyes")
     elif test "x$speex_detected" == "xyes"; then
         AC_MSG_RESULT([ok])
         #AC_MSG_WARN([installed speex detected])
@@ -1187,6 +1197,7 @@ AC_DEFUN([CHECK_SPEEX],
         AC_SUBST(SPEEX_STATIC_LIB)
         AC_SUBST(SPEEXDSP_STATIC_LIB)
         AC_SUBST(SPEEXDSP_LIBS)
+        AM_CONDITIONAL(SPEEX_CONTRIB_ENABLED, test "x$contrib_speex_enabled" == "xyes")
     else
         AC_MSG_ERROR([No speex found!])
     fi
