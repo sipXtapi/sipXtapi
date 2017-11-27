@@ -137,6 +137,9 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_G726_32,         "G726-32" },
    { SdpCodec::SDP_CODEC_G726_40,         "G726-40" },
    { SdpCodec::SDP_CODEC_G722,            "G722" },
+   { SdpCodec::SDP_CODEC_G7221_24,        "G722-24" },
+   { SdpCodec::SDP_CODEC_G7221_32,        "G722-32" },
+   { SdpCodec::SDP_CODEC_G7221_48,        "G722-48" },
    { SdpCodec::SDP_CODEC_ILBC,            "ILBC" },
    { SdpCodec::SDP_CODEC_ILBC_20MS,       "ILBC-20MS" },
    { SdpCodec::SDP_CODEC_GSM,             "GSM" },
@@ -637,6 +640,51 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          "",
                          SdpCodec::SDP_CODEC_CPU_LOW,
                          SDP_CODEC_BANDWIDTH_NORMAL);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_G7221_24:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_G7221_24,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_G7221,
+                         32000,
+                         20000,
+                         1,
+                         "bitrate=24000",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_G7221_32:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_G7221_32,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_G7221,
+                         32000,
+                         20000,
+                         1,
+                         "bitrate=32000",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_G7221_48:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_G7221_48,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_G7221,
+                         32000,
+                         20000,
+                         1,
+                         "bitrate=48000",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_LOW);
       }
       break;
 
