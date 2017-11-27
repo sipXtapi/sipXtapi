@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 //
 // $$
@@ -40,6 +40,11 @@ public:
 
         SdpCodec::getFmtpParameter(fmtpData, "sar", value);
         CPPUNIT_ASSERT_EQUAL("13", value);
+
+        // G.722.1 fmtp test
+        const char* g7221Fmtp = "bitrate=48000";
+        SdpCodec::getFmtpParameter(g7221Fmtp, "bitrate", value);
+        CPPUNIT_ASSERT_EQUAL("48000", value);
 
         // This format for size was found in SdpBodyTest.  Not sure if that
         // was a bug in the unit test or if this is actually found in real SDP from
