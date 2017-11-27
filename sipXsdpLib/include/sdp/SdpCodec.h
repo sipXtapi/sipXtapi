@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -40,6 +40,7 @@
 #define MIME_SUBTYPE_G726_32 "G726-32"
 #define MIME_SUBTYPE_G726_40 "G726-40"
 #define MIME_SUBTYPE_G722    "G722"
+#define MIME_SUBTYPE_G7221   "G7221"
 #define MIME_SUBTYPE_DTMF_TONES "telephone-event"
 #define MIME_SUBTYPE_IPCMU "EG711U"
 #define MIME_SUBTYPE_IPCMA "EG711A"
@@ -162,6 +163,9 @@ public:
         SDP_CODEC_TONES,           ///< AVT/DTMF Tones, RFC 2833
         SDP_CODEC_G729A,           ///< G.729A
         SDP_CODEC_G7221,           ///< Siren
+        SDP_CODEC_G7221_24,        ///< Siren/G.722.1 Annex C 24Kb
+        SDP_CODEC_G7221_32,        ///< Siren/G.722.1 Annex C 32Kb
+        SDP_CODEC_G7221_48,        ///< Siren/G.722.1 Annex C 48Kb
         SDP_CODEC_G7231,           ///< G.723.1
         SDP_CODEC_AMR,             ///< AMR Bandwidth Efficient mode
         SDP_CODEC_AMR_ALIGNED,     ///< AMR Octet Aligned mode
