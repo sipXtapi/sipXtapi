@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -256,14 +256,14 @@ const UtlContainableType Dialog::getContainableType() const
 
 // Constructor
 SipDialogEvent::SipDialogEvent(const char* state, const char* entity)
-   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
-     // Generate the initial report with version 1, so we can generate
+   : // Generate the initial report with version 1, so we can generate
      // the default report with version 0 in
      // DialogDefaultConstructor::generateDefaultContent (in
      // DialogEventPublisher.cpp).
      mVersion(1),
      mDialogState(state),
-     mEntity(entity)
+     mEntity(entity),
+     mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    remove(0);
    append(DIALOG_EVENT_CONTENT_TYPE);
