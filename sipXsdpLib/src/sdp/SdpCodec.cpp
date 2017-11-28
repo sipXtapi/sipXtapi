@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1107,6 +1107,19 @@ UtlBoolean SdpCodec::compareFmtp(const UtlString& mimeType, const UtlString& mim
                           isCompatible ? "TRUE" : "FALSE");
         }
 
+        else if(mimeSubtype.compareTo(MIME_SUBTYPE_G7221, UtlString::ignoreCase) == 0)
+        {
+            int bitrate1;
+            int bitrate2;
+            UtlBoolean foundBitRate1 = getFmtpParameter(fmtp1, "bitrate", bitrate1);
+            UtlBoolean foundBitRate2 = getFmtpParameter(fmtp2, "bitrate", bitrate2);
+            // Bit rate is manditory
+            if(foundBitRate1 && foundBitRate2 && bitrate1 == bitrate2)
+            {
+                isCompatible = TRUE;
+                compares = 1;
+            }
+        }
         // telephone-events theoretically need to compare event type codes, but we just assume they overlap
         else if(mimeSubtype.compareTo(MIME_SUBTYPE_DTMF_TONES, UtlString::ignoreCase) == 0)
         {
