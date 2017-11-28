@@ -42,9 +42,18 @@ public:
         CPPUNIT_ASSERT_EQUAL("13", value);
 
         // G.722.1 fmtp test
-        const char* g7221Fmtp = "bitrate=48000";
-        SdpCodec::getFmtpParameter(g7221Fmtp, "bitrate", value);
+        const char* g7221Fmtp48 = "bitrate=48000";
+        SdpCodec::getFmtpParameter(g7221Fmtp48, "bitrate", value);
         CPPUNIT_ASSERT_EQUAL("48000", value);
+        int intValue;
+        SdpCodec::getFmtpParameter(g7221Fmtp48, "bitrate", intValue);
+        CPPUNIT_ASSERT_EQUAL(48000, intValue);
+
+        const char* g7221Fmtp32 = "bitrate=32000";
+        int compares;
+        CPPUNIT_ASSERT_EQUAL(TRUE, SdpCodec::compareFmtp(MIME_TYPE_AUDIO, MIME_SUBTYPE_G7221, g7221Fmtp48, g7221Fmtp48, compares));
+        CPPUNIT_ASSERT_EQUAL(1, compares);
+        CPPUNIT_ASSERT_EQUAL(FALSE, SdpCodec::compareFmtp(MIME_TYPE_AUDIO, MIME_SUBTYPE_G7221, g7221Fmtp32, g7221Fmtp48, compares));
 
         // This format for size was found in SdpBodyTest.  Not sure if that
         // was a bug in the unit test or if this is actually found in real SDP from
