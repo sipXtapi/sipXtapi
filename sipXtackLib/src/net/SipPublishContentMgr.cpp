@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2010 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -637,7 +636,7 @@ int SipPublishContentMgr::dumpContents(UtlString& dumpString)
 {
     int contentCount = 0;
     dumpString="";
-    dumpString.appendFormat("Elements: %d\n", mContentEntries.entries());
+    dumpString.appendFormat("Elements: %d\n", (int)mContentEntries.entries());
     lock();
     UtlString* key = NULL;
     PublishContentContainer* contentPtr = NULL;
