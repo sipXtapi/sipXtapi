@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2007-2010 SIPez LLC  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2017 SIPez LLC  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -34,7 +33,6 @@ public:
 	CPPUNIT_ASSERT(numAddrs > 0);
 	
 	printf ("Found %d interface(s)\n", numAddrs);
-	int i;
 	for (int i = 0; i < numAddrs; i++)
 	{
 	    printf("[%d] %s: %s\n", i, adapters[i]->mAdapter.data(), adapters[i]->mAddress.data()); 
