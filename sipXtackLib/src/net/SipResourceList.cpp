@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -189,9 +189,7 @@ void SipResourceList::parseBody(const char* bodyBytes)
       if (doc.Parse(bodyBytes))
       {
          TiXmlNode * rootNode = doc.FirstChild ("list");
-        
-         TiXmlElement* ucElement = 0;
-
+         SIPX_UNUSED(rootNode);
       }
    }
 }
