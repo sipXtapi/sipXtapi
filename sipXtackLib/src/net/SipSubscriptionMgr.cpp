@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2007-2008 SIPez LLC  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2017 SIPez LLC  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -672,7 +671,7 @@ int SipSubscriptionMgr::dumpOldSubscriptions(long oldEpochTimeSeconds)
         if(stateIndex->mpState)
         {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "substate: %s expires: %d old date: %d",
+                    "substate: %s expires: %ld old date: %ld",
                     stateIndex->mpState->data(), 
                     stateIndex->mpState->mExpirationDate,
                     oldEpochTimeSeconds);
