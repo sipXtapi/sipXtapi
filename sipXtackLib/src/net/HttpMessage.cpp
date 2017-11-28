@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1171,7 +1171,9 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       int contentLength = -1;
       UtlBoolean contentLengthSet = FALSE;
       // Assume content-type is set until we read all of the headers.
+#ifdef TEST
       UtlBoolean contentTypeSet = TRUE;
+#endif
       UtlString contentType;
 
       //
@@ -1287,7 +1289,10 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                }
 
                // Get the content type
-               contentTypeSet = getContentType(&contentType);
+#ifdef TEST
+               contentTypeSet = 
+#endif
+                 getContentType(&contentType);
 
 #ifdef TEST
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
