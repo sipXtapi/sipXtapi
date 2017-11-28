@@ -91,7 +91,8 @@ public:
          {
             delay(mDelay);
          }
-         status = mpNotification->signal(0);
+         OsStatus status = mpNotification->signal(0);
+         CPPUNIT_ASSERT(status == OS_ALREADY_SIGNALED || status == OS_SUCCESS);
       }
 
       return 0;
