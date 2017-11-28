@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2008 SIPez LLC  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2008-2017 SIPez LLC  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -47,7 +46,7 @@ SipContactDb::~SipContactDb()
     UtlHashMapIterator iterator(mContacts);
     
     UtlInt* pKey = NULL;
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         UtlVoidPtr* pValue = NULL;
         pValue = (UtlVoidPtr*)iterator.value();
@@ -107,7 +106,7 @@ const bool SipContactDb::updateContact(SIPX_CONTACT_ADDRESS& contact)
     int replacedPort ;
 
     // Pass one: replace the exact match
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -135,7 +134,7 @@ const bool SipContactDb::updateContact(SIPX_CONTACT_ADDRESS& contact)
     // This pass adjusted relay and external transport duplicates.
     if (bFound)
     {
-        while (pKey = (UtlInt*)iterator())
+        while ((pKey = (UtlInt*)iterator()))
         {
             pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
             assert(pValue);
@@ -187,7 +186,7 @@ SIPX_CONTACT_ADDRESS* SipContactDb::findByType(SIPX_CONTACT_TYPE type, SIPX_TRAN
     UtlVoidPtr* pValue = NULL;
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -251,7 +250,7 @@ SIPX_TRANSPORT_TYPE SipContactDb::findTransportType(const char* transportName)
             UtlInt* pKey;
             SIPX_CONTACT_ADDRESS* pContact = NULL;
     
-            while (pKey = (UtlInt*)iterator())
+            while ((pKey = (UtlInt*)iterator()))
             {
                 pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
                 assert(pValue); // Should NEVER happen
@@ -292,7 +291,7 @@ SIPX_CONTACT_ADDRESS* SipContactDb::getLocalContact(SIPX_CONTACT_ID id)
             UtlVoidPtr* pValue = NULL;
             SIPX_CONTACT_ADDRESS* pContact = NULL;
             UtlInt* pKey;
-            while (pKey = (UtlInt*)iterator())
+            while ((pKey = (UtlInt*)iterator()))
             {
                 pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
                 assert(pValue);
@@ -322,7 +321,7 @@ SIPX_CONTACT_ADDRESS* SipContactDb::find(const UtlString ipAddress, const int po
     UtlVoidPtr* pValue = NULL;
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -357,7 +356,7 @@ void SipContactDb::getAll(SIPX_CONTACT_ADDRESS* contacts[], int& actualNum) cons
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
     actualNum = 0; // array index
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -382,7 +381,7 @@ const bool SipContactDb::getRecordForAdapter(SIPX_CONTACT_ADDRESS& contact,
     UtlVoidPtr* pValue = NULL;
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -418,7 +417,7 @@ const bool SipContactDb::getRecordForAdapter(SIPX_CONTACT_ADDRESS& contact,
     UtlVoidPtr* pValue = NULL;
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -462,7 +461,7 @@ void SipContactDb::getAllForAdapter(const SIPX_CONTACT_ADDRESS* contacts[],
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
     actualNum = 0; // array index
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -496,7 +495,7 @@ void SipContactDb::enableTurn(bool bEnable)
     UtlVoidPtr* pValue = NULL;
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -561,7 +560,7 @@ const bool SipContactDb::isDuplicate(const UtlString& ipAddress,
     UtlVoidPtr* pValue = NULL;
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -603,7 +602,7 @@ void SipContactDb::replicateForTransport(const SIPX_TRANSPORT_TYPE originalTrans
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
     int index = 0; // array index
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -638,7 +637,7 @@ void SipContactDb::removeForTransport(const SIPX_TRANSPORT_TYPE transport)
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
     int index = 0; // array index
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);
@@ -665,8 +664,7 @@ void SipContactDb::dump(UtlString& output)
     UtlVoidPtr* pValue = NULL;
     SIPX_CONTACT_ADDRESS* pContact = NULL;
     UtlInt* pKey;
-    int index = 0; // array index
-    while (pKey = (UtlInt*)iterator())
+    while ((pKey = (UtlInt*)iterator()))
     {
         pValue = (UtlVoidPtr*)mContacts.findValue(pKey);
         assert(pValue);        
