@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2010 SIPez LLC. All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2017 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -70,7 +69,6 @@ public:
     {
         // First test the default constructor
         OsContact testContact("192.168.0.1", 4242, OsSocket::UDP, IP6) ; 
-        const char* msg0 = "Test the constructor" ;
         UtlString address;
         testContact.getAddress(address);
         CPPUNIT_ASSERT(address.compareTo("192.168.0.1") == 0);
