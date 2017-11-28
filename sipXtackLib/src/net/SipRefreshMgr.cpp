@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -579,8 +579,8 @@ SipRefreshMgr::sendRequest (
 {    
     OsStatus    retval = OS_UNSPECIFIED ;   // Sucess of operation
     UtlString    methodName(method) ;        // Method name fo request
-    int         refreshPeriod = -1 ;        // Refresh period used when resubscribing
     UtlBoolean   bIsUnregOrUnsub ;           // Is this an unregister or unsubscribe?
+    SIPX_UNUSED(bIsUnregOrUnsub);
    
     // Reset the transport data and the via fields
 #ifdef REMOVE_TO_TAG_IN_REREGISTER
@@ -1515,6 +1515,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
         SipMessage* sipMessage;
         OsTimer* timer;
         int protocolType;
+        SIPX_UNUSED(protocolType);
 
         ((OsEventMsg&)eventMessage).getUserData((intptr_t&)sipMessage);
         ((OsEventMsg&)eventMessage).getEventData((intptr_t&)timer);
