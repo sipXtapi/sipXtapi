@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2013 SIPez LLC  All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -84,7 +84,7 @@ UtlBoolean OsTestUtilities::testDummyBuffer(char *buff, unsigned long size, unsi
 
 OsStatus OsTestUtilities::createDummyFile(OsPath testFile, unsigned long size)
 {
-    printf("OsTestUtilities::createDummyFile(%s, %l)\n", testFile.data(), size);
+    printf("OsTestUtilities::createDummyFile(%s, %ld)\n", testFile.data(), size);
     OsStatus stat;
     char wbuff[10000];
     unsigned long wbuffsize = (unsigned long)sizeof(wbuff);
@@ -109,7 +109,7 @@ OsStatus OsTestUtilities::createDummyFile(OsPath testFile, unsigned long size)
             unsigned long remaining = wbuffsize - wposition;
             unsigned long byteswritten = 0;
             stat = wfile.write(wbuff + wposition, remaining, byteswritten);
-            printf("write %d bytes return: %d\n", byteswritten, stat);
+            printf("write %ld bytes return: %d\n", (long)byteswritten, (int)stat);
             wposition += byteswritten;
         }
 
