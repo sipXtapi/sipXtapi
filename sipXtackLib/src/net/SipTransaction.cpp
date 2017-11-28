@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -435,7 +435,6 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
     //UtlString toAddress;
     //UtlString protocol;
     SipMessage* message = &outgoingMessage;
-    UtlBoolean isOrignalRequest = FALSE;
     UtlBoolean sendSucceeded = FALSE;
     UtlString method;
     int cSeq;
@@ -457,7 +456,6 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
             mpRequest->getTimesSent() == 0 &&
             mRequestMethod.compareTo(method) == 0)
         {
-            isOrignalRequest = TRUE;
             message = mpRequest;
         }
         else
