@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2008-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2008-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -75,7 +75,6 @@ Sdp* SdpHelper::createSdpFromSdpBody(const SdpBody& sdpBody, const SdpCodecList*
    int i;
    for(i = 0; i < sdpBody.getMediaSetCount(); i++)
    {
-      bool rtcpEnabledForMedia = rtcpEnabled;  // Default to Session setting
       SdpMediaLine* mediaLine = new SdpMediaLine();
 
       // Get data out of SdpBody and stuff it into SdpMediaLine for the i'th
