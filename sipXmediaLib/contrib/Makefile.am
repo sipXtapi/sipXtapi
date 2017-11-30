@@ -1,9 +1,11 @@
 
 if AMRNB
+AMRNB_CONFIG_ARGS = --with-pic $(CONFIGURE_ARGS)
 AMRNB_DIR = libamrnb
 endif
 
 if AMRWB
+AMRWB_CONFIG_ARGS = --with-pic $(CONFIGURE_ARGS)
 AMRWB_DIR = libamrwb
 endif
 
@@ -94,7 +96,7 @@ if AMRNB
 libamrnb/Makefile: $(top_srcdir)/contrib/libamrnb/configure
 	pwd
 	if [ ! -d libamrnb ]; then mkdir -p libamrnb; fi
-	(cd libamrnb; ../$(top_srcdir)/contrib/libamrnb/configure)
+	(cd libamrnb; ../$(top_srcdir)/contrib/libamrnb/configure $(AMRNB_CONFIG_ARGS))
 
 libamrnb/.libs/libamrnb.so libamrnb/libamrnb.la: libamrnb/Makefile
 	pwd
@@ -123,7 +125,7 @@ if AMRWB
 libamrwb/Makefile: $(top_srcdir)/contrib/libamrwb/configure
 	pwd
 	if [ ! -d libamrwb ]; then mkdir -p libamrwb; fi
-	(cd libamrwb; ../$(top_srcdir)/contrib/libamrwb/configure)
+	(cd libamrwb; ../$(top_srcdir)/contrib/libamrwb/configure $(AMRWB_CONFIG_ARGS))
 
 libamrwb/.libs/libamrwb.so libamrwb/libamrwb.la: libamrwb/Makefile
 	pwd
