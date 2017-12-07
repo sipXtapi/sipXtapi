@@ -74,6 +74,8 @@ int sipxAacCommonFree(void* opaqueCodecContext, int isDecoder);
     0  0  0  1  0  0  0  1  1  0  0  0  1  0  0  0 == 0x1188 (AAC-LC audio object, 48000 samples/sec, mono) 
 */
 
+void sipxFfmpegCodecInit();
+
 DECLARE_FUNCS_V1(mpeg4_generic_aac_lc_16000)
 DECLARE_FUNCS_V1(mpeg4_generic_aac_lc_32000)
 DECLARE_FUNCS_V1(mpeg4_generic_aac_lc_48000)
@@ -271,11 +273,10 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
             if(aacDecoder)
             {
                 char configBits[SDP_AUDIO_CONFIG_LINE_SIZE];
+                int openDecoderError;
 
                 /* To make valgrind happy */
                 memset(&configBits, 0, SDP_AUDIO_CONFIG_LINE_SIZE);
-
-                int openDecoderError;
 
                 switch(sampleRate)
                 {
@@ -404,26 +405,28 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
         /* HACK: FFMpeg wants tmpBuffer to be AVCODEC_MAX_AUDIO_FRAME_SIZE, but that blows our thread stack, so we lie */
         int16_t tmpBuffer[TMP_BUFFER_SIZE + 1]; 
         int decodedBytesConsumed;
-        returnValue = RPLG_SUCCESS;
-
-        av_init_packet(&ffmpegPacket);
         /* If there is an AU header the first 16 bits is the AU header length which defines the total length of the AU headers, 
            one for each frame (there could be more than one frame).  Then the minimal AU header is 16 bits the first 13 bits are the
            AU payload size and the last 3 bits are the ddddddddddd index or delta (if there is more than one frame/AU header.
         */
-        short* auHeaderLengthNetwork = (short*) encodedData;
+        const short* auHeaderLengthNetwork = (const short*) encodedData;
         short auHeaderLengthInBits = ntohs(*auHeaderLengthNetwork); /* Generally expect this to be small number (e.g. 16) */
-        short* auHeaderNetwork = (auHeaderLengthNetwork) + 1;
+        const short* auHeaderNetwork = (auHeaderLengthNetwork) + 1;
         short auDataLength = (ntohs(*auHeaderNetwork) >> 3);
         int auHeaderLengthInBytes = auHeaderLengthInBits / 8; // length of AU header after first short
         int seqNum = ntohl(rtpHeader->ssrc);
 
         /* AU header length makes sense and AU header specifies data size which calculates out right */
         int auHeaderLengthLength = 2; // short for header length
+
+        returnValue = RPLG_SUCCESS;
+
+        av_init_packet(&ffmpegPacket);
+
         if(encodedPacketSize - auHeaderLengthInBytes - auHeaderLengthLength == auDataLength && 
            encodedPacketSize - auHeaderLengthInBytes > 0)
         {
-            ffmpegPacket.data = ((uint8_t*) encodedData) + auHeaderLengthInBytes + auHeaderLengthLength;
+            ffmpegPacket.data = ((const uint8_t*) encodedData) + auHeaderLengthInBytes + auHeaderLengthLength;
             ffmpegPacket.size = encodedPacketSize - auHeaderLengthInBytes - auHeaderLengthLength;
             /* printf("AAC decode AU header found in ssrc: %d\n", seqNum);
             */
@@ -434,9 +437,9 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
             /* validate length of payload in ADTF header */
             int adtsPayloadSize;
             adtsPayloadSize = /* 13 bits accross octets 4-6 */
-                 ((*(((uint8_t*) encodedData) + 3)) & 0x3) * 2048 + /* bottom 2 bits of 4th octet */
-                 (*(((uint8_t*) encodedData) + 4)) * 8 + /* 8 bits of 5th octet */
-                 ((*(((uint8_t*) encodedData) + 5)) & 0xe0) / 32; /* top 3 bits of 6th octet */
+                 ((*(((const uint8_t*) encodedData) + 3)) & 0x3) * 2048 + /* bottom 2 bits of 4th octet */
+                 (*(((const uint8_t*) encodedData) + 4)) * 8 + /* 8 bits of 5th octet */
+                 ((*(((const uint8_t*) encodedData) + 5)) & 0xe0) / 32; /* top 3 bits of 6th octet */
             if(adtsPayloadSize == encodedPacketSize)
             {
                 /* printf("AAC decode ADTS header found with correct payload length: %d in ssrc: %d\n", 
@@ -452,13 +455,13 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
             if(auHeaderLengthInBits & 0x1)
             {
                 /* No CRC header is 7 octets long */
-                ffmpegPacket.data = ((uint8_t*) encodedData) + 7;
+                ffmpegPacket.data = ((const uint8_t*) encodedData) + 7;
                 ffmpegPacket.size = encodedPacketSize - 7;
             }
             else
             {
                 /* CRC included, header is 9 octets long */
-                ffmpegPacket.data = ((uint8_t*) encodedData) + 9;
+                ffmpegPacket.data = ((const uint8_t*) encodedData) + 9;
                 ffmpegPacket.size = encodedPacketSize - 9;
             }
             /*printf("AAC decode ADTS header found %s CRC in ssrc: %d\n",
@@ -468,10 +471,10 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
         /*  Else assume no header and use whole payload for AAC frame */
         else
         {
-            ffmpegPacket.data = (uint8_t *) encodedData;
+            ffmpegPacket.data = (const uint8_t *) encodedData;
             ffmpegPacket.size = encodedPacketSize;
             printf("AAC decode no header found in ssrc: %d first octets: %x %x\n", 
-                   seqNum, (int) *(((uint8_t*) encodedData) + 0), (int) *(((uint8_t*) encodedData) + 1));
+                   seqNum, (int) *(((const uint8_t*) encodedData) + 0), (int) *(((const uint8_t*) encodedData) + 1));
         
             //printf("encodedPacketSize: %d auHeaderLengthInBytes: %d auDataLength: %d\n",    
             //    encodedPacketSize, auHeaderLengthInBytes, auDataLength);
