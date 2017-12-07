@@ -1,9 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
-// Copyright (C) 2007-2008 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2007-2017 SIPez LLC.  All right reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,6 +63,16 @@ struct tones_codec_data {
    int mPreparedDec;
    int mPreparedEnc;
 };
+
+DECLARE_FUNCS_V1(tones)
+
+CODEC_API int PLG_SIGNALING_V1(tones)(void* handle,
+                                      uint32_t* outEvent, 
+                                      uint32_t* outDuration,
+                                      uint32_t* startStatus,
+                                      uint32_t* stopStatus);
+
+/* ============================== FUNCTIONS =============================== */
 
 static void resetEventState(struct tones_codec_data *mpTones)
 {
@@ -156,7 +162,7 @@ CODEC_API void *PLG_INIT_V1_2(tones)(const char* fmtp, int isDecoder,
 
 CODEC_API int PLG_FREE_V1(tones)(void* handle, int isDecoder)
 {
-   struct tones_codec_data *mpTones = (struct tones_codec_data *)handle;
+   /*struct tones_codec_data *mpTones = (struct tones_codec_data *)handle; */
 
    if (NULL != handle)
    {
@@ -192,8 +198,7 @@ CODEC_API int PLG_ENCODE_V1(tones)(void* handle, const void* pAudioBuffer,
                                    void* pCodedData, unsigned cbMaxCodedData, 
                                    int* pcbCodedSize, unsigned* pbSendNow)
 {
-   int size = 0;   
-   struct tones_codec_data *mpTones = (struct tones_codec_data *)handle;
+   /*struct tones_codec_data *mpTones = (struct tones_codec_data *)handle;*/
    assert(handle != NULL);
    assert(!"Not yet implemented!");
 
