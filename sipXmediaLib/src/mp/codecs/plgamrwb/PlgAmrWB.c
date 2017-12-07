@@ -1,8 +1,5 @@
 //  
-// Copyright (C) 2007-2017 SIPez LLC. 
-//
-// Copyright (C) 2007-2008 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -111,6 +108,10 @@ static const struct MppCodecInfoV1_1 sgCodecInfo =
 static const uint8_t sgFrameSizesMap[16] =
 {18, 24, 33, 37, 41, 47, 51, 59, 61, 6, 6, 0, 0, 0, 1, 1};
 
+/* Prototypes */
+DECLARE_FUNCS_V1(amrwb)
+
+/* ============================== FUNCTIONS =============================== */
 
 CODEC_API int PLG_GET_INFO_V1_1(amrwb)(const struct MppCodecInfoV1_1 **codecInfo)
 {
@@ -234,7 +235,7 @@ CODEC_API int PLG_GET_PACKET_SAMPLES_V1_2(amrwb)(void          *handle,
    struct amrwb_decoder_data *pCodecData = (struct amrwb_decoder_data *)handle;
    int haveMoreData;   // Payload ToC F bit
    int frameMode;      // Payload ToC FT field
-   int frameQuality;   // Payload ToC Q bit
+   /* int frameQuality; */  // Payload ToC Q bit
    unsigned dataIndex; // Number of currently processing byte in a packet.
 
    assert(handle != NULL);
@@ -268,7 +269,7 @@ CODEC_API int PLG_GET_PACKET_SAMPLES_V1_2(amrwb)(void          *handle,
       // Parse Table of Contents field
       haveMoreData =  (pPacketData[dataIndex]) >> 7;          // Payload ToC F bit
       frameMode    = ((pPacketData[dataIndex]) >> 3) & 0x0F;  // Payload ToC FT field
-      frameQuality = ((pPacketData[dataIndex]) >> 2) & 0x01;  // Payload ToC Q bit
+      /* frameQuality = ((pPacketData[dataIndex]) >> 2) & 0x01; */ // Payload ToC Q bit
 
       // Jump to the next speech frame and update samples number
       dataIndex += sgFrameSizesMap[frameMode];
@@ -292,15 +293,15 @@ CODEC_API int PLG_GET_PACKET_SAMPLES_V1_2(amrwb)(void          *handle,
    return RPLG_SUCCESS;
 }
 
-CODEC_API int PLG_DECODE_V1(amrwb)(void* handle, const uint8_t* pCodedData,
-                                   unsigned cbCodedPacketSize, uint16_t* pAudioBuffer,
+CODEC_API int PLG_DECODE_V1(amrwb)(void* handle, const void* pCodedData,
+                                   unsigned cbCodedPacketSize, void* pAudioBuffer,
                                    unsigned cbBufferSize, unsigned *pcbDecodedSize,
                                    const struct RtpHeader* pRtpHeader)
 {
    struct amrwb_decoder_data *pCodecData = (struct amrwb_decoder_data *)handle;
    int haveMoreData;   // Payload ToC F bit
    int frameMode;      // Payload ToC FT field
-   int frameQuality;   // Payload ToC Q bit
+   /* int frameQuality; */  // Payload ToC Q bit
    unsigned dataIndex; // Number of currently processing byte in a packet.
 
    assert(handle != NULL);
@@ -335,13 +336,13 @@ CODEC_API int PLG_DECODE_V1(amrwb)(void* handle, const uint8_t* pCodedData,
    do 
    {
       // Parse Table of Contents field
-      haveMoreData =  (pCodedData[dataIndex]) >> 7;          // Payload ToC F bit
-      frameMode    = ((pCodedData[dataIndex]) >> 3) & 0x0F;  // Payload ToC FT field
-      frameQuality = ((pCodedData[dataIndex]) >> 2) & 0x01;  // Payload ToC Q bit
+      haveMoreData =  (((uint8_t*)pCodedData)[dataIndex]) >> 7;          // Payload ToC F bit
+      frameMode    = ((((uint8_t*)pCodedData)[dataIndex]) >> 3) & 0x0F;  // Payload ToC FT field
+      /* frameQuality = ((((uint8_t*)pCodedData)[dataIndex]) >> 2) & 0x01; */ // Payload ToC Q bit
 
       GP3D_IF_decode(pCodecData->decoder_state,       // Decoder state
-                     &pCodedData[dataIndex],          // ToC and Speech frame
-                     &pAudioBuffer[*pcbDecodedSize],  // Decoder data buffer
+                     &((int8_t*)pCodedData)[dataIndex],          // ToC and Speech frame
+                     &((int16_t*)pAudioBuffer)[*pcbDecodedSize],  // Decoder data buffer
                      _good_frame);                    // This is a good frame
       *pcbDecodedSize += FRAME_SIZE;
 
@@ -354,7 +355,7 @@ CODEC_API int PLG_DECODE_V1(amrwb)(void* handle, const uint8_t* pCodedData,
 
 CODEC_API int PLG_ENCODE_V1(amrwb)(void* handle, const void* pAudioBuffer,
                                    unsigned cbAudioSamples, int* rSamplesConsumed,
-                                   uint8_t* pCodedData, unsigned cbMaxCodedData,
+                                   void* pCodedData, unsigned cbMaxCodedData,
                                    int* pcbCodedSize, unsigned* pbSendNow)
 {
    struct amrwb_encoder_data *pCodecData = (struct amrwb_encoder_data *)handle;
@@ -379,7 +380,7 @@ CODEC_API int PLG_ENCODE_V1(amrwb)(void* handle, const void* pAudioBuffer,
    /* Check for necessary number of samples */
    if (pCodecData->mBufferLoad == FRAME_SIZE)
    {
-      uint8_t *pPacketCurPtr = (uint8_t*)pCodedData;
+      int8_t *pPacketCurPtr = (int8_t*)pCodedData;
 
       *pcbCodedSize = 0;
 
