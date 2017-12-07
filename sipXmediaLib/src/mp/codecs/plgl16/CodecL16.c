@@ -1,9 +1,5 @@
 //  
 // Copyright (C) 2008-2017 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
-// Copyright (C) 2008 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,6 +17,7 @@
 
 // APPLICATION INCLUDES
 #include <mp/codecs/PlgDefsV1.h>
+#include <CodecL16.h>
 
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -28,6 +25,12 @@
 // EXTERNAL FUNCTIONS
 // DEFINES
 // STATIC VARIABLE INITIALIZATIONS
+
+int sipxL16decode(const void* pCodedData, unsigned cbCodedPacketSize,
+                  void* pAudioBuffer, unsigned cbBufferSize,
+                  unsigned *pcbCodedSize);
+
+/* ============================== FUNCTIONS =============================== */
 
 int sipxL16decode(const void* pCodedData, unsigned cbCodedPacketSize,
                   void* pAudioBuffer, unsigned cbBufferSize,
