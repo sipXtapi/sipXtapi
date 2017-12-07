@@ -1,8 +1,5 @@
 //  
-// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
-//
-// Copyright (C) 2007-2008 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,6 +46,8 @@ static const struct MppCodecInfoV1_1 sgCodecInfo =
    1,                           // numChannels
    CODEC_FRAME_PACKING_NONE     // framePacking
 };
+
+DECLARE_FUNCS_V1(g722)
 
 /* ============================== FUNCTIONS =============================== */
 
