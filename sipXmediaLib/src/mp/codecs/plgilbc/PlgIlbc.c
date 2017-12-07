@@ -1,9 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
-// Copyright (C) 2007-2008 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,7 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
 
@@ -69,66 +64,9 @@ static const struct MppCodecInfoV1_1 sgCodecInfo =
    CODEC_FRAME_PACKING_NONE     // framePacking
 };
 
+DECLARE_FUNCS_V1(ilbc)
+
 /* ============================== FUNCTIONS =============================== */
-
-static int analizeParamEqValue(const char *parsingString, const char* paramName, int* value)
-{
-   int tmp;
-   char c;
-   int eqFound = FALSE;
-   int digitFound = FALSE;  
-   const char* res;
-   res = strstr(parsingString, paramName);
-   if (!res) {
-      return -1;
-   }
-   res += strlen(paramName); //Skip name of param world
-
-   for (; (c=*res) != 0; res++ )
-   {
-      if (isspace(c)) {
-         if (digitFound) 
-            break;
-         continue;
-      }
-      if (c == '=') {
-         if (eqFound) 
-            goto end_of_analize;
-         eqFound = TRUE;
-         continue;            
-      }
-      if (isdigit(c)) {
-         if (!eqFound) 
-            goto end_of_analize;
-         tmp = (c - '0');
-         for (res++; isdigit(c=*res); res++) {
-            tmp = tmp * 10 + (c - '0');
-         }
-         res--;
-         digitFound = TRUE;
-         continue;
-      }
-
-      /* Unexpected character */
-      goto end_of_analize;
-   }
-   if (digitFound) {
-      *value = tmp;
-      return 0;
-   }
-
-end_of_analize:
-   return -1;
-}
-
-static int analizeDefRange(const char* str, const char* param, int defValue, int minValue, int maxValue)
-{
-   int value;
-   int res = (!str) ? (-1) : analizeParamEqValue(str, param, &value);
-   if ((res == 0) && (value >= minValue) && (value <= maxValue))
-      return value;
-   return defValue;
-}
 
 CODEC_API int PLG_GET_INFO_V1_1(ilbc)(const struct MppCodecInfoV1_1 **codecInfo)
 {
@@ -150,7 +88,7 @@ CODEC_API void *PLG_INIT_V1_2(ilbc)(const char* fmtp, int isDecoder,
       return NULL;
    }
 
-   mode = analizeDefRange(fmtp, "mode", 30, 20, 30);
+   mode = getFmtpValueRange(fmtp, "mode", 30, 20, 30);
    if (mode != 20 && mode != 30)
    {
       return NULL;

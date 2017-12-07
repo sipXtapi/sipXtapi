@@ -1,9 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
-//
-// Copyright (C) 2007-2008 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,12 +12,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <ctype.h>
 
 #include <speex/speex.h>
 #include <speex/speex_header.h>
 #include <speex/speex_stereo.h>
 #include <speex/speex_preprocess.h>
+#include <bits_extensions.h>
 
 struct speex_codec_data_decoder
 {
@@ -63,65 +59,26 @@ struct speex_codec_data_encoder
    int mDoAgc;                ///< Automatic Gain Control
 };
 
-/* Parsing {param}={value} */
-static int analizeParamEqValue(const char *parsingString, const char* paramName, int* value)
-{
-   int tmp;
-   char c;
-   int eqFound = FALSE;
-   int digitFound = FALSE;  
-   const char* res;
-   res = strstr(parsingString, paramName);
-   if (!res) {
-      return -1;
-   }
-   res += strlen(paramName); //Skip name of param world
+/* Prototypes */
+void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
+                           struct MppCodecFmtpInfoV1_2* pCodecInfo);
+int universal_speex_free(void* handle, int isDecoder);
+int universal_speex_get_packet_samples(void          *handle,
+                                       const uint8_t *pPacketData,
+                                       unsigned       packetSize,
+                                       unsigned      *pNumSamples,
+                                       const struct RtpHeader* pRtpHeader);
+int universal_speex_decode(void* handle, const void* pCodedData, 
+                          unsigned cbCodedPacketSize, void* pAudioBuffer, 
+                          unsigned cbBufferSize, unsigned *pcbDecodedSize, 
+                          const struct RtpHeader* pRtpHeader);
+int universal_speex_encode(void* handle, const void* pAudioBuffer, 
+                          unsigned cbAudioSamples, int* rSamplesConsumed, 
+                          void* pCodedData, unsigned cbMaxCodedData, 
+                          int* pcbCodedSize, unsigned* pbSendNow);
 
-   for (; (c=*res) != 0; res++ )
-   {
-      if (isspace(c)) {
-         if (digitFound) 
-            break;
-         continue;
-      }
-      if (c == '=') {
-         if (eqFound) 
-            goto end_of_analize;
-         eqFound = TRUE;
-         continue;            
-      }
-      if (isdigit(c)) {
-         if (!eqFound) 
-            goto end_of_analize;
-         tmp = (c - '0');
-         for (res++; isdigit(c=*res); res++) {
-            tmp = tmp * 10 + (c - '0');
-         }
-         res--;
-         digitFound = TRUE;
-         continue;
-      }
 
-      /* Unexpected character */
-      goto end_of_analize;
-   }
-   if (digitFound) {
-      *value = tmp;
-      return 0;
-   }
 
-end_of_analize:
-   return -1;
-}
-
-static int analizeDefRange(const char* str, const char* param, int defValue, int minValue, int maxValue)
-{
-   int value;
-   int res = (!str) ? (-1) : analizeParamEqValue(str, param, &value);
-   if ((res == 0) && (value >= minValue) && (value <= maxValue))
-      return value;
-   return defValue;
-}
 
 void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
                            struct MppCodecFmtpInfoV1_2* pCodecInfo)
@@ -213,7 +170,7 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
    else
    {
       struct speex_codec_data_encoder *pSpeexEnc;
-      int mode = analizeDefRange(fmt, "mode", -1, 2, 8);
+      int mode = getFmtpValueRange(fmt, "mode", -1, 2, 8);
 
       pSpeexEnc = (struct speex_codec_data_encoder *)malloc(sizeof(struct speex_codec_data_encoder));
       if (!pSpeexEnc)

@@ -90,8 +90,12 @@ extern "C" {
 #  define CODEC_ENCODER            0
 //@}
 
-// c wrapper for OsSysLog::add(FAC_MP, PRI_ERR, const char* format, ...);
+/* c wrapper for OsSysLog::add(FAC_MP, PRI_ERR, const char* format, ...); */
 void mppLogError(const char* format, ...);
+
+/* fmtp parameter parser */
+int getFmtpValueRange(const char* fmtp, const char* paramName, int defaultValue, int minValue, int maxValue);
+
 
 /**
 *  @brief Generic information about codec.
