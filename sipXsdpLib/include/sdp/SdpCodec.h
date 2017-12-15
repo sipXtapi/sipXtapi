@@ -163,9 +163,11 @@ public:
         SDP_CODEC_TONES,           ///< AVT/DTMF Tones, RFC 2833
         SDP_CODEC_G729A,           ///< G.729A
         SDP_CODEC_G7221,           ///< Siren
-        SDP_CODEC_G7221_24,        ///< Siren/G.722.1 Annex C 24Kb
-        SDP_CODEC_G7221_32,        ///< Siren/G.722.1 Annex C 32Kb
-        SDP_CODEC_G7221_48,        ///< Siren/G.722.1 Annex C 48Kb
+        SDP_CODEC_G7221_24,        ///< Siren/G.722.1 (16k sps) 24Kb
+        SDP_CODEC_G7221_32,        ///< Siren/G.722.1 (16k sps) 32Kb
+        SDP_CODEC_G7221_C_24,      ///< Siren/G.722.1 Annex C (32k sps) 24Kb
+        SDP_CODEC_G7221_C_32,      ///< Siren/G.722.1 Annex C (32k sps) 32Kb
+        SDP_CODEC_G7221_C_48,      ///< Siren/G.722.1 Annex C (32k sps) 48Kb
         SDP_CODEC_G7231,           ///< G.723.1
         SDP_CODEC_AMR,             ///< AMR Bandwidth Efficient mode
         SDP_CODEC_AMR_ALIGNED,     ///< AMR Octet Aligned mode
