@@ -2572,7 +2572,7 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
             "o=sipX 5 5 IN IP4 192.168.0.101\n"
             "s=call\n"
             "t=0 0\n"
-            "m=audio 9000 RTP/AVP 8 124 108 115 109 96 123 126 104 105 106 107 100 101 102 103 110 111 98 99 125 112 113 114 116 118 119 120 121 117 0 9 122 127 97 142 143 144 128 129 130 131 132 133 134 135 136 137 138 139 140 141\n"
+            "m=audio 9000 RTP/AVP 8 124 108 115 109 96 123 126 104 105 106 107 100 101 102 103 110 111 98 99 125 112 113 114 116 118 119 120 121 117 0 9 122 127 97 142 143 144 128 129 130 131 132 133 134 135 136 137 138 139 140 141i 145 146\n"
             "c=IN IP4 192.168.0.101\n"
             "a=rtpmap:8 PCMA/8000/1\n"
             "a=rtpmap:124 G726-24/8000/1\n"
@@ -2643,7 +2643,11 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
             "a=rtpmap:141 MPEG4-GENERIC/48000/1\n"
             "a-fmtp:141 streamtype=5; profile-level-id=15; mode=AAC-hbr; config=1188; SizeLength=13; IndexLength=3; IndexDeltaLength=3; Profile=1\n"
             "a=ptime:30\n"
-            "a=control:trackID=1\n";
+            "a=control:trackID=1\n"
+            "a=rtpmap:145 G7221/16000\n"
+            "a=fmtp:145 bitrate=32000\n"
+            "a=rtpmap:146 G7221/16000\n"
+            "a=fmtp:146 bitrate=24000\n";
 
         SdpBody sdpBody(sdpBodyText);
         UtlSList allCodecNames;
@@ -2688,8 +2692,8 @@ encode codec[3] payload: 110 internal ID: 184 MIME subtype: h264
                                    matchingVideoFramerate);
 
 
-        CPPUNIT_ASSERT_EQUAL(numCommonCodecs, 47);
-        if(numCommonCodecs != 47)
+        CPPUNIT_ASSERT_EQUAL(numCommonCodecs, 52);
+        if(numCommonCodecs != 52)
         {
             SdpCodecList codecsInCommonList(numCommonCodecs, codecsInCommonArray);
             UtlString codecsInCommonString;
