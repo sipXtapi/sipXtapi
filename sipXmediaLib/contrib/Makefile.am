@@ -110,7 +110,7 @@ amrnb: @DEFAULT_CODECS_PATH@/libamrnb.so
 amrnb_clean: libamrnb/Makefile
 	$(MAKE) -C libamrnb clean
 
-amrnb: libamrnb/Makefile
+amrnb_distclean: libamrnb/Makefile
 	$(MAKE) -C libamrnb distclean
 
 ALL_TARGETS := $(ALL_TARGETS) amrnb
@@ -139,7 +139,7 @@ amrwb: @DEFAULT_CODECS_PATH@/libamrwb.so
 amrwb_clean: libamrwb/Makefile
 	$(MAKE) -C libamrwb clean
 
-amrwb: libamrwb/Makefile
+amrwb_distclean: libamrwb/Makefile
 	$(MAKE) -C libamrwb distclean
 
 ALL_TARGETS := $(ALL_TARGETS) amrwb
@@ -149,6 +149,43 @@ CLEAN_TARGETS := $(CLEAN_TARGETS) amrwb_clean
 DISTCLEAN_TARGETS := $(DISTCLEAN_TARGETS) amrwb_distclean
 endif
 
+if G7221
+G7221_CONFIG_ARGS = --enable-fixed-point $(CONFIGURE_ARGS)
+
+# G.722.1 targets
+libamrnb/Makefile: $(top_srcdir)/contrib/libg7221/configure $(top_srcdir)/contrib/libg7221/force_fixed.txt
+	pwd
+	if [ ! -d libg7221 ]; then mkdir -p libg7221; fi
+	(cd libg7221; ../$(top_srcdir)/contrib/libg7221/configure $(G7221_CONFIG_ARGS))
+
+# This target is used to force the above configure script and options to be used as
+# oposed to the recursive configure and automake from sipXmediaLib dir which may not
+# contain the fixed point configure option.  This G.722.1 lib does not implement
+# 32000 SPS G.722.1 in floating point.  So we must use fixed point on all platforms.
+$(top_srcdir)/contrib/libg7221/force_fixed.txt: $(top_srcdir)/contrib/libg7221/configure
+	touch $(top_srcdir)/contrib/libg7221/force_fixed.txt
+
+libg7221/src/.libs/libg722_1.so libg7221/libg722_1.la: libg7221/Makefile
+	pwd
+	$(MAKE) -C libg7221
+
+@DEFAULT_CODECS_PATH@/libg722_1.so: libg7221/src/.libs/libg722_1.so
+	cp -d libg7221/src/.libs/libg722_1.so* @DEFAULT_CODECS_PATH@/
+
+g7221: @DEFAULT_CODECS_PATH@/libg722_1.so
+
+g7221_clean: libg7221/Makefile
+	$(MAKE) -C libg7221 clean
+
+g7221_distclean: libg7221/Makefile
+	$(MAKE) -C libg7221 distclean
+
+ALL_TARGETS := $(ALL_TARGETS) g7221
+
+CLEAN_TARGETS := $(CLEAN_TARGETS) g7221_clean
+
+DISTCLEAN_TARGETS := $(DISTCLEAN_TARGETS) g7221_distclean
+endif
 
 all-local: $(ALL_TARGETS)
 
