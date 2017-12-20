@@ -2070,6 +2070,28 @@ AC_DEFUN([AM_SET_AMRWB],
     AC_CONFIG_SUBDIRS([contrib/libamrwb/])
 ])dnl
 
+AC_DEFUN([AM_SET_G7221],
+[
+    PLUGINS="${PLUGINS} G7221"
+    G7221_TARGET="plgg7221"
+    G7221_INCLUDE='-I$(top_srcdir)/contrib/libg7221/src/g722_1'
+    G7221_LIB_ROOT="${PWD}/contrib/libg7221/"    
+    G7221_STATIC_LIB='${top_builddir}/contrib/libg7221/src/.libs/libg722_1.a'
+    AC_SUBST(G7221_TARGET)    
+    AC_SUBST(G7221_INCLUDE)    
+    AC_SUBST(G7221_LIB_ROOT)
+    AC_SUBST(G7221_STATIC_LIB)
+
+    # G.722.1 codec library has it's own configure, 
+    # so be sure to call it.
+    # We want to always used fixed point in libg7221 as it does not support
+    # 32000 SPS codec in floating point.
+    # AX_SUBDIRS_CONFIGURE not supported on all distros
+    #AX_SUBDIRS_CONFIGURE([contrib/libg7221/], [--enabled-fixed-point])
+    # Hacked --enabled-fixed-point into contrib/Makefile.am
+    AC_CONFIG_SUBDIRS([contrib/libg7221/])
+])dnl
+
 AC_DEFUN([CHECK_AMR_AMRWB],
 [
     amr_enable=false;
@@ -2111,6 +2133,30 @@ AC_DEFUN([CHECK_AMR_AMRWB],
         AM_SET_AMRWB
     fi
     AM_CONDITIONAL(AMRWB, [test "x$amrwb_enable" == "xtrue"])    
+
+])dnl
+
+AC_DEFUN([CHECK_G7221],
+[
+    g7221_enable=false;
+    AC_ARG_ENABLE([codec-g7221],
+                  [AS_HELP_STRING([--enable-codec-g7221],
+                                  [Enable support for G.722.1 codec @<:@default=no@:>@])],
+                  [ if test ${enableval} = yes; 
+                    then
+                           g7221_enable=true;
+                    else
+                       if test ${enableval} = no; then
+                           AC_MSG_RESULT(Codec G.722.1 was disabled)
+                       else
+                           AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g7221)
+                       fi
+                    fi],
+                  g7221_enable=false)
+    if (test "x$g7221_enable" = "xtrue"); then 
+        AM_SET_G7221
+    fi
+    AM_CONDITIONAL(G7221, [test "x$g7221_enable" == "xtrue"])    
 
 ])dnl
 
