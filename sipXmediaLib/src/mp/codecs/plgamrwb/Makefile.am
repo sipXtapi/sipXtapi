@@ -9,7 +9,7 @@ mpcodecsdir = $(datadir)/@PACKAGE@
 mpcodecs_LTLIBRARIES = codec_amrwb.la
 
 codec_amrwb_la_SOURCES = PlgAmrWB.c
-codec_amrwb_la_LIBADD = @AMRWB_STATIC_LIB@
+codec_amrwb_la_LIBADD = @AMRWB_LIB_ROOT@/.libs/libamrwb.la
 codec_amrwb_la_LDFLAGS = -module -avoid-version
 codec_amrwb_la_DEPENDENCIES = ${LIBAMRWB_LIB}
 
