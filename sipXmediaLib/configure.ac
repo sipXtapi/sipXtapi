@@ -88,6 +88,7 @@ CHECK_G722
 CHECK_OPUS
 CHECK_NE10
 CHECK_AMR_AMRWB
+CHECK_G7221
 
 # Use external components, if requested.
 EXTERNAL_EXTENITIONS
@@ -161,6 +162,7 @@ AC_CONFIG_FILES([
   src/mp/codecs/plgopus/Makefile
   src/mp/codecs/plgamr/Makefile
   src/mp/codecs/plgamrwb/Makefile
+  src/mp/codecs/plgg7221/Makefile
   src/test/Makefile
   bin/Makefile
   doc/Makefile
