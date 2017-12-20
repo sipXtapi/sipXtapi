@@ -3,6 +3,8 @@
  *
  * g192_bit_stream.c
  *
+ * Copyright (C) 2017 SIPez LLC.  All rights reserved.
+ *
  * Copyright 2008-2009 Steve Underwood <steveu@coppice.org>
  *
  * All rights reserved.
@@ -30,7 +32,6 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
-#include <audiofile.h>
 
 #include "g192_bit_stream.h"
 

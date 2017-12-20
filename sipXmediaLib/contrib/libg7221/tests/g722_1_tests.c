@@ -3,6 +3,8 @@
  *
  * g722_1_tests.c
  *
+ * Copyright (C) 2017 SIPez LLC.  All rights reserved.
+ *
  * Adapted by Steve Underwood <steveu@coppice.org> from the reference
  * code supplied with ITU G.722.1, which is:
  *
@@ -29,7 +31,6 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
-#include <audiofile.h>
 
 #include <g722_1.h>
 
