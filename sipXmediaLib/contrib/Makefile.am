@@ -153,7 +153,7 @@ if G7221
 G7221_CONFIG_ARGS = --enable-fixed-point $(CONFIGURE_ARGS)
 
 # G.722.1 targets
-libamrnb/Makefile: $(top_srcdir)/contrib/libg7221/configure $(top_srcdir)/contrib/libg7221/force_fixed.txt
+libg7221/Makefile: $(top_srcdir)/contrib/libg7221/configure $(top_srcdir)/contrib/libg7221/force_fixed.txt
 	pwd
 	if [ ! -d libg7221 ]; then mkdir -p libg7221; fi
 	(cd libg7221; ../$(top_srcdir)/contrib/libg7221/configure $(G7221_CONFIG_ARGS))
