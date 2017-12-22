@@ -344,7 +344,10 @@ CODEC_API int PLG_ENCODE_V1(g7221_ ## SPS ## sps)(void* handle,  \
                          &codecStateData->mSampleBuffer[samplesToEncode], \
                          remainingSamples); /* shift leftovers to front of buffer */ \
               } \
-              codecStateData->mBufferedSampleCount -= samplesToEncode; \
+              if(codecStateData->mBufferedSampleCount) \
+              { \
+                  codecStateData->mBufferedSampleCount -= samplesToEncode; \
+              } \
               if(*pcbCodedSize > cbMaxCodedData) \
               { \
                  mppLogError("plgg7221 PLG_ENCODE_V1 resulting data too big, may have overwrite.  " \
