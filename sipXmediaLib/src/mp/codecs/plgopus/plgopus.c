@@ -40,7 +40,7 @@ static const struct MppCodecInfoV1_1 sgCodecInfo_opus_48000 =
    "Xiph.org",                 /* codecManufacturer */
    "Opus",                     /* codecName */
    PACKAGE_VERSION,            /* codecVersion */
-   CODEC_TYPE_FRAME_BASED,     /* codecType */
+   CODEC_TYPE_SAMPLE_BASED,     /* codecType */
 
 /*///////////////////// SDP info /////////////////////*/
    "opus",                      /* mimeSubtype */
