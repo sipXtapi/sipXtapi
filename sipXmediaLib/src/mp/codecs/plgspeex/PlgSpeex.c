@@ -252,14 +252,14 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
          case 16000:
             pCodecInfo->minBitrate = 3950;
             pCodecInfo->maxBitrate = 42200;
-            pCodecInfo->numSamplesPerFrame = 16000;
+            //pCodecInfo->numSamplesPerFrame = 16000;
             pCodecInfo->minFrameBytes = (79/*bits/frame*/+7)/8;
             pCodecInfo->maxFrameBytes = (844/*bits/frame*/+7)/8;
             break;
          case 32000:
             pCodecInfo->minBitrate = 5750;
             pCodecInfo->maxBitrate = 44000;
-            pCodecInfo->numSamplesPerFrame = 32000;
+            //pCodecInfo->numSamplesPerFrame = 32000;
             pCodecInfo->minFrameBytes = (115/*bits/frame*/+7)/8;
             pCodecInfo->maxFrameBytes = (880/*bits/frame*/+7)/8;
             break;
