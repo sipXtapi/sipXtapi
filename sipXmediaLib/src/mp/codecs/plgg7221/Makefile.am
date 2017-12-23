@@ -2,6 +2,7 @@
 # When not building/running configure in sipX/sipXmediaLib
 # Need to add relative include path not from topsrc
 if G7221
+SUBDIRS = ../../../../contrib/libg7221
 G7221_CONFIG_INCLUDE=-I../../../../contrib/libg7221
 endif
 
