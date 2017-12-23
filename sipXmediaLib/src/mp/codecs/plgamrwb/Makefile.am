@@ -1,6 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-LIBAMRWB_SUBDIR = ../../../../contrib/libamrwb
+# Defining SUBDIRS makes sure the lib is up-to-date and gets installed
+SUBDIRS = ../../../../contrib/libamrwb
+LIBAMRWB_SUBDIR = $(SUBDIRS)
 LIBAMRWB_LIB = @AMRWB_LIB_ROOT@/.libs/libamrwb.la
 
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @AMRWB_INCLUDE@
