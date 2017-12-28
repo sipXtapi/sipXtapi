@@ -321,7 +321,7 @@ CODEC_API int PLG_ENCODE_V1(g7221_ ## SPS ## sps)(void* handle,  \
               /* need to copy to buffer and encode when we have enough for a frame */ \
               assert(codecStateData->mBufferedSampleCount + cbAudioSamples <= codecStateData->mBufferSize); \
               memcpy(&codecStateData->mSampleBuffer[codecStateData->mBufferedSampleCount], \
-                     pAudioBuffer, cbAudioSamples); \
+                     pAudioBuffer, cbAudioSamples * sizeof(audio_sample_t)); \
               codecStateData->mBufferedSampleCount += cbAudioSamples; \
               samplesToEncode = (codecStateData->mBufferedSampleCount / samplesPerFrame) * samplesPerFrame; \
               samplesPtr = codecStateData->mSampleBuffer; \
@@ -342,7 +342,7 @@ CODEC_API int PLG_ENCODE_V1(g7221_ ## SPS ## sps)(void* handle,  \
               { \
                   memcpy(codecStateData->mSampleBuffer, \
                          &codecStateData->mSampleBuffer[samplesToEncode], \
-                         remainingSamples); /* shift leftovers to front of buffer */ \
+                         remainingSamples * sizeof(audio_sample_t)); /* shift leftovers to front of buffer */ \
               } \
               if(codecStateData->mBufferedSampleCount) \
               { \
