@@ -1,8 +1,5 @@
 // 
-// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
-// 
-// Copyright (C) 2007 SIPfoundry Inc.  
-// Licensed by SIPfoundry under the LGPL license.  
+// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
 // 
 // $$ 
 /////////////////////////////////////////////////////////////////////////////// 
@@ -852,7 +849,7 @@ UtlBoolean MpOss::ossSetTrigger(bool turnOn)
    {
       OsSysLog::add(FAC_MP, PRI_EMERG,
                     "OSS: could not set OSS trigger fd=%d. ioctl returned: %d (%s)\n",
-                    mfdDevice, errno, sys_errlist[errno]); 
+                    mfdDevice, errno, strerror[errno]); 
    }
    return res;
 }
