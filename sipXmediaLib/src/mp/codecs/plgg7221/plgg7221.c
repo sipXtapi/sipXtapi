@@ -105,13 +105,13 @@ CODEC_API void* PLG_INIT_V1_2(g7221_ ## SPS ## sps)(const char* fmtp,  \
 { \
    int sampleRate = SPS; \
    int bitRate = getFmtpValueRange(fmtp, "bitrate", -1, 24000, 48000); \
+   if (pCodecInfo == NULL || (bitRate != 24000 && bitRate != 32000 && bitRate != 48000)) \
+   { \
       mppLogError("plgg7221 failed to init %s fmtp: %s sample rate: %d bit rate: %d", \
                   isDecoder ? "decoder" : "encoder", \
                   fmtp, \
                   sampleRate, \
                   bitRate); \
-   if (pCodecInfo == NULL || (bitRate != 24000 && bitRate != 32000 && bitRate != 48000)) \
-   { \
       return NULL; \
    } \
  \
@@ -237,12 +237,12 @@ CODEC_API int PLG_DECODE_V1(g7221_ ## SPS ## sps)(void* handle,  \
           int expectedDataSize = 20 /* ms */ * codecStateData->mBitRate / 1000 / 8 ; \
           if(cbCodedPacketSize != expectedDataSize) \
           { \
+             *pcbDecodedSize = 0; \
              mppLogError("plgg7221 PLG_DECODE_V1 expected packet size: %d actual: %d", \
                          expectedDataSize, \
                          cbCodedPacketSize); \
           } \
- \
-          if(bufferSizeRequired <= cbBufferSize) \
+          else if(bufferSizeRequired <= cbBufferSize) \
           { \
              *pcbDecodedSize = g722_1_decode(codecStateData->mpDecoderState, \
                                              pAudioBuffer, \
@@ -256,12 +256,6 @@ CODEC_API int PLG_DECODE_V1(g7221_ ## SPS ## sps)(void* handle,  \
                             *pcbDecodedSize, \
                             cbBufferSize); \
              } \
-             mppLogError("plgg7221 g722_1_decode(%p, %p, %p, %d) returned: %d", \
-                         codecStateData->mpDecoderState, \
-                         pAudioBuffer, \
-                         pCodedData, \
-                         cbCodedPacketSize, \
-                         *pcbDecodedSize); \
           } \
           else \
           { \
@@ -327,10 +321,13 @@ CODEC_API int PLG_ENCODE_V1(g7221_ ## SPS ## sps)(void* handle,  \
               samplesPtr = codecStateData->mSampleBuffer; \
               remainingSamples = codecStateData->mBufferedSampleCount % samplesPerFrame; \
           } \
-          mppLogError("plgg7221 frame size: %d samples buffered: %d samples to encode: %d", \
-                      samplesPerFrame, \
-                      codecStateData->mBufferedSampleCount, \
-                      samplesToEncode); \
+          if(0) \
+          { \
+              mppLogError("plgg7221 frame size: %d samples buffered: %d samples to encode: %d", \
+                          samplesPerFrame, \
+                          codecStateData->mBufferedSampleCount, \
+                          samplesToEncode); \
+          } \
           if(samplesToEncode >= samplesPerFrame) \
           { \
               *pcbCodedSize = g722_1_encode(codecStateData->mpEncoderState, \
@@ -360,15 +357,18 @@ CODEC_API int PLG_ENCODE_V1(g7221_ ## SPS ## sps)(void* handle,  \
                  returnCode = RPLG_SUCCESS; \
                  *pbSendNow = TRUE; \
               } \
-              mppLogError("plgg7221 %d sps %d bps g722_1_encode(%p, %p, %d) returned: %d send now: %s buffered samples: %d", \
-                          codecStateData->mSampleRate, \
-                          codecStateData->mBitRate, \
-                          pCodedData, \
-                          pAudioBuffer, \
-                          (int)cbAudioSamples, \
-                          *pcbCodedSize, \
-                          *pbSendNow ? "TRUE" : "FALSE", \
-                          codecStateData->mBufferedSampleCount); \
+              if(0) \
+              { \
+                  mppLogError("plgg7221 %d sps %d bps g722_1_encode(%p, %p, %d) returned: %d send now: %s buffered samples: %d", \
+                              codecStateData->mSampleRate, \
+                              codecStateData->mBitRate, \
+                              pCodedData, \
+                              pAudioBuffer, \
+                              (int)cbAudioSamples, \
+                              *pcbCodedSize, \
+                              *pbSendNow ? "TRUE" : "FALSE", \
+                              codecStateData->mBufferedSampleCount); \
+               } \
            } \
            else /* nothing to encode, just buffering */ \
            { \
