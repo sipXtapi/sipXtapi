@@ -808,7 +808,7 @@ void* MpOss::soundCardIoWrapper(void* arg)
 #if defined(_REALTIME_LINUX_AUDIO_THREADS) && defined(__linux__) /* [ */
    // Setup thread priority
 
-   struct sched_param realtime;
+   //struct sched_param realtime;
    int res = 0;
 
    if(geteuid() != 0)
@@ -819,8 +819,9 @@ void* MpOss::soundCardIoWrapper(void* arg)
    }
    else
    {
+      // TODO: fix this
       // Set the priority to the maximum allowed for the scheduling polity.
-      realtime.sched_priority = sched_get_priority_max(SCHED_FIFO);
+      //realtime.sched_priority = sched_get_priority_max(SCHED_FIFO);
       //res = sched_setscheduler(0, SCHED_FIFO, &realtime);
       //res = pthread_setschedparam(pthread_self(), SCHED_FIFO, &realtime);
       assert(res == 0);
@@ -847,9 +848,10 @@ UtlBoolean MpOss::ossSetTrigger(bool turnOn)
    UtlBoolean res = (ioctl(mfdDevice, SNDCTL_DSP_SETTRIGGER, &val) != -1);
    if (!res)
    {
+      const char* errorString = strerror(errno); 
       OsSysLog::add(FAC_MP, PRI_EMERG,
                     "OSS: could not set OSS trigger fd=%d. ioctl returned: %d (%s)\n",
-                    mfdDevice, errno, strerror[errno]); 
+                    mfdDevice, errno, errorString);
    }
    return res;
 }
