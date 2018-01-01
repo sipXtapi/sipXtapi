@@ -1,5 +1,5 @@
 /*  
-// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
 //
 //
 // $$
@@ -257,7 +257,8 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
         codecInfo->maxFrameBytes = 2;
         codecInfo->packetLossConcealment = CODEC_PLC_NONE;
         codecInfo->vadCng = CODEC_CNG_NONE;
-        codecInfo->algorithmicDelay = frameSize * 1000 / (sampleRate / 1000); /* Microseconds of audio/frame (SAMPLE_PER_AAC_LC_FRAME samples) */
+        /* AAC consumes 2 frames before encoding the first one. We do not count packaging delay in alg. delay. */
+        codecInfo->algorithmicDelay = frameSize; /* (SAMPLE_PER_AAC_LC_FRAME samples) */
         codecInfo->mSetMarker = TRUE;
 
         codecContext = avcodec_alloc_context();
