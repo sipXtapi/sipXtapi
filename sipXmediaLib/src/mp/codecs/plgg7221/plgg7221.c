@@ -168,7 +168,7 @@ CODEC_API void* PLG_INIT_V1_2(g7221_ ## SPS ## sps)(const char* fmtp,  \
    } \
    else \
    { \
-      pCodecInfo->algorithmicDelay = 2 * pCodecInfo->numSamplesPerFrame; /* expresses as num samples */ \
+      pCodecInfo->algorithmicDelay = 0; /* expresses as num samples */ \
    } \
    pCodecInfo->packetLossConcealment = CODEC_PLC_NONE; \
    pCodecInfo->vadCng = CODEC_CNG_NONE; \
