@@ -40,7 +40,7 @@ static const struct MppCodecInfoV1_1 sgCodecInfo_opus_48000 =
    "Xiph.org",                 /* codecManufacturer */
    "Opus",                     /* codecName */
    PACKAGE_VERSION,            /* codecVersion */
-   CODEC_TYPE_SAMPLE_BASED,     /* codecType */
+   CODEC_TYPE_FRAME_BASED,     /* codecType */
 
 /*///////////////////// SDP info /////////////////////*/
    "opus",                      /* mimeSubtype */
@@ -141,6 +141,10 @@ CODEC_API void* PLG_INIT_V1_2(opus_48000)(const char* fmtp, int isDecoder,
 #endif
     /* It could do DTX+CNG, but wrapper should be fixed to support it. */
     codecInfo->vadCng = CODEC_CNG_NONE;
+    codecInfo->algorithmicDelay = 5 /* ms */ * 48000 / 1000;
+    codecInfo->numSamplesPerFrame = 480; /* 10 m sec */
+    /* TODO: should support 10 and 20 m Sec frames. */
+
 
     struct MpCodecOpusCodecState* codecContext = 
         malloc(sizeof(struct MpCodecOpusCodecState));
