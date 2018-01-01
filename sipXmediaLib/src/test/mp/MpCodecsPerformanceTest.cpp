@@ -11,6 +11,7 @@
 #include <time.h>
 
 #include <mp/MpCodecFactory.h>
+#include <mp/NetInTask.h>
 #include <os/OsTime.h>
 #include <os/OsDateTime.h>
 
@@ -20,11 +21,11 @@
 #include <../test/mp/MpTestCodecPaths.h>
 
 /// Duration of one frame in milliseconds
-#define FRAME_MS                 20
+#define FRAME_MS                 10
 /// Maximum length of audio data we expect from decoder (in samples).
 #define DECODED_FRAME_MAX_SIZE   3200
 /// Maximum size of encoded frame (in bytes).
-#define ENCODED_FRAME_MAX_SIZE   1480
+#define ENCODED_FRAME_MAX_SIZE   RTP_MTU
 /// Number of RTP packets to encode/decode.
 #define NUM_PACKETS_TO_TEST      3
 /// Maximum number of milliseconds in packet.
@@ -84,6 +85,8 @@ public:
                                          CODEC_PLUGINS_FILTER);
       }
 
+      printf("mediaFrame size: %d mSec\n", FRAME_MS);
+
       // Get list of loaded codecs
       pCodecFactory->getCodecInfoArray(codecInfoNum, pCodecInfo);
       CPPUNIT_ASSERT(codecInfoNum>0);
@@ -139,7 +142,8 @@ protected:
       MpAudioSample *pOriginal;
       MpAudioSample  pDecoded[DECODED_FRAME_MAX_SIZE];
       int            encodeFrameNum = 0;
-      int            maxPacketSamples = (MAX_PACKET_TIME*sampleRate)/1000;
+      int            maxPacketSamples = (MAX_PACKET_TIME*sampleRate)/1000 /
+                        (MAX_PACKET_TIME/FRAME_MS) * (MAX_PACKET_TIME/FRAME_MS); // Fix roundoff issues
       int            frameSize = (sampleRate*FRAME_MS)/1000;
       int            codecFrameSamples;
       UtlString contextMessage;
@@ -174,9 +178,6 @@ protected:
          return;
       }
 
-      printf("codec: %s sample rate: %d frame size: %d\n",
-         codecMime.data(), sampleRate, pDecoder->getInfo()->getNumSamplesPerFrame());
-
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            pCodecFactory->createEncoder(codecMime, codecFmtp,
                                                         sampleRate, numChannels,
@@ -201,7 +202,13 @@ protected:
          assert(!"Unknown codec type!");
       }
 
+      printf("codec: %s sample rate: %d frame size: %d\n",
+         codecMime.data(), sampleRate, codecFrameSamples);
+
+      CPPUNIT_ASSERT_MESSAGE(contextMessage.data(), codecFrameSamples > 0);
+
       unsigned char* rtpDataStart = NULL;
+      int algorithmicDelaySamplesCount = 0;
 
       for (int i=0; i<NUM_PACKETS_TO_TEST; i++)
       {
@@ -281,9 +288,64 @@ protected:
          tmpSamplesConsumed = pDecoder->decode(pRtpPacket, DECODED_FRAME_MAX_SIZE,
                                                pDecoded);
          OsDateTime::getCurTime(stop);
+         if(algorithmicDelaySamplesCount == 0 &&
+            tmpSamplesConsumed > 0)
+         {
+             algorithmicDelaySamplesCount = samplesInPacket;
+         
+             CPPUNIT_ASSERT_MESSAGE(loopMessage.data(),
+                                    algorithmicDelaySamplesCount >= 
+                                    pEncoder->getInfo()->getAlgorithmicDelay());
+             if(algorithmicDelaySamplesCount < 
+                pEncoder->getInfo()->getAlgorithmicDelay())
+             {
+                printf("algorithmic delay observed: %d samples codec info: %d samples\n",
+                       algorithmicDelaySamplesCount,
+                       pEncoder->getInfo()->getAlgorithmicDelay());
+             }
+             // If we run into the MTU limit, we may not reach the algorithmic delay num samples
+             if(pRtpPacket->getPayloadSize() < RTP_MTU ||
+                algorithmicDelaySamplesCount >=
+                                    codecFrameSamples)
+             {
+                 CPPUNIT_ASSERT_MESSAGE(loopMessage.data(),
+                                        algorithmicDelaySamplesCount >= 
+                                        codecFrameSamples);
+                 if(algorithmicDelaySamplesCount <
+                    codecFrameSamples)
+                 {
+                    printf("algorithmic delay observed: %d codecFrameSamples: %d\n",
+                           algorithmicDelaySamplesCount,
+                           codecFrameSamples);
+                 }
+             }
+         }
          CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage.data(),
                                       samplesInPacket, tmpSamplesConsumed);
-
+         if(pEncoder->getInfo()->getCodecType() == CODEC_TYPE_SAMPLE_BASED)
+         {
+             if(pRtpPacket->getPayloadSize() < RTP_MTU ||
+                tmpSamplesConsumed == maxPacketSamples)
+             {
+                 CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage.data(),
+                                              tmpSamplesConsumed,
+                                              maxPacketSamples);
+             }
+             // TODO: need test for case when we fill the RTP packet before we get to maxPacketSamples
+             else
+             {
+                 printf("WARNING: maximum RTP MTU (%d) reached before maxPacketSamples (%d), only %d encoded\n",
+                        RTP_MTU,
+                        maxPacketSamples,
+                        tmpSamplesConsumed);
+             }
+         }
+         else
+         {
+             CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage.data(),
+                                          tmpSamplesConsumed,
+                                          codecFrameSamples);
+         }
          printf("RTP payload first byte: %x payload size: %d\n",
              *(pRtpPacket->getDataPtr()), pRtpPacket->getPayloadSize());
  
@@ -296,6 +358,14 @@ protected:
                 diff.seconds(), diff.usecs());
       }
 
+      printf("algorithmic-delay %s/%d/%d %s;%d;%f\n",
+             codecMime.data(), sampleRate, numChannels, codecFmtp.data(),
+             algorithmicDelaySamplesCount, 
+             ((float)algorithmicDelaySamplesCount) / ((float)sampleRate) * 1000.0);
+      printf("packet-samples %s/%d/%d %s;%d;%f\n",
+             codecMime.data(), sampleRate, numChannels, codecFmtp.data(),
+             codecFrameSamples,
+             ((float)codecFrameSamples) / ((float)sampleRate) * 1000.0);
       // Free encoder and decoder
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            pDecoder->freeDecode());
