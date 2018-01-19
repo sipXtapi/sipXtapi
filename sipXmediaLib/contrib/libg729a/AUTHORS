@@ -1,0 +1,8 @@
+This G729 library was forked from https://github.com/ploverlake/g729a
+Which was modified by Russle Ploverlake to refactor the static variables from
+the ITU implementation, into structures to support multiple encode and decode
+streams at the same time.
+
+Porting to sipX supported linux distributions by Dan Petrie
+
+

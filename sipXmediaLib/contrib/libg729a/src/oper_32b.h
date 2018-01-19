@@ -1,0 +1,60 @@
+/**
+ *  Copyright (c) 2015, Russell
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ *  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ *  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ *  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ *  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ *  Portions of this file are derived from the following ITU notice:
+ *
+ *  ITU-T G.729 Software Package Release 2 (November 2006)
+ *
+ *  ITU-T G.729A Speech Coder    ANSI-C Source Code
+ *  Version 1.1    Last modified: September 1996
+ *
+ *  Copyright (c) 1996,
+ *  AT&T, France Telecom, NTT, Universite de Sherbrooke
+ *  All rights reserved.
+ */
+
+#ifndef __G729_OPER_32B_H__
+#define __G729_OPER_32B_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
+/* Double precision operations */
+
+void g729_L_Extract(G729_Word32 L_32, G729_Word16 *hi, G729_Word16 *lo);
+G729_Word32 g729_L_Comp(G729_Word16 hi, G729_Word16 lo);
+G729_Word32 g729_Mpy_32(G729_Word16 hi1, G729_Word16 lo1, G729_Word16 hi2, G729_Word16 lo2);
+G729_Word32 g729_Mpy_32_16(G729_Word16 hi, G729_Word16 lo, G729_Word16 n);
+G729_Word32 g729_Div_32(G729_Word32 L_num, G729_Word16 denom_hi, G729_Word16 denom_lo);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  /* __G729_OPER_32B_H__ */
+/* end of file */
