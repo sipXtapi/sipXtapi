@@ -149,6 +149,35 @@ CLEAN_TARGETS := $(CLEAN_TARGETS) amrwb_clean
 DISTCLEAN_TARGETS := $(DISTCLEAN_TARGETS) amrwb_distclean
 endif
 
+if G729
+# libg729a targets
+libg729a/Makefile: $(top_srcdir)/contrib/libg729a/configure
+	pwd
+	if [ ! -d libg729a ]; then mkdir -p libg729a; fi
+	(cd libg729a; ../$(top_srcdir)/contrib/libg729a/configure $(AMRWB_CONFIG_ARGS))
+
+libg729a/src/.libs/libg729a.so libg729a/src/libg729a.la: libg729a/src/Makefile
+	pwd
+	$(MAKE) -C libg729a
+
+@DEFAULT_CODECS_PATH@/libg729a.so: libg729a/src/.libs/libg729a.so
+	cp -d libg729a/src/.libs/libg729a.so* @DEFAULT_CODECS_PATH@/
+
+g729a: @DEFAULT_CODECS_PATH@/libg729a.so
+
+g729a_clean: libg729a/Makefile
+	$(MAKE) -C libg729a clean
+
+g729a_distclean: libg729a/Makefile
+	$(MAKE) -C libg729a distclean
+
+ALL_TARGETS := $(ALL_TARGETS) g729a
+
+CLEAN_TARGETS := $(CLEAN_TARGETS) g729a_clean
+
+DISTCLEAN_TARGETS := $(DISTCLEAN_TARGETS) g729a_distclean
+endif
+
 if G7221
 G7221_CONFIG_ARGS = --enable-fixed-point $(CONFIGURE_ARGS)
 
