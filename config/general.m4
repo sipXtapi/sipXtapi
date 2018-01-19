@@ -2092,6 +2092,23 @@ AC_DEFUN([AM_SET_G7221],
     AC_CONFIG_SUBDIRS([contrib/libg7221/])
 ])dnl
 
+AC_DEFUN([AM_SET_G729],
+[
+    PLUGINS="${PLUGINS} G729"
+    G729_TARGET="plgg729"
+    G729_INCLUDE='-I$(top_srcdir)/contrib/libg729a/src/interface'
+    G729_LIB_ROOT="${PWD}/contrib/libg729a/"    
+    G729_STATIC_LIB='${top_builddir}/contrib/libg729a/src/.libs/libg729a.a'
+    AC_SUBST(G729_TARGET)    
+    AC_SUBST(G729_INCLUDE)    
+    AC_SUBST(G729_LIB_ROOT)
+    AC_SUBST(G729_STATIC_LIB)
+
+    # G.729 codec library has it's own configure, 
+    # so be sure to call it.
+    AC_CONFIG_SUBDIRS([contrib/libg729a/])
+])dnl
+
 AC_DEFUN([CHECK_AMR_AMRWB],
 [
     amr_enable=false;
@@ -2157,6 +2174,30 @@ AC_DEFUN([CHECK_G7221],
         AM_SET_G7221
     fi
     AM_CONDITIONAL(G7221, [test "x$g7221_enable" == "xtrue"])    
+
+])dnl
+
+AC_DEFUN([CHECK_G729],
+[
+    g729_enable=false;
+    AC_ARG_ENABLE([codec-g729],
+                  [AS_HELP_STRING([--enable-codec-g729],
+                                  [Enable support for G.729a codec @<:@default=no@:>@])],
+                  [ if test ${enableval} = yes; 
+                    then
+                           g729_enable=true;
+                    else
+                       if test ${enableval} = no; then
+                           AC_MSG_RESULT(Codec G.729 was disabled)
+                       else
+                           AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g729)
+                       fi
+                    fi],
+                  g729_enable=false)
+    if (test "x$g729_enable" = "xtrue"); then 
+        AM_SET_G729
+    fi
+    AM_CONDITIONAL(G729, [test "x$g729_enable" == "xtrue"])    
 
 ])dnl
 
