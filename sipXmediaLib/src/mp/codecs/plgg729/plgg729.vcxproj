@@ -102,7 +102,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PlgG729.c" />
+    <ClCompile Include="PlgVaG729.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\mp\codecs\PlgDefsV1.h" />
