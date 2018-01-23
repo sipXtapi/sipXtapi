@@ -156,7 +156,9 @@ libg729a/Makefile: $(top_srcdir)/contrib/libg729a/configure
 	if [ ! -d libg729a ]; then mkdir -p libg729a; fi
 	(cd libg729a; ../$(top_srcdir)/contrib/libg729a/configure $(AMRWB_CONFIG_ARGS))
 
-libg729a/src/.libs/libg729a.so libg729a/src/libg729a.la: libg729a/src/Makefile
+libg729a/src/Makefile: libg729a/Makefile
+
+libg729a/src/.libs/libg729a.so libg729a/src/libg729a.la: libg729a/Makefile libg729a/src/Makefile
 	pwd
 	$(MAKE) -C libg729a
 

@@ -1,7 +1,6 @@
 AC_PREREQ([2.0])
 AC_INIT(libg729a, 0.1)
 AM_INIT_AUTOMAKE
-AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_SRCDIR([src/coder.c])
 

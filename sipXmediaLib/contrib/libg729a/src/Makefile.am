@@ -1,5 +1,5 @@
 lib_LTLIBRARIES         = libg729a.la
-libg729a_la_CPPFLAGS = -fPIC -I./interface
+libg729a_la_CPPFLAGS = -fPIC -I$(top_srcdir)/src/interface
 
 libg729a_la_SOURCES  = \
   acelp_ca.c \
