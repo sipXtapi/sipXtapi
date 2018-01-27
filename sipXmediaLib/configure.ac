@@ -164,6 +164,7 @@ AC_CONFIG_FILES([
   src/mp/codecs/plgamr/Makefile
   src/mp/codecs/plgamrwb/Makefile
   src/mp/codecs/plgg7221/Makefile
+  src/mp/codecs/plgg729/Makefile
   src/test/Makefile
   bin/Makefile
   doc/Makefile
