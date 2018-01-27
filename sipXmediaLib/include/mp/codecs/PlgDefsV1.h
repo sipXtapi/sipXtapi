@@ -152,7 +152,7 @@ struct MppCodecFmtpInfoV1_2
                                         ///<  numSamplesPerFrame samples of PCM data.
    unsigned     packetLossConcealment;  ///< See CODEC_PLC_* for details.
    unsigned     vadCng;                 ///< See CODEC_CNG_* for details.
-   unsigned     algorithmicDelay;       ///< Algorithmic delay of this encoder/decoder. Also known
+   unsigned     algorithmicDelay;       ///< Algorithmic delay (samples) of this encoder/decoder. Also known
                                         ///<  as codec lookahead. This should not include packaging
                                         ///<  delay (which equals to codec packet size). It will be
                                         ///<  taken into account independently. Counted in samples.
