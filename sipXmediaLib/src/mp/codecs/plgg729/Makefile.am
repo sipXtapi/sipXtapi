@@ -2,6 +2,7 @@
 # When not building/running configure in sipX/sipXmediaLib
 # Need to add relative include path not from topsrc
 if G729
+SUBDIRS = ../../../../contrib/libg729a
 G729_CONFIG_INCLUDE=-I../../../../contrib/libg729a/src/interface
 endif
 
