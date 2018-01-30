@@ -233,21 +233,24 @@ OsConnectionSocket* OsServerSocket::accept()
 
 void OsServerSocket::close()
 {
-   if(socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
+   int sd = socketDescriptor; // Valgrind occasionally reports that we are closing -1...
+
+   socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+
+   if(sd > OS_INVALID_SOCKET_DESCRIPTOR)
    {
       OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-          "OsServerSocket::close: socket fd: %d\n", (int)socketDescriptor);
+          "OsServerSocket::close: socket fd: %d\n", (int)sd);
 #if defined(_WIN32)
-      closesocket(socketDescriptor);
+      closesocket(sd);
 #elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
       // Call shutdown first to unblock blocking calls on Linux
 // HZM: Note that this is suspiciously different from the structure of OsSocket::close()
-      ::shutdown(socketDescriptor,2);
-      ::close(socketDescriptor);
+      ::shutdown(sd,2);
+      ::close(sd);
 #else
 #error Unsupported target platform.
 #endif
-       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
    }
 }
 
