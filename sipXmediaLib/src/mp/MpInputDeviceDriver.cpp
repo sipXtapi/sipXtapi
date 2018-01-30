@@ -39,6 +39,7 @@ MpInputDeviceDriver::MpInputDeviceDriver(const UtlString& name,
 
 MpInputDeviceDriver::~MpInputDeviceDriver()
 {
+  // NOTE: This assert() will often need to be removed when running this under Valgrind:
     assert(!isEnabled());
     clearDeviceId();
     mpInputDeviceManager = NULL;
