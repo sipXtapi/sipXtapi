@@ -81,8 +81,11 @@ MpMMTimerPosix::MpMMTimerPosix(MpMMTimer::MMTimerType type)
 MpMMTimerPosix::~MpMMTimerPosix()
 {
    mbTerminate = TRUE;
-   stop();
-
+#ifndef ANDROID // [
+   // Under Android this leads to hang. Not sure why.
+   // Maybe not anymore with checkins on 20180130 to clean up the teardown of this object
+   pthread_join(mThread, NULL);
+#endif // ANDROID ]
    if (mTimerType == Linear)
    {
       sem_destroy(&mSyncSemaphore);
@@ -90,11 +93,6 @@ MpMMTimerPosix::~MpMMTimerPosix()
 
    sem_destroy(&mIoSem);
 
-   pthread_kill(mThread, TIMER_SIGTERM);
-#ifndef ANDROID // [
-   // Under Android this leads to hans. Not sure why.
-   pthread_join(mThread, NULL);
-#endif // ANDROID ]
 }
 
 OsStatus MpMMTimerPosix::run(unsigned usecPeriodic)
@@ -256,7 +254,6 @@ void* MpMMTimerPosix::threadIoWrapper(void* arg)
    sigset_t mask, fmask;
    sigemptyset(&mask);
    sigaddset (&mask, gPosixTimerReg.getSignalNum());
-   sigaddset (&mask, TIMER_SIGTERM);
 
    sigfillset(&fmask);
    pthread_sigmask (SIG_SETMASK, &fmask, NULL);
@@ -275,11 +272,12 @@ void* MpMMTimerPosix::threadIoWrapper(void* arg)
    for(;;)
    {
       sigwait(&mask, &signum);
-      if (signum == TIMER_SIGTERM)
+      if (obj->mbTerminate)
       {
 #ifdef ANDROID // [
          OsSysLog::add(FAC_MP, PRI_DEBUG, "threadIoWrapper received signal TIMER_SIGTERM\n");
 #endif // ANDROID ]
+         obj->stop();
          return NULL;
       }
       assert(signum == gPosixTimerReg.getSignalNum());
