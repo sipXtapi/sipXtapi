@@ -262,17 +262,20 @@ OsStatus MpodAlsa::canEnable()
 {
     OsStatus status = OS_FAILED;
     snd_pcm_t* pcmOut = NULL;
+    int ret;
 
     int openStatus = 
         snd_pcm_open(&pcmOut, 
                      getDeviceName(),
 		     SND_PCM_STREAM_PLAYBACK,
 		     SND_PCM_NONBLOCK);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA::canEnable snd_pcm_open(%s) returned: %p %d", getDeviceName(), pcmOut, ret);
     switch(openStatus)
     {
     case 0:
         status = OS_SUCCESS;
-        snd_pcm_close(pcmOut);
+        ret = snd_pcm_close(pcmOut);
+        OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA::canEnable snd_pcm_close(pPcmOut=%p) returned: %d", pcmOut, ret);
         break;
 
     case -2:
@@ -305,13 +308,21 @@ OsStatus MpodAlsa::canEnable()
 
 OsStatus MpodAlsa::signalForNextFrame()
 {
-   OsStatus ret = OS_FAILED;
-   ret = mpTickerNotification->signal(mCurrentFrameTime);
+   OsStatus ret = OS_SUCCESS;
+
+   if (mpTickerNotification) 
+   {
+      ret = mpTickerNotification->signal(mCurrentFrameTime);
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "MpodAlsa::signalForNextFrame %s",
-                 data());
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpodAlsa::signalForNextFrame %s",
+                    data());
 #endif
+   }
+   else
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING, "MpodAlsa::signalForNextFrame: mpTickerNotification is NULL");
+   }
    return ret;
 }
 
