@@ -1355,7 +1355,7 @@ int local_main(int argc, char* argv[])
             }
 
             hLine = lineInit(hInst, szIdentity, szUsername, szPassword, szRealm) ;
-            printf("Line: %d initized\n", hLine);
+            printf("Line: %d initialized\n", hLine);
 
             dumpLocalContacts(hInst) ;
 
