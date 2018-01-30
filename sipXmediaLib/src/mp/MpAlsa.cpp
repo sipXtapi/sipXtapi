@@ -197,13 +197,10 @@ OsStatus MpAlsa::freeInputDevice()
       OsSysLog::add(FAC_MP, PRI_DEBUG,
           "MpAlsa::freeInputDevice closing ALSA input stream");
       int closeRet = snd_pcm_close(pPcmIn);
-      if(closeRet != 0)
       {
           OsSysLog::add(FAC_MP, PRI_DEBUG,
-              "snd_pcm_close %p input returned: %d (%s)",
-              pPcmIn,
-              closeRet,
-              snd_strerror(closeRet));
+              "snd_pcm_close(pPcmIn=%p) input returned: %d (%s)",
+              pPcmIn, closeRet, snd_strerror(closeRet));
       }
       pPcmIn = NULL;
 
@@ -237,13 +234,10 @@ OsStatus MpAlsa::freeOutputDevice()
       OsSysLog::add(FAC_MP, PRI_DEBUG,
           "MpAlsa::freeOutputDevice closing ALSA output stream");
       int closeRet = snd_pcm_close(pPcmOut);
-      if(closeRet != 0)
       {
           OsSysLog::add(FAC_MP, PRI_DEBUG,
-              "snd_pcm_close %p output returned: %d (%s)",
-              pPcmOut,
-              closeRet,
-              snd_strerror(closeRet));
+              "snd_pcm_close(pPcmOut=%p) output returned: %d (%s)",
+              pPcmOut, closeRet, snd_strerror(closeRet));
       }
       pPcmOut = NULL;
 
@@ -1132,6 +1126,9 @@ int MpAlsa::alsaSetupPcmDevice(const char* devname, bool capture, unsigned& sugg
 		    devname,
 		    (capture ? SND_PCM_STREAM_CAPTURE : SND_PCM_STREAM_PLAYBACK),
 		    SND_PCM_NONBLOCK);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA: open %s for %s, snd_pcm_open returned: %d %s %p", 
+		  devname, (capture ? "capture" : "playback"), 
+		  ret, snd_strerror(ret), (capture ? pPcmIn : pPcmOut));
     if (ret != 0)
     {
 	OsSysLog::add(FAC_MP, PRI_WARNING, "ALSA: can't open %s for %s, snd_pcm_open returned: %d %s", 
