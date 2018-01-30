@@ -792,10 +792,9 @@ OsStatus NetInTask::removeNetInputSources(MprFromNet* fwdTo, OsNotification* not
    netInTaskMsg msg;
    int wrote = 0;
 
+   memset((void*)&msg, 0, NET_TASK_MAX_MSG_LEN);
    if (NULL != fwdTo)
    {
-      msg.pRtpSocket = NULL;
-      msg.pRtcpSocket = NULL;
       msg.fwdTo = fwdTo;
       msg.notify = notify;
 
