@@ -134,6 +134,7 @@ private:
      /// @brief Assignment operator (not implemented for this class)
    MpodAlsa& operator=(const MpodAlsa& rhs);
 
+   int mNullTickers;
 
 };
 

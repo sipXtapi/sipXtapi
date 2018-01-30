@@ -43,6 +43,7 @@ MpodAlsa::MpodAlsa(const UtlString& name)
 : MpOutputDeviceDriver(name)
 , mAudioFrame(NULL)
 , mNotificationThreadEn(FALSE)
+, mNullTickers(0)
 {
    mpCont = MpAlsaContainer::getContainer();
    if (mpCont != NULL)
@@ -308,21 +309,25 @@ OsStatus MpodAlsa::canEnable()
 
 OsStatus MpodAlsa::signalForNextFrame()
 {
-   OsStatus ret = OS_SUCCESS;
+   OsStatus ret = OS_FAILED;
+   OsCallback *ticker = mpTickerNotification;
 
-   if (mpTickerNotification) 
-   {
-      ret = mpTickerNotification->signal(mCurrentFrameTime);
+   if (NULL != ticker) {
+      ret = ticker->signal(mCurrentFrameTime);
+      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpodAlsa::signalForNextFrame %s", data());
+      if (mNullTickers) {
+         OsSysLog::add(FAC_MP, PRI_WARNING, "MpodAlsa::signalForNextFrame: called with NULL %d times", mNullTickers);
+         mNullTickers = 0;
+      }
+   } else {
+      if (0 == mNullTickers) OsSysLog::add(FAC_MP, PRI_WARNING, "MpodAlsa::signalForNextFrame: called with NULL (first time this series)");
+      mNullTickers++;
+   }
 #ifdef TEST_PRINT
       OsSysLog::add(FAC_MP, PRI_DEBUG,
                     "MpodAlsa::signalForNextFrame %s",
                     data());
 #endif
-   }
-   else
-   {
-      OsSysLog::add(FAC_MP, PRI_WARNING, "MpodAlsa::signalForNextFrame: mpTickerNotification is NULL");
-   }
    return ret;
 }
 
