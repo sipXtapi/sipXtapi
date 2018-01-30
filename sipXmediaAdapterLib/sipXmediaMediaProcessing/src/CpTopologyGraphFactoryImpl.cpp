@@ -389,8 +389,6 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
       }
       else
       {
-         // Stop our ticker timer
-         mpMediaTaskTicker->stop();
          delete mpMediaTaskTicker;
          mpMediaTaskTicker = NULL;
       }
@@ -400,8 +398,6 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
    }
    else
    {
-      // Stop our ticker timer
-      mpMediaTaskTicker->stop();
       delete mpMediaTaskTicker;
       mpMediaTaskTicker = NULL;
    }
