@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2018 SIPez LLC.  All rights reserved.
 // 
 // $$ 
 /////////////////////////////////////////////////////////////////////////////// 
@@ -1214,6 +1214,12 @@ int MpAlsa::alsaSetupPcmDevice(const char* devname, bool capture, unsigned& sugg
 
 	numChans = 2;
     }
+
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+                  "MpAlsa setup %s with %d %s channels",
+                  devname,
+                  numChans,
+                  capture ? "input" : "output");
 
     //***** Set rate *****
 
