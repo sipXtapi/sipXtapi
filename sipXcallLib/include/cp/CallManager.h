@@ -29,6 +29,8 @@
 #include <tapi/sipXtapiInternal.h>
 
 // DEFINES
+// Much larger value needed when running under Valgrind on an embedded dev board:
+// #define LONG_EVENT_RESPONSE_TIMEOUTS
 #ifdef LONG_EVENT_RESPONSE_TIMEOUTS
 #  define CP_MAX_EVENT_WAIT_SECONDS    2592000    // 30 days in seconds
 #else
