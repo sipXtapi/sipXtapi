@@ -281,6 +281,14 @@ void CSourceDescription::SetAllComponents(unsigned char *puchName,
         unsigned char *puchLocation, unsigned char *puchAppName,
         unsigned char *puchNotes, unsigned char *puchPrivate)
 {
+    memset((void *)m_uchCName, 0, sizeof(*m_uchCName));
+    memset((void *)m_uchName, 0, sizeof(*m_uchName));
+    memset((void *)m_uchEmail, 0, sizeof(*m_uchEmail));
+    memset((void *)m_uchPhone, 0, sizeof(*m_uchPhone));
+    memset((void *)m_uchLocation, 0, sizeof(*m_uchLocation));
+    memset((void *)m_uchAppName, 0, sizeof(*m_uchAppName));
+    memset((void *)m_uchNotes, 0, sizeof(*m_uchNotes));
+    memset((void *)m_uchPrivate, 0, sizeof(*m_uchPrivate));
 
     // Copy Name contents and store length
     if(puchName != NULL)
@@ -325,7 +333,7 @@ void CSourceDescription::SetAllComponents(unsigned char *puchName,
     }
 
     // Copy Private contents and store length
-    if(puchNotes != NULL)
+    if(puchPrivate != NULL)
     {
         strcpy((char *)m_uchPrivate, (char *)puchPrivate);
         m_ulPrivateLength = strlen((char *)puchPrivate);
