@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -777,8 +777,8 @@ UtlBoolean SipDialog::isTransactionRemotelyInitiated(const UtlString& callId,
     {
         if((toTag.compareTo(mLocalTag, UtlString::ignoreCase) == 0 ||
             toTag.isNull() || mLocalTag.isNull()) &&
-           fromTag.compareTo(mRemoteTag, UtlString::ignoreCase) == 0 ||
-           mRemoteTag.isNull()) // If this is remotely initiated fromTag
+           (fromTag.compareTo(mRemoteTag, UtlString::ignoreCase) == 0 ||
+           mRemoteTag.isNull())) // If this is remotely initiated fromTag
            // cannot be a null string.  mRemoteTag can be a null string
            // as occurs when a remotely initiated NOTIFY is received 
            // before the SUBSCRIBE response is received.
