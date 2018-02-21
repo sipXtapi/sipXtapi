@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //  
 //  
 // $$ 
@@ -295,9 +295,9 @@ protected:
          
              CPPUNIT_ASSERT_MESSAGE(loopMessage.data(),
                                     algorithmicDelaySamplesCount >= 
-                                    pEncoder->getInfo()->getAlgorithmicDelay());
+                                    (int)pEncoder->getInfo()->getAlgorithmicDelay());
              if(algorithmicDelaySamplesCount < 
-                pEncoder->getInfo()->getAlgorithmicDelay())
+                (int)pEncoder->getInfo()->getAlgorithmicDelay())
              {
                 printf("algorithmic delay observed: %d samples codec info: %d samples\n",
                        algorithmicDelaySamplesCount,
