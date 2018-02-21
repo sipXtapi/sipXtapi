@@ -1,9 +1,5 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -28,8 +24,15 @@
 bool MpArrayBuf::setDataSize(int size)
 {
     if ((size < 0) || (size > (int) getMaxDataSize())) {
-       if (size < 0) OsSysLog::add(FAC_MP, PRI_ERR, "MpArrayBuf::setDataSize(%d) --  invalid:  size < 0", size);
-       if (size > (int) getMaxDataSize()) OsSysLog::add(FAC_MP, PRI_ERR, "MpArrayBuf::setDataSize(%d) --  size too large, max=%d", size, getMaxDataSize());
+        if (size < 0) OsSysLog::add(FAC_MP, PRI_ERR, "MpArrayBuf::setDataSize(%d) --  invalid:  size < 0", size);
+        if (size > (int) getMaxDataSize())
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR, 
+                          "MpArrayBuf::setDataSize(%d) --  size too large, max=%d for %s pool", 
+                          size, 
+                          getMaxDataSize(),
+                          getBufferPool()->getName().data());
+        }
         mDataSize = 0;
         return false;
     } else {
