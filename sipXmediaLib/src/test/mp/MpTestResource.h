@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -88,7 +88,7 @@ public:
 ///@name Manipulators
 //@{
      /// Sends a test message to this resource.
-   void sendTestMessage(void* ptr1, void* ptr2, int int3, int int4);
+   OsStatus sendTestMessage(void* ptr1, void* ptr2, int int3, int int4);
 
      /// Specify the genOutBufMask.
    void setGenOutBufMask(int mask);
