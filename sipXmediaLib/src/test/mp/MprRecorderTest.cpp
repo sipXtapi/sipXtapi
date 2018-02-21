@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2008-2018 SIPez LLC.  All rights reserved.
 //
 //
 // $$
@@ -38,12 +38,64 @@ const char* testFileTypeStrings[] =
 class MprRecorderTest : public MpGenericResourceTest
 {
     CPPUNIT_TEST_SUITE(MprRecorderTest);
+    CPPUNIT_TEST(testRecordToBadFile);
     CPPUNIT_TEST(testRecordToFile);
     CPPUNIT_TEST(testRecordToFileAppendNotExisting);
     CPPUNIT_TEST(testRecordToFileAppend);
     CPPUNIT_TEST(testRecordChannelToFileAppend);
     CPPUNIT_TEST(testRecordToPauseResumeFile);
     CPPUNIT_TEST_SUITE_END();
+
+    void testRecordToBadFile()
+    {
+        UtlString recorderResourceName = "MprRecorder";
+        MprRecorder* recorder = new MprRecorder(recorderResourceName);
+        CPPUNIT_ASSERT(recorder);
+
+        // Build flowgraph with source, MprRecorder and sink resources
+        setupFramework(recorder);
+
+        // Add the notifier so that we get resource events
+        OsMsgQ resourceEventQueue;
+        OsMsgDispatcher messageDispatcher(&resourceEventQueue);
+        mpFlowGraph->setNotificationDispatcher(&messageDispatcher);
+
+        // Start recording
+        CPPUNIT_ASSERT_EQUAL(OS_FILE_ACCESS_DENIED,
+                             MprRecorder::startFile(recorderResourceName,
+                                                    *mpFlowGraph->getMsgQ(),
+                                                    "bogus/file/path/ddd",
+                                                    testFileTypes[0]));
+
+
+        // Enable the source resource and the recorder
+        CPPUNIT_ASSERT(mpSourceResource->enable());
+        CPPUNIT_ASSERT(recorder->enable());
+
+        OsStatus frameStatus = mpFlowGraph->processNextFrame();
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, frameStatus);
+
+        // Should be a failed to start message
+        CPPUNIT_ASSERT_EQUAL(0, messageDispatcher.numMsgs());
+
+        OsMsg* pMsg = NULL;
+        while(messageDispatcher.numMsgs())
+        {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, messageDispatcher.receive(pMsg, OsTime(0)));
+            CPPUNIT_ASSERT(pMsg);
+            MpResNotificationMsg* pNotif = (MpResNotificationMsg*) pMsg;
+
+            switch(pNotif->getMsg())
+            {
+                default:
+                    CPPUNIT_ASSERT(0);
+                    printf("message type: %d from resource: %s\n",
+                           pNotif->getMsg(),
+                           pNotif->getOriginatingResourceName().data());
+                    break;
+            }
+        }
+    }
 
     void testRecordToFile()
     {
