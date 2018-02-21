@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -99,13 +99,14 @@ MpTestResource::~MpTestResource()
 /* ============================ MANIPULATORS ============================== */
 
 // Sends a test message to this resource.
-void MpTestResource::sendTestMessage(void* ptr1, void* ptr2,
+OsStatus MpTestResource::sendTestMessage(void* ptr1, void* ptr2,
                                      int int3, int int4)
 {
    MpFlowGraphMsg msg(RESOURCE_MSG_TYPE, this, ptr1, ptr2, int3, int4);
    OsStatus       res;
 
    res = postMessage(msg);
+   return(res);
 }
 
 // Specify the genOutBufMask.
