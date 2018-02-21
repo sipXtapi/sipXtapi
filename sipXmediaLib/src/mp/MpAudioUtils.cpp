@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -28,12 +28,13 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsStatus.h"
-#include "os/OsFS.h"
-#include "mp/MpTypes.h"
-#include "mp/MpAudioUtils.h"
-#include "mp/StreamHttpDataSource.h"
+#include <os/OsDefs.h>
+#include <os/OsStatus.h>
+#include <os/OsFS.h>
+#include <mp/MpTypes.h>
+#include <mp/MpAudioUtils.h>
+#include <mp/MpDspUtils.h>
+#include <mp/StreamHttpDataSource.h>
 #include <mp/MpAudioWaveFileRead.h>
 
 #ifndef DISABLE_STREAM_PLAYER // [
@@ -112,9 +113,18 @@ int mergeChannels(char * charBuffer, int Size, int nTotalChannels)
       
       for(; targetSample < targetSamples; targetSample++)
       {
+#if 0
          int mergedSample = buffer[sourceSample++];
          mergedSample += buffer[sourceSample++];
+         // This is not the best method to combine two samples.
+         // If the channels are not identical, there is a general
+         // reduction in signal level.
          buffer[targetSample] = mergedSample / 2;
+#else
+         // It might be better to just add and clip at
+         // max/min int16
+         buffer[targetSample] = MpDspUtils::add(buffer[sourceSample++], buffer[sourceSample++]);
+#endif
       }
       
       return targetSample * sizeof(MpAudioSample);
