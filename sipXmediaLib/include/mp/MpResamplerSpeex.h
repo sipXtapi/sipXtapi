@@ -1,9 +1,5 @@
 //  
-// Copyright (C) 2008 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2008-2018 SIPez LLC. All rights reserved.
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -52,6 +48,14 @@ public:
                     int32_t quality = -1);
      /**<
      *  @copydoc MpResamplerBase::MpResamplerBase(uint32_t,uint32_t,uint32_t,int32_t)
+     * Note: Speex resampler introduces latency.  At the default quality (3) latency is introduced
+     * (in either direction) roughly as follows:
+     *   32000 to 8000: 0.0035 seconds
+     *   32000 to 16000: 0.002 seconds
+     *   48000 to 8000: 0.003 seconds
+     *   48000 to 16000: 0.0015 seconds
+     *   48000 to 32000: 0.00075 seconds
+     * Using higher quality values also increases the latency.
      */
 
    ~MpResamplerSpeex();
