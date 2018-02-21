@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -41,6 +41,13 @@ MpEncoderBase::~MpEncoderBase()
 
 OsStatus MpEncoderBase::initEncode(const char* fmt)
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpEncoderBase::initEncode payload type: %d fmtp: %s",
+      mPayloadType,
+      fmt);
+#endif
+
    MppCodecFmtpInfoV1_2 fmtpInfo;
    //fmtpInfo.cbSize = sizeof(MppCodecFmtpInfoV1_2);
    fmtpInfo.mSetMarker = FALSE;
@@ -53,6 +60,10 @@ OsStatus MpEncoderBase::initEncode(const char* fmt)
       // Fill in fmtp part of codec information
       mCodecInfo = MpCodecInfo((MppCodecInfoV1_1&)mCodecInfo, fmtpInfo);
    } else {
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MpEncoderBase::initEncode plgHandle NULL");
+#endif
       mInitialized = FALSE;
    }
 
