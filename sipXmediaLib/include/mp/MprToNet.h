@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -100,7 +100,7 @@ public:
      /// Connect us to our corresponding FromNet, for RTCP stats.
    OsStatus setRtpPal(MprFromNet* pal);
 
-   int writeRtp(int payloadType, UtlBoolean markerState,
+   virtual int writeRtp(int payloadType, UtlBoolean markerState,
       const unsigned char* payloadData, int payloadOctets, unsigned int timestamp,
       void* csrcList);
 
