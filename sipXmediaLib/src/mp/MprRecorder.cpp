@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -267,6 +267,7 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
           OsSysLog::add(FAC_MP, PRI_ERR,
                         "MprRecorder::startFile() failed to open file %s, error code is %i",
                         filename, errno);
+          result = OS_FILE_ACCESS_DENIED;
        }
    }
 
