@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2017 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2018 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -523,7 +523,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 
     CpMediaInterfaceFactory* interfaceFactory =
                             sipXmediaFactoryFactory(&configDb, internalFrameSizeMs,
-                                                    devicesSamplerate,
+                                                    // This should be the max of the two rates, used for buffer size
+                                                    internalSamplerate > devicesSamplerate ? internalSamplerate : devicesSamplerate,
                                                     devicesSamplerate,
                                                     bEnableLocalAudio,
                                                     callInputDeviceName,
