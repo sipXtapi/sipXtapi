@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -33,7 +33,7 @@
 // DEFINES
 // Note: only tested with 1-4 channels
 #ifndef MAXIMUM_RECORDER_CHANNELS
-#  define MAXIMUM_RECORDER_CHANNELS 1
+#  define MAXIMUM_RECORDER_CHANNELS 2
 #endif
 
 // MACROS
