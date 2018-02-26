@@ -133,6 +133,11 @@ class MprEncoderDecoder : public MpAudioResource, public MprToNet
         assert(flowgraphFrameMs > 0);
         int numFlowgraphSamples = flowgraphSampleRate * flowgraphFrameMs / 1000;
         int numCodecSamples = codecSampleRate * flowgraphFrameMs / 1000;
+        // Leave room for extra sample as conversion is not an integer number of samples
+        if((codecSampleRate * flowgraphFrameMs) % 1000)
+        {
+            numCodecSamples++;
+        }
         MpAudioSample* flowgraphSamples = new MpAudioSample[numFlowgraphSamples];
         MpAudioSample* codecSamples = new MpAudioSample[numCodecSamples];
         memset(flowgraphSamples, 0, numFlowgraphSamples * sizeof(MpAudioSample));
@@ -170,13 +175,13 @@ class MprEncoderDecoder : public MpAudioResource, public MprToNet
 
         codecToFlowResampler->resample(0,
                                        codecSamples,
-                                       numCodecSamples,
+                                       resultingSamplesCount,
                                        consumedSamplesCount,
                                        flowgraphSamples,
                                        numFlowgraphSamples,
                                        resultingSamplesCount);
-        assert((int)resultingSamplesCount == numFlowgraphSamples);
-        assert(numCodecSamples == (int)consumedSamplesCount);
+        assert(numFlowgraphSamples - (int)resultingSamplesCount < 2);
+        assert(numCodecSamples - (int)consumedSamplesCount < 2);
 
         int latency = 0;
         int tolerance = 100;
@@ -248,6 +253,13 @@ class MprEncoderDecoder : public MpAudioResource, public MprToNet
                                                             when using speex, defaults to 3*/);
                     //mpResampler->setInputRate(codecSampleRate);
 
+                    // Not set yet
+                    if(mFrameMs == 0)
+                    {
+                        mFrameMs = (1000 * MpResource::mpFlowGraph->getSamplesPerFrame()) / 
+                            flowGraphSampleRate;
+                    }
+
                     mResamplerLatencyNumSamples = 
                         getResamplerLatency(mFrameMs,
                                             codecSampleRate, 
@@ -272,8 +284,16 @@ class MprEncoderDecoder : public MpAudioResource, public MprToNet
             // copy payload to packet
             memcpy(bufferPtr, payloadData, numPayloadOctets);
             int paddingLength = ((4 - (numPayloadOctets & 3))&3);
+            if(paddingLength)
+            {
+                mRtpPacket->enableRtpPadding();
+            }
+            else
+            {
+                mRtpPacket->disableRtpPadding();
+            }
             //mRtpPacket->setPacketSize(sizeof(RtpHeader) + numPayloadOctets + paddingLength);
-            mRtpPacket->setPacketSize(numPayloadOctets + paddingLength);
+            mRtpPacket->setPacketSize(numPayloadOctets);// + paddingLength);
 
 #if 0
             printf("decode packet payload size: %d\n",
@@ -549,21 +569,42 @@ class MprEncoderDecoder : public MpAudioResource, public MprToNet
          
         if(mpDecoder && status == OS_SUCCESS)
         {
-            status = mpDecoder->initDecode();
+            status = mpDecoder->initDecode(fmtp);
+            assert(OS_SUCCESS == status);
             assert(mpDecoder->getInfo());
-
-            printf("set decoder to: %s sample rate: %d channels: %d\n",
-                   mpDecoder->getInfo()->getMimeSubtype(),
-                   (int)mpDecoder->getInfo()->getSampleRate(),
-                   (int)mpDecoder->getInfo()->getNumChannels());
 
             if (mpDecoder->getInfo() == NULL || mpDecoder->getInfo()->isSignalingCodec())
             {
+                if (mpDecoder->getInfo() == NULL)
+                {
+                    printf("MprEncoderDecoder::setCodec(%p, \"%s\", \"%s\", %d, %d) decoder: %p NULL codecInfo\n",
+                           &codecFactory,
+                           mimeSubtype,
+                           fmtp,
+                           sampleRate,
+                           channels,
+                           mpDecoder);
+                }
+                else if(mpDecoder->getInfo()->isSignalingCodec())
+                {
+                    printf("MprEncoderDecoder::setCodec %s signaling codec\n",
+                           mpDecoder->getInfo()->getMimeSubtype());
+                }
+
                 mpDecoder->freeDecode();
                 delete mpDecoder;
                 mpDecoder = NULL;
                 status = OS_INVALID_ARGUMENT;
             }
+            else
+            {
+                printf("set decoder to: %s sample rate: %d channels: %d\n",
+                       mpDecoder->getInfo()->getMimeSubtype(),
+                       (int)mpDecoder->getInfo()->getSampleRate(),
+                       (int)mpDecoder->getInfo()->getNumChannels());
+            }
+
+
         }
         assert(status == OS_SUCCESS);
 
@@ -731,76 +772,167 @@ public:
         OsFileSystem::createDir("codecQualityResult");
  
         // Get list of loaded codecs
-        MpCodecFactory* codecFactory = MpCodecFactory::getMpCodecFactory();
-        CPPUNIT_ASSERT(codecFactory != NULL);
-        // Load all available codecs
-        size_t pathIndex;
-        for(pathIndex = 0; pathIndex < sNumCodecPaths; pathIndex++)
+        unsigned codecInfoNum;
+        // Scope of codecFactory
         {
-             printf("MpCodecsQualityTest loading codecs from: %s\n", sCodecPaths[pathIndex].data());
-             codecFactory->loadAllDynCodecs(sCodecPaths[pathIndex],
-                                             CODEC_PLUGINS_FILTER);
+            const MppCodecInfoV1_1** codecInfoArray;
+            MpCodecFactory* codecFactory = MpCodecFactory::getMpCodecFactory();
+            CPPUNIT_ASSERT(codecFactory != NULL);
+ 
+            // Get array here, just to get the codec count
+            codecFactory->getCodecInfoArray(codecInfoNum, codecInfoArray);
         }
  
-        const MppCodecInfoV1_1** codecInfoArray;
-        unsigned codecInfoNum;
-        codecFactory->getCodecInfoArray(codecInfoNum, codecInfoArray);
-        CPPUNIT_ASSERT(codecInfoNum > 0);
- 
         // Loop over codecs
+        UtlString mimeSubtype;
+        UtlString fmtp;
+        int codecSampleRate;
+        int codecChannels;
+        int codecIndex = 0;
+        int codecFmtpIndex = 0;
+        int codecFmtpCount = 0;
+        while(codecIndex < (int)codecInfoNum)
         {
-            const MppCodecInfoV1_1* codecInfo = codecInfoArray[0];
-            CPPUNIT_ASSERT(codecInfo);
-
-            UtlString mimeSubtype(codecInfo->mimeSubtype);
-            UtlString fmtp(codecInfo->fmtpsNum ? codecInfo->fmtps[0] : "");
-            int codecSampleRate = codecInfo->sampleRate;
-            int codecChannels = codecInfo->numChannels;
-            // Setup PCM 8000 mono
-            mimeSubtype = "L16";
-            fmtp = "";
-            codecSampleRate = 16000;
-            codecChannels = 1;
- 
-            // Loop over file names in directory
+            // Scope codecInfo as we reset the media subsystem and it goes away
             {
-                UtlString sourceFileName("codecQualitySource/GREFCLA.WAV");
-                UtlString recordFileName("codecQualityResult/GREFCLA_result.WAV");
-                //UtlString sourceFileName("codecQualitySource/100hz.wav");
-                //UtlString recordFileName("codecQualityResult/100hz_result.wav");
-                //UtlString sourceFileName("codecQualitySource/silence.wav");
-                //UtlString recordFileName("codecQualityResult/silence_result.wav");
+                // Need to do this inside the codec loop as we reset the media system 
+                // when looping over each file
+                const MppCodecInfoV1_1** codecInfoArray;
+                MpCodecFactory* codecFactory = MpCodecFactory::getMpCodecFactory();
+                CPPUNIT_ASSERT(codecFactory != NULL);
  
-                // TODO:
-                // Loop over codecs
+                codecFactory->getCodecInfoArray(codecInfoNum, codecInfoArray);
+                CPPUNIT_ASSERT(codecInfoNum > 0);
+
+                const MppCodecInfoV1_1* codecInfo = codecInfoArray[codecIndex];
+                CPPUNIT_ASSERT(codecInfo);
+
+                mimeSubtype = codecInfo->mimeSubtype;
+                if("telephone-event" == mimeSubtype)
                 {
-                    SdpCodec::SdpCodecTypes sdpCodecId;
-                    SdpDefaultCodecFactory::getCodecType(mimeSubtype,
-                                                         codecSampleRate,
-                                                         codecChannels,
-                                                         fmtp,
-                                                         sdpCodecId);
-                   SdpCodec primaryCodec = SdpDefaultCodecFactory::getCodec(sdpCodecId);
-                   UtlString sdpMimeSubtype;
-                   primaryCodec.getEncodingName(sdpMimeSubtype);
-                   CPPUNIT_ASSERT_EQUAL(mimeSubtype, sdpMimeSubtype);
-                   CPPUNIT_ASSERT_EQUAL(codecSampleRate, primaryCodec.getSampleRate());
-                   CPPUNIT_ASSERT_EQUAL(codecChannels, primaryCodec.getNumChannels());
-                   UtlString sdpFmtp;
-                   primaryCodec.getSdpFmtpField(sdpFmtp);
-                   CPPUNIT_ASSERT_EQUAL(fmtp, sdpFmtp);
+                    printf("Skipping codec: %s\n",
+                           mimeSubtype.data());
+                    codecIndex++;
+                    continue;
+                }
+                mimeSubtype.toLower();
+                fmtp = codecInfo->fmtpsNum ? codecInfo->fmtps[codecFmtpIndex] : "";
+                codecFmtpCount = codecInfo->fmtpsNum;
+                codecSampleRate = codecInfo->sampleRate;
+                codecChannels = codecInfo->numChannels;
+            }
+
+            printf("codec[%d] mime: %s sample rate: %dk channels: %d fmtp[%d]: %s\n",
+                   codecIndex,
+                   mimeSubtype.data(),
+                   codecSampleRate / 1000,
+                   codecChannels,
+                   codecFmtpIndex,
+                   fmtp.data());
+
+            // Setup PCM 8000 mono
+            //mimeSubtype = "L16";
+            //fmtp = "";
+            //codecSampleRate = 16000;
+            //codecChannels = 1;
+
+            UtlString sourcePath("codecQualitySource/");
+            UtlString recordPath("codecQualityResult/");
+
+            OsFileIterator sourceRecordingIterator(sourcePath);
+            OsPathBase aSourceRecording;
+            OsStatus foundRecordingStatus = sourceRecordingIterator.findFirst(aSourceRecording);
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, foundRecordingStatus);
                    
-                   // Make sure prior run was cleaned up, could have aborted without cleanup
-                   tearDown(); 
-                   setUp();
+            // Loop over file names in directory
+            while(foundRecordingStatus == OS_SUCCESS)
+            {
+                // Make sure prior run was cleaned up, could have aborted without cleanup
+                tearDown(); 
+                setUp();
+
+                UtlString sourceFileBaseName("GREFCLA.WAV");
+                //UtlString sourceFileName("100hz.wav");
+                //UtlString sourceFileName("silence.wav");
+                int nameLength = aSourceRecording.length();
+                if(nameLength > 4 && 
+                   strcasecmp(&aSourceRecording.data()[nameLength - 4], ".wav") == 0)
+                {
+                    printf("Found recording: %s\n",
+                           aSourceRecording.data());
+                    sourceFileBaseName = aSourceRecording;
+                }
+                else
+                {
+                    printf("Ignoring file: %s\n",
+                           aSourceRecording.data());
+                    // Get next file in directory
+                    foundRecordingStatus = sourceRecordingIterator.findNext(aSourceRecording);
+                    continue;
+                }
+
+
+                UtlString sourceFileName = sourcePath + sourceFileBaseName;
+                UtlString recordFileName = recordPath + sourceFileBaseName;
+
+                // Make the codec definition, part of the recorded file name
+                UtlString codecSuffix;
+                codecSuffix.appendFormat("_%s_%dk_%dc",
+                                         mimeSubtype.data(),
+                                         codecSampleRate / 1000,
+                                         codecChannels);
+                if(fmtp.length())
+                {
+                    UtlString fileSafeFmtp(fmtp);
+                    fileSafeFmtp.replace('=', '_');
+                    fileSafeFmtp.replace(' ', '_');
+                    fileSafeFmtp.replace(';', '_');
+                    codecSuffix.appendFormat("_%s", fileSafeFmtp.data());
+                }
+                recordFileName.insert(recordFileName.length() - 4,
+                                      codecSuffix);
+                
+                // Get codec
+                {
                    UtlString loopMessage;
                    loopMessage.appendFormat("source: %s codec: %s FMTP: %s sample rate: %d channels: %d", 
                                             sourceFileName.data(), 
-                                            fmtp.data(),
                                             mimeSubtype.data(),
+                                            fmtp.data(),
                                             codecSampleRate,
                                             codecChannels);
- 
+
+                    SdpCodec::SdpCodecTypes sdpCodecId;
+                    OsStatus getCodecStatus = SdpDefaultCodecFactory::getCodecType(mimeSubtype,
+                                                                                   codecSampleRate,
+                                                                                   codecChannels,
+                                                                                   fmtp,
+                                                                                   sdpCodecId);
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage,
+                                                 OS_SUCCESS,
+                                                 getCodecStatus);
+                    if(getCodecStatus != OS_SUCCESS)
+                    {
+                        // For some reason we cannot look up this codec
+                        break;
+                    }
+                    printf("codec mime subtype: %s id: %d\n",
+                           mimeSubtype.data(),
+                           (int)sdpCodecId);
+                   SdpCodec primaryCodec = SdpDefaultCodecFactory::getCodec(sdpCodecId);
+                   UtlString sdpMimeSubtype;
+                   primaryCodec.getEncodingName(sdpMimeSubtype);
+                   sdpMimeSubtype.toLower();
+                   CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, mimeSubtype, sdpMimeSubtype);
+                   CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, codecSampleRate, primaryCodec.getSampleRate());
+                   CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, codecChannels, primaryCodec.getNumChannels());
+                   UtlString sdpFmtp;
+                   primaryCodec.getSdpFmtpField(sdpFmtp);
+                   // If fmtp is empty string, we could get back the explicit parameters in sdpFmtp
+                   if("" != fmtp)
+                   {
+                       CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, fmtp, sdpFmtp);
+                   } 
                    // Create a queue to receive notifications from the resources
                    OsMsg* pMsg;
                    OsMsgDispatcher notifDispatcher;
@@ -822,11 +954,17 @@ public:
                    // Should never do this in production code.  Hwever we can call a direct
                    // method on resource here as we know the flowgraph is not being processed.
                    CPPUNIT_ASSERT(mprEncoderDecoder);
-                   mprEncoderDecoder->setCodec(*codecFactory,
-                                               mimeSubtype,
-                                               fmtp,
-                                               codecSampleRate,
-                                               codecChannels);
+                   // Scope for codec factory
+                   {
+                       MpCodecFactory* codecFactory = MpCodecFactory::getMpCodecFactory();
+                       CPPUNIT_ASSERT(codecFactory != NULL);
+ 
+                       mprEncoderDecoder->setCodec(*codecFactory,
+                                                   mimeSubtype,
+                                                   sdpFmtp, // use the explicit FMTP if set
+                                                   codecSampleRate,
+                                                   codecChannels);
+                   }
  
                    // Start reading in the source file
                    CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
@@ -979,8 +1117,22 @@ public:
                           frameCount);
  
                 }
+
+                // Get next file in directory
+                foundRecordingStatus = sourceRecordingIterator.findNext(aSourceRecording);
             } // End loop over source recording files
-        }
+
+            // Step to next fmtp or codec
+            if(codecFmtpIndex + 1 >= codecFmtpCount)
+            {
+                codecFmtpIndex = 0;
+                codecIndex++;
+            }
+            else
+            {
+                codecFmtpIndex++;
+            }
+        } // end loop over codecs
     }
 
 private:
