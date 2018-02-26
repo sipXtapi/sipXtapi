@@ -10,6 +10,7 @@ testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     $(CPPUNIT_LIBS) \
     @SIPXPORT_LIBS@ \
+    @SIPXSDP_LIBS@ \
     @SIPXTACK_LIBS@ \
     @SPEEXDSP_LIBS@ \
     ../libsipXmedia.la \
@@ -30,6 +31,7 @@ testsuite_SOURCES = \
     ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
     mp/MpAudioBufTest.cpp \
     mp/MpCodecsPerformanceTest.cpp \
+    mp/MpCodecsQualityTest.cpp \
     mp/MpMediaTaskTest.cpp \
     mp/MpFlowGraphTest.cpp \
     mp/MpResourceTest.cpp \
