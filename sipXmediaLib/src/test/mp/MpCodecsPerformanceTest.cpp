@@ -167,7 +167,7 @@ protected:
 
       CPPUNIT_ASSERT(pDecoder);
 
-      OsStatus initDecodeStatus = pDecoder->initDecode();
+      OsStatus initDecodeStatus = pDecoder->initDecode(codecFmtp);
       CPPUNIT_ASSERT_EQUAL_MESSAGE(contextMessage.data(), OS_SUCCESS, initDecodeStatus);
                            
       // Could not test speed of signaling codec
