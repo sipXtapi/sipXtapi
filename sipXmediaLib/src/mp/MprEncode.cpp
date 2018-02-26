@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -300,6 +300,11 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
          mpResampler->setOutputRate(codecSamplesPerSec);
          mResampleBufLen = mpFlowGraph->getSamplesPerFrame()
                            * codecSamplesPerSec/flowgraphSamplesPerSec;
+         // If there is round off, leave room for one more sample for resampler
+         if((mpFlowGraph->getSamplesPerFrame()                                                                               * codecSamplesPerSec) % flowgraphSamplesPerSec)
+         {
+            mResampleBufLen++;
+         }
          mpResampleBuf = new MpAudioSample[mResampleBufLen];
       }
 
