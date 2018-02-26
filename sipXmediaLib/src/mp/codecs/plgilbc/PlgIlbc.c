@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2018 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,19 @@ CODEC_API void *PLG_INIT_V1_2(ilbc)(const char* fmtp, int isDecoder,
       return NULL;
    }
 
-   mode = getFmtpValueRange(fmtp, "mode", 30, 20, 30);
+   if(fmtp == NULL || fmtp[0] == '\0')
+   {
+      mode = 30;
+   }
+   else
+   {
+      mode = getFmtpValueRange(fmtp, "mode", 30, 20, 30);
+      // If mode is unspecified, we assume 30
+      if(mode == -1)
+      {
+          mode = 30;
+      }
+   }
    if (mode != 20 && mode != 30)
    {
       return NULL;
@@ -191,7 +203,7 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
    // Check if available buffer size is enough for the packet.
    if (cbBufferSize < (unsigned)mpiLBC->mMode * 8)
    {
-      printf("iLBC decoder: Jitter buffer overloaded. Glitch!\n");
+      mppLogError("iLBC decoder: Jitter buffer overloaded. Glitch!\n");
       return RPLG_FAILED;
    }
 
@@ -200,7 +212,9 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
       if (((NO_OF_BYTES_30MS != cbCodedPacketSize) && (mpiLBC->mMode == 30)) ||
          ((NO_OF_BYTES_20MS != cbCodedPacketSize) && (mpiLBC->mMode == 20)))
       {
-         printf("iLBC decoder: wrong decoder type or packet size!\n");
+         mppLogError("iLBC decoder: wrong decoder type or packet size: %d mode: %d!\n",
+               cbCodedPacketSize,
+               mpiLBC->mMode);
          return RPLG_FAILED;
       }
       // Packet data available. Decode it.
