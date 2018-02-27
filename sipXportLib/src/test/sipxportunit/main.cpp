@@ -1,9 +1,6 @@
 //
 //
-// Copyright (C) 2010-2014 SIPez LLC All rights reserved.
-//
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2010-2018 SIPez LLC All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -16,7 +13,7 @@
 void usage(const char* name)
 {
     printf("Usage:\n"
-           "\t%s [--help | --list | --nocatchsignals | testclassname[::testmethodname]]\n"
+           "\t%s [--help | --list | [--nocatchsignals] testclassname[::testmethodname]]\n"
            "Where:\n"
            "\t--help provides this usage help\n"
            "\t--nocatchsignals indicates to abort when signals are thrown.  Default\n"
@@ -51,6 +48,14 @@ int main(int argc, char* argv[])
             testNameArgIndex++;
         }
 
+        else if(argv[1][0] == '-')
+        {
+            printf("Unknown argument: %s\n", argv[1]);
+            usage(argv[0]);
+            result = -1;
+        }
+
+        printf("argv[1]: %s\n", argv[1]);
     }
 
 
