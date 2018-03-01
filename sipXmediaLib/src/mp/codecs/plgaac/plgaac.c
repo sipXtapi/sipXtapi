@@ -227,7 +227,7 @@ void sipxFfmpegCodecInit()
     {
         sSipxFfmpegCodecInitialized = TRUE;
 
-       printf("sSipxFfmpegCodecInitialized one time set.\n");
+       mppLogError("sSipxFfmpegCodecInitialized one time set.\n");
        /* Global FFmpeg codec init */
        avcodec_init();
        avcodec_register_all();
@@ -313,7 +313,7 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
                 }
                 else
                 {
-                    printf("avcodec_open for AAC decoder returned: %d in %s\n", openDecoderError, __FILE__);
+                    mppLogError("avcodec_open for AAC decoder returned: %d in %s\n", openDecoderError, __FILE__);
 
                     /* Clean up */
                     avcodec_close(codecContext);
@@ -326,7 +326,7 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
             }
             else
             {
-                printf("avcodec_find_decoder returned NULL decoder for CODEC_ID_AAC in %s\n", __FILE__);
+                mppLogError("avcodec_find_decoder returned NULL decoder for CODEC_ID_AAC in %s\n", __FILE__);
                 /* Clean up */
                 avcodec_close(codecContext);
                 av_free(codecContext->extradata);
@@ -348,7 +348,7 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
                     // Defaults to 64000
                     codecContext->bit_rate = bitRate;
 
-                    printf("AAC encoder initialized, init automatically set: frame_size=%d, profile=%d (FF_PROFILE_AAC_LOW=%d, FF_PROFILE_UNKNOWN=%d), bit_rate=%d extradata=%d %d\n",
+                    mppLogError("AAC encoder initialized, init automatically set: frame_size=%d, profile=%d (FF_PROFILE_AAC_LOW=%d, FF_PROFILE_UNKNOWN=%d), bit_rate=%d extradata=%d %d\n",
                        codecContext->frame_size, codecContext->profile, FF_PROFILE_AAC_LOW, FF_PROFILE_UNKNOWN, 
                        codecContext->bit_rate, (int)codecContext->extradata[0], (int)codecContext->extradata[1]);
                        /* we use pkt to buffer up enough sipX frames to encode an AAC frame */
@@ -360,7 +360,7 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
                 }
                 else
                 {
-                    printf("avcodec_open for encoder returned: %d in %s\n", codecOpenError, __FILE__);
+                    mppLogError("avcodec_open for encoder returned: %d in %s\n", codecOpenError, __FILE__);
 
                     /* Clean up */
                     avcodec_close(codecContext);
@@ -373,7 +373,7 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
             }
             else
             {
-                printf("avcodec_find_encoder returned NULL encoder for CODEC_ID_AAC in %s\n", __FILE__);
+                mppLogError("avcodec_find_encoder returned NULL encoder for CODEC_ID_AAC in %s\n", __FILE__);
                 /* Clean up */
                 avcodec_close(codecContext);
                 av_free(codecContext->extradata);
@@ -385,7 +385,7 @@ void* sipxAacCommonInit(const char* fmtp, int isDecoder,
         }
     }
 
-    printf("sipxAacCommonInit returning codecContext: %p\n", codecContext);
+    mppLogError("sipxAacCommonInit returning codecContext: %p\n", codecContext);
     return(codecContext);
 }
 
@@ -429,7 +429,7 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
         {
             ffmpegPacket.data = ((const uint8_t*) encodedData) + auHeaderLengthInBytes + auHeaderLengthLength;
             ffmpegPacket.size = encodedPacketSize - auHeaderLengthInBytes - auHeaderLengthLength;
-            /* printf("AAC decode AU header found in ssrc: %d\n", seqNum);
+            /* mppLogError("AAC decode AU header found in ssrc: %d\n", seqNum);
             */
         }
         /* ADTS header begins with 12 set bits */
@@ -443,13 +443,13 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
                  ((*(((const uint8_t*) encodedData) + 5)) & 0xe0) / 32; /* top 3 bits of 6th octet */
             if(adtsPayloadSize == encodedPacketSize)
             {
-                /* printf("AAC decode ADTS header found with correct payload length: %d in ssrc: %d\n", 
+                /* mppLogError("AAC decode ADTS header found with correct payload length: %d in ssrc: %d\n", 
                        adtsPayloadSize, seqNum);
                 */
             }
             else
             {
-                printf("AAC decode ADTS header found with incorrect payload length rtp: %d adts: %d in ssrc: %d\n", 
+                mppLogError("AAC decode ADTS header found with incorrect payload length rtp: %d adts: %d in ssrc: %d\n", 
                        encodedPacketSize, adtsPayloadSize, seqNum);
             }
 
@@ -465,7 +465,7 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
                 ffmpegPacket.data = ((const uint8_t*) encodedData) + 9;
                 ffmpegPacket.size = encodedPacketSize - 9;
             }
-            /*printf("AAC decode ADTS header found %s CRC in ssrc: %d\n",
+            /*mppLogError("AAC decode ADTS header found %s CRC in ssrc: %d\n",
                    (auHeaderLengthInBits & 0x1) ? "without" : "with", seqNum);
            */
         }
@@ -474,10 +474,10 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
         {
             ffmpegPacket.data = (const uint8_t *) encodedData;
             ffmpegPacket.size = encodedPacketSize;
-            printf("AAC decode no header found in ssrc: %d first octets: %x %x\n", 
+            mppLogError("AAC decode no header found in ssrc: %d first octets: %x %x\n", 
                    seqNum, (int) *(((const uint8_t*) encodedData) + 0), (int) *(((const uint8_t*) encodedData) + 1));
         
-            //printf("encodedPacketSize: %d auHeaderLengthInBytes: %d auDataLength: %d\n",    
+            //mppLogError("encodedPacketSize: %d auHeaderLengthInBytes: %d auDataLength: %d\n",    
             //    encodedPacketSize, auHeaderLengthInBytes, auDataLength);
         }
         decodedSampleBytes = AVCODEC_MAX_AUDIO_FRAME_SIZE; /* pcmBufferSize * 2;  max. size of out buffer in bytes,
@@ -491,12 +491,12 @@ int sipxAacCommonDecode(void* opaqueCodecContext, const void* encodedData,
                                                          &decodedSampleBytes, &ffmpegPacket);
         if(tmpBuffer[TMP_BUFFER_SIZE] != 0xab)
         {
-            printf("avcodec_decode_audio3 clobbered end of tmpBuffer size: %d\n",
+            mppLogError("avcodec_decode_audio3 clobbered end of tmpBuffer size: %d\n",
                     TMP_BUFFER_SIZE);
         }
         if(decodedBytesConsumed < 0)
         {
-            printf("avcodec_decode_audio3 returned: %d sipX buffer size: %d (bytes) AVCODEC_MAX_AUDIO_FRAME_SIZE: %d encodedPacketSize: %d ffmpegPacket.size: %d\n", 
+            mppLogError("avcodec_decode_audio3 returned: %d sipX buffer size: %d (bytes) AVCODEC_MAX_AUDIO_FRAME_SIZE: %d encodedPacketSize: %d ffmpegPacket.size: %d\n", 
                    decodedBytesConsumed, (int) (pcmBufferSize * sizeof(int16_t)), AVCODEC_MAX_AUDIO_FRAME_SIZE, encodedPacketSize, ffmpegPacket.size);
             returnValue = RPLG_FAILED;
             *decodedSamples = 0;
@@ -571,7 +571,7 @@ int sipxAacCommonEncode(void* opaqueCodecContext, enum AacHeaderTypes headerType
                                                     (const short*) codecContext->pkt->data);
             if(*encodedDataSize < 0)
             {
-                printf("avcodec_encode_audio returned: %d\n", *encodedDataSize);
+                mppLogError("avcodec_encode_audio returned: %d\n", *encodedDataSize);
                 *encodedDataSize = 0;
                 returnCode = RPLG_FAILED;
             }
