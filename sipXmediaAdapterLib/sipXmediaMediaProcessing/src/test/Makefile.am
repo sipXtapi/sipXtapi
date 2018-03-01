@@ -20,6 +20,17 @@ testsuite_CXXFLAGS = -I$(SIPXUNITINC) \
                      @CPPUNIT_CFLAGS@
 
 testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
+
+codecQualitySource/%.WAV: itu_peak_recordings.rar 
+	mkdir -p codecQualitySource
+	mkdir tmp777; (cd tmp777; unrar e ../itu_peak_recordings.rar  CONFORMANCE\ TEST\ ITEMS)
+	cp tmp777/*REF*.WAV codecQualitySource
+	rm -rf tmp777
+
+itu_peak_recordings.rar: 
+	 wget https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip -O itu_peak_recordings.rar
+
+CpPhoneMediaInterfaceTest.cpp: codecQualitySource/GREFCLA.WAV
     
 # NOTE: Several media releated units tests are located in
 ## sipXcallLib because they made references to CallManager
