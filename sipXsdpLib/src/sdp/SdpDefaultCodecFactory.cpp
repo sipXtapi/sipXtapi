@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1785,19 +1785,34 @@ OsStatus SdpDefaultCodecFactory::getCodecType(const UtlString &mimeSubtype,
                                               const UtlString &fmtp,
                                               SdpCodec::SdpCodecTypes &codecType)
 {
+   OsStatus status = OS_NOT_FOUND;
+   int compares = -1;
+   int newCompares = -1;
    for (size_t i = 0; i < SIZEOF_MIME_INFO_MAP; i++)
    {
       if (  mimeSubtype.compareTo(sgMimeInfoMap[i].mimeSubtype, UtlString::ignoreCase) == 0
          && sgMimeInfoMap[i].sampleRate == sampleRate
-         && sgMimeInfoMap[i].numChannels == numChannels
-         && fmtp.compareTo(sgMimeInfoMap[i].fmtp, UtlString::ignoreCase) == 0)
+         && sgMimeInfoMap[i].numChannels == numChannels 
+         // Need to do smarter FMTP compare to give preference to explicit parameters
+         // SERIOUS HACK to determine MIME type
+         && SdpCodec::compareFmtp(sgMimeInfoMap[i].sampleRate <= 48000 ? MIME_TYPE_AUDIO : MIME_TYPE_VIDEO, 
+                                  mimeSubtype, fmtp, sgMimeInfoMap[i].fmtp, newCompares))
       {
-         codecType = sgMimeInfoMap[i].codecType;
-         return OS_SUCCESS;
+         if(status == OS_NOT_FOUND)
+         {
+             codecType = sgMimeInfoMap[i].codecType;
+             status =  OS_SUCCESS;
+             compares = newCompares;
+         }
+         else if(newCompares > compares)
+         {
+             codecType = sgMimeInfoMap[i].codecType;
+             compares = newCompares;
+         }
       }
    }
 
-   return OS_NOT_FOUND;
+   return(status);
 }
 
 int SdpDefaultCodecFactory::getCodecNames(UtlContainer& codecNames)
