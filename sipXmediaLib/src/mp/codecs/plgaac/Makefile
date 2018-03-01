@@ -11,7 +11,7 @@ INCLUDE_FLAGS= -I../../../../contrib/ffmpeg -I../../../../include -I../../../../
 
 #LDFLAGS=-lm  ../../../../contrib/ffmpeg/libavcodec/libavcodec.a ../../../../contrib/ffmpeg/libavutil/libavutil.a
 #LDFLAGS=-lm  -L../../../../contrib/ffmpeg/libavcodec -lavcodec -L../../../../contrib/ffmpeg/libavutil -lavutil
-LDFLAGS=-lm -Wl,-rpath=/usr/local/lib -lavcodec -lavutil
+LDFLAGS= -L../../../.libs -lsipXmedia -lm -Wl,-rpath=/usr/local/lib -lavcodec -lavutil
 # -Wl,--whole-archive 
 LIB_DIR=../../../../bin
 OBJ_DIR=obj
