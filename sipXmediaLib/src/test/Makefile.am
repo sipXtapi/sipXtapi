@@ -61,6 +61,17 @@ testsuite_SOURCES = \
 does_not_build = \
     mp/MprDelayTest.cpp 
 
+codecQualitySource/%.WAV: itu_peak_recordings.rar 
+	mkdir -p codecQualitySource
+	mkdir tmp777; (cd tmp777; unrar e ../itu_peak_recordings.rar  CONFORMANCE\ TEST\ ITEMS)
+	cp tmp777/*REF*.WAV codecQualitySource
+	rm -rf tmp777
+
+itu_peak_recordings.rar: 
+	 wget https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip -O itu_peak_recordings.rar
+
+mp/MpCodecsQualityTest.cpp: codecQualitySource/GREFCLA.WAV
+
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
 # debugging or when developing a new unittest. As courtesy remove all
 # unittests before checking in, although forgetting to has no ill
