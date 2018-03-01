@@ -1635,10 +1635,6 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         printf("Num supported codecs: %d\n",
                numSupportedSinkCodecs);
 
-        // For debugging want to hear what is on the mixed flowgraph
-        // TODO: take both flowgraphs out of focus so we do not capture mic
-        sinkInterface->giveFocus();
-
         // Second flowgraph to be the source flowgraph
         CpMediaInterface* sourceInterface = 
             mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
@@ -1662,6 +1658,15 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         // freed in tearDown() if assertion occurs.
         mMediaInterfaces.append(sourceInterface);
 
+#if 1
+        // For debugging want to hear what is on the sink flowgraph
+        sinkInterface->giveFocus();
+#else
+        // TODO:  take both flowgraphs out of focus so we do not capture mic
+        sinkInterface->deFocus();
+        sourceInterface->deFocus();
+#endif
+
         // Create connection for source flowgraph
         int sourceConnectionId = -1;
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
@@ -1680,18 +1685,39 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         // TODO: set mix output to recorder to be same on left and right
 
 
-        // TODO
-        // Loop through files
+        OsFileIterator sourceRecordingIterator(sourcePath);
+        OsPathBase aSourceRecording;
+        int fileCount = 0;
+#if 1
+        // Loop over file names in directory
+        for(OsStatus fileIterationStatus = sourceRecordingIterator.findFirst(aSourceRecording);
+            fileIterationStatus == OS_SUCCESS;
+            fileIterationStatus = sourceRecordingIterator.findNext(aSourceRecording))
+#else
+        // Run just the one source recording:
+        aSourceRecording = "GREFCLA.WAV";
+        for(int fileIndex = 0; fileIndex < 1; fileIndex++)
+#endif
         {
-
-            //UtlString recordFile("testCodecStreamQuality.wav");
-            //UtlString sourceFile("codecQualitySource/GREFCLA.WAV");
-            UtlString sourceFileBaseName("GREFCLA.WAV");
-            
+            UtlString sourceFileBaseName;
+            int nameLength = aSourceRecording.length();
+            if(nameLength > 4 && 
+               strcasecmp(&aSourceRecording.data()[nameLength - 4], ".wav") == 0)
+            {
+                printf("Found recording: %s\n",
+                       aSourceRecording.data());
+                sourceFileBaseName = aSourceRecording;
+            }
+            else
+            {
+                printf("Ignoring file: %s\n",
+                       aSourceRecording.data());
+                continue;
+            }
 
             // Loop through codecs
             int codecIndex = 0;
-            for(codecIndex = 0; codecIndex < 10 /*numSupportedSinkCodecs - 1*/; codecIndex++)
+            for(codecIndex = 0; codecIndex < 2 /*numSupportedSinkCodecs - 1*/; codecIndex++)
             {
 
                 const int numCodecsToUse = 2;
@@ -1844,7 +1870,11 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
                 //TODO: Not sure how long to wait here
                 OsTask::delay(200);
             } // End loop through codecs
+
+            fileCount++;
         } // End loop through source recordings
+
+        CPPUNIT_ASSERT(fileCount > 0);
 
         // Delete connections
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
