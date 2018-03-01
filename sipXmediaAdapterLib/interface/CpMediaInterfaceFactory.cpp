@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2018 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -15,8 +15,8 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include "mi/CpMediaInterfaceFactory.h"
-#include "mi/CpMediaInterfaceFactoryImpl.h"
+#include <mi/CpMediaInterfaceFactory.h>
+#include <mi/CpMediaInterfaceFactoryImpl.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -111,6 +111,26 @@ CpMediaInterfaceFactoryImpl*
 CpMediaInterfaceFactory::getFactoryImplementation()
 {
     return mpFactoryImpl ;
+}
+
+int CpMediaInterfaceFactory::getInputDeviceList(UtlContainer& deviceNames)
+{
+    int count = 0;
+    if(sGetInputDeviceListFunction)
+    {
+        count = (*sGetInputDeviceListFunction)(deviceNames);
+    }
+    return(count);
+}
+
+int CpMediaInterfaceFactory::getOutputDeviceList(UtlContainer& deviceNames)
+{
+    int count = 0;
+    if(sGetOutputDeviceListFunction)
+    {
+        count = (*sGetOutputDeviceListFunction)(deviceNames);
+    }
+    return(count);
 }
 
 /* ============================ INQUIRY =================================== */
