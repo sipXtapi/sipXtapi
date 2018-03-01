@@ -1577,6 +1577,53 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
                *rtpVideoPorts,
                *rtcpVideoPorts);
 
+        // Read IP address and port to which the RTP will be sent.
+        // These environmental variable would be set if a network shaper
+        // to impact latency or loss of RTP packets is to be used.
+        const char* relayIpChar = getenv("TEST_CODEC_RTP_RELAY_IP");
+        const char* relayRtpPortChar = getenv("TEST_CODEC_RTP_RELAY_PORT");
+        const char* relayRtcpPortChar = getenv("TEST_CODEC_RTP_RELAY_PORT");
+        // An easy way to test this relay feature is to set TEST_CODEC_RTP_RELAY_PORT
+        // to some value and use nc and a linux fifo as a simple relay.
+        // For example:
+        // export TEST_CODEC_RTP_RELAY_PORT="9200"
+        // $ mkfifo /tmp/rtpfifo
+        // $ nc -l -u -p 9200 < /tmp/rtpfifo | nc -u 192.168.0.99 9500 > /tmp/rtpfifo
+        // Note: substitute 192.168.0.99 with the real ip this test machine
+
+        if(relayIpChar)
+        {
+            printf("setting relay IP: %s\n", relayIpChar);
+            *rtpHostAddresses = relayIpChar;
+        }
+        int relayRtpPort = 0;
+        if(relayRtpPortChar && (relayRtpPort = atoi(relayRtpPortChar)) > 0)
+        {
+            printf("setting RTP relay port: %d\n", relayRtpPort);
+            *rtpAudioPorts = relayRtpPort;
+        }
+        int relayRtcpPort = 0;
+        if(relayRtcpPortChar && (relayRtcpPort = atoi(relayRtcpPortChar)) > 0)
+        {
+            printf("setting RTCP relay port: %d\n", relayRtcpPort);
+            *rtcpAudioPorts = relayRtcpPort;
+        }
+
+        if(relayIpChar || relayRtpPort > 0 || relayRtcpPort > 0)
+        {
+            printf("Send to relay:\n\trtpHostAddresses: \"%s\"\n\trtpAudioPorts: %d\n\t"
+                   "rtcpAudioPorts: %d\n\trtpVideoPorts: %d\n\trtcpVideoPorts: %d\n",
+                   rtpHostAddresses->data(), 
+                   *rtpAudioPorts,
+                   *rtcpAudioPorts,
+                   *rtpVideoPorts,
+                   *rtcpVideoPorts);
+        }
+        else
+        {
+            printf("RTP relay not setup. " "TEST_CODEC_RTP_RELAY_IP" ", " "TEST_CODEC_RTP_RELAY_PORT" " and " "TEST_CODEC_RTP_RELAY_PORT" " not set.\n");
+        }
+
         // We should have the same port (first in range) every time or we have leaked
         // a UDP socket/port
         CPPUNIT_ASSERT_EQUAL(rtpAudioPorts[0], TEST_RTP_PORT_RANGE_START);
@@ -1644,7 +1691,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 
             // Loop through codecs
             int codecIndex = 0;
-            for(codecIndex = 9; codecIndex < numSupportedSinkCodecs - 1; codecIndex++)
+            for(codecIndex = 0; codecIndex < 10 /*numSupportedSinkCodecs - 1*/; codecIndex++)
             {
 
                 const int numCodecsToUse = 2;
