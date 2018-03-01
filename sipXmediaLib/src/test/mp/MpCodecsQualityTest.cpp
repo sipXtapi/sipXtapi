@@ -1116,7 +1116,34 @@ public:
                    printf("Processed %d frames\n", 
                           frameCount);
  
+                   // If the analyze environmental variable is defined, call the analyse programe
+                   // with the source, result records and the codec info
+#ifdef __pingtel_on_posix__
+                   const char* analyseProgramName = getenv("CODEC_QUALITY_ANALYSE_PROGRAM");
+                   if(analyseProgramName && analyseProgramName[0])
+                   {
+                       UtlString command;
+                       // <analyse_command> <source_recording> <result_recording> <codec_mime_subtype> <codec_sample_rate> <codec_channels> "<codec_fmtp>"
+                       command.appendFormat("%s %s %s %s %d %d \"%s\"",
+                                            analyseProgramName,
+                                            sourceFileName.data(),
+                                            recordFileName.data(),
+                                            mimeSubtype.data(),
+                                            codecSampleRate,
+                                            codecChannels,
+                                            fmtp.data());
+                       int analyseResult = system(command.data());
+                       CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, 0, analyseResult);
+                   }
+                   else
+#endif
+                   {
+                       printf("CODEC_QUALITY_ANALYSE_PROGRAM not defined, skipping analysis of codec recording: %s\n",
+                              loopMessage.data());
+                   }
+
                 }
+
 
                 // Get next file in directory
                 foundRecordingStatus = sourceRecordingIterator.findNext(aSourceRecording);
