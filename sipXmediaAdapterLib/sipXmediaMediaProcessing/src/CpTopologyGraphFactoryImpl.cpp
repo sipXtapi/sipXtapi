@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2018 SIPez LLC. All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,8 @@
 #include "mi/CpMediaInterfaceFactory.h"
 #include "CpTopologyGraphInterface.h"
 #include <os/OsSysLog.h>
+#include <os/OsFS.h>
+
 #ifdef USE_SPEEX_AEC // [
 #  include <mp/MprToOutputDeviceWithAecConstructor.h>
 #endif // USE_SPEEX_AEC ]
@@ -144,6 +146,11 @@
 extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWnt.cpp
 
 // EXTERNAL VARIABLES
+   int (*CpMediaInterfaceFactory::sGetInputDeviceListFunction)(UtlContainer&) = 
+       CpTopologyGraphFactoryImpl::getInputDeviceList;
+   int (*CpMediaInterfaceFactory::sGetOutputDeviceListFunction)(UtlContainer&) =
+       CpTopologyGraphFactoryImpl::getOutputDeviceList;
+
 // CONSTANTS
 // GLOBAL FUNCTION
 // FORWARD DECLARATIONS
@@ -510,6 +517,10 @@ OsStatus CpTopologyGraphFactoryImpl::setSpeakerDevice(const UtlString& device)
     // Disable all existing output devices, except the given device
     mpOutputDeviceManager->disableAllDevicesExcept(deviceId > MP_INVALID_OUTPUT_DEVICE_HANDLE ? 1 : 0, &deviceId);
 
+    // TODO ?? If we fail to enable the new device, should we keep the old enabled
+    // as long as the device name is not empty string?  Should empty string imply setting
+    // no output device?? Should we also allow "null"?
+
     // If the device does not already exist, add it
     if(deviceId <= MP_INVALID_OUTPUT_DEVICE_HANDLE)
     {
@@ -536,6 +547,17 @@ OsStatus CpTopologyGraphFactoryImpl::setSpeakerDevice(const UtlString& device)
             "CpTopologyGraphFactoryImpl::setSpeakerDevice enableDevice id: %d (%s) returned: %d",
             deviceId, device.data(), status);
 
+        // It is possible that we had no output device enabled previously and were using the
+        // MpMMTimer as the media task ticker.  If that is the case we should first be disabling
+        // the timer as the ticker, then enabling the new output device as the ticker.  Then
+        // deleting the MpMMTimer.
+        if(mpMediaTaskTicker)
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                          "CpTopologyGraphFactoryImpl::setSpeakerDevice(%s) enabling new output device as ticker when we have timer as a ticker",
+                         device.data());
+        }
+
         // TODO: SHould only do this if one enabled device is not already the clock.
         // if(mDefaultToOutputDevice <= MP_INVALID_OUTPUT_DEVICE_HANDLE && 
         //      mDefaultToOutputDevice != device Id &&
@@ -548,7 +570,22 @@ OsStatus CpTopologyGraphFactoryImpl::setSpeakerDevice(const UtlString& device)
     }
     else
     {
-        // If the device is already enabled, no need to set the process frame notifier
+        // TODO Re-arrange above if statement into 2 nested ifs so we do not have to do this if twice
+        if(deviceId > MP_INVALID_OUTPUT_DEVICE_HANDLE)
+        {
+           // If the device is already enabled, no need to set the process frame notifier
+        }
+        else
+        {
+           // TODO This is a bad situation that needs to be fixed.  We have just disabled all
+           // of the output devices, but the one to be enabled is invalid.  We should create
+           // a MpMMTimer and make it the flowgraph ticker or the media task will be stopped and
+           // no media task or flowgraph operations will be processed, things will hang or
+           // timeout, general badness will happen.
+           OsSysLog::add(FAC_MP, PRI_CRIT,
+                         "CpTopologyGraphFactoryImpl::setSpeakerDevice(%s) output device not enabled, no media task ticker active",
+                         device.data());
+        }
     }
 
     // Set the default device ID to use for the local output path in the flowgraph
@@ -1233,8 +1270,18 @@ int CpTopologyGraphFactoryImpl::getInputDeviceList(UtlContainer& deviceNames)
 #  else // OSS
 // TODO: get list of OSS devices
 // Use OsFile iterator on /dev/dsp*
-    deviceNames.insert(new UtlString(INPUT_DRIVER_DEFAULT_NAME));
-    deviceCount++;
+    OsFile dspDev(INPUT_DRIVER_DEFAULT_NAME);
+    if(dspDev.exists())
+    {
+        deviceNames.insert(new UtlString(INPUT_DRIVER_DEFAULT_NAME));
+        deviceCount++;
+    }
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_CRIT,
+                      "OSS enabled, but %s input device does not exist",
+                      INPUT_DRIVER_DEFAULT_NAME);
+    }
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "CpTopologyGraphFactoryImpl::getInputDeviceList not implemented for this interface");
 #  endif
@@ -1260,7 +1307,6 @@ int CpTopologyGraphFactoryImpl::getInputDeviceList(UtlContainer& deviceNames)
     return(deviceCount);
 }
 
-
 int CpTopologyGraphFactoryImpl::getOutputDeviceList(UtlContainer& deviceNames)
 {
     int deviceCount = 0;
@@ -1275,8 +1321,18 @@ int CpTopologyGraphFactoryImpl::getOutputDeviceList(UtlContainer& deviceNames)
 #  else // OSS
 // TODO: get list of OSS devices
 // Use OsFile iterator on /dev/dsp*
-    deviceNames.insert(new UtlString(OUTPUT_DRIVER_DEFAULT_NAME));
-    deviceCount++;
+    OsFile dspDev(OUTPUT_DRIVER_DEFAULT_NAME);
+    if(dspDev.exists())
+    {
+        deviceNames.insert(new UtlString(OUTPUT_DRIVER_DEFAULT_NAME));
+        deviceCount++;
+    }
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_CRIT,
+                      "OSS enabled, but %s output device does not exist",
+                      OUTPUT_DRIVER_DEFAULT_NAME);
+    }
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "CpTopologyGraphFactoryImpl::getOutputDeviceList not implemented for this interface");
 #  endif

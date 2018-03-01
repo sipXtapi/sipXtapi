@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2008 SIPez LLC.
+// Copyright (C) 2005-2018 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -62,6 +62,9 @@ public:
     */
    virtual ~CpMediaInterfaceFactory();
 
+   static int (*sGetInputDeviceListFunction)(UtlContainer&);
+   static int (*sGetOutputDeviceListFunction)(UtlContainer&);
+
 /* ============================ MANIPULATORS ============================== */
 
     /**
@@ -120,6 +123,12 @@ public:
 
    CpMediaInterfaceFactoryImpl* getFactoryImplementation() ;
 
+   /// @brief Get list of audio input device names available
+   static int getInputDeviceList(UtlContainer& deviceNames);
+   
+   /// @brief Get list of audio output device names available
+   static int getOutputDeviceList(UtlContainer& deviceNames);
+    
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
