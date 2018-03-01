@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2017 SIPez LLC. All rights reserved
+// Copyright (C) 2007-2018 SIPez LLC. All rights reserved
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,11 +17,12 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "mp/MpodAlsa.h"
-#include "mp/MpOutputDeviceManager.h"
-#include "os/OsTask.h"
-#include "os/OsNotification.h"
-#include "os/OsCallback.h"
+#include <os/OsTask.h>
+#include <os/OsNotification.h>
+#include <os/OsCallback.h>
+#include <utl/UtlSListIterator.h>
+#include <mp/MpodAlsa.h>
+#include <mp/MpOutputDeviceManager.h>
 
 #ifdef RTL_ENABLED // [
 #  include "rtl_macro.h"
@@ -238,11 +239,24 @@ const char* MpodAlsa::getDefaultDeviceName()
     // Get the list of available output devices
     getDeviceNames(deviceNames);
 
-    // The first one is the default
-    UtlString* firstDevice = (UtlString*) deviceNames.get();
+    // The first one is the default if no plughw* device names are found
+    UtlString* defaultDevice = (UtlString*) deviceNames.get();
+    UtlSListIterator nameIterator(deviceNames);
+    UtlString* deviceName = NULL;
+    while((deviceName = (UtlString*) nameIterator()))
+    {
+        if(deviceName->index("plughw") == 0)
+        {
+            defaultDevice = deviceName;
+            // The first device name that begins with plughw is the default
+            break;
+        }
+    }
+
     strncpy(spDefaultDeviceName, 
-            firstDevice ? firstDevice->data() : "",
+            defaultDevice ? defaultDevice->data() : "",
             MAX_DEVICE_NAME_SIZE);
+
     deviceNames.destroyAll();
 
     return(spDefaultDeviceName);
