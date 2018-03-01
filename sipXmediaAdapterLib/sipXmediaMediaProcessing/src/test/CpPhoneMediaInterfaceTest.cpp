@@ -32,9 +32,9 @@
 
 // Defaults for Media Interface Factory and Media Interface initialization
 // Zeros here indicate to use defaults.
-#define FRAME_SIZE_MS       0
-#define MAX_SAMPLE_RATE     0 
-#define DEFAULT_SAMPLE_RATE 0
+#define FRAME_SIZE_MS         0
+#define DEVICE_SAMPLE_RATE    0 
+#define FLOWGRAPH_SAMPLE_RATE 0
 
 //#define DISABLE_RECORDING
 #define EMBED_PROMPTS
@@ -54,6 +54,9 @@
 #  define RTL_WRITE(x)
 #  define RTL_STOP
 #endif
+
+#define TEST_RTP_PORT_RANGE_START 9500
+#define TEST_RTP_PORT_RANGE_END 9900
 
 class StoreSignalNotification : public OsNotification
 {
@@ -101,6 +104,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testPlayPauseResumeStop);
     CPPUNIT_TEST(testRecordPlayback);
     CPPUNIT_TEST(testConnectionNotifications);
+    CPPUNIT_TEST(testCodecStreamQuality);
     CPPUNIT_TEST(testThreeGraphs);
     CPPUNIT_TEST(testStreamNotifications);
     CPPUNIT_TEST(testVoiceNotifications);
@@ -112,10 +116,14 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
     UtlSList mMediaInterfaces;
     UtlHashBag mInterestingNotifactions;  ///< Storage for all notification
                                   ///< types interesting for particular test.
+    int mDeviceSampleRate;
+    int mFlowgraphSampleRate;
 
     CpPhoneMediaInterfaceTest()
+    : mpMediaFactory(NULL),
+      mDeviceSampleRate(DEVICE_SAMPLE_RATE),
+      mFlowgraphSampleRate(FLOWGRAPH_SAMPLE_RATE)
     {
-        mpMediaFactory = NULL;
     };
 
     virtual void setUp()
@@ -155,18 +163,28 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 
       
         sUseLocalAudioDevices = TRUE;
-#if defined(__pingtel_on_posix__)
-        sUseLocalAudioDevices = OsFileSystem::exists("/dev/dsp");
-        if(!sUseLocalAudioDevices)
+
+        UtlSList deviceList;
+        
+        if(CpMediaInterfaceFactory::getOutputDeviceList(deviceList) == 0)
         {
+            sUseLocalAudioDevices = FALSE;
+#if defined(__pingtel_on_posix__) and not defined(USE_ALSA_INTERFACE)
             printf("WARNING: /dev/dsp does not exist.  Not using local audio.  Not all tests may be ran.\n");
-        }
 #endif
+        }
+
         // Initialize the factory factory
+        printf("Constructing interface factory with device rate: %d flowgraph rate: %d\n",
+               mDeviceSampleRate, 
+               mFlowgraphSampleRate);
+
         mpMediaFactory = 
            sipXmediaFactoryFactory(NULL, FRAME_SIZE_MS, 
-                                   MAX_SAMPLE_RATE, DEFAULT_SAMPLE_RATE, 
+                                   mFlowgraphSampleRate, mDeviceSampleRate, 
                                    sUseLocalAudioDevices); // Enable local audio
+        // Set range for RTP ports
+        mpMediaFactory->getFactoryImplementation()->setRtpPortRange(TEST_RTP_PORT_RANGE_START, TEST_RTP_PORT_RANGE_END);
     } 
 
     virtual void tearDown()
@@ -188,6 +206,10 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         {
            printf("tearDown exit mMediaInterfaces contains: %d\n", (int)mMediaInterfaces.entries());
         }
+
+        // Restore the sample rates
+        mDeviceSampleRate = DEVICE_SAMPLE_RATE;
+        mFlowgraphSampleRate = FLOWGRAPH_SAMPLE_RATE;
     }
 
     void printMediaInterfaceType()
@@ -252,7 +274,9 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 
          if(curMsecsDelayed >= maxTotalDelayTime)
          {
-//            printf("TIMEOUT\n");
+            printf("TIMEOUT for: %d waited: %d mSec\n", 
+                   (int) notfType,
+                   curMsecsDelayed);
             return OS_WAIT_TIMEOUT;
          }
 
@@ -268,7 +292,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
                               (OsMsg::MsgTypes)pMsg->getMsgType());
          pNotfMsg = (MiNotification*)pMsg;
          msgType.setValue(pNotfMsg->getType());
-//         printf("Notification: %d\n", pNotfMsg->getType());
+         printf("Notification: %d\n", pNotfMsg->getType());
          if (!mInterestingNotifactions.contains(&msgType))
          {
             continue;
@@ -286,10 +310,13 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
             // If we don't do that, there will be a memory leak.
             pNotfMsg->releaseMsg();
          }
-//         printf("SUCCESS\n");
+         printf("SUCCESS: %d waited: %d mSec\n", 
+                (int) notfType,
+                curMsecsDelayed);
          return OS_SUCCESS;
        }
 
+       CPPUNIT_ASSERT(0);
        return OS_SUCCESS;
     }
 
@@ -1284,11 +1311,26 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         int numSupportedSinkCodecs;
         SdpCodec** supportedSinkCodecArray = NULL;
         supportedSinkCodecs.getCodecs(numSupportedSinkCodecs, supportedSinkCodecArray);
+        printf("Num supported codecs: %d\n",
+               numSupportedSinkCodecs);
+
+        const int numCodecsToUse = 2;
+        SdpCodec* codecsToUse[numCodecsToUse];
+        codecsToUse[0] = supportedSinkCodecArray[0];
+        codecsToUse[1] = supportedSinkCodecArray[numSupportedSinkCodecs - 1]; // Should be DTMF
+        // RTP packet header only has 7 bits for the payload id.  If we have a large number
+        // of codecs, we go past 127.
+        if(codecsToUse[1]->getCodecPayloadFormat() >= 128)
+        {
+            codecsToUse[1]->setCodecPayloadFormat(127);
+        }
+
+        CPPUNIT_ASSERT(codecsToUse[0]->getCodecPayloadFormat() < 128);
+        CPPUNIT_ASSERT(codecsToUse[1]->getCodecPayloadFormat() < 128);
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                              sinkInterface->startRtpReceive(sinkConnectionId,
-                                                            numSupportedSinkCodecs,
-                                                            supportedSinkCodecArray));
-
+                                                            numCodecsToUse,
+                                                            codecsToUse));
         // Want to hear what is on the mixed flowgraph
         sinkInterface->giveFocus();
 
@@ -1339,8 +1381,8 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         // Start sending RTP from source to the sink flowgraph
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                              sourceInterface->startRtpSend(sourceConnectionId, 
-                                                           numSupportedSinkCodecs,
-                                                           supportedSinkCodecArray));
+                                                           numCodecsToUse,
+                                                           codecsToUse));
 
 
         RTL_EVENT("Tone count", 0);
@@ -1356,12 +1398,16 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
                                     MiNotification::MI_NOTF_DTMF_RECEIVED, 50, &pNotf);
         CPPUNIT_ASSERT_MESSAGE("Didn't receive DTMF key down message after startTone", stat == OS_SUCCESS);
         MiDtmfNotf* pDtmfNotf = (MiDtmfNotf*)pNotf;
-        CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::DTMF_1, pDtmfNotf->getKeyCode());
-        CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::KEY_DOWN, pDtmfNotf->getKeyPressState());
-        CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::DURATION_NOT_APPLICABLE, pDtmfNotf->getDuration());
-        pDtmfNotf = NULL;
-        pNotf->releaseMsg();
-        pNotf = NULL;
+        // If above failed, pNotif is NULL and we cannot test the following
+        if(stat == OS_SUCCESS)
+        {
+            CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::DTMF_1, pDtmfNotf->getKeyCode());
+            CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::KEY_DOWN, pDtmfNotf->getKeyPressState());
+            CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::DURATION_NOT_APPLICABLE, pDtmfNotf->getDuration());
+            pDtmfNotf = NULL;
+            pNotf->releaseMsg();
+            pNotf = NULL;
+        }
 
         OsTask::delay(1000);
 
@@ -1369,15 +1415,19 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         printf("stop tone in source\n");
         sourceInterface->stopTone();
         stat = waitForNotf(*pSinkNotfDispatcher, 
-                           MiNotification::MI_NOTF_DTMF_RECEIVED, 50, &pNotf);
+                           MiNotification::MI_NOTF_DTMF_RECEIVED, 500, &pNotf);
         pDtmfNotf = (MiDtmfNotf*)pNotf;
         CPPUNIT_ASSERT_MESSAGE("Didn't receive DTMF key up message after startTone", stat == OS_SUCCESS);
-        CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::DTMF_1, pDtmfNotf->getKeyCode());
-        CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::KEY_UP, pDtmfNotf->getKeyPressState());
-        CPPUNIT_ASSERT(pDtmfNotf->getDuration() > 0);
-        pDtmfNotf = NULL;
-        pNotf->releaseMsg();
-        pNotf = NULL;
+        // If above failed, pNotif is NULL and we cannot test the following
+        if(stat == OS_SUCCESS)
+        {
+            CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::DTMF_1, pDtmfNotf->getKeyCode());
+            CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::KEY_UP, pDtmfNotf->getKeyPressState());
+            CPPUNIT_ASSERT(pDtmfNotf->getDuration() > 0);
+            pDtmfNotf = NULL;
+            pNotf->releaseMsg();
+            pNotf = NULL;
+        }
 
         OsTask::delay(200);
         printf("tone testing done\n");
@@ -1401,6 +1451,367 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 
         RTL_WRITE("testTwoTones.rtl");
         RTL_STOP;
+
+        for ( numSupportedSinkCodecs--; numSupportedSinkCodecs >= 0; numSupportedSinkCodecs--)
+        {
+           delete supportedSinkCodecArray[numSupportedSinkCodecs];
+        }
+        delete[] supportedSinkCodecArray;
+        delete pSinkNotfDispatcher;
+    };
+
+    void testCodecStreamQuality()
+    {
+        // Need the flowgraph running at 48000
+        if(mDeviceSampleRate != 48000 ||
+           mFlowgraphSampleRate != 48000)
+        {
+            // Not running at 48000, shutdown the media subsystem and restart it at 48000
+            tearDown();
+            mDeviceSampleRate = 48000;
+            mFlowgraphSampleRate = 48000;
+            setUp();
+
+        }
+        // This test creates two flowgraphs.  It streams RTP from a recorded file
+        // from the second flowgraph to be received in the first flowgraph where it
+        // will be recorded.  We get a recording that can be analysed for quality
+        // based upon codec and network impacted quality.
+        CPPUNIT_ASSERT(mpMediaFactory);
+
+        //  Create dir where results/recorded files will be stored
+        UtlString sourcePath("codecQualitySource/");
+        UtlString recordPath("codecQualityResult/");
+        OsFileSystem::createDir(recordPath);
+
+        // Fill in a list of notification types which should not be ignored
+        mInterestingNotifactions.insert(new UtlInt(MiNotification::MI_NOTF_PLAY_STARTED));
+        mInterestingNotifactions.insert(new UtlInt(MiNotification::MI_NOTF_PLAY_FINISHED));
+        mInterestingNotifactions.insert(new UtlInt(MiNotification::MI_NOTF_RECORD_STARTED));
+        mInterestingNotifactions.insert(new UtlInt(MiNotification::MI_NOTF_RECORD_STOPPED));
+        mInterestingNotifactions.insert(new UtlInt(MiNotification::MI_NOTF_RECORD_ERROR));
+        mInterestingNotifactions.insert(new UtlInt(MiNotification::MI_NOTF_DTMF_RECEIVED));
+
+        UtlString localRtpInterfaceAddress("127.0.0.1");
+        OsSocket::getHostIp(&localRtpInterfaceAddress);
+        UtlString locale;
+        int tosOptions = 0;
+        UtlString stunServerAddress;
+        int stunOptions = 0;
+        int stunKeepAlivePeriodSecs = 25;
+        UtlString turnServerAddress;
+        int turnPort = 0 ;
+        UtlString turnUser;
+        UtlString turnPassword;
+        int turnKeepAlivePeriodSecs = 25;
+        bool enableIce = false ;
+        OsMsgDispatcher *pSinkNotfDispatcher = new OsMsgDispatcher();
+
+        // Create a flowgraph (sink) to receive another flowgraph (source)
+        CpMediaInterface* sinkInterface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 0, NULL, 
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce,
+                                                 48000,
+                                                 pSinkNotfDispatcher);
+
+        // Add created media interface to the list, to allow it be
+        // freed in tearDown() if assertion occurs.
+        mMediaInterfaces.append(sinkInterface);
+
+        // Create connections for sink flowgraph
+        int sinkConnectionId = -1;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sinkInterface->createConnection(sinkConnectionId, NULL));
+        CPPUNIT_ASSERT(sinkConnectionId > 0);
+        
+        // Get the address of the connections so we can send RTP to them
+        // capabilities of a connection on the sink flowgraph
+        const int maxAddresses = 1;
+        UtlString rtpHostAddresses[maxAddresses];
+        int rtpAudioPorts[maxAddresses];
+        int rtcpAudioPorts[maxAddresses];
+        int rtpVideoPorts[maxAddresses];
+        int rtcpVideoPorts[maxAddresses];
+        RTP_TRANSPORT transportTypes[maxAddresses];
+        int numActualAddresses;
+        SdpCodecList supportedSinkCodecs;
+        SdpSrtpParameters srtpParameters;
+        int bandWidth = 0;
+        int videoBandwidth;
+        int videoFramerate;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sinkInterface->getCapabilitiesEx(sinkConnectionId, 
+                                                              maxAddresses,
+                                                              rtpHostAddresses, 
+                                                              rtpAudioPorts,
+                                                              rtcpAudioPorts,
+                                                              rtpVideoPorts,
+                                                              rtcpVideoPorts,
+                                                              transportTypes,
+                                                              numActualAddresses,
+                                                              supportedSinkCodecs,
+                                                              srtpParameters,
+                                                              bandWidth,
+                                                              videoBandwidth,
+                                                              videoFramerate));
+
+        // Set the destination for sending RTP from source to connection on
+        // the sink flowgraph
+        printf("Sink:\n\trtpHostAddresses: \"%s\"\n\trtpAudioPorts: %d\n\t"
+               "rtcpAudioPorts: %d\n\trtpVideoPorts: %d\n\trtcpVideoPorts: %d\n",
+               rtpHostAddresses->data(), 
+               *rtpAudioPorts,
+               *rtcpAudioPorts,
+               *rtpVideoPorts,
+               *rtcpVideoPorts);
+
+        // We should have the same port (first in range) every time or we have leaked
+        // a UDP socket/port
+        CPPUNIT_ASSERT_EQUAL(rtpAudioPorts[0], TEST_RTP_PORT_RANGE_START);
+
+        // Prep the sink connections to receive RTP
+        int numSupportedSinkCodecs;
+        SdpCodec** supportedSinkCodecArray = NULL;
+        supportedSinkCodecs.getCodecs(numSupportedSinkCodecs, supportedSinkCodecArray);
+        printf("Num supported codecs: %d\n",
+               numSupportedSinkCodecs);
+
+        // For debugging want to hear what is on the mixed flowgraph
+        // TODO: take both flowgraphs out of focus so we do not capture mic
+        sinkInterface->giveFocus();
+
+        // Second flowgraph to be the source flowgraph
+        CpMediaInterface* sourceInterface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 0, NULL, 
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce,
+                                                 48000,
+                                                 pSinkNotfDispatcher);
+
+        // Add created media interface to the list, to allow it be
+        // freed in tearDown() if assertion occurs.
+        mMediaInterfaces.append(sourceInterface);
+
+        // Create connection for source flowgraph
+        int sourceConnectionId = -1;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sourceInterface->createConnection(sourceConnectionId, NULL));
+        CPPUNIT_ASSERT(sourceConnectionId > 0);
+
+        // Set RTP send to address and port
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sourceInterface->setConnectionDestination(sourceConnectionId,
+                                                                       rtpHostAddresses->data(), 
+                                                                       *rtpAudioPorts,
+                                                                       *rtcpAudioPorts,
+                                                                       *rtpVideoPorts,
+                                                                       *rtcpVideoPorts));
+
+        // TODO: set mix output to recorder to be same on left and right
+
+
+        // TODO
+        // Loop through files
+        {
+
+            //UtlString recordFile("testCodecStreamQuality.wav");
+            //UtlString sourceFile("codecQualitySource/GREFCLA.WAV");
+            UtlString sourceFileBaseName("GREFCLA.WAV");
+            
+
+            // Loop through codecs
+            int codecIndex = 0;
+            for(codecIndex = 9; codecIndex < numSupportedSinkCodecs - 1; codecIndex++)
+            {
+
+                const int numCodecsToUse = 2;
+                SdpCodec* codecsToUse[numCodecsToUse];
+                codecsToUse[0] = supportedSinkCodecArray[codecIndex];
+                codecsToUse[1] = supportedSinkCodecArray[numSupportedSinkCodecs - 1]; // Should be DTMF
+
+                // RTP packet header only has 7 bits for the payload id.  If we have a large number
+                // of codecs, we go past 127.  So fix the 7 bit roll over here.
+                if(codecsToUse[0]->getCodecPayloadFormat() >= 128)
+                {
+                    codecsToUse[0]->setCodecPayloadFormat(126);
+                }
+                if(codecsToUse[1]->getCodecPayloadFormat() >= 128)
+                {
+                    codecsToUse[1]->setCodecPayloadFormat(127);
+                }
+                CPPUNIT_ASSERT(codecsToUse[0]->getCodecPayloadFormat() < 128);
+                CPPUNIT_ASSERT(codecsToUse[1]->getCodecPayloadFormat() < 128);
+
+                UtlString mimeSubtype;
+                codecsToUse[0]->getEncodingName(mimeSubtype);
+                int codecSampleRate = codecsToUse[0]->getSampleRate();
+                int codecChannels = codecsToUse[0]->getNumChannels();
+                UtlString fmtp;
+                codecsToUse[0]->getSdpFmtpField(fmtp);
+
+                UtlString sourceFileName = sourcePath + sourceFileBaseName;
+                UtlString recordFileName = recordPath + sourceFileBaseName;
+
+                // Make the codec definition, part of the recorded file name
+                UtlString codecSuffix;
+                codecSuffix.appendFormat("_%s_%dk_%dc",
+                                         mimeSubtype.data(),
+                                         codecSampleRate / 1000,
+                                         codecChannels);
+                if(fmtp.length())
+                {
+                    UtlString fileSafeFmtp(fmtp);
+                    fileSafeFmtp.replace('=', '_');
+                    fileSafeFmtp.replace(' ', '_');
+                    fileSafeFmtp.replace(';', '_');
+                    codecSuffix.appendFormat("_%s", fileSafeFmtp.data());
+                }
+                recordFileName.insert(recordFileName.length() - 4,
+                                      codecSuffix);
+
+                UtlString loopMessage;
+                loopMessage.appendFormat("source: %s codec[%d]: %s FMTP: \"%s\" sample rate: %d channels: %d",
+                                         sourceFileName.data(),
+                                         codecIndex,
+                                         mimeSubtype.data(),
+                                         fmtp.data(),
+                                         codecSampleRate,
+                                         codecChannels);
+
+                if(0)//"SPEEX" == mimeSubtype || "L16" == mimeSubtype) //codecSampleRate % 1000)
+                {
+                    CPPUNIT_ASSERT_MESSAGE(UtlString("Skipping ").append(loopMessage), 0);
+                    continue;
+                }
+
+                printf("Starting: %s\n",
+                       loopMessage.data());
+
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, OS_SUCCESS,
+                                     sinkInterface->startRtpReceive(sinkConnectionId,
+                                                                    numCodecsToUse,
+                                                                    codecsToUse));
+                // Start sending RTP from source to the sink flowgraph
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, OS_SUCCESS,
+                                     sourceInterface->startRtpSend(sourceConnectionId, 
+                                                                   numCodecsToUse,
+                                                                   codecsToUse));
+                OsStatus status;
+                MiNotification* pNotf = NULL;
+
+                OsStatus playStatus =
+                    sourceInterface->playAudio(sourceFileName,
+                                               FALSE, // repeat
+                                               TRUE, // local
+                                               TRUE); // remote
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, playStatus, OS_SUCCESS);
+
+                // No sense in continuing the test, if we cannot play file
+                if(playStatus != OS_SUCCESS)
+                {
+                    // Stop stuff and bail
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, OS_SUCCESS,
+                                         sourceInterface->stopRtpSend(sourceConnectionId));
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, OS_SUCCESS,
+                                         sinkInterface->stopRtpReceive(sinkConnectionId));
+                    // continue here instead of break even though it will continue to fail with all codecs
+                    // We want a very visible number of errors instead of just 1
+                    continue;
+                }
+
+                status = waitForNotf(*pSinkNotfDispatcher, 
+                                     MiNotification::MI_NOTF_PLAY_STARTED, 500, &pNotf);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, status, OS_SUCCESS);
+
+                // Record the entire "call" - all connections.
+                status = 
+                    sinkInterface->recordChannelAudio(-1, // all connections
+                                                      recordFileName,
+                                                      CpMediaInterface::CP_WAVE_PCM_16, // WAV file using PCM 16 bit encoding
+                                                      FALSE, // Don't append to file
+                                                      2); // channels to record
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, status, OS_SUCCESS);
+
+                // No sense in continuing the test, if we cannot record or play file
+                if(status != OS_SUCCESS)
+                {
+                    // Stop stuff and bail
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, OS_SUCCESS,
+                                         sourceInterface->stopAudio());
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, OS_SUCCESS,
+                                         sourceInterface->stopRtpSend(sourceConnectionId));
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, OS_SUCCESS,
+                                         sinkInterface->stopRtpReceive(sinkConnectionId));
+                    // continue here instead of break even though it will continue to fail with all codecs
+                    // We want a very visible number of errors instead of just 1
+                    continue;
+                }
+
+                status = waitForNotf(*pSinkNotfDispatcher, 
+                                   MiNotification::MI_NOTF_RECORD_STARTED, 500, &pNotf);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, status, OS_SUCCESS);
+
+                status = waitForNotf(*pSinkNotfDispatcher, 
+                                     MiNotification::MI_NOTF_PLAY_FINISHED, 30000, &pNotf);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, status, OS_SUCCESS);
+
+                //TODO: Not sure how long to wait here
+                OsTask::delay(60);
+
+                // Stop recording the "call" -- all connections.
+                status = sinkInterface->stopRecordChannelAudio(-1);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, status, OS_SUCCESS);
+
+                status = waitForNotf(*pSinkNotfDispatcher, 
+                                   MiNotification::MI_NOTF_RECORD_STOPPED, 1000, &pNotf);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, status, OS_SUCCESS);
+
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, OS_SUCCESS,
+                                     sourceInterface->stopRtpSend(sourceConnectionId));
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(loopMessage, OS_SUCCESS,
+                                     sinkInterface->stopRtpReceive(sinkConnectionId));
+
+                //TODO: Not sure how long to wait here
+                OsTask::delay(200);
+            } // End loop through codecs
+        } // End loop through source recordings
+
+        // Delete connections
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sinkInterface->deleteConnection(sinkConnectionId));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sourceInterface->deleteConnection(sourceConnectionId));
+
+        // delete interfaces
+        mMediaInterfaces.remove(sinkInterface);
+        sinkInterface->release();
+        mMediaInterfaces.remove(sourceInterface);
+        sourceInterface->release();
+
+        OsTask::delay(500) ;
 
         for ( numSupportedSinkCodecs--; numSupportedSinkCodecs >= 0; numSupportedSinkCodecs--)
         {
