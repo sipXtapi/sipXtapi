@@ -1,29 +1,22 @@
 /*
- * sha1.h (Obtained from rfc3471)
- * 
- * Copyright (c) The Internet Society (2001). All Rights Reserved. 
+ * sha1.h (Obtained from rfc 4634)
  *
- * This document and translations of it may be copied and furnished to others,
- * and derivative works that comment on or otherwise explain it or assist in 
- * its implementation may be prepared, copied, published and distributed, in 
- * whole or in part, without restriction of any kind, provided that the above 
- * copyright notice and this paragraph are included on all such copies and 
- * derivative works. However, this document itself may not be modified in any
- * way, such as by removing the copyright notice or references to the Internet
- * Society or other Internet organizations, except as needed for the purpose 
- * of developing Internet standards in which case the procedures for copyrights 
- * defined in the Internet Standards process must be followed, or as required 
- * to translate it into languages other than English. 
+ * Copyright (c) The Internet Society (2001). All Rights Reserved.
  *
- * The limited permissions granted above are perpetual and will not be revoked
- * by the Internet Society or its successors or assigns. 
+ * License from RFC 4634 s1.1:
  *
- * This document and the information contained herein is provided on an 
- * "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING TASK 
- * FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
- * LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
- * INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR 
- * FITNESS FOR A PARTICULAR PURPOSE. 
+ * Permission is granted for all uses, commercial and non-commercial, of
+ * the sample code found in Section 8.  Royalty free license to use,
+ * copy, modify and distribute the software found in Section 8 is
+ * granted, provided that this document is identified in all material
+ * mentioning or referencing this software, and provided that
+ * redistributed derivative works do not contain misleading author or
+ * version information.
+ *
+ * The authors make no representations concerning either the
+ * merchantability of this software or the suitability of this software
+ * for any particular purpose.  It is provided "as is" without express
+ * or implied warranty of any kind.
  *
  *  Description:
  *      This is the header file for code which implements the Secure
