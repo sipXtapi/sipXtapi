@@ -118,7 +118,7 @@ class OsEncryption
 #if defined (OSENCRYPTION)
     X509_ALGOR *mAlgorithm;
 
-    EVP_CIPHER_CTX mContext;
+    EVP_CIPHER_CTX *mContext;
 #endif
 
     unsigned char *mSalt;     // defeats brute force decryption via appling dictionary

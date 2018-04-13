@@ -23,7 +23,7 @@
 // TYPEDEFS
 typedef struct rsa_st        RSA;
 typedef struct evp_cipher_st EVP_CIPHER;
-typedef struct env_md_st     EVP_MD;
+typedef struct evp_md_st     EVP_MD;
 
 // DEFINES
 // MACROS

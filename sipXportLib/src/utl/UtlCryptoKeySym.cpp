@@ -151,15 +151,17 @@ int UtlCryptoKeySym::encrypt(const unsigned char* pSrc,
       return 0;
    }
 
-   EVP_CIPHER_CTX ctx;
-   EVP_CIPHER_CTX_init(&ctx);
+   EVP_CIPHER_CTX *ctx;
+   ctx = EVP_CIPHER_CTX_new();
+   EVP_CIPHER_CTX_init(ctx);
 
-   if (!EVP_EncryptInit_ex(&ctx, mpCipher, NULL,
+   if (!EVP_EncryptInit_ex(ctx, mpCipher, NULL,
       mpKey->data(), mpIv->data()))
    {
       osPrintf("*****EVP_EncryptInit_ex failed");
       setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
+      EVP_CIPHER_CTX_cleanup(ctx);
+      EVP_CIPHER_CTX_free(ctx);
       return 0;
    }
 
@@ -167,28 +169,31 @@ int UtlCryptoKeySym::encrypt(const unsigned char* pSrc,
 
    int bytesWritten = 0;
    unsigned char* pDestTail = pDest;
-   if (!EVP_EncryptUpdate(&ctx, pDestTail, &bytesWritten, pSrc, srcLen))
+   if (!EVP_EncryptUpdate(ctx, pDestTail, &bytesWritten, pSrc, srcLen))
    {
       osPrintf("*****EVP_EncryptUpdate failed");
       setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
+      EVP_CIPHER_CTX_cleanup(ctx);
+      EVP_CIPHER_CTX_free(ctx);
       return 0;
    }
 
    pDestTail += bytesWritten;
    int bytesFinal = 0;
-   if (!EVP_EncryptFinal_ex(&ctx, pDestTail, &bytesFinal))
+   if (!EVP_EncryptFinal_ex(ctx, pDestTail, &bytesFinal))
    {
       osPrintf("*****EVP_EncryptFinal_ex failed");
       setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
+      EVP_CIPHER_CTX_cleanup(ctx);
+      EVP_CIPHER_CTX_free(ctx);
       return 0;
    }
 
    // How many total bytes did we write to pDest?
    *pDestLen = bytesWritten + bytesFinal;
 
-   EVP_CIPHER_CTX_cleanup(&ctx);
+   EVP_CIPHER_CTX_cleanup(ctx);
+   EVP_CIPHER_CTX_free(ctx);
    setLastError(0);
    return *pDestLen;
 }
@@ -216,15 +221,17 @@ int UtlCryptoKeySym::decrypt(const unsigned char* pSrc,
       return 0;
    }
 
-   EVP_CIPHER_CTX ctx;
-   EVP_CIPHER_CTX_init(&ctx);
+   EVP_CIPHER_CTX *ctx;
+   ctx = EVP_CIPHER_CTX_new();
+   EVP_CIPHER_CTX_init(ctx);
 
-   if (!EVP_DecryptInit_ex(&ctx, mpCipher, NULL,
+   if (!EVP_DecryptInit_ex(ctx, mpCipher, NULL,
       mpKey->data(), mpIv->data()))
    {
       osPrintf("*****EVP_DecryptInit_ex failed");
       setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
+      EVP_CIPHER_CTX_cleanup(ctx);
+      EVP_CIPHER_CTX_free(ctx);
       return 0;
    }
 
@@ -232,28 +239,31 @@ int UtlCryptoKeySym::decrypt(const unsigned char* pSrc,
 
    int bytesWritten = 0;
    unsigned char* pDestTail = pDest;
-   if (!EVP_DecryptUpdate(&ctx, pDestTail, &bytesWritten, pSrc, srcLen))
+   if (!EVP_DecryptUpdate(ctx, pDestTail, &bytesWritten, pSrc, srcLen))
    {
       osPrintf("*****EVP_DecryptUpdate failed");
       setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
+      EVP_CIPHER_CTX_cleanup(ctx);
+      EVP_CIPHER_CTX_free(ctx);
       return 0;
    }
 
    pDestTail += bytesWritten;
    int bytesFinal = 0;
-   if (!EVP_DecryptFinal_ex(&ctx, pDestTail, &bytesFinal))
+   if (!EVP_DecryptFinal_ex(ctx, pDestTail, &bytesFinal))
    {
       osPrintf("*****EVP_DecryptFinal_ex failed");
       setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
+      EVP_CIPHER_CTX_cleanup(ctx);
+      EVP_CIPHER_CTX_free(ctx);
       return 0;
    }
 
    // How many total bytes did we write to pDest?
    *pDestLen = bytesWritten + bytesFinal;
 
-   EVP_CIPHER_CTX_cleanup(&ctx);
+   EVP_CIPHER_CTX_cleanup(ctx);
+   EVP_CIPHER_CTX_free(ctx);
    setLastError(0);
    return *pDestLen;
 }

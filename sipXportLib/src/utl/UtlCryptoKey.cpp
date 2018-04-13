@@ -203,34 +203,35 @@ int UtlCryptoKey::computeDigest(const unsigned char* pSrc,
 
    *pDestLen = 0;
 
-   EVP_MD_CTX mdctx;
-   EVP_MD_CTX_init(&mdctx);
+   EVP_MD_CTX *mdctx;
+   mdctx = EVP_MD_CTX_new();
+   EVP_MD_CTX_init(mdctx);
 
    OpenSSL_add_all_digests();
 
-   if (!EVP_DigestInit_ex(&mdctx, spMdAlg, NULL))
+   if (!EVP_DigestInit_ex(mdctx, spMdAlg, NULL))
    {
       osPrintf("*****EVP_DigestInit_ex failed");
-      EVP_MD_CTX_cleanup(&mdctx);
+      EVP_MD_CTX_free(mdctx);
       return 0;
    }
 
-   if (!EVP_DigestUpdate(&mdctx, pSrc, srcLen))
+   if (!EVP_DigestUpdate(mdctx, pSrc, srcLen))
    {
       osPrintf("*****EVP_DigestUpdate failed");
-      EVP_MD_CTX_cleanup(&mdctx);
+      EVP_MD_CTX_free(mdctx);
       return 0;
    }
 
-   if (!EVP_DigestFinal_ex(&mdctx, pDest, (unsigned*)pDestLen))
+   if (!EVP_DigestFinal_ex(mdctx, pDest, (unsigned*)pDestLen))
    {
       osPrintf("*****EVP_DigestFinal_ex failed");
-      EVP_MD_CTX_cleanup(&mdctx);
+      EVP_MD_CTX_free(mdctx);
       *pDestLen = 0;
       return 0;
    }
 
-   EVP_MD_CTX_cleanup(&mdctx);
+   EVP_MD_CTX_free(mdctx);
    return *pDestLen;
 }
 

@@ -505,15 +505,16 @@ void OsSSL::logError(const OsSysLogFacility facility,
 void OsSSL::dumpCipherList()
 {
     char humanReadableName[1024];
-    SSL_CIPHER *cipher = NULL;
+    STACK_OF(SSL_CIPHER) *sk = SSL_CTX_get_ciphers(mCTX);
+    const SSL_CIPHER *cipher = NULL;
     int cipherCount = 0;
     const char* tokenName = NULL;
 
-    while(cipherCount  <  sk_SSL_CIPHER_num(mCTX->cipher_list))
+    while(cipherCount  <  sk_SSL_CIPHER_num(sk))
     {
     
         // Get a cipher from the context
-        cipher = sk_SSL_CIPHER_value(mCTX->cipher_list, cipherCount);
+        cipher = sk_SSL_CIPHER_value(sk, cipherCount);
 
         if(cipher)
         {

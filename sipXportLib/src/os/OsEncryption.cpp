@@ -187,17 +187,18 @@ OsStatus OsEncryption::init(Direction direction)
     {
         ERR_clear_error();
 
-        SSLeay_add_all_algorithms();
+        SSL_library_init();
         mAlgorithm = PKCS5_pbe_set(NID_pbeWithMD5AndDES_CBC,
             PKCS5_DEFAULT_ITER, mSalt, mSaltLen);
 
         if (mAlgorithm != NULL)
         {
-            EVP_CIPHER_CTX_init(&(mContext));
+            mContext = EVP_CIPHER_CTX_new();
+            EVP_CIPHER_CTX_init(mContext);
             if (EVP_PBE_CipherInit(mAlgorithm->algorithm, (const char *)mKey, mKeyLen,
-                                   mAlgorithm->parameter, &(mContext), (int)direction))
+                                   mAlgorithm->parameter, mContext, (int)direction))
             {
-                int blockSize = EVP_CIPHER_CTX_block_size(&mContext);
+                int blockSize = EVP_CIPHER_CTX_block_size(mContext);
                 int allocLen = mDataLen + mHeaderLen + blockSize + 1; // plus 1 for null terminator on decrypt
                 mResults = (unsigned char *)OPENSSL_malloc(allocLen);
                 if (mResults == NULL)
@@ -268,11 +269,11 @@ OsStatus OsEncryption::crypto(Direction direction)
             }
 
             int outLenPart1 = 0;
-            if (EVP_CipherUpdate(&(mContext), out, &outLenPart1, in, inLen))
+            if (EVP_CipherUpdate(mContext, out, &outLenPart1, in, inLen))
             {
                 out += outLenPart1;
                 int outLenPart2 = 0;
-                if (EVP_CipherFinal(&(mContext), out, &outLenPart2))
+                if (EVP_CipherFinal(mContext, out, &outLenPart2))
                 {
                     outLen += outLenPart1 + outLenPart2;
                     retval = OS_SUCCESS;
