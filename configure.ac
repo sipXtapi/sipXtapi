@@ -72,7 +72,7 @@ AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h malloc.h netdb.h netinet/in.h std
 
 # Check CPPUnit - begin
 # can't be encapsulated as a function due to search path ordering issues
-AM_PATH_CPPUNIT(1.9,
+PKG_CHECK_MODULES(CPPUNIT, cppunit >= 1.9, I
       [ SIPX_UNIT_TARGET="sipxunit" ],
       [ SIPX_UNIT_TARGET="sipxportunit"
         CPPUNIT_CFLAGS=' -DNO_CPPUNIT -I$(top_srcdir)/sipXportLib/src/test/sipxportunit '
