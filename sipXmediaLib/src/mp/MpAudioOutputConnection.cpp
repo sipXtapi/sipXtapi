@@ -313,7 +313,8 @@ OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
    // Check for late frame.
    if (isLateToMix(frameOffset, numSamples) == OS_LIMIT_REACHED)
    {
-      debugPrintf("MpAudioOutputConnection::mixFrame()"
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+                  "MpAudioOutputConnection::mixFrame()"
                   " OS_LIMIT_REACHED offset=%d, samples=%d, bufferLength=%d\n",
                   frameOffset, numSamples, mMixerBufferLength);
       return OS_LIMIT_REACHED;
