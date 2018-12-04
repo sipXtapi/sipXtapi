@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //  
 // Copyright (C) 2006 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
@@ -176,8 +176,8 @@ MpBuf *MpBufPool::getBuffer()
         if (0 == (0x3f&mNumFree))
         {
             OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MpBufPool::getBuffer pool: %p, NumFree dropped to %d",
-                this, mNumFree); 
+                "MpBufPool::getBuffer pool: %s (%p), NumFree dropped to %d",
+                mPoolName.data(), this, mNumFree); 
         }
     }
 
