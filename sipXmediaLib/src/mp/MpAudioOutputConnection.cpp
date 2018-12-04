@@ -20,6 +20,9 @@
 #include <os/OsDefs.h>    // for min macro
 #include <os/OsSysLog.h>
 
+// milliseconds
+//#define LOG_HEART_BEAT_PERIOD 100
+
 //#define RTL_ENABLED
 //#define RTL_AUDIO_ENABLED
 
@@ -36,15 +39,7 @@
 // STATIC VARIABLE INITIALIZATIONS
 // PRIVATE CLASSES
 // DEFINES
-#define DEBUG_PRINT
-#undef  DEBUG_PRINT
-
 // MACROS
-#ifdef DEBUG_PRINT // [
-#  define debugPrintf    printf
-#else  // DEBUG_PRINT ][
-static void debugPrintf(...) {}
-#endif // DEBUG_PRINT ]
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -407,6 +402,15 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
    MpAudioOutputConnection *pConnection = (MpAudioOutputConnection*)userData;
    RTL_BLOCK("MpAudioOutputConnection::tickerCallBack");
 
+#ifdef LOG_HEART_BEAT_PERIOD
+   if(pConnection->mCurrentFrameTime % LOG_HEART_BEAT_PERIOD == 0)
+   {
+       OsSysLog::add(FAC_MP, PRI_DEBUG,
+                     "MpAudioOutputConnection::readyForDataCallback aquiring mutex frame time: %d",
+                     pConnection->mCurrentFrameTime);
+      
+   }
+#endif
 
    if (pConnection->mMutex.acquire(OsTime(5)) == OS_SUCCESS)
    {
@@ -415,9 +419,17 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
                      pConnection->mpDeviceDriver->getSamplesPerFrame(),
                      pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin,
                      pConnection->mCurrentFrameTime);
-      debugPrintf("MpAudioOutputConnection::readyForDataCallback()"
-                  " frame=%d, pushFrame result=%d\n",
-                  pConnection->mCurrentFrameTime, result);
+#ifdef LOG_HEART_BEAT_PERIOD
+      if(pConnection->mCurrentFrameTime % LOG_HEART_BEAT_PERIOD == 0)
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                      "MpAudioOutputConnection::readyForDataCallback()"
+                      " frame=%d, pushFrame result=%d\n",
+                      pConnection->mCurrentFrameTime, result);
+      }
+#else
+      SIPX_UNUSED(result);
+#endif
 //      assert(result == OS_SUCCESS);
 
       // Advance mixer buffer and frame time.
