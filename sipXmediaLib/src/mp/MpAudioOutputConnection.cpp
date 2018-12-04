@@ -216,9 +216,10 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    // Check for late frame. Check for early frame is done inside mixFrame().
    if (MpDspUtils::compareSerials(frameTime, mCurrentFrameTime) < 0)
    {
-      debugPrintf("MpAudioOutputConnection::pushFrame()"
-                  " OS_INVALID_STATE frameTime=%d, currentTime=%d\n",
-                  frameTime, mCurrentFrameTime);
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "MpAudioOutputConnection::pushFrame()"
+                    " OS_INVALID_STATE frameTime=%d, currentTime=%d\n",
+                    frameTime, mCurrentFrameTime);
       result = OS_INVALID_STATE;
       RTL_EVENT("MpAudioOutputConnection::pushFrame", result);
       return result;
@@ -239,6 +240,14 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
        {
           // Mix this data with other sources.
           result = mixFrame(mixerBufferOffsetSamples, samples, numSamples);
+          if(result != OS_SUCCESS)
+          {
+              OsSysLog::add(FAC_MP, PRI_WARNING,
+                            "MpAudioOutputConnection::pushFrame mixFrame(%d, %p, %d) returned: %d"
+                            " frameTime=%d, currentTime=%d\n",
+                            (int)mixerBufferOffsetSamples, samples, numSamples, result,
+                            frameTime, mCurrentFrameTime);
+          }
        }
        else
        {
