@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -508,6 +508,7 @@ MpFlowGraphBase* MpMediaTask::mediaInfo(void)
       osPrintf("    Focus:        %p\n", pFlowGraph);
 
    res = pMediaTask->getManagedFlowGraphs(flowGraphs, 20, numItems);
+   SIPX_UNUSED(res);
    for (i=0; i < numItems; i++)
       osPrintf("    FlowGraph[%d]: %p\n", i, flowGraphs[i]);
    return pFlowGraph;
@@ -1006,7 +1007,8 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
 
    {
       static int prev_mU = 12345, prev_SSM = 12345, prev_SSNQ = 12345;
-      if ((prev_mU!=messagesUsed) || (prev_SSM!=sSignalStartsMissed) || (prev_SSNQ!=sSignalStartsNotQueued) || (0 == (0xff & sSignalStartsQueued)))
+      if ((prev_mU!=messagesUsed) || (prev_SSM!=sSignalStartsMissed) || (prev_SSNQ!=sSignalStartsNotQueued) || (0 == (0xff & sSignalStartsQueued)) /* mod 256 */
+          || queueTime.seconds() || processTime.seconds() || ( queueTime.usecs() + processTime.usecs() > mLimitUsecs))
       {
          OsSysLog::add(FAC_MP, PRI_DEBUG,
             "Finished frame queued: %d.%06d processing: %d.%06d queued signals: %d missed: %d not queued: %d queued: %d",
