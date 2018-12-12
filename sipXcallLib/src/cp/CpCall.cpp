@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -197,8 +197,10 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
     CpMultiStringMessage* multiStringMessage = (CpMultiStringMessage*)&eventMessage;
 
     UtlBoolean processedMessage = TRUE;
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::handleMessage(%s) message type: %d subtype %d\n", 
-                  mName.data(), msgType, msgSubType);
+    int qCount = mIncomingQ.numMsgs();
+    int qMax = mIncomingQ.maxMsgs();
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::handleMessage(%s) message type: %d subtype %d queue: %d/%d\n", 
+                  mName.data(), msgType, msgSubType, qCount, qMax);
 
     switch(msgType)
     {
