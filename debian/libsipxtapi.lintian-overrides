@@ -1,0 +1,4 @@
+# package contains a collection of libraries that are highly interrelated during compilation and usage
+libsipxtapi binary: package-name-doesnt-match-sonames
+# the XML parser is not used, only the media stack
+libsipxtapi binary: embedded-library

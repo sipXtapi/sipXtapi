@@ -1,0 +1,66 @@
+
+Disambiguation
+--------------
+
+There have been two significant forks from the sipXtapi
+project, in addition to the continuous development of the original
+codebase.
+
+The sipXecs project maintains one fork and the other fork
+is promoted on Google Code.  Both of those forks use the
+same name for their project, but they are not immediately
+compatible.
+
+They each have their own mailing lists, forums and
+repositories.  For historic reasons, some of the real
+sipXtapi documentation points to a list archive
+URL that now redirects to the forums association with
+the sipXecs fork.
+
+The situation is discussed here:
+
+http://list.resiprocate.org/archive/recon-devel/msg00208.html
+
+and to summarise, here are the correct links:
+
+Project URL:
+   http://www.sipxtapi.org
+     (redirects to: http://sipxtapi.sipfoundry.org)
+
+Upstream VCS:
+   http://scm.sipfoundry.org/rep/sipX/main
+
+Github mirror of official upstream:
+   http://github.com/sipXtapi/sipXtapi-svn-mirror
+
+Mailing list:
+   http://lists.sipxtapi.org
+     (redirects to: http://groups.google.com/group/sipx)
+
+If creating links to this project, please use the sipxtapi.org
+URLs wherever possible.
+
+Repackaged upstream tarball
+---------------------------
+
+Upstream has not tagged or released an official tarball.
+Many users of this project have simply tracked SVN.
+
+The upstream repository has several directories each with
+similar build systems.
+
+In order to facilitate a smooth experience packaging this
+code for multiple platforms, Daniel Pocock has created
+a github fork of the project and added a top-level
+autotools configure script.  The fork is maintained here:
+
+   https://github.com/dpocock/sipXtapi3
+
+The source tarball for the Debian packages has been generated
+from the fork using `make dist' at the top level.
+
+The improvements have been offered to the upstream developers
+under the LGPL license terms of the project and will
+eventually be integrated upstream.
+
+

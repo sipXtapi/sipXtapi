@@ -1,0 +1,15 @@
+diff --git a/sipXsdpLib/src/sdp/SdpDefaultCodecFactory.cpp b/sipXsdpLib/src/sdp/SdpDefaultCodecFactory.cpp
+index e44415d..1b6bee4 100644
+--- a/sipXsdpLib/src/sdp/SdpDefaultCodecFactory.cpp
++++ b/sipXsdpLib/src/sdp/SdpDefaultCodecFactory.cpp
+@@ -118,8 +118,8 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
+ 
+ static MpCodecNamesMapElement sgCodecNamesMap[] =
+ {
+-   { SdpCodec::SDP_CODEC_TONES,           "TELEPHONE-EVENT" },
+-   { SdpCodec::SDP_CODEC_TONES,           "AUDIO/TELEPHONE-EVENT" },
++   { SdpCodec::SDP_CODEC_TONES,           "telephone-event" },
++   { SdpCodec::SDP_CODEC_TONES,           "audio/telephone-event" },
+    { SdpCodec::SDP_CODEC_TONES,           "AVT-TONES" },
+    { SdpCodec::SDP_CODEC_TONES,           "AVT" },
+    { SdpCodec::SDP_CODEC_PCMU,            "PCMU" },

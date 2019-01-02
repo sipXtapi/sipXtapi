@@ -1,0 +1,40 @@
+Source: sipxtapi
+Section: libs
+Priority: extra
+Maintainer: Debian VoIP Team <pkg-voip-maintainers@lists.alioth.debian.org>
+Uploaders: Daniel Pocock <daniel@pocock.pro>
+Build-Depends: debhelper (>= 9.0.0), libssl-dev, libcppunit-dev, autotools-dev, automake, libpcre3-dev, dpkg-dev (>= 1.16.1~), dh-autoreconf, libxerces-c-dev, pkg-config, libgsm1-dev, libspandsp-dev, libspeexdsp-dev, doxygen, libopus-dev
+Homepage: http://www.sipxtapi.org
+Standards-Version: 3.9.6
+Vcs-Git: git://anonscm.debian.org/pkg-voip/sipxtapi.git
+Vcs-Browser: https://anonscm.debian.org/cgit/pkg-voip/sipxtapi.git
+
+Package: libsipxtapi
+Architecture: linux-any
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: SIP stack, RTP media framework and codecs
+ sipXtapi is a framework that makes it easy to construct SIP user agents,
+ including softphones and telephony servers.
+ .
+ This package provides the libraries for dynamic linking.
+
+Package: libsipxtapi-dev
+Section: libdevel
+Architecture: linux-any
+Depends: libsipxtapi (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: SIP stack, RTP media framework and codecs (headers)
+ sipXtapi is a framework that makes it easy to construct SIP user agents,
+ including softphones and telephony servers.
+ .
+ This package provides headers and resources for development.
+
+Package: libsipxtapi-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Description: SIP stack, RTP media framework and codecs (API documentation)
+ sipXtapi is a framework that makes it easy to construct SIP user agents,
+ including softphones and telephony servers.
+ .
+ This package provides developer documentation about the API.

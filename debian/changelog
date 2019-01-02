@@ -1,0 +1,101 @@
+sipxtapi (3.3.0~test18-1) unstable; urgency=high
+
+  * New upstream release
+
+ -- Daniel Pocock <daniel@pocock.pro>  Wed, 02 Jan 2019 22:13:31 +0100
+
+sipxtapi (3.3.0~test17-4) unstable; urgency=high
+
+  * Patch to disable AGC in bridge mixer
+  * Write telephone-event in lowercase to work around Polycom
+    case-sensitivity issue.
+
+ -- Daniel Pocock <daniel@pocock.pro>  Thu, 15 Nov 2018 22:30:02 +0000
+
+sipxtapi (3.3.0~test17-3) unstable; urgency=high
+
+  [ Rene Engelhard ]
+  * use PKG_CHECK_MODULES instead of AM_PATH_CPPUNIT (Closes: #862127)
+
+  [ Daniel Pocock ]
+  * adapt for OpenSSL 1.1. (Closes: #850898)
+
+ -- Daniel Pocock <daniel@pocock.pro>  Fri, 13 Apr 2018 22:49:44 +0200
+
+sipxtapi (3.3.0~test17-2.1) unstable; urgency=medium
+
+  [ Bernhard Schmidt ]
+  * Non-Maintainer Upload
+  * Build with OpenSSL 1.0.2 for now, downgrades #828546
+
+ -- Bernhard Schmidt <berni@debian.org>  Sun, 04 Dec 2016 22:32:30 +0100
+
+sipxtapi (3.3.0~test17-2) unstable; urgency=high
+
+  * Fix gcc6 issue. (Closes: #811725)
+
+ -- Daniel Pocock <daniel@pocock.pro>  Fri, 16 Sep 2016 23:50:20 +0200
+
+sipxtapi (3.3.0~test17-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Daniel Pocock <daniel@pocock.pro>  Thu, 10 Apr 2014 00:21:37 +0200
+
+sipxtapi (3.3.0~test16-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Daniel Pocock <daniel@pocock.pro>  Wed, 09 Apr 2014 16:51:55 +0200
+
+sipxtapi (3.3.0~test15-1) unstable; urgency=medium
+
+  * New upstream release
+  * Option to disable inband DTMF tones.
+
+ -- Daniel Pocock <daniel@pocock.pro>  Tue, 25 Mar 2014 17:07:36 +0100
+
+sipxtapi (3.3.0~test14-1) unstable; urgency=medium
+
+  * New upstream release
+  * Fixes support for G.722 RTP clock rate as per RFC 3551 s4.5.2.
+
+ -- Daniel Pocock <daniel@pocock.pro>  Sun, 23 Mar 2014 09:34:49 +0100
+
+sipxtapi (3.3.0~test13-2) unstable; urgency=medium
+
+  * Use dh-autoreconf
+
+ -- Daniel Pocock <daniel@pocock.pro>  Sun, 23 Mar 2014 08:10:29 +0100
+
+sipxtapi (3.3.0~test13-1) unstable; urgency=medium
+
+  * New upstream release
+  * Compile with speex support enabled (also enables speexdsp resampling
+    for other codecs).
+
+ -- Daniel Pocock <daniel@pocock.pro>  Sat, 22 Mar 2014 23:50:49 +0100
+
+sipxtapi (3.3.0~test12-2) unstable; urgency=high
+
+  * Only supported on Linux for now
+
+ -- Daniel Pocock <daniel@pocock.com.au>  Fri, 06 Sep 2013 13:15:00 +0200
+
+sipxtapi (3.3.0~test12-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Daniel Pocock <daniel@pocock.com.au>  Wed, 07 Aug 2013 23:39:32 +0200
+
+sipxtapi (3.3.0~test11-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Daniel Pocock <daniel@pocock.com.au>  Tue, 06 Aug 2013 22:42:37 +0200
+
+sipxtapi (3.3.0~test9-1) unstable; urgency=low
+
+  * Initial release (Closes: #706613)
+
+ -- Daniel Pocock <daniel@pocock.com.au>  Sun, 05 May 2013 18:33:33 +0200
