@@ -430,6 +430,9 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
         szBindToAddr = "0.0.0.0" ;
     }
 
+    // Default energy level notification period mSec.
+    pInst->nEnergyLevelNotificationPeriodMs = 1000;
+
     // Bind the SIP user agent to a port and start it up
     pInst->pSipUserAgent = new SipUserAgent(
             tcpPort,                    // sipTcpPort
@@ -1028,14 +1031,51 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
                     // If energy level notifications are turned on
                     if(pInst->nEnergyLevelNotificationPeriodMs > 0)
                     {
-                        // get flowgraph queue to post message on
-                        OsMsgQ* flowgraphQueue = sipxCallGetMediaConrolQueue(hCall);
-                        if(flowgraphQueue)
+                        OsMsgQ tempQueue;
+                        // Create and send message to turn on Mic energy notifications
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallAccept: Setting speaker energy notificiation: %s period: %d",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                      pInst->nEnergyLevelNotificationPeriodMs);
+                        MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                                              tempQueue,
+                                                              pInst->nEnergyLevelNotificationPeriodMs);
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallAccept: Setting mic energy notificiation: %s period: %d",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                      pInst->nEnergyLevelNotificationPeriodMs);
+                        MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                              tempQueue,
+                                                              pInst->nEnergyLevelNotificationPeriodMs);
+
+                        OsMsg* flowgraphMessage = NULL;
+                        tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
+                        while(flowgraphMessage)
                         {
-                            // Create and send message to turn on Mic energy notifications
-                            MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
-                                                                  *flowgraphQueue,
-                                                                  pInst->nEnergyLevelNotificationPeriodMs);
+                            pInst->pCallManager->sendFlowgraphMessage(callId.data(), *flowgraphMessage);
+                            tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
+                        }
+                    }
+                    else
+                    {
+                        OsMsgQ tempQueue;
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallAccept: Disabling speaker energy notificiation: %s",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX);
+                        MpResource::setNotificationsEnabled(FALSE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                                            tempQueue);
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallAccept: Disabling mic energy notificiation: %s",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX);
+                        MpResource::setNotificationsEnabled(FALSE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                            tempQueue);
+
+                        OsMsg* flowgraphMessage = NULL;
+                        tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
+                        while(flowgraphMessage)
+                        {
+                            pInst->pCallManager->sendFlowgraphMessage(callId.data(), *flowgraphMessage);
+                            tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
                         }
                     }
  
@@ -1059,21 +1099,50 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
                     // If energy level notifications are turned on
                     if(pInst->nEnergyLevelNotificationPeriodMs > 0)
                     {
+                        // Create and send messages to turn on Mic and Speaker energy notifications
                         OsMsgQ tempQueue;
-                        // Create and send message to turn on Mic energy notifications
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallAccept: Setting speaker energy notificiation: %s period: %d",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                      pInst->nEnergyLevelNotificationPeriodMs);
+                        MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                                                  tempQueue,
+                                                                  pInst->nEnergyLevelNotificationPeriodMs);
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallAccept: Setting mic energy notificiation: %s period: %d",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                      pInst->nEnergyLevelNotificationPeriodMs);
                         MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
                                                                   tempQueue,
                                                                   pInst->nEnergyLevelNotificationPeriodMs);
 
                         OsMsg* flowgraphMessage = NULL;
                         tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
-                        if(flowgraphMessage)
+                        while(flowgraphMessage)
                         {
                             pInst->pCallManager->sendFlowgraphMessage(callId.data(), *flowgraphMessage);
+                            tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
                         }
-                        else
+                    }
+                    else
+                    {
+                        OsMsgQ tempQueue;
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallAccept: Disabling speaker energy notificiation: %s",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX);
+                        MpResource::setNotificationsEnabled(FALSE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                                            tempQueue);
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallAccept: Disabling mic energy notificiation: %s",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX);
+                        MpResource::setNotificationsEnabled(FALSE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                            tempQueue);
+                        OsMsg* flowgraphMessage = NULL;
+                        tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
+                        while(flowgraphMessage)
                         {
-                            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "sipxCallAccept failed to create MprVoiceActivityNotifier message");
+                            pInst->pCallManager->sendFlowgraphMessage(callId.data(), *flowgraphMessage);
+                            tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
                         }
                     }
 
@@ -1288,14 +1357,52 @@ static SIPX_RESULT sipxCallCreateHelper(const SIPX_INST hInst,
                     // If energy level notifications are turned on
                     if(pInst->nEnergyLevelNotificationPeriodMs > 0)
                     {
-                        // get flowgraph queue to post message on
-                        OsMsgQ* flowgraphQueue = sipxCallGetMediaConrolQueue(*phCall);
-                        if(flowgraphQueue)
+                        OsMsgQ tempQueue;
+                        // Create and send message to turn on Mic energy notifications
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallCreateHelper: Setting speaker energy notificiation: %s period: %d",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                      pInst->nEnergyLevelNotificationPeriodMs);
+                        MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                                                          tempQueue,
+                                                                          pInst->nEnergyLevelNotificationPeriodMs);
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallCreateHelper: Setting mic energy notificiation: %s period: %d",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                      pInst->nEnergyLevelNotificationPeriodMs);
+                        MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                                          tempQueue,
+                                                                          pInst->nEnergyLevelNotificationPeriodMs);
+
+                        OsMsg* flowgraphMessage = NULL;
+                        tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
+                        while(flowgraphMessage)
                         {
-                            // Create and send message to turn on Mic energy notifications
-                            MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
-                                                                              *flowgraphQueue,
-                                                                              pInst->nEnergyLevelNotificationPeriodMs);
+                            pInst->pCallManager->sendFlowgraphMessage(pData->callId->data(), *flowgraphMessage);
+                            tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
+                        }
+                    }
+                    else
+                    {
+                        // get flowgraph queue to post message on
+                        OsMsgQ tempQueue;
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallCreateHelper: Disabling speaker energy notificiation: %s",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX);
+                        MpResource::setNotificationsEnabled(FALSE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                                            tempQueue);
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallCreateHelper: Disabling mic energy notificiation: %s",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX);
+                        MpResource::setNotificationsEnabled(FALSE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                            tempQueue);
+
+                        OsMsg* flowgraphMessage = NULL;
+                        tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
+                        while(flowgraphMessage)
+                        {
+                            pInst->pCallManager->sendFlowgraphMessage(pData->callId->data(), *flowgraphMessage);
+                            tempQueue.receive(flowgraphMessage, OsTime::NO_WAIT_TIME);
                         }
                     }
                 }
@@ -1575,12 +1682,43 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                 {
                     // get flowgraph queue to post message on
                     OsMsgQ* flowgraphQueue = sipxCallGetMediaConrolQueue(hCall);
+                    assert(flowgraphQueue);
                     if(flowgraphQueue)
                     {
                         // Create and send message to turn on Mic energy notifications
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallConnect: Setting speaker energy notificiation: %s period: %d",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                      pInst->nEnergyLevelNotificationPeriodMs);
+                        MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                                                          *flowgraphQueue,
+                                                                          pInst->nEnergyLevelNotificationPeriodMs);
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallConnect: Setting mic energy notificiation: %s period: %d",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                      pInst->nEnergyLevelNotificationPeriodMs);
                         MprVoiceActivityNotifier::chageNotificationPeriod(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
                                                                           *flowgraphQueue,
                                                                           pInst->nEnergyLevelNotificationPeriodMs);
+                    }
+                }
+                else
+                {
+                    // get flowgraph queue to post message on
+                    OsMsgQ* flowgraphQueue = sipxCallGetMediaConrolQueue(hCall);
+                    assert(flowgraphQueue);
+                    if(flowgraphQueue)
+                    {
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallConnect: Disabling speaker energy notificiation: %s",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX);
+                        MpResource::setNotificationsEnabled(FALSE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME SPEAKER_NAME_SUFFIX,
+                                                            *flowgraphQueue);
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                      "sipxCallConnect: Disabling mic energy notificiation: %s",
+                                      DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX);
+                        MpResource::setNotificationsEnabled(FALSE, DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME MIC_NAME_SUFFIX,
+                                                            *flowgraphQueue);
                     }
                 }
             }
