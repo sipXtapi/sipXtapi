@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2015-2019 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // DEFINES
+#undef min
 #define min(X, Y) (X < Y ? X : Y)
 
 // STATIC VARIABLE INITIALIZATIONS
