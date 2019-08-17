@@ -1,3 +1,9 @@
+sipxtapi (3.3.0~test18-1~bpo9+1) stretch-backports; urgency=high
+
+  * Build for stretch-backports.
+
+ -- Daniel Pocock <daniel@pocock.pro>  Sat, 17 Aug 2019 21:10:52 +0200
+
 sipxtapi (3.3.0~test18-1) unstable; urgency=high
 
   * New upstream release
