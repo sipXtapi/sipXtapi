@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2017 SIPez LLC. 
+// Copyright (C) 2007-2019 SIPez LLC.  All rights reserved. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -135,7 +135,7 @@ public:
                                 OUTPUT_DRIVER_CONSTRUCTOR_PARAMS_OSS);
       driverCount++;
 #else
-      drivers[driverCount] = new OUTPUT_DRIVER device(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+      drivers[driverCount] = new OUTPUT_DRIVER (OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       driverCount++;
 #endif
       return(driverCount);
