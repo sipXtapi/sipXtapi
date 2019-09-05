@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2012 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2019 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2513,7 +2513,7 @@ void SipMessage::setWarningField(int code, const char* hostname, const char* tex
    else
    {
       OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "SipMessage::setWarningField value too large (max %"PRIuPTR") host '%s' text '%s'",
+                    "SipMessage::setWarningField value too large (max %" PRIuPTR ") host '%s' text '%s'",
                     allocated, hostname, text);
    }
 }
