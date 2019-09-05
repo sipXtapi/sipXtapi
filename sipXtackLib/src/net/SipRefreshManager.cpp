@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -581,7 +583,7 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
             else
             {
                 OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "SipRefreshManager::handleMessage timer: %"PRIxPTR" does not match states timer: %p",
+                    "SipRefreshManager::handleMessage timer: %" PRIxPTR " does not match states timer: %p",
                     eventData, state->mpRefreshTimer);
             }
         }
