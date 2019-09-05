@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1083,9 +1083,15 @@ int local_main(int argc, char* argv[])
         // Set the codec path if provided
         if(szCodecPath)
         {
+#ifdef WIN32
+            // PlaceCall uses sipXtapi DLL which does not expose internal methods.
+            printf("Codec path not supported in PlaceCall on WIN32\n \"%s\" not set\n", szCodecPath);
+#else
+
             UtlString path(szCodecPath);
             printf("Adding \"%s\" to codec path\n", path.data());
             CpMediaInterfaceFactoryImpl::addCodecPaths(1, &path);
+#endif
         }
 
         printf("Attempting to use audio device sample rate: %d samples/sec.\n", deviceRate);
