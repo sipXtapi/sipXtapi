@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2008 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2019 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -490,7 +489,7 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
       thisHost.replace('@','*');
 
       // Compose the static fields.
-      sprintf(buffer, "%d_%"PRId64"_%s",
+      sprintf(buffer, "%d_%" PRId64 "_%s",
               process_id, start_time, thisHost.data());
       // Hash them.
       NetMd5Codec encoder;
@@ -508,7 +507,7 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    }
 
    // Compose the new Call-Id.
-   sprintf(buffer, "%s_%"PRId64"d_%s",
+   sprintf(buffer, "%s_%" PRId64 "d_%s",
            callIdPrefix, mCallNum, suffix.data());
 
    // Copy it to the destination.
