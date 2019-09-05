@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2019 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -6186,7 +6186,7 @@ void SipConnection::sendVoiceQualityReport(const char* szTargetSipUrl)
             thisHost.replace('@','*');
 
             // Compose the static fields.
-            sprintf(buffer, "%d_%"PRId64"d_%s",
+            sprintf(buffer, "%d_%" PRId64 "d_%s",
                     process_id, start_time, thisHost.data());
             // Hash them.
             NetMd5Codec encoder;
