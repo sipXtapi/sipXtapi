@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2018 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2019 SIPez LLC. All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -1288,15 +1288,14 @@ int CpTopologyGraphFactoryImpl::getInputDeviceList(UtlContainer& deviceNames)
 #elif defined(WIN32)
     // TODO move this code to MpidWinMM::getInputDeviceNames
     WAVEINCAPS  inputCaps;
-    int numDevices;
 
     int numDevices = waveInGetNumDevs();
     for (int deviceIndex = 0; deviceIndex < numDevices; deviceIndex++)
     {
         waveInGetDevCaps(deviceIndex, &inputCaps, sizeof(WAVEINCAPS));
-        if(inputCap.szPname && inputCaps.szPname[0])
+        if(inputCaps.szPname && inputCaps.szPname[0])
         {
-            deviceNames.insert(new UtlString(inputCaps.szPname);
+            deviceNames.insert(new UtlString(inputCaps.szPname));
             deviceCount++;
         }
     }
@@ -1339,15 +1338,14 @@ int CpTopologyGraphFactoryImpl::getOutputDeviceList(UtlContainer& deviceNames)
 #elif defined(WIN32)
     // TODO move this code to MpodWinMM::getOutputDeviceNames
     WAVEOUTCAPS  outputCaps;
-    int numDevices;
 
     int numDevices = waveOutGetNumDevs();
     for (int deviceIndex = 0; deviceIndex < numDevices; deviceIndex++)
     {
         waveOutGetDevCaps(deviceIndex, &outputCaps, sizeof(WAVEOUTCAPS));
-        if(outputCap.szPname && outputCaps.szPname[0])
+        if(outputCaps.szPname && outputCaps.szPname[0])
         {
-            deviceNames.insert(new UtlString(outputCaps.szPname);
+            deviceNames.insert(new UtlString(outputCaps.szPname));
             deviceCount++;
         }
     }
