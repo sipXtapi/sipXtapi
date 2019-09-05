@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2019 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -103,7 +103,7 @@ bool XmlRpcBody::addValue(UtlContainable* value)
       UtlLongLongInt* pValue = (UtlLongLongInt *)value;
       // always encode these in hex - more readable for values this big
       char temp[19];
-      sprintf(temp, "%0#16"PRIx64, pValue->getValue());
+      sprintf(temp, "%0#16" PRIx64, pValue->getValue());
       paramValue.append(BEGIN_I8);
       paramValue.append(temp);
       paramValue.append(END_I8);
