@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2017 SIPez LLC  All rights reserved.
+// Copyright (C) 2007-2019 SIPez LLC  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -494,7 +494,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
     contentKey.append(eventTypeKey);
 
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipSubscriptionMgr::createNotifiesDialogInfo try to find contentKey '%s' in mSubscriptionStateResourceIndex (%"PRIuPTR" entries)",
+                 "SipSubscriptionMgr::createNotifiesDialogInfo try to find contentKey '%s' in mSubscriptionStateResourceIndex (%" PRIuPTR " entries)",
                  contentKey.data(), mSubscriptionStateResourceIndex.entries());
 
     lock();
