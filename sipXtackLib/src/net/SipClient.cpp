@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -528,7 +528,7 @@ int SipClient::run(void* runArg)
                                   // for TCP or TLS.
                                   (clientSocket->getIpProtocol() ==
                                    OsSocket::UDP) ? PRI_ERR : PRI_DEBUG,
-                                  "SipClient::run buffer residual bytes: %"PRIuPTR"\n===>%s<===\n",
+                                  "SipClient::run buffer residual bytes: %" PRIuPTR "\n===>%s<===\n",
                                   buffer.length(), buffer.data());
                 }
             } 
