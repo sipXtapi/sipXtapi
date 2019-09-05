@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -4420,7 +4420,7 @@ void SipTransaction::toString(UtlString& dumpString,
     dumpString.append(numBuffer);
     if(mWaitingList)
     {
-        sprintf(numBuffer, "(%"PRIuPTR")", mWaitingList->entries());
+        sprintf(numBuffer, "(%" PRIuPTR ")", mWaitingList->entries());
         dumpString.append(numBuffer);
     }
 
