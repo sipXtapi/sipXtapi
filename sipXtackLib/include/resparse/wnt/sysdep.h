@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -104,6 +103,10 @@ do { \
                         * Probably types.h does not include WCHAR */
 
 #include <winsock2.h> /* For NT socket */
+
+#if (_MSC_VER > 1900)
+#  define _TIMESPEC_T
+#endif
 
 #ifndef WINCE
 #   include <sys/timeb.h> /* For _ftime() */
