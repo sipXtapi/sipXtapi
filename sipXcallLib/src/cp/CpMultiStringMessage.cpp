@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -214,37 +216,37 @@ void CpMultiStringMessage::toString(UtlString& dumpString, const char* term) con
     char intDataString[100];
     if(mInt1)
     {
-        sprintf(intDataString, "Int1: %"PRIdPTR, mInt1);
+        sprintf(intDataString, "Int1: %" PRIdPTR, mInt1);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt2)
     {
-        sprintf(intDataString, "Int2: %"PRIdPTR, mInt2);
+        sprintf(intDataString, "Int2: %" PRIdPTR, mInt2);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt3)
     {
-        sprintf(intDataString, "Int3: %"PRIdPTR, mInt3);
+        sprintf(intDataString, "Int3: %" PRIdPTR, mInt3);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt4)
     {
-        sprintf(intDataString, "Int4: %"PRIdPTR, mInt4);
+        sprintf(intDataString, "Int4: %" PRIdPTR, mInt4);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt5)
     {
-        sprintf(intDataString, "Int5: %"PRIdPTR, mInt5);
+        sprintf(intDataString, "Int5: %" PRIdPTR, mInt5);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt6)
     {
-        sprintf(intDataString, "Int6: %"PRIdPTR, mInt6);
+        sprintf(intDataString, "Int6: %" PRIdPTR, mInt6);
         dumpString += intDataString;
         dumpString += terminator;
     }
