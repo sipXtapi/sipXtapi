@@ -1,0 +1,20 @@
+# Process with doxygen to generate API documentation
+
+PROJECT_NAME           = libopusenc
+PROJECT_NUMBER         = 0.2.1
+PROJECT_BRIEF          = "Stand-alone encoder library for .opus files."
+INPUT                  = ../include/opusenc.h
+OPTIMIZE_OUTPUT_FOR_C  = YES
+
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+
+JAVADOC_AUTOBRIEF      = YES
+SORT_MEMBER_DOCS       = NO
+
+HAVE_DOT               = yes
+
+PROJECT_LOGO           = ../doc/opus_logo.svg

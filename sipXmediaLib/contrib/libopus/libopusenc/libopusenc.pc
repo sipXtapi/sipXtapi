@@ -1,0 +1,16 @@
+# libopusenc installed pkg-config file
+
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libopusenc
+Description: High-level Opus encoding library
+URL: https://opus-codec.org/
+Version: 0.2.1
+Requires.private: opus >= 1.1
+Conflicts:
+Libs: -L${libdir} -lopusenc
+Libs.private: -lm
+Cflags: -I${includedir}/opus

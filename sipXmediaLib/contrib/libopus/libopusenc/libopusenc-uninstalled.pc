@@ -1,0 +1,15 @@
+# libopusenc uninstalled pkg-config file
+
+prefix=
+exec_prefix=
+libdir=${pcfiledir}/.libs
+includedir=${pcfiledir}/./include
+
+Name: libopusenc uninstalled
+Description: High-level Opus encoding library (not installed)
+URL: https://opus-codec.org/
+Version: 0.2.1
+Requires.private: opus >= 1.1
+Conflicts:
+Libs: ${libdir}/libopusenc.la -lm
+Cflags: -I${includedir}
