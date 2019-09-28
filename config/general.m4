@@ -1334,11 +1334,11 @@ AC_DEFUN([AM_SET_OPUS],
 # Currently only opus in contrib supported
     PLUGINS="${PLUGINS} opus"
 
-    OPUS_INCLUDE='-I${top_srcdir}/contrib/libopus -I${top_srcdir}/contrib/libopus/opus/include'
+    OPUS_INCLUDE='-I${top_srcdir}/contrib/libopus -I${top_srcdir}/contrib/libopus/opus/include -I${top_srcdir}/contrib/libopus/libopusenc/include -I${top_srcdir}/contrib/libopus/opusfile/include -I${top_srcdir}/contrib/libopus/libogg/include'
     OPUS_LIB_ROOT="${PWD}/contrib/libopus/opus"
     OPUS_LIB_TARGET="lib/libopus.a"
     OPUS_TARGET="plgopus"
-    OPUS_STATIC_LIB='${top_builddir}/contrib/libopus/opus/.libs/libopus.a'
+    OPUS_STATIC_LIB='${top_builddir}/contrib/libopus/libopusenc/.libs/libopusenc.a ${top_builddir}/contrib/libopus/opusfile/.libs/libopusfile.a ${top_builddir}/contrib/libopus/opus/.libs/libopus.a  ${top_builddir}/contrib/libopus/libogg/src/.libs/libogg.a'
     AC_SUBST(OPUS_INCLUDE)
     AC_SUBST(OPUS_LIB_ROOT)    
     AC_SUBST(OPUS_LIB_TARGET)    
