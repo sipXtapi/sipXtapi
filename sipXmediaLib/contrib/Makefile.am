@@ -79,7 +79,7 @@ libopus/libogg/Makefile: $(top_srcdir)/contrib/libopus/libogg/configure
 libopus/opusfile/Makefile: $(top_srcdir)/contrib/libopus/opusfile/configure 
 	pwd
 	if [ ! -d libopus/opusfile ]; then mkdir -p libopus/opusfile; fi
-	(cd libopus/opusfile;PKG_CONFIG_PATH="../../$(top_srcdir)/contrib/libopus/libogg:../../$(top_srcdir)/contrib/libopus/opus" ../../$(top_srcdir)/contrib/libopus/opusfile/configure $(OPUS_CONFIG_ARGS))
+	(cd libopus/opusfile;PKG_CONFIG_PATH="../../$(top_srcdir)/contrib/libopus/libogg:../../$(top_srcdir)/contrib/libopus/opus" ../../$(top_srcdir)/contrib/libopus/opusfile/configure --disable-http $(OPUS_CONFIG_ARGS))
 
 libopus/libopusenc/Makefile: $(top_srcdir)/contrib/libopus/libopusenc/configure 
 	pwd
