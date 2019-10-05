@@ -35,9 +35,188 @@ const char* testFileTypeStrings[] =
      "WAV_GSM"
 };
     
+#define OPUS_FILE_RECORD_ENABLED
+#ifdef OPUS_FILE_RECORD_ENABLED
+#include <opusenc.h>
+#include <opusfile.h>
+
+struct SipxOpusWriteFile
+{
+    int mWriteFd;
+};
+
+static int testOpusWrite(void* fileInfo, const unsigned char* data, int32_t length)
+{
+    int result = 0;
+    CPPUNIT_ASSERT(fileInfo);
+    struct SipxOpusWriteFile* fileHandleObject = (struct SipxOpusWriteFile*) fileInfo;
+    int bytesWritten = write(fileHandleObject->mWriteFd, data, length);
+
+    if(bytesWritten != length)
+    {
+        result = errno;
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "testOpusWrite write to fd: %d failed, wrote %d of %d bytes\n", 
+                      fileHandleObject->mWriteFd, bytesWritten, length);
+        printf("testOpusWrite write to fd: %d failed, wrote %d of %d bytes\n", 
+               fileHandleObject->mWriteFd, bytesWritten, length);
+    }
+    else
+    {
+        printf("testOpusWrite %d bytes to fd: %d\n", 
+               bytesWritten, fileHandleObject->mWriteFd);
+    }
+
+    CPPUNIT_ASSERT_EQUAL(0, result);
+    return(result);
+}
+
+static int testOpusCloseFile(void* fileInfo)
+{
+    int result = 1;
+    CPPUNIT_ASSERT(fileInfo);
+    struct SipxOpusWriteFile* fileHandleObject = (struct SipxOpusWriteFile*) fileInfo;
+    if(fileHandleObject && fileHandleObject->mWriteFd)
+    {
+        result = close(fileHandleObject->mWriteFd);
+        CPPUNIT_ASSERT_EQUAL(0, result);
+    }
+
+    return(result);
+}
+
+static const OpusEncCallbacks testOpusFileCallbackss =
+{
+    testOpusWrite,
+    testOpusCloseFile
+};
+
+OsStatus validateOpusHeader(int inFileFd, OpusHead& opusHeader)
+{
+    OsStatus status = OS_FILE_INVALID_HANDLE;
+    unsigned char headerBuffer[57];
+    // Opus file can be appended.  So headers can exist anywhere in the file.
+    // Keep the current position so that we can restore it after validating the
+    // header.
+    uint64_t currentPos = lseek(inFileFd, 0, SEEK_CUR);
+    if(currentPos < 0)
+    {
+        status = OS_FILE_SEEK_ERROR;
+    }
+    CPPUNIT_ASSERT(currentPos >= 0);
+
+    int bytesRead = read(inFileFd, headerBuffer, sizeof(headerBuffer));
+    if(bytesRead < 47)
+    {
+        status = OS_INVALID_LENGTH;
+    }
+    CPPUNIT_ASSERT(bytesRead >= 47);
+
+    if(bytesRead > 0)
+    {
+        int result = op_test(&opusHeader, headerBuffer, bytesRead);
+        CPPUNIT_ASSERT_EQUAL(0, result);
+
+        if(result == 0)
+        {
+            status = OS_SUCCESS;
+        }
+
+        // Reposition back where we were so there is not impact on file position
+        uint64_t resetPos = lseek(inFileFd, currentPos, SEEK_SET);
+        if(resetPos < 0)
+        {
+            status = OS_FILE_SEEK_ERROR;
+        }
+        CPPUNIT_ASSERT_EQUAL(currentPos, resetPos);
+    }    
+    return(status);
+}
+
+int openOpusFileForRecord(const char* filename, 
+                          int32_t sampleRate, 
+                          int channels, 
+                          UtlBoolean append, 
+                          const char* artist, 
+                          const char* title,
+                          OggOpusComments*& freeWhenDoneComments,
+                          OggOpusEnc** encoder)
+{
+    int error = 0;
+
+    // May need to change this to 1 or 255
+    // 0 = mono or sterio
+    // 1 = 1-255 channels using Vorbis channel mappings
+    // 255 = 1-255 channels not using any particular channel mappings
+    int family = 0;
+    *encoder = NULL;
+    struct SipxOpusWriteFile* fileObj = (struct SipxOpusWriteFile*) malloc(sizeof(*fileObj));
+    fileObj->mWriteFd = -1;
+    OggOpusComments* comments = ope_comments_create();
+    ope_comments_add(comments, "ARTIST", artist);
+    ope_comments_add(comments, "TITLE", title);
+
+    int recordFileFd =  open(filename, O_BINARY | O_CREAT | O_RDWR |
+                       // If append requested open with append mode
+                       (append ?
+                        0 /* O_APPEND */: // cannot use APPEND mode as when we try to
+                                          // re-write the wave file header in the beginning
+                                          // it ends up appending the writes at the end of
+                                          // of the file instead in the beginning where it
+                                          // was positioned to via lseek (on Linux anyway)
+                        O_TRUNC),
+                       0640);
+    if(recordFileFd < 0)
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "MprRecorder::startFile() failed to open file %s, error code is %i",
+                      filename, errno);
+    }
+    else
+    {
+        fileObj->mWriteFd = recordFileFd;
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "MprRecorder::startFile() opened file %s as fd: %d",
+                      filename, recordFileFd);
+
+        *encoder = ope_encoder_create_callbacks(&testOpusFileCallbackss, fileObj, comments, sampleRate, channels, family, &error);
+        if(error)
+        {
+            if(encoder) 
+            {
+                ope_encoder_destroy(*encoder);
+                *encoder = NULL;
+            }
+        }
+        else
+        {
+            printf("created encoder: %p error: %d\n", encoder, error);
+            // These are safely attached to encoder.  So don't free them up until done encoding
+            fileObj = NULL;
+            freeWhenDoneComments = comments;
+            comments = NULL;
+        }
+
+    }
+
+    // Clean up in case of error
+    if(fileObj)
+    {
+        testOpusCloseFile(fileObj);
+        free(fileObj);
+    }
+    if(comments) ope_comments_destroy(comments);
+
+    return(error);
+}
+#endif
+
 class MprRecorderTest : public MpGenericResourceTest
 {
     CPPUNIT_TEST_SUITE(MprRecorderTest);
+#ifdef OPUS_FILE_RECORD_ENABLED
+    CPPUNIT_TEST(testConvertPcmToOpusFile);
+#endif
     CPPUNIT_TEST(testRecordToBadFile);
     CPPUNIT_TEST(testRecordToFile);
     CPPUNIT_TEST(testRecordToFileAppendNotExisting);
@@ -45,6 +224,76 @@ class MprRecorderTest : public MpGenericResourceTest
     CPPUNIT_TEST(testRecordChannelToFileAppend);
     CPPUNIT_TEST(testRecordToPauseResumeFile);
     CPPUNIT_TEST_SUITE_END();
+
+#ifdef OPUS_FILE_RECORD_ENABLED
+
+    void testConvertPcmToOpusFile()
+    {
+        const char* inFilename = "Rec_60hz_2ch_48k.raw";
+        const char* opusFilename = "Rec_60hz_2ch_48k.opus";
+        int sampleRate = 48000;
+        int channels = 2;
+        // 60 millisecond frame
+        MpAudioSample audioBuffer[channels * sampleRate * 60 / 1000];
+
+        int inFd =  open(inFilename, O_BINARY | O_RDONLY); 
+        CPPUNIT_ASSERT(inFd >= 0);
+
+        UtlBoolean append = 0;
+        //const char* artist = "foo";
+        const char* artist = "Someone";
+        //const char* title = "foos fallies";
+        const char* title = "Some track";
+        OggOpusComments* comments = NULL;
+        OggOpusEnc* encoder = NULL;
+        int result = openOpusFileForRecord(opusFilename, sampleRate, channels, append, artist, title, comments, &encoder);
+        CPPUNIT_ASSERT_EQUAL(0, result);
+        CPPUNIT_ASSERT(encoder);
+        CPPUNIT_ASSERT(comments);
+
+        int bytesRead = 0;
+        // Loop through chunks of audio
+        do
+        {
+            bytesRead = read(inFd, audioBuffer, sizeof(MpAudioSample) * 2 * 256);
+            printf("Read %d bytes\n", bytesRead);
+            if(bytesRead > 0)
+            {
+                result = ope_encoder_write(encoder, audioBuffer, bytesRead / (channels * sizeof(MpAudioSample)));
+                CPPUNIT_ASSERT_EQUAL(0, result);
+            }
+        }
+        while(bytesRead > 0);
+
+
+        // Close files
+        result = ope_encoder_drain(encoder);
+        CPPUNIT_ASSERT_EQUAL(0, result);
+
+        ope_encoder_destroy(encoder);
+        encoder = NULL;
+        ope_comments_destroy(comments);
+        comments = NULL;
+        close(inFd);
+
+
+        // Test header for new Opus file to determine that it is valid and what we expect
+        OpusHead opusHeader;
+        int opusFileReadFd =  open(opusFilename, O_BINARY | O_RDONLY); 
+        CPPUNIT_ASSERT(opusFileReadFd >= 0);
+        OsStatus status = validateOpusHeader(opusFileReadFd, opusHeader);
+        CPPUNIT_ASSERT_EQUAL(status, OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(channels, opusHeader.channel_count);
+        CPPUNIT_ASSERT_EQUAL(sampleRate, opusHeader.input_sample_rate);
+        CPPUNIT_ASSERT_EQUAL(1, opusHeader.version && 0x0f);
+        CPPUNIT_ASSERT_EQUAL(0, opusHeader.pre_skip);
+        // May need to change this to 1 or 255
+        CPPUNIT_ASSERT_EQUAL(0, opusHeader.mapping_family);
+        printf("Stream count: %d\n", opusHeader.stream_count);
+        printf("Coupled count: %d\n", opusHeader.coupled_count);
+
+    }
+#endif
 
     void testRecordToBadFile()
     {
