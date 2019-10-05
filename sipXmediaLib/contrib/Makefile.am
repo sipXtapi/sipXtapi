@@ -66,25 +66,67 @@ if OPUS
 OPUS_CONFIG_ARGS = --with-pic $(CONFIGURE_ARGS)
 
 # Opus targets
-libopus/opus/Makefile: $(top_srcdir)/contrib/libopus/opus/configure
+libopus/opus/Makefile: $(top_srcdir)/contrib/libopus/opus/configure 
 	pwd
 	if [ ! -d libopus/opus ]; then mkdir -p libopus/opus; fi
 	(cd libopus/opus; ../../$(top_srcdir)/contrib/libopus/opus/configure $(OPUS_CONFIG_ARGS))
+
+libopus/libogg/Makefile: $(top_srcdir)/contrib/libopus/libogg/configure 
+	pwd
+	if [ ! -d libopus/libogg ]; then mkdir -p libopus/libogg; fi
+	(cd libopus/libogg; ../../$(top_srcdir)/contrib/libopus/libogg/configure $(OPUS_CONFIG_ARGS))
+
+libopus/opusfile/Makefile: $(top_srcdir)/contrib/libopus/opusfile/configure 
+	pwd
+	if [ ! -d libopus/opusfile ]; then mkdir -p libopus/opusfile; fi
+	(cd libopus/opusfile;PKG_CONFIG_PATH="../../$(top_srcdir)/contrib/libopus/libogg:../../$(top_srcdir)/contrib/libopus/opus" ../../$(top_srcdir)/contrib/libopus/opusfile/configure $(OPUS_CONFIG_ARGS))
+
+libopus/libopusenc/Makefile: $(top_srcdir)/contrib/libopus/libopusenc/configure 
+	pwd
+	if [ ! -d libopus/libopusenc ]; then mkdir -p libopus/libopusenc; fi
+	(cd libopus/libopusenc;PKG_CONFIG_PATH="../../$(top_srcdir)/contrib/libopus/libogg:../../$(top_srcdir)/contrib/libopus/opus" ../../$(top_srcdir)/contrib/libopus/libopusenc/configure $(OPUS_CONFIG_ARGS))
 
 libopus/opus/.libs/libopus.so libopus/opus/libopus.la: libopus/opus/Makefile
 	pwd
 	$(MAKE) -C libopus/opus
 
+libopus/libogg/src/.libs/libogg.so libopus/libogg/libogg.la: libopus/libogg/Makefile
+	pwd
+	$(MAKE) -C libopus/libogg
+
+libopus/opusfile/.libs/libopusfile.so libopus/opusfile/libopusfile.la: libopus/opusfile/Makefile
+	pwd
+	$(MAKE) -C libopus/opusfile
+
+libopus/libopusenc/.libs/libopusenc.so libopus/libopusenc/libopusenc.la: libopus/libopusenc/Makefile
+	pwd
+	$(MAKE) -C libopus/libopusenc
+
 @DEFAULT_CODECS_PATH@/libopus.so: libopus/opus/.libs/libopus.so
 	cp -d libopus/opus/.libs/libopus.so* @DEFAULT_CODECS_PATH@/
 
-opus: @DEFAULT_CODECS_PATH@/libopus.so
+@DEFAULT_CODECS_PATH@/libogg.so: libopus/libogg/src/.libs/libogg.so
+	cp -d libopus/libogg/src/.libs/libogg.so* @DEFAULT_CODECS_PATH@/
 
-opus_clean: libopus/opus/Makefile
+@DEFAULT_CODECS_PATH@/libopusfile.so: libopus/opusfile/.libs/libopusfile.so
+	cp -d libopus/opusfile/.libs/libopusfile.so* @DEFAULT_CODECS_PATH@/
+
+@DEFAULT_CODECS_PATH@/libopusenc.so: libopus/libopusenc/.libs/libopusenc.so
+	cp -d libopus/libopusenc/.libs/libopusenc.so* @DEFAULT_CODECS_PATH@/
+
+opus: @DEFAULT_CODECS_PATH@/libopus.so @DEFAULT_CODECS_PATH@/libogg.so @DEFAULT_CODECS_PATH@/libopusfile.so @DEFAULT_CODECS_PATH@/libopusenc.so
+
+opus_clean: libopus/opus/Makefile libopus/libogg/Makefile
+	$(MAKE) -C libopus/libogg clean
 	$(MAKE) -C libopus/opus clean
+	$(MAKE) -C libopus/opusfile clean
+	$(MAKE) -C libopus/libopusenc clean
 
-opus_distclean: libopus/opus/Makefile
+opus_distclean: libopus/opus/Makefile libopus/libogg/Makefile
+	$(MAKE) -C libopus/libogg distclean
 	$(MAKE) -C libopus/opus distclean
+	$(MAKE) -C libopus/opusfile distclean
+	$(MAKE) -C libopus/libopusenc distclean
 
 ALL_TARGETS := $(ALL_TARGETS) opus
 
