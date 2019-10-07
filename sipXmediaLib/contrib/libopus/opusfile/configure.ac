@@ -72,20 +72,23 @@ AC_ARG_ENABLE([http],
   AS_HELP_STRING([--disable-http], [Disable HTTP support]),,
   enable_http=yes)
 
-AM_COND_IF(OP_WIN32,
-  AS_IF([test "$enable_http" != "no"],
-    AC_CHECK_HEADER([winsock2.h],,
-      AC_MSG_WARN([HTTP support requires a Winsock socket library.])
-      enable_http=no
-    )
-  ),
-  AS_IF([test "$enable_http" != "no"],
-    AC_CHECK_HEADER([sys/socket.h],,
-      AC_MSG_WARN([HTTP support requires a POSIX socket library.])
-      enable_http=no
-    )
-  )
-)
+dnl This seems to cause problems on slightly older versions of autotools
+dnl sipX disables http for its builds anyway
+dnl AM_COND_IF(OP_WIN32,
+dnl   AS_IF([test "$enable_http" != "no"],
+dnl     AC_CHECK_HEADER([winsock2.h],,
+dnl       AC_MSG_WARN([HTTP support requires a Winsock socket library.])
+dnl       enable_http=no
+dnl     )
+dnl   ),
+dnl   AS_IF([test "$enable_http" != "no"],
+dnl     AC_CHECK_HEADER([sys/socket.h],,
+dnl       AC_MSG_WARN([HTTP support requires a POSIX socket library.])
+dnl       enable_http=no
+dnl     )
+dnl   )
+dnl )
+
 AC_SEARCH_LIBS(ftime, [compat], , [enable_http=no])
 
 m4_ifndef([PKG_PROG_PKG_CONFIG],
