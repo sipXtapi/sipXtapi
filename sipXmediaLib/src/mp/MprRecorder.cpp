@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -116,6 +116,14 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
           numChannels = 1;
     }
 
+    if(numChannels > MAXIMUM_RECORDER_CHANNELS)
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                "MprRecord::startFile number of channels requested: %d exceeds maximum, assuming maximum: %d",
+                numChannels, MAXIMUM_RECORDER_CHANNELS);
+        numChannels = MAXIMUM_RECORDER_CHANNELS;
+    }
+
     if (NULL == filename)
     {
        result = OS_FAILED;
@@ -142,6 +150,10 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
         {
             if(append)
             {
+// TODO Opus
+// factor out case for WAV/Raw and Ogg/Opus
+// Create readOpusFileHeader
+
               RecordFileFormat waveFileCodec;
               uint16_t fileSamplesPerSecond;
               uint16_t fileChannels;
@@ -580,7 +592,8 @@ void MprRecorder::createEncoder(const char * mimeSubtype, unsigned int codecSamp
     if (mpEncoder == NULL)
     {
         OsSysLog::add(FAC_MP, PRI_ERR,
-            "MprRecorder::createEncoder failed to load the codec for MIME subtype '%s'. Perhaps the plugin is not loaded?",
+            "MprRecorder::createEncoder failed (status = %d) to load the codec for MIME subtype '%s'. Perhaps the plugin is not loaded?",
+            status,
             mimeSubtype);
         OsSysLog::flush();
     }
@@ -658,6 +671,11 @@ void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & code
         codecSampleRate = flowgraphSampleRate;
         break;
 
+   // TODO Opus:
+   // case MprRecorder::OGG_OPUS:
+   //     codecSampleRate = 48000;
+   // break;
+
     default:
         OsSysLog::add(FAC_MP, PRI_ERR,
             "MprRecorder::prepareEncoder invalid recording format: %d",
@@ -681,6 +699,10 @@ UtlBoolean MprRecorder::handleStartFile(int file,
                                         UtlBoolean append,
                                         int numChannels)
 {
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+        "MprRecorder::handleStartFile numChannels: %d MAXIMUM_RECORDER_CHANNELS: %d",
+        numChannels,
+        MAXIMUM_RECORDER_CHANNELS);
     // If the file descriptor is already set, its busy already recording.
     if(mFileDescriptor > -1)
     {
@@ -709,6 +731,10 @@ UtlBoolean MprRecorder::handleStartFile(int file,
     }
    unsigned int codecSampleRate;
    prepareEncoder(recFormat, codecSampleRate);
+
+// TODO Opus:
+   // if(mpRecordFormat == MprRecorder::OFF_OPUS)
+   // else
 
    // If we are creating a WAV file, write the header.
    // Otherwise we are writing raw PCM data to file.
@@ -1164,7 +1190,7 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
             }
             else
             {
-                // The upper lay does not know or care about resampling.
+                // The upper layer does not know or care about resampling.
                 // So we tell it that we encoded all of the samples passed in.
                 if(numSamplesEncoded == (int)numResampled)
                 {
@@ -1278,6 +1304,40 @@ int MprRecorder::writeFile(char* channelData[], int dataSize)
     }
 
     return(bytesWritten > 0 ? totalWritten : bytesWritten);
+}
+
+int MprRecorder::interlaceSamples(const char* samplesArrays[], int samplesPerChannel, int bytesPerSample, int channels, char* interlacedChannelSamplesArray, int interlacedArrayMaximum)
+{
+    int totalWritten = 0;
+
+    if(bytesPerSample > 0)
+    {
+        // Optimization:
+        if(channels == 1)
+        {
+            // Cause a single memcpy for the whole chunk
+            bytesPerSample = samplesPerChannel * bytesPerSample;
+            samplesPerChannel = 1;
+        }
+
+        // Interlace a sample from each channel
+        for(int dataIndex = 0; dataIndex < samplesPerChannel * bytesPerSample; dataIndex += bytesPerSample)
+        {
+            //  Need to write a sample from all channels or none
+            if(totalWritten + channels * bytesPerSample > interlacedArrayMaximum)
+            {
+                break;
+            }
+
+            for(int channelIndex = 0; channelIndex < channels; channelIndex++)
+            {
+                memcpy(&(interlacedChannelSamplesArray[totalWritten]), &((samplesArrays[channelIndex])[dataIndex]), bytesPerSample);
+                totalWritten += bytesPerSample;
+            }
+        }
+    }
+
+    return(totalWritten);
 }
 
 int MprRecorder::writeBufferSilence(int numSamples)

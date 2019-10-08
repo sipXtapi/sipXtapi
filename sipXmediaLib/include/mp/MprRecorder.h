@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -33,7 +33,7 @@
 // DEFINES
 // Note: only tested with 1-4 channels
 #ifndef MAXIMUM_RECORDER_CHANNELS
-#  define MAXIMUM_RECORDER_CHANNELS 2
+#  define MAXIMUM_RECORDER_CHANNELS 4
 #endif
 
 // MACROS
@@ -366,7 +366,9 @@ private:
    void notifyCircularBufferWatermark();
    void createEncoder(const char * mimeSubtype, unsigned int codecSampleRate);
    void prepareEncoder(RecordFileFormat recFormat, unsigned int & codecSampleRate);
+
    static int16_t getBytesPerSample(RecordFileFormat format);
+   static int interlaceSamples(const char* samplesArrays[], int samplesPerChannel, int bytesPerSample, int channels, char* interlacedChannelSamplesArray, int interlacedArrayMaximum);
 };
 
 /* ============================ INLINE METHODS ============================ */
