@@ -919,7 +919,7 @@ AC_DEFUN([AM_PATH_GSM],
 
     # Check for libgsm.{so,a} in the specified lib directory if any, and a
     # number of other likely places.
-    for dir in $libval /usr/local/lib /usr/local/gsm/lib /usr/lib /sw/lib; do
+    for dir in $libval /usr/local/lib /usr/local/gsm/lib /usr/lib /sw/lib /usr/lib/x86_64-linux-gnu; do
         if test -f "$dir/libgsm.so" -o -f "$dir/libgsm.a"; then
             found_gsm_lib="yes";
             libval=$dir
