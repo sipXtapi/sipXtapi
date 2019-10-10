@@ -534,7 +534,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
    return TRUE;
 }
 
-int MprRecorder::writeCircularBuffer(char* channelData[], int dataSize)
+int MprRecorder::writeCircularBuffer(const char* channelData[], int dataSize)
 {
     OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::doProcessFrame - TO_CIRCULAR_BUFFER, non-silence");
     
@@ -1249,7 +1249,7 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
         mLastEncodedFrameSize = dataSize;
 
         int bytesWritten = 
-            (this->*writeMethod)((char**)encodedSamplesPtrArray, dataSize);
+            (this->*writeMethod)((const char**)encodedSamplesPtrArray, dataSize);
 
         if(bytesWritten != dataSize * mChannels)
         {
@@ -1267,40 +1267,31 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
     return(numSamplesEncoded);
 }
 
-int MprRecorder::writeFile(char* channelData[], int dataSize)
+int MprRecorder::writeFile(const char* channelData[], int dataSize)
 {
     int bytesWritten = 0;
     int totalWritten = 0;
     int bytesPerSample = getBytesPerSample(mRecFormat);
 
-    // For single channel audio, we can short circuit the channel interlace
-    // and write in one big chunk.
-    if(mChannels == 1)
-    {
-        bytesPerSample = dataSize;
-    }
     assert(bytesPerSample > 0);
 
-    int dataIndex;
-    int channelIndex;
-    // TODO:  this may be really inefficient to make some may writes.
-    // It may be much better to interlace the channels in a buffer first and
-    // then write it all out at once.
     if(bytesPerSample > 0)
     {
-        // Interlace a sample from each channel
-        for(dataIndex = 0; dataIndex < dataSize; dataIndex += bytesPerSample)
+        char interlacedBuffer[1 << 14];
+        assert(((int)sizeof(interlacedBuffer)) >= (dataSize * mChannels));
+
+        if(mChannels > 1)
         {
-            for(channelIndex = 0; channelIndex < mChannels; channelIndex++)
-            {
-                bytesWritten = write(mFileDescriptor, &((channelData[channelIndex])[dataIndex]), bytesPerSample);
-                if(bytesWritten < 1)
-                {
-                    break;
-                }
-                totalWritten += bytesWritten;
-            }
-        }
+            // Interlace a sample from each channel
+            int interlacedSize = interlaceSamples(channelData, dataSize / bytesPerSample , bytesPerSample, mChannels, interlacedBuffer, sizeof(interlacedBuffer));
+
+
+            bytesWritten = write(mFileDescriptor, interlacedBuffer, interlacedSize);
+         }
+         else
+         {
+            bytesWritten = write(mFileDescriptor, channelData, dataSize);
+         }
     }
 
     return(bytesWritten > 0 ? totalWritten : bytesWritten);

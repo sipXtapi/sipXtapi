@@ -311,7 +311,7 @@ protected:
      /// Close file if it is opened and  update WAV header if needed.
    void closeFile(const char* fromWhereLabel);
 
-   typedef int (MprRecorder::*WriteMethod)(char * channelBuffers[], int);
+   typedef int (MprRecorder::*WriteMethod)(const char * channelBuffers[], int);
 
      /// Write silence to the file
    inline int writeFileSilence(int numSamples);
@@ -361,8 +361,8 @@ private:
      /// Assignment operator (not implemented for this class)
    MprRecorder& operator=(const MprRecorder& rhs);
 
-   int writeFile(char* channelData[], int dataSize);
-   int writeCircularBuffer(char* channelData[], int dataSize);
+   int writeFile(const char* channelData[], int dataSize);
+   int writeCircularBuffer(const char* channelData[], int dataSize);
    void notifyCircularBufferWatermark();
    void createEncoder(const char * mimeSubtype, unsigned int codecSampleRate);
    void prepareEncoder(RecordFileFormat recFormat, unsigned int & codecSampleRate);
