@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008-2018 SIPez LLC.  All rights reserved.
+// Copyright (C) 2008-2019 SIPez LLC.  All rights reserved.
 //
 //
 // $$
@@ -233,11 +233,13 @@ class MprRecorderTest : public MpGenericResourceTest
         const char* opusFilename = "Rec_60hz_2ch_48k.opus";
         int sampleRate = 48000;
         int channels = 2;
-        // 60 millisecond frame
-        MpAudioSample audioBuffer[channels * sampleRate * 60 / 1000];
 
         int inFd =  open(inFilename, O_BINARY | O_RDONLY); 
         CPPUNIT_ASSERT(inFd >= 0);
+        printf("Opened %s as fd: %d\n", inFilename, inFd);
+
+        // 60 millisecond frame
+        MpAudioSample audioBuffer[channels * sampleRate * 60 / 1000];
 
         UtlBoolean append = 0;
         //const char* artist = "foo";
@@ -255,12 +257,18 @@ class MprRecorderTest : public MpGenericResourceTest
         // Loop through chunks of audio
         do
         {
-            bytesRead = read(inFd, audioBuffer, sizeof(MpAudioSample) * 2 * 256);
-            printf("Read %d bytes\n", bytesRead);
+            bytesRead = read(inFd, audioBuffer, sizeof(audioBuffer));
+            printf("Read %d bytes from fd: %d\n", bytesRead, inFd);
             if(bytesRead > 0)
             {
                 result = ope_encoder_write(encoder, audioBuffer, bytesRead / (channels * sizeof(MpAudioSample)));
                 CPPUNIT_ASSERT_EQUAL(0, result);
+            }
+            else
+            {
+                UtlString errMsg;
+                errMsg.appendFormat("read from input raw file failed from fd: %d", inFd);
+                perror(errMsg.data());
             }
         }
         while(bytesRead > 0);
@@ -1271,7 +1279,11 @@ class MprRecorderTest : public MpGenericResourceTest
                         // the same, it should fail.
                         if(appendFileFormat != fileFormat)
                         {
-                            CPPUNIT_ASSERT_EQUAL(OS_FAILED, appendStatus);
+                            UtlString appendFileOpenError;
+                            appendFileOpenError.appendFormat("startFile failed to open %s codec: %d",
+                                                       recordFilename.data(),
+                                                       appendFileFormat);
+                            CPPUNIT_ASSERT_EQUAL_MESSAGE(appendFileOpenError.data(), OS_FAILED, appendStatus);
                         }
 
                         // Same format as original file, should succeed
