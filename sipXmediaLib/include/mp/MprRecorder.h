@@ -57,10 +57,15 @@ public:
    typedef enum {
       UNINITIALIZED_FORMAT = -1,
       RAW_PCM_16 = 0,
+
+      // WAV codec codes:
       WAV_PCM_16 = 1,
       WAV_ALAW = 6,
       WAV_MULAW = 7,
-      WAV_GSM = 49 // 0x31
+      WAV_GSM = 49, // 0x31
+
+      // Ogg codecs:
+      OGG_OPUS = 501
    } RecordFileFormat;
 
 /* ============================ CREATORS ================================== */
@@ -221,6 +226,13 @@ protected:
       TO_CIRCULAR_BUFFER ///< Record to a buffer.
    } RecordDestination;
 
+   typedef enum
+   {
+       NO_INTERLACE,
+       PRE_ENCODE_INTERLACE,
+       POST_ENCODE_INTERLACE
+   } SampleInterlaceStage;
+
    State mState;            ///< Internal recorder state.
    RecordDestination mRecordDestination; ///< Where to store recorded samples.
    int mChannels;
@@ -247,8 +259,13 @@ protected:
    int mEncodedFrames;      ///< number of audio (flowgraph) frames encoded
    int mLastEncodedFrameSize;///< Size in bytes of last encoded frame recorded
 
+   void* mOpusEncoder;
+
+   SampleInterlaceStage mWhenToInterlace;
+
    MpResamplerBase* mpResampler; ///< Resampler for encoding to file
 
+   
 ///@name Circular buffer related variables
 //@{
    CircularBufferPtr * mpCircularBuffer;

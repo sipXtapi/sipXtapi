@@ -63,6 +63,8 @@ MprRecorder::MprRecorder(const UtlString& rName)
 , mpEncoder(NULL)
 , mEncodedFrames(0)
 , mLastEncodedFrameSize(0)
+, mOpusEncoder(NULL)
+, mWhenToInterlace(NO_INTERLACE)
 , mpResampler(NULL)
 , mpCircularBuffer(NULL)
 , mRecordingBufferNotificationWatermark(0)
@@ -250,6 +252,14 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
             }
 
         }
+        else
+        {
+           OsSysLog::add(FAC_MP, PRI_ERR,
+                         "MprRecorder::startFile() failed to open file %s, error code is %i",
+                         filename, errno);
+           result = OS_FILE_ACCESS_DENIED;
+        }
+
 
         if (fileHandle > -1)
         {
@@ -273,13 +283,6 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
           msgData.finishSerialize();
           
           result = fgQ.send(msg, sOperationQueueTimeout);
-       }
-       else
-       {
-          OsSysLog::add(FAC_MP, PRI_ERR,
-                        "MprRecorder::startFile() failed to open file %s, error code is %i",
-                        filename, errno);
-          result = OS_FILE_ACCESS_DENIED;
        }
    }
 
@@ -1273,25 +1276,29 @@ int MprRecorder::writeFile(const char* channelData[], int dataSize)
     int totalWritten = 0;
     int bytesPerSample = getBytesPerSample(mRecFormat);
 
-    assert(bytesPerSample > 0);
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MprRecorder::writeFile record format: %d mChannels: %d dataSize: %d bytes/sample: %d bytesPerSample",
+             mRecFormat,
+             mChannels,
+             dataSize,
+             bytesPerSample);
 
-    if(bytesPerSample > 0)
+    assert(bytesPerSample > 0 || mChannels == 1);
+
+    char interlacedBuffer[1 << 14];
+    assert(((int)sizeof(interlacedBuffer)) >= (dataSize * mChannels));
+
+    if(mChannels > 1)
     {
-        char interlacedBuffer[1 << 14];
-        assert(((int)sizeof(interlacedBuffer)) >= (dataSize * mChannels));
-
-        if(mChannels > 1)
-        {
-            // Interlace a sample from each channel
-            int interlacedSize = interlaceSamples(channelData, dataSize / bytesPerSample , bytesPerSample, mChannels, interlacedBuffer, sizeof(interlacedBuffer));
+        // Interlace a sample from each channel
+        int interlacedSize = interlaceSamples(channelData, dataSize / bytesPerSample , bytesPerSample, mChannels, interlacedBuffer, sizeof(interlacedBuffer));
 
 
-            bytesWritten = write(mFileDescriptor, interlacedBuffer, interlacedSize);
-         }
-         else
-         {
-            bytesWritten = write(mFileDescriptor, channelData, dataSize);
-         }
+        bytesWritten = write(mFileDescriptor, interlacedBuffer, interlacedSize);
+    }
+    else
+    {
+        bytesWritten = write(mFileDescriptor, channelData[0], dataSize);
     }
 
     return(bytesWritten > 0 ? totalWritten : bytesWritten);
