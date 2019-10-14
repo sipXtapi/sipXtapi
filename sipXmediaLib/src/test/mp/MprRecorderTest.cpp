@@ -911,7 +911,10 @@ class MprRecorderTest : public MpGenericResourceTest
                     // the same, it should fail.
                     if(appendFileFormat != fileFormat)
                     {
-                        CPPUNIT_ASSERT_EQUAL(OS_FAILED, appendStatus);
+                        UtlString fileError;
+                        fileError.appendFormat("file: %s append of format: %d failed with status: %d",
+                                               recordFilename.data(), appendFileFormat, appendStatus);
+                        CPPUNIT_ASSERT_EQUAL_MESSAGE(fileError.data(), OS_FAILED, appendStatus);
                     }
 
                     // Same format as original file, should succeed
@@ -1481,6 +1484,17 @@ class MprRecorderTest : public MpGenericResourceTest
                 // Build flowgraph with source, MprRecorder and sink resources
                 setupFramework(recorder);
 
+#if 0 // TODO
+                // Set parameters to signal to record
+                for(int inputIndex = 0; inputIndex < recorder->maxInputs(); inputIndex++)
+                {
+                    mpSourceResource->setSignalAmplitude(inputIndex, 
+                                                      (0x1 << (12 - inputIndex)));
+                    mpSourceResource->setSignalPeriod(inputIndex, 
+                          sSampleRates[rateIndex] / (250 * (0x1 << inputIndex)));
+                }
+                mpSourceResource->setOutSignalType(MpTestResource::MP_SINE);
+#endif
                 // Add the notifier so that we get resource events
                 OsMsgQ resourceEventQueue;
                 OsMsgDispatcher messageDispatcher(&resourceEventQueue);
