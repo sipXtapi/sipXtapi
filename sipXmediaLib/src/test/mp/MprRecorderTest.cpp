@@ -397,6 +397,16 @@ class MprRecorderTest : public MpGenericResourceTest
                 // Build flowgraph with source, MprRecorder and sink resources
                 setupFramework(recorder);
 
+                // Set parameters to signal to record
+                for(int inputIndex = 0; inputIndex < recorder->maxInputs(); inputIndex++)
+                {
+                    mpSourceResource->setSignalAmplitude(inputIndex, 
+                                                      (0x1 << (12 - inputIndex)));
+                    mpSourceResource->setSignalPeriod(inputIndex, 
+                          sSampleRates[rateIndex] / (250 * (0x1 << inputIndex)));
+                }
+                mpSourceResource->setOutSignalType(MpTestResource::MP_SINE);
+
                 // Add the notifier so that we get resource events
                 OsMsgQ resourceEventQueue;
                 OsMsgDispatcher messageDispatcher(&resourceEventQueue);
@@ -1484,7 +1494,6 @@ class MprRecorderTest : public MpGenericResourceTest
                 // Build flowgraph with source, MprRecorder and sink resources
                 setupFramework(recorder);
 
-#if 0 // TODO
                 // Set parameters to signal to record
                 for(int inputIndex = 0; inputIndex < recorder->maxInputs(); inputIndex++)
                 {
@@ -1494,7 +1503,7 @@ class MprRecorderTest : public MpGenericResourceTest
                           sSampleRates[rateIndex] / (250 * (0x1 << inputIndex)));
                 }
                 mpSourceResource->setOutSignalType(MpTestResource::MP_SINE);
-#endif
+
                 // Add the notifier so that we get resource events
                 OsMsgQ resourceEventQueue;
                 OsMsgDispatcher messageDispatcher(&resourceEventQueue);
