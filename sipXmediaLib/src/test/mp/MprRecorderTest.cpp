@@ -40,7 +40,7 @@ const char* testFileTypeStrings[] =
 #include <opusenc.h>
 #include <opusfile.h>
 
-struct SipxOpusWriteFile
+struct SipxTestOpusWriteFile
 {
     int mWriteFd;
 };
@@ -49,7 +49,7 @@ static int testOpusWrite(void* fileInfo, const unsigned char* data, int32_t leng
 {
     int result = 0;
     CPPUNIT_ASSERT(fileInfo);
-    struct SipxOpusWriteFile* fileHandleObject = (struct SipxOpusWriteFile*) fileInfo;
+    struct SipxTestOpusWriteFile* fileHandleObject = (struct SipxTestOpusWriteFile*) fileInfo;
     int bytesWritten = write(fileHandleObject->mWriteFd, data, length);
 
     if(bytesWritten != length)
@@ -75,7 +75,7 @@ static int testOpusCloseFile(void* fileInfo)
 {
     int result = 1;
     CPPUNIT_ASSERT(fileInfo);
-    struct SipxOpusWriteFile* fileHandleObject = (struct SipxOpusWriteFile*) fileInfo;
+    struct SipxTestOpusWriteFile* fileHandleObject = (struct SipxTestOpusWriteFile*) fileInfo;
     if(fileHandleObject && fileHandleObject->mWriteFd)
     {
         result = close(fileHandleObject->mWriteFd);
@@ -150,7 +150,7 @@ int openOpusFileForRecord(const char* filename,
     // 255 = 1-255 channels not using any particular channel mappings
     int family = 0;
     *encoder = NULL;
-    struct SipxOpusWriteFile* fileObj = (struct SipxOpusWriteFile*) malloc(sizeof(*fileObj));
+    struct SipxTestOpusWriteFile* fileObj = (struct SipxTestOpusWriteFile*) malloc(sizeof(*fileObj));
     fileObj->mWriteFd = -1;
     OggOpusComments* comments = ope_comments_create();
     ope_comments_add(comments, "ARTIST", artist);
