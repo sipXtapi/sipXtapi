@@ -31,6 +31,8 @@ libsipXmedia_la_CXXFLAGS = \
 	-D_REALTIME_LINUX_AUDIO_THREADS \
 	$(LOCAL_AUDIO_CXXFLAGS) \
 	@GSM_CXXFLAGS@ \
+	@OPUS_INCLUDE@ \
+	@OPUS_CFLAGS@ \
 	@SPEEX_CFLAGS@
 
 libsipXmedia_la_LIBADD = \
@@ -39,6 +41,7 @@ libsipXmedia_la_LIBADD = \
 	@SIPXSDP_LIBS@ \
 	@CA_LIBS@ \
 	@GSM_LIBS@ \
+	@OPUS_STATIC_LIB@ \
 	@SPEEXDSP_LIBS@ \
 	@STATIC_CODEC_LIBS@ \
 	-Lmp/codecs/ \
