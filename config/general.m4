@@ -1339,11 +1339,13 @@ AC_DEFUN([AM_SET_OPUS],
     OPUS_LIB_TARGET="lib/libopus.a"
     OPUS_TARGET="plgopus"
     OPUS_STATIC_LIB='${top_builddir}/contrib/libopus/libopusenc/.libs/libopusenc.a ${top_builddir}/contrib/libopus/opusfile/.libs/libopusfile.a ${top_builddir}/contrib/libopus/opus/.libs/libopus.a  ${top_builddir}/contrib/libopus/libogg/src/.libs/libogg.a'
+    OPUS_CFLAGS="-DOPUS_FILE_RECORD_ENABLED"
     AC_SUBST(OPUS_INCLUDE)
     AC_SUBST(OPUS_LIB_ROOT)    
     AC_SUBST(OPUS_LIB_TARGET)    
     AC_SUBST(OPUS_TARGET)
     AC_SUBST(OPUS_STATIC_LIB)
+    AC_SUBST(OPUS_CFLAGS)
     
     AC_CONFIG_SUBDIRS([contrib/libopus/opus/])
 ])dnl
