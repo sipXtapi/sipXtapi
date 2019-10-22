@@ -46,6 +46,7 @@
 // FORWARD DECLARATIONS
 class MpEncoderBase;
 class MpResamplerBase;
+struct SipxOpusWriteObject;
 
 /// The "Recorder" media processing resource
 class MprRecorder : public MpAudioResource
@@ -259,7 +260,9 @@ protected:
    int mEncodedFrames;      ///< number of audio (flowgraph) frames encoded
    int mLastEncodedFrameSize;///< Size in bytes of last encoded frame recorded
 
-   void* mOpusEncoder;
+   void* mpOpusEncoder;
+   void* mpOpusComments;
+   struct SipxOpusWriteObject* mpOpusStreamObject;
 
    SampleInterlaceStage mWhenToInterlace;
 
@@ -383,6 +386,10 @@ private:
    void notifyCircularBufferWatermark();
    void createEncoder(const char * mimeSubtype, unsigned int codecSampleRate);
    void prepareEncoder(RecordFileFormat recFormat, unsigned int & codecSampleRate);
+   OsStatus createOpusEncoder(int channels,
+                              const char* artist, 
+                              const char* title);
+   void deleteOpusEncoder();
 
    static int16_t getBytesPerSample(RecordFileFormat format);
    static int interlaceSamples(const char* samplesArrays[], int samplesPerChannel, int bytesPerSample, int channels, char* interlacedChannelSamplesArray, int interlacedArrayMaximum);

@@ -36,9 +36,17 @@
 #include <mp/MpResampler.h>
 #include <mp/MpCodecFactory.h>
 
+//#define OPUS_FILE_RECORD_ENABLED
+#ifdef OPUS_FILE_RECORD_ENABLED
+#  include <opusenc.h>
+#  include <opusfile.h>
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define ETHERNET_MTU_BYTES 1500
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -63,7 +71,9 @@ MprRecorder::MprRecorder(const UtlString& rName)
 , mpEncoder(NULL)
 , mEncodedFrames(0)
 , mLastEncodedFrameSize(0)
-, mOpusEncoder(NULL)
+, mpOpusEncoder(NULL)
+, mpOpusComments(NULL)
+, mpOpusStreamObject(NULL)
 , mWhenToInterlace(NO_INTERLACE)
 , mpResampler(NULL)
 , mpCircularBuffer(NULL)
@@ -76,24 +86,29 @@ MprRecorder::MprRecorder(const UtlString& rName)
 // Destructor
 MprRecorder::~MprRecorder()
 {
-   // If when we get to the destructor and our file descriptor is not set to -1
-   // then close it now.
-   closeFile("~MprRecorder");
+    // If when we get to the destructor and our file descriptor is not set to -1
+    // then close it now.
+    closeFile("~MprRecorder");
 
-   if(mpEncoder)
-   {
-       delete mpEncoder;
-       mpEncoder = NULL;
-   }
+    if(mpEncoder)
+    {
+        delete mpEncoder;
+        mpEncoder = NULL;
+    }
 
-   if(mpResampler)
-   {
-       delete mpResampler;
-       mpResampler = NULL;
-   }
+    if(mpOpusEncoder)
+    {
+        deleteOpusEncoder();
+    }
 
-   if (mpCircularBuffer)
-       mpCircularBuffer->release();
+    if(mpResampler)
+    {
+        delete mpResampler;
+        mpResampler = NULL;
+    }
+
+    if (mpCircularBuffer)
+        mpCircularBuffer->release();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -152,97 +167,121 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
         {
             if(append)
             {
-// TODO Opus
-// factor out case for WAV/Raw and Ogg/Opus
+                switch(recFormat)
+                {
+                    case OGG_OPUS:
+// TODO Opus check opus header
 // Create readOpusFileHeader
+                    // Intensionally continuing on to move to end of file and start appending
+                    case RAW_PCM_16:
+                        // Move to the end of the file and start appending
+                        lseek(fileHandle, 0, SEEK_END);
+                        break;
 
-              RecordFileFormat waveFileCodec;
-              uint16_t fileSamplesPerSecond;
-              uint16_t fileChannels;
-              // open with append (O_APPEND) by default positions us at the end 
-              // of the file.  We must read the header at the begining of the
-              // file first.
-              lseek(fileHandle, 0, SEEK_SET);
-              OsStatus waveHeaderReadStatus = readWaveHeader(fileHandle, 
-                                                             waveFileCodec,
-                                                             fileSamplesPerSecond,
-                                                             fileChannels);
 
-              switch(waveHeaderReadStatus)
-              {
-              // Valid wave file header
-                  case OS_SUCCESS:
-                      // same codec, sample rate and channels
-                      if(recFormat == waveFileCodec &&
-                         // TODO: cannot check this here in static method.
-                         // checking needs to occur in handleStartFile
-                         //dddd == fileSamplesPerSecond &&
-                         numChannels == fileChannels)
-                      {
-                          // The record format is the same as that of the file that already exists.
-                          // Move to the end of the file where we will start appending
-                          lseek(fileHandle, 0, SEEK_END);
-                      }
 
-                      // different recording format requested from existing file
-                      // error out and close the file
-                      else
-                      {
-                          close(fileHandle);
-                          fileHandle = -1;
-                          OsSysLog::add(FAC_MP, PRI_ERR, 
-                                  "MprRecorder::startFile wave header read from append to file: %s "
-                                  "(format: %d samples/sec: %d channels: %d), "
-                                  "differs from requested wave record format: %d samples/sec: %d channels: %d",
-                                  filename,
-                                  waveFileCodec, fileSamplesPerSecond, fileChannels,
-                                  recFormat, fileSamplesPerSecond, numChannels);
-                          result = OS_FAILED;
-                      }
+                    case WAV_PCM_16:
+                    case WAV_ALAW:
+                    case WAV_MULAW:
+                    case WAV_GSM:
+                    // All other file formats are wave files and if we are appending,
+                    // the file must already have a valid wave header.
+                    {
+                        RecordFileFormat waveFileCodec;
+                        uint16_t fileSamplesPerSecond;
+                        uint16_t fileChannels;
+                        // open with append (O_APPEND) by default positions us at the end 
+                        // of the file.  We must read the header at the begining of the
+                        // file first.
+                        lseek(fileHandle, 0, SEEK_SET);
+                        OsStatus waveHeaderReadStatus = readWaveHeader(fileHandle, 
+                                                                       waveFileCodec,
+                                                                       fileSamplesPerSecond,
+                                                                       fileChannels);
 
-                      break;
+                        switch(waveHeaderReadStatus)
+                        {
+                        // Valid wave file header
+                            case OS_SUCCESS:
+                                // same codec, sample rate and channels
+                                if(recFormat == waveFileCodec &&
+                                   // TODO: cannot check this here in static method.
+                                   // checking needs to occur in handleStartFile
+                                   //dddd == fileSamplesPerSecond &&
+                                   numChannels == fileChannels)
+                                {
+                                    // The record format is the same as that of the file that already exists.
+                                    // Move to the end of the file where we will start appending
+                                    lseek(fileHandle, 0, SEEK_END);
+                                }
 
-              // Not a valid wave file
-                  case OS_INVALID:
-                      switch(recFormat)
-                      {
-                          // raw audio file will not have a wave header.  So
-                          // this is ok.  We can continue and append at the end
-                          case RAW_PCM_16:
-                              lseek(fileHandle, 0, SEEK_END);
-                              break;
+                                // different recording format requested from existing file
+                                // error out and close the file
+                                else
+                                {
+                                    close(fileHandle);
+                                    fileHandle = -1;
+                                    OsSysLog::add(FAC_MP, PRI_ERR, 
+                                            "MprRecorder::startFile wave header read from append to file: %s "
+                                            "(format: %d samples/sec: %d channels: %d), "
+                                            "differs from requested wave record format: %d samples/sec: %d channels: %d",
+                                            filename,
+                                            waveFileCodec, fileSamplesPerSecond, fileChannels,
+                                            recFormat, fileSamplesPerSecond, numChannels);
+                                    result = OS_FAILED;
+                                }
 
-                          // All other file formats are wave files and if we are appending,
-                          // the file must already have a valid wave header.
-                          default:
-                              close(fileHandle);
-                              fileHandle = -1;
-                              OsSysLog::add(FAC_MP, PRI_ERR, 
-                                      "MprRecorder::startFile invalid wave header read from file: %s, cannot append wave format: %d",
-                                      filename,
-                                      recFormat);
-                              result = OS_FAILED;
-                              break;
-                      } // end switch(recFormat)
-                      break;
+                                break;
 
-              // new/empty file.  Ok that file does not have wave header
-                  case OS_FAILED:
-                      // need to tell handleStartFile to write a WAVE header as one does
-                      // not exist.
-                      append = FALSE;
-                      break;
+                        // Not a valid wave file
+                            case OS_INVALID:
+                                switch(recFormat)
+                                {
+                                    // raw audio file will not have a wave header.  So
+                                    // this is ok.  We can continue and append at the end
+                                    case RAW_PCM_16:
+                                        lseek(fileHandle, 0, SEEK_END);
+                                        break;
 
-              // Unhandled error case, should not get here
-                  default:
-                      close(fileHandle);
-                      fileHandle = -1;
-                      OsSysLog::add(FAC_MP, PRI_ERR, 
-                              "MprRecorder::startFile wave header read failed: %d",
-                              waveHeaderReadStatus);
-                      result = OS_FAILED;
-                      break;
-              } // end switch(waveHeaderReadStatus)
+                                    // All other file formats are wave files and if we are appending,
+                                    // the file must already have a valid wave header.
+                                    default:
+                                        close(fileHandle);
+                                        fileHandle = -1;
+                                        OsSysLog::add(FAC_MP, PRI_ERR, 
+                                                "MprRecorder::startFile invalid wave header read from file: %s, cannot append wave format: %d",
+                                                filename,
+                                                recFormat);
+                                        result = OS_FAILED;
+                                        break;
+                                } // end switch(recFormat)
+                                break;
+
+                        // new/empty file.  Ok that file does not have wave header
+                            case OS_FAILED:
+                                // need to tell handleStartFile to write a WAVE header as one does
+                                // not exist.
+                                append = FALSE;
+                                break;
+
+                        // Unhandled error case, should not get here
+                            default:
+                                close(fileHandle);
+                                fileHandle = -1;
+                                OsSysLog::add(FAC_MP, PRI_ERR, 
+                                        "MprRecorder::startFile wave header read failed: %d",
+                                        waveHeaderReadStatus);
+                                result = OS_FAILED;
+                                break;
+                        } // end switch(waveHeaderReadStatus)
+                    }
+                        break;
+
+                    case UNINITIALIZED_FORMAT:
+                    default:
+                        assert(0);  // Unexpected codec type
+                        break;
+                } // end switch on codec type
             }
 
             // File is to be replaced, so position to begining of file
@@ -607,6 +646,218 @@ void MprRecorder::createEncoder(const char * mimeSubtype, unsigned int codecSamp
     }
 }
 
+#ifdef OPUS_FILE_RECORD_ENABLED
+#if 0
+struct SipxOpusWriteObject
+{
+    int mWriteFd;
+};
+
+static int SipxOpusWriteFile(void* fileInfo, const unsigned char* data, int32_t length)
+{
+    int result = 0;
+    assert(fileInfo);
+    struct SipxOpusWriteObject* fileHandleObject = (struct SipxOpusWriteObject*) fileInfo;
+    int bytesWritten = write(fileHandleObject->mWriteFd, data, length);
+
+    if(bytesWritten != length)
+    {
+        result = errno;
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "SipxOpusWrite write to fd: %d failed, wrote %d of %d bytes\n", 
+                      fileHandleObject->mWriteFd, bytesWritten, length);
+    }
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                     "SipxOpusWrite %d bytes to fd: %d\n", 
+                     bytesWritten, fileHandleObject->mWriteFd);
+    }
+
+    return(result);
+}
+
+static int SipxOpusCloseFile(void* fileInfo)
+{
+    int result = 1;
+    assert(fileInfo);
+    struct SipxOpusWriteObject* fileHandleObject = (struct SipxOpusWriteObject*) fileInfo;
+    if(fileHandleObject && fileHandleObject->mWriteFd)
+    {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                      "SipxOpusCloseFile(fd=%d) not closing file",
+                      fileHandleObject->mWriteFd);
+        // We do not close here as file open and close is managed external to Opus utils
+        //result = close(fileHandleObject->mWriteFd);
+    }
+
+    return(result);
+}
+
+static const OpusEncCallbacks opusFileCallbacks =
+{
+    SipxOpusWriteFile,
+    SipxOpusCloseFile
+};
+#else
+
+struct SipxOpusWriteObject
+{
+    int mBytesWritten;
+    int mBufferMaximum;
+    char* mpBuffer;
+};
+
+static int SipxOpusWriteBuffer(void* bufferInfo, const unsigned char* data, int32_t length)
+{
+    int result = 1;
+    struct SipxOpusWriteObject* bufferHandleObject = (struct SipxOpusWriteObject*) bufferInfo;
+    assert(length + bufferHandleObject->mBytesWritten <= bufferHandleObject->mBufferMaximum);
+    if(length + bufferHandleObject->mBytesWritten <= bufferHandleObject->mBufferMaximum)
+    {
+        memcpy(&(bufferHandleObject->mpBuffer[bufferHandleObject->mBytesWritten]),
+               data,
+               length);
+        result = 0;
+    }
+    bufferHandleObject->mBytesWritten += length;
+
+    return(result);
+}
+
+static int SipxOpusCloseBuffer(void* bufferInfo)
+{
+    return(0);
+}
+
+static const OpusEncCallbacks opusFileCallbacks =
+{
+    SipxOpusWriteBuffer,
+    SipxOpusCloseBuffer
+};
+#endif
+
+#endif
+
+OsStatus MprRecorder::createOpusEncoder(int channels,
+                                        const char* artist, 
+                                        const char* title)
+{
+#ifdef OPUS_FILE_RECORD_ENABLED
+    OsStatus status = OS_SUCCESS;
+    //  We always upsample to 48000 external to the codec
+    int sampleRate = 48000;
+
+    // May need to change this to 1 or 255
+    // 0 = mono or sterio
+    // 1 = 1-255 channels using Vorbis channel mappings
+    // 255 = 1-255 channels not using any particular channel mappings
+    int family = 0;
+    deleteOpusEncoder();
+    struct SipxOpusWriteObject* mpOpusStreamObject = (struct SipxOpusWriteObject*) malloc(sizeof(*mpOpusStreamObject));
+#if 0
+    mpOpusStreamObject->mWriteFd = -1;
+#else
+    mpOpusStreamObject->mBytesWritten = 0;
+    mpOpusStreamObject->mBufferMaximum = ETHERNET_MTU_BYTES;
+    mpOpusStreamObject->mpBuffer = (char*)malloc(ETHERNET_MTU_BYTES);
+#endif
+    OggOpusComments* comments = ope_comments_create();
+    ope_comments_add(comments, "ARTIST", artist);
+    ope_comments_add(comments, "TITLE", title);
+
+    if(mFileDescriptor < 0)
+    {
+        status = OS_INVALID_STATE;
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "MprRecorder::createOpusEncoder() recieved invalid file descriptor: %d",
+                      mFileDescriptor);
+    }
+    else
+    {
+#if 0
+        fileObj->mWriteFd = mFileDescriptor;
+#endif
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "MprRecorder::createOpusEncoder() file fd: %d",
+                      mFileDescriptor);
+
+        int error = 0;
+        mpOpusEncoder = ope_encoder_create_callbacks(&opusFileCallbacks, mpOpusStreamObject, comments, sampleRate, channels, family, &error);
+        if(error)
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                          "MprRecorder::createOpusEncoder() failed encoder: %p error: %d\n", 
+                          mpOpusEncoder, error);
+            status = OS_FAILED;
+            if(mpOpusEncoder) 
+            {
+                ope_encoder_destroy((OggOpusEnc*)mpOpusEncoder);
+                mpOpusEncoder = NULL;
+            }
+        }
+        else
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                          "MprRecorder::createOpusEncoder() created encoder: %p", 
+                          mpOpusEncoder);
+            // These are safely attached to encoder.  So don't free them up until done encoding
+            mpOpusComments = comments;
+            mpOpusStreamObject = NULL;
+            comments = NULL;
+        }
+
+    }
+
+    // Clean up in case of error
+    if(comments) 
+    {
+        ope_comments_destroy(comments);
+        // Do not close the record file here.  That should be managed outside the codec.
+        //OpusCloseFile(fileObj);
+        free(mpOpusStreamObject->mpBuffer);
+        free(mpOpusStreamObject);
+    }
+#else
+    OsStatus status = OS_NOT_YET_IMPLEMENTED;
+    OsSysLog::add(FAC_MP, PRI_ERR,
+                  "MprRecorder::createOpusEncoder() Opus file operations DISABLED.  OPUS_FILE_RECORD_ENABLED not defined");
+#endif
+
+    return(status);
+}
+
+void MprRecorder::deleteOpusEncoder()
+{
+#ifdef OPUS_FILE_RECORD_ENABLED
+    if(mpOpusEncoder)
+    {
+        // Cannot drain here as we may have already closed the file.
+        // This is probably ok that we don't drain as we likely only have silence anyway.
+        // Also this is not much different than other codecs where there may be samples still
+        // in buffers somewhere.
+        //int result = ope_encoder_drain((OggOpusEnc*)mpOpusEncoder);
+        //if(result)
+        //{
+        //    OsSysLog::add(FAC_MP, PRI_ERR,
+        //                  "MprRecorder::deleteOpusEncoder ope_encoder_drain returned: %d",
+        //                  result);
+        //}
+        ope_encoder_destroy((OggOpusEnc*)mpOpusEncoder);
+        mpOpusEncoder = NULL;
+    }
+    if(mpOpusComments) ope_comments_destroy((OggOpusComments*)mpOpusComments);
+    mpOpusComments = NULL;
+
+    if(mpOpusStreamObject)
+    {
+        free(mpOpusStreamObject->mpBuffer);
+        free(mpOpusStreamObject);
+        mpOpusStreamObject = NULL;
+    }
+#endif
+}
+
 void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & codecSampleRate)
 {
     codecSampleRate = 0;
@@ -632,6 +883,11 @@ void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & code
         mpEncoder = NULL;
     }
 
+    if(mpOpusEncoder || mpOpusComments)
+    {
+        deleteOpusEncoder();
+    }
+
     mNumFramesProcessed = 0;
     mRecFormat = recFormat;
     mEncodedFrames = 0;
@@ -647,16 +903,19 @@ void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & code
         // Encoder needed
     case MprRecorder::WAV_GSM:
         codecSampleRate = 8000;
+        mWhenToInterlace = NO_INTERLACE;
         createEncoder(MIME_SUBTYPE_GSM_WAVE, codecSampleRate);
         break;
 
     case MprRecorder::WAV_ALAW:
         codecSampleRate = 8000;
+        mWhenToInterlace = (mChannels > 1) ? POST_ENCODE_INTERLACE : NO_INTERLACE;
         createEncoder(MIME_SUBTYPE_PCMA, codecSampleRate);
         break;
 
     case MprRecorder::WAV_MULAW:
         codecSampleRate = 8000;
+        mWhenToInterlace = (mChannels > 1) ? POST_ENCODE_INTERLACE : NO_INTERLACE;
         createEncoder(MIME_SUBTYPE_PCMU, codecSampleRate);
         break;
 
@@ -672,12 +931,21 @@ void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & code
     case MprRecorder::WAV_PCM_16:
         //mEncoder = NULL;
         codecSampleRate = flowgraphSampleRate;
+        mWhenToInterlace = (mChannels > 1) ? POST_ENCODE_INTERLACE : NO_INTERLACE;
         break;
 
-   // TODO Opus:
-   // case MprRecorder::OGG_OPUS:
-   //     codecSampleRate = 48000;
-   // break;
+    case MprRecorder::OGG_OPUS:
+        codecSampleRate = 48000;
+        mWhenToInterlace = (mChannels > 1) ? PRE_ENCODE_INTERLACE : NO_INTERLACE;
+        {
+            UtlString trackName;
+            // TODO get artist as local URI
+            //      track name as remote URI and date
+            //trackName.appendFormat("");
+            OsDateTime::getLocalTimeString(trackName);
+            createOpusEncoder(mChannels, "sipX", trackName.data());
+        }
+        break;
 
     default:
         OsSysLog::add(FAC_MP, PRI_ERR,
@@ -689,6 +957,7 @@ void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & code
     }
 
     // If the file ecoder needs a different sample rate
+// TODO we need a resampler for each channel????
     if (codecSampleRate != flowgraphSampleRate)
     {
         mpResampler = MpResamplerBase::createResampler(1, flowgraphSampleRate, codecSampleRate);
@@ -734,10 +1003,6 @@ UtlBoolean MprRecorder::handleStartFile(int file,
     }
    unsigned int codecSampleRate;
    prepareEncoder(recFormat, codecSampleRate);
-
-// TODO Opus:
-   // if(mpRecordFormat == MprRecorder::OFF_OPUS)
-   // else
 
    // If we are creating a WAV file, write the header.
    // Otherwise we are writing raw PCM data to file.
@@ -1038,8 +1303,15 @@ void MprRecorder::closeFile(const char* fromWhereLabel)
                 "MprRecorder::closeFile(%s) this: %p fd: %d format: %d channels: %d media frame size: %d sample rate: %d processed frames: %d",
                 fromWhereLabel, this, mFileDescriptor,  mRecFormat, mChannels, mSamplesPerLastFrame, mSamplesPerSecond, mNumFramesProcessed);
 
+        if (mRecFormat == RAW_PCM_16)
+        {
+        }
+        else if (mRecFormat == OGG_OPUS)
+        {
+            deleteOpusEncoder();
+        }
         // Any WAVE file needs header updates on closing
-        if (mRecFormat != RAW_PCM_16)
+        else
         {
            // Some codecs require a specific multiple of frames such that we can append
            // properly.
@@ -1121,7 +1393,7 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
             pBuffers[0], numSamples);
 #endif
     const MpAudioSample* resampledBufferPtrArray[MAXIMUM_RECORDER_CHANNELS];
-    const int localBufferSize = 1500; // No audio codecs exceed an MTU
+    const int localBufferSize = ETHERNET_MTU_BYTES; // No audio codecs exceed an MTU
     MpAudioSample localBuffer[localBufferSize * MAXIMUM_RECORDER_CHANNELS];
     OsStatus status = OS_FAILED;
 
@@ -1134,6 +1406,7 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
         for(channelIndex = 0; channelIndex < mChannels; channelIndex++)
         {
             resampledBufferPtrArray[channelIndex] = &localBuffer[localBufferSize * channelIndex];
+// TODO: use channelIndex not 0
             status = mpResampler->resample(0, 
                                            pBuffers[channelIndex], 
                                            numSamples, 
@@ -1161,7 +1434,7 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
         }
     }
 
-    // Some encoders are frame based and do not create a complete
+    // Some encoders are frame based and do not create a complete frame every time
     const MpAudioSample* encodedSamplesPtrArray[MAXIMUM_RECORDER_CHANNELS];
     MpAudioSample localEncodeBuffer[localBufferSize * MAXIMUM_RECORDER_CHANNELS]; // Should never get larger after encoding
 
@@ -1213,6 +1486,35 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
                 }
             }
         }
+    }
+
+    else if(mpOpusEncoder)
+    {
+#ifdef OPUS_FILE_RECORD_ENABLED
+        // Interlace samples as the codec expects PCM with interlaced channel samples
+
+        MpAudioSample interlacedBuffer[numResampled * sizeof(MpAudioSample) * mChannels]; 
+        int interlacedSize = interlaceSamples((const char**)resampledBufferPtrArray, numResampled, sizeof(MpAudioSample), mChannels, (char*)interlacedBuffer, sizeof(interlacedBuffer));
+
+        assert(interlacedSize == (int)( numResampled * sizeof(MpAudioSample) * mChannels));
+
+        int opusResult = ope_encoder_write((OggOpusEnc*)mpOpusEncoder, interlacedBuffer, numResampled);
+        if(opusResult)
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                          "MprRecorder::writeSamples ope_encoder_write returned: %d",
+                          opusResult);
+        }
+
+        if(mpOpusStreamObject && mpOpusStreamObject->mBytesWritten > 0)
+        {
+            encodedSamplesPtrArray[0] = (MpAudioSample*)mpOpusStreamObject->mpBuffer;
+            dataSize = mpOpusStreamObject->mBytesWritten;
+            mpOpusStreamObject->mBytesWritten = 0;
+        }
+#else
+        assert(0);
+#endif
     }
 
     //  No encoder, pass it straight through
@@ -1288,7 +1590,7 @@ int MprRecorder::writeFile(const char* channelData[], int dataSize)
     char interlacedBuffer[1 << 14];
     assert(((int)sizeof(interlacedBuffer)) >= (dataSize * mChannels));
 
-    if(mChannels > 1)
+    if(mWhenToInterlace == POST_ENCODE_INTERLACE)
     {
         // Interlace a sample from each channel
         int interlacedSize = interlaceSamples(channelData, dataSize / bytesPerSample , bytesPerSample, mChannels, interlacedBuffer, sizeof(interlacedBuffer));
