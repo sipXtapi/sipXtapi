@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2020 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -173,6 +173,7 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
 // TODO Opus check opus header
 // Create readOpusFileHeader
                     // Intensionally continuing on to move to end of file and start appending
+
                     case RAW_PCM_16:
                         // Move to the end of the file and start appending
                         lseek(fileHandle, 0, SEEK_END);
@@ -712,7 +713,15 @@ static int SipxOpusWriteBuffer(void* bufferInfo, const unsigned char* data, int3
 {
     int result = 1;
     struct SipxOpusWriteObject* bufferHandleObject = (struct SipxOpusWriteObject*) bufferInfo;
+    if(length + bufferHandleObject->mBytesWritten > bufferHandleObject->mBufferMaximum)
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "MprRecorder SipxOpusWriteBuffer Buffer: %d too small.  Written: %d length to add: %d",
+                      bufferHandleObject->mBufferMaximum, bufferHandleObject->mBytesWritten, length);
+        OsSysLog::flush();
+    }
     assert(length + bufferHandleObject->mBytesWritten <= bufferHandleObject->mBufferMaximum);
+
     if(length + bufferHandleObject->mBytesWritten <= bufferHandleObject->mBufferMaximum)
     {
         memcpy(&(bufferHandleObject->mpBuffer[bufferHandleObject->mBytesWritten]),
@@ -754,13 +763,14 @@ OsStatus MprRecorder::createOpusEncoder(int channels,
     // 255 = 1-255 channels not using any particular channel mappings
     int family = 0;
     deleteOpusEncoder();
-    struct SipxOpusWriteObject* mpOpusStreamObject = (struct SipxOpusWriteObject*) malloc(sizeof(*mpOpusStreamObject));
+    SipxOpusWriteObject* opusStreamObject = (struct SipxOpusWriteObject*) malloc(sizeof(*mpOpusStreamObject));
 #if 0
-    mpOpusStreamObject->mWriteFd = -1;
+    opusStreamObject->mWriteFd = -1;
 #else
-    mpOpusStreamObject->mBytesWritten = 0;
-    mpOpusStreamObject->mBufferMaximum = ETHERNET_MTU_BYTES;
-    mpOpusStreamObject->mpBuffer = (char*)malloc(ETHERNET_MTU_BYTES);
+    opusStreamObject->mBytesWritten = 0;
+    // Opus data pushed out when draining can be 3 frames over 7KB each.
+    opusStreamObject->mBufferMaximum = 0x1 << 15; // 32KB.  
+    opusStreamObject->mpBuffer = (char*)malloc(opusStreamObject->mBufferMaximum);
 #endif
     OggOpusComments* comments = ope_comments_create();
     ope_comments_add(comments, "ARTIST", artist);
@@ -783,7 +793,7 @@ OsStatus MprRecorder::createOpusEncoder(int channels,
                       mFileDescriptor);
 
         int error = 0;
-        mpOpusEncoder = ope_encoder_create_callbacks(&opusFileCallbacks, mpOpusStreamObject, comments, sampleRate, channels, family, &error);
+        mpOpusEncoder = ope_encoder_create_callbacks(&opusFileCallbacks, opusStreamObject, comments, sampleRate, channels, family, &error);
         if(error)
         {
             OsSysLog::add(FAC_MP, PRI_DEBUG,
@@ -803,8 +813,9 @@ OsStatus MprRecorder::createOpusEncoder(int channels,
                           mpOpusEncoder);
             // These are safely attached to encoder.  So don't free them up until done encoding
             mpOpusComments = comments;
-            mpOpusStreamObject = NULL;
             comments = NULL;
+            mpOpusStreamObject = opusStreamObject;
+            opusStreamObject = NULL;
         }
 
     }
@@ -815,8 +826,11 @@ OsStatus MprRecorder::createOpusEncoder(int channels,
         ope_comments_destroy(comments);
         // Do not close the record file here.  That should be managed outside the codec.
         //OpusCloseFile(fileObj);
-        free(mpOpusStreamObject->mpBuffer);
-        free(mpOpusStreamObject);
+        if(opusStreamObject)
+        {
+            free(opusStreamObject->mpBuffer);
+            free(opusStreamObject);
+        }
     }
 #else
     OsStatus status = OS_NOT_YET_IMPLEMENTED;
@@ -832,17 +846,32 @@ void MprRecorder::deleteOpusEncoder()
 #ifdef OPUS_FILE_RECORD_ENABLED
     if(mpOpusEncoder)
     {
-        // Cannot drain here as we may have already closed the file.
-        // This is probably ok that we don't drain as we likely only have silence anyway.
+        // Drain here. What if we have already closed the file?
+        // Is it better that we don't drain as we likely only have silence anyway?
         // Also this is not much different than other codecs where there may be samples still
         // in buffers somewhere.
-        //int result = ope_encoder_drain((OggOpusEnc*)mpOpusEncoder);
-        //if(result)
-        //{
-        //    OsSysLog::add(FAC_MP, PRI_ERR,
-        //                  "MprRecorder::deleteOpusEncoder ope_encoder_drain returned: %d",
-        //                  result);
-        //}
+        int result = ope_encoder_drain((OggOpusEnc*)mpOpusEncoder);
+        if(result)
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                          "MprRecorder::deleteOpusEncoder ope_encoder_drain returned: %d",
+                          result);
+        }
+        // Still have buffered, encoded data that needs to be written to the file
+        else if(mpOpusStreamObject && mpOpusStreamObject->mBytesWritten > 0)
+        {
+            int dataSize = mpOpusStreamObject->mBytesWritten;
+            const char* channelData[1];
+            channelData[0] = (const char*)mpOpusStreamObject->mpBuffer;
+            int bytesWritten = writeFile(channelData, dataSize);
+
+            if(bytesWritten != dataSize * mChannels)
+            {
+                OsSysLog::add(FAC_MP, PRI_ERR,
+                              "MprRecorder::writeSamples wrote %d of %d drained Opus encoder bytes",
+                              bytesWritten, dataSize);
+            }
+        }
         ope_encoder_destroy((OggOpusEnc*)mpOpusEncoder);
         mpOpusEncoder = NULL;
     }
@@ -1007,7 +1036,9 @@ UtlBoolean MprRecorder::handleStartFile(int file,
    // If we are creating a WAV file, write the header.
    // Otherwise we are writing raw PCM data to file.
    // If we are appending, the wave file header already exists
-   if (mRecFormat != MprRecorder::RAW_PCM_16 && !append)
+   if (mRecFormat != MprRecorder::RAW_PCM_16 && 
+       mRecFormat != MprRecorder::OGG_OPUS && 
+       !append)
    {
       writeWaveHeader(file, recFormat, codecSampleRate, numChannels);
    }
@@ -1505,12 +1536,22 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
                           "MprRecorder::writeSamples ope_encoder_write returned: %d",
                           opusResult);
         }
+        else
+        {
+            // Opus encoder also does up/down sampling.  So we need
+            // to correct the sample count for up/down sampling.  Opus
+            // encodes at 48000.
+            numSamplesEncoded = numResampled * mpFlowGraph->getSamplesPerSec() / 48000;
+        }
 
         if(mpOpusStreamObject && mpOpusStreamObject->mBytesWritten > 0)
         {
             encodedSamplesPtrArray[0] = (MpAudioSample*)mpOpusStreamObject->mpBuffer;
             dataSize = mpOpusStreamObject->mBytesWritten;
             mpOpusStreamObject->mBytesWritten = 0;
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                          "MprRecorder::writeSamples ope_encoder_write encoded: %d resetting buffer to zero: %d",
+                          dataSize, mpOpusStreamObject->mBytesWritten);
         }
 #else
         assert(0);
@@ -1575,35 +1616,51 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
 int MprRecorder::writeFile(const char* channelData[], int dataSize)
 {
     int bytesWritten = 0;
-    int totalWritten = 0;
     int bytesPerSample = getBytesPerSample(mRecFormat);
 
     OsSysLog::add(FAC_MP, PRI_DEBUG,
-            "MprRecorder::writeFile record format: %d mChannels: %d dataSize: %d bytes/sample: %d bytesPerSample",
+            "MprRecorder::writeFile %d record format: %d mChannels: %d dataSize: %d bytes/sample: %d bytesPerSample",
+             mFileDescriptor,
              mRecFormat,
              mChannels,
              dataSize,
              bytesPerSample);
 
-    assert(bytesPerSample > 0 || mChannels == 1);
-
-    char interlacedBuffer[1 << 14];
-    assert(((int)sizeof(interlacedBuffer)) >= (dataSize * mChannels));
-
     if(mWhenToInterlace == POST_ENCODE_INTERLACE)
     {
+        assert(bytesPerSample > 0 || mChannels == 1);
+        char interlacedBuffer[1 << 14];
+        assert(((int)sizeof(interlacedBuffer)) >= (dataSize * mChannels));
+
         // Interlace a sample from each channel
         int interlacedSize = interlaceSamples(channelData, dataSize / bytesPerSample , bytesPerSample, mChannels, interlacedBuffer, sizeof(interlacedBuffer));
 
 
         bytesWritten = write(mFileDescriptor, interlacedBuffer, interlacedSize);
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                      "MprRecorder::writeFile write fd: %d returned: %d (interlaced)",
+                      mFileDescriptor, 
+                      bytesWritten);
     }
     else
     {
         bytesWritten = write(mFileDescriptor, channelData[0], dataSize);
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                      "MprRecorder::writeFile write fd: %d returned: %d (non-interlaced)",
+                      mFileDescriptor, 
+                      bytesWritten);
+        if(bytesWritten < 0)
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                          "MprRecorder::writeFile write fd: %d returned: %d (non-interlaced) errno: %d (%s)",
+                      mFileDescriptor, 
+                      bytesWritten,
+                      errno,
+                      strerror(errno));
+        }
     }
 
-    return(bytesWritten > 0 ? totalWritten : bytesWritten);
+    return(bytesWritten);
 }
 
 int MprRecorder::interlaceSamples(const char* samplesArrays[], int samplesPerChannel, int bytesPerSample, int channels, char* interlacedChannelSamplesArray, int interlacedArrayMaximum)
@@ -1671,6 +1728,8 @@ int16_t MprRecorder::getBytesPerSample(RecordFileFormat format)
     switch (format)
     {
     case MprRecorder::WAV_GSM:
+        // fall-through
+    case MprRecorder::OGG_OPUS:
         return 0;
 
     case MprRecorder::WAV_PCM_16:
