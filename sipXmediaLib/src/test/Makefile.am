@@ -23,7 +23,8 @@ testsuite_CXXFLAGS = -I$(SIPXUNITINC) \
 		     $(AM_CPPFLAGS) \
                      -DMP_CODECS_DIR=\"$(datadir)/@PACKAGE@\" \
                      @CPPUNIT_CFLAGS@ \
-                     @OPUS_INCLUDE@
+                     @OPUS_INCLUDE@ \
+                     @OPUS_CFLAGS@
 
 testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
     
