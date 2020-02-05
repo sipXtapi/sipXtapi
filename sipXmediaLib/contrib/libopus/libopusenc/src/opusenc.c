@@ -295,6 +295,7 @@ static int stdio_write(void *user_data, const unsigned char *ptr, opus_int32 len
   int ret;
   struct StdioObject *obj = (struct StdioObject*)user_data;
   ret = fwrite(ptr, 1, len, obj->file) != (size_t)len;
+  printf("Writing %d bytes ret: %d\n", len, ret);
   return ret;
 }
 
@@ -304,6 +305,42 @@ static int stdio_close(void *user_data) {
   if (obj->file) ret = fclose(obj->file);
   free(obj);
   return ret!=0;
+}
+
+void dumpEnc(OggOpusEnc* enc)
+{
+  char* format = "  ";
+  printf("OggOpusEnc{\n");
+  // OpusGenericEncoder st;
+  // oggpacker *oggp;
+  printf("%sunrecoverable: %d\n", format, enc->unrecoverable);
+  // int pull_api;
+  printf("%srate: %d\n", format, enc->rate);
+  printf("%schannels: %d\n", format, enc->channels);
+  // float *buffer;
+  printf("%sbuffer_start: %d\n", format, enc->buffer_start);
+  printf("%sbuffer_end: %d\n", format, enc->buffer_end);
+  // SpeexResamplerState *re;
+  printf("%sframe_size: %d\n", format, enc->frame_size);
+  printf("%sdecision_delay: %d\n", format, enc->decision_delay);
+  printf("%smax_ogg_delay: %d\n", format, enc->max_ogg_delay);
+  printf("%sglobal_granule_offset: %d\n", format, enc->global_granule_offset);
+  // opus_int64 curr_granule;
+  // opus_int64 write_granule;
+  // opus_int64 last_page_granule;
+  // int draining;
+  // int frame_size_request;
+  // float *lpc_buffer;
+  // unsigned char *chaining_keyframe;
+  // int chaining_keyframe_length;
+  // OpusEncCallbacks callbacks;
+  // ope_packet_func packet_callback;
+  // void *packet_callback_data;
+  // OpusHeader header;
+  // int comment_padding;
+  // EncStream *streams;
+  // EncStream *last_stream;
+  printf("}\n");
 }
 
 static const OpusEncCallbacks stdio_callbacks = {
@@ -746,6 +783,9 @@ int ope_encoder_write_float(OggOpusEnc *enc, const float *pcm, int samples_per_c
 
 /* Add/encode any number of int16 samples to the file. */
 int ope_encoder_write(OggOpusEnc *enc, const opus_int16 *pcm, int samples_per_channel) {
+#ifdef TEST_PRINT
+  dumpEnc(enc);
+#endif
   int channels = enc->channels;
   if (enc->unrecoverable) return enc->unrecoverable;
   enc->last_stream->header_is_frozen = 1;
