@@ -170,9 +170,46 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                 switch(recFormat)
                 {
                     case OGG_OPUS:
-// TODO Opus check opus header
-// Create readOpusFileHeader
-                    // Intensionally continuing on to move to end of file and start appending
+                    {
+                        // Check if there is at least 1 byte in the file
+                        long fileSize = lseek(fileHandle, 0, SEEK_END);
+                        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                                      "MprRecord::startFile lseek to 1 file %s descriptor: %d returned: %d",
+                                      filename, fileHandle, (int)fileSize);
+                        if(fileSize == 0)
+                        {
+                            // This is a new file.  No header to validate.
+                            // Move to the begining and start appending.
+                            lseek(fileHandle, 0, SEEK_SET);
+                        }
+                        else
+                        {
+                            // Opus check opus header
+                            lseek(fileHandle, 0, SEEK_SET);
+                            OpusHead opusHeader;
+                            OsStatus opusHeaderStatus = validateOpusHeader(fileHandle, opusHeader);
+                            // Valid header
+                            if(opusHeaderStatus == OS_SUCCESS)
+                            {
+                            // Not checking channel count as each section of Opus OGG file can have different
+                            // parameters including channel count.  
+                                // Move to the end of the file and start appending
+                                lseek(fileHandle, 0, SEEK_END);
+                            }
+                            else
+                            {
+                                OsSysLog::add(FAC_MP, PRI_ERR, 
+                                        "MprRecorder::startFile invalid Opus OGG header read from append to file: %s (return: %d) closed fd: %d",
+                                        filename,
+                                        opusHeaderStatus,
+                                        fileHandle);
+                                close(fileHandle);
+                                fileHandle = -1;
+                                result = OS_FAILED;
+                            }
+                        }
+                    }
+                        break;
 
                     case RAW_PCM_16:
                         // Move to the end of the file and start appending
@@ -220,15 +257,16 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                                 // error out and close the file
                                 else
                                 {
-                                    close(fileHandle);
-                                    fileHandle = -1;
                                     OsSysLog::add(FAC_MP, PRI_ERR, 
                                             "MprRecorder::startFile wave header read from append to file: %s "
                                             "(format: %d samples/sec: %d channels: %d), "
-                                            "differs from requested wave record format: %d samples/sec: %d channels: %d",
+                                            "differs from requested wave record format: %d samples/sec: %d channels: %d closed fd: %d",
                                             filename,
                                             waveFileCodec, fileSamplesPerSecond, fileChannels,
-                                            recFormat, fileSamplesPerSecond, numChannels);
+                                            recFormat, fileSamplesPerSecond, numChannels,
+                                            fileHandle);
+                                    close(fileHandle);
+                                    fileHandle = -1;
                                     result = OS_FAILED;
                                 }
 
@@ -247,12 +285,13 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                                     // All other file formats are wave files and if we are appending,
                                     // the file must already have a valid wave header.
                                     default:
+                                        OsSysLog::add(FAC_MP, PRI_ERR, 
+                                                "MprRecorder::startFile invalid wave header read from file: %s, cannot append wave format: %d closed fd: %d",
+                                                filename,
+                                                recFormat,
+                                                fileHandle);
                                         close(fileHandle);
                                         fileHandle = -1;
-                                        OsSysLog::add(FAC_MP, PRI_ERR, 
-                                                "MprRecorder::startFile invalid wave header read from file: %s, cannot append wave format: %d",
-                                                filename,
-                                                recFormat);
                                         result = OS_FAILED;
                                         break;
                                 } // end switch(recFormat)
@@ -267,11 +306,12 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
 
                         // Unhandled error case, should not get here
                             default:
+                                OsSysLog::add(FAC_MP, PRI_ERR, 
+                                        "MprRecorder::startFile wave header read failed: %d closed fd: %d",
+                                        waveHeaderReadStatus,
+                                        fileHandle);
                                 close(fileHandle);
                                 fileHandle = -1;
-                                OsSysLog::add(FAC_MP, PRI_ERR, 
-                                        "MprRecorder::startFile wave header read failed: %d",
-                                        waveHeaderReadStatus);
                                 result = OS_FAILED;
                                 break;
                         } // end switch(waveHeaderReadStatus)
@@ -700,6 +740,7 @@ static const OpusEncCallbacks opusFileCallbacks =
     SipxOpusWriteFile,
     SipxOpusCloseFile
 };
+
 #else
 
 struct SipxOpusWriteObject
@@ -744,6 +785,53 @@ static const OpusEncCallbacks opusFileCallbacks =
     SipxOpusWriteBuffer,
     SipxOpusCloseBuffer
 };
+
+OsStatus MprRecorder::validateOpusHeader(int inFileFd, OpusHead& opusHeader)
+{
+    OsStatus status = OS_FILE_INVALID_HANDLE;
+    unsigned char headerBuffer[57];
+    // Opus file can be appended.  So headers can exist anywhere in the file.
+    // Keep the current position so that we can restore it after validating the
+    // header.
+    uint64_t currentPos = lseek(inFileFd, 0, SEEK_CUR);
+    if(currentPos < 0)
+    {
+        status = OS_FILE_SEEK_ERROR;
+    }
+
+    else
+    {
+        int bytesRead = read(inFileFd, headerBuffer, sizeof(headerBuffer));
+        if(bytesRead < 47)
+        {
+            status = OS_INVALID_LENGTH;
+        }
+
+        if(bytesRead > 0)
+        {
+            int result = op_test(&opusHeader, headerBuffer, bytesRead);
+            if(result == 0)
+            {
+                status = OS_SUCCESS;
+            }
+            else
+            {
+                OsSysLog::add(FAC_MP, PRI_ERR,
+                              "MprRecorder::validateOpusHeader opus_test returned: %d",
+                              result);
+            }
+
+            // Reposition back where we were so there is not impact on file position
+            uint64_t resetPos = lseek(inFileFd, currentPos, SEEK_SET);
+            if(resetPos < 0)
+            {
+                status = OS_FILE_SEEK_ERROR;
+            }
+        }    
+    }
+    return(status);
+}
+
 #endif
 
 #endif
@@ -758,10 +846,10 @@ OsStatus MprRecorder::createOpusEncoder(int channels,
     int sampleRate = 48000;
 
     // May need to change this to 1 or 255
-    // 0 = mono or sterio
+    // 0 = mono or stereo
     // 1 = 1-255 channels using Vorbis channel mappings
     // 255 = 1-255 channels not using any particular channel mappings
-    int family = 0;
+    int family = channels <= 2 ? 0 : 255;
     deleteOpusEncoder();
     SipxOpusWriteObject* opusStreamObject = (struct SipxOpusWriteObject*) malloc(sizeof(*mpOpusStreamObject));
 #if 0
@@ -769,7 +857,7 @@ OsStatus MprRecorder::createOpusEncoder(int channels,
 #else
     opusStreamObject->mBytesWritten = 0;
     // Opus data pushed out when draining can be 3 frames over 7KB each.
-    opusStreamObject->mBufferMaximum = 0x1 << 15; // 32KB.  
+    opusStreamObject->mBufferMaximum = (0x1 << 15) /* 32KB */  * channels; 
     opusStreamObject->mpBuffer = (char*)malloc(opusStreamObject->mBufferMaximum);
 #endif
     OggOpusComments* comments = ope_comments_create();
@@ -788,7 +876,7 @@ OsStatus MprRecorder::createOpusEncoder(int channels,
 #if 0
         fileObj->mWriteFd = mFileDescriptor;
 #endif
-        OsSysLog::add(FAC_MP, PRI_ERR,
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
                       "MprRecorder::createOpusEncoder() file fd: %d",
                       mFileDescriptor);
 
@@ -856,6 +944,9 @@ void MprRecorder::deleteOpusEncoder()
             OsSysLog::add(FAC_MP, PRI_ERR,
                           "MprRecorder::deleteOpusEncoder ope_encoder_drain returned: %d",
                           result);
+
+            // If we could not drain codec, we still want to clear the buffer
+            mpOpusStreamObject->mBytesWritten = 0;
         }
         // Still have buffered, encoded data that needs to be written to the file
         else if(mpOpusStreamObject && mpOpusStreamObject->mBytesWritten > 0)
@@ -868,10 +959,23 @@ void MprRecorder::deleteOpusEncoder()
             if(bytesWritten != dataSize * mChannels)
             {
                 OsSysLog::add(FAC_MP, PRI_ERR,
-                              "MprRecorder::writeSamples wrote %d of %d drained Opus encoder bytes",
+                              "MprRecorder::deleteOpusEncoder wrote %d of %d drained Opus encoder bytes",
                               bytesWritten, dataSize);
             }
+            else
+            {
+                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                              "MprRecorder::deleteOpusEncoder wrote %d drained Opus encoder bytes",
+                              bytesWritten);
+            }
+            mpOpusStreamObject->mBytesWritten = 0;
         }
+        else
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                          "MprRecorder::deleteOpusEncoder no data to drain");
+        }
+        
         ope_encoder_destroy((OggOpusEnc*)mpOpusEncoder);
         mpOpusEncoder = NULL;
     }
@@ -989,6 +1093,9 @@ void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & code
 // TODO we need a resampler for each channel????
     if (codecSampleRate != flowgraphSampleRate)
     {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "MprRecorder::prepareDecoder creating resampler from: %d to: %d SPS",
+                      flowgraphSampleRate, codecSampleRate);
         mpResampler = MpResamplerBase::createResampler(1, flowgraphSampleRate, codecSampleRate);
     }
 }
@@ -1389,6 +1496,9 @@ void MprRecorder::closeFile(const char* fromWhereLabel)
                            mLastEncodedFrameSize);
            }
         }
+        OsSysLog::add(FAC_MP, PRI_ERR,
+                      "MprRecord::updateWaveHeaderLength closed fd: %d",
+                      mFileDescriptor);
         close(mFileDescriptor);
         mFileDescriptor = -1;
     }

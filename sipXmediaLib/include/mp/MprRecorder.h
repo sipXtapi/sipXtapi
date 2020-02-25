@@ -47,6 +47,7 @@
 class MpEncoderBase;
 class MpResamplerBase;
 struct SipxOpusWriteObject;
+struct OpusHead;
 
 /// The "Recorder" media processing resource
 class MprRecorder : public MpAudioResource
@@ -178,6 +179,8 @@ public:
      */
 
 //@}
+
+   static OsStatus validateOpusHeader(int inFileFd, OpusHead& opusHeader);
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
