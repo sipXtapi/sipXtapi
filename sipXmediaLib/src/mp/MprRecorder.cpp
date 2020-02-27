@@ -26,6 +26,7 @@
 #include <os/OsSysLog.h>
 #include <os/OsLock.h>
 #include <os/OsTask.h>
+#include <os/OsDateTime.h>
 #include <mp/MpMisc.h>
 #include <mp/MpBuf.h>
 #include <mp/MpFlowGraphBase.h>
@@ -171,6 +172,7 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                 {
                     case OGG_OPUS:
                     {
+#ifdef OPUS_FILE_RECORD_ENABLED
                         // Check if there is at least 1 byte in the file
                         long fileSize = lseek(fileHandle, 0, SEEK_END);
                         OsSysLog::add(FAC_MP, PRI_DEBUG,
@@ -208,6 +210,9 @@ OsStatus MprRecorder::startFile(const UtlString& namedResource,
                                 result = OS_FAILED;
                             }
                         }
+#else
+                        result = OS_FAILED;
+#endif
                     }
                         break;
 
