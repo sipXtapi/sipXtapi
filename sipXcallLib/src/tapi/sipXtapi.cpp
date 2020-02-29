@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2018 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2020 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2576,6 +2576,10 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
 
         case SIPX_WAVE_GSM:
             cpRecordFormat = CpMediaInterface::CP_WAVE_GSM;
+            break;
+
+        case SIPX_OGG_OPUS:
+            cpRecordFormat = CpMediaInterface::CP_OGG_OPUS;
             break;
 
         default:

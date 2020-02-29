@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2020 SIPez LLC. All rights reserved.
 //
 //
 // $$
@@ -47,6 +47,10 @@ OsStatus TypeConverter::translateRecordingFormat(CpMediaInterface::CpAudioFileFo
 
 	case CpMediaInterface::CP_WAVE_MULAW:
 		recordFormat = MprRecorder::WAV_MULAW;
+		return OS_SUCCESS;
+
+	case CpMediaInterface::CP_OGG_OPUS:
+		recordFormat = MprRecorder::OGG_OPUS;
 		return OS_SUCCESS;
 
 	default:

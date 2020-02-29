@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2020 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1446,6 +1446,13 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
                                              SdpCodec* sendCodecs[])
 {
    // need to set default payload types in get capabilities
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+                  "CpTopologyGraphInterface::startRtpSend(%d, %d, %p)",
+                  connectionId,
+                  numCodecs,
+                  sendCodecs);
+#endif
 
    int i;
    SdpCodec* audioCodec = NULL;
@@ -1994,7 +2001,7 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
           //int totalBridgePorts = getNumBridgePorts();
           int totalBridgePorts = DEFAULT_BRIDGE_MAX_IN_OUTPUTS;
           float* recorderWeights = new float[totalBridgePorts];
-          for(int channelIndex = 0; channelIndex < MAXIMUM_RECORDER_CHANNELS; channelIndex++)
+          for(int channelIndex = 0; channelIndex < numChannels; channelIndex++)
           {
               for(int portIndex = 0; portIndex < totalBridgePorts; portIndex++)
               {
@@ -2008,14 +2015,14 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
                   }
 
                   // If middle channel only a single remote stream is recorded
-                  if(channelIndex > 0 && channelIndex < MAXIMUM_RECORDER_CHANNELS -1 &&
+                  if(channelIndex > 0 && channelIndex < numChannels -1 &&
                      portIndex == numLocalBridgePorts + channelIndex - 1)
                   {
                       recorderWeights[portIndex] = 1.0;
                   }
 
                   // If last channel, all remaining remote streams are mixed in
-                  if(channelIndex == MAXIMUM_RECORDER_CHANNELS - 1 &&
+                  if(channelIndex == numChannels - 1 &&
                      portIndex >= numLocalBridgePorts + channelIndex - 1)
                   {
                       recorderWeights[portIndex] = 1.0;
@@ -2039,6 +2046,11 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
 
           case CP_WAVE_GSM:
               recordFormat = MprRecorder::WAV_GSM;
+              stat = OS_SUCCESS;
+              break;
+
+          case CP_OGG_OPUS:
+              recordFormat = MprRecorder::OGG_OPUS;
               stat = OS_SUCCESS;
               break;
 

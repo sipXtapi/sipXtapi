@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2020 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -111,7 +111,8 @@ public:
        CP_WAVE_PCM_16, ///< Wave file format containing PCM 16 bit signed little endian encoded audio
        CP_WAVE_ALAW,
        CP_WAVE_MULAW,
-       CP_WAVE_GSM     ///< Wafe file format contain GSM encoded audio
+       CP_WAVE_GSM,    ///< Wafe file format contain GSM encoded audio
+       CP_OGG_OPUS     ///< OGG file container using OPUS encoder.
    };
 
 

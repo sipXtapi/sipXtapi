@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2020 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -345,7 +345,8 @@ typedef enum SIPX_AUDIO_FILE_FORMAT
     SIPX_UNKNOWN_FORMAT = 0,
     SIPX_WAVE_PCM_16,        /**< Wave audio file with PCM 16 bit, signed, little endian
                                   encoded audio. */
-    SIPX_WAVE_GSM            /**< Wave audio file with GSM encoded audio. */
+    SIPX_WAVE_GSM,           /**< Wave audio file with GSM encoded audio. */
+    SIPX_OGG_OPUS            /**< OGG file container using OPUS audio encoder. */
 } SIPX_AUDIO_FILE_FORMAT;
 
 /**
