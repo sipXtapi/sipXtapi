@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2008-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2008-2020 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -120,7 +120,7 @@ UtlBoolean SdpHelper::getMediaLine(const SdpBody& sdpBody, int mediaLineIndex, S
             int sampleRate = 0;
             int numChannels = 0;
             const SdpCodec* matchingCodec = NULL;
-            int ptime;
+            int ptime = 0;
             int numVideoSizes = MAXIMUM_VIDEO_SIZES;
             int videoSizes[MAXIMUM_VIDEO_SIZES];
             sdpBody.getPayloadFormat(mediaLineIndex, payloadTypes[typeIndex], payloadFormat);
