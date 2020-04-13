@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2020 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,65 +49,5 @@ extern "C" void mppLogError(const char* format, ...)
                   format, varArgs);
 
     va_end(varArgs);
-}
-
-/* Parsing {param}={value} */
-static int analizeParamEqValue(const char *parsingString, const char* paramName, int* value)
-{
-   int tmp;
-   char c;
-   int eqFound = FALSE;
-   int digitFound = FALSE;  
-   const char* res;
-   res = strstr(parsingString, paramName);
-   if (!res) {
-      return -1;
-   }
-   res += strlen(paramName); //Skip name of param world
-
-   for (; (c=*res) != 0; res++ )
-   {
-      if (isspace(c)) {
-         if (digitFound) 
-            break;
-         continue;
-      }
-      if (c == '=') {
-         if (eqFound) 
-            goto end_of_analize;
-         eqFound = TRUE;
-         continue;            
-      }
-      if (isdigit(c)) {
-         if (!eqFound) 
-            goto end_of_analize;
-         tmp = (c - '0');
-         for (res++; isdigit(c=*res); res++) {
-            tmp = tmp * 10 + (c - '0');
-         }
-         res--;
-         digitFound = TRUE;
-         continue;
-      }
-
-      /* Unexpected character */
-      goto end_of_analize;
-   }
-   if (digitFound) {
-      *value = tmp;
-      return 0;
-   }
-
-end_of_analize:
-   return -1;
-}
-
-extern "C" int getFmtpValueRange(const char* str, const char* param, int defValue, int minValue, int maxValue)
-{
-   int value;
-   int res = (!str) ? (-1) : analizeParamEqValue(str, param, &value);
-   if ((res == 0) && (value >= minValue) && (value <= maxValue))
-      return value;
-   return defValue;
 }
 

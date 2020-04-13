@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2020 SIPez LLC.  All rights reserved.
 //
 //
 // $$
@@ -9,6 +9,9 @@
 
 #ifndef _PlgDefs_h_
 #define _PlgDefs_h_
+
+#include <string.h>
+#include <ctype.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,8 +96,71 @@ extern "C" {
 /* c wrapper for OsSysLog::add(FAC_MP, PRI_ERR, const char* format, ...); */
 void mppLogError(const char* format, ...);
 
+/* Parsing {param}={value} */
+inline int analizeParamEqValue(const char* parsingString, const char* paramName, int* value)
+{
+    int tmp;
+    char c;
+    int eqFound = FALSE;
+    int digitFound = FALSE;
+    const char* res;
+    res = 
+#if defined(WIN32)
+        (const char*)
+#endif
+        strstr(parsingString, paramName);
+    if (!res) {
+        return -1;
+    }
+    res += strlen(paramName); //Skip name of param world
+
+    for (; (c = *res) != 0; res++)
+    {
+        if (isspace(c)) {
+            if (digitFound)
+                break;
+            continue;
+        }
+        if (c == '=') {
+            if (eqFound)
+                goto end_of_analize;
+            eqFound = TRUE;
+            continue;
+        }
+        if (isdigit(c)) {
+            if (!eqFound)
+                goto end_of_analize;
+            tmp = (c - '0');
+            for (res++; isdigit(c = *res); res++) {
+                tmp = tmp * 10 + (c - '0');
+            }
+            res--;
+            digitFound = TRUE;
+            continue;
+        }
+
+        /* Unexpected character */
+        goto end_of_analize;
+    }
+    if (digitFound) {
+        *value = tmp;
+        return 0;
+    }
+
+end_of_analize:
+    return -1;
+}
+
 /* fmtp parameter parser */
-int getFmtpValueRange(const char* fmtp, const char* paramName, int defaultValue, int minValue, int maxValue);
+inline int getFmtpValueRange(const char* fmtp, const char* paramName, int defaultValue, int minValue, int maxValue)
+{
+    int value;
+    int res = (!fmtp) ? (-1) : analizeParamEqValue(fmtp, paramName, &value);
+    if ((res == 0) && (value >= minValue) && (value <= maxValue))
+        return value;
+    return defaultValue;
+}
+
 
 
 /**
