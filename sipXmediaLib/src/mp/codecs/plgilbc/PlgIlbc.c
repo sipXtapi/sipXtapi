@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2018 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2020 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,12 @@ struct iLBC_codec_data {
 // DEFINES
 #define DEBUG_PRINT
 #undef  DEBUG_PRINT
+
+// WIN32 dev does not facilitate circular shared lib dependencies
+// So for now take a short cut
+#if defined(WIN32)
+#  define mppLogError printf
+#endif
 
 // STATIC VARIABLES INITIALIZATON
 static const char* defaultFmtps[] = {
