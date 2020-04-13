@@ -97,7 +97,7 @@ extern "C" {
 void mppLogError(const char* format, ...);
 
 /* Parsing {param}={value} */
-inline int analizeParamEqValue(const char* parsingString, const char* paramName, int* value)
+static inline int analizeParamEqValue(const char* parsingString, const char* paramName, int* value)
 {
     int tmp;
     char c;
@@ -152,7 +152,7 @@ end_of_analize:
 }
 
 /* fmtp parameter parser */
-inline int getFmtpValueRange(const char* fmtp, const char* paramName, int defaultValue, int minValue, int maxValue)
+static inline int getFmtpValueRange(const char* fmtp, const char* paramName, int defaultValue, int minValue, int maxValue)
 {
     int value;
     int res = (!fmtp) ? (-1) : analizeParamEqValue(fmtp, paramName, &value);
