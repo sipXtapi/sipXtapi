@@ -27,7 +27,7 @@
 #include <sys/mman.h>
 #undef _P1003_1B_VISIBLE
 
-// Include to access gettid() syscall for debug purposes
+// Include to access sys_gettid() syscall for debug purposes
 #include <sys/syscall.h>
 
 // APPLICATION INCLUDES
@@ -49,7 +49,7 @@
 
 // EXTERNAL FUNCTIONS
 #ifndef ANDROID // [
-static inline int gettid() {return syscall(SYS_gettid);}
+static inline int sys_gettid() {return syscall(SYS_gettid);}
 #endif // !ANDROID ]
 
 // EXTERNAL VARIABLES
@@ -783,7 +783,7 @@ void * OsTaskLinux::taskEntry(void* arg)
 
    // Log Thread ID for debug purposes
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsTaskLinux::taskEntry: Started task %s with lwp=%d, pid=%d",
-                 pTask->mName.data(), gettid(), getpid());
+                 pTask->mName.data(), sys_gettid(), getpid());
 
 #ifdef ANDROID // [
    pTask->setPriority(pTask->mPriority);
