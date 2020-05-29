@@ -1639,7 +1639,8 @@ int MprRecorder::writeSamples(const MpAudioSample *pBuffers[], int numSamples, W
 #ifdef OPUS_FILE_RECORD_ENABLED
         // Interlace samples as the codec expects PCM with interlaced channel samples
 
-        MpAudioSample interlacedBuffer[numResampled * sizeof(MpAudioSample) * mChannels]; 
+        MpAudioSample interlacedBuffer[localBufferSize * MAXIMUM_RECORDER_CHANNELS];
+        assert(sizeof(interlacedBuffer) >= (numResampled * sizeof(MpAudioSample) * mChannels));
         int interlacedSize = interlaceSamples((const char**)resampledBufferPtrArray, numResampled, sizeof(MpAudioSample), mChannels, (char*)interlacedBuffer, sizeof(interlacedBuffer));
 
         assert(interlacedSize == (int)( numResampled * sizeof(MpAudioSample) * mChannels));
