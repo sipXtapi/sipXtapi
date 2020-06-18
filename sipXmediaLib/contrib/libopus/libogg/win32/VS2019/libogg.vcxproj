@@ -245,7 +245,7 @@
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ModuleDefinitionFile>$(SolutionDir)..\ogg.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\ogg.def</ModuleDefinitionFile>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
