@@ -53,7 +53,7 @@
     <ClCompile Include="..\..\src\unicode_support.c" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\opus\win32\VS2015\opus.vcxproj">
+    <ProjectReference Include="..\..\..\opus\win32\VS2019\opus.vcxproj">
       <Project>{219ec965-228a-1824-174d-96449d05f88a}</Project>
     </ProjectReference>
   </ItemGroup>
@@ -156,19 +156,19 @@
       <Message>Generating version.h</Message>
     </PreBuildEvent>
     <Link>
-      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">..\..\..\opus\win32\VS2015\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">..\..\..\opus\win32\VS2019\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Link>
-      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">..\..\..\opus\win32\VS2015\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">..\..\..\opus\win32\VS2019\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Link>
-      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">..\..\..\opus\win32\VS2015\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">..\..\..\opus\win32\VS2019\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">opus.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Link>
-      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">..\..\..\opus\win32\VS2015\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">..\..\..\opus\win32\VS2019\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">opus.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
