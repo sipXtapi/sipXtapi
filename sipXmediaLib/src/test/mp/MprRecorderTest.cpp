@@ -339,8 +339,8 @@ class MprRecorderTest : public MpGenericResourceTest
     {
         const char* inFilename = "Rec_60hz_2ch_48k.raw";
         const char* opusFilename = "Rec_60hz_2ch_48k.opus";
-        int sampleRate = 48000;
-        int channels = 2;
+        const int sampleRate = 48000;
+        const int channels = 2;
 
         int inFd =  open(inFilename, O_BINARY | O_RDONLY); 
         CPPUNIT_ASSERT(inFd >= 0);
