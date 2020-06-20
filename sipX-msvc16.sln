@@ -38,9 +38,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLibTest-msvc16", "
 		{214007F3-D6E8-4B07-AC00-9FB673FF539E} = {214007F3-D6E8-4B07-AC00-9FB673FF539E}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaAdapterLib-msvc8", "sipXmediaAdapterLib\sipXmediaAdapterLib-msvc8.vcxproj", "{9501C518-8693-42F3-86A4-39B14983EC6C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaAdapterLib-msvc16", "sipXmediaAdapterLib\sipXmediaAdapterLib-msvc16.vcxproj", "{9501C518-8693-42F3-86A4-39B14983EC6C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaAdapterLibTest-msvc8", "sipXmediaAdapterLib\sipXmediaAdapterLibTest-msvc8.vcxproj", "{4D2F60E7-A4A4-4429-A640-2894F33824CA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaAdapterLibTest-msvc16", "sipXmediaAdapterLib\sipXmediaAdapterLibTest-msvc16.vcxproj", "{4D2F60E7-A4A4-4429-A640-2894F33824CA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXsdpLib-msvc16", "sipXsdpLib\sipXsdpLib-msvc16.vcxproj", "{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -90,7 +90,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgtones-msvc16", "sipXmedi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libspeex", "sipXmediaLib\contrib\libspeex\win32\VS2019\libspeex\libspeex.vcxproj", "{E972C52F-9E85-4D65-B19C-031E511E9DB4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mstream-msvc8", "sipXmediaAdapterLib\examples\mstream\mstream-msvc8.vcxproj", "{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mstream-msvc16", "sipXmediaAdapterLib\examples\mstream\mstream-msvc16.vcxproj", "{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libspeexdsp", "sipXmediaLib\contrib\libspeex\win32\VS2019\libspeexdsp\libspeexdsp.vcxproj", "{E42FDC95-7243-4219-9EA4-ACCE4AB97197}"
 EndProject
@@ -930,8 +930,8 @@ Global
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release|SDK1_emu (ARMV4I).Build.0 = Debug|Win32
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Win32
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release|sipx_CE60_emulator (ARMV4I).Build.0 = Debug|Win32
-		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release|Win32.ActiveCfg = Debug|Win32
-		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release|Win32.Build.0 = Debug|Win32
+		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release|Win32.ActiveCfg = Release|Win32
+		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release|Win32.Build.0 = Release|Win32
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Win32
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Build.0 = Debug|Win32
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release|x64.ActiveCfg = Debug|Win32
