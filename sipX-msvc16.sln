@@ -52,13 +52,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXsdpLibTest-msvc16", "si
 		{89DC96A3-11B6-4B91-A12B-E2C94E96AF6B} = {89DC96A3-11B6-4B91-A12B-E2C94E96AF6B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib-msvc8", "sipXcallLib\sipXcallLib-msvc8.vcxproj", "{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib-msvc16", "sipXcallLib\sipXcallLib-msvc16.vcxproj", "{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLibTest-msvc8", "sipXcallLib\sipXcallLibTest-msvc8.vcxproj", "{E52BAB1C-5455-42F5-B3F7-139D4EC3B079}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLibTest-msvc16", "sipXcallLib\sipXcallLibTest-msvc16.vcxproj", "{E52BAB1C-5455-42F5-B3F7-139D4EC3B079}"
+	ProjectSection(ProjectDependencies) = postProject
+		{89DC96A3-11B6-4B91-A12B-E2C94E96AF6B} = {89DC96A3-11B6-4B91-A12B-E2C94E96AF6B}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapi-msvc8", "sipXcallLib\sipXtapi-msvc8.vcxproj", "{85CAC56D-4E3A-4712-91A5-AE724B11AE25}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapi-msvc16", "sipXcallLib\sipXtapi-msvc16.vcxproj", "{85CAC56D-4E3A-4712-91A5-AE724B11AE25}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapiTest-msvc8", "sipXcallLib\sipXtapiTest-msvc8.vcxproj", "{BA2DC6F0-210B-496E-9E98-4251F1F4F24C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapiTest-msvc16", "sipXcallLib\sipXtapiTest-msvc16.vcxproj", "{BA2DC6F0-210B-496E-9E98-4251F1F4F24C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXunitTestSuite-msvc16", "sipXportLib\sipXunitTestSuite-msvc16.vcxproj", "{DB95F825-45EE-4D62-825D-F337E2210B01}"
 EndProject
