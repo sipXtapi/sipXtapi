@@ -67,9 +67,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXunitTestSuite-msvc16", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXezPhone-msvc8", "sipXcallLib\examples\sipXezPhone\sipXezPhone-msvc8.vcxproj", "{F0EBB1F7-CA6B-4201-976E-4CF7D0A19BA1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlaceCall-msvc8", "sipXcallLib\examples\PlaceCall\PlaceCall-msvc8.vcxproj", "{14441867-4291-4174-812E-00C774370C61}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlaceCall-msvc16", "sipXcallLib\examples\PlaceCall\PlaceCall-msvc16.vcxproj", "{14441867-4291-4174-812E-00C774370C61}"
+	ProjectSection(ProjectDependencies) = postProject
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReceiveCall-msvc8", "sipXcallLib\examples\ReceiveCall\ReceiveCall-msvc8.vcxproj", "{0FF92063-90A6-41B2-947B-AD3ADAE06FAC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReceiveCall-msvc16", "sipXcallLib\examples\ReceiveCall\ReceiveCall-msvc16.vcxproj", "{0FF92063-90A6-41B2-947B-AD3ADAE06FAC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheckVMail-msvc8", "sipXcallLib\examples\CheckVMail\CheckVMail-msvc8.vcxproj", "{8D059DA8-5A65-478F-BFFC-14BCC71764C9}"
 EndProject
