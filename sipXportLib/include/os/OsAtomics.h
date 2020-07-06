@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2008-2020 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -51,10 +50,10 @@ public:
    bool is_lock_free() const
    {return false;}
 
-   void store(T val, ::memory_order  = memory_order_seq_cst)
+   void store(T val, ::memory_order  = ::memory_order_seq_cst)
    {OsLock lock(mMutex); mVal = val;}
 
-   T load(::memory_order = memory_order_seq_cst) const
+   T load(::memory_order = ::memory_order_seq_cst) const
    {OsLock lock(mMutex); return mVal;}
 
    operator T() const
@@ -67,19 +66,19 @@ public:
    void fence(::memory_order) const
    {};
 
-   T fetch_add(T val, ::memory_order = memory_order_seq_cst)
+   T fetch_add(T val, ::memory_order = ::memory_order_seq_cst)
    {OsLock lock(mMutex); T temp = mVal; mVal += val; return temp;}
 
-   T fetch_sub(T val, ::memory_order = memory_order_seq_cst)
+   T fetch_sub(T val, ::memory_order = ::memory_order_seq_cst)
    {OsLock lock(mMutex); T temp = mVal; mVal -= val; return temp;}
 
-   T fetch_and(T val, ::memory_order = memory_order_seq_cst)
+   T fetch_and(T val, ::memory_order = ::memory_order_seq_cst)
    {OsLock lock(mMutex); T temp = mVal; mVal &= val; return temp;}
 
-   T fetch_or(T val, ::memory_order = memory_order_seq_cst)
+   T fetch_or(T val, ::memory_order = ::memory_order_seq_cst)
    {OsLock lock(mMutex); T temp = mVal; mVal |= val; return temp;}
 
-   T fetch_xor(T val, ::memory_order = memory_order_seq_cst)
+   T fetch_xor(T val, ::memory_order = ::memory_order_seq_cst)
    {OsLock lock(mMutex); T temp = mVal; mVal ^= val; return temp;}
 
    OsAtomic<T>() : mMutex(0) {};
