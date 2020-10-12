@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2020 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -146,15 +146,14 @@ unsigned int UtlHistogram::operator[](unsigned int i)
  */
 UtlString* UtlHistogram::show()
 {
-   unsigned int width;
-
-   // Buffer into which to sprintf the values.
-   char* buffer = new char[(mNoOfBins+2) * mOutputWidth + 1];
+   unsigned int width = 0;
+   UtlString* value = new UtlString();
 
    // Translate the values.
    for (unsigned int i = 0, j = 0; i < mNoOfBins + 2; i++, j += width)
    {
-      width = sprintf(&buffer[j], mOutputFormat, mpBins[i]);
+      value->appendFormat(mOutputFormat, mpBins[i]);
+      width = value->length() - width;
       if (width > mOutputWidth)
       {
          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
@@ -163,12 +162,6 @@ UtlString* UtlHistogram::show()
                        mOutputFormat, width, mOutputWidth);
       }
    }
-   // Since there is always at least one bin, sprintf was called at least
-   // once and it ended the string with a NUL.
-
-   // Construct the UtlString.
-   UtlString* value = new UtlString(buffer);
-   delete[] buffer;
 
    return value;
 }
