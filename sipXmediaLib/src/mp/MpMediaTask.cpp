@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2020 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -24,6 +24,8 @@
 #include <os/OsDateTime.h>
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MpMisc.h>
+
+// define _PROFILE in MpMediaTask.h to enable
 #include <mp/MpMediaTask.h>
 #include <mp/MpMediaTaskMsg.h>
 #include <mp/MpBufferMsg.h>
@@ -38,13 +40,6 @@
 #else // RTL_ENABLED ][
 #  define RTL_EVENT(x,y)
 #endif // RTL_ENABLED ]
-
-// Include sys/time.h if _PROFILE is set.
-// This #include has to be after the #include of mp/MpMediaTask.h, because
-// that is where we normally set _PROFILE.
-#ifdef _PROFILE /* [ */
-#include <sys/time.h>
-#endif /* _PROFILE ] */
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -264,12 +259,8 @@ OsStatus MpMediaTask::signalFrameStart(const OsTime &timeout)
          pMsg->setInt1(signalTime.seconds());
          pMsg->setInt2(signalTime.usecs());
 #ifdef _PROFILE /* [ */
-         timeval t;
-         gettimeofday(&t, NULL);
-         long long now = (t.tv_sec * 1000000) + t.tv_usec;
-         // Record the time into the message
-         pMsg->setInt1(t.tv_sec);
-         pMsg->setInt2(t.tv_usec);
+         long long now = (signalTime.seconds() * 1000000) + signalTime.usecs();
+
          // Record the tick interval into the histogram.
          if (spInstance->mSignalTime.tally(now - sSignalTicks) >= 1000)
          {
@@ -701,9 +692,9 @@ UtlBoolean MpMediaTask::handleMessage(OsMsg& rMsg)
    long long start_time;
    if (pMsg->getMsg() != MpMediaTaskMsg::WAIT_FOR_SIGNAL)
    {
-      timeval t;
-      gettimeofday(&t, NULL);
-      start_time = (t.tv_sec * 1000000) + t.tv_usec;
+      OsTime now;
+      OsDateTime::getCurTime(now);
+      start_time = (now.seconds() * 1000000) + now.usecs();
    }
 #endif /* _PROFILE ] */
    RTL_EVENT("MpMediaTask::handleMessage", 1 + pMsg->getMsg());
@@ -741,9 +732,9 @@ UtlBoolean MpMediaTask::handleMessage(OsMsg& rMsg)
    // Log the time it takes to handle messages other than WAIT_FOR_SIGNAL.
    if (pMsg->getMsg() != MpMediaTaskMsg::WAIT_FOR_SIGNAL)
    {
-      timeval t;
-      gettimeofday(&t, NULL);
-      long long end_time = (t.tv_sec * 1000000) + t.tv_usec;
+      OsTime now;
+      OsDateTime::getCurTime(now);
+      long long end_time = (now.seconds() * 1000000) + now.usecs();
       mOtherMessages.tally(end_time - start_time);
    }
 #endif /* _PROFILE ] */
@@ -931,9 +922,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
 #ifdef _PROFILE /* [ */
    {
       // Get the current time.
-      timeval t;
-      gettimeofday(&t, NULL);
-      long long now = (t.tv_sec * 1000000) + t.tv_usec;
+      long long now = (startTime.seconds() * 1000000) + startTime.usecs();
       // From the message, get the time that it was sent.
       long long signal_time =
          (pMsg->getInt1() * 1000000) + pMsg->getInt2();
@@ -1025,10 +1014,10 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
 
 #ifdef _PROFILE /* [ */
    {
-      timeval t;
-      gettimeofday(&t, NULL);
+      OsTime now;
+      OsDateTime::getCurTime(now);
       // Record the processing stop time.
-      mStopTicks = (t.tv_sec * 1000000) + t.tv_usec;
+      mStopTicks = (now.seconds() * 1000000) + now.usecs();
       // if not debugging, determine whether the processing limit was exceeded
       if (!mDebugEnabled)
       {
