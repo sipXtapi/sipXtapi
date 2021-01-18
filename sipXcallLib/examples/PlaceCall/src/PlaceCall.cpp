@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -129,6 +129,7 @@ void usage(const char* szExecutable)
     printf("   -volume <int> set output volume (1-100) (default = 70)\n");
     printf("   -C <string> codec name (default all available)\n");
     printf("   -L list all supported codecs\n");
+    printf("   -D list all available audio devices\n");
     printf("   -path <string> add the given path in which to search for codec plugins\n");
     printf("   -aec enable acoustic echo cancelation\n");
     printf("   -agc enable automatic gain control\n");
@@ -585,6 +586,14 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
 
        switch(pMediaInfo->event)
        {
+       case MEDIA_INPUT_DEVICE_NOT_PRESENT:
+           printf("input device: \"%s\"\n", pMediaInfo->deviceName);
+           break;
+
+       case MEDIA_OUTPUT_DEVICE_NOT_PRESENT:
+           printf("output device: \"%s\"\n", pMediaInfo->deviceName);
+           break;
+
        case MEDIA_LOCAL_START:
            printf("* Negotiated codec: %s, payload type %d\n",
                   pMediaInfo->codec.audioCodec.cName, pMediaInfo->codec.audioCodec.iPayloadType);
@@ -1004,7 +1013,7 @@ void dumpInputOutputDevices()
         {
             const char* szDevice ;
             sipxAudioGetInputDevice(g_hInst, i, szDevice) ;
-            printf("\t#%d: %s\n", (int)i, szDevice) ;
+            printf("\t#%d: \"%s\"\n", (int)i, szDevice) ;
         }
     }
 
@@ -1015,7 +1024,7 @@ void dumpInputOutputDevices()
         {
             const char* szDevice ;
             sipxAudioGetOutputDevice(g_hInst, i, szDevice) ;
-            printf("\t#%d: %s\n", (int)i, szDevice) ;
+            printf("\t#%d: \"%s\"\n", (int)i, szDevice) ;
         }
     }
 
@@ -1100,25 +1109,53 @@ int local_main(int argc, char* argv[])
         // initialize sipx TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("PlaceCall.log");
-        sipxInitialize(&g_hInst, 
-                       iSipPort, 
-                       iSipPort, 
-                       -1, 
-                       iRtpPort,
-                       DEFAULT_CONNECTIONS, 
-                       DEFAULT_IDENTITY, 
-                       szBindAddr,
-                       false, // use sequential RTP/RTCP ports
-                       NULL, // cert. nickname
-                       NULL, // cert. password
-                       NULL, // DB location
-                       true, // Enable local audio
-                       mediaRate, // media/flowgraph frame sample rate
-                       deviceRate, // Audio device sample rate
-                       10, // internal media frame size (milliseconds)
-                       szInDevice ? szInDevice : "", // Audio input device
-                       szOutDevice ? szOutDevice : ""  // Audio output device
-                      );
+        SIPX_RESULT result =
+            sipxInitialize(&g_hInst, 
+                           iSipPort, 
+                           iSipPort, 
+                           -1, 
+                           iRtpPort,
+                           DEFAULT_CONNECTIONS, 
+                           DEFAULT_IDENTITY, 
+                           szBindAddr,
+                           false, // use sequential RTP/RTCP ports
+                           NULL, // cert. nickname
+                           NULL, // cert. password
+                           NULL, // DB location
+                           true, // Enable local audio
+                           mediaRate, // media/flowgraph frame sample rate
+                           deviceRate, // Audio device sample rate
+                           10, // internal media frame size (milliseconds)
+                           szInDevice ? szInDevice : "", // Audio input device
+                           szOutDevice ? szOutDevice : ""  // Audio output device
+                          );
+        
+        if (result != SIPX_RESULT_SUCCESS)
+        {
+            printf("sipXinitialize failed, return: %d", result);
+            exit(11);
+        }
+
+        int outDevIndex = -1;
+        const char* outputDeviceString;
+        result = sipxAudioGetCurrentOutputDevice(g_hInst, outDevIndex, outputDeviceString);
+        if (result != SIPX_RESULT_SUCCESS)
+        {
+            printf("sipxAudioGetCurrentOutputDevice failed, return: %d", result);
+            exit(12);
+        }
+        printf("Using speaker device: \"%s\"\n", outputDeviceString);
+              
+        int inDevIndex = -1;
+        const char* inputDeviceString;
+        result = sipxAudioGetCurrentInputDevice(g_hInst, inDevIndex, inputDeviceString);
+        if (result != SIPX_RESULT_SUCCESS)
+        {
+            printf("sipxAudioGetCurrentInputDevice failed, return: %d", result);
+            exit(13);
+        }
+        printf("Using mic device: \"%s\"\n", inputDeviceString);
+
         sipxConfigEnableRport(g_hInst, bUseRport) ;
         if(bUseRport)
         {
@@ -1195,6 +1232,7 @@ int local_main(int argc, char* argv[])
             sipxUnInitialize(g_hInst, true);
             exit(0);
         }
+
         if (szProxy)
         {
             sipxConfigSetOutboundProxy(g_hInst, szProxy);

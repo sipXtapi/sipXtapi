@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2017 SIPez LLC. All rights reserved.
+// Copyright (C) 2006-2021 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1067,6 +1067,14 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                   pMediaInfo->codec.audioCodec.cName, pMediaInfo->codec.audioCodec.iPayloadType);
        	  break;
 
+       case MEDIA_INPUT_DEVICE_NOT_PRESENT:
+           printf("input device: \"%s\"\n", pMediaInfo->deviceName);
+           break;
+
+       case MEDIA_OUTPUT_DEVICE_NOT_PRESENT:
+           printf("output device: \"%s\"\n", pMediaInfo->deviceName);
+           break;
+
        case MEDIA_MIC_ENERGY_LEVEL:
        case MEDIA_SPEAKER_ENERGY_LEVEL:
            {
@@ -1223,6 +1231,7 @@ int local_main(int argc, char* argv[])
         // This is not generally a safe thing to do in production.
         //UtlString cwd(".");
         //CpMediaInterfaceFactoryImpl::addCodecPaths(1, &cwd);
+
         printf("Attempting to use audio device sample rate: %d samples/sec.\n", deviceRate);
         printf("Using media/flowgraph frame sample rate: %d samples/sec.\n", mediaRate);
 
@@ -1250,6 +1259,17 @@ int local_main(int argc, char* argv[])
            ) == SIPX_RESULT_SUCCESS)
         {            
             g_hInst = hInst;
+
+            int outDevIndex = -1;
+            const char* outputDeviceString;
+            SIPX_RESULT result = sipxAudioGetCurrentOutputDevice(g_hInst, outDevIndex, outputDeviceString);
+            printf("Using speaker device: \"%s\"\n", outputDeviceString);
+
+            int inDevIndex = -1;
+            const char* inputDeviceString;
+            result = sipxAudioGetCurrentInputDevice(g_hInst, inDevIndex, inputDeviceString);
+            printf("Using mic device: \"%s\"\n", inputDeviceString);
+
             if (szProxy)
             {
                 sipxConfigSetOutboundProxy(hInst, szProxy);
