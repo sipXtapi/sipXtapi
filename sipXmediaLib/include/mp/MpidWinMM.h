@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2021 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
@@ -15,7 +15,7 @@
 
 // SYSTEM INCLUDES
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+//#include <Windows.h>
 #include <MMSystem.h>
 
 // APPLICATION INCLUDES
@@ -32,6 +32,8 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpInputDeviceManager;
+struct IMMDeviceEnumerator;
+class IMMNotificationClient;
 
 /**
 *  @brief Container for the Microsoft Windows Multimedia specific input driver.
@@ -43,6 +45,8 @@ class MpInputDeviceManager;
 */
 class MpidWinMM : public MpInputDeviceDriver
 {
+    friend class MpodWinMM;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -103,7 +107,7 @@ public:
       */
 
 //@}
-
+     
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
@@ -156,6 +160,16 @@ protected:
       *  This function then passes the results on to processAudioInput()
       */
 
+    static bool nameIsSame(const UtlString& a, const UtlString& b);
+
+      // Windows device accessors
+    class MpWinInputAudioDeviceNotifier;
+    static IMMDeviceEnumerator* getWinDeviceEnumerator();
+    static void registerDeviceEnumerator(IMMNotificationClient* winAudioDeviceChangeCallback);
+    static void unregisterDeviceEnumerator(IMMNotificationClient* winAudioDeviceChangeCallback);
+    static void getWinNameForDevice(const LPCWSTR winDeviceId, UtlString& deviceName);
+    static IMMDeviceEnumerator* sDeviceEnumeratorPtr;
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -170,8 +184,9 @@ private:
     LPSTR* mpWaveBuffers;     ///< Array of nNumInBuffers wave buffers.
     UtlBoolean mIsOpen;       ///< Boolean indicating waveInOpen() completed.
     unsigned mnAddBufferFailures;  ///< The number of times that addBuffer called 
-                                   ///< within the callback has failed since last enabled.
-
+                              ///< within the callback has failed since last enabled.
+    IMMNotificationClient* mWinAudioDeviceChangeCallback; ///< Callback interface for audio
+                              ///< device state changes.
 
       /// @brief Copy constructor (not implemented for this class)
     MpidWinMM(const MpInputDeviceDriver& rMpInputDeviceDriver);

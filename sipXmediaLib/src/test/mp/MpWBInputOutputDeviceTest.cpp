@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2010 SIPez LLC.   All rights reserved.
+// Copyright (C) 2007-2021 SIPez LLC.   All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
@@ -81,7 +81,7 @@
 #elif defined(WIN32) // USE_TEST_OUTPUT_DRIVER ][ WIN32
 #  include <mp/MpodWinMM.h>
 #  define OUTPUT_DRIVER MpodWinMM
-#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName(), pOutMgr
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
 #  if __APPLE__
 #     include <mp/MpodCoreAudio.h>

@@ -29,8 +29,12 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "mp/MpodWinMM.h"
-#include "mp/MpOutputDeviceManager.h"
+#include <mmdeviceapi.h>
+
+#include <mp/MpodWinMM.h>
+#include <mp/MpidWinMM.h>
+#include <mp/MpOutputDeviceManager.h>
+#include <mp/MpResNotificationMsg.h>
 
 // DEFINES
 #define LOW_WAVEBUF_LVL 7
@@ -65,11 +69,195 @@ extern HWAVEOUT audioOutCallH;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
+class MpodWinMM::MpWinOutputAudioDeviceNotifier : public IMMNotificationClient
+{
+public:
+
+    MpWinOutputAudioDeviceNotifier(const UtlString& deviceName, MpOutputDeviceManager* outputManager) : IMMNotificationClient(),
+        mName(deviceName),
+        mpOutputDeviceManager(outputManager)
+    {
+    };
+
+    ULONG _stdcall AddRef()
+    {
+        return(1);
+    };
+
+    ULONG _stdcall Release()
+    {
+        return(1);
+    };
+
+    HRESULT _stdcall QueryInterface(REFIID riid,
+        void** ppvObject)
+    {
+        return(S_OK);
+    };
+
+    HRESULT _stdcall OnDefaultDeviceChanged(EDataFlow flow,
+        ERole role,
+        LPCWSTR defaultDeviceId)
+    {
+        UtlString flowString("unknown");
+        UtlString roleString("unknown");
+
+        switch (flow)
+        {
+        case EDataFlow::eAll:
+            flowString = "all";
+            break;
+
+        case EDataFlow::eCapture:
+            flowString = "capture";
+            break;
+
+        case EDataFlow::EDataFlow_enum_count:
+            flowString = "enum_count";
+            break;
+
+        case EDataFlow::eRender:
+            flowString = "render";
+            break;
+        }
+
+        switch (role)
+        {
+        case ERole::eCommunications:
+            roleString = "communications";
+            break;
+
+        case ERole::eConsole:
+            roleString = "console";
+            break;
+
+        case ERole::eMultimedia:
+            roleString = "multimedia";
+            break;
+
+        case ERole::ERole_enum_count:
+            roleString = "enum_count";
+            break;
+        }
+
+        UtlString deviceName;
+        // Set to null when no devices available
+        if (defaultDeviceId)
+        {
+            MpidWinMM::getWinNameForDevice(defaultDeviceId, deviceName);
+        }
+
+        OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+            "MpWinOutputAudioDeviceNotifier::OnDefaultDeviceChanged(%s, %s, \"%s\")",
+            flowString.data(),
+            roleString.data(),
+            deviceName.data());
+
+        return(S_OK);
+    };
+
+    HRESULT _stdcall OnDeviceAdded(LPCWSTR addedDeviceId)
+    {
+        UtlString deviceName;
+        MpidWinMM::getWinNameForDevice(addedDeviceId, deviceName);
+        OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+            "MpWinOutputAudioDeviceNotifier::OnDeviceAdded(%s)",
+            deviceName.data());
+
+        return(S_OK);
+    };
+
+    HRESULT _stdcall OnDeviceRemoved(LPCWSTR removedDeviceId)
+    {
+        UtlString deviceName;
+        MpidWinMM::getWinNameForDevice(removedDeviceId, deviceName);
+
+        OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+            "MpWinOutputAudioDeviceNotifier::OnDeviceRemoved(%s)",
+            deviceName.data());
+
+        return(S_OK);
+    };
+
+    HRESULT _stdcall OnDeviceStateChanged(LPCWSTR deviceId,
+        DWORD newState)
+    {
+        UtlString deviceName;
+        MpidWinMM::getWinNameForDevice(deviceId, deviceName);
+        UtlString stateString("unknown");
+        bool posted = false;
+        OsStatus status = OS_UNSPECIFIED;
+
+        switch (newState)
+        {
+        case DEVICE_STATE_ACTIVE:
+            stateString = "active";
+            break;
+
+        case DEVICE_STATE_DISABLED:
+            stateString = "disabled";
+            break;
+
+        case DEVICE_STATE_NOTPRESENT:
+            stateString = "not_present";
+            if (MpidWinMM::nameIsSame(deviceName, mName))
+            {
+                posted = true;
+
+                if (mpOutputDeviceManager)
+                {
+                    MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT, mName);
+                    status = mpOutputDeviceManager->postNotification(msg);
+                }
+            }
+            break;
+
+        case DEVICE_STATE_UNPLUGGED:
+            stateString = "unplugged";
+            break;
+        }
+
+        OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+            "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged(%s, %s) same: %s, status: %d devMgr: %p",
+            deviceName.data(),
+            stateString.data(),
+            posted ? "true" : "false",
+            status,
+            mpOutputDeviceManager);
+
+        return(S_OK);
+    };
+
+    HRESULT _stdcall OnPropertyValueChanged(LPCWSTR deviceId,
+        const PROPERTYKEY key)
+    {
+        UtlString deviceName;
+        MpidWinMM::getWinNameForDevice(deviceId, deviceName);
+
+        LPOLESTR* guidString = NULL;
+        StringFromCLSID(key.fmtid, guidString);
+
+        OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+            "MpWinOutputAudioDeviceNotifier::OnPropertyValueChanged(%s, %s)",
+            deviceName,
+            guidString);
+
+        ::CoTaskMemFree(guidString);
+
+        return(S_OK);
+    };
+
+    UtlString mName;
+    MpOutputDeviceManager* mpOutputDeviceManager;
+};
+
 /* ============================ CREATORS ================================== */
 // Default constructor
 MpodWinMM::MpodWinMM(const UtlString& name, 
+                     MpOutputDeviceManager* outputManager,
                      unsigned nOutputBuffers)
 : MpOutputDeviceDriver(name)
+, mpOutputManger(outputManager)
 , mEmptyHdrVPtrListsMutex(OsMutex::Q_FIFO)
 , mWinMMDeviceId(-1)
 , mDevHandle(NULL)
@@ -78,9 +266,16 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mWaveBufSize(0)  // Unknown until enableDevice()
 , mUnderrunLength(0)
 , mTotSampleCount(0)
+, mWinAudioDeviceChangeCallback(NULL)
 {
     OsSysLog::add(FAC_MP, PRI_DEBUG,
         "MpodWinMM::MpodWinMM(%s)", getDeviceName().data());
+
+    // Register derived handler from IMMNotificationClient
+    // Register for notification of device hardware availablity
+    mWinAudioDeviceChangeCallback = new MpWinOutputAudioDeviceNotifier(name, mpOutputManger);
+    MpidWinMM::registerDeviceEnumerator(mWinAudioDeviceChangeCallback);
+
    WAVEOUTCAPS devCaps;
    // Grab the number of output devices that are available.
    UINT nInputDevs = waveOutGetNumDevs();
@@ -174,8 +369,11 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 // Destructor
 MpodWinMM::~MpodWinMM() 
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
         "MpodWinMM::~MpodWinMM(%s)", getDeviceName().data());
+
+   // Unregister the callback interface
+   MpidWinMM::unregisterDeviceEnumerator(mWinAudioDeviceChangeCallback);
 
    // We shouldn't be enabled, assert that we aren't.
    // If we happen to still be enabled at this point, disable the device.
@@ -653,6 +851,12 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
          showWaveError("MpodWinMM::internalPushFrame", res, -1, __LINE__);
          // If it's more than just an unprepared header
          // (invalid handle, no driver, or a memory allocation or lock error)
+         if (res == MMSYSERR_NODRIVER)
+         {
+             OsSysLog::add(FAC_MP, PRI_ERR,
+                 "waveOutWrite to removed device, need to switch devices or use CPU ticker");
+         }
+
          if( res != WAVERR_UNPREPARED )
          {
             // Then close and invalidate this device.

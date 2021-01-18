@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -43,6 +43,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class OsNotification;
+class MpOutputDeviceManager;
 
 /**
 *  @brief Container for Microsoft Windows device specific output driver.
@@ -74,11 +75,14 @@ public:
      /// Default constructor.
    explicit
    MpodWinMM(const UtlString& name,
-           unsigned nOutputBuffers = DEFAULT_N_OUTPUT_BUFS);
+             MpOutputDeviceManager* outputManger,
+             unsigned nOutputBuffers = DEFAULT_N_OUTPUT_BUFS);
      /**<
      *
      *  @param[in] name - unique windows device driver name 
      *             (e.g. "YAMAHA AC-XG WDM Audio", etc.)
+     *  @param[in] outputmanager - pounter to the output manager this 
+     *             device will belong to.
      *  @param[in] nOutputBuffers - The number of frame-sized buffers to 
      *             have around for filling with data and passing to windows.
      *  @note \p nOutputBuffers does not directly determine the latency -- 
@@ -169,6 +173,7 @@ protected:
                               MpFrameTime frameTime);
 
 protected:
+   MpOutputDeviceManager* mpOutputManger; ///< output manager this device will belong to.
    OsMutex  mEmptyHdrVPtrListsMutex; ///< Mutex to serialize access to vptr and empty header lists.
    int      mWinMMDeviceId;    ///< The underlying windows Device ID (not the 
                                ///< logical Mp device ID)
@@ -186,7 +191,8 @@ protected:
                                ///< in mEmptyHeaderList.
    int      mUnderrunLength;   ///< Length of underrun, taking place now (in frames).
    DWORD    mTotSampleCount;   ///< A count of the samples coming in via pushFrame.
-
+   IMMNotificationClient* mWinAudioDeviceChangeCallback; ///< Callback interface for audio
+                               ///< device state changes.
    HANDLE   mCallbackThread;   ///< Handle of thread which processes WMM messages.
    HANDLE   mCallbackEvent;    ///< Event to signal that WMM message is available for processing.
    OsAtomicLightBool mExitFlag; ///< Should processing thread finish its execution?
@@ -225,6 +231,8 @@ private:
 
      /// Assignment operator (not implemented for this class)
    MpodWinMM& operator=(const MpodWinMM& rhs);
+
+   class MpWinOutputAudioDeviceNotifier;
 
      /// WMM messages processing thread.
    static DWORD WINAPI ThreadMMProc(LPVOID lpMessage);
