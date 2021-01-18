@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2021 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -33,6 +33,8 @@ class MpAudioOutputConnection;
 class UtlString;
 class MpBufPtr;
 class OsNotification;
+class OsMsgDispatcher;
+class MpResNotificationMsg;
 
 /**
 *  @brief Container of output devices.
@@ -355,7 +357,23 @@ public:
      *          samples per frame was looked up.
      */
 
+     /// @brief Get notifier to enable posting of notification messages
+   OsMsgDispatcher* getNotificationDispatcher();
+   /**
+   *  @returns notify dispatcher if set
+   */
 
+   /// @brief Set notifier to enable posting of notification messages
+   OsStatus setNotificationDispatcher(OsMsgDispatcher* notifyDispatcher); // , connectionId, streamId);
+     /**
+     *  @param notifyDispatcher - handler and dispather of messages (e.g. audio device events)
+     */
+
+     /// @brief Most a message to the notifer to interested parties
+   OsStatus postNotification(const MpResNotificationMsg& msg);// resourceName);
+     /**
+     *  @param msg - notification message to pass on to interested parties
+     */
 
 //@}
 
@@ -396,6 +414,7 @@ private:
   UtlHashBag mConnectionsByDeviceId;
   OsTime mTimeZero;
   MpOutputDeviceHandle mCurrentTickerDevice;
+  OsMsgDispatcher* mpNotifier;
 
     /// Copy constructor (not implemented for this class)
   MpOutputDeviceManager(const MpOutputDeviceManager& rMpOutputDeviceManager);

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2021 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -18,6 +18,7 @@
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
 #include <os/OsTask.h>
+#include <os/OsMsgDispatcher.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlDList.h>
 #include <utl/UtlDListIterator.h>
@@ -27,6 +28,8 @@
 #include <mp/MpAudioOutputConnection.h>
 #include <mp/MpBuf.h>
 #include <mp/MpAudioBuf.h>
+#include <mp/MpResNotificationMsg.h>
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -48,6 +51,7 @@ MpOutputDeviceManager::MpOutputDeviceManager(unsigned defaultSamplesPerFrame,
 , mDefaultSamplesPerSecond(defaultSamplesPerSecond)
 , mDefaultBufferLength(defaultMixerBufferLength)
 , mCurrentTickerDevice(MP_INVALID_OUTPUT_DEVICE_HANDLE)
+, mpNotifier(NULL)
 {
    assert(mDefaultSamplesPerFrame > 0);
    assert(mDefaultSamplesPerSecond > 0);
@@ -595,6 +599,30 @@ OsStatus MpOutputDeviceManager::getDeviceSamplesPerFrame(MpOutputDeviceHandle de
    }
 
    return ret;
+}
+
+OsMsgDispatcher* MpOutputDeviceManager::getNotificationDispatcher()
+{
+    return(mpNotifier);
+}
+
+OsStatus MpOutputDeviceManager::setNotificationDispatcher(OsMsgDispatcher* notifyDispatcher)
+{
+    // do not know if connectionId, streamId need to be set for messages
+    printf("MpInputDeviceManager::setNotificationDispatcher dispatcher: %p\n", notifyDispatcher);
+
+    mpNotifier = notifyDispatcher;
+    return(OS_SUCCESS);
+}
+
+OsStatus MpOutputDeviceManager::postNotification(const MpResNotificationMsg& msg)
+{
+    OsStatus status = OS_NOT_FOUND;
+    if (mpNotifier)
+    {
+        status = mpNotifier->post(msg);
+    }
+    return(status);
 }
 
 /* ============================ INQUIRY =================================== */

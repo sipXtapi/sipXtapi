@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -34,6 +34,8 @@ class MpInputDeviceDriver;
 class UtlString;
 class MpBufPtr;
 class MpBufPool;
+class OsMsgDispatcher;
+class MpResNotificationMsg;
 
 /**
 *  @brief Container of input devices for input drivers and resources.
@@ -374,6 +376,24 @@ public:
      *  Multi-thread safe.
      */
 
+     /// @brief Get notifier to enable posting of notification messages
+   OsMsgDispatcher* getNotificationDispatcher();
+     /**
+     *  @returns notify dispatcher if set
+     */
+
+     /// @brief Set notifier to enable posting of notification messages
+   OsStatus setNotificationDispatcher(OsMsgDispatcher* notifyDispatcher); // , connectionId, streamId);
+     /**
+     *  @param notifyDispatcher - handler and dispather of messages (e.g. audio device events)
+     */
+
+     /// @brief Most a message to the notifer to interested parties
+   OsStatus postNotification(const MpResNotificationMsg& msg);// resourceName);
+     /**
+     *  @param msg - notification message to pass on to interested parties
+     */
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -403,6 +423,7 @@ private:
    unsigned mDefaultSamplesPerSecond;
    unsigned mDefaultNumBufferedFrames;
    MpBufPool* mpBufferPool;
+   OsMsgDispatcher* mpNotifier;
    UtlHashMap mConnectionsByDeviceName;
    UtlHashBag mConnectionsByDeviceId;
    OsTime mTimeZero;
