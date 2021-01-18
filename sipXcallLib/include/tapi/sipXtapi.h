@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2020 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -2852,7 +2852,20 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetNumInputDevices(const SIPX_INST hInst,
  */
 SIPXTAPI_API SIPX_RESULT sipxAudioGetInputDevice(const SIPX_INST hInst,
                                                  const int index,
-                                                 const char*& szDevice) ;
+                                                 const char*& szDevice); 
+
+
+/**
+ * Get the name/identifier for the current input device used by sipX
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize.
+ * @param index Zero based index of the input device.
+ * @param szDevice Reference an character string pointer to receive
+ *                 the device name.
+ */
+SIPXTAPI_API SIPX_RESULT sipxAudioGetCurrentInputDevice(const SIPX_INST hInst,
+                                                        int& index,
+                                                        const char*& szDevice);
 
 /**
  * Get the number of output devices available on this system
@@ -2874,6 +2887,18 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetNumOutputDevices(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioGetOutputDevice(const SIPX_INST hInst,
                                                   const int index,
                                                   const char*& szDevice) ;
+
+/**
+ * Get the name/identifier for the current output device used by sipX
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize.
+ * @param index Zero based index of the input device.
+ * @param szDevice Reference an character string pointer to receive
+ *                 the device name.
+ */
+SIPXTAPI_API SIPX_RESULT sipxAudioGetCurrentOutputDevice(const SIPX_INST hInst,
+    int& index,
+    const char*& szDevice);
 
 /**
  * Set the call input device (in-call microphone).  

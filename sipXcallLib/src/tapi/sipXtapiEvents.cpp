@@ -340,6 +340,12 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
         case MEDIA_H264_PPS:
             str = "MEDIA_H264_PPS";
             break;
+        case MEDIA_INPUT_DEVICE_NOT_PRESENT:
+            str = "MEDIA_INPUT_DEVICE_NOT_PRESENT";
+            break;
+        case MEDIA_OUTPUT_DEVICE_NOT_PRESENT:
+            str = "MEDIA_OUTPUT_DEVICE_NOT_PRESENT";
+            break;
         default:
             break ;
     }
@@ -792,6 +798,7 @@ SIPXTAPI_API SIPX_RESULT sipxDuplicateEvent(SIPX_EVENT_CATEGORY category,
                     memcpy(&pInfo->codec, &pSourceInfo->codec, sizeof(SIPX_CODEC_INFO)) ;
                     pInfo->idleTime = pSourceInfo->idleTime ;
                     pInfo->toneId = pSourceInfo->toneId;
+                    pInfo->deviceName = SAFE_STRDUP(pSourceInfo->deviceName);
                     *pEventCopy = pInfo ;
 
                     rc = SIPX_RESULT_SUCCESS ;
@@ -967,9 +974,13 @@ SIPXTAPI_API SIPX_RESULT sipxFreeDuplicatedEvent(SIPX_EVENT_CATEGORY category,
                 break ;
             case EVENT_CATEGORY_MEDIA:
                 {
-                    SIPX_MEDIA_INFO* pSourceInfo = (SIPX_MEDIA_INFO*) pEventCopy ;
-                    delete pSourceInfo ;
-                    rc = SIPX_RESULT_SUCCESS ;
+                    SIPX_MEDIA_INFO* pSourceInfo = (SIPX_MEDIA_INFO*)pEventCopy;
+                    if (pSourceInfo->deviceName)
+                    {
+                        free((void*)pSourceInfo->deviceName);
+                    }
+                    delete pSourceInfo;
+                    rc = SIPX_RESULT_SUCCESS;
                 }
                 break ;
             case EVENT_CATEGORY_KEEPALIVE:
@@ -1677,6 +1688,11 @@ void sipxFireMediaEvent(const void* pSrc,
                                     memcpy(&(mediaInfo.codec.videoCodec), videoCodec, sizeof(SIPX_VIDEO_CODEC));
                                 }
                             }
+                            break;
+
+                            case MEDIA_INPUT_DEVICE_NOT_PRESENT:
+                            case MEDIA_OUTPUT_DEVICE_NOT_PRESENT:
+                                mediaInfo.deviceName = (char*)pEventData;
                                 break;
 
                             default:
@@ -2104,6 +2120,14 @@ SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
 
         case MEDIA_H264_PPS:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_H264_PPS");
+            break;
+
+        case MEDIA_INPUT_DEVICE_NOT_PRESENT:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_INPUT_DEVICE_NOT_PRESENT");
+            break;
+
+        case MEDIA_OUTPUT_DEVICE_NOT_PRESENT:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_OUTPUT_DEVICE_NOT_PRESENT");
             break;
     }
     return szBuffer;

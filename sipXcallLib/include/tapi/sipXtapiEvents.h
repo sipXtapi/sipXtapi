@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -560,9 +560,14 @@ typedef enum SIPX_MEDIA_EVENT
     MEDIA_SPEAKER_ENERGY_LEVEL, /**< Speaker energy level - value in idleTime */
     MEDIA_RTP_ENERGY_LEVEL,     /**< Incoming RTP stream energy level - value in idelTime */
     MEDIA_H264_SPS,             /**< H.264 SPS parameter set recieved */
-    MEDIA_H264_PPS              /**< H.264 PPS parameter set recieved */
-
-} SIPX_MEDIA_EVENT ;
+    MEDIA_H264_PPS,             /**< H.264 PPS parameter set recieved */
+    MEDIA_INPUT_DEVICE_NOT_PRESENT, /**< Fired when an input media device used is no longer present.
+                                     This can accure when the device is unplugged or no longer
+                                     to the OS. */
+    MEDIA_OUTPUT_DEVICE_NOT_PRESENT /**< Fired when an output media device used is no longer present.
+                                     This can accure when the device is unplugged or no longer
+                                     to the OS. */
+} SIPX_MEDIA_EVENT;
 
 
 /**
@@ -687,6 +692,8 @@ typedef struct SIPX_MEDIA_INFO
                                          Note: Only RFC 2833 DTMF detection is supported
                                          (not in-band DTMF or dialtone detection, 
                                          etc.)*/
+    const char*         deviceName; /**< name of media device for MEDIA_INPUT_DEVICE_NOT_PRESENT
+                                         and MEDIA_OUTPUT_DEVICE_NOT_PRESENT events.*/
 } SIPX_MEDIA_INFO ;
 
 

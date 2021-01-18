@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2020 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2021 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -5789,6 +5789,49 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetInputDevice(const SIPX_INST hInst,
     return rc ;
 }
 
+SIPXTAPI_API SIPX_RESULT sipxAudioGetCurrentInputDevice(const SIPX_INST hInst,
+    int& index,
+    const char*& szDevice)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxAudioGetCurrentCallInputDevice");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxAudioGetCurrentCallInputDevice hInst=%p",
+        hInst);
+
+    index = -1;
+    szDevice = NULL;
+    UtlString oldDevice;
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*)hInst;
+
+    if (pInst)
+    {
+        CpMediaInterfaceFactoryImpl* pInterface =
+            pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
+
+        // Get existing device
+        OsStatus status = pInterface->getMicrophoneDevice(oldDevice);
+
+        //assert(status == OS_SUCCESS) ;
+        int minLen = 0;
+        for (int i = 0; i < MAX_AUDIO_DEVICES; i++)
+        {
+            // Have to deal with partial matches ore partial string of full device name
+            // So use the smallest of the two
+            minLen = sipx_min(oldDevice.length(), strlen(pInst->outputAudioDevices[i]));
+
+            if (minLen > 0 && strncmp(oldDevice, pInst->outputAudioDevices[i], minLen))
+            {
+                index = i;
+                szDevice = pInst->outputAudioDevices[i];
+                rc = SIPX_RESULT_SUCCESS;
+                break;
+            }
+        }
+    }
+
+    return(rc);
+}
 
 SIPXTAPI_API SIPX_RESULT sipxAudioGetNumOutputDevices(const SIPX_INST hInst,
                                                       size_t& numDevices)
@@ -5839,6 +5882,50 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetOutputDevice(const SIPX_INST hInst,
     }
 
     return rc ;
+}
+
+SIPXTAPI_API SIPX_RESULT sipxAudioGetCurrentOutputDevice(const SIPX_INST hInst,
+    int& index,
+    const char*& szDevice)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxAudioGetCurrentCallOutputDevice");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxAudioGetCurrentCallOutputDevice hInst=%p",
+        hInst);
+
+    index = -1;
+    szDevice = NULL;
+    UtlString oldDevice;
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*)hInst;
+    
+    if (pInst)
+    {
+        CpMediaInterfaceFactoryImpl* pInterface =
+            pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
+
+        // Get existing device
+        OsStatus status = pInterface->getSpeakerDevice(oldDevice);
+
+        //assert(status == OS_SUCCESS) ;
+        int minLen = 0;
+        for(int i = 0; i < MAX_AUDIO_DEVICES; i++)
+        {
+            // Have to deal with partial matches or partial string of full device name
+            // So use the smallest of the two
+            minLen = sipx_min(oldDevice.length(), strlen(pInst->inputAudioDevices[i]));
+            
+            if(minLen > 0 && strncmp(oldDevice, pInst->inputAudioDevices[i], minLen))
+            {
+                index = i;
+                szDevice = pInst->inputAudioDevices[i];
+                rc = SIPX_RESULT_SUCCESS;
+                break;
+            }
+        }
+    }
+
+    return(rc);
 }
 
 SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,

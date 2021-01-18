@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2017 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2021 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2878,6 +2878,24 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
             }                             
             processed = TRUE;
             break;
+
+         case MiNotification::MI_NOTF_INPUT_DEVICE_NOT_PRESENT:
+             pConnection->fireSipXMediaEvent(MEDIA_INPUT_DEVICE_NOT_PRESENT,
+                 MEDIA_CAUSE_DEVICE_UNAVAILABLE,
+                 MEDIA_TYPE_AUDIO,
+                 (void*)notification.getSourceId().data()
+             );
+             processed = TRUE;
+             break;
+
+         case MiNotification::MI_NOTF_OUTPUT_DEVICE_NOT_PRESENT:
+             pConnection->fireSipXMediaEvent(MEDIA_OUTPUT_DEVICE_NOT_PRESENT,
+                 MEDIA_CAUSE_DEVICE_UNAVAILABLE,
+                 MEDIA_TYPE_AUDIO,
+                 (void*)notification.getSourceId().data()
+             );
+             processed = TRUE;
+             break;
 
          default:
              OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring unhandled MI_NOTIF event: %d connectionId: %d",
