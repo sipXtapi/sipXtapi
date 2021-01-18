@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -106,6 +106,8 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
       case MpResNotificationMsg::MPRNM_TONE_DETECT_ON:
       case MpResNotificationMsg::MPRNM_TONE_DETECT_OFF:
       case MpResNotificationMsg::MPRNM_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED:
+      case MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT:
+      case MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT:
          {
             MiNotification miNotf(lookupNotfType(notfType), 
                                   resNotf.getOriginatingResourceName(),
@@ -335,6 +337,12 @@ MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgTy
       break;
    case MpResNotificationMsg::MPRNM_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED:
       miNotfType = MiNotification::MI_NOTF_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED;
+      break;
+   case MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT:
+      miNotfType = MiNotification::MI_NOTF_INPUT_DEVICE_NOT_PRESENT;
+      break;
+   case MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT:
+      miNotfType = MiNotification::MI_NOTF_OUTPUT_DEVICE_NOT_PRESENT;
       break;
    case MpResNotificationMsg::MPRNM_TONE_DETECT_ON:
        miNotfType = MiNotification::MI_NOTF_TONE_DETECT_ON;

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,9 @@ public:
       MI_NOTF_H264_PPS,
       MI_NOTF_TONE_DETECT_ON,
       MI_NOTF_TONE_DETECT_OFF,
-      MI_NOTF_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED
+      MI_NOTF_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED,
+      MI_NOTF_INPUT_DEVICE_NOT_PRESENT,
+      MI_NOTF_OUTPUT_DEVICE_NOT_PRESENT
    } NotfType;
 
      /// Connection ID that indicates invalid connection or no connection.

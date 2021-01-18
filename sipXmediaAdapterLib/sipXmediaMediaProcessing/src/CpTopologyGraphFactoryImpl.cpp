@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2019 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2021 SIPez LLC. All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@
 #  include <mp/MpodBufferRecorder.h>
 #  define OUTPUT_DRIVER MpodBufferRecorder
 #  define OUTPUT_DRIVER_DEFAULT_NAME "default"
-#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name), 60*1000*1000
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), 60*1000*1000
 
 #  include <os/OsFS.h> // for OpenAndWrite() to write captured data.
 
@@ -111,29 +111,29 @@
 #  include <mp/MpodWinMM.h>
 #  define OUTPUT_DRIVER MpodWinMM
 #  define OUTPUT_DRIVER_DEFAULT_NAME MpodWinMM::getDefaultDeviceName()
-#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name), manager
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
 #  ifdef __APPLE__
 #     include <mp/MpodCoreAudio.h>
 #     define OUTPUT_DRIVER MpodCoreAudio
 #     define OUTPUT_DRIVER_DEFAULT_NAME "[default]"
-#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name)
 #  elif defined(ANDROID)
 #     include <mp/MpodAndroid.h>
 #     define OUTPUT_DRIVER MpodAndroid
 #     define OUTPUT_DRIVER_DEFAULT_NAME "default"
-#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (MpAndroidAudioBindingInterface::VOICE_CALL)
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (MpAndroidAudioBindingInterface::VOICE_CALL)
 #  elif defined(USE_ALSA_INTERFACE)
 #     include <mp/MpodAlsa.h>
 #     define OUTPUT_DRIVER MpodAlsa
 #     define OUTPUT_DRIVER_DEFAULT_NAME MpodAlsa::getDefaultDeviceName()
-#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name)
 #  else
 #     include <mp/MpodOss.h>
 #     define OUTPUT_DRIVER MpodOss
 #     define OUTPUT_DRIVER_DEFAULT_NAME "/dev/dsp"
-#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(name) (name)
+#     define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(manager, name) (name)
 #  endif
 
 #else // __pingtel_on_posix__ ]
@@ -268,7 +268,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
        UtlString tmpOutputDeviceName = outputDeviceName.isNull() ? OUTPUT_DRIVER_DEFAULT_NAME:
                                                                    outputDeviceName.data();
        OUTPUT_DRIVER *sinkDevice =
-          new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(tmpOutputDeviceName));
+          new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(mpOutputDeviceManager, tmpOutputDeviceName));
        MpOutputDeviceHandle sinkDeviceId = mpOutputDeviceManager->addDevice(sinkDevice);
        OsSysLog::add(FAC_CP, (sinkDeviceId > 0) ? PRI_INFO : PRI_ERR, 
                      "CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl mpOutputDeviceManager->addDevice returned deviceId: %d", 
@@ -458,7 +458,7 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
        return NULL;
     }
 #endif // MP_LATE_DEVICE_ENABLE ]
-
+    
     // if the sample rate passed in is zero, use the default.
     samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSec : samplesPerSec;
     CpTopologyGraphInterface *pIf =
@@ -525,7 +525,7 @@ OsStatus CpTopologyGraphFactoryImpl::setSpeakerDevice(const UtlString& device)
     if(deviceId <= MP_INVALID_OUTPUT_DEVICE_HANDLE)
     {
         OUTPUT_DRIVER* newDevice =
-          new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(device));
+          new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS(mpOutputDeviceManager, device));
         deviceId = mpOutputDeviceManager->addDevice(newDevice);
         OsSysLog::add(FAC_CP, PRI_DEBUG,
             "CpTopologyGraphFactoryImpl::setSpeakerDevice addDevice(%s) id: %d",

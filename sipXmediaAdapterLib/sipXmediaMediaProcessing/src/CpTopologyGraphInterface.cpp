@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2020 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -290,6 +290,17 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    else
    {
       pTmpDispatcherPtr = NULL;
+   }
+
+   // Enable notifier for audio devices if not already set
+   if(mpInputDeviceManager && mpInputDeviceManager->getNotificationDispatcher() == NULL)
+   {
+       mpInputDeviceManager->setNotificationDispatcher(&mTranslatorDispatcher);
+   }
+ 
+   if(mpOutputDeviceManager && mpOutputDeviceManager->getNotificationDispatcher() == NULL)
+   {
+       mpOutputDeviceManager->setNotificationDispatcher(&mTranslatorDispatcher);
    }
 
    MpResourceTopology* topology = pFactoryImpl->getInitialResourceTopology();
