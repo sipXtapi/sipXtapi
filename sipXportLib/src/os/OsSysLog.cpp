@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -351,11 +351,8 @@ void OsSysLog::getTaskInfo(UtlString& taskName, OsTaskId_t& taskId)
     } 
     else
     {
+        OsTask::getCurrentTaskId(taskId);
 
-         // TODO: should get abstracted into a OsTaskBase method
-#ifdef __pingtel_on_posix__
-        OsTaskLinux::getCurrentTaskId(taskId);
-#endif
         taskName = "Anon";
         // OsTask::getIdString_d(taskName, taskId);
     }
@@ -439,6 +436,8 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          // TODO: Should get abstracted into a OsTaskBase method
 #ifdef __pingtel_on_posix__
          OsTaskLinux::getIdString_X(taskHex, taskId);
+#else
+         taskHex.appendFormat("%d", taskId);
 #endif
 
          mysprintf(logEntry, "\"%s\":%d:%s:%s:%s:%s:%s:%s:\"%s\"",
