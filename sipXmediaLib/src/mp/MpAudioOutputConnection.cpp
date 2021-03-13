@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2016 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -43,6 +43,33 @@
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
+#ifdef TRACE_LOCKS
+static void logLockState(OsLock::OsLockTakeState state, void* data) 
+{
+    const char* message = (const char*) data;
+    const char* stateString = NULL;
+    switch (state)
+    {
+    case OsLock::PreAcquire:
+        stateString = "acquiring";
+        break;
+
+    case OsLock::PostAcquire:
+        stateString = "acquired";
+        break;
+
+    case OsLock::PostRelease:
+        stateString = "released";
+        break;
+    }
+
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+        "%s %s mMutex",
+        message,
+        stateString);
+}
+#endif
+
 /* ============================ CREATORS ================================== */
 
 MpAudioOutputConnection::MpAudioOutputConnection(MpOutputDeviceHandle deviceId,
@@ -73,7 +100,13 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
                                                MpFrameTime mixerBufferLength)
 {
    OsStatus result = OS_FAILED;
-   OsLock lock(mMutex);
+   const char* message = "MpAudioOutputConnection::enableDevice";
+   OsLock lock(mMutex
+#ifdef TRACE_LOCK
+       , logLockState, (void*)message);
+#else
+       );
+#endif
 
    assert(samplesPerFrame > 0);
    assert(samplesPerSec > 0);
@@ -122,7 +155,13 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
 OsStatus MpAudioOutputConnection::disableDevice()
 {
    OsStatus result = OS_FAILED;
-   OsLock lock(mMutex);
+   const char* message = "MpAudioOutputConnection::disableDevice";
+   OsLock lock(mMutex
+#ifdef TRACE_LOCK
+       , logLockState, (void*)message);
+#else
+       );
+#endif
 
    // Disable device and set result code.
    result = mpDeviceDriver->disableDevice();
@@ -140,7 +179,13 @@ OsStatus MpAudioOutputConnection::disableDevice()
 OsStatus MpAudioOutputConnection::enableFlowgraphTicker(OsNotification *pFlowgraphTicker)
 {
    OsStatus result = OS_SUCCESS;
-   OsLock lock(mMutex);
+   const char* message = "MpAudioOutputConnection::enableFlowgraphTicker";
+   OsLock lock(mMutex
+#ifdef TRACE_LOCK
+       , logLockState, (void*)message);
+#else
+       );
+#endif
 
    assert(mpFlowgraphTicker == NULL);
 
@@ -153,7 +198,13 @@ OsStatus MpAudioOutputConnection::enableFlowgraphTicker(OsNotification *pFlowgra
 OsStatus MpAudioOutputConnection::disableFlowgraphTicker()
 {
    OsStatus result = OS_SUCCESS;
-   OsLock lock(mMutex);
+   const char* message = "MpAudioOutputConnection::disableFlowgraphTicker";
+   OsLock lock(mMutex
+#ifdef TRACE_LOCK
+       , logLockState, (void*)message);
+#else
+       );
+#endif
 
    assert(mpFlowgraphTicker != NULL);
 
@@ -173,7 +224,13 @@ OsStatus MpAudioOutputConnection::pushFrameBeginning(unsigned int numSamples,
    assert(numSamples > 0);
 
    // From now we access internal data. Take lock.
-   OsLock lock(mMutex);
+   const char* message = "MpAudioOutputConnection::pushFrameBeginning";
+   OsLock lock(mMutex
+#ifdef TRACE_LOCK
+       , logLockState, (void*)message);
+#else
+       );
+#endif
 
    RTL_EVENT("MpAudioOutputConnection::pushFrame_frameTime", frameTime);
    RTL_EVENT("MpAudioOutputConnection::pushFrame_currentTime", mCurrentFrameTime);
@@ -202,7 +259,13 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    assert(numSamples > 0);
 
    // From now we access internal data. Take lock.
-   OsLock lock(mMutex);
+   const char* message = "MpAudioOutputConnection::pushFrame";
+   OsLock lock(mMutex
+#ifdef TRACE_LOCK
+       , logLockState, (void*)message);
+#else
+       );
+#endif
 
    RTL_EVENT("MpAudioOutputConnection::pushFrame_frameTime", frameTime);
    RTL_EVENT("MpAudioOutputConnection::pushFrame_currentTime", mCurrentFrameTime);
@@ -263,7 +326,13 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
 
 MpFrameTime MpAudioOutputConnection::getCurrentFrameTime() const
 {
-   OsLock lock(mMutex);
+    const char* message = "MpAudioOutputConnection::getCurrentFrameTime";
+   OsLock lock(mMutex
+#ifdef TRACE_LOCK
+       , logLockState, (void*)message);
+#else
+       );
+#endif
    return mCurrentFrameTime;
 }
 
@@ -402,23 +471,36 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
    MpAudioOutputConnection *pConnection = (MpAudioOutputConnection*)userData;
    RTL_BLOCK("MpAudioOutputConnection::tickerCallBack");
 
+
+
+
 #ifdef LOG_HEART_BEAT_PERIOD
    if(pConnection->mCurrentFrameTime % LOG_HEART_BEAT_PERIOD == 0)
    {
        OsSysLog::add(FAC_MP, PRI_DEBUG,
-                     "MpAudioOutputConnection::readyForDataCallback aquiring mutex frame time: %d",
+                     "MpAudioOutputConnection::readyForDataCallback acquiring mutex %p frame time: %d",
+                     pConnection,
                      pConnection->mCurrentFrameTime);
       
    }
 #endif
+   const char* message = "MpAudioOutputConnection::readyForDataCallback";
+#ifdef TRACE_LOCK
+   logLockState(OsLock::PreAcquire, (void*)message);
+#endif
+   OsStatus acquireStatus = pConnection->mMutex.acquire(OsTime(5));
+#ifdef TRACE_LOCK
+   logLockState(OsLock::PostAcquire, (void*)message);
+#endif
 
-   if (pConnection->mMutex.acquire(OsTime(5)) == OS_SUCCESS)
+   if (acquireStatus == OS_SUCCESS)
    {
       // Push data to device driver and forget.
       result = pConnection->mpDeviceDriver->pushFrame(
                      pConnection->mpDeviceDriver->getSamplesPerFrame(),
                      pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin,
                      pConnection->mCurrentFrameTime);
+
 #ifdef LOG_HEART_BEAT_PERIOD
       if(pConnection->mCurrentFrameTime % LOG_HEART_BEAT_PERIOD == 0)
       {
@@ -430,7 +512,7 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
 #else
       SIPX_UNUSED(result);
 #endif
-//      assert(result == OS_SUCCESS);
+      assert(result == OS_SUCCESS);
 
       // Advance mixer buffer and frame time.
       pConnection->advanceMixerBuffer(pConnection->mpDeviceDriver->getSamplesPerFrame());
@@ -441,12 +523,21 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
                 pConnection->mCurrentFrameTime);
 
       pConnection->mMutex.release();
+#ifdef TRACE_LOCK
+      logLockState(OsLock::PostRelease, (void*)message);
+#endif
+   }
+   else
+   {
+       OsSysLog::add(FAC_MP, PRI_ERR,
+           "MpAudioOutputConnection::readyForDataCallback failed to acquire connection mutex, status: %d",
+           acquireStatus);
    }
 
    // Signal frame processing interval start if requested.
    if (pConnection->mpFlowgraphTicker)
    {
-      pConnection->mpFlowgraphTicker->signal(0);
+      result = pConnection->mpFlowgraphTicker->signal(0);
    }
 }
 
