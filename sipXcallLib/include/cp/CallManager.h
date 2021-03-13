@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2017 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2021 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -19,6 +19,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
+#include <os/OsMsgDispatcher.h>
 #include <cp/CpCallManager.h>
 #include <cp/Connection.h>
 #include <mi/CpMediaInterfaceFactoryImpl.h>
@@ -467,6 +468,7 @@ private:
     int mTurnKeepAlivePeriodSecs ;
 
     CpMediaInterfaceFactory* mpMediaFactory;
+    OsMsgDispatcher mDispatcher;
 
     // Private accessors
     void pushCall(CpCall* call);

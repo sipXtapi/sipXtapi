@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2016 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1534,7 +1534,10 @@ void sipxFireMediaEvent(const void* pSrc,
      * Check/Filter duplicate events
      */
     UtlBoolean bDuplicateEvent = FALSE ;
-    if (hCall != SIPX_CALL_NULL)
+    if (hCall != SIPX_CALL_NULL ||
+        // The following may be call independant events (so hCall can be NULL)
+        event == MEDIA_INPUT_DEVICE_NOT_PRESENT ||
+        event == MEDIA_OUTPUT_DEVICE_NOT_PRESENT)
     {
         SIPX_MEDIA_EVENT lastLocalMediaAudioEvent ;
         SIPX_MEDIA_EVENT lastLocalMediaVideoEvent ;

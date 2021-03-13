@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2017 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2021 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -19,6 +19,7 @@
 
 // APPLICATION INCLUDES
 #include <cp/CallManager.h>
+#include <net/TapiMgr.h>
 #include <net/SipMessageEvent.h>
 #include <net/SipUserAgent.h>
 #include <sdp/SdpCodec.h>
@@ -116,6 +117,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
                 publicAddress, internalSamplerate)
 , mIsEarlyMediaFor180(TRUE)
 , mpMediaFactory(NULL)
+, mDispatcher(&mIncomingQ) // Dispatch to this CallManagers message queue
 {
     OsStackTraceLogger(FAC_CP, PRI_DEBUG, "CallManager");
 
@@ -133,6 +135,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
     if (pMediaFactory)
     {
         mpMediaFactory = pMediaFactory;
+        pMediaFactory->setDispatcher(&mDispatcher);
     }
     else
     {
@@ -958,6 +961,42 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         }
         messageProcessed = TRUE;
         break;
+
+    case OsMsg::MI_NOTF_MSG:
+    {
+        MiNotification* miMsg = (MiNotification*)& eventMessage;
+        switch (miMsg->getMsgSubType())
+        {
+        case MiNotification::MI_NOTF_INPUT_DEVICE_NOT_PRESENT:
+            TapiMgr::getInstance().fireMediaEvent(this,
+                "", // No call id, independent of call
+                "", // No connection/session id either
+                MEDIA_INPUT_DEVICE_NOT_PRESENT,
+                MEDIA_CAUSE_DEVICE_UNAVAILABLE,
+                MEDIA_TYPE_AUDIO,
+                (void*)miMsg->getSourceId().data()
+            );
+            messageProcessed = TRUE;
+            break;
+
+        case MiNotification::MI_NOTF_OUTPUT_DEVICE_NOT_PRESENT:
+            TapiMgr::getInstance().fireMediaEvent(this,
+                "", // No call id, independent of call
+                "", // No connection/session id either
+                MEDIA_OUTPUT_DEVICE_NOT_PRESENT,
+                MEDIA_CAUSE_DEVICE_UNAVAILABLE,
+                MEDIA_TYPE_AUDIO,
+                (void*)miMsg->getSourceId().data()
+            );
+            messageProcessed = TRUE;
+            break;
+
+        default:
+            break;
+        }
+    }
+        break;
+
 #ifndef EXCLUDE_STREAMING
     case OsMsg::STREAMING_MSG:
         {
