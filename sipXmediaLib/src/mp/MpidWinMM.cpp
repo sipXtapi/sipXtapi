@@ -43,9 +43,10 @@ class MpidWinMM::MpWinInputAudioDeviceNotifier : public IMMNotificationClient
 {
 public:
 
-    MpWinInputAudioDeviceNotifier(const UtlString& deviceName, MpInputDeviceManager& inputManager) : IMMNotificationClient(),
+    MpWinInputAudioDeviceNotifier(const UtlString& deviceName, MpInputDeviceManager& inputManager, UtlBoolean* isOpenPtr) : IMMNotificationClient(),
         mName(deviceName),
-        mpInputDeviceManager(&inputManager)
+        mpInputDeviceManager(&inputManager),
+        mpIsOpen(isOpenPtr)
     {
     };
 
@@ -172,6 +173,7 @@ public:
             stateString = "not_present";
             if (nameIsSame(deviceName, mName))
             {
+                *mpIsOpen = FALSE;
                 posted = true;
                 MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT, mName);
                 status = mpInputDeviceManager->postNotification(msg);
@@ -214,6 +216,7 @@ public:
 
     UtlString mName;
     MpInputDeviceManager* mpInputDeviceManager;
+    UtlBoolean* mpIsOpen;
 };
 
 /* ============================ CREATORS ================================== */
@@ -291,7 +294,7 @@ MpidWinMM::MpidWinMM(const UtlString& name,
 
     // Register derived handler from IMMNotificationClient
     // Register for notification of device hardware availablity
-    mWinAudioDeviceChangeCallback = new MpWinInputAudioDeviceNotifier(name, deviceManager);
+    mWinAudioDeviceChangeCallback = new MpWinInputAudioDeviceNotifier(name, deviceManager, &mIsOpen);
     registerDeviceEnumerator(mWinAudioDeviceChangeCallback);
 
     OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
@@ -334,6 +337,10 @@ MpidWinMM::MpidWinMM(const UtlString& name,
 // Destructor
 MpidWinMM::~MpidWinMM() 
 {
+    OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+        "MpidWinMM::~MpidWinMM \"%s\"",
+        getDeviceName().data());
+
     // If we happen to still be enabled at this point, disable the device.
     assert(!isEnabled());
     if (isEnabled())
@@ -342,6 +349,8 @@ MpidWinMM::~MpidWinMM()
     }
 
     unregisterDeviceEnumerator(mWinAudioDeviceChangeCallback);
+    delete mWinAudioDeviceChangeCallback;
+    mWinAudioDeviceChangeCallback = NULL;
 
     // Delete the sample headers and sample buffer pointers..
     unsigned i;
@@ -492,6 +501,7 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
 OsStatus MpidWinMM::disableDevice()
 {
     OsStatus status = OS_SUCCESS;
+
     MMRESULT   res;
     
     if (!isDeviceValid() || !isEnabled())
@@ -627,19 +637,35 @@ void MpidWinMM::processAudioInput(HWAVEIN hwi,
                                   UINT uMsg,
                                   void* dwParam1)
 {
-    if (!mIsOpen)
+    if(!mIsOpen)
     {
-        assert(uMsg == WIM_OPEN);
-        if (uMsg == WIM_OPEN)
+        if(uMsg == WIM_DATA)
         {
-//            printf("received WIM_OPEN\n"); fflush(stdout);
+            OsSysLog::add(FAC_MP, PRI_WARNING,
+                "MpidWinMM::processAudioInput received WIM_DATA while !mIsOpen");
+        }
+        else if(uMsg == WIM_OPEN)
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpidWinMM::processAudioInput received WIM_OPEN");
             mIsOpen = TRUE;
         }
+        else if(uMsg == WIM_CLOSE)
+        {
+            OsSysLog::add(FAC_MP, PRI_WARNING,
+                "MpidWinMM::processAudioInput received WIM_CLOSE while !mIsOpen");
+        }
+        else
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                "MpidWinMM::processAudioInput received unexpected uMsg: %d", uMsg);
+            OsSysLog::flush();
+            assert(uMsg != 0);
+        }
     }
-    if (uMsg == WIM_DATA)
+    else if (uMsg == WIM_DATA)
     {
 //        printf("received WIM_DATA\n"); fflush(stdout);
-        assert(mIsOpen);
         WAVEHDR* pWaveHdr = (WAVEHDR*)dwParam1;
         assert(pWaveHdr->dwBufferLength 
                == (mSamplesPerFrame*sizeof(MpAudioSample)));
@@ -657,6 +683,7 @@ void MpidWinMM::processAudioInput(HWAVEIN hwi,
                                            mSamplesPerFrame,
                                            (MpAudioSample*)pWaveHdr->lpData,
                                            mCurrentFrameTime);
+
            // Ok, we have received and pushed a frame to the manager,
            // Now we advance the frame time.
            mCurrentFrameTime += (mSamplesPerFrame*1000)/mSamplesPerSec;
@@ -684,12 +711,20 @@ void MpidWinMM::processAudioInput(HWAVEIN hwi,
                  mDevHandle = NULL;
                  mWinMMDeviceId = -1;
               }
+
+              if (res == MMSYSERR_NODRIVER)
+              {
+                  mIsOpen = FALSE;
+                  MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT, getDeviceName());
+                  /*OsStatus status =*/ mpInputDeviceManager->postNotification(msg);
+              }
            }
         }
     }
     else if (uMsg == WIM_CLOSE)
     {
-//        printf("received WIM_CLOSE\n"); fflush(stdout);
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MpidWinMM::processAudioInput received WIM_CLOSE");
         mIsOpen = FALSE;
     }
 }
@@ -764,8 +799,6 @@ void MpidWinMM::unregisterDeviceEnumerator(IMMNotificationClient* winAudioDevice
         if (deviceEnumeratorPtr)
         {
             HRESULT result = deviceEnumeratorPtr->UnregisterEndpointNotificationCallback(winAudioDeviceChangeCallback);
-            delete winAudioDeviceChangeCallback;
-            winAudioDeviceChangeCallback = NULL;
             if (result != S_OK)
             {
                 OsSysLog::add(FAC_AUDIO, PRI_ERR,

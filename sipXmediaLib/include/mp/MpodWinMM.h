@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <MMSystem.h>
 #include <os/OsMutex.h>
+#include <os/OsCallback.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlVoidPtr.h>
 
@@ -44,6 +45,7 @@
 // FORWARD DECLARATIONS
 class OsNotification;
 class MpOutputDeviceManager;
+class MpMMTimer;
 
 /**
 *  @brief Container for Microsoft Windows device specific output driver.
@@ -63,7 +65,7 @@ class MpOutputDeviceManager;
 *
 *  @see MpOutputDeviceDriver
 */
-class MpodWinMM : public MpOutputDeviceDriver
+class MpodWinMM : public MpOutputDeviceDriver, OsCallback
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -113,6 +115,12 @@ public:
    OsStatus pushFrame(unsigned int numSamples,
                       const MpAudioSample* samples,
                       MpFrameTime frameTime);
+
+     /// @brief Switch to use MMTimer for Media subsystem ticks instead of output device
+   OsStatus switchToMMTimer();
+
+   /// @brief callback used by MpMMTimer when output device is not providing ticks
+   virtual OsStatus signal(const intptr_t eventData);
 
 //@}
 
@@ -165,7 +173,6 @@ protected:
      *  This should only be called by the windows wave output multimedia.
      */
 
-
 protected:
      /// @brief internal method to handle final writing of audio to the output device
    OsStatus internalPushFrame(unsigned int numSamples, 
@@ -196,6 +203,8 @@ protected:
    HANDLE   mCallbackThread;   ///< Handle of thread which processes WMM messages.
    HANDLE   mCallbackEvent;    ///< Event to signal that WMM message is available for processing.
    OsAtomicLightBool mExitFlag; ///< Should processing thread finish its execution?
+   MpMMTimer* mpTickerTimer;   ///< Optional timer to provide media subsystem ticks when output
+                               ///< device is not working properly.
 
 #ifndef DONTUSE_SLIST
      /// Structure used to pass WMM message data to processing thread.
@@ -242,6 +251,8 @@ private:
      *  deadlocks, when other WMM functions are called from static callback
      *  functions.
      */
+
+   OsStatus resetDevice();
 };
 
 

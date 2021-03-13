@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reservied.
+// Copyright (C) 2007-2021 SIPez LLC.  All rights reservied.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -35,6 +35,7 @@
 #include <mp/MpidWinMM.h>
 #include <mp/MpOutputDeviceManager.h>
 #include <mp/MpResNotificationMsg.h>
+#include <mp/MpMMTimer.h>
 
 // DEFINES
 #define LOW_WAVEBUF_LVL 7
@@ -73,7 +74,8 @@ class MpodWinMM::MpWinOutputAudioDeviceNotifier : public IMMNotificationClient
 {
 public:
 
-    MpWinOutputAudioDeviceNotifier(const UtlString& deviceName, MpOutputDeviceManager* outputManager) : IMMNotificationClient(),
+    MpWinOutputAudioDeviceNotifier(MpodWinMM* outputDevice, const UtlString& deviceName, MpOutputDeviceManager* outputManager) : IMMNotificationClient(),
+        mpOutputDevice(outputDevice),
         mName(deviceName),
         mpOutputDeviceManager(outputManager)
     {
@@ -204,10 +206,9 @@ public:
             {
                 posted = true;
 
-                if (mpOutputDeviceManager)
+                if(mpOutputDevice)
                 {
-                    MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT, mName);
-                    status = mpOutputDeviceManager->postNotification(msg);
+                    mpOutputDevice->switchToMMTimer();
                 }
             }
             break;
@@ -247,6 +248,7 @@ public:
         return(S_OK);
     };
 
+    MpodWinMM* mpOutputDevice;
     UtlString mName;
     MpOutputDeviceManager* mpOutputDeviceManager;
 };
@@ -257,6 +259,7 @@ MpodWinMM::MpodWinMM(const UtlString& name,
                      MpOutputDeviceManager* outputManager,
                      unsigned nOutputBuffers)
 : MpOutputDeviceDriver(name)
+, OsCallback(NULL, NULL)
 , mpOutputManger(outputManager)
 , mEmptyHdrVPtrListsMutex(OsMutex::Q_FIFO)
 , mWinMMDeviceId(-1)
@@ -267,13 +270,14 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mUnderrunLength(0)
 , mTotSampleCount(0)
 , mWinAudioDeviceChangeCallback(NULL)
+, mpTickerTimer(NULL)
 {
     OsSysLog::add(FAC_MP, PRI_DEBUG,
         "MpodWinMM::MpodWinMM(%s)", getDeviceName().data());
 
     // Register derived handler from IMMNotificationClient
     // Register for notification of device hardware availablity
-    mWinAudioDeviceChangeCallback = new MpWinOutputAudioDeviceNotifier(name, mpOutputManger);
+    mWinAudioDeviceChangeCallback = new MpWinOutputAudioDeviceNotifier(this, name, mpOutputManger);
     MpidWinMM::registerDeviceEnumerator(mWinAudioDeviceChangeCallback);
 
    WAVEOUTCAPS devCaps;
@@ -374,6 +378,8 @@ MpodWinMM::~MpodWinMM()
 
    // Unregister the callback interface
    MpidWinMM::unregisterDeviceEnumerator(mWinAudioDeviceChangeCallback);
+   delete mWinAudioDeviceChangeCallback;
+   mWinAudioDeviceChangeCallback = NULL;
 
    // We shouldn't be enabled, assert that we aren't.
    // If we happen to still be enabled at this point, disable the device.
@@ -387,6 +393,23 @@ MpodWinMM::~MpodWinMM()
       disableDevice();
    }
 
+   if (mpTickerTimer)
+   {
+       OsStatus status = mpTickerTimer->stop();
+       if (status != OS_SUCCESS)
+       {
+           OsSysLog::add(FAC_MP, PRI_ERR,
+               "MpodWinMM::~MpodWinMM MMTimer stop failed: %d", (int)status);
+       }
+       else
+       {
+           OsSysLog::add(FAC_MP, PRI_DEBUG,
+               "MpodWinMM::~MpodWinMM MMTimer stopped");
+       }
+       delete mpTickerTimer;
+       mpTickerTimer = NULL;
+   }
+
    // Destroy all the void ptrs that we created at the beginning.
    // They can be either in the unused list where they started, or in
    // the empty header list.. Either way, they have to be destroyed.
@@ -397,9 +420,20 @@ MpodWinMM::~MpodWinMM()
 
    // Delete the sample headers and sample buffer pointers..
    unsigned i;
+   int freedCount = 0;
    for ( i = 0; i < mNumOutBuffers; i++ )
    {
-      assert(mpWaveBuffers[i] == NULL);
+       if (mpWaveBuffers[i] != NULL)
+       {
+           delete[] mpWaveBuffers[i];
+           mpWaveBuffers[i] = NULL;
+           freedCount++;
+       }
+   }
+   if (freedCount)
+   {
+       OsSysLog::add(FAC_MP, PRI_WARNING,
+           "MpodWinMM::~MpodWinMM %d mpWaveBuffers not NULL", freedCount);
    }
    delete[] mpWaveBuffers;
    delete[] mpWaveHeaders;
@@ -436,6 +470,8 @@ MpodWinMM::~MpodWinMM()
    }
 #endif
 
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+       "MpodWinMM::~MpodWinMM exit");
 }
 
 /* ============================ MANIPULATORS ================================ */
@@ -491,6 +527,8 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
       mDevHandle = NULL; // Open didn't work, reset device handle to NULL
       mWinMMDeviceId = -1; // Make device invalid.
 
+      switchToMMTimer();
+
       // and return OS_FAILED.
       return OS_FAILED;
    }
@@ -542,6 +580,8 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
          waveOutClose(mDevHandle);
          mDevHandle = NULL;
          mWinMMDeviceId = -1;
+
+         switchToMMTimer();
 
          // and return OS_FAILED.
          return OS_FAILED;
@@ -621,6 +661,7 @@ OsStatus MpodWinMM::disableDevice()
    if ( !isDeviceValid() )
    {
       // If the device is not valid, let the user know it's bad.
+      mIsEnabled = FALSE;
       return OS_INVALID_STATE;
    }
    if ( !isEnabled() )
@@ -642,40 +683,7 @@ OsStatus MpodWinMM::disableDevice()
       return OS_INVALID_STATE;
    }
 
-   // Reset performs a stop, returns all the buffers within windows multimedia
-   res = waveOutReset(mDevHandle);
-   if ( res != MMSYSERR_NOERROR )
-   {
-      showWaveError("waveOutReset", res, -1, __LINE__);
-   } 
-
-   // We'll be accessing the vptr and empty header lists, so acquire the mutex
-   mEmptyHdrVPtrListsMutex.acquire();
-
-   // clear out the empty header list, as we don't want to continue filling
-   // buffers after a wave reset.  Put the cleared out entries in the unused
-   // void ptr list for use when this next gets enabled.
-   unsigned nEmpties = mEmptyHeaderList.entries();
-   unsigned i;
-   for(i = 0; i < nEmpties; i++)
-   {
-      mUnusedVPtrList.insert(mEmptyHeaderList.get());
-   }
-
-   // Release the mutex as we're done accessing the vptr and empty header lists.
-   mEmptyHdrVPtrListsMutex.release();
-
-   // Must unprepare the headers after a reset, but before the device is closed
-   // (if this is done after waveOutClose, mDevHandle will be invalid and 
-   // MMSYSERR_INVALHANDLE will be returned.
-   for ( i = 0; i < mNumOutBuffers; i++ ) 
-   {
-      res = waveOutUnprepareHeader(mDevHandle, &mpWaveHeaders[i], sizeof(WAVEHDR));
-      if ( res != MMSYSERR_NOERROR )
-      {
-         showWaveError("waveOutUnprepareHeader", res, i, __LINE__);
-      }
-   }
+   status = resetDevice();
 
 #ifdef USE_OLD_VOLUME_REGULATION_CODE // [
    // This variables are used in MpCodec.cpp to get/set audio volume. THIS IS A HACK!
@@ -690,7 +698,7 @@ OsStatus MpodWinMM::disableDevice()
    }
 
    // Delete the buffers that were allocated in enableDevice()
-   for ( i = 0; i < mNumOutBuffers; i++ )
+   for (int i = 0; i < mNumOutBuffers; i++ )
    {
       delete[] mpWaveBuffers[i];
       mpWaveBuffers[i] = NULL;
@@ -708,15 +716,70 @@ OsStatus MpodWinMM::disableDevice()
    return status;
 }
 
+OsStatus MpodWinMM::resetDevice()
+{
+    OsStatus status = OS_SUCCESS;
+    MMRESULT res;
+
+    if (mDevHandle)
+    {
+        // Reset performs a stop, returns all the buffers within windows multimedia
+        res = waveOutReset(mDevHandle);
+        if (res != MMSYSERR_NOERROR)
+        {
+            showWaveError("waveOutReset", res, -1, __LINE__);
+
+            if (res == MMSYSERR_NODRIVER)
+            {
+                // Keep the ticks going until the device is switch to a valid one
+                switchToMMTimer();
+            }
+        }
+
+        // We'll be accessing the vptr and empty header lists, so acquire the mutex
+        mEmptyHdrVPtrListsMutex.acquire();
+
+        // clear out the empty header list, as we don't want to continue filling
+        // buffers after a wave reset.  Put the cleared out entries in the unused
+        // void ptr list for use when this next gets enabled.
+        unsigned nEmpties = mEmptyHeaderList.entries();
+        unsigned i;
+        for (i = 0; i < nEmpties; i++)
+        {
+            mUnusedVPtrList.insert(mEmptyHeaderList.get());
+        }
+
+        // Release the mutex as we're done accessing the vptr and empty header lists.
+        mEmptyHdrVPtrListsMutex.release();
+
+        // Must unprepare the headers after a reset, but before the device is closed
+        // (if this is done after waveOutClose, mDevHandle will be invalid and 
+        // MMSYSERR_INVALHANDLE will be returned.
+        for (i = 0; i < mNumOutBuffers; i++)
+        {
+            res = waveOutUnprepareHeader(mDevHandle, &mpWaveHeaders[i], sizeof(WAVEHDR));
+            if (res != MMSYSERR_NOERROR)
+            {
+                showWaveError("waveOutUnprepareHeader", res, i, __LINE__);
+            }
+        }
+    }
+
+    return (status);
+}
+
 OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
                               const MpAudioSample* samples,
                               MpFrameTime frameTime)
 {
    OsStatus status = OS_FAILED;
+
    if ( !isEnabled() )
    {
       // be sure to release the mutex prior to returning.
+    // WHY????  Who took the mutex???
       mEmptyHdrVPtrListsMutex.release();
+
       return OS_FAILED;
    }
 
@@ -735,9 +798,15 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
    // device.
    status = internalPushFrame(numSamples, samples, frameTime);
 
+   // If we have a MMTimer, something has gone wrong with the output device
+   // So don't touch the wave device if we don't have to.  We could get hung.
+   if (mpTickerTimer)
+   {
+   }
+
    // If the first internalPushFrame succeeded, then go on and see if we need
    // to push any silence due to low buffers.
-   if (status == OS_SUCCESS)
+   else if(status == OS_SUCCESS)
    {
       // Collect some metrics -- the sample number that windows is on 
       // since waveOutOpen was called.
@@ -745,7 +814,17 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
       MMTIME mmt;
       mmt.wType = TIME_SAMPLES;
       res = waveOutGetPosition(mDevHandle, &mmt, sizeof(mmt));
-      assert(res == MMSYSERR_NOERROR);
+      if(res != MMSYSERR_NOERROR)
+      {
+          showWaveError("MpodWinMM::pushFrame - waveOutGetPosition",
+              res, -1, __LINE__);
+
+          if (res == MMSYSERR_NODRIVER)
+          {
+              // Keep the ticks going until the device is switch to a valid one
+              switchToMMTimer();
+          }
+      }
       assert(mmt.wType == TIME_SAMPLES);
 
       // Write out some statistics, if enabled.
@@ -799,97 +878,273 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
    // Set up our status code that we'll return - assume failure.
    OsStatus status = OS_FAILED;
 
-   // We'll be accessing the vptr and empty header lists, so acquire the mutex
-   mEmptyHdrVPtrListsMutex.acquire();
-
-   // If there are empty headers, we can push a frame
-   if( mEmptyHeaderList.entries() > 0)
+   // If we have a mpTickerTimer (MMTimer) its because something has happened
+   // to the output device (e.g. error or removed).  So we need to stop trying to push
+   // to the output as we could hang in wave calls.
+   if (mpTickerTimer == NULL)
    {
-      UtlVoidPtr* pvpWaveHdr = (UtlVoidPtr*)mEmptyHeaderList.get();
-      WAVEHDR* pWaveHdr = (WAVEHDR*)(pvpWaveHdr->getValue());
+       // We'll be accessing the vptr and empty header lists, so acquire the mutex
+       mEmptyHdrVPtrListsMutex.acquire();
 
-      // Reset the voidptr to null and add it to the unused vptr list for reuse.
-      pvpWaveHdr->setValue(NULL);
-      mUnusedVPtrList.insert(pvpWaveHdr);
 
-      // Cannot hold the mutex while performing wave calls.
-      mEmptyHdrVPtrListsMutex.release();
+       // If there are empty headers, we can push a frame
+       if (mEmptyHeaderList.entries() > 0)
+       {
+           UtlVoidPtr* pvpWaveHdr = (UtlVoidPtr*)mEmptyHeaderList.get();
+           WAVEHDR* pWaveHdr = (WAVEHDR*)(pvpWaveHdr->getValue());
 
-      MMRESULT res = waveOutPrepareHeader(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
-      if ( res != MMSYSERR_NOERROR )
-      {
-         showWaveError("MpodWinMM::internalPushFrame - waveOutPrepareHeader", 
-                       res, -1, __LINE__);
-         waveOutClose(mDevHandle);
-         mDevHandle = NULL;
-         mWinMMDeviceId = -1;
+           // Reset the voidptr to null and add it to the unused vptr list for reuse.
+           pvpWaveHdr->setValue(NULL);
+           mUnusedVPtrList.insert(pvpWaveHdr);
 
-         // and return OS_FAILED.
-         return OS_FAILED;
-      }
+           // Cannot hold the mutex while performing wave calls.
+           mEmptyHdrVPtrListsMutex.release();
 
-      // We found an empty buffer, now we fill it with data or silence.
-      if (samples)
-      {
-         memcpy(pWaveHdr->lpData, samples, sizeof(MpAudioSample)*numSamples);
+           MMRESULT res = waveOutPrepareHeader(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
+           if (res != MMSYSERR_NOERROR)
+           {
+               showWaveError("MpodWinMM::internalPushFrame - waveOutPrepareHeader",
+                   res, -1, __LINE__);
+
+               if (res == MMSYSERR_NODRIVER)
+               {
+                   // Keep the ticks going until the device is switch to a valid one
+                   switchToMMTimer();
+                   // Have to lie to keep the flowgraph going
+                   status = OS_SUCCESS;
+               }
+               else
+               {
+                   waveOutClose(mDevHandle);
+                   mDevHandle = NULL;
+                   mWinMMDeviceId = -1;
+                   // and return OS_FAILED.
+               }
+
+               return(status);
+           }
+
+           // We found an empty buffer, now we fill it with data or silence.
+           if (samples)
+           {
+               memcpy(pWaveHdr->lpData, samples, sizeof(MpAudioSample) * numSamples);
 #ifdef TEST_PRINT // [
-         printf("|");
+               printf("|");
 #endif // TEST_PRINT ]
-      }
-      else
-      {
-         memset(pWaveHdr->lpData, 0, sizeof(MpAudioSample)*numSamples);
+           }
+           else
+           {
+               memset(pWaveHdr->lpData, 0, sizeof(MpAudioSample) * numSamples);
 #ifdef TEST_PRINT // [
-         printf(".");
+               printf(".");
 #endif // TEST_PRINT ]
-      }
+           }
 
-      // And send it on it's way to windows wave interface.
-      res = waveOutWrite(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
-      if( res != MMSYSERR_NOERROR )
-      {
-         showWaveError("MpodWinMM::internalPushFrame", res, -1, __LINE__);
-         // If it's more than just an unprepared header
-         // (invalid handle, no driver, or a memory allocation or lock error)
-         if (res == MMSYSERR_NODRIVER)
-         {
-             OsSysLog::add(FAC_MP, PRI_ERR,
-                 "waveOutWrite to removed device, need to switch devices or use CPU ticker");
-         }
+           // And send it on it's way to windows wave interface.
+           res = waveOutWrite(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
+           if (res != MMSYSERR_NOERROR)
+           {
+               showWaveError("MpodWinMM::internalPushFrame", res, -1, __LINE__);
+               // If it's more than just an unprepared header
+               // (invalid handle, no driver, or a memory allocation or lock error)
+               if (res == MMSYSERR_NODRIVER)
+               {
+                   OsSysLog::add(FAC_MP, PRI_ERR,
+                       "waveOutWrite to removed device, need to switch devices or use CPU ticker");
 
-         if( res != WAVERR_UNPREPARED )
-         {
-            // Then close and invalidate this device.
-            waveOutClose(mDevHandle);
-            mDevHandle = NULL;
-            mWinMMDeviceId = -1;
-         }
-      }
-      else // res != MMSYSERR_NOERROR
-      {
-         // Increment the current frame time.
-         mCurFrameTime += getFramePeriod(numSamples, mSamplesPerSec);
+                   // Keep the ticks going until the device is switch to a valid one
+                   switchToMMTimer();
+                   // Have to lie and say everything is fine and keep the flowgraph going.
+                   status = OS_SUCCESS;
+               }
 
-         // Increase our sample count.
-         mTotSampleCount += numSamples;
+               else if (res != WAVERR_UNPREPARED)
+               {
+                   // Then close and invalidate this device.
+                   waveOutClose(mDevHandle);
+                   mDevHandle = NULL;
+                   mWinMMDeviceId = -1;
+               }
+           }
+           else // res != MMSYSERR_NOERROR
+           {
+               // Increment the current frame time.
+               mCurFrameTime += getFramePeriod(numSamples, mSamplesPerSec);
 
-         status = OS_SUCCESS;
-      }
-   } 
-   else // mNumEmptyBuffers
+               // Increase our sample count.
+               mTotSampleCount += numSamples;
+
+               status = OS_SUCCESS;
+           }
+       }
+       else // mNumEmptyBuffers
+       {
+           // Release the mutex as it was released in the if() case..
+           // We don't need to hold it anymore, 
+           // and we're done accessing vptr and empty header lists.
+           mEmptyHdrVPtrListsMutex.release();
+
+           // No buffers are empty! Cannot push this frame!
+           OsSysLog::add(FAC_MP, PRI_WARNING,
+               "MpodWinMM::internalPushFrame: "
+               "No free buffers! Dropping frame.");
+       }
+   }
+
+   // Running on the MMTimer as something is wrong with the output device
+   else
    {
-      // Release the mutex as it was released in the if() case..
-      // We don't need to hold it anymore, 
-      // and we're done accessing vptr and empty header lists.
-      mEmptyHdrVPtrListsMutex.release();
+             // DON'T CHECK IN
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MpodWinMM::internalPushFrame mpTickerTimer no pushing or shoving");
 
-      // No buffers are empty! Cannot push this frame!
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
-                    "MpodWinMM::internalPushFrame: "
-                    "No free buffers! Dropping frame.");
+      // We lie, to keep the flowgraph going
+      status = OS_SUCCESS;
    }
 
    return status;
+}
+
+// TODO:
+//  Need a method to shut down the device when not_present
+// Another method to re-initialize when present again????                                      
+
+                                      
+OsStatus MpodWinMM::switchToMMTimer()
+{
+    if (mDevHandle)
+    {
+        OsSysLog::add(FAC_MP, PRI_WARNING,
+            "MpodWinMM::switchToMMTimer called with active wave device: %p %d",
+            mDevHandle,
+            mWinMMDeviceId);
+    }
+
+    OsStatus status = OS_FAILED;
+    // If this output device is providing the ticks
+    if(mpTickerNotification)
+    {
+        if (mpTickerTimer == NULL)
+        {
+            // Build a CPU based ticker as the output device is broken
+            // and we need ticks to prevent the media subsystem from hanging
+            mpTickerTimer = MpMMTimer::create(MpMMTimer::Notification);
+            if (mpTickerTimer == NULL)
+            {
+                OsSysLog::add(FAC_MP, PRI_ERR,
+                    "MpodWinMM::switchToMMTimer NULL timer");
+
+            }
+
+            else
+            {
+                // Set the notifier/consumer of the tick messages
+                status = mpTickerTimer->setNotification(this);
+                if (status != OS_SUCCESS)
+                {
+                    OsSysLog::add(FAC_MP, PRI_ERR,
+                        "MpodWinMM::switchToMMTimer error setting timer notifier: %d", (int)status);
+                }
+
+                else
+                {
+                    // Start with tick period microseconds
+                    unsigned int periodMicroSecs = (1000 * // milliseconds/microsecond
+                        1000 * mSamplesPerFrame) / mSamplesPerSec;  // milliseconds/frame
+                        
+                    status = mpTickerTimer->run(periodMicroSecs);
+                    if (status != OS_SUCCESS)
+                    {
+                        OsSysLog::add(FAC_MP, PRI_ERR,
+                            "MpodWinMM::switchToMMTimer error starting timer period: %d error: %d", 
+                            periodMicroSecs,
+                            (int)status);
+                    }
+                    else
+                    {
+                        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                            "MpodWinMM::switchToMMTimer successfully starting MMtimer period: %d uSec", periodMicroSecs);
+                    }
+                }
+            }
+        }
+        else
+        {
+            OsSysLog::add(FAC_MP, PRI_WARNING,
+                "MpodWinMM::switchToMMTimer mpTickerTimer already set");
+        }
+    }
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_WARNING,
+            "MpodWinMM::switchToMMTimer NULL mpTickerNotification");
+    }
+
+    // Notify that this output device is removed or dead
+    // Do we need to differentiate???
+    if (mpOutputManger)
+    {
+        MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT, getDeviceName());
+        status = mpOutputManger->postNotification(msg);
+    }
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_WARNING,
+            "MpodWinMM::switchToMMTimer NULL mpOutputManager, no where to post DEVICE_NOT_PRESENT");
+    }
+
+    return(status);
+}
+
+/// @brief callback used by MpMMTimer when output device is not providing ticks
+OsStatus MpodWinMM::signal(const intptr_t eventData)
+{
+    if (mDevHandle)
+    {
+        OsSysLog::add(FAC_MP, PRI_WARNING,
+            "MpodWinMM::signal called with active wave device: %p %d, %d buffers used. leaking device??",
+            mDevHandle,
+            mWinMMDeviceId,
+            mUnusedVPtrList.entries());
+
+        // Don't close device as it sometimes hangs.
+        mDevHandle = NULL;
+        mWinMMDeviceId = -1;
+    }
+
+    // send a ticker notification tokeep the MediaTask processing frames
+    if (isEnabled() && mpTickerNotification != NULL)
+    {
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MpodWinMM::signal MpMMTimer signaling notifier from device: %d",
+            getDeviceName().data());
+#endif
+        OsStatus status = mpTickerNotification->signal(mCurFrameTime);
+        if (status != OS_SUCCESS)
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                "MpodWinMM::signal mpTickerNotification signal failed: %d", status);
+        }
+        else
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpodWinMM::signal mpTickerNotification signal succeeded");
+        }
+    }
+#ifdef TEST_PRINT
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MpodWinMM::signal %s MpMMTimer signal ignored enable: %s notifier: %p",
+            getDeviceName().data(),
+            isEnabled(),
+            mpTickerNotification);
+    }
+#endif
+
+
+    return(OS_SUCCESS);
 }
 
 /* ////////////////////////// PUBLIC STATIC ///////////////////////////////// */
@@ -955,7 +1210,7 @@ WAVEHDR* MpodWinMM::initWaveHeader(int n)
 
 void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
 {
-   OsLock lock(mEmptyHdrVPtrListsMutex);
+   mEmptyHdrVPtrListsMutex.acquire();
 
    // Check to see if we have any free pointers, and if we're enabled.
    if(isEnabled() && mUnusedVPtrList.entries() > 0)
@@ -965,6 +1220,7 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
       pvptr->setValue(pWaveHdr);
       // And add it to the empty header list for use by pushFrame.
       mEmptyHeaderList.insert(pvptr);
+      mEmptyHdrVPtrListsMutex.release();
 
       // send a ticker notification so that more frames can be sent.
       if(mpTickerNotification != NULL)
@@ -984,6 +1240,10 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
               getDeviceName().data());
 #endif
       }
+   }
+   else
+   {
+       mEmptyHdrVPtrListsMutex.release();
    }
 
 }

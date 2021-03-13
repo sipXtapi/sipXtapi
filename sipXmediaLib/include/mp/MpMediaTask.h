@@ -26,7 +26,7 @@
 
 // DEFINES
 
-// #define _PROFILE
+#define _PROFILE
 
 // MACROS
 // EXTERNAL FUNCTIONS
