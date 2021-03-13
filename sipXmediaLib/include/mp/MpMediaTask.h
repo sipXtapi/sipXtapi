@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -26,7 +26,7 @@
 
 // DEFINES
 
-#define _PROFILE
+//#define _PROFILE
 
 // MACROS
 // EXTERNAL FUNCTIONS
