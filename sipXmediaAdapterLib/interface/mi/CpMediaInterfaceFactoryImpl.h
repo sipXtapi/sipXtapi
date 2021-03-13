@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2021 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -99,7 +99,6 @@ public:
                                                   uint32_t samplesPerSec,
                                                   OsMsgDispatcher* pDispatcher
                                                  ) = 0 ;
-
 
      /// @brief Set the speaker volume.  Valid range includes 0 to 50.
    virtual OsStatus setSpeakerVolume(int iVolume) = 0 ;
@@ -241,6 +240,9 @@ public:
 
 
 /* ============================ ACCESSORS ================================= */
+
+   /// @brief Set the dispatcher for flowgraph independent media events/messages
+   virtual void setDispatcher(OsMsgDispatcher* dispatcher) = 0;
 
      /// @brief Get the speaker volume
    virtual OsStatus getSpeakerVolume(int& iVolume) const = 0 ;

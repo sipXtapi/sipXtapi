@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2018 SIPez LLC.
+// Copyright (C) 2005-2021 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -101,6 +101,9 @@ public:
                                           OsMsgDispatcher* pDispatcher = NULL
                                          );
 
+   /// @brief Set the dispatcher for flowgraph independent media events/messages
+   void setDispatcher(OsMsgDispatcher* dispatcher);
+
      /// Add directory paths to the codec search path.
    static OsStatus addCodecPaths(const size_t nCodecPaths, const UtlString codecPaths[]);
      /**<
@@ -128,7 +131,7 @@ public:
    
    /// @brief Get list of audio output device names available
    static int getOutputDeviceList(UtlContainer& deviceNames);
-    
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

@@ -1386,6 +1386,23 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::getConnectionResourceTopology() 
     return(mpConnectionResourceTopology);
 }
 
+void CpTopologyGraphFactoryImpl::setDispatcher(OsMsgDispatcher* dispatcher)
+{
+    if (dispatcher)
+    {
+        mTranslatorDispatcher.setDispatcher(dispatcher);
+        // Add the translator as the dispatcher to the in/out device managers
+        if (mpInputDeviceManager)
+        {
+            mpInputDeviceManager->addNotificationDispatcher(&mTranslatorDispatcher);
+        }
+        if (mpOutputDeviceManager)
+        {
+            mpOutputDeviceManager->addNotificationDispatcher(&mTranslatorDispatcher);
+        }
+    }
+}
+
 void CpTopologyGraphFactoryImpl::setMcastConnectionResourceTopology(MpResourceTopology& connectionResourceTopology)
 {
     mpMcastConnectionResourceTopology = &connectionResourceTopology;

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2021 SIPez LLC. All rights reserved.
 //
 //
 // $$
@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <sipXmediaFactoryImpl.h>
+#include <MaNotfTranslatorDispatcher.h>
 
 // DEFINES
 // MACROS
@@ -151,6 +152,9 @@ public:
     // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
     MpResourceTopology* getConnectionResourceTopology() const;
 
+    /// @brief Set the dispatcher for flowgraph independent media events/messages
+    void setDispatcher(OsMsgDispatcher* dispatcher);
+
       /// @brief Set the resource topology to be added to the flow graph when
       /// adding an multicast RTP connection.
     // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
@@ -206,6 +210,7 @@ protected:
    MpOutputDeviceHandle   mDefaultToOutputDevice;
    MpInputDeviceHandle    mDefaultToInputDevice;
    int                    mNumMcastStreams;
+   MaNotfTranslatorDispatcher mTranslatorDispatcher;
 
      /// Add RTP output connection to topology
    static void addOutputConnectionTopology(MpResourceTopology* resourceTopology,

@@ -293,14 +293,13 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    }
 
    // Enable notifier for audio devices if not already set
-   if(mpInputDeviceManager && mpInputDeviceManager->getNotificationDispatcher() == NULL)
+   if(mpInputDeviceManager)
    {
-       mpInputDeviceManager->setNotificationDispatcher(&mTranslatorDispatcher);
+       mpInputDeviceManager->addNotificationDispatcher(&mTranslatorDispatcher);
    }
- 
-   if(mpOutputDeviceManager && mpOutputDeviceManager->getNotificationDispatcher() == NULL)
+   if(mpOutputDeviceManager)
    {
-       mpOutputDeviceManager->setNotificationDispatcher(&mTranslatorDispatcher);
+       mpOutputDeviceManager->addNotificationDispatcher(&mTranslatorDispatcher);
    }
 
    MpResourceTopology* topology = pFactoryImpl->getInitialResourceTopology();
@@ -399,8 +398,18 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
 // Destructor
 CpTopologyGraphInterface::~CpTopologyGraphInterface()
 {
-   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::~CpTopologyGraphInterface deleting the CpMediaInterface %p",
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::~CpTopologyGraphInterface deleting the CpMediaInterface %p",
                  this);
+
+    // Stop using this interface's dispatcher
+    if (mpInputDeviceManager)
+    {
+        mpInputDeviceManager->removeNotificationDispatcher(&mTranslatorDispatcher);
+    }
+    if (mpOutputDeviceManager)
+    {
+        mpOutputDeviceManager->removeNotificationDispatcher(&mTranslatorDispatcher);
+    }
 
     CpTopologyMediaConnection* mediaConnection = NULL;
     while ((mediaConnection = (CpTopologyMediaConnection*) mMediaConnections.get()))
