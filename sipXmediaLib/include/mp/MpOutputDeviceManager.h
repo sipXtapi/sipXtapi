@@ -18,6 +18,7 @@
 #include <os/OsRWMutex.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlHashBag.h>
+#include <utl/UtlSList.h>
 #include "mp/MpTypes.h"
 
 // DEFINES
@@ -363,8 +364,14 @@ public:
    *  @returns notify dispatcher if set
    */
 
-   /// @brief Set notifier to enable posting of notification messages
-   OsStatus setNotificationDispatcher(OsMsgDispatcher* notifyDispatcher); // , connectionId, streamId);
+   /// @brief Add notifier to enable posting of notification messages
+   OsStatus addNotificationDispatcher(OsMsgDispatcher* notifyDispatcher); // , connectionId, streamId);
+     /**
+     *  @param notifyDispatcher - handler and dispather of messages (e.g. audio device events)
+     */
+
+     /// @brief remove given notifier to disable posting of notification messages to the notifier
+   OsStatus removeNotificationDispatcher(OsMsgDispatcher* notifyDispatcher); // , connectionId, streamId);
      /**
      *  @param notifyDispatcher - handler and dispather of messages (e.g. audio device events)
      */
@@ -414,7 +421,7 @@ private:
   UtlHashBag mConnectionsByDeviceId;
   OsTime mTimeZero;
   MpOutputDeviceHandle mCurrentTickerDevice;
-  OsMsgDispatcher* mpNotifier;
+  UtlSList mNotifiers;
 
     /// Copy constructor (not implemented for this class)
   MpOutputDeviceManager(const MpOutputDeviceManager& rMpOutputDeviceManager);

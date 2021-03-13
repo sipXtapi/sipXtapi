@@ -21,6 +21,7 @@
 #include <os/OsMsgDispatcher.h>
 #include <utl/UtlHashBagIterator.h>
 #include <utl/UtlInt.h>
+#include <utl/UtlVoidPtr.h>
 #include <utl/UtlDList.h>
 #include <utl/UtlDListIterator.h>
 #include <mp/MpInputDeviceManager.h>
@@ -490,7 +491,6 @@ MpInputDeviceManager::MpInputDeviceManager(unsigned defaultSamplesPerFrame,
 , mDefaultSamplesPerSecond(defaultSamplesPerSec)
 , mDefaultNumBufferedFrames(defaultNumBufferedFrames)
 , mpBufferPool(&bufferPool)
-, mpNotifier(NULL)
 {
    assert(defaultSamplesPerFrame > 0);
    assert(defaultSamplesPerSec > 0);
@@ -507,6 +507,10 @@ MpInputDeviceManager::~MpInputDeviceManager()
    // manager destroyed.
    assert(mConnectionsByDeviceName.entries() == 0);
    assert(mConnectionsByDeviceId.entries() == 0);
+
+   // remove and delete all UtlVoidPtr remaining.  The dispatchers they point to do not need
+   // to be freed.
+   mNotifiers.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -1058,24 +1062,60 @@ OsStatus MpInputDeviceManager::getTimeDerivatives(MpInputDeviceHandle deviceId,
 
 OsMsgDispatcher* MpInputDeviceManager::getNotificationDispatcher()
 {
-    return(mpNotifier);
+    OsMsgDispatcher* notifier = NULL;
+
+    // Always use the last one in (we add at the front)
+    UtlVoidPtr* firstVoidPtr = (UtlVoidPtr *) mNotifiers.at(0);
+    if (firstVoidPtr)
+    {
+        notifier = (OsMsgDispatcher *) firstVoidPtr->getValue();
+    }
+    return(notifier);
 }
 
-OsStatus MpInputDeviceManager::setNotificationDispatcher(OsMsgDispatcher* notifyDispatcher)
+OsStatus MpInputDeviceManager::addNotificationDispatcher(OsMsgDispatcher* notifyDispatcher)
 {
     // do not know if connectionId, streamId need to be set for messages
-    printf("MpInputDeviceManager::setNotificationDispatcher dispatcher: %p\n", notifyDispatcher);
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+        "MpInputDeviceManager::addNotificationDispatcher dispatcher[%d]: %p\n", 
+        mNotifiers.entries(),
+        notifyDispatcher);
 
-    mpNotifier = notifyDispatcher;
-    return(OS_SUCCESS);
+    if (notifyDispatcher)
+    {
+        mNotifiers.insertAt(0, new UtlVoidPtr(notifyDispatcher));
+    }
+
+    return(notifyDispatcher ? OS_SUCCESS : OS_FAILED);
+}
+
+OsStatus MpInputDeviceManager::removeNotificationDispatcher(OsMsgDispatcher* notifyDispatcher)
+{
+    OsStatus result = OS_FAILED;
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+        "MpInputDeviceManager::removeNotificationDispatcher dispatcher 1/%d %p\n",
+        mNotifiers.entries(),
+        notifyDispatcher);
+
+    UtlVoidPtr matchVoidPtr(notifyDispatcher);
+    UtlVoidPtr* foundVoidPtr = (UtlVoidPtr *) mNotifiers.remove(&matchVoidPtr);
+    if (foundVoidPtr)
+    {
+        result = OS_SUCCESS;
+        delete foundVoidPtr;
+        foundVoidPtr = NULL;
+    }
+
+    return(result);
 }
 
 OsStatus MpInputDeviceManager::postNotification(const MpResNotificationMsg& msg)
 {
     OsStatus status = OS_NOT_FOUND;
-    if (mpNotifier)
+    OsMsgDispatcher* notifier = getNotificationDispatcher();
+    if (notifier)
     {
-        status = mpNotifier->post(msg);
+        status = notifier->post(msg);
     }
     return(status);
 }
