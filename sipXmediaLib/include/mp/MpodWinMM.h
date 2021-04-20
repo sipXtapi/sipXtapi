@@ -46,6 +46,7 @@
 class OsNotification;
 class MpOutputDeviceManager;
 class MpMMTimer;
+struct IMMNotificationClient;
 
 /**
 *  @brief Container for Microsoft Windows device specific output driver.

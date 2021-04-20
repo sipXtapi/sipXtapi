@@ -40,6 +40,8 @@ using namespace std;
 #include <utl/UtlVoidPtr.h>
 #include <utl/UtlInit.h>
 
+#include <pcre.h>
+
 #define BUFFER_SIZE 256
 #define ARG_NUM 10
 namespace

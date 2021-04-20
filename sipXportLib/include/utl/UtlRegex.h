@@ -12,8 +12,12 @@
 #define _REGEX_H
 
 #include <string.h>
-#include <pcre.h>
 #include "utl/UtlString.h"
+
+// Forward declarations
+struct real_pcre;
+typedef struct real_pcre pcre;
+struct pcre_extra;
 
 /**
  * RegEx implements Perl-compatible regular expressions

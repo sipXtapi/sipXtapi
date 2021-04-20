@@ -20,6 +20,7 @@
 
 #include "assert.h"
 #include "utl/UtlRegex.h"
+#include <pcre.h>
 
 #ifndef    SIPX_MAX_REGEX_RECURSION
 #   define SIPX_MAX_REGEX_RECURSION 800

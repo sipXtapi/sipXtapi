@@ -33,7 +33,7 @@
 // FORWARD DECLARATIONS
 class MpInputDeviceManager;
 struct IMMDeviceEnumerator;
-class IMMNotificationClient;
+struct IMMNotificationClient;
 
 /**
 *  @brief Container for the Microsoft Windows Multimedia specific input driver.

@@ -18,7 +18,15 @@
 #include <mp/codecs/PlgDefsV1.h>
 
 /* CODEC LIBRARY INCLUDES */
-#include <opus/config.h>
+#ifdef WIN32
+  #include <config.h>
+  #include <stdio.h>
+  // WIN32 dev does not facilitate circular shared lib dependencies
+  // So for now take a short cut
+  #define mppLogError printf
+#else
+  #include <opus/config.h>
+#endif
 #include <opus.h>
 
 /* EXTERNAL VARIABLES */
