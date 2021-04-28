@@ -74,7 +74,7 @@ public:
     /// Get size of #MpArrayBuf without data (in bytes).
     static int getHeaderSize() {
         static MpArrayBuf* foo = NULL;
-        return (unsigned long)(&(foo->mpData[0])) - (unsigned long)(foo);
+        return (unsigned long)(&foo->mpData[0] - (char*)foo);
     }
 
 

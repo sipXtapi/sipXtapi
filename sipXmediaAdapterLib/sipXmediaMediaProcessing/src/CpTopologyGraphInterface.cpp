@@ -324,6 +324,8 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
         "available pooled buffers udp: %d/%d rtp: %d/%d audio: %d/%d",
         udpBufs, udpPoolSize, rtpBufs, rtpPoolSize, audioBufs, audioPoolSize);
   
+   mInitialTopologyBridgePorts = getNumBridgePorts();
+
    // Temporary hack while we determine VAD performance issue
 #ifdef ANDROID
    OsMsgQ* flowgraphQueue = mpTopologyGraph->getMsgQ();
@@ -1874,10 +1876,10 @@ OsStatus CpTopologyGraphInterface::deleteConnection(int connectionId)
 
 OsStatus CpTopologyGraphInterface::playAudio(const char* url,
                                           UtlBoolean repeat,
-                                          UtlBoolean local,
-                                          UtlBoolean remote,
-                                          UtlBoolean mixWithMic,
-                                          int downScaling,
+                                          UtlBoolean local,  // currently unused in this topology
+                                          UtlBoolean remote, // currently unused in this topology
+                                          UtlBoolean mixWithMic, // currently unused in this topology
+                                          int downScaling,   // currently unused in this topology
                                           UtlBoolean autoStopAfterFinish)
 {
     OsStatus stat = OS_NOT_FOUND;
@@ -1907,11 +1909,11 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
                                               uint32_t bufRate,
                                               int type, 
                                               UtlBoolean repeat,
-                                              UtlBoolean local,
-                                              UtlBoolean remote, 
+                                              UtlBoolean local,    // currently unused in this topology
+                                              UtlBoolean remote,   // currently unused in this topology
                                               OsProtectedEvent* pEvent,
-                                              UtlBoolean mixWithMic,
-                                              int downScaling,
+                                              UtlBoolean mixWithMic,  // currently unused in this topology
+                                              int downScaling,     // currently unused in this topology
                                               UtlBoolean autoStopOnFinish)
 {
     OsStatus stat = OS_NOT_FOUND;
@@ -1980,43 +1982,39 @@ OsStatus CpTopologyGraphInterface::stopAudio()
 }
 
 
-OsStatus CpTopologyGraphInterface::playChannelAudio(int connectionId,
+OsStatus CpTopologyGraphInterface::playChannelAudio(int connectionId,   // currently unused in this topology
                                                     const char* url,
                                                     UtlBoolean repeat,
-                                                    UtlBoolean local,
-                                                    UtlBoolean remote,
-                                                    UtlBoolean mixWithMic,
-                                                    int downScaling,
+                                                    UtlBoolean local,   // currently unused in this topology
+                                                    UtlBoolean remote,  // currently unused in this topology
+                                                    UtlBoolean mixWithMic, // currently unused in this topology
+                                                    int downScaling,    // currently unused in this topology
                                                     UtlBoolean autoStopOnFinish) 
 {
-    // TODO:: This API is designed to record the audio from a single channel.  
-    // If the connectionId is -1, record all.
-
     return playAudio(url, repeat, local, remote, mixWithMic, downScaling, autoStopOnFinish) ;
 }
 
 
-OsStatus CpTopologyGraphInterface::stopChannelAudio(int connectionId) 
+OsStatus CpTopologyGraphInterface::stopChannelAudio(int connectionId) // connectionId is currently unused in this topology
 {
-    // TODO:: This API is designed to record the audio from a single channel.  
-    // If the connectionId is -1, record all.
-
     return stopAudio() ;
 }
 
 
-OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
+OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,   // connectionId is currently unused in this topology
                                                       const char* szFile,
                                                       CpAudioFileFormat cpFileFormat,
                                                       UtlBoolean appendToFile,
-                                                      int numChannels)
+                                                      int numChannels,
+                                                      UtlBoolean setupMixesAutomatically)
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
 #if MAXIMUM_RECORDER_CHANNELS > 1
-      {
-          int numLocalBridgePorts = MAXIMUM_RECORDER_CHANNELS < 3 ? 3 : MAXIMUM_RECORDER_CHANNELS + 1;
+       if(setupMixesAutomatically)
+       {
+          int numLocalBridgePorts = mInitialTopologyBridgePorts;  
           // getNumBridgePorts provides the number of used ports, not the maximum
           //int totalBridgePorts = getNumBridgePorts();
           int totalBridgePorts = DEFAULT_BRIDGE_MAX_IN_OUTPUTS;
@@ -2100,7 +2098,7 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
    return(stat);
 }
 
-OsStatus CpTopologyGraphInterface::pauseRecordChannelAudio(int connectionId) 
+OsStatus CpTopologyGraphInterface::pauseRecordChannelAudio(int connectionId)  // connectionId is currently unused in this topology
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2111,7 +2109,7 @@ OsStatus CpTopologyGraphInterface::pauseRecordChannelAudio(int connectionId)
    return(stat);
 }
 
-OsStatus CpTopologyGraphInterface::resumeRecordChannelAudio(int connectionId) 
+OsStatus CpTopologyGraphInterface::resumeRecordChannelAudio(int connectionId)  // connectionId is currently unused in this topology
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2122,7 +2120,7 @@ OsStatus CpTopologyGraphInterface::resumeRecordChannelAudio(int connectionId)
    return(stat);
 }
 
-OsStatus CpTopologyGraphInterface::stopRecordChannelAudio(int connectionId) 
+OsStatus CpTopologyGraphInterface::stopRecordChannelAudio(int connectionId)  // connectionId is currently unused in this topology
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2134,7 +2132,7 @@ OsStatus CpTopologyGraphInterface::stopRecordChannelAudio(int connectionId)
 }
 
 
-OsStatus CpTopologyGraphInterface::recordBufferChannelAudio(int connectionId,
+OsStatus CpTopologyGraphInterface::recordBufferChannelAudio(int connectionId, // connectionId is currently unused in this topology
                                                             char* pBuffer,
                                                             int bufferSize,
                                                             int maxRecordTime,
@@ -2152,8 +2150,8 @@ OsStatus CpTopologyGraphInterface::recordBufferChannelAudio(int connectionId,
    }
    return stat;
 }
-
-OsStatus CpTopologyGraphInterface::stopRecordBufferChannelAudio(int connectionId) 
+ 
+OsStatus CpTopologyGraphInterface::stopRecordBufferChannelAudio(int connectionId)  // connectionId is currently unused in this topology
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2164,7 +2162,7 @@ OsStatus CpTopologyGraphInterface::stopRecordBufferChannelAudio(int connectionId
    return stat;
 }
 
-OsStatus CpTopologyGraphInterface::recordCircularBufferChannelAudio(int connectionId,
+OsStatus CpTopologyGraphInterface::recordCircularBufferChannelAudio(int connectionId,  // connectionId is currently unused in this topology
                                                                     CircularBufferPtr & buffer,
                                                                     CpMediaInterface::CpAudioFileFormat recordingFormat,
                                                                     unsigned long recordingBufferNotificationWatermark)
@@ -2187,7 +2185,7 @@ OsStatus CpTopologyGraphInterface::recordCircularBufferChannelAudio(int connecti
    return stat;
 }
 
-OsStatus CpTopologyGraphInterface::stopRecordCircularBufferChannelAudio(int connectionId)
+OsStatus CpTopologyGraphInterface::stopRecordCircularBufferChannelAudio(int connectionId) // connectionId is currently unused in this topology
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2243,8 +2241,8 @@ OsStatus CpTopologyGraphInterface::destroyQueuePlayer(MpStreamQueuePlayer* pPlay
 
 
 OsStatus CpTopologyGraphInterface::startTone(int toneId,
-                                             UtlBoolean local,
-                                             UtlBoolean remote)
+                                             UtlBoolean local,  // currently unused in this topology
+                                             UtlBoolean remote) // currently unused in this topology
 {
    // TODO: deal with "local" and "remote"...
    OsStatus stat = OS_FAILED;

@@ -492,7 +492,8 @@ public:
                                        const char* szFile,
                                        CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16,
                                        UtlBoolean appendToFile = FALSE,
-                                       int numChannels = 1) = 0;
+                                       int numChannels = 1,
+                                       UtlBoolean setupMultiChannelMixesAutomatically = TRUE) = 0;
    /**
     * @param[in] connectionId - handle for media connection to which recorder is relate
     * @param[in] szFile - name of file to record to
@@ -503,6 +504,12 @@ public:
     *            should wait for the stop notification before starting to record again
     *            with the same file or results are unpredictable.
     * @param[in] numChannels - number of channels of audio to record to file
+    * @param[in] setupMultiChannelMixesAutomatically - if number of channels is > 1 and this
+    *            is true then the following mixes are automatically created:
+    *            -All Local resources (including mic and file playback) are routed to channel 1
+    *            -The middle channels (2-3 in a 4 channel setup) get individual RTP resources
+    *            -The last channel (channel 4 in a 4 channel setup) gets a mix of all other 
+    *             RTP resources
     *
     * @returns OS_SUCCESS if file was successfully opened (and if append, format is the same)
     *          OS_FAILED if existing file was of a different audio format than requested or

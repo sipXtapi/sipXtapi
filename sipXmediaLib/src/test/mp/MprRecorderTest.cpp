@@ -1165,7 +1165,7 @@ class MprRecorderTest : public MpGenericResourceTest
         int numberOfTestFileTypes = sizeof(testFileTypes) / sizeof(MprRecorder::RecordFileFormat);
         int framesPerSecond = 100; // 10 mSec frames
 
-        for(int channelCount = 1; channelCount < MAXIMUM_RECORDER_CHANNELS + 1; channelCount++)
+        for(int channelCount = 1; channelCount < MprRecorder::getMaximumRecoderChannels() + 1; channelCount++)
         {
             for(int fileTypeIndex = 0; fileTypeIndex < numberOfTestFileTypes; fileTypeIndex++)
             {

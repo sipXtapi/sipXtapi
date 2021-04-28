@@ -112,6 +112,11 @@ MprRecorder::~MprRecorder()
         mpCircularBuffer->release();
 }
 
+int MprRecorder::getMaximumRecoderChannels()
+{
+    return MAXIMUM_RECORDER_CHANNELS;
+}
+
 /* ============================ MANIPULATORS ============================== */
 
 OsStatus MprRecorder::startFile(const UtlString& namedResource,
@@ -576,35 +581,45 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
           if(in[channelIndex].isValid())
           {
               inputSamplesPtrArray[channelIndex] = in[channelIndex]->getSamplesPtr();
+              if (in[channelIndex]->getSamplesNumber() != samplesPerFrame)
+              {
+                  OsSysLog::add(FAC_MP, PRI_WARNING,
+                      "MprRecorder::doProcessFrame line %d numSamples from channel Index %d: (%d) != numSamples passed in (%d), channels=%d",
+                      __LINE__,
+                      channelIndex,
+                      in[channelIndex]->getSamplesNumber(),
+                      samplesPerFrame,
+                      mChannels);
+              }
           }
           else
           {
               inputSamplesPtrArray[channelIndex] = MpMisc.mpFgSilence->getSamplesPtr();
           }
       }
-      int numSamples = in[0]->getSamplesNumber();
+
       int numRecorded;
       if (mRecordDestination == TO_FILE)
       {
-         numRecorded = writeSamples(inputSamplesPtrArray, numSamples, &MprRecorder::writeFile);
+         numRecorded = writeSamples(inputSamplesPtrArray, samplesPerFrame, &MprRecorder::writeFile);
       }
       else if (mRecordDestination == TO_BUFFER)
       {
-         numRecorded = writeBufferSpeech(inputSamplesPtrArray[0], numSamples);
+         numRecorded = writeBufferSpeech(inputSamplesPtrArray[0], samplesPerFrame);
       }
       else if (mRecordDestination == TO_CIRCULAR_BUFFER)
       {
-         numRecorded = writeSamples(inputSamplesPtrArray, numSamples, &MprRecorder::writeCircularBuffer);
+         numRecorded = writeSamples(inputSamplesPtrArray, samplesPerFrame, &MprRecorder::writeCircularBuffer);
       }
       mSamplesRecorded += numRecorded;
 
-      if (numRecorded != numSamples)
+      if (numRecorded != samplesPerFrame)
       {
          OsSysLog::add(FAC_MP, PRI_ERR,
              "MprRecorder::doProcessFrame line %d numRecorded (%d) != numSamples (%d) channels=%d",
              __LINE__,
              numRecorded, 
-             numSamples, 
+             samplesPerFrame,
              mChannels);
 
          finish(FINISHED_ERROR);

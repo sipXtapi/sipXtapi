@@ -287,7 +287,8 @@ public:
                                        const char* szFile,
                                        CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16,
                                        UtlBoolean appendToFile = FALSE,
-                                       int numChannels = 1);
+                                       int numChannels = 1,
+                                       UtlBoolean setupMultiChannelMixesAutomatically = TRUE);
 
    /// @copydoc CpMediaInterface::pauseRecordChannelAudio
    virtual OsStatus pauseRecordChannelAudio(int connectionId);
@@ -704,6 +705,7 @@ private:
    SdpCodecList mSupportedCodecs;
    UtlDList mMediaConnections;
    int mExpeditedIpTos;
+   int mInitialTopologyBridgePorts;
 
    MpInputDeviceManager*  mpInputDeviceManager;
    MpInputDeviceHandle    mInputDeviceHandle;

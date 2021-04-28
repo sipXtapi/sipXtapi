@@ -153,7 +153,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>Ws2_32.lib;winmm.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib;C:\work\libiLBC\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -170,10 +170,8 @@
       <OutputFile>.\Debug/sipXmediaLibTest-msvc16.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\pcre\bin\pcre3.dll $(OutDir)
-copy contrib\libopus\libogg\win32\VS2019\Win32\$(Configuration)DLL\libogg.dll $(OutDir)ogg.dll
-copy contrib\libopus\opus\win32\VS2019\Win32\$(Configuration)DLL\opus.dll $(OutDir)
-copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.dll $(OutDir)</Command>
+      <Command>xcopy /D /y $(ProjectDir)\src\test\*.raw  $(ProjectDir)
+xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -203,7 +201,7 @@ copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.d
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>Ws2_32.lib;winmm.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib;C:\work\libiLBC\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -220,10 +218,8 @@ copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.d
       <OutputFile>.\Debug/sipXmediaLibTest-msvc16.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\pcre\bin\pcre3.dll $(OutDir)
-copy contrib\libopus\libogg\win32\VS2019\Win32\$(Configuration)DLL\libogg.dll $(OutDir)ogg.dll
-copy contrib\libopus\opus\win32\VS2019\Win32\$(Configuration)DLL\opus.dll $(OutDir)
-copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.dll $(OutDir)</Command>
+      <Command>xcopy /D /y $(ProjectDir)\src\test\*.raw  $(ProjectDir)
+xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -255,7 +251,7 @@ copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.d
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>Ws2_32.lib;winmm.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib;C:\work\libiLBC\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -273,10 +269,8 @@ copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.d
       <OutputFile>.\Debug/sipXmediaLibTest-msvc16.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\pcre\bin\pcre3.dll $(OutDir)
-copy contrib\libopus\libogg\win32\VS2019\Win32\$(Configuration)DLL\libogg.dll $(OutDir)ogg.dll
-copy contrib\libopus\opus\win32\VS2019\Win32\$(Configuration)DLL\opus.dll $(OutDir)
-copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.dll $(OutDir)</Command>
+      <Command>xcopy /D /y $(ProjectDir)\src\test\*.raw  $(ProjectDir)
+xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -307,7 +301,7 @@ copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.d
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>Ws2_32.lib;winmm.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib;C:\work\libiLBC\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -324,10 +318,8 @@ copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.d
       <OutputFile>.\Debug/sipXmediaLibTest-msvc16.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\pcre\bin\pcre3.dll $(OutDir)
-copy contrib\libopus\libogg\win32\VS2019\Win32\$(Configuration)DLL\libogg.dll $(OutDir)ogg.dll
-copy contrib\libopus\opus\win32\VS2019\Win32\$(Configuration)DLL\opus.dll $(OutDir)
-copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.dll $(OutDir)</Command>
+      <Command>xcopy /D /y $(ProjectDir)\src\test\*.raw  $(ProjectDir)
+xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug CPPUNIT|Win32'">
@@ -376,9 +368,8 @@ copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.d
       <OutputFile>.\Debug/sipXmediaLibTest-msvc16.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\pcre\bin\pcre3.dll $(OutDir)
-copy contrib\libopus\opus\win32\VS2019\Win32\$(Configuration)DLL\opus.dll $(OutDir)
-copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.dll $(OutDir)</Command>
+      <Command>xcopy /D /y $(ProjectDir)\src\test\*.raw  $(ProjectDir)
+xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug CPPUNIT|x64'">
@@ -425,9 +416,8 @@ copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.d
       <OutputFile>.\Debug/sipXmediaLibTest-msvc16.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\pcre\bin\pcre3.dll $(OutDir)
-copy contrib\libopus\opus\win32\VS2019\Win32\$(Configuration)DLL\opus.dll $(OutDir)
-copy contrib\libopus\libopusenc\win32\VS2019\Win32\$(Configuration)DLL\opusenc.dll $(OutDir)</Command>
+      <Command>xcopy /D /y $(ProjectDir)\src\test\*.raw  $(ProjectDir)
+xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
