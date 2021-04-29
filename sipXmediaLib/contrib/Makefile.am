@@ -18,6 +18,7 @@ libspeex/libspeex/.libs/libspeexdsp.so libspeex/libspeex/libspeexdsp.la: libspee
 	$(MAKE) -C libspeex
 
 libopus/opus/.libs/libopus.so libopus/opus/libospus.la libopus/opus/Makefile: libopus/opus/configure
+	pwd
 	(cd libopus/opus; ./configure)
 	(cd libopus/opus; $(MAKE))
 
