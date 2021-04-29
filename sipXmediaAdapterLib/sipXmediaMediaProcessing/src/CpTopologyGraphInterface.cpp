@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -19,6 +19,7 @@
 #include <utl/UtlDListIterator.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlHashBag.h>
+#include <utl/CircularBuffer.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsNatDatagramSocket.h>
 #include <os/OsMulticastSocket.h>
@@ -46,6 +47,7 @@
 #include <mp/MprToNet.h>
 #include <CpTopologyGraphInterface.h>
 #include <CpTopologyGraphFactoryImpl.h>
+#include <TypeConverter.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>
@@ -722,6 +724,32 @@ OsStatus CpTopologyGraphInterface::getResourceInputPortOnBridge(const UtlString 
       pResource->getOutputInfo(realPortIndex,
                                doNotTouchResource, // not safe to access
                                portOnBridge);
+   }
+   else
+   {
+      portOnBridge = -1;
+   }
+   return retStatus;
+}
+
+OsStatus CpTopologyGraphInterface::getResourceOutputPortOnBridge(const UtlString &resourceName,
+                                                                 int inputPortIdx,
+                                                                 int& portOnBridge)
+{
+   MpResource* pResource = NULL;
+   int realPortIndex;
+
+   OsStatus retStatus = mpTopologyGraph->lookupOutput(resourceName,
+                                                      inputPortIdx,
+                                                      pResource,
+                                                      realPortIndex);
+   if(OS_SUCCESS == retStatus)
+   {
+      MpResource* doNotTouchResource = NULL;
+
+      pResource->getInputInfo(realPortIndex,
+                              doNotTouchResource, // not safe to access
+                              portOnBridge);
    }
    else
    {
@@ -1917,17 +1945,67 @@ OsStatus CpTopologyGraphInterface::stopChannelAudio(int connectionId)
 
 
 OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,
-                                                      const char* szFile) 
+                                                      const char* szFile,
+                                                      CpAudioFileFormat cpFileFormat) 
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
-      stat = MprRecorder::startFile(DEFAULT_RECORDER_RESOURCE_NAME,
-                                    *mpTopologyGraph->getMsgQ(),
-                                    szFile,
-                                    MprRecorder::WAV_PCM_16);
+       MprRecorder::RecordFileFormat recordFormat = MprRecorder::WAV_PCM_16;
+      switch(cpFileFormat)
+      {
+          case CP_WAVE_PCM_16:
+              recordFormat = MprRecorder::WAV_PCM_16;
+              stat = OS_SUCCESS;
+              break;
+
+          case CP_WAVE_GSM:
+              recordFormat = MprRecorder::WAV_GSM;
+              stat = OS_SUCCESS;
+              break;
+
+          default:
+              OsSysLog::add(FAC_CP, PRI_ERR,
+                      "Invalid record file format: %d",
+                      cpFileFormat);
+              OsSysLog::flush();
+              assert(0);
+              stat = OS_INVALID_ARGUMENT;
+              break;
+      }
+
+      if(stat == OS_SUCCESS)
+      {
+          stat = MprRecorder::startFile(DEFAULT_RECORDER_RESOURCE_NAME,
+                                        *mpTopologyGraph->getMsgQ(),
+                                        szFile,
+                                        recordFormat);
+      }
    }
-   return stat;
+
+   return(stat);
+}
+
+OsStatus CpTopologyGraphInterface::pauseRecordChannelAudio(int connectionId) 
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprRecorder::pause(DEFAULT_RECORDER_RESOURCE_NAME,
+                                *mpTopologyGraph->getMsgQ());
+   }
+   return(stat);
+}
+
+OsStatus CpTopologyGraphInterface::resumeRecordChannelAudio(int connectionId) 
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprRecorder::resume(DEFAULT_RECORDER_RESOURCE_NAME,
+                                 *mpTopologyGraph->getMsgQ());
+   }
+   return(stat);
 }
 
 OsStatus CpTopologyGraphInterface::stopRecordChannelAudio(int connectionId) 
@@ -1972,7 +2050,39 @@ OsStatus CpTopologyGraphInterface::stopRecordBufferChannelAudio(int connectionId
    return stat;
 }
 
+OsStatus CpTopologyGraphInterface::recordCircularBufferChannelAudio(int connectionId,
+                                                                    CircularBufferPtr & buffer,
+                                                                    CpMediaInterface::CpAudioFileFormat recordingFormat,
+                                                                    unsigned long recordingBufferNotificationWatermark)
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+       MprRecorder::RecordFileFormat format;
+       stat = TypeConverter::translateRecordingFormat(recordingFormat, format);
 
+       if (stat == OS_SUCCESS)
+       {
+           stat = MprRecorder::startCircularBuffer(DEFAULT_RECORDER_RESOURCE_NAME,
+               *mpTopologyGraph->getMsgQ(),
+               buffer,
+               format,
+               recordingBufferNotificationWatermark);
+       }
+   }
+   return stat;
+}
+
+OsStatus CpTopologyGraphInterface::stopRecordCircularBufferChannelAudio(int connectionId)
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprRecorder::stop(DEFAULT_RECORDER_RESOURCE_NAME,
+                               *mpTopologyGraph->getMsgQ());
+   }
+   return stat;
+}
 
 OsStatus CpTopologyGraphInterface::createPlayer(MpStreamPlayer** ppPlayer, 
                                              const char* szStream, 
@@ -2167,13 +2277,14 @@ OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
          }
       }
 
-      if(rfc4733payload)
+      // Generate RFC4733 out-of-band tone
+      if(connectionId > getInvalidConnectionId())
       {
-         // Generate RFC4733 out-of-band tone
-         UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
-         MpResourceTopology::replaceNumInName(encodeName, connectionId);
-         stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
+          UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+          MpResourceTopology::replaceNumInName(encodeName, connectionId);
+          stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
       }
+      // else OK to not emit inband DTMF if no connection
    }
    else
    {
@@ -2209,12 +2320,12 @@ OsStatus CpTopologyGraphInterface::stopChannelTone(int connectionId,
          }
       }
 
-      if(rfc4733payload)
+      // Stop RFC4733 out-of-band tone
+      if(connectionId > getInvalidConnectionId())
       {
-         // Stop RFC4733 out-of-band tone
-         UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
-         MpResourceTopology::replaceNumInName(encodeName, connectionId);
-         stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
+          UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+          MpResourceTopology::replaceNumInName(encodeName, connectionId);
+          stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
       }
    }
    else
@@ -2709,7 +2820,7 @@ UtlBoolean CpTopologyGraphInterface::isDestinationSet(int connectionId)
 
 UtlBoolean CpTopologyGraphInterface::canAddParty() 
 {
-   int maxConnections = ((CpTopologyGraphFactoryImpl*)mpFactoryImpl)->getMaxInputConnections();
+   unsigned int maxConnections = ((CpTopologyGraphFactoryImpl*)mpFactoryImpl)->getMaxInputConnections();
    return mMediaConnections.entries() < maxConnections;
 }
 
@@ -4071,7 +4182,10 @@ OsStatus CpTopologyGraphInterface::setConnectionToConnectionWeight(CpTopologyMed
                                                                    int destConnectionId,
                                                                    float weight)
 {
+   // Not sure why the following line is here.  Additionally pDestConnection is not used
+   // and complier complains
    CpTopologyMediaConnection* pDestConnection = getMediaConnection(destConnectionId);
+
    int destPort;
    OsStatus stat = getConnectionPortOnBridge(destConnectionId, 0, destPort);
    if (stat != OS_SUCCESS)

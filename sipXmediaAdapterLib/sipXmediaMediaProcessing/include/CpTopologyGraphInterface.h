@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2015 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -41,7 +41,7 @@ class MpResourceFactory;
 class MpInputDeviceManager;
 class MpOutputDeviceManager;
 class OsSocket;
-
+class CircularBufferPtr;
 
 /** Subsystem manager and creator of CpTopologyGraphInterfaces specialization of CpMediaInterface
  *
@@ -144,14 +144,29 @@ public:
 
      /// Look up the port on the bridge to which the indicated resource is connected.
    OsStatus getResourceInputPortOnBridge(const UtlString &resourceName,
-                                         int outputPortIdx,
+                                         int resourceOutputPortIndex,
                                          int& portOnBridge);
      /**<
      *  @warning You must be sure, that this resource is actually connected
      *           to the bridge.
      *
      *  @param[in]  resourceName - name of the resource to lookup.
-     *  @param[in]  outputPortIdx - index of the resource's output port which
+     *  @param[in]  resourceOutputPortIndex - index of the resource's output port which
+     *              is connected to the bridge.
+     *  @param[out] portOnBridge - index of an input port to which resource
+     *              is connected.
+     */
+
+     /// Look up the port on the bridge to which the indicated resource is connected.
+   OsStatus getResourceOutputPortOnBridge(const UtlString &resourceName,
+                                         int resourceInputPortIndex,
+                                         int& portOnBridge);
+     /**<
+     *  @warning You must be sure, that this resource is actually connected
+     *           to the bridge.
+     *
+     *  @param[in]  resourceName - name of the resource to lookup.
+     *  @param[in]  resourceInputPortIndex - index of the resource's input port which
      *              is connected to the bridge.
      *  @param[out] portOnBridge - index of an input port to which resource
      *              is connected.
@@ -255,8 +270,10 @@ public:
      /// @copydoc CpMediaInterface::resumeAudio()
    virtual OsStatus resumeAudio();
 
+   /// @copydoc CpMediaInterface::stopAudio()
    virtual OsStatus stopAudio();
 
+   /// @copydoc CpMediaInterface::playCHannelAudio
    virtual OsStatus playChannelAudio(int connectionId,
                                      const char* url,
                                      UtlBoolean repeat,
@@ -266,22 +283,39 @@ public:
                                      int downScaling = 100,
                                      UtlBoolean autoStopOnFinish = TRUE);
 
-
+   /// @copydoc CpMediaInterface::stopChannelAudio
    virtual OsStatus stopChannelAudio(int connectionId) ;
 
-
+   /// @copydoc CpMediaInterface::recordChannelAudio
    virtual OsStatus recordChannelAudio(int connectionId,
-                                       const char* szFile) ;
+                                       const char* szFile,
+                                       CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16);
 
-   virtual OsStatus stopRecordChannelAudio(int connectionId) ;
+   /// @copydoc CpMediaInterface::pauseRecordChannelAudio
+   virtual OsStatus pauseRecordChannelAudio(int connectionId);
 
+   /// @copydoc CpMediaInterface::resumeRecordChannelAudio
+   virtual OsStatus resumeRecordChannelAudio(int connectionId);
+
+   /// @copydoc CpMediaInterface::stopRecordChannelAudio
+   virtual OsStatus stopRecordChannelAudio(int connectionId);
+
+   /// @copydoc CpMediaInterface::recordBufferChannelAudio
    virtual OsStatus recordBufferChannelAudio(int connectionId,
                                              char* pBuffer,
                                              int bufferSize,
                                              int maxRecordTime = -1,
                                              int maxSilence = -1) ;
 
+   /// @copydoc CpMediaInterface::stopRecordBufferAudio
    virtual OsStatus stopRecordBufferChannelAudio(int connectionId) ;
+
+   virtual OsStatus recordCircularBufferChannelAudio(int connectionId,
+                                                     CircularBufferPtr & buffer,
+                                                     CpMediaInterface::CpAudioFileFormat recordingFormat,
+                                                     unsigned long recordingBufferNotificationWatermark);
+
+   virtual OsStatus stopRecordCircularBufferChannelAudio(int connectionId);
 
    /// Deprecated
    virtual OsStatus createPlayer(MpStreamPlayer** ppPlayer, 

@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2007 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -72,6 +71,9 @@ OsStatus MpidOss::enableDevice(unsigned samplesPerFrame,
                                unsigned samplesPerSec,
                                MpFrameTime currentFrameTime)
 {
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+           "MpidOss::enableDevice(samplesPerFrame: %d, samplesPerSec: %d, currentFrameTime: %d)",
+          samplesPerFrame, samplesPerSec, currentFrameTime);  
    OsStatus ret;
    if (isEnabled())
    {
@@ -95,6 +97,8 @@ OsStatus MpidOss::enableDevice(unsigned samplesPerFrame,
    // If the device is not valid, let the user know it's bad.
    if (!isDeviceValid())
    {
+       OsSysLog::add(FAC_MP, PRI_ERR,
+               "MpidOss::enableDevice not valid");
       return OS_INVALID_STATE;
    }
 

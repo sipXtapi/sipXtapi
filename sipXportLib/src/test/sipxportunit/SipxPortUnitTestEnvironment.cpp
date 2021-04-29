@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2010-2012 SIPez LLC  All rights reserved.
+// Copyright (C) 2010-2014 SIPez LLC  All rights reserved.
 // 
 // $$
 // Author: Daniel Petrie
@@ -30,7 +30,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-//#define DONT_CATCH_SIGNALS
+#define DONT_CATCH_SIGNALS
 
 // STATIC VARIABLE INITIALIZATIONS
 bool SipxPortUnitTestEnvironment::sInitialized = 0;
@@ -40,6 +40,7 @@ int SipxPortUnitTestEnvironment::sInitializing = 0;
 int SipxPortUnitTestEnvironment::sCurrentTestClassIndex = -1;
 int SipxPortUnitTestEnvironment::sCurrentTestMethodIndex = -1;
 int SipxPortUnitTestEnvironment::sCurrentTestPointIndex = -1;
+int SipxPortUnitTestEnvironment::sTestClassesRun = 0;
 SipxPortUnitTestClass* SipxPortUnitTestEnvironment::spCurrentTestClass = 0;
 
 int SipxPortUnitTestEnvironment::sTotalTestMethodCount = 0;
@@ -50,6 +51,7 @@ int SipxPortUnitTestEnvironment::sTestPointsFailed = 0;
 int SipxPortUnitTestEnvironment::sTotalTestClassCount = 0;
 SipxPortUnitTestConstructor** SipxPortUnitTestEnvironment::sTestClassesToRun = NULL;
 
+bool SipxPortUnitTestEnvironment::sCatchSignals = true;
 int SipxPortUnitTestEnvironment::sNumExceptionsCaught = 0;
 int SipxPortUnitTestEnvironment::sLastExceptionsCaught = 0;
 int SipxPortUnitTestEnvironment::sLastExceptionClassIndex = -1;
@@ -93,6 +95,7 @@ void SipxPortUnitTestEnvironment::initializeEnvironment()
             sCurrentTestClassIndex = -1;
             sCurrentTestMethodIndex = -1;
             sCurrentTestPointIndex = -1;
+            sTestClassesRun = 0;
             spCurrentTestClass = 0;
 
             sTotalTestMethodCount = 0;
@@ -191,17 +194,44 @@ void SipxPortUnitTestEnvironment::signalHandler(int signalCaught)
     siglongjmp(sLongJumpStack, 1);
 }
 
-void SipxPortUnitTestEnvironment::runTests()
+void SipxPortUnitTestEnvironment::runTests(const char* testClassFilterName)
 {
+    char* testClassName = NULL;
+    const char* testMethodName = NULL;
+    if(testClassFilterName)
+    {
+        const char* classNameEnd = index(testClassFilterName, ':');
+        if(classNameEnd)
+        {
+            // Get just the class name (text prior to ':')
+            int classNameLength = classNameEnd - testClassFilterName;
+            testClassName = new char[classNameLength + 1];
+            memcpy(testClassName, testClassFilterName, classNameLength);
+            testClassName[classNameLength] = '\0';
+
+            // If there are 2 colins ("::"), get the method name
+            if(testClassFilterName[classNameLength + 1] == ':')
+            {
+                testMethodName = &(testClassFilterName[classNameLength + 2]);
+            }
+        }                        
+       
+        printf("Only running test class: %s method%s%s\n",
+               testClassName,
+               testMethodName ? ": " : "(s)",
+               testMethodName ? testMethodName : "");
+    }
+
     initializeEnvironment();
 
 
-    // Prepare to run tests and catch signals if something bad happends
-#ifndef DONT_CATCH_SIGNALS
-    signal(SIGFPE, SipxPortUnitTestEnvironment::signalHandler);
-    signal(SIGSEGV, SipxPortUnitTestEnvironment::signalHandler);
-    signal(SIGILL, SipxPortUnitTestEnvironment::signalHandler);
-#endif
+    if(SipxPortUnitTestEnvironment::sCatchSignals)
+    {
+        // Prepare to run tests and catch signals if something bad happends
+        signal(SIGFPE, SipxPortUnitTestEnvironment::signalHandler);
+        signal(SIGSEGV, SipxPortUnitTestEnvironment::signalHandler);
+        signal(SIGILL, SipxPortUnitTestEnvironment::signalHandler);
+    }
 
     // Render test inforation for each test class first time this gets run
     // This will be run more than once if we catch a signal and are able
@@ -209,6 +239,7 @@ void SipxPortUnitTestEnvironment::runTests()
     if(sigsetjmp(sLongJumpStack, 1)  == 0 /*sCurrentTestClassIndex == -1i*/)
     {
         sCurrentTestClassIndex = 0;
+        sTestClassesRun = 0;
         sTotalTestMethodCount = 0;
         for(int testIndex = 0; testIndex < sTotalTestClassCount; testIndex++)
         {
@@ -247,36 +278,83 @@ void SipxPortUnitTestEnvironment::runTests()
 
     for(;sCurrentTestClassIndex < sTotalTestClassCount; sCurrentTestClassIndex++)
     {
-        assert(sTestClassesToRun[sCurrentTestClassIndex]);
-
-        if(sLogHookBegin)
+        if(testClassName == NULL || 
+           strcmp(testClassName, "") == 0 ||
+           strcmp(testClassName, sTestClassesToRun[sCurrentTestClassIndex]->getClassName()) == 0)
         {
-            sLogHookBegin(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
+            assert(sTestClassesToRun[sCurrentTestClassIndex]);
+
+            if(sLogHookBegin)
+            {
+                sLogHookBegin(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
+            }
+
+            if(testMethodName)
+            {
+                sTestClassesToRun[sCurrentTestClassIndex]->runMethod(testMethodName);
+            }
+            else
+            {
+                sTestClassesToRun[sCurrentTestClassIndex]->runAllMethodsFrom(sCurrentTestMethodIndex);
+            }
+
+            // Can now free up the test class, but we keep the test class 
+            //constructor around so we can get at the stats
+            sTestClassesToRun[sCurrentTestClassIndex]->releaseTestClass();
+
+            if(sLogHookEnd)
+            {
+                sLogHookEnd(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
+            }
+
+            sCurrentTestMethodIndex = 0;
+            sCurrentTestPointIndex = 0;
+            sTestClassesRun++;
         }
-
-        sTestClassesToRun[sCurrentTestClassIndex]->runAllMethodsFrom(sCurrentTestMethodIndex);
-
-        // Can now free up the test class, but we keep the test class 
-        //constructor around so we can get at the stats
-        sTestClassesToRun[sCurrentTestClassIndex]->releaseTestClass();
-
-        if(sLogHookEnd)
-        {
-            sLogHookEnd(sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
-        }
-
-        sCurrentTestMethodIndex = 0;
-        sCurrentTestPointIndex = 0;
     }
 
-    // Now that we are done with the tests, we do not want the signal
-    // handler to catch stuff any more
+    if(SipxPortUnitTestEnvironment::sCatchSignals)
+    {
+        // Now that we are done with the tests, we do not want the signal
+        // handler to catch stuff any more
+        signal(SIGFPE, SIG_DFL);
+        signal(SIGSEGV, SIG_DFL);
+        signal(SIGILL, SIG_DFL);
+    }
 
-#ifndef DONT_CATCH_SIGNALS
-    signal(SIGFPE, SIG_DFL);
-    signal(SIGSEGV, SIG_DFL);
-#endif
+    delete testClassName;
+}
 
+void SipxPortUnitTestEnvironment::listTests(const char* testClassName)
+{
+    initializeEnvironment();
+
+    for(int classIndex = 0; classIndex < sTotalTestClassCount; classIndex++)
+    {
+        SipxPortUnitTestConstructor* classConstr = sTestClassesToRun[classIndex];
+        assert(classConstr);
+
+        const char* constructorTestClassName = classConstr->getClassName();
+
+        //printf("testClassName: %s constructorTestClassName: %s\n",
+        //        testClassName, constructorTestClassName);
+        if(testClassName == NULL ||
+           strcmp(testClassName, "") == 0 ||
+           strcmp(testClassName, constructorTestClassName) == 0)
+        {
+            int methodCount = classConstr->getTestMethodCount();
+            //printf("Unit test class: %s with %d methods\n",
+            //       constructorTestClassName, methodCount);
+
+
+            for(int methodIndex = 0; methodIndex < methodCount; methodIndex++)
+            {
+                printf("%s::%s\n",
+                       constructorTestClassName,
+                       classConstr->getTestMethodName(methodIndex));
+            }
+        }
+    }
 }
 
 void SipxPortUnitTestEnvironment::reportResults()
@@ -291,7 +369,7 @@ void SipxPortUnitTestEnvironment::reportResults()
     printOut(buffer);
 
     sprintf(buffer, "Ran: %d test class(es), %d test method(s), %d test points\n",
-            sCurrentTestClassIndex, sTestMethodsRun, 
+            sTestClassesRun, sTestMethodsRun, 
             sTestPointsPassed + sTestPointsFailed);
     printOut(buffer);
 
@@ -463,6 +541,11 @@ char* SipxPortUnitTestEnvironment::newCopyString(const char* stringToCopy)
 void SipxPortUnitTestEnvironment::incrementMethodsRun()
 {
     sTestMethodsRun++;
+}
+
+void SipxPortUnitTestEnvironment::setCatchSignals(bool enable)
+{
+    SipxPortUnitTestEnvironment::sCatchSignals = enable;
 }
 
 void SipxPortUnitTestEnvironment::setMethodIndex(int methodIndex)

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2008-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -63,6 +63,14 @@ void MpVadBase::setDefaultAlgorithm(const UtlString& name)
 }
 
 /* ============================ ACCESSORS ================================= */
+
+void MpVadBase::setName(const UtlString& name)
+{
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "VAD component for resource: %s",
+            name.data());
+    mName = name;
+}
 
 /* ============================ INQUIRY =================================== */
 

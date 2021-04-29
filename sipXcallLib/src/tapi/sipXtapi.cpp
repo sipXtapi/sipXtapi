@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2012 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2014 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -95,7 +95,7 @@ extern OsMutex gSubscribeAccessLock; // sipXtapiInternal.cpp
 // STRUCTURES
 
 // GLOBALS
-static bool gbHibernated = false;
+//static bool gbHibernated = false;
 
 /* ============================ FUNCTIONS ================================= */
 
@@ -264,13 +264,20 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxInitialize tcpPort=%d udpPort=%d tlsPort=%d rtpPortStart=%d"
             " maxConnections=%d identity=%s bindTo=%s sequentialPorts=%d"
-            " certNickname=%s, DBLocation=%s",
+            " certNickname=%s, DBLocation=%s bEnableLocalAudio=%s internalSamplerate=%d"
+            " devicesSamplerate=%d internalFrameSizeMs=%d callInputDeviceName=\"%s\" callOutputDeviceName=\"%s\"",
             tcpPort, udpPort, iActualTLSPort, rtpPortStart, maxConnections,
             ((szIdentity != NULL) ? szIdentity : ""),
             ((szBindToAddr != NULL) ? szBindToAddr : ""),
             bUseSequentialPorts,
             ((szTLSCertificateNickname != NULL) ? szTLSCertificateNickname : ""),
-            ((szDbLocation != NULL) ? szDbLocation : "")) ;
+            ((szDbLocation != NULL) ? szDbLocation : ""),
+            (bEnableLocalAudio ? "true" : "false"),
+            internalSamplerate,
+            devicesSamplerate,
+            internalFrameSizeMs,
+            callInputDeviceName,
+            callOutputDeviceName);
 
     sipxStructureIntegrityCheck();
 
@@ -1247,6 +1254,10 @@ static SIPX_RESULT sipxCallCreateHelper(const SIPX_INST hInst,
                 else
                 {
                     *phCall = gpCallHandleMap->allocHandle(pData) ;
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                                  "sipxCallCreateHelper new hCall: %d Call-Id: %s",
+                                  *phCall,
+                                  pData->callId->data());
                     assert(*phCall != 0) ;
                     sr = SIPX_RESULT_SUCCESS ;
 
@@ -2283,20 +2294,45 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall)
 
 
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
-                                                      const char* szFile) 
+                                                      const char* szFile,
+                                                      SIPX_AUDIO_FILE_FORMAT recordFormat) 
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAudioRecordFileStart");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxCallAudioRecordFileStart hCall=%d szFile=%s", hCall, szFile);
+        "sipxCallAudioRecordFileStart hCall=%d szFile=%s recordFormat: %d", 
+        hCall, szFile, recordFormat);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA *pInst ;
     UtlString callId ;
     UtlString remoteAddress ;
 
-    if (szFile && sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
-    {        
-        if (pInst->pCallManager->audioChannelRecordStart(callId, remoteAddress, szFile))
+    CpMediaInterface::CpAudioFileFormat cpRecordFormat = CpMediaInterface::CP_UNKNOWN_FORMAT;
+    switch(recordFormat)
+    {
+        case SIPX_WAVE_PCM_16:
+            cpRecordFormat = CpMediaInterface::CP_WAVE_PCM_16;
+            break;
+
+        case SIPX_WAVE_GSM:
+            cpRecordFormat = CpMediaInterface::CP_WAVE_GSM;
+            break;
+
+        default:
+            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                    "Invalid record format: %d",
+                    recordFormat);
+            OsSysLog::flush();
+            assert(0);
+            break;
+    }
+
+    if (szFile && 
+        cpRecordFormat != CpMediaInterface::CP_UNKNOWN_FORMAT &&
+        sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {
+
+        if (pInst->pCallManager->audioChannelRecordStart(callId, remoteAddress, szFile, cpRecordFormat))
         {
             sr = SIPX_RESULT_SUCCESS ;
         }
@@ -2306,9 +2342,60 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStart(const SIPX_CALL hCall,
         sr = SIPX_RESULT_INVALID_ARGS ;
     }
 
-    return sr ;
+    return(sr);
 }
 
+SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordPause(const SIPX_CALL hCall)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAudioRecordPause");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallAudioRecordPause hCall=%d", hCall);
+
+    SIPX_RESULT status = SIPX_RESULT_FAILURE;
+    SIPX_INSTANCE_DATA *pInst;
+    UtlString callId;
+    UtlString remoteAddress;
+
+    if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {
+        if (pInst->pCallManager->audioChannelRecordPause(callId, remoteAddress))
+        {
+            status = SIPX_RESULT_SUCCESS;
+        }
+    }
+    else
+    {
+        status = SIPX_RESULT_INVALID_ARGS;
+    }
+
+    return(status);
+}
+
+SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordResume(const SIPX_CALL hCall)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAudioRecordResume");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallAudioRecordResume hCall=%d", hCall);
+
+    SIPX_RESULT status = SIPX_RESULT_FAILURE;
+    SIPX_INSTANCE_DATA *pInst;
+    UtlString callId;
+    UtlString remoteAddress;
+
+    if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {
+        if (pInst->pCallManager->audioChannelRecordResume(callId, remoteAddress))
+        {
+            status = SIPX_RESULT_SUCCESS;
+        }
+    }
+    else
+    {
+        status = SIPX_RESULT_INVALID_ARGS;
+    }
+
+    return(status);
+}
 
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStop(const SIPX_CALL hCall) 
 {
@@ -2335,7 +2422,6 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStop(const SIPX_CALL hCall)
 
     return sr ;
 }
-
 
 SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordBufferStart(const SIPX_CALL hCall,
                                                         const char* pBuffer,
@@ -4098,6 +4184,11 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
 
 
                     SIPX_CALL hNewCall = gpCallHandleMap->allocHandle(pNewCallData) ;
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                                  "sipxConferenceAdd new hCall: %d Call-Id: %s",
+                                  hNewCall,
+                                  pNewCallData->callId->data());
+
                     pData->hCalls[pData->nCalls++] = hNewCall ;
                     *phNewCall = hNewCall ;
 
@@ -7195,8 +7286,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
         memset((void*)pCodec, 0, sizeof(SIPX_AUDIO_CODEC));
         if (index >= 0 && index < pInst->audioCodecSetting.numCodecs)
         {
-            CpMediaInterfaceFactoryImpl* pInterface = 
-                pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
+            //CpMediaInterfaceFactoryImpl* pInterface = 
+            //    pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
 
             // If a name is found for the codec type, copy name and bandwidth cost
             if (SdpDefaultCodecFactory::getCodecNameByType(pInst->audioCodecSetting.sdpCodecArray[index]->getCodecType(),

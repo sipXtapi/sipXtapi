@@ -39,6 +39,10 @@ nodist_libsipXport_la_SOURCES =  \
     $(top_srcdir)/config/@PACKAGE@-buildstamp.cpp
 
 libsipXport_la_SOURCES =  \
+    ../config/sipxportlib-buildstamp.h \
+    ../config/sipxportlib-buildstamp.cpp \
+    utl/CircularBuffer.cpp \
+    utl/CircularBufferPtr.cpp \
     utl/UtlLongLongInt.cpp \
     utl/UtlNameValueTokenizer.cpp \
     utl/UtlBool.cpp \

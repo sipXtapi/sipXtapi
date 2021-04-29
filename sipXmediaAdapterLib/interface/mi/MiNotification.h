@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -61,6 +60,8 @@ public:
       MI_NOTF_PLAY_ERROR,
       MI_NOTF_PROGRESS,           ///< Value for MiProgressNotf notifications.
       MI_NOTF_RECORD_STARTED,     ///< Recording started.
+      MI_NOTF_RECORD_PAUSED,      ///< Recording paused after starting or resumed (MiIntNotf bears number of recorded samples thus far).
+      MI_NOTF_RECORD_RESUMED,     ///< Recording resumed after being paused.
       MI_NOTF_RECORD_STOPPED,     ///< Recording stopped manually (MiIntNotf bears number of recorded samples).
       MI_NOTF_RECORD_FINISHED,    ///< Recording stopped automatically (MiIntNotf bears number of recorded samples).
       MI_NOTF_RECORD_ERROR,       ///< Recording stopped because of an error.
@@ -73,7 +74,8 @@ public:
       MI_NOTF_VOICE_STARTED,
       MI_NOTF_VOICE_STOPPED,
       MI_NOTF_H264_SPS,
-      MI_NOTF_H264_PPS
+      MI_NOTF_H264_PPS,
+      MI_NOTF_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED
    } NotfType;
 
      /// Connection ID that indicates invalid connection or no connection.

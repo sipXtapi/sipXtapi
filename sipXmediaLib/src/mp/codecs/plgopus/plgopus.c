@@ -135,6 +135,19 @@ CODEC_API void* PLG_INIT_V1_2(opus_48000)(const char* fmtp, int isDecoder,
     codecInfo->vadCng = CODEC_CNG_NONE;
 
     int createError = OPUS_UNIMPLEMENTED;
+
+    if (codecInfo == NULL)
+    {
+        return NULL;
+    }
+
+    /* Fill general codec information */
+    codecInfo->signalingCodec = FALSE;
+    /* It could do PLC, but wrapper should be fixed to support it. */
+    codecInfo->packetLossConcealment = CODEC_PLC_INTERNAL;
+    /* It could do DTX+CNG, but wrapper should be fixed to support it. */
+    codecInfo->vadCng = CODEC_CNG_NONE;
+
     struct MpCodecOpusCodecState* codecContext = 
         malloc(sizeof(struct MpCodecOpusCodecState));
     codecContext->mCodecType = ENCODE_DECODE_UNKNOWN;

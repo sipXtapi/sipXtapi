@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2008 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
+// Copyright (C) 2008-2014 SIPfoundry Inc. All rights reserved.
 //  
 // Copyright (C) 2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -17,10 +16,12 @@
 
 // APPLICATION INCLUDES
 #include <mp/MprVad.h>
+#include <utl/UtlSerialized.h>
 #include <mp/MpVadBase.h>
 #include <mp/MpStringResourceMsg.h>
-//#include "mp/MpResNotificationMsg.h"
-#include "mp/MpFlowGraphBase.h"
+//#include <mp/MpResNotificationMsg.h>
+#include <mp/MpFlowGraphBase.h>
+#include <mp/MpPackedResourceMsg.h>
 
 
 // EXTERNAL FUNCTIONS
@@ -38,6 +39,7 @@ MprVad::MprVad(const UtlString& rName, const UtlString &vadAlgorithm)
 , mpVad(NULL)
 {
    mpVad = MpVadBase::createVad(vadAlgorithm);
+   mpVad->setName(*this);
    assert(mpVad != NULL);
 }
 
@@ -50,9 +52,30 @@ MprVad::~MprVad()
 
 /* ============================= MANIPULATORS ============================= */
 
-OsStatus MprVad::chageVadAlgorithm(const UtlString& namedResource, 
-                                   OsMsgQ& fgQ,
-                                   const UtlString &vadAlgorithm)
+OsStatus MprVad::setVadParameter(const UtlString& parameterName,
+                                 int parameterValue,
+                                 const UtlString& resourceName,
+                                 OsMsgQ& flowgraphQueue)
+{
+    MpPackedResourceMsg message((MpResourceMsg::MpResourceMsgType)MPRM_SET_VAD_PARAM,
+                                resourceName);
+
+    UtlSerialized& messagePayload = message.getData();
+    OsStatus status = messagePayload.serialize(parameterName);
+    assert(status == OS_SUCCESS);
+    status = messagePayload.serialize(parameterValue);
+    assert(status == OS_SUCCESS);
+    messagePayload.finishSerialize();
+
+    status = flowgraphQueue.send(message, sOperationQueueTimeout);
+
+    return(status);
+}
+
+
+OsStatus MprVad::changeVadAlgorithm(const UtlString& namedResource, 
+                                    OsMsgQ& fgQ,
+                                    const UtlString &vadAlgorithm)
 {
    MpStringResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_CHANGE_VAD,
                            namedResource,
@@ -117,18 +140,31 @@ UtlBoolean MprVad::doProcessFrame(MpBufPtr inBufs[],
 
 UtlBoolean MprVad::handleMessage(MpResourceMsg& rMsg)
 {
+   UtlBoolean messageHandled = FALSE;
+
    switch (rMsg.getMsg())
    {
    case MPRM_CHANGE_VAD:
       {
          MpStringResourceMsg *pMsg = (MpStringResourceMsg*)&rMsg;
-         handleChageVadAlgorithm(pMsg->getData());
+         messageHandled = handleChageVadAlgorithm(pMsg->getData());
       }
       break;
+
+   case MPRM_SET_VAD_PARAM:
+      {
+          MpPackedResourceMsg packedMessage = (MpPackedResourceMsg&) rMsg;
+          UtlSerialized& serialData = packedMessage.getData();
+          messageHandled = handleSetVadParam(serialData);
+      }
+      break;
+
+
    default:
-      return MpResource::handleMessage(rMsg);
+      messageHandled = MpResource::handleMessage(rMsg);
+      break;
    }
-   return TRUE;
+   return(messageHandled);
 }
 
 UtlBoolean MprVad::handleChageVadAlgorithm(const UtlString &vadAlgorithm)
@@ -138,6 +174,7 @@ UtlBoolean MprVad::handleChageVadAlgorithm(const UtlString &vadAlgorithm)
 
    // Set PLC to a new one
    mpVad = MpVadBase::createVad(vadAlgorithm);
+   mpVad->setName(*this);
    if (mpFlowGraph != NULL)
    {
       mpVad->init(mpFlowGraph->getSamplesPerSec());
@@ -145,6 +182,19 @@ UtlBoolean MprVad::handleChageVadAlgorithm(const UtlString &vadAlgorithm)
    return TRUE;
 }
 
+UtlBoolean MprVad::handleSetVadParam(UtlSerialized& serialData)
+{
+    assert(mpVad);
+    if(mpVad)
+    {
+        UtlString name;
+        int value;
+        serialData.deserialize(name);
+        serialData.deserialize(value);
+        mpVad->setParam(name, &value);
+    }
+    return(TRUE);
+}
 
 OsStatus MprVad::setFlowGraph(MpFlowGraphBase* pFlowGraph)
 {

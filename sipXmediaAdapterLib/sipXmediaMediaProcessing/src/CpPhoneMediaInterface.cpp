@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2015 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -18,6 +18,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlDListIterator.h>
 #include <utl/UtlHashMap.h>
+#include <utl/CircularBuffer.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsNatDatagramSocket.h>
 #include <os/OsMulticastSocket.h>
@@ -1393,6 +1394,19 @@ OsStatus CpPhoneMediaInterface::recordBufferChannelAudio(int connectionId,
 OsStatus CpPhoneMediaInterface::stopRecordBufferChannelAudio(int connectionId) 
 {
    return OS_NOT_YET_IMPLEMENTED;
+}
+
+OsStatus CpPhoneMediaInterface::recordCircularBufferChannelAudio(int connectionId,
+                                                                 CircularBufferPtr & buffer,
+                                                                 CpMediaInterface::CpAudioFileFormat recordingFormat,
+                                                                 unsigned long recordingBufferNotificationWatermark)
+{
+    return OS_NOT_YET_IMPLEMENTED;
+}
+
+OsStatus CpPhoneMediaInterface::stopRecordCircularBufferChannelAudio(int connectionId)
+{
+    return OS_NOT_YET_IMPLEMENTED;
 }
 
 OsStatus CpPhoneMediaInterface::createPlayer(MpStreamPlayer** ppPlayer, 

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,13 @@ MpTopologyGraph::MpTopologyGraph(int samplesPerFrame,
     MpMediaTask* mediaTask = MpMediaTask::getMediaTask();
     result = mediaTask->manageFlowGraph(*this);
     assert(result == OS_SUCCESS);
+    if(result != OS_SUCCESS)
+    {
+
+        OsSysLog::add(FAC_MP, PRI_CRIT,
+                "new MpTopologyGraph: %p not managed.  %d flowgraphs already managed",
+                this, mediaTask->numManagedFlowGraphs());
+    }
 
     // start the flowgraph
     result = mediaTask->startFlowGraph(*this);

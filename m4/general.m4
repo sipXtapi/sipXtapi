@@ -773,6 +773,39 @@ AC_DEFUN([CHECK_ILBC],
     AM_CONDITIONAL([BUILD_CODEC_ILBC], [test ! -z "$ILBC_TARGET"])
 ])dnl
 
+# =============== O P U S =====================
+
+AC_DEFUN([AM_SET_OPUS],
+[
+# Currently only opus in contrib supported
+    PLUGINS="${PLUGINS} opus"
+
+    OPUS_INCLUDE='-I${top_srcdir}/contrib/libopus -I${top_srcdir}/contrib/libopus/opus/include'
+    OPUS_LIB_ROOT="${PWD}/contrib/libopus/opus"
+    OPUS_LIB_TARGET="lib/libopus.a"
+    OPUS_TARGET="plgopus"
+    OPUS_STATIC_LIB='${top_builddir}/contrib/libopus/opus/.libs/libopus.a'
+    AC_SUBST(OPUS_INCLUDE)
+    AC_SUBST(OPUS_LIB_ROOT)    
+    AC_SUBST(OPUS_LIB_TARGET)    
+    AC_SUBST(OPUS_TARGET)
+    AC_SUBST(OPUS_STATIC_LIB)
+    
+])dnl
+AC_DEFUN([CHECK_OPUS],
+[
+    AC_ARG_ENABLE([codec-opus],
+                  [AS_HELP_STRING([--enable-codec-opus],
+                                  [Enable support for opus codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_OPUS ;;
+                       yes) AM_SET_OPUS ;;
+                       no) AC_MSG_RESULT(Codec opus was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-opus) ;;
+                    esac],
+                  [AM_SET_OPUS])
+])dnl
+
 
 # == D E C L A R E _ C O D E C S _ S T A F F ==
 AC_DEFUN([DECLARE_CODECS_STAFF],
@@ -1429,11 +1462,13 @@ AC_DEFUN([AM_SET_AMR],
 # Currently only iLBC in contrib supported
     PLUGINS="${PLUGINS} AMR"
     AMR_TARGET="plgamr"
-    AMRNB_INCLUDE="-I${PWD}/sipXmediaLib/contrib/libamrnb/"
-    AMRNB_LIB_ROOT="${PWD}/sipXmediaLib/contrib/libamrnb/"    
+    AMRNB_INCLUDE='-I$(top_srcdir)/sipXmediaLib/contrib/libamrnb/'
+    AMRNB_LIB_ROOT="${PWD}/contrib/sipXmediaLib/libamrnb/"    
+    AMRNB_STATIC_LIB='${top_builddir}/sipXmediaLib/contrib/libamrnb/.libs/libamrnb.a'
     AC_SUBST(AMR_TARGET)    
     AC_SUBST(AMRNB_INCLUDE)    
     AC_SUBST(AMRNB_LIB_ROOT)
+    AC_SUBST(AMRNB_STATIC_LIB)
 
     # amr narrowband codec has it's own configure, 
     # so be sure to call it.
@@ -1445,11 +1480,13 @@ AC_DEFUN([AM_SET_AMRWB],
 # Currently only iLBC in contrib supported
     PLUGINS="${PLUGINS} AMR-WB"
     AMRWB_TARGET="plgamrwb"
-    AMRWB_INCLUDE="-I${PWD}/sipXmediaLib/contrib/libamrwb/"
+    AMRWB_INCLUDE='-I$(top_srcdir)/sipXmediaLib/contrib/libamrwb/'
     AMRWB_LIB_ROOT="${PWD}/sipXmediaLib/contrib/libamrwb/"
+    AMRWB_STATIC_LIB='${top_builddir}/sipXmediaLib/contrib/libamrwb/.libs/libamrwb.a'
     AC_SUBST(AMRWB_TARGET)    
     AC_SUBST(AMRWB_INCLUDE)    
     AC_SUBST(AMRWB_LIB_ROOT)
+    AC_SUBST(AMRWB_STATIC_LIB)
 
     # amr wideband codec has it's own configure, 
     # so be sure to call it.

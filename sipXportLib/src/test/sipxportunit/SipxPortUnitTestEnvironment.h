@@ -1,6 +1,6 @@
 // 
 //
-// Copyright (C) 2010-2012 SIPez LLC  All rights reserved.
+// Copyright (C) 2010-2014 SIPez LLC  All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -91,7 +91,9 @@ public:
 
     static void registerTestConstructor(SipxPortUnitTestConstructor* testClassToAdd);
 
-    static void runTests();
+    static void runTests(const char* testClassName);
+
+    static void listTests(const char* testClassName = NULL);
 
     static void reportResults();
 
@@ -130,6 +132,8 @@ public:
     static char* newCopyString(const char* stringToCopy);
 
     static void incrementMethodsRun();
+
+    static void setCatchSignals(bool enable);
 
     static void setMethodIndex(int methodIndex);
 
@@ -188,6 +192,7 @@ private:
     static int sCurrentTestClassIndex;
     static int sCurrentTestMethodIndex;
     static int sCurrentTestPointIndex;
+    static int sTestClassesRun;
     static SipxPortUnitTestClass* spCurrentTestClass;
 
     static int sTotalTestMethodCount;
@@ -201,6 +206,7 @@ private:
     // Note the term exceptions is used loosely here
     // really we are talking about signal events that we are
     // able to recover from
+    static bool sCatchSignals;  ///< should try to catch signals and continue or not
     static int sNumExceptionsCaught;
     static int sLastExceptionsCaught;
     static int sLastExceptionClassIndex;

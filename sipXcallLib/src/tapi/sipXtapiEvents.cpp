@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -302,6 +301,12 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
         case MEDIA_RECORDFILE_START:
             str = "RECORDFILE_START" ;
             break ;
+        case MEDIA_RECORD_PAUSE:
+            str = "RECORD_PAUSE" ;
+            break ;
+        case MEDIA_RECORD_RESUME:
+            str = "RECORD_RESUME" ;
+            break ;
         case MEDIA_RECORDFILE_STOP:
             str = "RECORDFILE_STOP" ;
             break ;
@@ -320,6 +325,9 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
         case MEDIA_REMOTE_ACTIVE:
             str = "MEDIA_REMOTE_ACTIVE" ;
             break ;
+        case MEDIA_MIC_ENERGY_LEVEL:
+            str = "MEDIA_MIC_ENERGY_LEVEL";
+            break;
         case MEDIA_H264_SPS:
             str = "MEDIA_H264_SPS";
             break;
@@ -1215,6 +1223,10 @@ void sipxFireCallEvent(const void* pSrc,
         pCallData->lineURI = new UtlString(urlFrom.toString()) ;
 
         hCall = gpCallHandleMap->allocHandle(pCallData) ;
+        OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                      "sipxFireCallEvent new hCall: %d Call-Id: %s",
+                      hCall,
+                      pCallData->callId->data());
 
         if (pEventData)
         {
@@ -1494,8 +1506,9 @@ void sipxFireMediaEvent(const void* pSrc,
                         void* pEventData) 
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-            "sipxFireMediaEvent Src=%p CallId=%s RemoteAddress=%s Event=%s:%s type=%d",
-            pSrc, szCallId, szRemoteAddress, convertMediaEventToString(event), convertMediaCauseToString(cause), type) ;
+            "sipxFireMediaEvent Src=%p CallId=%s RemoteAddress=%s Event=%s:%s type=%d pEventData:%p",
+            pSrc, szCallId, szRemoteAddress, convertMediaEventToString(event), 
+            convertMediaCauseToString(cause), type, pEventData);
 
     SIPX_CALL hCall = sipxCallLookupHandle(szCallId, pSrc) ;
     bool bIgnored = false;
@@ -1634,6 +1647,7 @@ void sipxFireMediaEvent(const void* pSrc,
 
                             case MEDIA_REMOTE_SILENT:
                             case MEDIA_RECORDFILE_STOP:
+                            case MEDIA_RECORD_PAUSE:
                             case MEDIA_RECORDBUFFER_STOP:
                                 mediaInfo.idleTime = (intptr_t) pEventData ;
                                 break ;
@@ -1659,7 +1673,7 @@ void sipxFireMediaEvent(const void* pSrc,
 
                             default:
                                 break ;
-                        }                                                        
+                        }
                         pData->pCallbackProc(EVENT_CATEGORY_MEDIA, &mediaInfo, pData->pUserData);
                     }
                 }
@@ -2026,6 +2040,14 @@ SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
             
         case MEDIA_RECORDFILE_START:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_RECORDFILE_START") ;
+            break ;
+
+        case MEDIA_RECORD_PAUSE:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_RECORD_PAUSE") ;
+            break ;
+
+        case MEDIA_RECORD_RESUME:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_RECORD_RESUME") ;
             break ;
 
         case MEDIA_RECORDFILE_STOP:

@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -246,7 +245,12 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    mpInputDeviceManager->getDeviceName(mDeviceId, devName);
 
    uint32_t devSampleRate = 0;
-   OsStatus stat = mpInputDeviceManager->getDeviceSamplesPerSec(mDeviceId, devSampleRate);
+   OsStatus stat = OS_SUCCESS;
+#ifdef DISABLE_LOCAL_AUDIO
+   devSampleRate = samplesPerSecond;
+#else
+   stat = mpInputDeviceManager->getDeviceSamplesPerSec(mDeviceId, devSampleRate);
+#endif
    if(stat != OS_SUCCESS)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame "
@@ -269,7 +273,7 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    // Check to see if the resampler needs it's rate adjusted.
    if(mpResampler->getInputRate() != devSampleRate)
       mpResampler->setInputRate(devSampleRate);
-   if(mpResampler->getOutputRate() != samplesPerSecond)
+   if(mpResampler->getOutputRate() != (unsigned int)samplesPerSecond)
       mpResampler->setOutputRate(samplesPerSecond);
 
    MpAudioBufPtr resampledBuffer;

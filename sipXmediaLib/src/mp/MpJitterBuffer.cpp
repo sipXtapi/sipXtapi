@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC. 
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -35,7 +35,6 @@
 #include <mp/MpAgcBase.h>
 #include <mp/MpDspUtils.h>
 // For debug use only
-#include <net/NetBase64Codec.h>
 #include <mp/MpFlowGraphBase.h>
 
 // MACROS
@@ -71,7 +70,8 @@ static void dprintf(const char *, ...) {};
 
 /* ============================ CREATORS ================================== */
 
-MpJitterBuffer::MpJitterBuffer(MpDecoderPayloadMap *pPayloadMap)
+MpJitterBuffer::MpJitterBuffer(MpDecoderPayloadMap *pPayloadMap, 
+                               const UtlString& resourceName)
 : mStreamSampleRate(0)
 , mOutputSampleRate(0)
 , mSamplesPerFrame(0)
@@ -88,6 +88,7 @@ MpJitterBuffer::MpJitterBuffer(MpDecoderPayloadMap *pPayloadMap)
 , mpFlowGraph(NULL)
 {
    mpVad = MpVadBase::createVad();
+   mpVad->setName(resourceName);
    mpAgc = MpAgcBase::createAgc();
 }
 
@@ -252,7 +253,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       {
          // TODO:: For now we do not support samplerate change in the middle
          //        of a stream.
-         assert(mStreamSampleRate == decoder->getInfo()->getSampleRate());
+         assert(mStreamSampleRate == (int)decoder->getInfo()->getSampleRate());
 
          // Usual audio packet have been decoded, life is fine
          mSamplesPerPacket = decodedSamples;
@@ -269,6 +270,11 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
          mpAgc->processFrame(mDecodedData, decodedSamples);
          mpAgc->getAmplitude(packetSpeechParams.mAmplitude,
                              packetSpeechParams.mIsClipped);
+#ifdef TEST_PRINT
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpJitterBuffer VAD processFrame(timeStamp: %d,",
+                 mStreamTimestamp);
+#endif
          packetSpeechParams.mSpeechType = mpVad->processFrame(mStreamTimestamp,
                                                               mDecodedData, decodedSamples,
                                                               packetSpeechParams);
@@ -297,11 +303,11 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
          // Should not do this in normal cases as this does a new/malloc in the middle of media task runtime sensaive code
          if(OsSysLog::willLog(FAC_MP, PRI_DEBUG))
          {
-             UtlString encodedPacket;
-             NetBase64Codec::encode(rtpPacket->getPayloadSize(), rtpPacket->getDataPtr(), encodedPacket);
+             UtlString hexEncodedPacket;
+             hexEncodedPacket.appendBinaryToString(rtpPacket->getDataPtr(), rtpPacket->getPayloadSize());
              OsSysLog::add(FAC_MP, PRI_ERR,
                      "MpJitterBuffer::pushPacket decode failed on RTP packet: \n%s",
-                     encodedPacket.data());
+                     hexEncodedPacket.data());
 
              OsSysLog::flush();
          }
@@ -313,7 +319,9 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    dprintf(" %d", packetSpeechParams.mSpeechType);
 
    int wantedAdjustment = wantedBufferSamples + mSamplesPerPacket - getSamplesNum();
+#ifdef ANDROID
    int wantedAdjustmentOrig = wantedAdjustment;
+#endif
 
 #define N_POS  2
 #define N_NEG  3
@@ -504,6 +512,29 @@ void MpJitterBuffer::setFlowGraph(MpFlowGraphBase* pFlowGraph)
     mpFlowGraph = pFlowGraph;
 }
 
+OsStatus MpJitterBuffer::setVadParam(const UtlString& parameterName,
+                                       int value)
+{
+    OsStatus status = OS_INVALID_STATE;
+    assert(mpVad);
+    if(mpVad)
+    {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpJitterBuffer setting VAD parameter: %s value: %d",
+                parameterName.data(), value);
+
+        status = mpVad->setParam(parameterName, &value);
+    }
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_WARNING,
+            "MpJitterBuffer NULL VAD, unable to set parameter: %s value: %d",
+            parameterName.data(), value);
+    }
+
+    return(status);
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -631,7 +662,7 @@ OsStatus MpJitterBuffer::sliceToFrames(int decodedSamples,
 {
    // Get source sample rate and update sample rate if changed.
    if (  (codecSampleRate != mOutputSampleRate)
-      && (mpResampler->getInputRate() != codecSampleRate))
+      && (((int)mpResampler->getInputRate()) != codecSampleRate))
    {
       mpResampler->setInputRate(codecSampleRate);
    }

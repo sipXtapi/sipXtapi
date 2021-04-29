@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -240,6 +240,12 @@ CSourceDescription::~CSourceDescription(void)
 {
 // Our reference count must have gone to 0 to get here.  We have not allocated
 // any memory so we shall now go quietly into that good night!
+
+    // Prevent static pointer from being accessed after delete
+    if (this == m_spoLocalSDES) 
+    {
+        m_spoLocalSDES = NULL;
+    }
 }
 
 

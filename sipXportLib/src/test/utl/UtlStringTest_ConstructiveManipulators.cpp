@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -72,6 +72,7 @@ class UtlStringTest_ConstructiveManipulators : public UtlStringTest
     CPPUNIT_TEST(testAppend_charstar_zero_bytes_toExistingString) ;
     CPPUNIT_TEST(testAppend_charstar_zero_bytes_toExistingString) ;
     CPPUNIT_TEST(testAppend_format);
+    CPPUNIT_TEST(testAppendBinaryToString);
     CPPUNIT_TEST(testPlusEqual_charstar) ;
     CPPUNIT_TEST(testPlusEqual_UtlString) ;
     CPPUNIT_TEST(testPrepend) ;
@@ -577,6 +578,16 @@ public:
 
        CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect appendFormat",
           (size_t)(2000 + 6), a.length());
+    }
+
+    void testAppendBinaryToString()
+    {
+        const char* binaryData = "aabccddeeffffffff\n\r\t\"gggghhhhiiii";
+
+        UtlString humanReadable;
+        humanReadable.appendBinaryToString(binaryData, strlen(binaryData) + 1);
+
+        ASSERT_STR_EQUAL(humanReadable, "6161 6263 6364 6465 6566 6666 6666 6666\n660a 0d09 2267 6767 6768 6868 6869 6969\n6900");
     }
 
     /** Test the replace(len-1, len-1, char*) method

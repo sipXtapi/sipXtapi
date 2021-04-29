@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -34,6 +34,7 @@
 // TYPEDEFS
 
 // FORWARD DECLARATIONS
+class UtlSerialized;
 class MpDecoderBase;
 class MprRecorder;
 class MpJitterBuffer;
@@ -45,6 +46,14 @@ class MprDecode : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+   typedef enum
+   {
+      MPRM_SET_PLC = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+      MPRM_DESELCT_CODECS,
+      MPRM_RESET,
+      MPRM_SET_VAD_PARAM
+   } AddlResMsgTypes;
 
    static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
 
@@ -153,13 +162,6 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   typedef enum
-   {
-      MPRM_SET_PLC = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
-      MPRM_DESELCT_CODECS,
-      MPRM_RESET
-   } AddlResMsgTypes;
-
    MpJitterBuffer* mpJB;            ///< Pointer to JitterBuffer instance
    UtlBoolean mIsJBInitialized;     ///< Is JB initialized or not?
 
@@ -253,6 +255,9 @@ private:
 
      /// @copydoc MpResource::handleDisable()
    UtlBoolean handleDisable();
+
+     /// Handle message to set VAD parameter
+   UtlBoolean handleSetVadParam(UtlSerialized& serialData);
 
      /// Delete the array of previously used codecs
    void deletePriorCodecs();

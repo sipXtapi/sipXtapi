@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2006-2011 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -296,6 +295,30 @@ UtlString& UtlString::appendFormat(const char* format, ...)
    va_end(args);
 
    return *this;
+}
+
+UtlString& UtlString::appendBinaryToString(const void* binaryData, int numBytes, int valuesPerRow)
+{
+    const unsigned char* currentByte = (const unsigned char*) binaryData;
+    for(int byteCount = 0; byteCount < numBytes; byteCount++)
+    {
+        // Start a new row
+        if(byteCount > 0 && (byteCount % valuesPerRow) == 0)
+        {
+            append('\n');
+        }
+
+        // Add space to deliniate 2 byte pair
+        else if(byteCount > 0 && (byteCount % 2) == 0)
+        {
+            append(' ');
+        }
+
+        appendFormat("%02x", *currentByte);
+        currentByte++;
+    }
+
+    return(*this);
 }
 
 // Append the designated string to the end of this string.

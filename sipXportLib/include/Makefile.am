@@ -121,6 +121,8 @@ nobase_pkginclude_HEADERS = \
     xmlparser/tinystr.h \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \
+    utl/CircularBuffer.h \
+    utl/CircularBufferPtr.h \
     utl/UtlLongLongInt.h \
     utl/UtlNameValueTokenizer.h \
     utl/UtlBool.h \

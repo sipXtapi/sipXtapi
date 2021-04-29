@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2005-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -556,7 +555,16 @@ void Connection::setCallId(const char* callId)
 {
     OsLock lock(callIdMutex);
 
-    connectionCallId = callId ;
+    connectionCallId = callId;
+
+    UtlString callCallId;
+    if(mpCall)
+    {
+        mpCall->getCallId(callCallId);
+    }
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "Connection::setCallId(%s) Call callId: %s for call thread: %s",
+            callId, callCallId.data(), mpCall ? mpCall->getName().data() : "null call");
 }
 
 void Connection::getCallerId(UtlString* callerId)

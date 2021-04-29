@@ -39,6 +39,7 @@ void MpGenericResourceTest::setUp()
 #elif __pingtel_on_posix__
                              "../../../../bin",
                              "../../../bin",
+                             "../../bin",
 #else
 #                               error "Unknown platform"
 #endif

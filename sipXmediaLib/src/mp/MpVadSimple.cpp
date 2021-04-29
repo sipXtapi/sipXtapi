@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2008 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2008-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -14,8 +13,10 @@
 #include <string.h>
 
 // APPLICATION INCLUDES
-#include "mp/MpVadBase.h"
-#include "mp/MpVadSimple.h"
+#include <os/OsIntTypes.h>
+#include <os/OsSysLog.h>
+#include <mp/MpVadBase.h>
+#include <mp/MpVadSimple.h>
 
 // DEFINES
 #define ENERGY_SHIFT    8

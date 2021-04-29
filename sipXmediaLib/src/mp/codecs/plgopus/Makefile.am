@@ -24,4 +24,3 @@ codec_opus_la_LIBADD = @OPUS_LIBS@
 
 codec_opus_la_LDFLAGS = -module -avoid-version
 
-endif

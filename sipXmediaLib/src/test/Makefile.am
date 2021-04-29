@@ -4,6 +4,8 @@ TESTS = testsuite
 
 check_PROGRAMS = testsuite sandbox
 
+TESTDIR=$(if $(patsubst /%,,$(top_srcdir)),$(shell pwd)/$(top_srcdir),$(top_srcdir))/src/test/mp
+
 testsuite_LDADD = \
     $(top_builddir)/sipXportLib/src/test/sipxportunit/libsipXunit.la \
     $(CPPUNIT_LIBS) \
@@ -22,24 +24,21 @@ testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 ## sipXcallLib because they made references to CallManager
 testsuite_SOURCES = \
     ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
-    ../../../sipXtackLib/src/net/NetBase64Codec.cpp \
-    mp/dtmf5_48khz_16b_signed.h \
     mp/MpAudioBufTest.cpp \
     mp/MpCodecsPerformanceTest.cpp \
     mp/MpMediaTaskTest.cpp \
     mp/MpFlowGraphTest.cpp \
     mp/MpResourceTest.cpp \
     mp/MpResourceTopologyTest.cpp \
-    mp/MpTestResource.h \
     mp/MpTestResource.cpp \
     mp/MpGenericResourceTest.h \
     mp/MpGenericResourceTest.cpp \
     mp/MprBridgeTest.cpp \
     mp/MprBridgeTestWB.cpp \
-    mp/MprDelayTest.cpp \
     mp/MprFromFileTest.cpp \
     mp/MprFromMicTest.cpp \
     mp/MprMixerTest.cpp \
+    mp/MprRecorderTest.cpp \
     mp/MprSpeakerSelectorTest.cpp \
     mp/MprSplitterTest.cpp \
     mp/MprToSpkrTest.cpp \
@@ -48,8 +47,11 @@ testsuite_SOURCES = \
     mp/MpOutputDriverTest.cpp \
     mp/MpOutputManagerTest.cpp \
     mp/MpMMTimerTest.cpp \
-    mp/MpWBInputOutputDeviceTest.cpp
+    mp/MpWBInputOutputDeviceTest.cpp \
+    mp/RtcpParserTest.cpp 
 
+does_not_build = \
+    mp/MprDelayTest.cpp 
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
 # debugging or when developing a new unittest. As courtesy remove all
@@ -71,5 +73,5 @@ sandbox_LDADD = $(testsuite_LDADD)
 
 sandbox_SOURCES = \
     ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
-    ../../../sipXtackLib/src/net/NetBase64Codec.cpp \
-    mp/RtcpParserTest.cpp 
+    mp/MpWBInputOutputDeviceTest.cpp
+

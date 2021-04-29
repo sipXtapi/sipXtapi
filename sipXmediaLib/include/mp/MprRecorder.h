@@ -1,6 +1,5 @@
 //  
-// Copyright (C) 2006-2009 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2006-2015 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -28,6 +27,7 @@
 #include "os/OsMutex.h"
 #include "mp/MpResourceMsg.h"
 #include "mp/MpAudioResource.h"
+#include "utl/CircularBufferPtr.h"
 #include "os/OsProtectEvent.h"
 
 // DEFINES
@@ -49,7 +49,14 @@ public:
    typedef enum {
       UNINITIALIZED_FORMAT = -1,
       RAW_PCM_16 = 0,
+<<<<<<< HEAD
       WAV_PCM_16
+=======
+      WAV_PCM_16 = 1,
+      WAV_ALAW = 6,
+      WAV_MULAW = 7,
+      WAV_GSM = 49 // 0x31
+>>>>>>> 6cceb317
    } RecordFileFormat;
 
 /* ============================ CREATORS ================================== */
@@ -106,6 +113,33 @@ public:
      *  @param[in] event - an optional OsEvent to signal on completion (DEPRECATED!).
      */
 
+     /// Pause recording if it is already recording.
+   static OsStatus pause(const UtlString& namedResource, OsMsgQ& flowgraphQueue);
+     /**<
+     *  @param[in] namedResource - resource name to send command to.
+     *  @param[in] flowgraphQueue - flowgraph queue to send command to.
+     */
+
+     /// Resume recording if it is already recording.
+   static OsStatus resume(const UtlString& namedResource, OsMsgQ& flowgraphQueue);
+     /**<
+     *  @param[in] namedResource - resource name to send command to.
+     *  @param[in] flowgraphQueue - flowgraph queue to send command to.
+     */
+
+     /// Start recording to a circular-buffer with given parameters.
+   static OsStatus startCircularBuffer(const UtlString& namedResource, 
+                                       OsMsgQ& fgQ,
+                                       CircularBufferPtr & buffer,
+                                       RecordFileFormat recordingFormat,
+                                       unsigned long recordingBufferNotificationWatermark);
+     /**<
+     *  @param[in] namedResource - resource name to send command to.
+     *  @param[in] fgQ - flowgraph queue to send command to.
+     *  @param[in] buffer - circular buffer store the samples into.
+     *  @param[in] recordingBufferNotificationWatermark - buffer usage level (in samples) to send notifications for.
+     */
+
      /// Stop recording if it has not stopped automatically yet.
    static OsStatus stop(const UtlString& namedResource, OsMsgQ& fgQ);
      /**<
@@ -134,6 +168,9 @@ protected:
    {
       MPRM_START_FILE = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
       MPRM_START_BUFFER,
+      MPRM_PAUSE,
+      MPRM_RESUME,
+      MPRM_START_CIRCULAR_BUFFER,
       MPRM_STOP
    } AddlMsgTypes;
 
@@ -148,14 +185,16 @@ protected:
    {
       STATE_IDLE,      ///< Recording is not running
       STATE_RECORDING, ///< Recording is running
-      STATE_PAUSED     ///< Recording is running, but paused (NOT IMPLEMENTED YET!)
+      STATE_PAUSED    ///< Recording is running, but paused
+          
    } State;
 
    typedef enum
    {
       TO_UNDEFINED = -1,
-      TO_FILE,         ///< Record to a file.
-      TO_BUFFER        ///< Record to a buffer.
+      TO_FILE,           ///< Record to a file.
+      TO_BUFFER,         ///< Record to a buffer.
+      TO_CIRCULAR_BUFFER ///< Record to a buffer.
    } RecordDestination;
 
    State mState;            ///< Internal recorder state.
@@ -178,6 +217,19 @@ protected:
    int mBufferSize;         ///< mpBuffer size.
 //@}
 
+<<<<<<< HEAD
+=======
+   MpEncoderBase* mpEncoder; ///< encoder for non-PCM formats saved to file
+
+   MpResamplerBase* mpResampler; ///< Resampler for encoding to file
+
+///@name Circular buffer related variables
+//@{
+   CircularBufferPtr * mpCircularBuffer;
+   unsigned long mRecordingBufferNotificationWatermark;
+//@}
+
+>>>>>>> 6cceb317
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                     MpBufPtr outBufs[],
                                     int inBufsSize,
@@ -193,6 +245,11 @@ protected:
      /// Handle MPRM_START_BUFFER message.
    UtlBoolean handleStartBuffer(MpAudioSample *pBuffer, int bufferSize, int time,
                                 int silenceLength);
+
+     /// Handle MPRM_START_CIRCULAR_BUFFER message.
+   UtlBoolean handleStartCircularBuffer(CircularBufferPtr * buffer, 
+                                        RecordFileFormat recordingFormat,
+                                        unsigned long recordingBufferNotificationWatermark);
 
      /// Handle MPRM_STOP message.
    UtlBoolean handleStop();
@@ -212,14 +269,19 @@ protected:
      /// Close file if it is opened and  update WAV header if needed.
    void closeFile();
 
+   typedef int (MprRecorder::*WriteMethod)(char *, int);
+
      /// Write silence to the file
    inline int writeFileSilence(int numSamples);
 
-     /// Write given speech data to the file
-   inline int writeFileSpeech(const MpAudioSample *pBuffer, int numSamples);
+     /// Write given data to the specified target
+   inline int writeSamples(const MpAudioSample *pBuffer, int numSamples, WriteMethod writeMethod);
 
      /// Write silence to the buffer
    inline int writeBufferSilence(int numSamples);
+
+     /// Write silence to the circular buffer
+   inline int writeCircularBufferSilence(int numSamples);
 
      /// Write given speech data to the buffer
    inline int writeBufferSpeech(const MpAudioSample *pBuffer, int numSamples);
@@ -228,7 +290,7 @@ protected:
    static UtlBoolean writeWAVHeader(int handle, uint32_t samplesPerSecond = 8000);
 
      /// Update WAV-file's header with correct recorded length.
-   static UtlBoolean updateWaveHeaderLengths(int handle);
+   static UtlBoolean updateWaveHeaderLengths(int handle, RecordFileFormat format);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -238,6 +300,13 @@ private:
 
      /// Assignment operator (not implemented for this class)
    MprRecorder& operator=(const MprRecorder& rhs);
+
+   int writeFile(char * data, int dataSize);
+   int writeCircularBuffer(char * data, int dataSize);
+   void notifyCircularBufferWatermark();
+   void createEncoder(const char * mimeSubtype, unsigned int codecSampleRate);
+   void prepareEncoder(RecordFileFormat recFormat, unsigned int & codecSampleRate);
+   static int16_t getBitsPerSample(RecordFileFormat format);
 };
 
 /* ============================ INLINE METHODS ============================ */

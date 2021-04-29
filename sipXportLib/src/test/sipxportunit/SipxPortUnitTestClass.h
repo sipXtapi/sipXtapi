@@ -1,7 +1,6 @@
 // 
 //
-// Copyright (C) 2010 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2010-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2010 SIPez LLC  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -56,6 +55,15 @@
         return(mCurrentMethodIndex >= 0 && \
                mCurrentMethodIndex < sMethodCount ? \
                spMethodNames[mCurrentMethodIndex] : \
+               0); \
+    } \
+ \
+    static const char* getMethodName(int methodIndex) \
+    { \
+        assert(spMethodNames); \
+        return(methodIndex >= 0 && \
+               methodIndex < sMethodCount ? \
+               spMethodNames[methodIndex] : \
                0); \
     } \
  \
@@ -129,6 +137,21 @@
         forEachTestMethod(RUN_ALL_FROM, this, startMethodIndex); \
     } \
  \
+    void runMethod(const char* methodName) \
+    { \
+        int methodCount = getMethodCount(); \
+        for(int methodIndex = 0; methodIndex < methodCount; methodIndex++) \
+        { \
+            if(strcmp(getMethodName(methodIndex), methodName) == 0) \
+            { \
+                printf("runMethod(%s) index: %d running\n", \
+                       methodName, methodIndex); \
+                forEachTestMethod(RUN_ONE, this, methodIndex); \
+                break ; \
+            } \
+        } \
+    } \
+\
     void addFailedTestPoint(const char* fileName, \
                             const char* className, \
                             const char* methodName, \
@@ -206,8 +229,10 @@
                 break; \
  \
             case RUN_ALL_FROM: \
+            case RUN_ONE: \
                 assert(testInstance); \
-                if(methodIndex >= methodIndexStart) \
+                if(methodIndex == methodIndexStart || \
+                   (operation == RUN_ALL_FROM && methodIndex > methodIndexStart)) \
                 { \
                     testInstance->setCurrentMethodIndex(methodIndex); \
                     testInstance->resetTestPointIndex(); \
@@ -245,6 +270,7 @@
                 spMethodStates[mIndex] = NOT_RUN; \
             } \
         } \
+        \
     } \
 
 
@@ -287,6 +313,11 @@ class CLASS_NAME##Constructor : public SipxPortUnitTestConstructor \
     int getTestMethodCount() \
     { \
         return(CLASS_NAME::getMethodCount()); \
+    } \
+ \
+    const char* getTestMethodName(int methodIndex) const\
+    { \
+        return(CLASS_NAME::getMethodName(methodIndex)); \
     } \
  \
     void addTestClassFailure(const char* className, \
@@ -353,7 +384,8 @@ public:
     {
         SET_METHOD_COUNT = 0,
         INIT_TEST_METHOD_INFO,
-        RUN_ALL_FROM
+        RUN_ALL_FROM,
+        RUN_ONE
     } SipxPortTestMethodOperation;
 
     typedef enum
@@ -377,6 +409,8 @@ public:
 /* ======================== M A N I P U L A T O R S ======================= */
 
     virtual void runAllMethodsFrom(int methodIndex) = 0;
+
+    virtual void runMethod(const char* methodName) = 0;
 
     /// User overridable initialization to be done before each test method is invoked
     virtual void setUp();

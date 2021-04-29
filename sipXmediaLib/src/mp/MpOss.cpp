@@ -1,6 +1,5 @@
 // 
-// Copyright (C) 2007-2011 SIPez LLC.  
-// Licensed to SIPfoundry under a Contributor Agreement.  
+// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2007 SIPfoundry Inc.  
 // Licensed by SIPfoundry under the LGPL license.  
@@ -332,8 +331,8 @@ OsStatus MpOss::initDevice(const char* devname)
          {
             OsSysLog::add(FAC_MP, PRI_WARNING,
                "OSS: could not open %s in duplex mode: "
-               "%s (opening output only).",
-               devname, (ptr) ? ptr : "");
+               "%s (opening output only) file descriptor: %d.",
+               devname, (ptr) ? ptr : "", mfdDevice);
             mbReadCap = FALSE;
          }
       }
@@ -341,10 +340,16 @@ OsStatus MpOss::initDevice(const char* devname)
       {
          OsSysLog::add(FAC_MP, PRI_WARNING,
             "OSS: could not open %s in duplex mode: "
-            "%s (opening input only).",
-            devname, (ptr) ? ptr : "");
+            "%s (opening input only) file descriptor: %d.",
+            devname, (ptr) ? ptr : "", mfdDevice);
          mbWriteCap = FALSE;
       }
+   }
+   else
+   {
+       OsSysLog::add(FAC_MP, PRI_DEBUG,
+               "OSS opened device: %s file descriptor: %d",
+               devname, mfdDevice);
    }
 
 

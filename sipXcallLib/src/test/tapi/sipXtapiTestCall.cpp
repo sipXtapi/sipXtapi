@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -2172,6 +2174,70 @@ void sipXtapiTestSuite::testManualCallDialtone()
     sipxCallAudioPlayFileStart(hCall, "c:\\na_dialtone.wav", true, true, false);
     OsTask::delay(10000);
     sipxCallAudioPlayFileStop(hCall);
+
+    // Destory
+    sipxCallDestroy(hCall);
+    sipxLineRemove(hLine);
+}
+
+void sipXtapiTestSuite::testCallRecord()
+{
+    SIPX_CALL hCall;
+    SIPX_LINE hLine;
+
+    // Setup
+    EventValidator eventValidator("testCallRecord.call");
+    eventValidator.ignoreEventCategory(EVENT_CATEGORY_CALLSTATE);
+    eventValidator.ignoreEventCategory(EVENT_CATEGORY_LINESTATE);
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &eventValidator));
+    
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxLineAdd(g_hInst, "sip:foo@10.1.1.120", &hLine));
+    CPPUNIT_ASSERT(hLine != SIPX_LINE_NULL);
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallCreate(g_hInst, hLine, &hCall));
+    CPPUNIT_ASSERT(hCall != SIPX_CALL_NULL);
+
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallAudioRecordFileStart(hCall, "testCallRecord.wav", SIPX_WAVE_GSM));
+    bool gotEvent = eventValidator.waitForMediaEvent(MEDIA_RECORDFILE_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
+    CPPUNIT_ASSERT(gotEvent);
+
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallStartTone(hCall, ID_DTMF_0, true, false));
+    OsTask::delay(1000);
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallStopTone(hCall));
+    sipxCallStartTone(hCall, ID_DTMF_1, true, false);
+    OsTask::delay(1000);
+    sipxCallStopTone(hCall);
+    sipxCallStartTone(hCall, ID_DTMF_2, true, false);
+    OsTask::delay(1000);
+    sipxCallStopTone(hCall);
+    sipxCallAudioRecordPause(hCall);
+    gotEvent = eventValidator.waitForMediaEvent(MEDIA_RECORD_PAUSE, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
+    CPPUNIT_ASSERT(gotEvent);
+
+    sipxCallStartTone(hCall, ID_DTMF_3, true, false);
+    OsTask::delay(1000);
+    sipxCallStopTone(hCall);
+    sipxCallStartTone(hCall, ID_DTMF_4, true, false);
+    OsTask::delay(1000);
+    sipxCallStopTone(hCall);
+    sipxCallStartTone(hCall, ID_DTMF_5, true, false);
+    OsTask::delay(1000);
+    sipxCallStopTone(hCall);
+    sipxCallAudioRecordResume(hCall);
+    gotEvent = eventValidator.waitForMediaEvent(MEDIA_RECORD_RESUME, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
+    CPPUNIT_ASSERT(gotEvent);
+
+    sipxCallStartTone(hCall, ID_DTMF_6, true, false);
+    OsTask::delay(1000);
+    sipxCallStopTone(hCall);
+    sipxCallStartTone(hCall, ID_DTMF_7, true, false);
+    OsTask::delay(1000);
+    sipxCallStopTone(hCall);
+    sipxCallStartTone(hCall, ID_DTMF_8, true, false);
+    OsTask::delay(1000);
+    sipxCallStopTone(hCall);
+    sipxCallAudioRecordFileStop(hCall);
+    gotEvent = eventValidator.waitForMediaEvent(MEDIA_RECORDFILE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
+    CPPUNIT_ASSERT(gotEvent);
 
     // Destory
     sipxCallDestroy(hCall);

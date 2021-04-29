@@ -270,6 +270,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MprRecorderTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\test\mp\MprSpeakerSelectorTest.cpp"
 				>
 			</File>
