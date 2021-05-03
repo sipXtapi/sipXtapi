@@ -64,7 +64,7 @@ OsMsgQ* gMicStatusQueue = NULL;
 /* ============================ FUNCTIONS ================================= */
 
 
-void CALLBACK micOutCallBackProc(HANDLE h, UINT wMsg, DWORD dwInstance, DWORD dwParam, DWORD unused)
+void CALLBACK micOutCallBackProc(HANDLE h, UINT wMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam, DWORD_PTR unused)
 {
 #ifdef IHISTORY /* [ */
    if (WIM_DATA == wMsg) {
@@ -159,7 +159,7 @@ int openAudioIn(HWAVEIN *pAudioInH,
       pAudioInH,              // handle (will be filled in)
       gMicDeviceId,            // attempt to open the "in call" device
       &fmt,                   // format
-      (DWORD) micOutCallBackProc,// callback entry
+      (DWORD_PTR) micOutCallBackProc,// callback entry
       GetCurrentThreadId(),   // instance data
       CALLBACK_FUNCTION);     // callback function specified
    
@@ -171,7 +171,7 @@ int openAudioIn(HWAVEIN *pAudioInH,
       pAudioInH,              // handle (will be filled in)
       WAVE_MAPPER,            // select any device able to handle this format
       &fmt,                   // format
-      (DWORD) micOutCallBackProc,// callback entry
+      (DWORD_PTR) micOutCallBackProc,// callback entry
       GetCurrentThreadId(),   // instance data
       CALLBACK_FUNCTION);     // callback function specified
 

@@ -133,7 +133,7 @@ OsStatus MpMMTimerWnt::run(unsigned usecPeriodic)
       mTimerId =
          timeSetEvent(mPeriodMSec, mResolution, 
                       (LPTIMECALLBACK)&MpMMTimerWnt::timeProcCallback,
-                      (DWORD)this, 
+                      (DWORD_PTR)this,
                       TIME_PERIODIC | TIME_CALLBACK_FUNCTION |
                       MPMMTIMER_EXTRA_TIMER_OPTIONS
                       );
@@ -267,8 +267,8 @@ OsStatus MpMMTimerWnt::getPeriodRange(unsigned* pMinUSecs,
 /* ////////////////////////////// PROTECTED /////////////////////////////// */
 
 void CALLBACK 
-MpMMTimerWnt::timeProcCallback(UINT uID, UINT uMsg, DWORD dwUser, 
-                               DWORD dw1, DWORD dw2)
+MpMMTimerWnt::timeProcCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser,
+    DWORD_PTR dw1, DWORD_PTR dw2)
 {
    MpMMTimerWnt* srcObj = (MpMMTimerWnt*)dwUser;
    if(srcObj == NULL) return;

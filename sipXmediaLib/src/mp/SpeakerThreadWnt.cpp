@@ -113,7 +113,7 @@ static void CALLBACK TimerCallbackProc(UINT wTimerID, UINT msg, DWORD_PTR dwUser
 }
 
 // Call back for speaker audio
-void CALLBACK speakerCallbackProc(HANDLE h, UINT wMsg, DWORD dwInstance, DWORD dwParam, DWORD unused)
+void CALLBACK speakerCallbackProc(HANDLE h, UINT wMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam, DWORD_PTR unused)
 {
 #ifdef OHISTORY /* [ */
    if (WOM_DONE == wMsg) {
@@ -183,7 +183,7 @@ static int openAudioOut(int desiredDeviceId, HWAVEOUT *pAudioOutH,int nChannels,
       pAudioOutH,             // handle (will be filled in)
       desiredDeviceId,        // select the device specified by user
       &fmt,                   // format
-      (DWORD) speakerCallbackProc,// callback entry
+      (DWORD_PTR) speakerCallbackProc,// callback entry
       GetCurrentThreadId(),   // instance data
       CALLBACK_FUNCTION);     // callback function specified
 
@@ -194,7 +194,7 @@ static int openAudioOut(int desiredDeviceId, HWAVEOUT *pAudioOutH,int nChannels,
          pAudioOutH,             // handle (will be filled in)
          WAVE_MAPPER,            // select any device able to handle this format
          &fmt,                   // format
-         (DWORD) speakerCallbackProc,// callback entry
+         (DWORD_PTR) speakerCallbackProc,// callback entry
          GetCurrentThreadId(),   // instance data
          CALLBACK_FUNCTION);     // callback function specified
    

@@ -98,8 +98,8 @@ protected:
    MMRESULT mTimerId; ///< The ID of the MM timer we're using.
 
      /// Callback used by Windows Multimedia Timers.
-   static void CALLBACK timeProcCallback(UINT uID, UINT uMsg, DWORD dwUser, 
-                                         DWORD dw1, DWORD dw2);
+   static void CALLBACK timeProcCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, 
+       DWORD_PTR dw1, DWORD_PTR dw2);
 
 /* /////////////////////////////// PRIVATE //////////////////////////////// */
 private:
