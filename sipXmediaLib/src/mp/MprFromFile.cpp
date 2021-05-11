@@ -284,7 +284,6 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
    char* resampledBuf = NULL;
    uint32_t resampledBufSz = 0;
 
-
    if (!audioFileName)
       return OS_INVALID_ARGUMENT;
 
@@ -297,7 +296,9 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
 
    if (!inputFile.good())
    {
-      return OS_FILE_NOT_FOUND;
+       OsSysLog::add(FAC_MP, PRI_WARNING,
+           "WARNING: %s not found. Skipping play.", audioFileName);
+       return OS_FILE_NOT_FOUND;
    }
 
    //get file size
@@ -308,8 +309,9 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
    //we have to have at least one sample to play
    if (trueFilesize < sizeof(AudioSample))  
    {
-      osPrintf("WARNING: %s contains less than one sample to play. "
-         "Skipping play.\n", audioFileName);
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+           "WARNING: %s contains less than one sample to play. "
+           "Skipping play.", audioFileName);
       return OS_INVALID_ARGUMENT;
    }
 
@@ -327,7 +329,6 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
          "    length (%u) is suspiciously short!\n",
          audioFileName, trueFilesize);
    }
-
 
    audioFile = MpOpenFormat(inputFile);
    //if we have an audioFile object, then it must be a known file type
@@ -368,9 +369,8 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
 
       // First, figure out which kind of file it is
       if (bDetectedFormatIsOk && 
-         audioFile->getAudioFormat() == AUDIO_FORMAT_WAV)
+          audioFile->getAudioFormat() == AUDIO_FORMAT_WAV)
       {
-
          // Get actual data size without header.
          filesize = audioFile->getBytesSize();
 
@@ -450,6 +450,49 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                result = OS_FAILED;
             }
             break;
+
+         case MpAudioWaveFileRead::DeG711MuLaw:
+             charBuffer = (char*)malloc(filesize * 2);
+             samplesReaded = audioFile->getSamples((AudioSample*)charBuffer, filesize);
+             if (samplesReaded)
+             {
+                 //it's now 16 bit so it's twice as long
+                 filesize *= sizeof(AudioSample);
+
+                 // Convert to mono if needed
+                 if (channelsPreferred > 1)
+                     filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
+
+                 // resampledBuf will point to a buffer holding the resampled
+                 // data and resampledBufSz will hold the new buffer size
+                 // after this call.
+                 if (allocateAndResample(charBuffer, filesize, ratePreferred,
+                     resampledBuf, resampledBufSz, fgSampleRate) == FALSE)
+                 {
+                     result = OS_FAILED;
+                     break;
+                 }
+                 else
+                 {
+                     // We want resampledBuf to replace charBuffer, so we'll free
+                     // charBuffer, and store resampledBuf to it. (updating size too)
+                     free(charBuffer);
+                     charBuffer = resampledBuf;
+                     filesize = resampledBufSz;
+                 }
+             }
+             else
+             {
+                 result = OS_FAILED;
+             }
+             break;
+         default:
+             // Unhandled Compression Type in WAV file
+             OsSysLog::add(FAC_MP, PRI_WARNING,
+                 "WARNING: %s contains unhandled compression type %d. "
+                 "Skipping play.", audioFileName, compressionType);
+             result = OS_NOT_SUPPORTED;
+             break;
          }
       }
       else
@@ -457,7 +500,6 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
          if (bDetectedFormatIsOk && 
             audioFile->getAudioFormat() == AUDIO_FORMAT_AU)
          {
-
             // Get actual data size without header.
             filesize = audioFile->getBytesSize();
 
@@ -538,13 +580,22 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                   result = OS_FAILED;
                }
                break;
+
+            default:
+                // Unhandled Compression Type in AU file
+                OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "WARNING: %s contains unhandled compression type %d. "
+                    "Skipping play.", audioFileName, compressionType);
+                result = OS_NOT_SUPPORTED;
+                break;
             }
          } 
          else 
          {
-            OsSysLog::add(FAC_MP, PRI_ERR, 
-               "ERROR: Detected audio file is bad.  "
+            OsSysLog::add(FAC_MP, PRI_WARNING, 
+               "WARNING: %s detected format is bad. "
                "Must be MONO, 16bit signed wav or u-law au");
+            result = OS_NOT_SUPPORTED;
          }
       }
 

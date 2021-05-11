@@ -85,45 +85,45 @@ enum OsStatus
    OS_VERSIONCHECK_NO_LATESTURL,                // latest url not provided while calling findLatestVersion
    OS_VERSIONCHECK_NO_SCRIPTURL,                // script url not found in the catalog file
    OS_VERSIONCHECK_NO_CATALOGURL,               // catalog_url not found in the latest file
-   OS_VERSIONCHECK_NO_LATESTVERSION,    // version not found in the latest file
+   OS_VERSIONCHECK_NO_LATESTVERSION,            // version not found in the latest file
    OS_VERSIONCHECK_FAILURE_CONNECT_TO_SERVER,   // failed to connect to the web server for the latest or catalog url
-   OS_VERSIONCHECK_FAILURE_GET_LATESTFILE,              // failed to get the specified latest file
-   OS_VERSIONCHECK_FAILURE_GET_CATALOGFILE,             // failed to get the specified catalog file
+   OS_VERSIONCHECK_FAILURE_GET_LATESTFILE,      // failed to get the specified latest file
+   OS_VERSIONCHECK_FAILURE_GET_CATALOGFILE,     // failed to get the specified catalog file
    OS_VERSIONCHECK_FAILURE_GET_UPGRADESCRIPTS,  // failed to get the specified upgrade scripts file
-   OS_VERSIONCHECK_FAILURE_OUT_OF_MEMORY,               // failed to get the required memory
+   OS_VERSIONCHECK_FAILURE_OUT_OF_MEMORY,       // failed to get the required memory
 
    // cmd results
-        OS_COMMAND_NOT_FOUND,   // if the specified cmd is not supported
-        OS_COMMAND_AMBIGUOUS,   // if the specified cmd is ambiguous, i.e., more than one cmd can be assigned to it
-        OS_COMMAND_BAD_SYNTAX,  // if the arguments do not match specified the cmd
+   OS_COMMAND_NOT_FOUND,   // if the specified cmd is not supported
+   OS_COMMAND_AMBIGUOUS,   // if the specified cmd is ambiguous, i.e., more than one cmd can be assigned to it
+   OS_COMMAND_BAD_SYNTAX,  // if the arguments do not match specified the cmd
 
-        OS_HTTP_MOVED_PERMANENTLY_CODE  = 301,  // Moved Permanently
-        OS_HTTP_MOVED_TEMPORARILY_CODE  = 302,  // Moved Temporatily
-        OS_HTTP_UNAUTHORIZED_CODE               = 401,  // Unauthorized
-        OS_HTTP_FILE_NOT_FOUND_CODE             = 404,  // File Not Found
-        OS_HTTP_PROXY_UNAUTHORIZED_CODE = 407,  // Proxy Authentication Required
-        OS_HTTP_UNSUPPORTED_METHOD_CODE = 501,  // Not Implemented
+   OS_HTTP_MOVED_PERMANENTLY_CODE  = 301,  // Moved Permanently
+   OS_HTTP_MOVED_TEMPORARILY_CODE  = 302,  // Moved Temporatily
+   OS_HTTP_UNAUTHORIZED_CODE       = 401,  // Unauthorized
+   OS_HTTP_FILE_NOT_FOUND_CODE     = 404,  // File Not Found
+   OS_HTTP_PROXY_UNAUTHORIZED_CODE = 407,  // Proxy Authentication Required
+   OS_HTTP_UNSUPPORTED_METHOD_CODE = 501,  // Not Implemented
 
-        //File System Error Messages
-        OS_FILE_DIRECTORY_ALREADY_EXISTS,
-        OS_FILE_SAMENAME,
-        OS_FILE_ACCESS_DENIED,
-        OS_FILE_DISKFULL,
-        OS_FILE_INVALID_HANDLE,
-        OS_FILE_READONLY,
-        OS_FILE_DIR_NOT_EMPTY,
-        OS_FILE_PATH_NOT_FOUND,
-        OS_FILE_NOT_FOUND,
-        OS_FILE_WRITE_FAILED,
-        OS_FILE_READ_FAILED,
-        OS_FILE_EOF,
-        OS_FILE_SEEK_ERROR,
+   //File System Error Messages
+   OS_FILE_DIRECTORY_ALREADY_EXISTS,
+   OS_FILE_SAMENAME,
+   OS_FILE_ACCESS_DENIED,
+   OS_FILE_DISKFULL,
+   OS_FILE_INVALID_HANDLE,
+   OS_FILE_READONLY,
+   OS_FILE_DIR_NOT_EMPTY,
+   OS_FILE_PATH_NOT_FOUND,
+   OS_FILE_NOT_FOUND,
+   OS_FILE_WRITE_FAILED,
+   OS_FILE_READ_FAILED,
+   OS_FILE_EOF,
+   OS_FILE_SEEK_ERROR,
 
    // Tls initialization
-    OS_TLS_INIT_DATABASE_FAILURE,
-    OS_TLS_INIT_BAD_PASSWORD,
-    OS_TLS_INIT_TCP_IMPORT_FAILURE,
-    OS_TLS_INIT_NSS_FAILURE,
+   OS_TLS_INIT_DATABASE_FAILURE,
+   OS_TLS_INIT_BAD_PASSWORD,
+   OS_TLS_INIT_TCP_IMPORT_FAILURE,
+   OS_TLS_INIT_NSS_FAILURE,
    
    // Other
    OS_INTERRUPTED,            // operation was interrupted from completion
