@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2021 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -18,7 +18,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "OsSyncBase.h"
+#include <os/OsSyncBase.h>
 
 // DEFINES
 // MACROS
@@ -53,16 +53,33 @@ class OsLock
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-
+    typedef enum TakeStateEnum
+    {
+        Unknown,
+        PreAcquire,
+        PostAcquire,
+        PostRelease
+    } OsLockTakeState;
 /* ============================ CREATORS ================================== */
 
      /// Constructor
-   OsLock(OsSyncBase& rSemaphore)
-   : mrSemaphore(rSemaphore) { rSemaphore.acquire(); };
+   OsLock(OsSyncBase& rSemaphore, void (*lockStateCallback)(OsLockTakeState state, void* data) = NULL, void* callbackData = NULL)
+   : mrSemaphore(rSemaphore),
+     mStateCallback(lockStateCallback),
+     mCallbackData(callbackData)
+   {
+      if (mStateCallback) mStateCallback(PreAcquire, mCallbackData);
+      rSemaphore.acquire();
+      if (mStateCallback) mStateCallback(PostAcquire, mCallbackData);
+   };
 
      /// Destructor
    virtual
-   ~OsLock()  { mrSemaphore.release(); };
+   ~OsLock()  
+   {
+      mrSemaphore.release();
+      if (mStateCallback) mStateCallback(PostRelease, mCallbackData);
+   };
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -86,6 +103,8 @@ private:
      /// Assignment operator (not implemented for this class)
    OsLock& operator=(const OsLock& rhs);
 
+   void (*mStateCallback)(OsLockTakeState state, void* data);
+   void* mCallbackData;
 };
 
 /* ============================ INLINE METHODS ============================ */
