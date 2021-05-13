@@ -186,6 +186,38 @@ public:
      *  @returns the result of attempting to queue the message to this resource.
      */
 
+   /// Read in an audio file into a new UtlString audio buffer.
+   static OsStatus readAudioFile(uint32_t fgSampleRate,
+       UtlString*& audioBuffer,
+       const char* audioFileName);
+   /**<
+   *  @param audioBuffer - a reference to a pointer that will be filled
+   *   with a new buffer holding the audio data.  Ownership will then
+   *   transfer to the caller.
+   *
+   *  @NOTE WARNING: This allocates a buffer for the whole file -- thus,
+   *                 files read in should not be huge.  This does occur
+   *                 outside of the media task, so the time it takes to
+   *                 resample should not incur any latency, but memory
+   *                 utilization with large files may become an issue.
+   *  @NOTE TODO: Replace this whole file reading code with some that
+   *              happens in a separate file-reading thread that can
+   *              happen while mediaTask is going on, so files of
+   *              extremely large length can be used.
+   *
+   *  @param[in]  fgSampleRate - flowgraph sample rate -- needed to check if
+   *              read file is compatible with the flowgraph rate, and for
+   *              resampling.
+   *
+   *  @param[in] audioFileName - the name of a file to read flowgraph
+   *   audio data from.  (exact format that the FG will accept -
+   *   sample size, rate, & number of channels)
+   *
+   *  @retval OS_INVALID_ARGUMENT if the filename was null,
+   *  the file was unopenable, or the file contained less than one sample.
+   *  @retval OS_SUCCESS if the file was read successfully.
+   */
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -264,38 +296,6 @@ private:
      *  @param[in] type - can be one of following:  (need a OsSoundType)<br>
      *  0 = RAW<br>
      *  1 = muLaw
-     */
-
-     /// Read in an audio file into a new UtlString audio buffer.
-   static OsStatus readAudioFile(uint32_t fgSampleRate,
-                                 UtlString*& audioBuffer,
-                                 const char* audioFileName);
-     /**<
-     *  @param audioBuffer - a reference to a pointer that will be filled
-     *   with a new buffer holding the audio data.  Ownership will then
-     *   transfer to the caller.
-     *
-     *  @NOTE WARNING: This allocates a buffer for the whole file -- thus,
-     *                 files read in should not be huge.  This does occur
-     *                 outside of the media task, so the time it takes to 
-     *                 resample should not incur any latency, but memory 
-     *                 utilization with large files may become an issue.
-     *  @NOTE TODO: Replace this whole file reading code with some that 
-     *              happens in a separate file-reading thread that can 
-     *              happen while mediaTask is going on, so files of 
-     *              extremely large length can be used.
-     *  
-     *  @param[in]  fgSampleRate - flowgraph sample rate -- needed to check if 
-     *              read file is compatible with the flowgraph rate, and for 
-     *              resampling.
-     *
-     *  @param[in] audioFileName - the name of a file to read flowgraph
-     *   audio data from.  (exact format that the FG will accept -
-     *   sample size, rate, & number of channels)
-     *
-     *  @retval OS_INVALID_ARGUMENT if the filename was null,
-     *  the file was unopenable, or the file contained less than one sample.
-     *  @retval OS_SUCCESS if the file was read successfully.
      */
 
      /// @brief allocate enough space for the resampled data, and resample data passed in.
