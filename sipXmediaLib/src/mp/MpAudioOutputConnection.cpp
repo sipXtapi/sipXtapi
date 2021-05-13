@@ -43,6 +43,8 @@
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
+//#define TRACE_LOCKS
+
 #ifdef TRACE_LOCKS
 static void logLockState(OsLock::OsLockTakeState state, void* data) 
 {
@@ -102,7 +104,7 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
    OsStatus result = OS_FAILED;
    const char* message = "MpAudioOutputConnection::enableDevice";
    OsLock lock(mMutex
-#ifdef TRACE_LOCK
+#ifdef TRACE_LOCKS
        , logLockState, (void*)message);
 #else
        );
@@ -157,7 +159,7 @@ OsStatus MpAudioOutputConnection::disableDevice()
    OsStatus result = OS_FAILED;
    const char* message = "MpAudioOutputConnection::disableDevice";
    OsLock lock(mMutex
-#ifdef TRACE_LOCK
+#ifdef TRACE_LOCKS
        , logLockState, (void*)message);
 #else
        );
@@ -181,7 +183,7 @@ OsStatus MpAudioOutputConnection::enableFlowgraphTicker(OsNotification *pFlowgra
    OsStatus result = OS_SUCCESS;
    const char* message = "MpAudioOutputConnection::enableFlowgraphTicker";
    OsLock lock(mMutex
-#ifdef TRACE_LOCK
+#ifdef TRACE_LOCKS
        , logLockState, (void*)message);
 #else
        );
@@ -200,7 +202,7 @@ OsStatus MpAudioOutputConnection::disableFlowgraphTicker()
    OsStatus result = OS_SUCCESS;
    const char* message = "MpAudioOutputConnection::disableFlowgraphTicker";
    OsLock lock(mMutex
-#ifdef TRACE_LOCK
+#ifdef TRACE_LOCKS
        , logLockState, (void*)message);
 #else
        );
@@ -226,7 +228,7 @@ OsStatus MpAudioOutputConnection::pushFrameBeginning(unsigned int numSamples,
    // From now we access internal data. Take lock.
    const char* message = "MpAudioOutputConnection::pushFrameBeginning";
    OsLock lock(mMutex
-#ifdef TRACE_LOCK
+#ifdef TRACE_LOCKS
        , logLockState, (void*)message);
 #else
        );
@@ -261,7 +263,7 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    // From now we access internal data. Take lock.
    const char* message = "MpAudioOutputConnection::pushFrame";
    OsLock lock(mMutex
-#ifdef TRACE_LOCK
+#ifdef TRACE_LOCKS
        , logLockState, (void*)message);
 #else
        );
@@ -328,7 +330,7 @@ MpFrameTime MpAudioOutputConnection::getCurrentFrameTime() const
 {
     const char* message = "MpAudioOutputConnection::getCurrentFrameTime";
    OsLock lock(mMutex
-#ifdef TRACE_LOCK
+#ifdef TRACE_LOCKS
        , logLockState, (void*)message);
 #else
        );
@@ -485,11 +487,11 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
    }
 #endif
    const char* message = "MpAudioOutputConnection::readyForDataCallback";
-#ifdef TRACE_LOCK
+#ifdef TRACE_LOCKS
    logLockState(OsLock::PreAcquire, (void*)message);
 #endif
    OsStatus acquireStatus = pConnection->mMutex.acquire(OsTime(5));
-#ifdef TRACE_LOCK
+#ifdef TRACE_LOCKS
    logLockState(OsLock::PostAcquire, (void*)message);
 #endif
 
@@ -523,7 +525,7 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
                 pConnection->mCurrentFrameTime);
 
       pConnection->mMutex.release();
-#ifdef TRACE_LOCK
+#ifdef TRACE_LOCKS
       logLockState(OsLock::PostRelease, (void*)message);
 #endif
    }
