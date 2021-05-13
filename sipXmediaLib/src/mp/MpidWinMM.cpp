@@ -840,12 +840,12 @@ void MpidWinMM::getWinNameForDevice(const LPCWSTR winDeviceId, UtlString& device
                 if (result == S_OK)
                 {
                     char deviceNameChar[256];
-                    wcstombs(deviceNameChar, winDeviceFriendlyName.pwszVal, sizeof(deviceName)-1);
+                    wcstombs(deviceNameChar, winDeviceFriendlyName.pwszVal, sizeof(deviceNameChar)-1);
                     deviceName = deviceNameChar;
 
                     OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
                         "MpidWinMM::getWinNameForDevice: "
-                        "windeviceId: %ls name: %ls", winDeviceId, deviceName);
+                        "windeviceId: %ls name: %ls", winDeviceId, deviceNameChar);
 
                     PropVariantClear(&winDeviceFriendlyName);
                 }
