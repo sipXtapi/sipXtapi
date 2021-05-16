@@ -68,6 +68,7 @@ public:
      * 
      * @return the object if successful, otherwise null
      */
+    using UtlSortedList::insert;
     virtual UtlContainable* insert(UtlCopyableContainable* obj);
 
 /* ============================ ACCESSORS ================================= */

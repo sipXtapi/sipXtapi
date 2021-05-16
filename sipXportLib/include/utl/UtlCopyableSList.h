@@ -68,9 +68,11 @@ public:
      * 
      * @return the object if successful, otherwise null
      */
+    using UtlSList::append;
     virtual UtlContainable* append(UtlCopyableContainable* obj) ;
 
     /// Insert the designated containable object at the designated position.
+    using UtlSList::insertAt;
     virtual UtlContainable* insertAt(size_t N,           ///< zero-based position obj should be
                                      UtlCopyableContainable* obj ///< object to insert at N
                                      );
@@ -85,6 +87,7 @@ public:
      * 
      * @return the object if successful, otherwise null
      */
+    using UtlSList::insert;
     virtual UtlContainable* insert(UtlCopyableContainable* obj) ;
 
 /* ============================ ACCESSORS ================================= */

@@ -1,8 +1,14 @@
-sipxtapi (3.3.0~test18-1~bpo10+1) buster-backports; urgency=high
+sipxtapi (3.3.0~test19-1~bpo10+1) buster-backports; urgency=medium
 
   * Build for buster-backports.
 
- -- Daniel Pocock <daniel@pocock.pro>  Sat, 17 Aug 2019 21:00:58 +0200
+ -- Daniel Pocock <daniel@pocock.pro>  Sun, 16 May 2021 12:10:41 +0200
+
+sipxtapi (3.3.0~test19-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Daniel Pocock <daniel@pocock.pro>  Sun, 16 May 2021 12:07:05 +0200
 
 sipxtapi (3.3.0~test18-1) unstable; urgency=high
 
