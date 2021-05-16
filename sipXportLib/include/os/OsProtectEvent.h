@@ -43,6 +43,8 @@ public:
      // Return OS_NOT_SIGNALED if the event has not been signaled (or has
      // already been cleared), otherwise return OS_SUCCESS.
 
+   using OsEvent::wait;
+
    virtual OsStatus wait(int msgId, const OsTime& rTimeout=OsTime::OS_INFINITY);
      //:Wait for the event to be signaled
      // Return OS_BUSY if the timeout expired, otherwise return OS_SUCCESS.

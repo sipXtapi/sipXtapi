@@ -221,7 +221,13 @@ public:
           return clone;
 
        // Copy raw buffer's content to new location
+       // MpBuf deliberately disables the other copy mechanisms and this method
+       // contains the replacement code for that, therefore, we can suppress
+       // the compiler warning for the copy
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
        memcpy(clone.mpBuffer, mpBuffer, mpBuffer->getBufferPool()->getBlockSize());
+#pragma GCC diagnostic pop
 
        // Init clone
        clone->mpInitClone(clone.mpBuffer);
