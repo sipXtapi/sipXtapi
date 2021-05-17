@@ -170,7 +170,7 @@ UtlBoolean MprVoiceActivityNotifier::handleMessage(MpResourceMsg& rMsg)
    case MPRM_CHANGE_NOTIFICATION_PERIOD:
       {
          MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&rMsg;
-         handleChageNotificationPeriod(pMsg->getData());
+         handleChangeNotificationPeriod(pMsg->getData());
       }
       break;
    case MPRM_CHANGE_INACTIVITY_TIMEOUT:
@@ -185,7 +185,7 @@ UtlBoolean MprVoiceActivityNotifier::handleMessage(MpResourceMsg& rMsg)
    return TRUE;
 }
 
-UtlBoolean MprVoiceActivityNotifier::handleChageNotificationPeriod(int periodMs)
+UtlBoolean MprVoiceActivityNotifier::handleChangeNotificationPeriod(int periodMs)
 {
    mLevelPeriodMs = periodMs;
    if (mpFlowGraph != NULL)

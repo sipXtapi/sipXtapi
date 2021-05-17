@@ -47,6 +47,8 @@
 #define SPEAKER_NAME_SUFFIX "-Spkr"
 #define AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX "-outBuffer"
 #define AEC_NAME_SUFFIX "-AEC"
+#define DIRECTION_IN_SUFFIX "-In"
+#define DIRECTION_OUT_SUFFIX "-Out"
 
 /**
 *  VIRTUAL_NAME_LOCAL_STREAM_OUTPUT is mapped to an output of local audio

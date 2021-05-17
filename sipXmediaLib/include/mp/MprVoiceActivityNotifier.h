@@ -131,7 +131,7 @@ protected:
    UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
      /// Handle MPRM_CHANGE_NOTIFICATION_PERIOD message.
-   UtlBoolean handleChageNotificationPeriod(int periodMs);
+   UtlBoolean handleChangeNotificationPeriod(int periodMs);
 
      /// Handle MPRM_CHANGE_INACTIVITY_TIMEOUT message.
    UtlBoolean handleChangeInactivityTimeout(int timeout);

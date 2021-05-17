@@ -288,6 +288,8 @@ public:
                                        CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16,
                                        UtlBoolean appendToFile = FALSE,
                                        int numChannels = 1,
+                                       int maxTime = 0,
+                                       int silenceLength = -1,
                                        UtlBoolean setupMultiChannelMixesAutomatically = TRUE);
 
    /// @copydoc CpMediaInterface::pauseRecordChannelAudio

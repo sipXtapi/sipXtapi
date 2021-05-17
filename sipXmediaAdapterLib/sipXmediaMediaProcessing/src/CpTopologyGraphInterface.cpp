@@ -2006,6 +2006,8 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,   // con
                                                       CpAudioFileFormat cpFileFormat,
                                                       UtlBoolean appendToFile,
                                                       int numChannels,
+                                                      int maxTime,
+                                                      int silenceLength,
                                                       UtlBoolean setupMixesAutomatically)
 {
    OsStatus stat = OS_NOT_FOUND;
@@ -2088,8 +2090,8 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,   // con
                                         *mpTopologyGraph->getMsgQ(),
                                         szFile,
                                         recordFormat,
-                                        0, // max record length = unlimited
-                                        -1, // don't check/stop after silence
+                                        maxTime, // max record length Ms
+                                        silenceLength,
                                         appendToFile,
                                         numChannels);
       }
@@ -2359,8 +2361,8 @@ OsStatus CpTopologyGraphInterface::setRtcpTimeOffset(int connectionId,
 
 OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
                                                     int toneId,
-                                                    UtlBoolean local,
-                                                    UtlBoolean remote) 
+                                                    UtlBoolean local,  // not currently used
+                                                    UtlBoolean remote) // not currently used
 {
    OsStatus stat = OS_FAILED;
 

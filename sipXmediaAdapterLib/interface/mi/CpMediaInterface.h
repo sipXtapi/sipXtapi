@@ -493,6 +493,8 @@ public:
                                        CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16,
                                        UtlBoolean appendToFile = FALSE,
                                        int numChannels = 1,
+                                       int maxTime = 0,
+                                       int silenceLength = -1,
                                        UtlBoolean setupMultiChannelMixesAutomatically = TRUE) = 0;
    /**
     * @param[in] connectionId - handle for media connection to which recorder is relate
@@ -504,6 +506,10 @@ public:
     *            should wait for the stop notification before starting to record again
     *            with the same file or results are unpredictable.
     * @param[in] numChannels - number of channels of audio to record to file
+    * @param[in] maxTime - max number of milliseconds to record, or 0 for no limit
+    * @param[in] silenceLength - length of silence (in milliseconds) after
+    *             which recording is automatically stopped. This feature is
+    *             disabled if -1 is passed.
     * @param[in] setupMultiChannelMixesAutomatically - if number of channels is > 1 and this
     *            is true then the following mixes are automatically created:
     *            -All Local resources (including mic and file playback) are routed to channel 1

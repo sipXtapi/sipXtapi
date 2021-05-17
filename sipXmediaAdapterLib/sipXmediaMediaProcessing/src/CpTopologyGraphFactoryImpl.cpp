@@ -1085,7 +1085,7 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildUnicastConnectionResourceTo
 
     // Add Voice Activity Notifier resource
     UtlString activityNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME
-                                  CONNECTION_NAME_SUFFIX "-0";
+                                  CONNECTION_NAME_SUFFIX DIRECTION_IN_SUFFIX;
     result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
                                            activityNotifName,
                                            MP_INVALID_CONNECTION_ID,
@@ -1433,10 +1433,10 @@ void CpTopologyGraphFactoryImpl::addOutputConnectionTopology(MpResourceTopology*
 {
     OsStatus result;
 
-    UtlString outConnectionVaNotitName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
-    outConnectionVaNotitName.append(CONNECTION_NAME_SUFFIX);
+    UtlString outConnectionVaNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
+                                         CONNECTION_NAME_SUFFIX DIRECTION_OUT_SUFFIX;
     result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
-                                           outConnectionVaNotitName,
+                                           outConnectionVaNotifName,
                                            MP_INVALID_CONNECTION_ID,
                                            0);
     assert(result == OS_SUCCESS);
@@ -1451,11 +1451,11 @@ void CpTopologyGraphFactoryImpl::addOutputConnectionTopology(MpResourceTopology*
 
     // Link bridge -> Output connection Voice Activity Notifier
     result = resourceTopology->addConnection(VIRTUAL_NAME_CONNECTION_PORTS, logicalPortNum, 
-                                             outConnectionVaNotitName, 0);
+                                             outConnectionVaNotifName, 0);
     assert(result == OS_SUCCESS);
 
     // Output connection Voice Activity Notifier -> encoder
-    result = resourceTopology->addConnection(outConnectionVaNotitName, 0, 
+    result = resourceTopology->addConnection(outConnectionVaNotifName, 0, 
                                              DEFAULT_ENCODE_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
