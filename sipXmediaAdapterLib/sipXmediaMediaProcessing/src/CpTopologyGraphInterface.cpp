@@ -2064,6 +2064,16 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,   // con
               stat = OS_SUCCESS;
               break;
 
+          case CP_WAVE_MULAW:
+              recordFormat = MprRecorder::WAV_MULAW;
+              stat = OS_SUCCESS;
+              break;
+
+          case CP_WAVE_ALAW:
+              recordFormat = MprRecorder::WAV_ALAW;
+              stat = OS_SUCCESS;
+              break;
+
           case CP_WAVE_GSM:
               recordFormat = MprRecorder::WAV_GSM;
               stat = OS_SUCCESS;

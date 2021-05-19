@@ -393,6 +393,7 @@ private:
                               const char* artist, 
                               const char* title);
    void deleteOpusEncoder();
+   void trimSilenceFromEndOfRecording();
 
    static int16_t getBytesPerSample(RecordFileFormat format);
    static int interlaceSamples(const char* samplesArrays[], int samplesPerChannel, int bytesPerSample, int channels, char* interlacedChannelSamplesArray, int interlacedArrayMaximum);
