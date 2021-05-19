@@ -377,7 +377,9 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
          switch(compressionType) 
          {
          case MpAudioWaveFileRead::DePcm8Unsigned: //8
-            // We'll convert it to 16 bit
+         case MpAudioWaveFileRead::DeG711MuLaw:
+         case MpAudioWaveFileRead::DeG711ALaw:
+             // We'll convert it to 16 bit
             filesize *= sizeof(AudioSample);
             charBuffer = (char*)malloc(filesize);
             samplesReaded = audioFile->getSamples((AudioSample*)charBuffer,
@@ -451,41 +453,6 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
             }
             break;
 
-         case MpAudioWaveFileRead::DeG711MuLaw:
-             charBuffer = (char*)malloc(filesize * 2);
-             samplesReaded = audioFile->getSamples((AudioSample*)charBuffer, filesize);
-             if (samplesReaded)
-             {
-                 //it's now 16 bit so it's twice as long
-                 filesize *= sizeof(AudioSample);
-
-                 // Convert to mono if needed
-                 if (channelsPreferred > 1)
-                     filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
-
-                 // resampledBuf will point to a buffer holding the resampled
-                 // data and resampledBufSz will hold the new buffer size
-                 // after this call.
-                 if (allocateAndResample(charBuffer, filesize, ratePreferred,
-                     resampledBuf, resampledBufSz, fgSampleRate) == FALSE)
-                 {
-                     result = OS_FAILED;
-                     break;
-                 }
-                 else
-                 {
-                     // We want resampledBuf to replace charBuffer, so we'll free
-                     // charBuffer, and store resampledBuf to it. (updating size too)
-                     free(charBuffer);
-                     charBuffer = resampledBuf;
-                     filesize = resampledBufSz;
-                 }
-             }
-             else
-             {
-                 result = OS_FAILED;
-             }
-             break;
          default:
              // Unhandled Compression Type in WAV file
              OsSysLog::add(FAC_MP, PRI_WARNING,
@@ -513,7 +480,6 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                samplesReaded = audioFile->getSamples((AudioSample*)charBuffer, filesize);
                if (samplesReaded) 
                {
-
                   //it's now 16 bit so it's twice as long
                   filesize *= sizeof(AudioSample);
 
