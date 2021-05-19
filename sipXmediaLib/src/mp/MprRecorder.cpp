@@ -1011,6 +1011,52 @@ void MprRecorder::deleteOpusEncoder()
 #endif
 }
 
+void MprRecorder::trimSilenceFromEndOfRecording()
+{
+    if (mConsecutiveInactive > 0)
+    {
+        // Get the current length.
+        uint32_t curLength = lseek(mFileDescriptor, 0, SEEK_END);
+
+        // resize with mConsecutiveInactive less samples
+        uint32_t sizeToReduceBy;
+        if (mRecFormat == WAV_GSM)
+        {
+            // GSM writes in sets of 2.  First write contains 32 bytes of data per channel for 20ms of audio, next write contains
+            // 33 bytes of data per channel for 20ms of audio.  So we have 65 bytes of data per channel for 20ms of audio.  Audio
+            // frames are counted here based on 10ms of audio.
+
+            // First calculate how many 40ms chunks we want to trim 
+            int gsmBlockstoTrim = mConsecutiveInactive / 4;
+            sizeToReduceBy = gsmBlockstoTrim * 65 * mChannels;
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MprRecorder::trimSilenceFromEndOfRecording: reducing GSM file by framesOfSilence=%d, channels=%d, gsmBlockstoTrim=%d, curLength=%d, sizeToReduceBy=%d", 
+                mConsecutiveInactive, mChannels, gsmBlockstoTrim, curLength, sizeToReduceBy);
+        }
+        else if(mRecFormat == OGG_OPUS)
+        {
+            sizeToReduceBy = 0;  // Disabled
+        }
+        else
+        {
+            sizeToReduceBy = mConsecutiveInactive * mLastEncodedFrameSize * mChannels;
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MprRecorder::trimSilenceFromEndOfRecording: reducing file by framesOfSilence=%d, channels=%d, lastEncodedFrameSize=%d, curLength=%d, sizeToReduceBy=%d", 
+                mConsecutiveInactive, mChannels, mLastEncodedFrameSize, curLength, sizeToReduceBy);
+        }
+
+        assert(sizeToReduceBy < curLength);
+        if (sizeToReduceBy > 0 && sizeToReduceBy < curLength)
+        {
+#ifdef WIN32
+            chsize(mFileDescriptor, curLength - sizeToReduceBy);
+#else
+            ftruncate(mFileDescriptor, curLength - sizeToReduceBy);
+#endif
+        }
+    }
+}
+
 void MprRecorder::prepareEncoder(RecordFileFormat recFormat, unsigned int & codecSampleRate)
 {
     codecSampleRate = 0;
@@ -1401,6 +1447,7 @@ void MprRecorder::startRecording(int time, int silenceLength)
 
    mSamplesRecorded = 0;
    mConsecutiveInactive = 0;
+
    mState = STATE_RECORDING;
 
    handleEnable();
@@ -1463,6 +1510,8 @@ void MprRecorder::closeFile(const char* fromWhereLabel)
 
         if (mRecFormat == RAW_PCM_16)
         {
+            // See if we should trim silence from end of recording
+            trimSilenceFromEndOfRecording();
         }
         else if (mRecFormat == OGG_OPUS)
         {
@@ -1507,6 +1556,9 @@ void MprRecorder::closeFile(const char* fromWhereLabel)
                default:
                    break;
            }
+
+           // See if we should trim silence from end of recording
+           trimSilenceFromEndOfRecording();
 
            updateWaveHeaderLengths(mFileDescriptor, mRecFormat);
            if(mRecFormat == WAV_GSM && mLastEncodedFrameSize != 33)
