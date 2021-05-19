@@ -1433,7 +1433,7 @@ void CpTopologyGraphFactoryImpl::addOutputConnectionTopology(MpResourceTopology*
 {
     OsStatus result;
 
-    UtlString outConnectionVaNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
+    UtlString outConnectionVaNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME
                                          CONNECTION_NAME_SUFFIX DIRECTION_OUT_SUFFIX;
     result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
                                            outConnectionVaNotifName,
