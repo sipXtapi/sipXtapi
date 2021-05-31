@@ -1,4 +1,6 @@
 // 
+// Copyright (C) 2021 SIP Spectrum, Inc.  All rights reserved.
+// 
 // Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -1875,12 +1877,20 @@ OsStatus CpTopologyGraphInterface::deleteConnection(int connectionId)
 }
 
 OsStatus CpTopologyGraphInterface::playAudio(const char* url,
-                                          UtlBoolean repeat,
-                                          UtlBoolean local,  // currently unused in this topology
-                                          UtlBoolean remote, // currently unused in this topology
-                                          UtlBoolean mixWithMic, // currently unused in this topology
-                                          int downScaling,   // currently unused in this topology
-                                          UtlBoolean autoStopAfterFinish)
+                                             UtlBoolean repeat,
+                                             UtlBoolean local,  // currently unused in this topology
+                                             UtlBoolean remote, // currently unused in this topology
+                                             UtlBoolean mixWithMic, // currently unused in this topology
+                                             int downScaling,   // currently unused in this topology
+                                             UtlBoolean autoStopAfterFinish)
+{
+    return playAudio(DEFAULT_FROM_FILE_RESOURCE_NAME, url, repeat, autoStopAfterFinish);
+}
+
+OsStatus CpTopologyGraphInterface::playAudio(const UtlString& resourceName, 
+                                             const char* url,
+                                             UtlBoolean repeat,
+                                             UtlBoolean autoStopAfterFinish)
 {
     OsStatus stat = OS_NOT_FOUND;
     UtlString filename;
@@ -1890,10 +1900,9 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
 
     if(mpTopologyGraph && !filename.isNull())
     {
-       // Currently, this ignores "local", "mixWithMic" and "downScaling".
-       stat = MprFromFile::playFile(DEFAULT_FROM_FILE_RESOURCE_NAME, 
-          *mpTopologyGraph->getMsgQ(), mpTopologyGraph->getSamplesPerSec(),
-          filename, repeat, autoStopAfterFinish);
+        stat = MprFromFile::playFile(resourceName,
+            *mpTopologyGraph->getMsgQ(), mpTopologyGraph->getSamplesPerSec(),
+            filename, repeat, autoStopAfterFinish);
     }
 
     if(stat != OS_SUCCESS)
@@ -1916,15 +1925,26 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
                                               int downScaling,     // currently unused in this topology
                                               UtlBoolean autoStopOnFinish)
 {
+    return playBuffer(DEFAULT_FROM_FILE_RESOURCE_NAME, buf, bufSize, bufRate, type, repeat, pEvent, autoStopOnFinish);
+}
+
+OsStatus CpTopologyGraphInterface::playBuffer(const UtlString& resourceName,
+                                              char* buf,
+                                              unsigned long bufSize,
+                                              uint32_t bufRate,
+                                              int type,
+                                              UtlBoolean repeat,
+                                              OsProtectedEvent* pEvent,
+                                              UtlBoolean autoStopOnFinish)
+{
     OsStatus stat = OS_NOT_FOUND;
     if(mpTopologyGraph && buf)
     {
-       uint32_t fgRate = mpTopologyGraph->getSamplesPerSec();
-       // Currently, this ignores "local/remote", "mixWithMic" and "downScaling".
-       stat = MprFromFile::playBuffer(DEFAULT_FROM_FILE_RESOURCE_NAME, 
-                                      *mpTopologyGraph->getMsgQ(),
-                                      buf, bufSize, bufRate, fgRate,
-                                      type, repeat, pEvent, autoStopOnFinish);
+        uint32_t fgRate = mpTopologyGraph->getSamplesPerSec();
+        stat = MprFromFile::playBuffer(resourceName,
+            *mpTopologyGraph->getMsgQ(),
+            buf, bufSize, bufRate, fgRate,
+            type, repeat, pEvent, autoStopOnFinish);
     }
 
     if(stat != OS_SUCCESS)
@@ -1946,41 +1966,52 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
 
 OsStatus CpTopologyGraphInterface::pauseAudio()
 {
-   OsStatus stat = OS_NOT_FOUND;
-   if(mpTopologyGraph != NULL)
-   {
-      stat = MprFromFile::pauseFile(DEFAULT_FROM_FILE_RESOURCE_NAME,
-                                    *mpTopologyGraph->getMsgQ());
-   }
-   return stat;
+    return pauseAudio(DEFAULT_FROM_FILE_RESOURCE_NAME);
+}
+
+OsStatus CpTopologyGraphInterface::pauseAudio(const UtlString& resourceName)
+{
+    OsStatus stat = OS_NOT_FOUND;
+    if (mpTopologyGraph != NULL)
+    {
+        stat = MprFromFile::pauseFile(resourceName, *mpTopologyGraph->getMsgQ());
+    }
+    return stat;
 }
 
 OsStatus CpTopologyGraphInterface::resumeAudio()
 {
+   return resumeAudio(DEFAULT_FROM_FILE_RESOURCE_NAME);
+}
+
+OsStatus CpTopologyGraphInterface::resumeAudio(const UtlString& resourceName)
+{
    OsStatus stat = OS_NOT_FOUND;
-   if(mpTopologyGraph != NULL)
+   if (mpTopologyGraph != NULL)
    {
-      stat = MprFromFile::resumeFile(DEFAULT_FROM_FILE_RESOURCE_NAME,
-                                     *mpTopologyGraph->getMsgQ());
+       stat = MprFromFile::resumeFile(resourceName, *mpTopologyGraph->getMsgQ());
    }
    return stat;
 }
 
 OsStatus CpTopologyGraphInterface::stopAudio()
 {
-   OsStatus stat = OS_FAILED;
-   if(mpTopologyGraph != NULL)
-   {
-      stat = MprFromFile::stopFile(DEFAULT_FROM_FILE_RESOURCE_NAME, 
-                                  *mpTopologyGraph->getMsgQ());
-   }
-   else
-   {
-      stat = OS_NOT_FOUND;
-   }
-   return stat;
+    return stopAudio(DEFAULT_FROM_FILE_RESOURCE_NAME);
 }
 
+OsStatus CpTopologyGraphInterface::stopAudio(const UtlString& resourceName)
+{
+    OsStatus stat = OS_FAILED;
+    if (mpTopologyGraph != NULL)
+    {
+        stat = MprFromFile::stopFile(resourceName, *mpTopologyGraph->getMsgQ());
+    }
+    else
+    {
+        stat = OS_NOT_FOUND;
+    }
+    return stat;
+}
 
 OsStatus CpTopologyGraphInterface::playChannelAudio(int connectionId,   // currently unused in this topology
                                                     const char* url,
@@ -1994,12 +2025,10 @@ OsStatus CpTopologyGraphInterface::playChannelAudio(int connectionId,   // curre
     return playAudio(url, repeat, local, remote, mixWithMic, downScaling, autoStopOnFinish) ;
 }
 
-
 OsStatus CpTopologyGraphInterface::stopChannelAudio(int connectionId) // connectionId is currently unused in this topology
 {
     return stopAudio() ;
 }
-
 
 OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,   // connectionId is currently unused in this topology
                                                       const char* szFile,
@@ -2009,6 +2038,18 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,   // con
                                                       int maxTime,
                                                       int silenceLength,
                                                       UtlBoolean setupMixesAutomatically)
+{
+    return recordAudio(DEFAULT_RECORDER_RESOURCE_NAME, szFile, cpFileFormat, appendToFile, numChannels, maxTime, silenceLength, setupMixesAutomatically);
+}
+
+OsStatus CpTopologyGraphInterface::recordAudio(const UtlString& resourceName,
+                                               const char* szFile,
+                                               CpAudioFileFormat cpFileFormat,
+                                               UtlBoolean appendToFile,
+                                               int numChannels,
+                                               int maxTime,
+                                               int silenceLength,
+                                               UtlBoolean setupMixesAutomatically)
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2096,7 +2137,7 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,   // con
 
       if(stat == OS_SUCCESS)
       {
-          stat = MprRecorder::startFile(DEFAULT_RECORDER_RESOURCE_NAME,
+          stat = MprRecorder::startFile(resourceName,
                                         *mpTopologyGraph->getMsgQ(),
                                         szFile,
                                         recordFormat,
@@ -2112,48 +2153,68 @@ OsStatus CpTopologyGraphInterface::recordChannelAudio(int connectionId,   // con
 
 OsStatus CpTopologyGraphInterface::pauseRecordChannelAudio(int connectionId)  // connectionId is currently unused in this topology
 {
+   return pauseRecordAudio(DEFAULT_RECORDER_RESOURCE_NAME);
+}
+
+OsStatus CpTopologyGraphInterface::pauseRecordAudio(const UtlString& resourceName)
+{
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
-      stat = MprRecorder::pause(DEFAULT_RECORDER_RESOURCE_NAME,
-                                *mpTopologyGraph->getMsgQ());
+      stat = MprRecorder::pause(resourceName, *mpTopologyGraph->getMsgQ());
    }
    return(stat);
 }
 
 OsStatus CpTopologyGraphInterface::resumeRecordChannelAudio(int connectionId)  // connectionId is currently unused in this topology
 {
+   return resumeRecordAudio(DEFAULT_RECORDER_RESOURCE_NAME);
+}
+
+OsStatus CpTopologyGraphInterface::resumeRecordAudio(const UtlString& resourceName)
+{
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
-      stat = MprRecorder::resume(DEFAULT_RECORDER_RESOURCE_NAME,
-                                 *mpTopologyGraph->getMsgQ());
+      stat = MprRecorder::resume(resourceName, *mpTopologyGraph->getMsgQ());
    }
    return(stat);
 }
 
 OsStatus CpTopologyGraphInterface::stopRecordChannelAudio(int connectionId)  // connectionId is currently unused in this topology
 {
+   return stopRecordAudio(DEFAULT_RECORDER_RESOURCE_NAME);
+}
+
+OsStatus CpTopologyGraphInterface::stopRecordAudio(const UtlString& resourceName)
+{
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
-      stat = MprRecorder::stop(DEFAULT_RECORDER_RESOURCE_NAME,
-                               *mpTopologyGraph->getMsgQ());
+      stat = MprRecorder::stop(resourceName, *mpTopologyGraph->getMsgQ());
    }
-   return stat;
+   return(stat);
 }
-
 
 OsStatus CpTopologyGraphInterface::recordBufferChannelAudio(int connectionId, // connectionId is currently unused in this topology
                                                             char* pBuffer,
                                                             int bufferSize,
                                                             int maxRecordTime,
-                                                            int maxSilence) 
+                                                            int maxSilence)
+{
+   return recordBufferAudio(DEFAULT_RECORDER_RESOURCE_NAME, pBuffer, bufferSize, maxRecordTime, maxSilence);
+}
+
+OsStatus CpTopologyGraphInterface::recordBufferAudio(const UtlString& resourceName,
+                                                     char* pBuffer,
+                                                     int bufferSize,
+                                                     int maxRecordTime,
+                                                     int maxSilence) 
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
-      stat = MprRecorder::startBuffer(DEFAULT_RECORDER_RESOURCE_NAME,
+      stat = MprRecorder::startBuffer(resourceName,
                                       *mpTopologyGraph->getMsgQ(),
                                       (MpAudioSample*)pBuffer,
                                       bufferSize/sizeof(MpAudioSample),
@@ -2175,9 +2236,17 @@ OsStatus CpTopologyGraphInterface::stopRecordBufferChannelAudio(int connectionId
 }
 
 OsStatus CpTopologyGraphInterface::recordCircularBufferChannelAudio(int connectionId,  // connectionId is currently unused in this topology
-                                                                    CircularBufferPtr & buffer,
+                                                                    CircularBufferPtr& buffer,
                                                                     CpMediaInterface::CpAudioFileFormat recordingFormat,
                                                                     unsigned long recordingBufferNotificationWatermark)
+{
+   return recordCircularBufferAudio(DEFAULT_RECORDER_RESOURCE_NAME, buffer, recordingFormat, recordingBufferNotificationWatermark);
+}
+
+OsStatus CpTopologyGraphInterface::recordCircularBufferAudio(const UtlString& resourceName,
+                                                             CircularBufferPtr & buffer,
+                                                             CpMediaInterface::CpAudioFileFormat recordingFormat,
+                                                             unsigned long recordingBufferNotificationWatermark)
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2187,7 +2256,7 @@ OsStatus CpTopologyGraphInterface::recordCircularBufferChannelAudio(int connecti
 
        if (stat == OS_SUCCESS)
        {
-           stat = MprRecorder::startCircularBuffer(DEFAULT_RECORDER_RESOURCE_NAME,
+           stat = MprRecorder::startCircularBuffer(resourceName,
                *mpTopologyGraph->getMsgQ(),
                buffer,
                format,
@@ -2251,27 +2320,32 @@ OsStatus CpTopologyGraphInterface::destroyQueuePlayer(MpStreamQueuePlayer* pPlay
    return OS_NOT_SUPPORTED;   
 }
 
-
 OsStatus CpTopologyGraphInterface::startTone(int toneId,
                                              UtlBoolean local,  // currently unused in this topology
                                              UtlBoolean remote) // currently unused in this topology
 {
-   // TODO: deal with "local" and "remote"...
+   return startTone(DEFAULT_TONE_GEN_RESOURCE_NAME, toneId, TRUE);
+}
+
+OsStatus CpTopologyGraphInterface::startTone(const UtlString& resourceName, int toneId, UtlBoolean rfc4733Enabled)
+{
    OsStatus stat = OS_FAILED;
    if(mpTopologyGraph != NULL)
    {
       // Generate in-band tone
-      stat = MprToneGen::startTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
-                                   *mpTopologyGraph->getMsgQ(), toneId);
+      stat = MprToneGen::startTone(resourceName, *mpTopologyGraph->getMsgQ(), toneId);
 
-      // Generate RFC4733 out-of-band tone
-      CpTopologyMediaConnection* mediaConnection = NULL;
-      UtlDListIterator connectionIterator(mMediaConnections);
-      while ((mediaConnection = (CpTopologyMediaConnection*) connectionIterator()))
+      if (rfc4733Enabled)
       {
-         UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
-         MpResourceTopology::replaceNumInName(encodeName, mediaConnection->getValue());
-         stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
+         // Generate RFC4733 out-of-band tone
+         CpTopologyMediaConnection* mediaConnection = NULL;
+         UtlDListIterator connectionIterator(mMediaConnections);
+         while ((mediaConnection = (CpTopologyMediaConnection*)connectionIterator()))
+         {
+            UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+            MpResourceTopology::replaceNumInName(encodeName, mediaConnection->getValue());
+            stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
+         }
       }
    }
    else
@@ -2283,21 +2357,28 @@ OsStatus CpTopologyGraphInterface::startTone(int toneId,
 
 OsStatus CpTopologyGraphInterface::stopTone()
 {
+    return stopTone(DEFAULT_TONE_GEN_RESOURCE_NAME, TRUE);
+}
+
+OsStatus CpTopologyGraphInterface::stopTone(const UtlString& resourceName, UtlBoolean rfc4733Enabled)
+{
    OsStatus stat = OS_FAILED;
    if(mpTopologyGraph != NULL)
    {
       // Stop in-band tone
-      stat = MprToneGen::stopTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
-                                  *mpTopologyGraph->getMsgQ());
+      stat = MprToneGen::stopTone(resourceName, *mpTopologyGraph->getMsgQ());
 
-      // Stop RFC4733 out-of-band tone
-      CpTopologyMediaConnection* mediaConnection = NULL;
-      UtlDListIterator connectionIterator(mMediaConnections);
-      while ((mediaConnection = (CpTopologyMediaConnection*) connectionIterator()))
+      if (rfc4733Enabled)
       {
-         UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
-         MpResourceTopology::replaceNumInName(encodeName, mediaConnection->getValue());
-         stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
+         // Stop RFC4733 out-of-band tone
+         CpTopologyMediaConnection* mediaConnection = NULL;
+         UtlDListIterator connectionIterator(mMediaConnections);
+         while ((mediaConnection = (CpTopologyMediaConnection*)connectionIterator()))
+         {
+            UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+            MpResourceTopology::replaceNumInName(encodeName, mediaConnection->getValue());
+            stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
+         }
       }
    }
    else
@@ -2374,13 +2455,17 @@ OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
                                                     UtlBoolean local,  // not currently used
                                                     UtlBoolean remote) // not currently used
 {
+   return startChannelTone(DEFAULT_TONE_GEN_RESOURCE_NAME, connectionId, toneId);
+}
+
+OsStatus CpTopologyGraphInterface::startChannelTone(const UtlString& resourceName, int connectionId, int toneId)
+{
    OsStatus stat = OS_FAILED;
 
    if (mpTopologyGraph)
    {
       // Generate in-band tone
-      stat = MprToneGen::startTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
-                                   *mpTopologyGraph->getMsgQ(), toneId);
+      stat = MprToneGen::startTone(resourceName, *mpTopologyGraph->getMsgQ(), toneId);
 
       // Generate RFC4733 out-of-band tone
       if(connectionId > getInvalidConnectionId())
@@ -2401,13 +2486,17 @@ OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId,
 
 OsStatus CpTopologyGraphInterface::stopChannelTone(int connectionId)
 {
+   return stopChannelTone(DEFAULT_TONE_GEN_RESOURCE_NAME, connectionId);
+}
+
+OsStatus CpTopologyGraphInterface::stopChannelTone(const UtlString& resourceName, int connectionId)
+{
    OsStatus stat = OS_FAILED;
 
    if (mpTopologyGraph)
    {
       // Stop in-band tone
-      stat = MprToneGen::stopTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
-                                   *mpTopologyGraph->getMsgQ());
+      stat = MprToneGen::stopTone(resourceName, *mpTopologyGraph->getMsgQ());
 
       // Stop RFC4733 out-of-band tone
       if(connectionId > getInvalidConnectionId())
@@ -2425,6 +2514,57 @@ OsStatus CpTopologyGraphInterface::stopChannelTone(int connectionId)
    return stat;
 }
 
+OsStatus CpTopologyGraphInterface::startChannelOnlyTone(int connectionId, int toneId)
+{
+    OsStatus stat = OS_FAILED;
+
+    if (mpTopologyGraph)
+    {
+        // Generate RFC4733 out-of-band tone
+        if (connectionId > getInvalidConnectionId())
+        {
+            UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+            MpResourceTopology::replaceNumInName(encodeName, connectionId);
+            stat = MprEncode::startTone(encodeName, *mpTopologyGraph->getMsgQ(), toneId);
+        }
+        else
+        {
+            stat = OS_INVALID_ARGUMENT;
+        }
+    }
+    else
+    {
+        stat = OS_NOT_FOUND;
+    }
+
+    return stat;
+}
+
+OsStatus CpTopologyGraphInterface::stopChannelOnlyTone(int connectionId)
+{
+    OsStatus stat = OS_FAILED;
+
+    if (mpTopologyGraph)
+    {
+        // Generate RFC4733 out-of-band tone
+        if (connectionId > getInvalidConnectionId())
+        {
+            UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+            MpResourceTopology::replaceNumInName(encodeName, connectionId);
+            stat = MprEncode::stopTone(encodeName, *mpTopologyGraph->getMsgQ());
+        }
+        else
+        {
+            stat = OS_INVALID_ARGUMENT;
+        }
+    }
+    else
+    {
+        stat = OS_NOT_FOUND;
+    }
+
+    return stat;
+}
 
 OsStatus CpTopologyGraphInterface::giveFocus()
 {

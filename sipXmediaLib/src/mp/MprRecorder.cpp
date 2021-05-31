@@ -1568,9 +1568,6 @@ void MprRecorder::closeFile(const char* fromWhereLabel)
                            mLastEncodedFrameSize);
            }
         }
-        OsSysLog::add(FAC_MP, PRI_ERR,
-                      "MprRecord::updateWaveHeaderLength closed fd: %d",
-                      mFileDescriptor);
         close(mFileDescriptor);
         mFileDescriptor = -1;
     }

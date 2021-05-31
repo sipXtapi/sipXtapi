@@ -230,6 +230,7 @@ OsStatus MprFromFile::genericAudioBufToFGAudioBuf(UtlString*& fgAudioBuf,
                return OS_FAILED;
             }
             fgAudioBuf->append(resampledBuf,resampledBufSize);
+            free(resampledBuf);
             break;
          }
 

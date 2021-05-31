@@ -1,4 +1,6 @@
 // 
+// Copyright (C) 2021 SIP Spectrum, Inc.  All rights reserved.
+// 
 // Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -223,8 +225,10 @@ public:
 
      /// @copydoc CpMediaInterface::startTone()
    virtual OsStatus startTone(int toneId, UtlBoolean local, UtlBoolean remote);
-     /// @copydoc CpMediaInterface::stopTone()
+   virtual OsStatus startTone(const UtlString& resourceName, int toneId, UtlBoolean rfc4733Enabled = TRUE);
+   /// @copydoc CpMediaInterface::stopTone()
    virtual OsStatus stopTone();
+   virtual OsStatus stopTone(const UtlString& resourceName, UtlBoolean rfc4733Enabled = TRUE);
 
      /// @copydoc CpMediaInterface::setRtcpTimeOffset()
    virtual OsStatus setRtcpTimeOffset(int connectionId,
@@ -233,9 +237,16 @@ public:
                                       int timeOffset);
 
      /// @copydoc CpMediaInterface::startChannelTone()
-   virtual OsStatus startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote) ;
-     /// @copydoc CpMediaInterface::stopChannelTone()
+   virtual OsStatus startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote); // Plays both inband and rfc4733 tone
+   virtual OsStatus startChannelTone(const UtlString& resourceName, int connectionId, int toneId);
+   /// @copydoc CpMediaInterface::stopChannelTone()
    virtual OsStatus stopChannelTone(int connectionId) ;
+   virtual OsStatus stopChannelTone(const UtlString& resourceName, int connectionId);
+
+   /// @copydoc CpMediaInterface::startChannelOnlyTone()
+   virtual OsStatus startChannelOnlyTone(int connectionId, int toneId);  // Plays RFC4733 only
+   /// @copydoc CpMediaInterface::stopChannelOnlyTone()
+   virtual OsStatus stopChannelOnlyTone(int connectionId);
 
      /// @copydoc CpMediaInterface::playAudio()
    virtual OsStatus playAudio(const char* url, 
@@ -245,11 +256,14 @@ public:
                               UtlBoolean mixWithMic = false,
                               int downScaling = 100,
                               UtlBoolean autoStopAfterFinish = TRUE);
-
+   virtual OsStatus playAudio(const UtlString& resourceName,
+                              const char* url,
+                              UtlBoolean repeat,
+                              UtlBoolean autoStopAfterFinish = TRUE);
 
      /// @copydoc CpMediaInterface::playBuffer()
     virtual OsStatus playBuffer(char* buf, 
-                               unsigned long bufSize,
+                                unsigned long bufSize,
                                 uint32_t bufRate, 
                                 int type, 
                                 UtlBoolean repeat,
@@ -259,17 +273,28 @@ public:
                                 UtlBoolean mixWithMic = false,
                                 int downScaling = 100,
                                 UtlBoolean autoStopOnFinish = TRUE);
+   virtual OsStatus playBuffer(const UtlString& resourceName,
+                               char* buf,
+                               unsigned long bufSize,
+                               uint32_t bufRate,
+                               int type,
+                               UtlBoolean repeat,
+                               OsProtectedEvent* event = NULL,
+                               UtlBoolean autoStopOnFinish = TRUE);
 
      /// @copydoc CpMediaInterface::pauseAudio()
    virtual OsStatus pauseAudio();
+   virtual OsStatus pauseAudio(const UtlString& resourceName);
 
      /// @copydoc CpMediaInterface::resumeAudio()
    virtual OsStatus resumeAudio();
+   virtual OsStatus resumeAudio(const UtlString& resourceName);
 
    /// @copydoc CpMediaInterface::stopAudio()
    virtual OsStatus stopAudio();
+   virtual OsStatus stopAudio(const UtlString& resourceName);
 
-   /// @copydoc CpMediaInterface::playCHannelAudio
+   /// @copydoc CpMediaInterface::playChannelAudio
    virtual OsStatus playChannelAudio(int connectionId,
                                      const char* url,
                                      UtlBoolean repeat,
@@ -291,15 +316,26 @@ public:
                                        int maxTime = 0,
                                        int silenceLength = -1,
                                        UtlBoolean setupMultiChannelMixesAutomatically = TRUE);
+   virtual OsStatus recordAudio(const UtlString& resourceName,
+                                const char* szFile,
+                                CpAudioFileFormat cpFileFormat = CP_WAVE_PCM_16,
+                                UtlBoolean appendToFile = FALSE,
+                                int numChannels = 1,
+                                int maxTime = 0,
+                                int silenceLength = -1,
+                                UtlBoolean setupMultiChannelMixesAutomatically = TRUE);
 
    /// @copydoc CpMediaInterface::pauseRecordChannelAudio
    virtual OsStatus pauseRecordChannelAudio(int connectionId);
+   virtual OsStatus pauseRecordAudio(const UtlString& resourceName);
 
    /// @copydoc CpMediaInterface::resumeRecordChannelAudio
    virtual OsStatus resumeRecordChannelAudio(int connectionId);
+   virtual OsStatus resumeRecordAudio(const UtlString& resourceName);
 
    /// @copydoc CpMediaInterface::stopRecordChannelAudio
    virtual OsStatus stopRecordChannelAudio(int connectionId);
+   virtual OsStatus stopRecordAudio(const UtlString& resourceName);
 
    /// @copydoc CpMediaInterface::recordBufferChannelAudio
    virtual OsStatus recordBufferChannelAudio(int connectionId,
@@ -307,6 +343,11 @@ public:
                                              int bufferSize,
                                              int maxRecordTime = -1,
                                              int maxSilence = -1) ;
+   virtual OsStatus recordBufferAudio(const UtlString& resourceName, 
+                                      char* pBuffer,
+                                      int bufferSize,
+                                      int maxRecordTime = -1,
+                                      int maxSilence = -1);
 
    /// @copydoc CpMediaInterface::stopRecordBufferAudio
    virtual OsStatus stopRecordBufferChannelAudio(int connectionId) ;
@@ -315,6 +356,10 @@ public:
                                                      CircularBufferPtr & buffer,
                                                      CpMediaInterface::CpAudioFileFormat recordingFormat,
                                                      unsigned long recordingBufferNotificationWatermark);
+   virtual OsStatus recordCircularBufferAudio(const UtlString& resourceName,
+                                              CircularBufferPtr& buffer,
+                                              CpMediaInterface::CpAudioFileFormat recordingFormat,
+                                              unsigned long recordingBufferNotificationWatermark);
 
    virtual OsStatus stopRecordCircularBufferChannelAudio(int connectionId);
 
