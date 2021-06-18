@@ -514,7 +514,16 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
 #else
       SIPX_UNUSED(result);
 #endif
-      assert(result == OS_SUCCESS);
+      // TODO: THis potentially should be fixed in the device driver.
+      // For a quick fix and testing purposes, log and ignore this assert
+      if (result != OS_SUCCESS)
+      {
+          OsSysLog::add(FAC_MP, PRI_ERR,
+              "MpAudioOutputConnection::readyForDataCallback()"
+              " frame: %d, pushFrame failed result=%d\n",
+              pConnection->mCurrentFrameTime, result);
+      }
+      //assert(result == OS_SUCCESS);
 
       // Advance mixer buffer and frame time.
       pConnection->advanceMixerBuffer(pConnection->mpDeviceDriver->getSamplesPerFrame());
