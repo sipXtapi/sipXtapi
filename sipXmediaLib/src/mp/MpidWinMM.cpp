@@ -320,7 +320,7 @@ MpidWinMM::MpidWinMM(const UtlString& name,
         {
             mWinMMDeviceId = i;
             OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MpidWinMM::MpidWinMM found \"s%\" at: %d",
+                "MpidWinMM::MpidWinMM found \"%s\" at: %d",
                 devCaps.szPname,
                 i);
             break;
