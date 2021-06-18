@@ -205,9 +205,9 @@ public:
         StringFromCLSID(key.fmtid, guidString);
 
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
-            "MpWinInputAudioDeviceNotifier::OnPropertyValueChanged(%s, %s)",
+            "MpWinInputAudioDeviceNotifier::OnPropertyValueChanged(%s, xxx)",
             deviceName,
-            guidString);
+            ""/*guidString*/);
         
         ::CoTaskMemFree(guidString);
 
@@ -313,11 +313,23 @@ MpidWinMM::MpidWinMM(const UtlString& name,
         if (res != MMSYSERR_NOERROR)
         {
             wavResult = res;
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                "MpidWinMM::MpidWinMM waveInGetDevCaps[%d] returned: %d", i, wavResult);
         } 
         else if (strncmp(name, devCaps.szPname, MAXPNAMELEN) == 0)
         {
             mWinMMDeviceId = i;
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpidWinMM::MpidWinMM found \"s%\" at: %d",
+                devCaps.szPname,
+                i);
             break;
+        }
+        else
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "MpidWinMM::MpidWinMM looking for: \"%s\" found: \"%s\"", 
+                name.data(), devCaps.szPname);
         }
     }
 
@@ -840,12 +852,21 @@ void MpidWinMM::getWinNameForDevice(const LPCWSTR winDeviceId, UtlString& device
                 if (result == S_OK)
                 {
                     char deviceNameChar[256];
-                    wcstombs(deviceNameChar, winDeviceFriendlyName.pwszVal, sizeof(deviceNameChar)-1);
-                    deviceName = deviceNameChar;
-
-                    OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
-                        "MpidWinMM::getWinNameForDevice: "
-                        "windeviceId: %ls name: %ls", winDeviceId, deviceNameChar);
+                    size_t nameSize = wcstombs(deviceNameChar, winDeviceFriendlyName.pwszVal, sizeof(deviceNameChar)-1);
+                    if (nameSize > 0 && deviceNameChar[0])
+                    {
+                        deviceName = deviceNameChar;
+                        
+                        OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+                            "MpidWinMM::getWinNameForDevice: "
+                            "windeviceId: %ls name: %s", winDeviceId, deviceNameChar);
+                    }
+                    else
+                    {
+                        OsSysLog::add(FAC_AUDIO, PRI_ERR,
+                            "MpidWinMM::getWinNameForDevice: "
+                            "windeviceId: %ls name not valid???? size: %zu", winDeviceId, nameSize);
+                    }
 
                     PropVariantClear(&winDeviceFriendlyName);
                 }
