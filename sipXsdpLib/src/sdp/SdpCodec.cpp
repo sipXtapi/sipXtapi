@@ -908,7 +908,7 @@ void SdpCodec::getVideoFmtpString(UtlString& fmtpString) const
 void SdpCodec::toString(UtlString& sdpCodecContents) const
 {
     char stringBuffer[256];
-    sprintf(stringBuffer,"SdpCodec: codecId=%d, payloadId=%d, mime=\'%s/%s\', rate=%d, pktLen=%d, numCh=%d, fmtData=\'%s\'\n",
+    sprintf(stringBuffer,"SdpCodec: codecId=%d, payloadId=%d, mime=\'%s/%s\', rate=%d, pktLen=%d, numCh=%d, fmtData=\'%s\'",
             getValue(), mCodecPayloadFormat,
             mMimeType.data(), mMimeSubtype.data(),
             mSampleRate, mPacketLength, mNumChannels,
