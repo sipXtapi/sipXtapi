@@ -564,9 +564,15 @@ typedef enum SIPX_MEDIA_EVENT
     MEDIA_INPUT_DEVICE_NOT_PRESENT, /**< Fired when an input media device used is no longer present.
                                      This can accure when the device is unplugged or no longer
                                      to the OS. */
-    MEDIA_OUTPUT_DEVICE_NOT_PRESENT /**< Fired when an output media device used is no longer present.
+    MEDIA_OUTPUT_DEVICE_NOT_PRESENT, /**< Fired when an output media device used is no longer present.
                                      This can accure when the device is unplugged or no longer
                                      to the OS. */
+    MEDIA_INPUT_DEVICE_NOW_PRESENT, /**< Fired when an input media device is now present/available.
+                                     This can accure when the device is plugged or enabled
+                                     by the OS. */
+    MEDIA_OUTPUT_DEVICE_NOW_PRESENT /**< Fired when an output media device is now present/available.
+                                     This can accure when the device is plugged or enabled 
+                                     by the OS. */
 } SIPX_MEDIA_EVENT;
 
 
@@ -642,7 +648,8 @@ typedef enum SIPX_MEDIA_CAUSE
     MEDIA_CAUSE_INCOMPATIBLE,        /**< Incompatible destination -- We were unable
                                         to negotiate a codec */
     MEDIA_CAUSE_DTMF_START,          /**< A DTMF tone has started */
-    MEDIA_CAUSE_DTMF_STOP            /**< A DTMF tone has stopped */
+    MEDIA_CAUSE_DTMF_STOP,           /**< A DTMF tone has stopped */
+    MEDIA_CAUSE_DEVICE_NOW_AVAILABLE /**< Media state notification of presence of new device */
 
 } SIPX_MEDIA_CAUSE ;
 
@@ -693,7 +700,8 @@ typedef struct SIPX_MEDIA_INFO
                                          (not in-band DTMF or dialtone detection, 
                                          etc.)*/
     const char*         deviceName; /**< name of media device for MEDIA_INPUT_DEVICE_NOT_PRESENT
-                                         and MEDIA_OUTPUT_DEVICE_NOT_PRESENT events.*/
+                                         MEDIA_OUTPUT_DEVICE_NOT_PRESENT, MEDIA_INPUT_DEVICE_NOW_PRESENT
+                                         and MEDIA_OUTPUT_DEVICE_NOW_PRESENT events.*/
 } SIPX_MEDIA_INFO ;
 
 
