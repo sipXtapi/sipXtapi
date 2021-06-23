@@ -40,6 +40,7 @@ DWORD WINAPI ConsoleStart(LPVOID lpParameter);
 #define portIsValid(p) ((p) >= 1 && (p) <= 65535)
 
 static bool gbShutdown = false;         // Have shutdown been requested by user?
+static bool gbInitialize = true;        // Indication to do a sipXintialize (perhaps again)
 static bool gbOneCallMode = false;      // Should we exit after first call?
 SIPX_INST g_hInst = NULL ;              // Handle to the sipXtapi instance
 static short* g_loopback_samples[LOOPBACK_LENGTH] ; // loopback buffer
@@ -1068,10 +1069,13 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
        	  break;
 
        case MEDIA_INPUT_DEVICE_NOT_PRESENT:
+       case MEDIA_INPUT_DEVICE_NOW_PRESENT:
            printf("input device: \"%s\"\n", pMediaInfo->deviceName);
            break;
 
        case MEDIA_OUTPUT_DEVICE_NOT_PRESENT:
+           gbInitialize = true; // Uninitialize and then intialize sipXtapi
+       case MEDIA_OUTPUT_DEVICE_NOW_PRESENT:
            printf("output device: \"%s\"\n", pMediaInfo->deviceName);
            break;
 
@@ -1238,7 +1242,9 @@ int local_main(int argc, char* argv[])
         // Initialize sipX TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("ReceiveCall.log");
-        if (sipxInitialize(&hInst, 
+        SIPX_RESULT initResult;
+        while(gbInitialize &&
+            (initResult = sipxInitialize(&hInst, 
                            iSipPort, 
                            iSipPort, 
                            5061, 
@@ -1256,12 +1262,16 @@ int local_main(int argc, char* argv[])
                            10, // internal media frame size (milliseconds)
                            szInDevice ? szInDevice : "", // Audio input device
                            szOutDevice ? szOutDevice : ""  // Audio output device
-           ) == SIPX_RESULT_SUCCESS)
+           )) == SIPX_RESULT_SUCCESS)
         {            
+            gbInitialize = false;
             g_hInst = hInst;
+
+            printf("sipxInitialize returned: %d\n", initResult);
 
             int outDevIndex = -1;
             const char* outputDeviceString;
+
             SIPX_RESULT result = sipxAudioGetCurrentOutputDevice(g_hInst, outDevIndex, outputDeviceString);
             printf("Using speaker device: \"%s\"\n", outputDeviceString);
 
@@ -1379,7 +1389,7 @@ int local_main(int argc, char* argv[])
 
             dumpLocalContacts(hInst) ;
 
-            while (!gbShutdown)
+            while (!gbShutdown && !gbInitialize)
             {
                 SLEEP(100);
                 if(g_playTonesNow != SIPX_CALL_NULL)
@@ -1393,8 +1403,27 @@ int local_main(int argc, char* argv[])
             }
 
             sipxUnInitialize(hInst, true);
+
+            // Pause a little before initializing again
+            if (gbInitialize)
+            {
+                OsSysLog::add(FAC_APP, PRI_ERR,
+                    "uninitialized, pausing before initializing sipXtapi layer");
+                // DO NOT CHECK IN
+                OsSysLog::flush();
+                printf("uninitialized, pausing before initializing sipXtapi layer\n");
+                SLEEP(10000);
+                sipxConfigSetLogLevel(LOG_LEVEL_DEBUG);
+                sipxConfigSetLogFile("ReceiveCall.log");
+
+
+                OsSysLog::add(FAC_APP, PRI_ERR,
+                    "uninitialized, done pausing before initializing sipXtapi layer");
+                // DO NOT CHECK IN
+                OsSysLog::flush();
+            }
         }
-        else
+        if(initResult != SIPX_RESULT_SUCCESS)
         {
             printf("unable to initialize sipXtapi layer\n") ;
         }
