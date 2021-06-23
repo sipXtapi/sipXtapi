@@ -108,6 +108,8 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
       case MpResNotificationMsg::MPRNM_RECORDER_CIRCULARBUFFER_WATERMARK_REACHED:
       case MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT:
       case MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT:
+      case MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOW_PRESENT:
+      case MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOW_PRESENT:
          {
             MiNotification miNotf(lookupNotfType(notfType), 
                                   resNotf.getOriginatingResourceName(),
@@ -344,6 +346,12 @@ MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgTy
    case MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT:
       miNotfType = MiNotification::MI_NOTF_OUTPUT_DEVICE_NOT_PRESENT;
       break;
+   case MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOW_PRESENT:
+       miNotfType = MiNotification::MI_NOTF_INPUT_DEVICE_NOW_PRESENT;
+       break;
+   case MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOW_PRESENT:
+       miNotfType = MiNotification::MI_NOTF_OUTPUT_DEVICE_NOW_PRESENT;
+       break;
    case MpResNotificationMsg::MPRNM_TONE_DETECT_ON:
        miNotfType = MiNotification::MI_NOTF_TONE_DETECT_ON;
        break;

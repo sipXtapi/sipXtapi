@@ -991,6 +991,30 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             messageProcessed = TRUE;
             break;
 
+        case MiNotification::MI_NOTF_INPUT_DEVICE_NOW_PRESENT:
+            TapiMgr::getInstance().fireMediaEvent(this,
+                "", // No call id, independent of call
+                "", // No connection/session id either
+                MEDIA_INPUT_DEVICE_NOW_PRESENT,
+                MEDIA_CAUSE_DEVICE_NOW_AVAILABLE,
+                MEDIA_TYPE_AUDIO,
+                (void*)miMsg->getSourceId().data()
+            );
+            messageProcessed = TRUE;
+            break;
+
+        case MiNotification::MI_NOTF_OUTPUT_DEVICE_NOW_PRESENT:
+            TapiMgr::getInstance().fireMediaEvent(this,
+                "", // No call id, independent of call
+                "", // No connection/session id either
+                MEDIA_OUTPUT_DEVICE_NOW_PRESENT,
+                MEDIA_CAUSE_DEVICE_NOW_AVAILABLE,
+                MEDIA_TYPE_AUDIO,
+                (void*)miMsg->getSourceId().data()
+            );
+            messageProcessed = TRUE;
+            break;
+
         default:
             break;
         }

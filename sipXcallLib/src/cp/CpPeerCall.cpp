@@ -2897,6 +2897,24 @@ UtlBoolean CpPeerCall::handleMiNotificationMessage(MiNotification& notification)
              processed = TRUE;
              break;
 
+         case MiNotification::MI_NOTF_INPUT_DEVICE_NOW_PRESENT:
+             pConnection->fireSipXMediaEvent(MEDIA_INPUT_DEVICE_NOW_PRESENT,
+                 MEDIA_CAUSE_DEVICE_NOW_AVAILABLE,
+                 MEDIA_TYPE_AUDIO,
+                 (void*)notification.getSourceId().data()
+             );
+             processed = TRUE;
+             break;
+
+         case MiNotification::MI_NOTF_OUTPUT_DEVICE_NOW_PRESENT:
+             pConnection->fireSipXMediaEvent(MEDIA_OUTPUT_DEVICE_NOW_PRESENT,
+                 MEDIA_CAUSE_DEVICE_NOW_AVAILABLE,
+                 MEDIA_TYPE_AUDIO,
+                 (void*)notification.getSourceId().data()
+             );
+             processed = TRUE;
+             break;
+
          default:
              OsSysLog::add(FAC_CP, PRI_DEBUG, "Ignoring unhandled MI_NOTIF event: %d connectionId: %d",
                  notification.getMsgSubType(),

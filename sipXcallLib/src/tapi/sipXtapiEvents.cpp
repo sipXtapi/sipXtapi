@@ -346,6 +346,12 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
         case MEDIA_OUTPUT_DEVICE_NOT_PRESENT:
             str = "MEDIA_OUTPUT_DEVICE_NOT_PRESENT";
             break;
+        case MEDIA_INPUT_DEVICE_NOW_PRESENT:
+            str = "MEDIA_INPUT_DEVICE_NOW_PRESENT";
+            break;
+        case MEDIA_OUTPUT_DEVICE_NOW_PRESENT:
+            str = "MEDIA_OUTPUT_DEVICE_NOW_PRESENT";
+            break;
         default:
             break ;
     }
@@ -391,14 +397,17 @@ static const char* convertMediaCauseToString(SIPX_MEDIA_CAUSE cause)
             str = "CAUSE_DEVICE_UNAVAILABLE";
             break;
         case MEDIA_CAUSE_INCOMPATIBLE:
-            str = "CAUSE_DEVICE_UNAVAILABLE";
-            break ;
-	case MEDIA_CAUSE_DTMF_START:
+            str = "MEDIA_CAUSE_INCOMPATIBLE";
+            break;
+        case MEDIA_CAUSE_DTMF_START:
             str = "CAUSE_DTMF_START";
-            break ;
-	case MEDIA_CAUSE_DTMF_STOP:
+            break;
+	    case MEDIA_CAUSE_DTMF_STOP:
             str = "CAUSE_DTMF_STOP";
-            break ;
+            break;
+        case MEDIA_CAUSE_DEVICE_NOW_AVAILABLE:
+            str = "CAUSE_DEVICE_NOW_AVAILABLE";
+            break;
         default:
             break ;
     }
@@ -1537,7 +1546,9 @@ void sipxFireMediaEvent(const void* pSrc,
     if (hCall != SIPX_CALL_NULL ||
         // The following may be call independant events (so hCall can be NULL)
         event == MEDIA_INPUT_DEVICE_NOT_PRESENT ||
-        event == MEDIA_OUTPUT_DEVICE_NOT_PRESENT)
+        event == MEDIA_OUTPUT_DEVICE_NOT_PRESENT ||
+        event == MEDIA_INPUT_DEVICE_NOW_PRESENT ||
+        event == MEDIA_OUTPUT_DEVICE_NOW_PRESENT)
     {
         SIPX_MEDIA_EVENT lastLocalMediaAudioEvent ;
         SIPX_MEDIA_EVENT lastLocalMediaVideoEvent ;
@@ -1695,6 +1706,8 @@ void sipxFireMediaEvent(const void* pSrc,
 
                             case MEDIA_INPUT_DEVICE_NOT_PRESENT:
                             case MEDIA_OUTPUT_DEVICE_NOT_PRESENT:
+                            case MEDIA_INPUT_DEVICE_NOW_PRESENT:
+                            case MEDIA_OUTPUT_DEVICE_NOW_PRESENT:
                                 mediaInfo.deviceName = (char*)pEventData;
                                 break;
 
@@ -2132,6 +2145,14 @@ SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
         case MEDIA_OUTPUT_DEVICE_NOT_PRESENT:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_OUTPUT_DEVICE_NOT_PRESENT");
             break;
+
+        case MEDIA_INPUT_DEVICE_NOW_PRESENT:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_INPUT_DEVICE_NOW_PRESENT");
+            break;
+
+        case MEDIA_OUTPUT_DEVICE_NOW_PRESENT:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_OUTPUT_DEVICE_NOW_PRESENT");
+            break;
     }
     return szBuffer;
 }
@@ -2159,13 +2180,16 @@ SIPXTAPI_API char* sipxMediaCauseToString(SIPX_MEDIA_CAUSE cause,
             break;
         case MEDIA_CAUSE_INCOMPATIBLE:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_INCOMPATIBLE");
-            break ;
-	case MEDIA_CAUSE_DTMF_START:
+            break;
+	    case MEDIA_CAUSE_DTMF_START:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_DTMF_START");
-	    break ;
-	case MEDIA_CAUSE_DTMF_STOP:
+	        break;
+	    case MEDIA_CAUSE_DTMF_STOP:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_DTMF_STOP");
-	    break ;
+	        break;
+        case MEDIA_CAUSE_DEVICE_NOW_AVAILABLE:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_DEVICE_NOW_AVAILABLE");
+            break;
     }
     return szBuffer;
 }
