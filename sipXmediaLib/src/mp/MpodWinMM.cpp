@@ -194,6 +194,24 @@ public:
         {
         case DEVICE_STATE_ACTIVE:
             stateString = "active";
+            if (MpidWinMM::nameIsSame(deviceName, mName))
+            {
+                posted = true;
+            }
+
+            // Regardless of whether the newly active device matches this one,
+            // send a notification in case the app wants to switch
+            if (mpOutputDeviceManager)
+            {
+                MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOW_PRESENT, deviceName);
+                status = mpOutputDeviceManager->postNotification(msg);
+            }
+            else
+            {
+                OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged NULL mpOutputManager, no where to post DEVICE_NOW_PRESENT: (%s)",
+                    deviceName.data());
+            }
             break;
 
         case DEVICE_STATE_DISABLED:
