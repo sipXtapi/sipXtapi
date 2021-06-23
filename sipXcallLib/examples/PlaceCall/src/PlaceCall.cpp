@@ -587,10 +587,12 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
        switch(pMediaInfo->event)
        {
        case MEDIA_INPUT_DEVICE_NOT_PRESENT:
+       case MEDIA_INPUT_DEVICE_NOW_PRESENT:
            printf("input device: \"%s\"\n", pMediaInfo->deviceName);
            break;
 
        case MEDIA_OUTPUT_DEVICE_NOT_PRESENT:
+       case MEDIA_OUTPUT_DEVICE_NOW_PRESENT:
            printf("output device: \"%s\"\n", pMediaInfo->deviceName);
            break;
 
