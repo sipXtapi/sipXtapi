@@ -163,6 +163,15 @@ public:
         {
         case DEVICE_STATE_ACTIVE:
             stateString = "active";
+            if (nameIsSame(deviceName, mName))
+            {
+                posted = true;
+            }
+            if (mpInputDeviceManager)
+            {
+                MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOW_PRESENT, deviceName);
+                status = mpInputDeviceManager->postNotification(msg);
+            }
             break;
 
         case DEVICE_STATE_DISABLED:
@@ -175,8 +184,11 @@ public:
             {
                 *mpIsOpen = FALSE;
                 posted = true;
-                MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT, mName);
-                status = mpInputDeviceManager->postNotification(msg);
+                if (mpInputDeviceManager)
+                {
+                    MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT, mName);
+                    status = mpInputDeviceManager->postNotification(msg);
+                }
             }
             break;
 
@@ -874,11 +886,20 @@ void MpidWinMM::getWinNameForDevice(const LPCWSTR winDeviceId, UtlString& device
             }
             SAFE_RELEASE(winDevicePtr);
         }
-        // TODO: log error
-        // else
+        else
+        {
+            OsSysLog::add(FAC_AUDIO, PRI_WARNING,
+                "MpidWinMM::getWinNameForDevice: "
+                "Failed to get IMMDevice resu;t: %d",
+                result);
+        }
     }
-    // TODO: log error
-    // else
+    else
+    {
+        OsSysLog::add(FAC_AUDIO, PRI_WARNING,
+            "MpidWinMM::getWinNameForDevice: "
+            "Failed to get IMMDeviceEnumerator");
+    }
 }
 
 bool MpidWinMM::nameIsSame(const UtlString& a, const UtlString& b)
