@@ -26,7 +26,6 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-IMMDeviceEnumerator* MpidWinMM::sDeviceEnumeratorPtr = NULL;
 
 // DEFINES
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
@@ -43,10 +42,14 @@ class MpidWinMM::MpWinInputAudioDeviceNotifier : public IMMNotificationClient
 {
 public:
 
-    MpWinInputAudioDeviceNotifier(const UtlString& deviceName, MpInputDeviceManager& inputManager, UtlBoolean* isOpenPtr) : IMMNotificationClient(),
+    MpWinInputAudioDeviceNotifier(const UtlString& deviceName, 
+        MpInputDeviceManager& inputManager,
+        UtlBoolean* isOpenPtr,
+        IMMDeviceEnumerator* deviceEnumeratorPtr) : IMMNotificationClient(),
         mName(deviceName),
         mpInputDeviceManager(&inputManager),
-        mpIsOpen(isOpenPtr)
+        mpIsOpen(isOpenPtr),
+        mDeviceEnumeratorPtr(deviceEnumeratorPtr)
     {
     };
 
@@ -115,7 +118,7 @@ public:
         // Set to null when no devices available
         if (defaultDeviceId)
         {
-            MpidWinMM::getWinNameForDevice(defaultDeviceId, deviceName);
+            MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, defaultDeviceId, deviceName);
         }
 
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
@@ -130,7 +133,7 @@ public:
     HRESULT _stdcall OnDeviceAdded(LPCWSTR addedDeviceId)
     {
         UtlString deviceName;
-        MpidWinMM::getWinNameForDevice(addedDeviceId, deviceName);
+        MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, addedDeviceId, deviceName);
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
             "MpWinInputAudioDeviceNotifier::OnDeviceAdded(%s)",
             deviceName.data());
@@ -141,7 +144,7 @@ public:
     HRESULT _stdcall OnDeviceRemoved(LPCWSTR removedDeviceId)
     {
         UtlString deviceName;
-        MpidWinMM::getWinNameForDevice(removedDeviceId, deviceName);
+        MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, removedDeviceId, deviceName);
 
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
             "MpWinInputAudioDeviceNotifier::OnDeviceRemoved(%s)",
@@ -154,7 +157,7 @@ public:
                                  DWORD newState)
     {
         UtlString deviceName;
-        MpidWinMM::getWinNameForDevice(deviceId, deviceName);
+        MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, deviceId, deviceName);
         UtlString stateString("unknown");
         bool posted = false;
         OsStatus status = OS_UNSPECIFIED;
@@ -211,7 +214,7 @@ public:
                                    const PROPERTYKEY key)
     {
         UtlString deviceName;
-        MpidWinMM::getWinNameForDevice(deviceId, deviceName);
+        MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, deviceId, deviceName);
         
         LPOLESTR* guidString = NULL;
         StringFromCLSID(key.fmtid, guidString);
@@ -229,6 +232,7 @@ public:
     UtlString mName;
     MpInputDeviceManager* mpInputDeviceManager;
     UtlBoolean* mpIsOpen;
+    IMMDeviceEnumerator* mDeviceEnumeratorPtr;
 };
 
 /* ============================ CREATORS ================================== */
@@ -244,17 +248,18 @@ MpidWinMM::MpidWinMM(const UtlString& name,
 , mIsOpen(FALSE)
 , mnAddBufferFailures(0)
 , mWinAudioDeviceChangeCallback(NULL)
+, mDeviceEnumeratorPtr(NULL)
 {
 
     // Need to do this in each thread we call CoCreateInstance
-    IMMDeviceEnumerator* deviceEnumeratorPtr = getWinDeviceEnumerator();
-    if (deviceEnumeratorPtr != NULL)
+    mDeviceEnumeratorPtr = getWinDeviceEnumerator();
+    if (mDeviceEnumeratorPtr != NULL)
     {
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
             "MpidWinMM::MpidWinMM: "
             "Got IMMDeviceEnumerator!");
         IMMDeviceCollection* winDeviceCollection = NULL;
-        HRESULT result = deviceEnumeratorPtr->EnumAudioEndpoints(EDataFlow::eCapture, // input devices
+        HRESULT result = mDeviceEnumeratorPtr->EnumAudioEndpoints(EDataFlow::eCapture, // input devices
             DEVICE_STATE_ACTIVE,
             &winDeviceCollection);
 
@@ -306,8 +311,8 @@ MpidWinMM::MpidWinMM(const UtlString& name,
 
     // Register derived handler from IMMNotificationClient
     // Register for notification of device hardware availablity
-    mWinAudioDeviceChangeCallback = new MpWinInputAudioDeviceNotifier(name, deviceManager, &mIsOpen);
-    registerDeviceEnumerator(mWinAudioDeviceChangeCallback);
+    mWinAudioDeviceChangeCallback = new MpWinInputAudioDeviceNotifier(name, deviceManager, &mIsOpen, mDeviceEnumeratorPtr);
+    registerDeviceEnumerator(mDeviceEnumeratorPtr, mWinAudioDeviceChangeCallback);
 
     OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
         "MpidWinMM::MpidWinMM:(name=\"%s\")", name.data());
@@ -372,9 +377,11 @@ MpidWinMM::~MpidWinMM()
         disableDevice();
     }
 
-    unregisterDeviceEnumerator(mWinAudioDeviceChangeCallback);
+    unregisterDeviceEnumerator(mDeviceEnumeratorPtr, mWinAudioDeviceChangeCallback);
     delete mWinAudioDeviceChangeCallback;
     mWinAudioDeviceChangeCallback = NULL;
+
+    // TODO: need to unallocate mDeviceEnumeratorPtr?
 
     // Delete the sample headers and sample buffer pointers..
     unsigned i;
@@ -770,56 +777,61 @@ MpidWinMM::waveInCallbackStatic(HWAVEIN hwi,
 
 IMMDeviceEnumerator* MpidWinMM::getWinDeviceEnumerator()
 {
-    if (sDeviceEnumeratorPtr == NULL)
-    {
-        HRESULT result = CoInitialize(NULL);
-        if (result != S_OK)
-        {
-            OsSysLog::add(FAC_AUDIO, PRI_ERR,
-                "MpidWinMM::getWinDeviceEnumeratpr CoInitialize failed with error: %p", result);
-        }
+    IMMDeviceEnumerator* deviceEnumeratorPtr = NULL;
 
-        // TODO This should be done once, per thread???
-
-        result = CoCreateInstance(__uuidof(MMDeviceEnumerator),
-            NULL,
-            CLSCTX_INPROC_SERVER, //CLSCTX_ALL,
-            __uuidof(IMMDeviceEnumerator),
-            (void**)& sDeviceEnumeratorPtr);
-        if(result != S_OK || sDeviceEnumeratorPtr == NULL)
-        {
-            OsSysLog::add(FAC_AUDIO, PRI_ERR,
-                "MpidWinMM::getWinDeviceEnumeratpr: "
-                "Couldn't get IMMDeviceEnumerator result: %p!", result);
-        }
-    }
-
-    return(sDeviceEnumeratorPtr);
-}
-
-void MpidWinMM::registerDeviceEnumerator(IMMNotificationClient* winAudioDeviceChangeCallback)
-{
-    IMMDeviceEnumerator* deviceEnumeratorPtr = getWinDeviceEnumerator();
-    HRESULT result = deviceEnumeratorPtr->RegisterEndpointNotificationCallback(winAudioDeviceChangeCallback);
+    HRESULT result = CoInitialize(NULL);
     if (result != S_OK)
     {
         OsSysLog::add(FAC_AUDIO, PRI_ERR,
-            "MpidWinMM::registerDeviceEnumerator: "
-            "Couldn't RegisterEndpointNotificationCallback result: %u!", result);
+            "MpidWinMM::getWinDeviceEnumeratpr CoInitialize failed with error: %p", result);
+    }
+
+    // TODO This should be done once, per thread???
+
+    result = CoCreateInstance(__uuidof(MMDeviceEnumerator),
+        NULL,
+        CLSCTX_INPROC_SERVER, //CLSCTX_ALL,
+        __uuidof(IMMDeviceEnumerator),
+        (void**)& deviceEnumeratorPtr);
+    if(result != S_OK || deviceEnumeratorPtr == NULL)
+    {
+        OsSysLog::add(FAC_AUDIO, PRI_ERR,
+            "MpidWinMM::getWinDeviceEnumeratpr: "
+            "Couldn't get IMMDeviceEnumerator result: %p!", result);
+    }
+
+    return(deviceEnumeratorPtr);
+}
+
+void MpidWinMM::registerDeviceEnumerator(IMMDeviceEnumerator* deviceEnumeratorPtr, IMMNotificationClient* winAudioDeviceChangeCallback)
+{
+    if (deviceEnumeratorPtr)
+    {
+        HRESULT result = deviceEnumeratorPtr->RegisterEndpointNotificationCallback(winAudioDeviceChangeCallback);
+        if (result != S_OK)
+        {
+            OsSysLog::add(FAC_AUDIO, PRI_ERR,
+                "MpidWinMM::registerDeviceEnumerator: "
+                "Couldn't RegisterEndpointNotificationCallback result: %u!", result);
+        }
+        else
+        {
+            OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+                "MpidWinMM::registerDeviceEnumerator: "
+                "RegisterEndpointNotificationCallback succeeded!");
+        }
     }
     else
     {
-        OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
-            "MpidWinMM::registerDeviceEnumerator: "
-            "RegisterEndpointNotificationCallback succeeded!");
+        OsSysLog::add(FAC_AUDIO, PRI_ERR,
+            "MpidWinMM::registerDeviceEnumerator NULL deviceEnumeratorPtr unable to register mWinAudioDeviceChangeCallback");
     }
 }
 
-void MpidWinMM::unregisterDeviceEnumerator(IMMNotificationClient* winAudioDeviceChangeCallback)
+void MpidWinMM::unregisterDeviceEnumerator(IMMDeviceEnumerator* deviceEnumeratorPtr, IMMNotificationClient* winAudioDeviceChangeCallback)
 {
     if (winAudioDeviceChangeCallback)
     {
-        IMMDeviceEnumerator* deviceEnumeratorPtr = getWinDeviceEnumerator();
         if (deviceEnumeratorPtr)
         {
             HRESULT result = deviceEnumeratorPtr->UnregisterEndpointNotificationCallback(winAudioDeviceChangeCallback);
@@ -839,15 +851,19 @@ void MpidWinMM::unregisterDeviceEnumerator(IMMNotificationClient* winAudioDevice
         else
         {
             OsSysLog::add(FAC_AUDIO, PRI_ERR,
-                "MpidWinMM::~MpidWinMM NULL deviceEnumeratorPtr unable to unregister mWinAudioDeviceChangeCallback");
+                "MpidWinMM::unregisterDeviceEnumerator NULL deviceEnumeratorPtr unable to unregister mWinAudioDeviceChangeCallback");
         }
+    }
+    else
+    {
+        OsSysLog::add(FAC_AUDIO, PRI_ERR,
+            "MpidWinMM::unregisterDeviceEnumerator NULL winAudioDeviceChangeCallback unable to unregister mWinAudioDeviceChangeCallback");
     }
 }
 
-void MpidWinMM::getWinNameForDevice(const LPCWSTR winDeviceId, UtlString& deviceName)
+void MpidWinMM::getWinNameForDevice(IMMDeviceEnumerator* deviceEnumeratorPtr, const LPCWSTR winDeviceId, UtlString& deviceName)
 {
     deviceName = "";
-    IMMDeviceEnumerator* deviceEnumeratorPtr = getWinDeviceEnumerator();
     if (deviceEnumeratorPtr)
     {
         IMMDevice* winDevicePtr = NULL;

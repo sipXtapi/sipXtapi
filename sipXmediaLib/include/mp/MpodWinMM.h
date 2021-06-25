@@ -201,6 +201,7 @@ protected:
    DWORD    mTotSampleCount;   ///< A count of the samples coming in via pushFrame.
    IMMNotificationClient* mWinAudioDeviceChangeCallback; ///< Callback interface for audio
                                ///< device state changes.
+   IMMDeviceEnumerator* mDeviceEnumeratorPtr;
    HANDLE   mCallbackThread;   ///< Handle of thread which processes WMM messages.
    HANDLE   mCallbackEvent;    ///< Event to signal that WMM message is available for processing.
    OsAtomicLightBool mExitFlag; ///< Should processing thread finish its execution?

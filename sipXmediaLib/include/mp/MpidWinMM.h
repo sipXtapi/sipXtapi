@@ -165,10 +165,9 @@ protected:
       // Windows device accessors
     class MpWinInputAudioDeviceNotifier;
     static IMMDeviceEnumerator* getWinDeviceEnumerator();
-    static void registerDeviceEnumerator(IMMNotificationClient* winAudioDeviceChangeCallback);
-    static void unregisterDeviceEnumerator(IMMNotificationClient* winAudioDeviceChangeCallback);
-    static void getWinNameForDevice(const LPCWSTR winDeviceId, UtlString& deviceName);
-    static IMMDeviceEnumerator* sDeviceEnumeratorPtr;
+    static void registerDeviceEnumerator(IMMDeviceEnumerator* deviceEnumeratorPtr, IMMNotificationClient* winAudioDeviceChangeCallback);
+    static void unregisterDeviceEnumerator(IMMDeviceEnumerator* deviceEnumeratorPtr, IMMNotificationClient* winAudioDeviceChangeCallback);
+    static void getWinNameForDevice(IMMDeviceEnumerator* deviceEnumeratorPtr, const LPCWSTR winDeviceId, UtlString& deviceName);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -187,6 +186,7 @@ private:
                               ///< within the callback has failed since last enabled.
     IMMNotificationClient* mWinAudioDeviceChangeCallback; ///< Callback interface for audio
                               ///< device state changes.
+    IMMDeviceEnumerator* mDeviceEnumeratorPtr;
 
       /// @brief Copy constructor (not implemented for this class)
     MpidWinMM(const MpInputDeviceDriver& rMpInputDeviceDriver);

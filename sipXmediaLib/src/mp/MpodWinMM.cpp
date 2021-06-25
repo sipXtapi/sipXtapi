@@ -74,10 +74,14 @@ class MpodWinMM::MpWinOutputAudioDeviceNotifier : public IMMNotificationClient
 {
 public:
 
-    MpWinOutputAudioDeviceNotifier(MpodWinMM* outputDevice, const UtlString& deviceName, MpOutputDeviceManager* outputManager) : IMMNotificationClient(),
+    MpWinOutputAudioDeviceNotifier(MpodWinMM* outputDevice, 
+        const UtlString& deviceName, 
+        MpOutputDeviceManager* outputManager,
+        IMMDeviceEnumerator* deviceEnumeratorPtr) : IMMNotificationClient(),
         mpOutputDevice(outputDevice),
         mName(deviceName),
-        mpOutputDeviceManager(outputManager)
+        mpOutputDeviceManager(outputManager),
+        mDeviceEnumeratorPtr(deviceEnumeratorPtr)
     {
     };
 
@@ -146,7 +150,7 @@ public:
         // Set to null when no devices available
         if (defaultDeviceId)
         {
-            MpidWinMM::getWinNameForDevice(defaultDeviceId, deviceName);
+            MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, defaultDeviceId, deviceName);
         }
 
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
@@ -161,7 +165,7 @@ public:
     HRESULT _stdcall OnDeviceAdded(LPCWSTR addedDeviceId)
     {
         UtlString deviceName;
-        MpidWinMM::getWinNameForDevice(addedDeviceId, deviceName);
+        MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, addedDeviceId, deviceName);
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
             "MpWinOutputAudioDeviceNotifier::OnDeviceAdded(%s)",
             deviceName.data());
@@ -172,7 +176,7 @@ public:
     HRESULT _stdcall OnDeviceRemoved(LPCWSTR removedDeviceId)
     {
         UtlString deviceName;
-        MpidWinMM::getWinNameForDevice(removedDeviceId, deviceName);
+        MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, removedDeviceId, deviceName);
 
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
             "MpWinOutputAudioDeviceNotifier::OnDeviceRemoved(%s)",
@@ -185,7 +189,7 @@ public:
         DWORD newState)
     {
         UtlString deviceName;
-        MpidWinMM::getWinNameForDevice(deviceId, deviceName);
+        MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, deviceId, deviceName);
         UtlString stateString("unknown");
         bool posted = false;
         OsStatus status = OS_UNSPECIFIED;
@@ -251,7 +255,7 @@ public:
         const PROPERTYKEY key)
     {
         UtlString deviceName;
-        MpidWinMM::getWinNameForDevice(deviceId, deviceName);
+        MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, deviceId, deviceName);
 
         LPOLESTR* guidString = NULL;
         StringFromCLSID(key.fmtid, guidString);
@@ -269,6 +273,7 @@ public:
     MpodWinMM* mpOutputDevice;
     UtlString mName;
     MpOutputDeviceManager* mpOutputDeviceManager;
+    IMMDeviceEnumerator* mDeviceEnumeratorPtr;
 };
 
 /* ============================ CREATORS ================================== */
@@ -289,14 +294,16 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mTotSampleCount(0)
 , mWinAudioDeviceChangeCallback(NULL)
 , mpTickerTimer(NULL)
+, mDeviceEnumeratorPtr(NULL)
 {
     OsSysLog::add(FAC_MP, PRI_DEBUG,
         "MpodWinMM::MpodWinMM(%s)", getDeviceName().data());
 
+    mDeviceEnumeratorPtr = MpidWinMM::getWinDeviceEnumerator();
     // Register derived handler from IMMNotificationClient
     // Register for notification of device hardware availablity
-    mWinAudioDeviceChangeCallback = new MpWinOutputAudioDeviceNotifier(this, name, mpOutputManger);
-    MpidWinMM::registerDeviceEnumerator(mWinAudioDeviceChangeCallback);
+    mWinAudioDeviceChangeCallback = new MpWinOutputAudioDeviceNotifier(this, name, mpOutputManger, mDeviceEnumeratorPtr);
+    MpidWinMM::registerDeviceEnumerator(mDeviceEnumeratorPtr, mWinAudioDeviceChangeCallback);
 
    WAVEOUTCAPS devCaps;
    // Grab the number of output devices that are available.
@@ -395,9 +402,11 @@ MpodWinMM::~MpodWinMM()
         "MpodWinMM::~MpodWinMM(%s)", getDeviceName().data());
 
    // Unregister the callback interface
-   MpidWinMM::unregisterDeviceEnumerator(mWinAudioDeviceChangeCallback);
+   MpidWinMM::unregisterDeviceEnumerator(mDeviceEnumeratorPtr, mWinAudioDeviceChangeCallback);
    delete mWinAudioDeviceChangeCallback;
    mWinAudioDeviceChangeCallback = NULL;
+
+   // TODO: need to unallocate mDeviceEnumeratorPtr?
 
    // We shouldn't be enabled, assert that we aren't.
    // If we happen to still be enabled at this point, disable the device.
