@@ -1,3 +1,5 @@
+//
+// Copyright (C) 2021 SIP Spectrum, Inc. www.sipspectrum.com
 //  
 // Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
@@ -53,10 +55,16 @@
 
 /* ============================ CREATORS ================================== */
 
+//#define ENABLE_MULTIPLE_NETINTASKS
+
 MprFromNet::MprFromNet()
 : mDiscardCtlMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
 , mRegistrationSyncMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
+#ifdef ENABLE_MULTIPLE_NETINTASKS
+, mNetInTask(NetInTask::createNetInTask())
+#else
 , mNetInTask(NetInTask::getNetInTask())
+#endif
 , mRegistered(FALSE)
 , mpRtpDispatcher(NULL)
 , mDiscardSelectedStream(FALSE)
@@ -103,7 +111,9 @@ MprFromNet::~MprFromNet()
    mInRtpHandle  = NULL;
 #endif /* INCLUDE_RTCP ] */
 
-
+#ifdef ENABLE_MULTIPLE_NETINTASKS
+   mNetInTask->destroy();
+#endif
 }
 
 /* ============================ MANIPULATORS ============================== */

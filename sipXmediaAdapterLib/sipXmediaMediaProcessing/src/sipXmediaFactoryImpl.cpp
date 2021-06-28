@@ -36,6 +36,7 @@
 #include <mp/NetInTask.h>
 #endif
 
+//#define ENABLE_MULTIPLE_NETINTASKS
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -190,11 +191,13 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb,
 #ifndef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
       mpStartTasks();  
 #else
+  #ifndef ENABLE_MULTIPLE_NETINTASKS
       NetInTask *pTask = NetInTask::getNetInTask();
       if (NULL == pTask) 
       {
          OsSysLog::add(FAC_MP, PRI_ERR, "Could not start NetInTask!!");
       }
+  #endif
 #endif
    }
 
@@ -217,8 +220,10 @@ sipXmediaFactoryImpl::~sipXmediaFactoryImpl()
 #ifndef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
       mpStopTasks();
 #else
+  #ifndef ENABLE_MULTIPLE_NETINTASKS
       NetInTask *pTask = NetInTask::getNetInTask();
       pTask->destroy();
+  #endif
 #endif
       mpShutdown();
    }

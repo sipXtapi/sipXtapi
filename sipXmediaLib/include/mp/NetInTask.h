@@ -1,3 +1,5 @@
+//
+// Copyright (C) 2021 SIP Spectrum, Inc. www.sipspectrum.com  
 //  
 // Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
@@ -45,6 +47,9 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define NET_TASK_MAX_MSG_LEN sizeof(netInTaskMsg)
+#define NET_TASK_MAX_FD_PAIRS 300
+
 // FORWARD DECLARATIONS
 class MprFromNet;
 class OsConnectionSocket;
@@ -65,6 +70,15 @@ struct rtpSession {
     uint32_t packets;
     uint32_t octets;
     uint16_t cycles;
+};
+
+struct netInTaskMsg {
+    OsSocket* pRtpSocket;
+    OsSocket* pRtcpSocket;
+    MprFromNet* fwdTo;
+    OsNotification* notify;
+    int fdRtp;
+    int fdRtcp;
 };
 
 #ifndef INCLUDE_RTCP /* [ */
@@ -106,8 +120,11 @@ public:
 ///@name Creators
 //@{
 
-     /// Return a pointer to the NetIn task, creating it if necessary
+     /// Return a pointer to the singleton NetIn task, creating it if necessary
    static NetInTask* getNetInTask();
+
+   /// Return a pointer to a newly created NetIn task
+   static NetInTask* createNetInTask();
 
      /// Shutdown NetInTask instance and free it.
    OsStatus destroy();
@@ -154,10 +171,20 @@ protected:
    static OsRWMutex  sLock;         ///< semaphore used to ensure that there
                                     ///<  is only one instance of this class
 
+   OsRWMutex         sInstanceLock; ///< semaphore used when we are not using
+                                    ///<  this class as a singleton
+
    OsConnectionSocket* mpWriteSocket;
    OsConnectionSocket* mpReadSocket;
    int                 mCmdPort;    ///< internal socket port number
    OsMutex             mEventMutex;
+
+   netInTaskMsg        mFdPairs[NET_TASK_MAX_FD_PAIRS];
+   int                 mNumFdPairs;
+
+   int                 mNumFlushed;
+   int                 mFlushedLimit;
+   bool                mUseInstanceLock;
 
      /// Default constructor
    NetInTask(
@@ -166,7 +193,11 @@ protected:
       int stack   = DEF_NET_IN_TASK_STACKSIZE);    ///< default task stack size
 
      /// Return sLock object.
-   static OsRWMutex& getLockObj() { return sLock; }
+   static OsRWMutex& getStaticLockObj() { return sLock; }
+   OsRWMutex& getLockObj() { if (mUseInstanceLock) return sInstanceLock; else return sLock; }
+
+   OsStatus get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, bool isRtcp, int ostc);
+   int findPoisonFds(int pipeFD);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

@@ -1,4 +1,6 @@
-//  
+//
+// Copyright (C) 2021 SIP Spectrum, Inc. www.sipspectrum.com  
+//
 // Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -10,6 +12,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef WIN32
+#define FD_SETSIZE 1024  // Modify default FD_SETSIZE from 64 to 1024 to allow us to service more sockets
+#endif
 
 #include "rtcp/RtcpConfig.h"
 
@@ -77,25 +82,12 @@ static int dummy0 = 0;
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define NET_TASK_MAX_MSG_LEN sizeof(netInTaskMsg)
-#define NET_TASK_MAX_FD_PAIRS 100
 
 #define MAX_RTP_BYTES 1500
-
-struct netInTaskMsg {
-   OsSocket* pRtpSocket;
-   OsSocket* pRtcpSocket;
-   MprFromNet* fwdTo;
-   OsNotification* notify;
-   int fdRtp;
-   int fdRtcp;
-};
+#define DEFAULT_FLUSHED_LIMIT 125
 
 // STATIC VARIABLE INITIALIZATIONS
 volatile int* pOsTC = OSTIMER_COUNTER_POINTER;
-
-static  netInTaskMsg pairs[NET_TASK_MAX_FD_PAIRS];
-static  int numPairs;
 
 NetInTask* NetInTask::spInstance = 0;
 OsRWMutex     NetInTask::sLock(OsBSem::Q_PRIORITY);
@@ -212,25 +204,21 @@ static void flushReadQueue(OsSocket* pSock)
    return;
 }
 
-static OsStatus get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, bool isRtcp,
-                        int ostc)
+OsStatus NetInTask::get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, bool isRtcp, int ostc)
 {
         MpUdpBufPtr ib;
         int nRead;
         struct in_addr fromIP;
         int      fromPort;
 
-static  int numFlushed = 0;
-static  int flushedLimit = 125;
-
-        if (numFlushed >= flushedLimit) {
+        if (mNumFlushed >= mFlushedLimit) {
             Zprintf("get1Msg: flushed %d packets! (after %d DMA frames).\n",
                numFlushed, showFrameCount(1), 0,0,0,0);
-            if (flushedLimit<1000000) {
-                flushedLimit = flushedLimit << 1;
+            if (mFlushedLimit<1000000) {
+                mFlushedLimit = mFlushedLimit << 1;
             } else {
-                numFlushed = 0;
-                flushedLimit = 125;
+                mNumFlushed = 0;
+                mFlushedLimit = DEFAULT_FLUSHED_LIMIT;
             }
         }
 
@@ -240,20 +228,20 @@ static  int flushedLimit = 125;
         if (ib.isValid()) {
             // Read packet data.
             // Note: nRead could not be greater then buffer size.
-            nRead = pRxpSkt->read(ib->getDataWritePtr(), ib->getMaximumPacketSize()
-                                 , &fromIP, &fromPort);
-            // Set size of received data
-            ib->setPacketSize(nRead);
-
-            // Set IP address and port of this packet
-            ib->setIP(fromIP);
-            ib->setUdpPort(fromPort);
-
-            // Set time we receive this packet.
-            ib->setTimecode(ostc);
+            nRead = pRxpSkt->read(ib->getDataWritePtr(), ib->getMaximumPacketSize(), &fromIP, &fromPort);
 
             if (nRead > 0) 
             {
+                // Set size of received data
+                ib->setPacketSize(nRead);
+
+                // Set IP address and port of this packet
+                ib->setIP(fromIP);
+                ib->setUdpPort(fromPort);
+
+                // Set time we receive this packet.
+                ib->setTimecode(ostc);
+
                 RTL_BLOCK("NetInTask.pushPacket");
                 fwdTo->pushPacket(ib, isRtcp);
             } 
@@ -274,7 +262,7 @@ static  int flushedLimit = 125;
             // Flush packet if could not get buffer for it.
             char buffer[UDP_MTU];
             nRead = pRxpSkt->read(buffer, UDP_MTU, &fromIP, &fromPort);
-            if (numFlushed++ < 10) {
+            if (mNumFlushed++ < 10) {
                 Zprintf("get1Msg: flushing a packet! (%d, %d, %d)"
                     " (after %d DMA frames).\n",
                     nRead, errno, (int) pRxpSkt, showFrameCount(1), 0,0);
@@ -314,7 +302,7 @@ int isFdPoison(int fd)
         return (0 > numReady) ? TRUE : FALSE;
 }
 
-int findPoisonFds(int pipeFD)
+int NetInTask::findPoisonFds(int pipeFD)
 {
         int i;
         int n = 0;
@@ -324,17 +312,17 @@ int findPoisonFds(int pipeFD)
             OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: pipeFd socketDescriptor=%d busted! (poison)\n", pipeFD);
             return -1;
         }
-        for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
+        for (i=0, ppr=mFdPairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             if (ppr->pRtpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%" PRIdPTR "], socket=%p, socketDescriptor=%d (poison)\n", ppr-pairs, ppr->pRtpSocket, ppr->pRtpSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%" PRIdPTR "], socket=%p, socketDescriptor=%d (poison)\n", ppr-mFdPairs, ppr->pRtpSocket, ppr->pRtpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtpSocket = NULL;
                 if (NULL == ppr->pRtcpSocket) ppr->fwdTo = NULL;
             }
             if (ppr->pRtcpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtcpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%" PRIdPTR "], socket=%p, socketDescriptor=%d (poison)\n", ppr-pairs, ppr->pRtcpSocket, ppr->pRtcpSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%" PRIdPTR "], socket=%p, socketDescriptor=%d (poison)\n", ppr-mFdPairs, ppr->pRtcpSocket, ppr->pRtcpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtcpSocket = NULL;
                 if (NULL == ppr->pRtpSocket) ppr->fwdTo = NULL;
@@ -389,13 +377,13 @@ int NetInTask::run(void *pNotUsed)
         netInTaskMsg *ppr;
         int     ostc;
 
-        for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
+        for (i=0, ppr=mFdPairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             ppr->pRtpSocket =  NULL;
             ppr->pRtcpSocket = NULL;
             ppr->fwdTo = NULL;
             ppr++;
         }
-        numPairs = 0;
+        mNumFdPairs = 0;
 
         fds = &fdset;
         last = OS_INVALID_SOCKET_DESCRIPTOR;
@@ -405,7 +393,7 @@ int NetInTask::run(void *pNotUsed)
         while (mpReadSocket && mpReadSocket->isOk()) {
             FD_ZERO(fds);
             FD_SET((unsigned) mpReadSocket->getSocketDescriptor(), fds);
-            for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
+            for (i=0, ppr=mFdPairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
               if (NULL != ppr->fwdTo) {
                 if (NULL != ppr->pRtpSocket)
                 {
@@ -436,7 +424,7 @@ int NetInTask::run(void *pNotUsed)
             }
             if (OS_INVALID_SOCKET_DESCRIPTOR == last) {
                last = mpReadSocket->getSocketDescriptor();
-               for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
+               for (i=0, ppr=mFdPairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
                   if (NULL != ppr->fwdTo) {
                     if (NULL != ppr->pRtpSocket)
                        last=sipx_max(last, ppr->pRtpSocket->getSocketDescriptor());
@@ -562,12 +550,12 @@ int NetInTask::run(void *pNotUsed)
 #endif
                         // Put this socket pair in the first available array position
                         UtlBoolean newPairAdded = FALSE;
-                        for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
+                        for (i=0, ppr=mFdPairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
                             if (NULL == ppr->fwdTo) {
                                 ppr->pRtpSocket  = msg.pRtpSocket;
                                 ppr->pRtcpSocket = msg.pRtcpSocket;
                                 ppr->fwdTo   = msg.fwdTo;
-                                numPairs++;
+                                mNumFdPairs++;
 
                                 // Clear out any packets residing in the socket's
                                 // buffer to prevent our dejitter from a burst of
@@ -599,7 +587,7 @@ int NetInTask::run(void *pNotUsed)
                         }
                     } else {
                         /* remove a pair of file descriptors */
-                        for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
+                        for (i=0, ppr=mFdPairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
                             if (msg.fwdTo == ppr->fwdTo) {
                                 OsSysLog::add(FAC_MP, PRI_DEBUG,
                                               " *** NetInTask: Remove socket Fds:"
@@ -608,7 +596,7 @@ int NetInTask::run(void *pNotUsed)
                                 ppr->pRtpSocket = NULL;
                                 ppr->pRtcpSocket = NULL;
                                 ppr->fwdTo = NULL;
-                                numPairs--;
+                                mNumFdPairs--;
                                 last = OS_INVALID_SOCKET_DESCRIPTOR;
                                 break;
                             }
@@ -624,7 +612,7 @@ int NetInTask::run(void *pNotUsed)
                     osPrintf("NetInTask::run msg with NULL FromNet\n");
                 }
             }
-            ppr=pairs;
+            ppr=mFdPairs;
             for (i=0; ((i<NET_TASK_MAX_FD_PAIRS)&&(numReady>0)); i++) {
                 int tfd;
                 if (NULL != ppr->pRtpSocket) {
@@ -635,7 +623,7 @@ int NetInTask::run(void *pNotUsed)
                     if (OS_SUCCESS != stat) {
                         OsSysLog::add(FAC_MP, PRI_ERR, 
                             " *** NetInTask: removing RTP#%ld pSkt=%p due"
-                            " to read error.\n", ppr-pairs,
+                            " to read error.\n", ppr-mFdPairs,
                             ppr->pRtpSocket);
                         last = OS_INVALID_SOCKET_DESCRIPTOR;
                         ppr->pRtpSocket = NULL;
@@ -652,7 +640,7 @@ int NetInTask::run(void *pNotUsed)
                     if (OS_SUCCESS != stat) {
                         OsSysLog::add(FAC_MP, PRI_ERR, 
                             " *** NetInTask: removing RTCP#%ld pSkt=%p due"
-                            " to read error.\n", ppr-pairs,
+                            " to read error.\n", ppr-mFdPairs,
                             ppr->pRtcpSocket);
                         last = OS_INVALID_SOCKET_DESCRIPTOR;
                         ppr->pRtcpSocket = NULL;
@@ -682,7 +670,7 @@ NetInTask* NetInTask::getNetInTask()
 
    // If the task does not yet exist or hasn't been started, then acquire
    // the lock to ensure that only one instance of the task is started
-   getLockObj().acquireWrite();
+   getStaticLockObj().acquireWrite();
    if (spInstance == NULL) {
        spInstance = new NetInTask();
    }
@@ -692,7 +680,7 @@ NetInTask* NetInTask::getNetInTask()
       isStarted = spInstance->start();
       assert(isStarted);
    }
-   getLockObj().releaseWrite();
+   getStaticLockObj().releaseWrite();
 
    // Synchronize with NetInTask startup
    int numDelays = 0;
@@ -705,11 +693,34 @@ NetInTask* NetInTask::getNetInTask()
    return spInstance;
 }
 
+NetInTask* NetInTask::createNetInTask()
+{
+    NetInTask* netInTask = new NetInTask();
+
+    netInTask->mUseInstanceLock = true;  // Set flag so we don't use the singleton static lock
+    UtlBoolean isStarted = netInTask->start();
+    assert(isStarted);
+
+    // Synchronize with NetInTask startup
+    int numDelays = 0;
+    while (netInTask->mCmdPort == -1)
+    {
+        OsTask::delay(20);
+        numDelays++;
+        if ((numDelays % 50) == 0) osPrintf("NetInTask::getNetInTask %d delays\n", numDelays);
+    }
+    return netInTask;
+}
+
 NetInTask::NetInTask(int prio, int options, int stack)
-:  OsTask("NetInTask", NULL, prio, options, stack),
-   mpWriteSocket(NULL),
-   mpReadSocket(NULL),
-   mEventMutex(0)
+:  OsTask("NetInTask", NULL, prio, options, stack), // TODO - now that we can have multiple NetInTasks the name is not unique and OsTask 
+                                                    // base class tries to register the pointer with OSUtil::insertKeyValue - no side 
+                                                    // effects but we could consider adding something unique to the name
+   sInstanceLock(OsBSem::Q_PRIORITY),
+   mEventMutex(0),
+   mNumFlushed(0),
+   mFlushedLimit(DEFAULT_FLUSHED_LIMIT),
+   mUseInstanceLock(false)
 {
     // Create temporary listening socket.
     OsServerSocket *pBindSocket = new OsServerSocket(1, PORT_DEFAULT, "127.0.0.1");
