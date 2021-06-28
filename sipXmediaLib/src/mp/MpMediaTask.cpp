@@ -631,7 +631,7 @@ MpMediaTask::MpMediaTask(int maxFlowGraph, UtlBoolean enableLocalAudio)
    {
       MpMediaTaskMsg msg(MpMediaTaskMsg::WAIT_FOR_SIGNAL);
       mpSignalMsgPool = new OsMsgPool("MediaSignals", msg,
-                          2, max(mMaxFlowGraph/2,2), 4*mMaxFlowGraph, 1,
+                          2, sipx_max(mMaxFlowGraph/2,2), 4*mMaxFlowGraph, 1,
                           OsMsgPool::MULTIPLE_CLIENTS);
    }
 
