@@ -1,3 +1,9 @@
+sipxtapi (3.3.0~test20-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Daniel Pocock <daniel@pocock.pro>  Thu, 01 Jul 2021 12:01:11 +0200
+
 sipxtapi (3.3.0~test19-1) unstable; urgency=medium
 
   * New upstream release
