@@ -103,7 +103,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libogg", "sipXmediaLib\cont
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opus", "sipXmediaLib\contrib\libopus\opus\win32\VS2019\opus.vcxproj", "{219EC965-228A-1824-174D-96449D05F88A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openenc", "sipXmediaLib\contrib\libopus\libopusenc\win32\VS2019\opusenc.vcxproj", "{755C376F-0786-46A6-B706-A55E37430A4A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opusenc", "sipXmediaLib\contrib\libopus\libopusenc\win32\VS2019\opusenc.vcxproj", "{755C376F-0786-46A6-B706-A55E37430A4A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{219EC965-228A-1824-174D-96449D05F88A} = {219EC965-228A-1824-174D-96449D05F88A}
 	EndProjectSection
@@ -127,6 +127,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgl16", "sipXmediaLib\src\mp\codecs\plgl16\plgl16-msvc16.vcxproj", "{A9C94D26-C90D-4860-8195-56929E893710}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgopus", "sipXmediaLib\src\mp\codecs\plgopus\plgopus-msvc16.vcxproj", "{B9C94D26-C90D-4860-8195-56929E893777}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgg729", "sipXmediaLib\src\mp\codecs\plgg729\plgg729-msvc16.vcxproj", "{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libg729a", "sipXmediaLib\contrib\libg729a\libg729a-msvc16.vcxproj", "{7205CB37-45B6-4E08-B0C1-258912A5746D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -688,8 +692,8 @@ Global
 		{A9C94D26-C90D-4860-8195-56929E893710}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Win32
 		{A9C94D26-C90D-4860-8195-56929E893710}.Release|SDK1_emu (ARMV4I).ActiveCfg = Release|Win32
 		{A9C94D26-C90D-4860-8195-56929E893710}.Release|sipx_CE60_emulator (ARMV4I).ActiveCfg = Release|Win32
-		{A9C94D26-C90D-4860-8195-56929E893710}.Release|Win32.ActiveCfg = Release|x64
-		{A9C94D26-C90D-4860-8195-56929E893710}.Release|Win32.Build.0 = Release|x64
+		{A9C94D26-C90D-4860-8195-56929E893710}.Release|Win32.ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893710}.Release|Win32.Build.0 = Release|Win32
 		{A9C94D26-C90D-4860-8195-56929E893710}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Win32
 		{A9C94D26-C90D-4860-8195-56929E893710}.Release|x64.ActiveCfg = Release|x64
 		{A9C94D26-C90D-4860-8195-56929E893710}.Release|x64.Build.0 = Release|x64
@@ -709,6 +713,38 @@ Global
 		{B9C94D26-C90D-4860-8195-56929E893777}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Win32
 		{B9C94D26-C90D-4860-8195-56929E893777}.Release|x64.ActiveCfg = Release|x64
 		{B9C94D26-C90D-4860-8195-56929E893777}.Release|x64.Build.0 = Release|x64
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug|Win32.Build.0 = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug|x64.ActiveCfg = Debug|x64
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug|x64.Build.0 = Debug|x64
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release|SDK1_emu (ARMV4I).ActiveCfg = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release|sipx_CE60_emulator (ARMV4I).ActiveCfg = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release|Win32.ActiveCfg = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release|Win32.Build.0 = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release|x64.ActiveCfg = Release|x64
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release|x64.Build.0 = Release|x64
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Debug|Win32.Build.0 = Debug|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Debug|x64.ActiveCfg = Debug|x64
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Debug|x64.Build.0 = Debug|x64
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|SDK1_emu (ARMV4I).ActiveCfg = Release|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|sipx_CE60_emulator (ARMV4I).ActiveCfg = Release|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|Win32.ActiveCfg = Release|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|Win32.Build.0 = Release|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Win32
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|x64.ActiveCfg = Release|x64
+		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -745,6 +781,8 @@ Global
 		{B933F895-8EFB-4FDD-A46D-09B8C00D1D26} = {0D0F2D7A-3432-493B-9952-A19F6A31B47B}
 		{A9C94D26-C90D-4860-8195-56929E893710} = {81DA5110-9329-4266-936B-01303311B3CB}
 		{B9C94D26-C90D-4860-8195-56929E893777} = {81DA5110-9329-4266-936B-01303311B3CB}
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC} = {81DA5110-9329-4266-936B-01303311B3CB}
+		{7205CB37-45B6-4E08-B0C1-258912A5746D} = {9FC2F1F1-1276-4A0D-A49E-F2184862BFA7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BEC6112C-CAC5-4082-8A3C-13255B9369C6}

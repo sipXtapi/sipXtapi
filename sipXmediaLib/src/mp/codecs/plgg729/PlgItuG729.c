@@ -16,6 +16,13 @@
 // CODEC LIBRARY INCLUDES
 #include <mp/codecs/PlgDefsV1.h>
 
+// WIN32 dev does not facilitate circular shared lib dependencies
+// So for now take a short cut
+#if defined(WIN32)
+#  include <stdio.h>
+#  define mppLogError printf
+#endif
+
 // APPLICATION INCLUDES
 #include <g729a_typedef.h>
 #include <g729a_interface.h>
