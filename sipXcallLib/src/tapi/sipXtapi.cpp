@@ -5816,16 +5816,19 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetCurrentInputDevice(const SIPX_INST hInst,
         int minLen = 0;
         for (int i = 0; i < MAX_AUDIO_DEVICES; i++)
         {
-            // Have to deal with partial matches ore partial string of full device name
-            // So use the smallest of the two
-            minLen = sipx_min(oldDevice.length(), strlen(pInst->outputAudioDevices[i]));
-
-            if (minLen > 0 && strncmp(oldDevice, pInst->outputAudioDevices[i], minLen))
+            if (pInst->outputAudioDevices[i])
             {
-                index = i;
-                szDevice = pInst->outputAudioDevices[i];
-                rc = SIPX_RESULT_SUCCESS;
-                break;
+                // Have to deal with partial matches ore partial string of full device name
+                // So use the smallest of the two
+                minLen = sipx_min(oldDevice.length(), strlen(pInst->outputAudioDevices[i]));
+
+                if (minLen > 0 && strncmp(oldDevice, pInst->outputAudioDevices[i], minLen))
+                {
+                    index = i;
+                    szDevice = pInst->outputAudioDevices[i];
+                    rc = SIPX_RESULT_SUCCESS;
+                    break;
+                }
             }
         }
     }
@@ -5911,16 +5914,26 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetCurrentOutputDevice(const SIPX_INST hInst,
         int minLen = 0;
         for(int i = 0; i < MAX_AUDIO_DEVICES; i++)
         {
-            // Have to deal with partial matches or partial string of full device name
-            // So use the smallest of the two
-            minLen = sipx_min(oldDevice.length(), strlen(pInst->inputAudioDevices[i]));
-            
-            if(minLen > 0 && strncmp(oldDevice, pInst->inputAudioDevices[i], minLen))
+            if(pInst->inputAudioDevices[i])
             {
-                index = i;
-                szDevice = pInst->inputAudioDevices[i];
-                rc = SIPX_RESULT_SUCCESS;
-                break;
+                // Have to deal with partial matches or partial string of full device name
+                // So use the smallest of the two
+                if (pInst->inputAudioDevices[i])
+                {
+                    minLen = sipx_min(oldDevice.length(), strlen(pInst->inputAudioDevices[i]));
+                }
+                else
+                {
+                    minLen = 0;
+                }
+
+                if (minLen > 0 && strncmp(oldDevice, pInst->inputAudioDevices[i], minLen))
+                {
+                    index = i;
+                    szDevice = pInst->inputAudioDevices[i];
+                    rc = SIPX_RESULT_SUCCESS;
+                    break;
+                }
             }
         }
     }
