@@ -1,3 +1,9 @@
+sipxtapi (3.3.0~test20-2) debify-bullseye; urgency=medium
+
+  * Update debian/copyright
+
+ -- Daniel Pocock <daniel@pocock.pro>  Fri, 10 Sep 2021 22:30:28 +0200
+
 sipxtapi (3.3.0~test20-1) unstable; urgency=medium
 
   * New upstream release
