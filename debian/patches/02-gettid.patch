@@ -1,0 +1,16 @@
+diff --git a/sipXportLib/src/os/linux/OsTaskLinux.cpp b/sipXportLib/src/os/linux/OsTaskLinux.cpp
+index 2c8845e2b..e35a26cad 100644
+--- a/sipXportLib/src/os/linux/OsTaskLinux.cpp
++++ b/sipXportLib/src/os/linux/OsTaskLinux.cpp
+@@ -48,9 +48,11 @@
+ #endif // ANDROID ]
+ 
+ // EXTERNAL FUNCTIONS
++#ifndef HAVE_GETTID
+ #ifndef ANDROID // [
+ static inline int gettid() {return syscall(SYS_gettid);}
+ #endif // !ANDROID ]
++#endif HAVE_GETTID
+ 
+ // EXTERNAL VARIABLES
+ // CONSTANTS
