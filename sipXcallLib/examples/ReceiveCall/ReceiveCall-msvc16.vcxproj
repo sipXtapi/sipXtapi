@@ -95,7 +95,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\..\pcre\include;..\..\..\sipXportLib\include;..\..\..\sipXsdpLib\include;..\..\..\sipXmediaLib\inlcude;..\..\..\sipXmediaAdapterLib\interface;..\..\..\sipXcallLlib\include;include;..\include;..\PlaceCall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\pcre\include;..\..\..\sipXportLib\include;..\..\..\sipXsdpLib\include;..\..\..\sipXmediaLib\inlcude;..\..\..\sipXmediaAdapterLib\interface;..\..\..\sipXcallLib\include;include;..\include;..\PlaceCall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -133,7 +133,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\..\pcre\include;..\..\..\sipXportLib\include;..\..\..\sipXsdpLib\include;..\..\..\sipXmediaLib\inlcude;..\..\..\sipXmediaAdapterLib\interface;..\..\..\sipXcallLlib\include;include;..\include;..\PlaceCall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\pcre\include;..\..\..\sipXportLib\include;..\..\..\sipXsdpLib\include;..\..\..\sipXmediaLib\inlcude;..\..\..\sipXmediaAdapterLib\interface;..\..\..\sipXcallLib\include;include;..\include;..\PlaceCall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -171,7 +171,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\..\..\..\pcre\include;..\..\..\sipXportLib\include;..\..\..\sipXsdpLib\include;..\..\..\sipXmediaLib\inlcude;..\..\..\sipXmediaAdapterLib\interface;..\..\..\sipXcallLlib\include;include;..\include;..\PlaceCall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\pcre\include;..\..\..\sipXportLib\include;..\..\..\sipXsdpLib\include;..\..\..\sipXmediaLib\inlcude;..\..\..\sipXmediaAdapterLib\interface;..\..\..\sipXcallLib\include;include;..\include;..\PlaceCall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -210,7 +210,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\..\..\..\pcre\include;..\..\..\sipXportLib\include;..\..\..\sipXsdpLib\include;..\..\..\sipXmediaLib\inlcude;..\..\..\sipXmediaAdapterLib\interface;..\..\..\sipXcallLlib\include;include;..\include;..\PlaceCall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\pcre\include;..\..\..\sipXportLib\include;..\..\..\sipXsdpLib\include;..\..\..\sipXmediaLib\inlcude;..\..\..\sipXmediaAdapterLib\interface;..\..\..\sipXcallLib\include;include;..\include;..\PlaceCall\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
