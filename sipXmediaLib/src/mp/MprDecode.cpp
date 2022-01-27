@@ -306,26 +306,26 @@ OsStatus MprDecode::pushPacket(MpRtpBufPtr &pRtp)
    }
    else
    {
-      // Sample rate must not change during the active stream.
-      if (mStreamState.sampleRate !=
-          ((pt!=mG722HackPayloadType)?pDecoderInfo->getSampleRate():8000))
-      {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprDecode::pushPacket() dropping RTP packet, "
-                       "dynamic samplerate change is not supported. pt=%d, rate=%d, stream rate=%d %s flowgraph: %p",
-                       pt, pDecoderInfo->getSampleRate(), mStreamState.sampleRate, data(), mpFlowGraph);
-         return OS_SUCCESS;
-      }
-
-      // RFC4733 states that timestamp always refers to the beginning of a tone,
-      // so it will remain constant among a lot of packets. We don't want to
-      // confuse our jitter buffer estimation with this.
-      // TODO: Later, we will want to handle this correctly inside JBE itself,
-      // because non-straightforward timestamps are also the case for, e.g.
-      // redundant payloads.
       if (!pDecoderInfo->isSignalingCodec())
       {
-         // Update jitter state data
+         // Sample rate of non-signalling packets must not change during the active stream.
+         if (mStreamState.sampleRate !=
+             ((pt != mG722HackPayloadType) ? pDecoderInfo->getSampleRate() : 8000))
+         {
+             OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MprDecode::pushPacket() dropping RTP packet, "
+                 "dynamic samplerate change is not supported. pt=%d, rate=%d, stream rate=%d %s flowgraph: %p",
+                 pt, pDecoderInfo->getSampleRate(), mStreamState.sampleRate, data(), mpFlowGraph);
+             return OS_SUCCESS;
+         }
+          
+         // Update jitter state data, only if non-signalling codec...
+         // RFC4733 states that timestamp always refers to the beginning of a tone,
+         // so it will remain constant among a lot of packets. We don't want to
+         // confuse our jitter buffer estimation with this.
+         // TODO: Later, we will want to handle this correctly inside JBE itself,
+         // because non-straightforward timestamps are also the case for, e.g.
+         // redundant payloads.
          mpJbEstimationState->update(&pRtp->getRtpHeader(),
                                      mStreamState.rtpStreamPosition,
                                      mStreamState.playbackStreamPosition,
