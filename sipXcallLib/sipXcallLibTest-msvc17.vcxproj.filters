@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{b39d95ca-763c-4200-9d14-c62fc4cb175a}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{dc505c53-02e5-4db3-abd2-e473efab0945}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="cp">
+      <UniqueIdentifier>{8368ac32-f56c-44fd-a1d0-920315b1b042}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\test\cp\CallManagerTest.cpp">
+      <Filter>cp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\cp\CpTestSupport.cpp">
+      <Filter>cp</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\test\cp\CpTestSupport.h">
+      <Filter>cp</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
