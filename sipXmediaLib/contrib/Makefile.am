@@ -81,10 +81,14 @@ libopus/opusfile/Makefile: $(top_srcdir)/contrib/libopus/opusfile/configure
 	if [ ! -d libopus/opusfile ]; then mkdir -p libopus/opusfile; fi
 	(cd libopus/opusfile;PKG_CONFIG_PATH="../../$(top_srcdir)/contrib/libopus/libogg:../../$(top_srcdir)/contrib/libopus/opus" ../../$(top_srcdir)/contrib/libopus/opusfile/configure --disable-http $(OPUS_CONFIG_ARGS))
 
-$(top_srcdir)/contrib/libopus/opusfile/configure $(top_srcdir)/contrib/llibopus/opusfile/missing: $(top_srcdir)/contrib/libopus/opusfile/configure.ac 
+$(top_srcdir)/contrib/libopus/opusfile/configure $(top_srcdir)/contrib/libopus/opusfile/missing: $(top_srcdir)/contrib/libopus/opusfile/configure.ac 
 	pwd
 	if [ ! -d libopus/opusfile ]; then mkdir -p libopus/opusfile; fi
 	(cd libopus/opusfile; autoreconf -if)
+
+$(top_srcdir)/contrib/libopus/libogg/configure $(top_srcdir)/contrib/libopus/libogg/missing: $(top_srcdir)/contrib/libopus/libogg/configure.ac 
+	pwd
+	(cd libopus/libogg; autoreconf -if)
 
 libopus/libopusenc/Makefile: $(top_srcdir)/contrib/libopus/libopusenc/configure 
 	pwd
