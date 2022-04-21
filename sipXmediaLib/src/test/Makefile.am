@@ -71,7 +71,7 @@ codecQualitySource/%.WAV: itu_peak_recordings.rar
 	rm -rf tmp777
 
 itu_peak_recordings.rar: 
-	 wget https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip -O itu_peak_recordings.rar
+	 wget --no-check-certificate https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip -O itu_peak_recordings.rar
 
 mp/MpCodecsQualityTest.cpp: codecQualitySource/GREFCLA.WAV
 
