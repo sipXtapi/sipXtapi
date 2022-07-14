@@ -1,0 +1,1086 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\rtcp\BaseClass.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\ByeReport.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\Message.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\MsgQueue.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\NetworkChannel.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\ReceiverReport.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCManager.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPConnection.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPHeader.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPRender.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPSession.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPSource.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTCPTimer.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\RTPHeader.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\SenderReport.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rtcp\SourceDescription.cpp">
+      <Filter>rtcp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\dft.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\dmaTaskPosix.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\dmaTaskWnt.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\DSPlib.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\dtmflib.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\FilterBank.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\HandsetFilterBank.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MicThreadWnt.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAgcBase.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAgcSimple.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpArrayBuf.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\mpau.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioAbstract.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioBuf.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioFileDecompress.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioFileOpen.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioFileUtils.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioOutputConnection.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioResource.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioUtils.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpAudioWaveFileRead.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpBridgeAlgLinear.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpBridgeAlgSimple.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpBuf.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpBufferMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpBufPool.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpCallFlowGraph.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpCodec.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpCodecFactory.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpDataBuf.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpDecoderBase.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpDecoderPayloadMap.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpDspUtils.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpDTMFDetector.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpEncoderBase.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpFlowGraphBase.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpFlowGraphMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\mpG711.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpidWinMM.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpInputDeviceDriver.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpInputDeviceManager.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpJbeFixed.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpJitterBuffer.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpJitterBufferEstimation.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpMediaTask.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpMediaTaskMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpMisc.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpMMTimer.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpMMTimerWnt.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpodBufferRecorder.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpodWinMM.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpOutputDeviceDriver.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpOutputDeviceManager.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpPlayer.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpPlayerEvent.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpPlcBase.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpPlcSilence.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpPlgStaffV1.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprAudioFrameBuffer.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpRawAudioBuffer.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprBridge.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprDecode.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprDejitter.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprDelay.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprEchoSuppress.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprEncode.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResampler.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResamplerSpeex.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResNotificationMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResource.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResourceFactory.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResourceMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResourceSortAlg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpResourceTopology.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprFromFile.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprFromInputDevice.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprFromMic.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprFromNet.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprFromStream.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprHook.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprMixer.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprnDTMFMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprnIntMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprnProgressMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprnRtpStreamActivityMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprnStringMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprNull.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprNullAec.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprRecorder.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprRtpDispatcher.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprRtpDispatcherActiveSsrcs.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprRtpDispatcherIpAffinity.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprSpeakerSelector.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprSpeexEchoCancel.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprSpeexPreProcess.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprSplitter.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprToneGen.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprToNet.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprToOutputDevice.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprToSpkr.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpRtpBuf.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpRtpInputConnection.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpRtpOutputConnection.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprVad.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MprVoiceActivityNotifier.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpSineWaveGeneratorDeviceDriver.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpSpeakerSelectBase.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpStaticCodecInit.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpStreamFeeder.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpStreamMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpStreamPlayer.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpStreamPlaylistPlayer.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpStreamQueuePlayer.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpTopologyGraph.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpTypes.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpUdpBuf.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpVadBase.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpVadSimple.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\NetInTask.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\SpeakerThreadWnt.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamBufferDataSource.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamDataSource.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamDataSourceListener.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamDecoderListener.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamFileDataSource.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamFormatDecoder.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamHttpDataSource.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamQueueingFormatDecoder.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamQueueMsg.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamRAWFormatDecoder.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\StreamWAVFormatDecoder.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\rtcp\BaseClass.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\ByeReport.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IBaseClass.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IByeReport.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IGetByeInfo.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IGetReceiverStatistics.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IGetSenderStatistics.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\Message.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\ISetSrcDescription.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\ISetSenderStatistics.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\ISetReceiverStatistics.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\ISenderReport.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\ISDESReport.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IRTPHeader.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IRTPDispatch.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IRTCPStatistics.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IRTCPSession.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IRTCPRender.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IRTCPRegister.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IRTCPNotify.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IRTCPHeader.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IRTCPControl.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IRTCPConnection.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IReceiverReport.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\INetworkSource.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\INetworkRender.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\INetworkChannel.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\INetDispatch.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\IGetSrcDescription.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\MsgQueue.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\NetworkChannel.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\ReceiverReport.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\RTCManager.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\RtcpConfig.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\RTCPConnection.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\RTCPHeader.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\RTCPRender.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\RTCPSession.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\RTCPSource.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\RTCPTimer.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\RtpHeader.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\RTPHeader.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\SenderReport.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\SourceDescription.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\TLinkedList.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtcp\TLink.h">
+      <Filter>rtcp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\dmaTask.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\dsplib.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\dtmflib.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\FilterBank.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\HandsetFilterBank.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\HandsetFilterbankWindows.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAgcBase.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAgcSimple.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpArrayBuf.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\mpau.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAudioAbstract.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAudioBuf.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAudioFileDecompress.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAudioFileOpen.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAudioFileUtils.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAudioOutputConnection.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAudioResource.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAudioResourceConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAudioUtils.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpAudioWaveFileRead.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpBridgeAlgBase.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpBridgeAlgLinear.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpBridgeAlgSimple.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpBuf.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpBufferMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpBufPool.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpCallFlowGraph.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpCodec.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpCodecFactory.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpCodecInfo.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDataBuf.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDecoderBase.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDecoderPayloadMap.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDspUtils.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDspUtilsConvertVect.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDspUtilsIntSqrt.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDspUtilsSerials.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDspUtilsShift.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDspUtilsSum.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDspUtilsSumVect.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDTMFDetector.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpEncoderBase.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpFlowGraphBase.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpFlowGraphMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpidWinMM.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpInputDeviceDriver.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpInputDeviceManager.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpIntResourceMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpJbeFixed.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpJitterBuffer.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpJitterBufferEstimation.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpMediaTask.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpMediaTaskMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpMisc.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpMMTimer.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpMMTimerWnt.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpodBufferRecorder.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpodWinMM.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpOutputDeviceDriver.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpOutputDeviceManager.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpPackedResourceMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpPlayer.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpPlayerEvent.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpPlayerListener.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpPlcBase.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpPlcSilence.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpPlgStaffV1.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpQueuePlayerListener.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprAudioFrameBuffer.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpRawAudioBuffer.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprBridge.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprBridgeConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprDecode.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprDejitter.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprDelay.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprDelayConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprEchoSuppress.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprEncode.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpResampler.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpResamplerSpeex.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpResNotificationMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpResource.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpResourceConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpResourceFactory.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpResourceMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpResourceSortAlg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpResourceTopology.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprFromFile.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprFromFileConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprFromInputDevice.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprFromInputDeviceConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprFromMic.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprFromNet.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprFromStream.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprHook.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprHookConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprMixer.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprnDTMFMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprnIntMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprnProgressMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprnRtpStreamActivityMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprnStringMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprNull.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprNullAec.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprNullAecConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprNullConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprRecorder.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprRecorderConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprRtpDispatcher.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprRtpDispatcherActiveSsrcs.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprRtpDispatcherIpAffinity.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprRtpInputConnectionConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprRtpOutputConnectionConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprRtpStartReceiveMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprSpeakerSelector.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprSpeakerSelectorConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprSpeexEchoCancel.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprSpeexPreProcess.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprSpeexPreProcessConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprSplitter.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprSplitterConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprToneGen.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprToneGenConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprToNet.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprToOutputDevice.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprToOutputDeviceConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprToOutputDeviceWithAecConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprToSpkr.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpRtpBuf.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpRtpInputConnection.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpRtpOutputConnection.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprVad.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprVadConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprVoiceActivityNotifier.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprVoiceActivityNotifierConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpSineWaveGeneratorDeviceDriver.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpSpeakerSelectBase.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpStaticCodecInit.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpStreamFeeder.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpStreamMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpStreamPlayer.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpStreamPlaylistPlayer.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpStreamQueuePlayer.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpStringResourceMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpSyncFlowgraphMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpToneResourceMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpTopologyGraph.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpTypes.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpUdpBuf.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpVadBase.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpVadSimple.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\NetInTask.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamBufferDataSource.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamDataSource.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamDataSourceListener.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamDecoderListener.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamDefs.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamFileDataSource.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamFormatDecoder.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamHttpDataSource.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamQueueingFormatDecoder.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamQueueMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamRAWFormatDecoder.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\StreamWAVFormatDecoder.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="rtcp">
+      <UniqueIdentifier>{e6a72391-2a41-48e0-b4e5-e3273c9186c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mp">
+      <UniqueIdentifier>{68f76d24-ae94-4f7a-9849-cc646d77d89f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -571,9 +571,6 @@
     <ClInclude Include="include\rtcp\TLinkedList.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="contrib\libilbc\VS2022\libilbc-msvc17.vcxproj">
       <Project>{214007f3-d6e8-4b07-ac00-9fb673ff539e}</Project>
     </ProjectReference>
