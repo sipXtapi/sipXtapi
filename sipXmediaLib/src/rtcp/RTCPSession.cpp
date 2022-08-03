@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -17,8 +19,6 @@
 
 //  Constants
 const int MAX_CONNECTIONS  = 64;
-const int SSRC_SESSION_MASK = 0xFFFFFF00;
-const int SSRC_CONXION_MASK = 0x000000FF;
 
 //  Static Declarations
 static unsigned long ulMasterSessionCount = 1;
@@ -58,8 +58,7 @@ bool RTCPConnectionComparitor(CRTCPConnection *poRTCPConnection,
  * Method Name:  CRTCPSession() - Constructor
  *
  *
- * Inputs:   unsigned long ulSSRC      - Session SSRC
- *           IRTCPNotify *piRTCPNotify - RTCP Event Notification Interface
+ * Inputs:   IRTCPNotify *piRTCPNotify - RTCP Event Notification Interface
  *           ISDESReport *piSDESReport
  *                                 - Local Source Description Report Interface
  *
@@ -74,16 +73,12 @@ bool RTCPConnectionComparitor(CRTCPConnection *poRTCPConnection,
  * Usage Notes:
  *
  */
-CRTCPSession::CRTCPSession(unsigned long ulSSRC,
-               IRTCPNotify *piRTCPNotify, ISDESReport *piSDESReport) :
+CRTCPSession::CRTCPSession(IRTCPNotify *piRTCPNotify, ISDESReport *piSDESReport) :
     CBaseClass(CBASECLASS_CALL_ARGS("CRTCPSession", __LINE__)),
     CTLinkedList<CRTCPConnection *>(),  // Template Contructor Initialization
     m_ulEventInterest(ALL_EVENTS),
     m_etMixerMode(MIXER_ENABLED)
 {
-
-    // Store Local SSRC
-    m_ulSSRC = ulSSRC & SSRC_SESSION_MASK;
 
     // Store RTCP Notification Interface
     m_piRTCPNotify = piRTCPNotify;
@@ -142,7 +137,7 @@ CRTCPSession::~CRTCPSession(void)
  * Method Name: CreateRTCPConnection
  *
  *
- * Inputs:   None
+ * Inputs:   ssrc_t localSSRC    - local SSRC for this connection
  *
  * Outputs:  None
  *
@@ -157,13 +152,13 @@ CRTCPSession::~CRTCPSession(void)
  *
  *
  */
-IRTCPConnection * CRTCPSession::CreateRTCPConnection(void)
+IRTCPConnection * CRTCPSession::CreateRTCPConnection(ssrc_t localSSRC)
 {
 
     CRTCPConnection *poRTCPConnection;
     // Create The RTCP Connection object
     poRTCPConnection =
-           new CRTCPConnection(m_ulSSRC, (IRTCPNotify *)this, m_piSDESReport);
+           new CRTCPConnection(localSSRC, (IRTCPNotify *)this, m_piSDESReport);
     if (poRTCPConnection == NULL)
     {
         osPrintf("**** FAILURE ***** CRTCPSession::CreateRTCPConnection() -"
@@ -423,13 +418,16 @@ void CRTCPSession::TerminateAllConnections(void)
  *
  * Usage Notes:
  *
- *
+ * SLG - This method has been commented out, since this was used in the uncorrect collision
+ *       detection and resolution logic, that has been commented out.  Leaving for a
+ *       reference in case we ever attempt to fix the logic.
  *
  */
+/*
 void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
                                 unsigned char *puchReason)
 {
-#if RTCP_DEBUG /* [ */
+#if RTCP_DEBUG 
     if(bPingtelDebug)
     {
         osPrintf("*** SSRC REASSIGNED ****\n");
@@ -437,7 +435,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
         osPrintf("\t NEW SSRC    ==> %u\n", ulSSRC);
         osPrintf("\t REASON     ==> %s\n", puchReason);
     }
-#endif /* RTCP_DEBUG ] */
+#endif 
 
     // Reset all connections first
     ResetAllConnections(puchReason);
@@ -473,7 +471,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
     }
     ReleaseLock();
 
-}
+}*/
 
 
 /**
@@ -492,7 +490,10 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
  *
  * Usage Notes:
  *
- *
+ * SLG - This method isn't currently used and was part of an original attempt
+ *       to detect collisions after connection setup.  However, it's detection
+ *       and handling logic was flawed and thus commented out.  Full collision
+ *       detection as specified in RFC3550 section 8.2 is still a TODO.
  *
  */
 
@@ -504,13 +505,16 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
  * independently per connection, not per session.  And, I cannot
  * tell whether each connection should only check against its own
  * SSRC, or against all other SSRCs in the session/flowgraph.
+ * 
+ * SLG - since the above comment changes have been made to ensure
+ *       that SSRC's are unique per connection, however full collision
+ *       detection as specified in RFC3550 section 8.2 is still a TODO.
  *
  *****************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Debugging trick: force phantom collisions to see how we handle them
 // #define FORCE_SSRC_COLLISIONS 64 // If non-zero, force a collision every Nth call
-#define FORCE_SSRC_COLLISIONS 0
 #if FORCE_SSRC_COLLISIONS /* [ */
 static bool collide()
 {
@@ -521,10 +525,9 @@ static bool collide()
 #define collide() 0
 #endif /* FORCE_SSRC_COLLISIONS ] */
 /////////////////////////////////////////////////////////////////////////////////////
-
 void CRTCPSession::CheckLocalSSRCCollisions(void)
 {
-
+    /*
     // Check the each entry of the connection list
     UtlBoolean collisionFound = FALSE;
     
@@ -569,11 +572,11 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
     {
         // A collision has been detected.
         // Let's reset all the connections.
-        // ResetAllConnections does not actual change the SSRC
+        // ResetAllConnections does not actually change the SSRC
         ResetAllConnections((unsigned char *)"SSRC Collision");
     
         // Let's inform the RTC Manager and its subscribing clients of
-        //  this occurence.  Its the receiver of the notification
+        // this occurence.  Its the receiver of the notification
         // that is responsible for changing the SSRC to address the
         // collision
         TakeLock();
@@ -581,7 +584,7 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
                (IRTCPConnection *)poRTCPConnection, (IRTCPSession *)this);
         ReleaseLock();
     }
-
+    */
 }
 
 /**
@@ -599,7 +602,10 @@ void CRTCPSession::CheckLocalSSRCCollisions(void)
  *
  * Usage Notes:
  *
- *
+ * SLG - This method isn't currently used and was part of an original attempt
+ *       to detect collisions after connection setup.  However, it's detection
+ *       and handling logic was flawed and thus commented out.  Full collision
+ *       detection as specified in RFC3550 section 8.2 is still a TODO.
  *
  */
 void CRTCPSession::CheckRemoteSSRCCollisions(IRTCPConnection *piRTCPConnection)
@@ -639,6 +645,64 @@ void CRTCPSession::CheckRemoteSSRCCollisions(IRTCPConnection *piRTCPConnection)
     }
     ReleaseLock();
 }
+
+
+/**
+ *
+ * Method Name: IsSSRCInUse
+ *
+ *
+ * Inputs:   ssrc_t ssrc  - The SSRC value to check
+ *
+ * Outputs:  None
+ *
+ * Returns:  void
+ *
+ * Description: Check that provided SSRC doesn't the a local or remote SSRC of an
+                existing connection.
+ *
+ * Usage Notes:
+ *
+ * SLG - This method is newer than the above 2 methods and while it doesn't 
+ *       accomplish the full goals of RFC3550 section 8.2.  It does at least 
+ *       ensure that at generation time we don't generate an SSRC value 
+ *       that is already known to be in use.
+ *
+ */
+bool CRTCPSession::IsSSRCInUse(ssrc_t ssrc)
+{
+    bool bIsSSRCInUse = false;
+
+    // Check if used in each connection, check both local and remote SSRCs
+    TakeLock();
+    CRTCPConnection* poRTCPConnection = GetFirstEntry();
+    while (poRTCPConnection)
+    {
+        // Bump Reference Count of Connection Object
+        poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
+
+        if (poRTCPConnection->GetLocalSSRC() == ssrc ||
+            poRTCPConnection->GetRemoteSSRC() == ssrc)
+        {
+            bIsSSRCInUse = true;
+
+            // Release Reference to Connection Object
+            poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
+
+            break;
+        }
+
+        // Release Reference to Connection Object
+        poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
+
+        // Get the next connection from the list
+        poRTCPConnection = GetNextEntry();
+    }
+    ReleaseLock();
+
+    return bIsSSRCInUse;
+}
+
 
 /**
  *
@@ -1156,28 +1220,6 @@ void CRTCPSession::ByeReportReceived(IGetByeInfo     *piGetByeInfo,
  * Usage Notes:
  *
  */
-
-/******************************************************************
- *
- *  THIS IS A QUICK HACK, TO ALLOW OTHER FIXES TO WORK.
- *  THIS IS TO BE FIXED ... SOMEDAY...
- *
- * The problem is that the original code assumed that a single SSRC
- * per session was appropriate, so the SSRC to use when sending out
- * RTP is maintained in the RTCPSession.  HOWEVER, that is wrong.
- * Each connection should have its own SSRC, but it is going to take
- * longer than I have right now to untangle this.
- *
- * So, the quick fix is to keep the 32-bit value in the Session, but
- * replace the lower 8 bits with a hash of keys for each connection.
- *
- *****************************************************************/
-ssrc_t CRTCPSession::GetSSRC(int connID, int mediaType, int streamID)
-{
-    int hash = (connID ^ mediaType ^ streamID);
-    return ((m_ulSSRC & SSRC_SESSION_MASK) | (hash & SSRC_CONXION_MASK));
-}
-
 
 
 /**

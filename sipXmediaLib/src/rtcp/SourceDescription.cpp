@@ -1,3 +1,5 @@
+//  
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
@@ -38,6 +40,16 @@ const int REPORT_CYCLES     = 3;
    // Static Variable Initialization
 CSourceDescription *CSourceDescription::m_spoLocalSDES = NULL;
 
+// Application overrideable strings
+const char* CSourceDescription::SDESName = "user";
+const char* CSourceDescription::SDESEmail = 0;
+const char* CSourceDescription::SDESPhone = 0;
+const char* CSourceDescription::SDESLocation = 0;
+const char* CSourceDescription::SDESAppName = 0;
+const char* CSourceDescription::SDESNotes = 0;
+const char* CSourceDescription::SDESPrivate = 0;
+
+
 /**
  *
  * Method Name:  GetLocalSDES()
@@ -65,15 +77,15 @@ CSourceDescription *CSourceDescription::GetLocalSDES(void)
       // sLock.acquire();
     if (m_spoLocalSDES == NULL)
     {
-        m_spoLocalSDES = new CSourceDescription(0,
-            (unsigned char *)"Your Name Here",
-            (unsigned char *)"caller@pingtel.com",
-            (unsigned char *)"(781)938-5306",
-            (unsigned char *)
-                      "Suite 2200, 400 West Cummings Park, Woburn MA 01801",
-            (unsigned char *)"Xpressa",
-            (unsigned char *)"Insert User Profile Here",
-            (unsigned char *)"-private data-");
+        m_spoLocalSDES = new CSourceDescription(0, 
+            (unsigned char*)SDESName, 
+            (unsigned char*)SDESEmail, 
+            (unsigned char*)SDESPhone,
+            (unsigned char*)SDESLocation, 
+            (unsigned char*)SDESAppName, 
+            (unsigned char*)SDESNotes, 
+            (unsigned char*)SDESPrivate);
+
         if(!m_spoLocalSDES)
         {
             osPrintf("**** FAILURE **** CSourceDescription::GetLocalSDES()"
@@ -1305,9 +1317,8 @@ unsigned long CSourceDescription::ParseSDESReport(
  *                      (actually, always returns TRUE!)
  *
  * Description: Formulates the CNAME attribute by concatenating the NAME field
- *              with the IP address of the Pingtel Network Phone.  The
- *              resultant string shall take the following form
- *              'name@128.224.120.2' or 'name@host.pingtel.com'.
+ *              with the hostname.  The resultant string shall take the following 
+ *              form 'user@domain.com'.
  *
  * Usage Notes: This method shall be called once at object initialization.  The
  *              CNAME attribute formed will be used in all successive calls and
@@ -1610,6 +1621,8 @@ unsigned long
  *              be passed as part of the report along with another field
  *              element determined from the period count.
  *
+ *              If a field has 0 length, then it will not be included.
+ *
  * Usage Notes:
  *
  *
@@ -1644,11 +1657,6 @@ unsigned long CSourceDescription::LoadFieldInfo(unsigned char *puchReportBuffer,
         unsigned long ulItem =
                         (((lContentMask - REPORT_CYCLES)/ REPORT_CYCLES) %
                                                          (PRIVATE_ID - 1)) + 2;
-
-        m_ulChangeMask += (1 << (ulItem - 1));
-
-        // Add the field Type to the buffer
-        *puchPayloadBuffer++ = (unsigned char)ulItem;
 
         // Evaluate the item and add the corresponding field
         //  information to the payload buffer
@@ -1695,12 +1703,21 @@ unsigned long CSourceDescription::LoadFieldInfo(unsigned char *puchReportBuffer,
 
         }
 
-        // Load the field item in payload buffer
-        *puchPayloadBuffer++ = (unsigned char)ulEntryLength;
-        strncpy((char *)puchPayloadBuffer,
-                                       (char *)uchFieldBuffer, ulEntryLength);
-        puchPayloadBuffer += ulEntryLength;
+        // Only add additional item if it is defined, ie: length > 0
+        if (ulEntryLength > 0)
+        {
+            m_ulChangeMask += (1 << (ulItem - 1));
 
+            // Add the field Type to the buffer
+            *puchPayloadBuffer++ = (unsigned char)ulItem;
+
+            // Add the length to the buffer
+            *puchPayloadBuffer++ = (unsigned char)ulEntryLength;
+
+            // Add the field text to the buffer
+            strncpy((char*)puchPayloadBuffer, (char*)uchFieldBuffer, ulEntryLength);
+            puchPayloadBuffer += ulEntryLength;
+        }
     }
 
 

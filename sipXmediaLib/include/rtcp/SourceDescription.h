@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+//  
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -57,6 +59,15 @@ class CSourceDescription:
 
 //  Public Methods
 public:
+
+    // Application overridable strings
+    static const char* SDESName;
+    static const char* SDESEmail;
+    static const char* SDESPhone;
+    static const char* SDESLocation;
+    static const char* SDESAppName;
+    static const char* SDESNotes;
+    static const char* SDESPrivate;
 
 /**
  *

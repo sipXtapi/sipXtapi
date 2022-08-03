@@ -1,3 +1,5 @@
+//  
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
@@ -86,7 +88,7 @@ public:
  * Method Name:  CRTCPConnection() - Constructor
  *
  *
- * Inputs:   unsigned long ulSSRC       - SSRC ID
+ * Inputs:   ssrc_t localSSRC           - Local SSRC ID
  *           IRTCPNotify *piRTCPNotify  - RTCP Event Notification Interface
  *           ISDESReport *piSDESReport  - Local Source Description Interface
  *
@@ -105,7 +107,7 @@ public:
  *               stored as attributes of the RTCP Session object.
  *
  */
-    CRTCPConnection(unsigned long   ulSSRC, IRTCPNotify *piRTCPNotify,
+    CRTCPConnection(ssrc_t localSSRC, IRTCPNotify *piRTCPNotify,
                     ISDESReport *piSDESReport);
 
 /**
@@ -196,17 +198,38 @@ public:
  *
  * Outputs:     None
  *
- * Returns:     unsigned long   - SSRC of remote particant
+ * Returns:     ssrc_t   - local SSRC
  *
- * Description: This method returns the  remote SSRC ID associated with
+ * Description: This method returns the local SSRC ID associated with
  *              an RTCP Connection.
  *
  *
  * Usage Notes:
  *
  */
-    unsigned long GetRemoteSSRC(void);
-    bool isRemoteSSRCValid(void);
+    ssrc_t GetLocalSSRC() { return m_SSRC; }
+
+
+/**
+ *
+ * Method Name:  GetRemoteSSRC()
+ *
+ *
+ * Inputs:      None
+ *
+ * Outputs:     None
+ *
+ * Returns:     ssrc_t   - SSRC of remote particant
+ *
+ * Description: This method returns the remote SSRC ID associated with
+ *              an RTCP Connection.
+ *
+ *
+ * Usage Notes:
+ *
+ */
+    ssrc_t GetRemoteSSRC(void) { return ((m_poRTCPRender) ? (m_poRTCPRender->GetRemoteSSRC()) : 0); }
+    bool isRemoteSSRCValid(void) { return ((m_poRTCPRender) ? (m_poRTCPRender->isRemoteSSRCValid()) : 0); }
 
 
 /**
@@ -318,7 +341,8 @@ public:
  * Usage Notes:
  *
  */
-    unsigned long GetEventInterest(void);
+    unsigned long GetEventInterest(void) { return(m_ulEventInterest); }
+
 
 /**
  *
@@ -697,15 +721,15 @@ private:        // Private Data Members
 
 /**
  *
- * Attribute Name:  m_ulSSRC
+ * Attribute Name:  m_SSRC
  *
- * Type:            unsigned long
+ * Type:            ssrc_t
  *
  * Description:     This member shall cache the SSRC associated with
  *                  this connection
  *
  */
-      unsigned long m_ulSSRC;
+      ssrc_t m_SSRC;
 
 /**
  *
@@ -783,52 +807,5 @@ private:        // Private Data Members
 
 
 };
-
-/**
- *
- * Method Name:  GetRemoteSSRC()
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     unsigned long   - SSRC of remote particant
- *
- * Description: This method returns the  remote SSRC ID associated
- *              with an RTCP Connection.
- *
- *
- * Usage Notes:
- *
- */
-
-inline unsigned long CRTCPConnection::GetRemoteSSRC(void) { return ((m_poRTCPRender) ?  (m_poRTCPRender->GetRemoteSSRC()) : 0); }
-inline bool CRTCPConnection::isRemoteSSRCValid(void) { return ((m_poRTCPRender) ?  (m_poRTCPRender->isRemoteSSRCValid()) : 0); }
-
-/**
- *
- * Method Name:  GetEventInterest()
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     unsigned long - Mask of Event Interests
- *
- * Description: The GetEventInterest() event method shall allow the
- *              dispatcher of notifications to access the event interests of
- *              a subscriber and use these wishes to dispatch RTCP event
- *              notifications
- *
- * Usage Notes:
- *
- */
-inline unsigned long CRTCPConnection::GetEventInterest(void)
-{
-
-    return(m_ulEventInterest);
-}
 
 #endif

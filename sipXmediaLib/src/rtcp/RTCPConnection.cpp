@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -43,7 +45,7 @@ const int REPORT_PERIOD_MS =   5000;   // 5 Seconds
  * Method Name:  CRTCPConnection() - Constructor
  *
  *
- * Inputs:   unsigned long ulSSRC       - SSRC ID
+ * Inputs:   ssrc_t localSSRC           - Local SSRC ID
  *           IRTCPNotify *piRTCPNotify  - RTCP Event Notification Interface
  *           ISDESReport *piSDESReport  - Local Source Description Interface
  *
@@ -62,7 +64,7 @@ const int REPORT_PERIOD_MS =   5000;   // 5 Seconds
  *               stored as attributes of the RTCP Session object.
  *
  */
-CRTCPConnection::CRTCPConnection(unsigned long ulSSRC,
+CRTCPConnection::CRTCPConnection(ssrc_t localSSRC,
     IRTCPNotify *piRTCPNotify, ISDESReport *piSDESReport) :
         CBaseClass(CBASECLASS_CALL_ARGS("CRTCPConnection", __LINE__)),
         CRTCPTimer(REPORT_PERIOD_MS),
@@ -70,7 +72,7 @@ CRTCPConnection::CRTCPConnection(unsigned long ulSSRC,
         m_poRTCPRender(NULL),
         m_poRTCPSource(NULL)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::CRTCPConnection() -> %p, SSRC=0x%lx", this, ulSSRC);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::CRTCPConnection() -> %p, localSSRC=0x%08X", this, localSSRC);
 
     ////////////////////////////////////////////////////////////////////////////
     // HACK:  Adding this to compensate for a missing AddRef()... somewhere...
@@ -79,7 +81,7 @@ CRTCPConnection::CRTCPConnection(unsigned long ulSSRC,
     ////////////////////////////////////////////////////////////////////////////
 
     // Cache SSRC
-    m_ulSSRC = ulSSRC;
+    m_SSRC = localSSRC;
 
     // Cache SDES Reporting Interface
     if(piSDESReport)
@@ -164,7 +166,7 @@ bool CRTCPConnection::Initialize(void)
     bool                    bInitialized = FALSE;
 
     // Create The RTCP Render object
-    m_poRTCPRender = new CRTCPRender(m_ulSSRC, (IRTCPNotify *)this, m_piSDESReport);
+    m_poRTCPRender = new CRTCPRender(m_SSRC, (IRTCPNotify *)this, m_piSDESReport);
     if (m_poRTCPRender == NULL)
     {
         OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::Initialize - Unable to Create CRTCPRender object");
@@ -187,7 +189,7 @@ bool CRTCPConnection::Initialize(void)
     }
 
     // Create The RTCP Source object
-    m_poRTCPSource = new CRTCPSource(m_ulSSRC, (IRTCPNotify *)this, piReceiverStats);
+    m_poRTCPSource = new CRTCPSource(m_SSRC, (IRTCPNotify *)this, piReceiverStats);
     if (m_poRTCPSource == NULL)
     {
         OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPConnection::Initialize - Unable to Create CRTCPSource object");
@@ -405,6 +407,7 @@ void CRTCPConnection::GenerateRTCPReports(unsigned char *puchByeReason,
     unsigned long           ulReportMask;
 
     // Check whether Render object is still active
+    if (!m_bInitialized) return;  // SLG - check under lock?, since this is called from CRTCManager thread, and application thread could destroy CpTopologyGraphInterface or call deleteConnection at the same time
 
     // Let's instruct the RTCP Render object to go generate some RTCP reports.
     // If a Bye Reason has been provided, we must also tack a Bye report onto
@@ -499,6 +502,8 @@ bool CRTCPConnection::StopRenderer(void)
     if(m_piRTCPNotify)
         m_piRTCPNotify->RTCPConnectionStopped((IRTCPConnection *)this);
 
+    // Reset connection to uninitialized
+    m_bInitialized = FALSE;
 
     // Clear the Network Render interface if it has already been registered
     if(m_piRTCPNetworkRender)
@@ -507,9 +512,6 @@ bool CRTCPConnection::StopRenderer(void)
         m_piRTCPNetworkRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
         m_piRTCPNetworkRender = NULL;
     }
-
-    // Reset connection to uninitialized
-    m_bInitialized = FALSE;
 
     return(TRUE);
 }

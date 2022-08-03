@@ -1,3 +1,5 @@
+//
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
@@ -231,7 +233,6 @@ OsStatus MpResource::pushBuffer(int inputPort, MpBufPtr& inputBuffer)
    return(OS_NOT_YET_IMPLEMENTED);
 }
 
-void MpResource::reassignSSRC() {} // base class -- do nothing.
 
 /* ============================ ACCESSORS ================================= */
 

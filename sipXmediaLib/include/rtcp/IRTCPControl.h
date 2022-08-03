@@ -1,3 +1,5 @@
+//  
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -53,8 +55,7 @@ public:
  * Method Name: CreateSession
  *
  *
- * Inputs:   unsigned long ulSSRC
- *             Local Source ID associate with this RTCP Session
+ * Inputs:   None
  *
  * Outputs:  None
  *
@@ -70,7 +71,7 @@ public:
  *
  *
  */
-    virtual IRTCPSession *CreateSession(unsigned long ulSSRC) = 0;
+    virtual IRTCPSession* CreateSession() = 0;
 
 
 /**
@@ -97,6 +98,27 @@ public:
  *
  */
     virtual bool TerminateSession(IRTCPSession *piRTCPSession) = 0;
+
+
+/**
+ *
+ * Method Name:  GenerateUniqueLocalSSRC()
+ *
+ *
+ * Inputs:      None
+ *
+ * Outputs:     None
+ *
+ * Returns:     ssrc_t   - The newly generated local SSRC
+ *
+ * Description: Generate a new random local SSRC, ensuring that it doesn't
+ *              conflict with any other currently known local or remote SSRCs.
+ *
+ * Usage Notes:
+ *
+ */
+    virtual ssrc_t GenerateUniqueLocalSSRC() = 0;
+
 };
 
 #endif

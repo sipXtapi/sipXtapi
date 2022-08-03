@@ -1,3 +1,5 @@
+//  
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
@@ -85,6 +87,27 @@ public:
 
 /**
  *
+ * Method Name:  GetLocalSSRC()
+ *
+ *
+ * Inputs:      None
+ *
+ * Outputs:     None
+ *
+ * Returns:     ssrc_t  - local SSRC
+ *
+ * Description: This method returns the local SSRC ID associated with an
+ *              RTCP Connection.
+ *
+ *
+ * Usage Notes:
+ *
+ */
+    virtual ssrc_t GetLocalSSRC(void)=0;
+
+
+/**
+ *
  * Method Name:  GetRemoteSSRC()
  *
  *
@@ -92,7 +115,7 @@ public:
  *
  * Outputs:     None
  *
- * Returns:     unsigned long   - SSRC of remote particant
+ * Returns:     ssrc_t   - SSRC of remote particant
  *
  * Description: This method returns the  remote SSRC ID associated with an
  *              RTCP Connection.
@@ -101,7 +124,7 @@ public:
  * Usage Notes:
  *
  */
-    virtual unsigned long GetRemoteSSRC(void)=0;
+    virtual ssrc_t GetRemoteSSRC(void)=0;
 
 
 #ifdef PINGTEL_OSSOCKET

@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+//  
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -61,7 +63,7 @@ public:
  * Method Name: CreateRTCPConnection
  *
  *
- * Inputs:   None
+ * Inputs:   ssrc_t localSSRC   - the local SSRC
  *
  * Outputs:  None
  *
@@ -77,7 +79,7 @@ public:
  *
  *
  */
-    virtual IRTCPConnection *CreateRTCPConnection(void)=0;
+    virtual IRTCPConnection *CreateRTCPConnection(ssrc_t localSSRC)=0;
 
 
 /**
@@ -168,11 +170,14 @@ public:
  *
  * Usage Notes:
  *
- *
+ * SLG - This method was part of an original attempt to handle collisions after 
+ *       connection setup.  However, it's detection and handling logic was flawed 
+ *       and thus commented out.  Full collision detection as specified in 
+ *       RFC3550 section 8.2 is still a TODO.
  *
  */
-    virtual void ReassignSSRC(unsigned long ulSSRC,
-                              unsigned char *puchReason=NULL)=0;
+//    virtual void ReassignSSRC(unsigned long ulSSRC,
+//                              unsigned char *puchReason=NULL)=0;
 
 /**
  *
@@ -315,23 +320,6 @@ public:
  */
     virtual MIXER_MODE_ET GetMixerMode(void)=0;
 
-/**
- *
- * Method Name:  GetSSRC()
- *
- *
- * Inputs:   None
- *
- * Outputs:  None
- *
- * Returns:  unsigned long - Local SSRC associated with the session
- *
- * Description:  Retrieves the SSRC associated with a session.
- *
- * Usage Notes:
- *
- */
-    virtual ssrc_t GetSSRC(int, int, int)=0;
 
 /**
  *

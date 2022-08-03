@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+//  
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -24,6 +26,7 @@
 #include "utl/UtlString.h"
 #include "mp/MpBuf.h"
 #include "mp/MpResNotificationMsg.h"
+#include "rtcp/RtcpConfig.h"
 
 // DEFINES
 // MACROS
@@ -274,7 +277,7 @@ static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
    virtual OsStatus pushBuffer(int inputPort, MpBufPtr& inputBuffer);
 
    /// Broadcast announcement that we are changing our SSRC
-   virtual void reassignSSRC(void);
+   virtual void reassignSSRC(ssrc_t newSSRC) {}  // Base class, do nothing
 
 //@}
 

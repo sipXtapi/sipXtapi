@@ -1,3 +1,5 @@
+//
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
@@ -76,8 +78,7 @@ CBaseClass(CBASECLASS_CALL_ARGS("MpFlowGraphBase", __LINE__)),
 , mRtcpConnMap()
 #endif /* INCLUDE_RTCP ] */
 {
-   int i;
-   for (i=0; i < MAX_FLOWGRAPH_RESOURCES; i++)
+   for (int i=0; i < MAX_FLOWGRAPH_RESOURCES; i++)
    {
       mUnsorted[i] = NULL;
       mExecOrder[i] = NULL;
@@ -90,11 +91,9 @@ CBaseClass(CBASECLASS_CALL_ARGS("MpFlowGraphBase", __LINE__)),
    IRTCPControl *piRTCPControl = CRTCManager::getRTCPControl();
    assert(piRTCPControl);
 
-   // Create an RTCP Session for this Flow Graph.  Pass the SSRC ID to be
-   // used to identify our audio source uniquely within this RTP/RTCP Session.
-   i = rand_timer32();
-   mpiRTCPSession = piRTCPControl->CreateSession(i);
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::MpFlowGraphBase:  Created RTCPSession: %p, SSRC=0x%08X", mpiRTCPSession, i);
+   // Create an RTCP Session for this Flow Graph.
+   mpiRTCPSession = piRTCPControl->CreateSession();
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::MpFlowGraphBase:  Created RTCPSession: %p", mpiRTCPSession);
 
    // Subscribe for Events associated with this Session
    piRTCPControl->Advise((IRTCPNotify *)this);
@@ -780,7 +779,12 @@ void MpFlowGraphBase::synchronize(const char* tag, int val1)
  * Usage Notes: 
  *
  */
-void MpFlowGraphBase::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection, 
+// SLG WARNING - this was called from the CRTCManager thread and had the potential to be run at the same time
+//               as the application destroying the CpTopologyGraphInterface or calling deleteConnection.
+//               THIS IS NOT THREADSAFE!
+//               Additionally this doesn't even seem to be performing the recommended
+//               functionality in RFC33550, section 8.2 Collision Resolution and Loop Detection
+void MpFlowGraphBase::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection,
                                          IRTCPSession     *piRTCPSession)
 {
 
@@ -796,14 +800,14 @@ void MpFlowGraphBase::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection,
 
 // We have a collision with our local SSRC.  We will remedy this by
 // generating a new SSRC
-    mpiRTCPSession->ReassignSSRC(rand_timer32(),
-                         (unsigned char *)"LOCAL SSRC COLLISION");
+    //mpiRTCPSession->ReassignSSRC(rand_timer32(),
+    //                     (unsigned char *)"LOCAL SSRC COLLISION");
 
 // Inform all connections associated with this session to change their SSRC
-   for (int i=0; i < mResourceCnt; i++)
-   {
-       mUnsorted[i]->reassignSSRC();
-   }
+   //for (int i=0; i < mResourceCnt; i++)
+   //{
+   //    mUnsorted[i]->reassignSSRC();
+   //}
 
 // Release Interface References
    piRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
@@ -834,7 +838,7 @@ void MpFlowGraphBase::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection,
  * Usage Notes: 
  *
  */
-void MpFlowGraphBase::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection, 
+void MpFlowGraphBase::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection,
                                           IRTCPSession     *piRTCPSession)
 {
 
@@ -2052,14 +2056,20 @@ IRTCPConnection* MpFlowGraphBase::getRTCPConnectionPtr(MpConnectionID connId, in
    UtlInt search(index);
    IRTCPConnection* ret = NULL;
    UtlVoidPtr *value = (UtlVoidPtr*) mRtcpConnMap.findValue(&search);
-   if (value) {
+   if (value) 
+   {
       ret = (IRTCPConnection*)(value->getValue());
-   } else {
+   } 
+   else 
+   {
       mRtcpConnMutex.acquire();
       value = (UtlVoidPtr*) mRtcpConnMap.findValue(&search); // see if someone beat us to it...
-      if (value) {
+      if (value) 
+      {
          ret = (IRTCPConnection*)(value->getValue());
-      } else {
+      } 
+      else 
+      {
          createRtcpConnection(connId, mediaType, streamId);
          value = (UtlVoidPtr*) mRtcpConnMap.findValue(&search);
          ret = (IRTCPConnection*)(value->getValue());
@@ -2080,12 +2090,19 @@ UtlBoolean MpFlowGraphBase::createRtcpConnection(MpConnectionID connId, int medi
    int index = hashRtcpConnection(connId, mediaType, streamId);
    UtlInt *key;
    UtlVoidPtr *value;
-   if (getRTCPSessionPtr()) {
+   if (getRTCPSessionPtr()) 
+   {
       key = new UtlInt(index);
-      value = new UtlVoidPtr(getRTCPSessionPtr()->CreateRTCPConnection());
+
+      // Let's get the  RTCP Control interface, so we can generate a new local SSRC value
+      IRTCPControl* piRTCPControl = CRTCManager::getRTCPControl();
+      assert(piRTCPControl);
+      ssrc_t localSSRC = piRTCPControl->GenerateUniqueLocalSSRC();
+
+      value = new UtlVoidPtr(getRTCPSessionPtr()->CreateRTCPConnection(localSSRC));
       // Somebody else's problem if CreateRTCPConnection() is NULL -- always add.
       mRtcpConnMap.insertKeyAndValue(key, value);
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::createRtcpConnection(%d, %d, %d)->%p", connId, mediaType, streamId, value);
+      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpFlowGraphBase::createRtcpConnection(%d, %d, %d)->%p, localSSRC=0x%08X", connId, mediaType, streamId, value, localSSRC);
    }
    return TRUE;
 }
@@ -2097,7 +2114,8 @@ UtlBoolean MpFlowGraphBase::deleteRtcpConnection(MpConnectionID connId, int medi
    UtlInt *key = (UtlInt*) mRtcpConnMap.find(&search);
    UtlContainable *pValue = mRtcpConnMap.findValue(&search);
    UtlVoidPtr *value = (UtlVoidPtr*) pValue;
-   if (value) {
+   if (value) 
+   {
       getRTCPSessionPtr()->TerminateRTCPConnection((IRTCPConnection*)(value->getValue()));
    }
    mRtcpConnMap.removeKeyAndValue(&search, pValue);

@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -15,6 +17,7 @@
    // Includes
 #include "rtcp/RTCManager.h"
 #include "os/OsSysLog.h"
+#include "mp/NetInTask.h"
 
 // #define TEST_PRINT
 // #define RTCP_DEBUG
@@ -331,7 +334,7 @@ bool CRTCManager::Unadvise(IRTCPNotify *piRTCPNotify)
  * Method Name: CreateRTCPSession
  *
  *
- * Inputs:      unsigned long ulSSRC - SSRC Identifying the local source
+ * Inputs:      None
  *
  * Outputs:     None
  *
@@ -346,14 +349,13 @@ bool CRTCManager::Unadvise(IRTCPNotify *piRTCPNotify)
  *
  *
  */
-IRTCPSession * CRTCManager::CreateSession(unsigned long ulSSRC)
+IRTCPSession* CRTCManager::CreateSession()
 {
 
     CRTCPSession *poRTCPSession;
 
     // Create The RTCP Session object
-    poRTCPSession =
-                new CRTCPSession(ulSSRC, (IRTCPNotify *)this, m_piSDESReport);
+    poRTCPSession = new CRTCPSession((IRTCPNotify*)this, m_piSDESReport);
     if (poRTCPSession == NULL)
     {
         osPrintf("**** FAILURE **** CRTCManager::CreateSession() -"
@@ -447,6 +449,68 @@ bool CRTCManager::TerminateSession(IRTCPSession *piSession)
 
     return(FALSE);
 }
+
+
+/**
+ *
+ * Method Name:  GenerateUniqueLocalSSRC()
+ *
+ *
+ * Inputs:      None
+ *
+ * Outputs:     None
+ *
+ * Returns:     ssrc_t   - The newly generated local SSRC
+ *
+ * Description: Generate a new random local SSRC, ensuring that it doesn't
+ *              conflict with any other currently known local or remote SSRCs.
+ *
+ * Usage Notes:
+ *
+ */
+ssrc_t CRTCManager::GenerateUniqueLocalSSRC()
+{
+    ssrc_t localSSRC;
+    bool bIsUnique = false;  // Assume not unique until checked
+
+    while (!bIsUnique)
+    {
+        // Generate a new random local SSRC
+        localSSRC = rand_timer32();
+
+        // Iterate through the RTCP Session object List and release all references
+        // to those objects
+        m_tSessionList.TakeLock();
+        CRTCPSession* piRTCPSession = m_tSessionList.GetFirstEntry();
+        while (piRTCPSession != NULL)
+        {
+            // Bump Reference Count of Session Object, while we operate on it
+            piRTCPSession->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
+
+            if (piRTCPSession->IsSSRCInUse(localSSRC))
+            {
+                // Release reference added above
+                piRTCPSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+
+                break;
+            }
+
+            // Release reference added above
+            piRTCPSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+
+            // Get Next Entry
+            piRTCPSession = m_tSessionList.GetNextEntry();
+
+            // If we make it to the end of the session list and break wasn't called above, then
+            // we have a unique SSRC
+            bIsUnique = piRTCPSession == NULL;
+        }
+        m_tSessionList.ReleaseLock();
+    }
+
+    return localSSRC;
+}
+
 
 #ifdef RTCP_DEBUG /* [ */
 const char * getTypeName(int ulMsgType)
@@ -571,23 +635,31 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
             piConnection->GenerateRTCPReports();
     }
 
+    // SLG - there is no purpose in enabling this check, since the handling in MpFlowGraphBase::RemoteSSRCCollision
+    // is commented out.  Commenting out this check to save the CPU cycles.
+    //
     // An RTCP Receiver Report was received.  Let's use this event as a
     // trigger for checking remote SSRC Collisions
-    else if(ulMsgType == RTCP_RR_RCVD)
-    {
+    // Note: When a SR is received, it includes a RR, so we just need to look for RTCP_RR_RCVD here
+    //else if(ulMsgType == RTCP_RR_RCVD)
+    //{
         // Call the Session method to check for Remote Collisions
-        if(piSession->CheckConnection(piConnection))
-            piSession->CheckRemoteSSRCCollisions(piConnection);
-    }
+    //    if(piSession->CheckConnection(piConnection))
+    //       piSession->CheckRemoteSSRCCollisions(piConnection);
+    //}
 
+    // SLG - there is no purpose in enabling this check, since the handling in MpFlowGraphBase::LocalSSRCCollision
+    // is not correct, causes crashes and is commented out.  Commenting out this check to save the CPU cycles.
+    //
     // An RTCP Receiver Report was sent.  Let's use this event as a
     // trigger for checking local SSRC Collisions
-    else if(ulMsgType == RTCP_RR_SENT)
-    {
+    // Note: When a SR is sent, it includes a RR, so we just need to look for RTCP_RR_SENT here
+    //else if(ulMsgType == RTCP_RR_SENT)
+    //{
         // Call the Session method to check for Remote Collisions
-        if(piSession->CheckConnection(piConnection))
-            piSession->CheckLocalSSRCCollisions();
-    }
+    //    if(piSession->CheckConnection(piConnection))
+    //        piSession->CheckLocalSSRCCollisions();
+    //}
 
     // We will do no processing of these event other than to assign the
     // interface pointers to variables used for reference counting

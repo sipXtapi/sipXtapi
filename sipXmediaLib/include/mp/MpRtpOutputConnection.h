@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+//  
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -89,7 +91,7 @@ public:
 
 #ifdef INCLUDE_RTCP /* [ */
      /// A new SSRC has been generated for the Session
-   virtual void reassignSSRC(void);
+   virtual void reassignSSRC(ssrc_t newSSRC);
 #endif /* INCLUDE_RTCP ] */
 
    // set the # of microseconds of skew to add to the RTCP SR timestamps

@@ -1,3 +1,5 @@
+//  
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
@@ -61,8 +63,7 @@ public:
  * Method Name:  CRTCPSession() - Constructor
  *
  *
- * Inputs:   unsigned long ulSSRC      - SSRC ID of the RTCP Session
- *           IRTCPNotify *piRTCPNotify - RTCP Event Notification Interface
+ * Inputs:   IRTCPNotify *piRTCPNotify - RTCP Event Notification Interface
  *           ISDESReport *piSDESReport
  *                             - Local Source Description Report Interface
  *
@@ -77,9 +78,7 @@ public:
  * Usage Notes:
  *
  */
-    CRTCPSession(unsigned long ulSSRC,
-                 IRTCPNotify *piRTCPNotify,
-                 ISDESReport *piSDESReport);
+    CRTCPSession(IRTCPNotify *piRTCPNotify, ISDESReport *piSDESReport);
 
 /**
  *
@@ -111,7 +110,7 @@ public:
  * Method Name:  CreateRTCPConnection()
  *
  *
- * Inputs:       None
+ * Inputs:       ssrc_t localSSRC   - the local SSRC for this connection
  *
  * Outputs:      None
  *
@@ -123,7 +122,7 @@ public:
  * Usage Notes:
  *
  */
-    IRTCPConnection *CreateRTCPConnection(void);
+    IRTCPConnection *CreateRTCPConnection(ssrc_t localSSRC);
 
 
 /**
@@ -191,10 +190,13 @@ public:
  *
  * Usage Notes:
  *
- *
+ * SLG - This method was part of an original attempt to handle collisions after 
+ *       connection setup.  However, it's detection and handling logic was flawed 
+ *       and thus commented out.  Full collision detection as specified in 
+ *       RFC3550 section 8.2 is still a TODO.
  *
  */
-    void ReassignSSRC(unsigned long ulSSRC, unsigned char *puchReason=NULL);
+ //   void ReassignSSRC(unsigned long ulSSRC, unsigned char *puchReason=NULL);
 
 /**
  *
@@ -274,7 +276,10 @@ public:
  *
  * Usage Notes:
  *
- *
+ * SLG - This method isn't currently used and was part of an original attempt
+ *       to detect collisions after connection setup.  However, it's detection
+ *       and handling logic was flawed and thus commented out.  Full collision
+ *       detection as specified in RFC3550 section 8.2 is still a TODO.
  *
  */
     void CheckLocalSSRCCollisions(void);
@@ -294,10 +299,39 @@ public:
  *
  * Usage Notes:
  *
- *
+ * SLG - This method isn't currently used and was part of an original attempt
+ *       to detect collisions after connection setup.  However, it's detection
+ *       and handling logic was flawed and thus commented out.  Full collision
+ *       detection as specified in RFC3550 section 8.2 is still a TODO.
  *
  */
     void CheckRemoteSSRCCollisions(IRTCPConnection *piRTCPConnection);
+
+
+/**
+ *
+ * Method Name: IsSSRCInUse
+ *
+ *
+ * Inputs:   ssrc_t ssrc  - The SSRC value to check
+ *
+ * Outputs:  None
+ *
+ * Returns:  void
+ *
+ * Description: Check that provided SSRC doesn't the a local or remote SSRC of an 
+                existing connection.
+ *
+ * Usage Notes:
+ *
+ * SLG - This method is newer than the above 2 methods and while it doesn't 
+ *       accomplish the full goals of RFC3550 section 8.2.  It does at least 
+ *       ensure that at generation time we don't generate an SSRC value 
+ *       that is already known to be in use.
+ *
+ */
+    bool IsSSRCInUse(ssrc_t ssrc);
+
 
 /**
  *
@@ -354,23 +388,6 @@ public:
  */
     unsigned long GetSessionID(void);
 
-/**
- *
- * Method Name:  GetSSRC()
- *
- *
- * Inputs:   integer triple, identifying the stream
- *
- * Outputs:  None
- *
- * Returns:  ssrc_t - Local SSRC associated with the session
- *
- * Description:  Retrieves the SSRC associated with a session.
- *
- * Usage Notes:
- *
- */
-    ssrc_t GetSSRC(int, int, int);
 
 /**
  *
@@ -836,17 +853,6 @@ private:        // Private Member Functions
 
 private:        // Private Data Members
 
-
-/**
- *
- * Attribute Name:  m_ulSSRC
- *
- * Type:            unsigned long
- *
- * Description:  This member shall store the SSRC associated with this session
- *
- */
-      ssrc_t m_ulSSRC;
 
 /**
  *
