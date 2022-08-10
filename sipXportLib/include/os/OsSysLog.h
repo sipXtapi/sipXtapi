@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2022 SIP Spectrum, Inc. All rights reserved.
+//
 // Copyright (C) 2006-2013 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -101,6 +103,12 @@ typedef enum tagOsSysLogPriority
 typedef void (*OsSysLogCallback)(const char* szPriority,
                                  const char* szSource,
                                  const char* szMsg);
+
+// Signature for a prequeue callback function that takes three parameters: priority,
+// log message and taskid/threadid of the generating log line.
+// If the callback returns true, then the log message is considered consumed and
+// is not passed on further to the OsSysLog thread for additional processing.
+typedef bool (*OsSysLogPreQueueCallback)(const char* szPriority, const char* szMsg, unsigned int taskId);
 
 
 // FORWARD DECLARATIONS
@@ -252,6 +260,14 @@ public:
      //       maxInMemoryLogEntries defined in the call to
      //       OsSysLog::initialize(maxInMemoryLogEntries).
      //!param logfile - The full qualified path the the target log file.
+
+   static void setPreQueueCallbackFunction(OsSysLogPreQueueCallback pPreQueueCallback) { OsSysLog::mPreQueueCallback = pPreQueueCallback; }
+     //:Set a callback function to collect logging messages before queueing
+     // them to the OsSysLog thread for processing.
+     //
+     //!param pCallback - Pointer to a callback function that takes three
+     //                   strings as parameters: Logging priority, log message,
+     //                   and taskId/threadId of the log source.
 
    static OsStatus setCallbackFunction(OsSysLogCallback pCallback);
      //:Set a callback function to collect logging results.
@@ -508,6 +524,8 @@ private:
    /** Protect against simple apps that do not call setLoggingPriority */
    static void initializePriorities() ;
 
+   /** Storage for the PreQueueCallback, if set */
+   static OsSysLogPreQueueCallback mPreQueueCallback;
 };
 
 class OsStackTraceLogger
@@ -539,7 +557,7 @@ private:
     
     UtlString mMethodName;
     const OsSysLogFacility mFacility;
-    const OsSysLogPriority mPriority;    
+    const OsSysLogPriority mPriority;
     int mTid;
 };
 

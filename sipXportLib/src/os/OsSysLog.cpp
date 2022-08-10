@@ -1,3 +1,5 @@
+//
+// Copyright (C) 2022 SIP Spectrum, Inc. All rights reserved.
 //  
 // Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
@@ -61,6 +63,7 @@ OsSysLogPriority OsSysLog::spPriorities[FAC_MAX_FACILITY] ;
 // Initial logging level is PRI_ERR.
 OsSysLogPriority OsSysLog::sLoggingPriority = PRI_ERR ;
 UtlBoolean OsSysLog::bPrioritiesInitialized = FALSE ;
+OsSysLogPreQueueCallback OsSysLog::mPreQueueCallback = 0;
 
 // A static array of priority names uses for displaying log entries
 const char* OsSysLog::sPriorityNames[] =
@@ -405,7 +408,7 @@ OsStatus OsSysLog::vadd(const OsSysLogFacility facility,
 
 // Add a log entry given a variable argument list
 OsStatus OsSysLog::vadd(const char*            taskName,
-                        const OsTaskId_t       taskId,                        
+                        const OsTaskId_t       taskId,
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,
@@ -420,6 +423,15 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          UtlString logEntry;
          myvsprintf(logData, format, ap) ;
          logData = escape(logData) ;
+
+         if (mPreQueueCallback)
+         {
+             if (!mPreQueueCallback(OsSysLog::sPriorityNames[priority], logData.data(), (unsigned int)taskId))
+             {
+                 // PreQueue callback has indicated it is handling the logging, no need to continue
+                 return OS_SUCCESS;
+             }
+         }
 
 #ifdef ANDROID
          __android_log_print(androidPri(priority), "sipXsyslog", "[%s] %s",
