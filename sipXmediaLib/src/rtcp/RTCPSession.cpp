@@ -77,7 +77,7 @@ CRTCPSession::CRTCPSession(IRTCPNotify *piRTCPNotify, ISDESReport *piSDESReport)
     CBaseClass(CBASECLASS_CALL_ARGS("CRTCPSession", __LINE__)),
     CTLinkedList<CRTCPConnection *>(),  // Template Contructor Initialization
     m_ulEventInterest(ALL_EVENTS),
-    m_etMixerMode(MIXER_ENABLED)
+    m_etMixerMode(MIXER_DISABLED)
 {
 
     // Store RTCP Notification Interface
@@ -303,7 +303,7 @@ void CRTCPSession::ResetAllConnections(unsigned char *puchReason)
         poRTCPConnection = GetFirstEntry();
 
         // Iterate through the list until all entries have been exhausted
-        for(ulCSRCs = 0; poRTCPConnection != NULL; ulCSRCs++)
+        for(ulCSRCs = 0; poRTCPConnection != NULL && ulCSRCs < MAX_CONNECTIONS; ulCSRCs++)
         {
             // Bump Reference Count of Connection Object
             poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
