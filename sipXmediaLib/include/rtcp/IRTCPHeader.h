@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -26,7 +28,8 @@ typedef enum {
     etReceiverReport,
     etSDESReport,
     etByeReport,
-    etAppReport
+    etAppReport,
+    etXRReport = 207  // RFC3611 Extended Report
 } RTCP_REPORTS_ET;
 
 /**

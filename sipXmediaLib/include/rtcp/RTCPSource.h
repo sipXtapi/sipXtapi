@@ -329,31 +329,6 @@ private:        // Private Methods
  */
     unsigned long ProcessByeReport(unsigned char *puchRTCPReport);
 
-
-/**
- *
- * Method Name: ProcessAppReport
- *
- *
- * Inputs:   unsigned char *puchRTCPReport
- *                               - A pointer to an RTCP Application Report
- *
- * Outputs:  None
- *
- * Returns:  unsigned long
- *
- * Description: No processing is performed on an Application Report but the
- *              length is extracted from the header and returned so that other
- *              composite reports might still be processed.
- *
- *
- * Usage Notes:
- *
- *
- */
-    unsigned long ProcessAppReport(unsigned char *puchRTCPReport);
-
-
 /**
  *
  * Method Name:  GetStatistics

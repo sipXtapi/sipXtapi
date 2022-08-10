@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -296,7 +298,8 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
 
             // Process Application Report
             case etAppReport:
-                ulBytesProcessed = ProcessAppReport(puchDataBuffer);
+                // Disregard this packet 
+                ulBytesProcessed = GetReportLength(puchDataBuffer);
 #ifdef DEBUG_RTCP_PACKETS /* [ */
                 if (verbose) {
                     OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::ProcessPacket: Processed APP, bytes=%lu", ulBytesProcessed);
@@ -304,17 +307,27 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
 #endif /* DEBUG_RTCP_PACKETS ] */
                 break;
 
+            // Process Extended Report - RFC3611
+            case etXRReport:
+                // Disregard this packet 
+                ulBytesProcessed = GetReportLength(puchDataBuffer);
+#ifdef DEBUG_RTCP_PACKETS /* [ */
+                if (verbose) {
+                    OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::ProcessPacket: Processed XR, bytes=%lu", ulBytesProcessed);
+                }
+#endif /* DEBUG_RTCP_PACKETS ] */
+                break;
+
             // Unrecognized Report
             default:
-                {
-                   OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: Unknown report type %d", GetPayloadType(puchDataBuffer));
-                   OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: Remaining buffer length of %lu", ulBufferLength);
-                }
+                OsSysLog::add(FAC_MP, PRI_INFO, "CRTCPSource::ProcessPacket: Unknown report type %d, remaining buffer length of %lu", GetPayloadType(puchDataBuffer), ulBufferLength);
+#ifdef DEBUG_RTCP_PACKETS /* [ */
                 if (!verbose) {
                     ProcessPacket(SAVEpuchDataBuffer, SAVEulBufferLength, 1);
                 }
-                OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: Returning (error)");
-                return;
+#endif
+                ulBytesProcessed = GetReportLength(puchDataBuffer);
+                break;
         }
 
 #ifdef DEBUG_RTCP_PACKETS /* [ */
@@ -587,7 +600,7 @@ unsigned long CRTCPSource::ProcessReceiverReport(unsigned char *puchRTCPReport,
             //         BETTER IS THE ENEMY OF GOOD!
             //   hzm 16Aug01
             ulReportSize = GetReportLength(puchRTCPReport);
-            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessReceiverReport: RR/RC=0, len=%d", ulReportSize);
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::ProcessReceiverReport: RR/RC=0, len=%d", ulReportSize);
         }
     }
 
@@ -861,35 +874,6 @@ unsigned long CRTCPSource::ProcessByeReport(unsigned char *puchRTCPReport)
 
     return(ulBytesProcessed);
 
-}
-
-
-/**
- *
- * Method Name: ProcessAppReport
- *
- *
- * Inputs:   unsigned char *puchRTCPReport
- *                                   - A pointer to an RTCP Application Report
- *
- * Outputs:  None
- *
- * Returns:  unsigned long
- *
- * Description: No processing is performed on an Application Report but the
- *              length is extracted from the header and returned so that other
- *              composite reports might still be processed.
- *
- *
- * Usage Notes:
- *
- *
- */
-unsigned long CRTCPSource::ProcessAppReport(unsigned char *puchRTCPReport)
-{
-
-    // Disregard this packet
-    return(GetReportLength(puchRTCPReport));
 }
 
 /**

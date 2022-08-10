@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -138,28 +140,38 @@ int CRTCPHeader::VetPacket(unsigned char* buffer, int bufferLen)
     int originalLen = bufferLen;
 
     // Special rule for LifeSize box and its non-compliant APP packets...
-    if ((63 == bufferLen) && ('L' == buffer[44]) && ('S' == buffer[45])) {
+    if ((63 == bufferLen) && ('L' == buffer[44]) && ('S' == buffer[45])) 
+    {
         // Silently fix it... we know it is happening, don't nag
         buffer[bufferLen++] = 0;
     }
-    if (bufferLen > 7) {
-        if (0 != (bufferLen % 4)) {
-            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::VetPacket: packet length, %d, is not a multiple of 4; padding and adjusting", bufferLen);
+    if (bufferLen > 7) 
+    {
+        if (0 != (bufferLen % 4)) 
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPHeader::VetPacket: packet length, %d, is not a multiple of 4; padding and adjusting", bufferLen);
             while (0 != (bufferLen % 4)) buffer[bufferLen++] = 0;
         }
         nRemain = bufferLen;
 
-        while (nRemain > 7) {
-           // Is the first byte reasonable (we only know that the top 2 bits should be 0b10)
+        while (nRemain > 7) 
+        {
+            // Is the first byte reasonable (we only know that the top 2 bits should be 0b10)
             if (0x80 != (buffer[okLen] & 0xc0)) break;
+
             // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::VetPacket: header at offset %d, RTCP version OK", okLen);
-           // Now, see if the report type is one of SR, RR, SDES, BYE, or APP (200..204, resp)
+            // Now, see if the report type is one of SR, RR, SDES, BYE, or APP (200..204, resp)
             rt = buffer[okLen+1];
-            if ((rt < 200) || (rt > 204)) {
-               // Only warn if not, if everything else is OK, let the parser deal with it.
-                OsSysLog::add(FAC_MP, PRI_WARNING, "CRTCPSource::VetPacket: report type, %d, is not in one defined in RFC-3550", rt);
+            if ((rt < 200) || (rt > 204)) 
+            {
+                if (rt != 207)  // Allow RFC3611 without warning
+                {
+                    // Only warn if not, if everything else is OK, let the parser deal with it.
+                    OsSysLog::add(FAC_MP, PRI_WARNING, "CRTCPHeader::VetPacket: report type, %d, is not in one defined in RFC-3550/3611", rt);
+                }
             }
-           // Now, check the length.  It is
+
+            // Now, check the length.  It is
             tShort = *((unsigned short*)(buffer+okLen+2));
             nOctets = (ntohs(tShort) + 1) * 4;
             // OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPSource::VetPacket: tShort=%d, nOctets=%d, nRemain=%d", tShort, nOctets, nRemain);
@@ -168,12 +180,14 @@ int CRTCPHeader::VetPacket(unsigned char* buffer, int bufferLen)
             okLen += nOctets;
         }
     }
-    if (nRemain > 0) {
-        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::VetPacket: packet failed sanity check. Original len=%d, nRemain=%d", originalLen, nRemain);
+    if (nRemain > 0) 
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPHeader::VetPacket: packet failed sanity check. Original len=%d, nRemain=%d", originalLen, nRemain);
         UtlString buf;
         unsigned char *tp = buffer;
         int tl = originalLen;
-        while(tl > 0) {
+        while(tl > 0) 
+        {
             buf.appendFormat(" 0x%02X,", *tp++);
             tl--;
         }
