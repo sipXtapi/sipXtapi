@@ -1,3 +1,5 @@
+//
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2008-2013 SIPez LLC.  All rights reserved.
 //
@@ -44,7 +46,12 @@ MpPlcBase *MpPlcBase::createPlc(const UtlString &name)
       return ::createPlc(algName.data());
 
 #else // EXTERNAL_PLC ][
-      OsSysLog::add(FAC_MP, PRI_WARNING,
+       OsSysLogPriority logPri = PRI_WARNING;
+       if (name.length() == 0)
+       {
+           logPri = PRI_DEBUG;
+       }
+       OsSysLog::add(FAC_MP, logPri,
                     "MpPlcBase::createPlc(): "
                     "Could not find PLC with name \"%s\"! Using default PLC instead.",
                     algName.data());

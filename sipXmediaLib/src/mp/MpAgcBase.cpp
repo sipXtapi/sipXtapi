@@ -1,3 +1,5 @@
+//
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2008-2013 SIPez LLC. All rights reserved.
 //
@@ -44,7 +46,12 @@ MpAgcBase *MpAgcBase::createAgc(const UtlString &name)
       return ::createAgc(algName.data());
 
 #else // EXTERNAL_AGC ][
-      OsSysLog::add(FAC_MP, PRI_WARNING,
+       OsSysLogPriority logPri = PRI_WARNING;
+       if (name.length() == 0)
+       {
+           logPri = PRI_DEBUG;
+       }
+       OsSysLog::add(FAC_MP, logPri,
                     "MpAgcBase::createAgc(): "
                     "Could not find AGC with name \"%s\"! Using default AGC instead.",
                     algName.data());

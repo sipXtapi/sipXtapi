@@ -1,3 +1,5 @@
+//
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2008-2014 SIPez LLC.  All rights reserved.
 //
@@ -39,12 +41,17 @@ MpVadBase *MpVadBase::createVad(const UtlString &name)
    else
    {
 #ifdef EXTERNAL_VAD // [
-       OsSysLog::add(FAC_MP, PRI_DEBUG, "MpVadBase::createVad(%s) using external VAD", name.data());
+      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpVadBase::createVad(%s) using external VAD", name.data());
 
       return ::createVad(algName.data());
 
 #else // EXTERNAL_VAD ][
-      OsSysLog::add(FAC_MP, PRI_WARNING,
+      OsSysLogPriority logPri = PRI_WARNING;
+      if (name.length() == 0)
+      {
+          logPri = PRI_DEBUG;
+      }
+      OsSysLog::add(FAC_MP, logPri,
                     "MpVadBase::createVad(): "
                     "Could not find VAD with name \"%s\"! Using default VAD instead.",
                     algName.data());

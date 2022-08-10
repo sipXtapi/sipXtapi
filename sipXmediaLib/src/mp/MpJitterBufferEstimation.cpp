@@ -1,3 +1,5 @@
+//
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2008-2013 SIPez LLC. All rights reserved.
 //
@@ -45,7 +47,12 @@ MpJitterBufferEstimation *MpJitterBufferEstimation::createJbe(const UtlString &a
       return ::createJbe(name.data());
 
 #else // EXTERNAL_VAD ][
-      OsSysLog::add(FAC_MP, PRI_WARNING,
+       OsSysLogPriority logPri = PRI_WARNING;
+       if (algName.length() == 0)
+       {
+           logPri = PRI_DEBUG;
+       }
+       OsSysLog::add(FAC_MP, logPri,
                     "MpJitterBufferEstimation::createJbe(): "
                     "Could not find JBE algorithm with name \"%s\"!"
                     " Using default JBE algorithm instead.",
