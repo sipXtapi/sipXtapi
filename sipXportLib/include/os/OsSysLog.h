@@ -106,7 +106,7 @@ typedef void (*OsSysLogCallback)(const char* szPriority,
 
 // Signature for a prequeue callback function that takes three parameters: priority,
 // log message and taskid/threadid of the generating log line.
-// If the callback returns true, then the log message is considered consumed and
+// If the callback returns false, then the log message is considered consumed and
 // is not passed on further to the OsSysLog thread for additional processing.
 typedef bool (*OsSysLogPreQueueCallback)(const char* szPriority, const char* szMsg, unsigned int taskId);
 
