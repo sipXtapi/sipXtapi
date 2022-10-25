@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2021 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2021-2022 SIP Spectrum, Inc.  All rights reserved.
 // 
 // Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
@@ -4303,17 +4303,13 @@ OsStatus CpTopologyGraphInterface::setMixWeightForOutput(int bridgeOutputPort, f
         bridgeOutputPort, weight);
     OsSysLog::flush();
     assert(bridgeOutputPort >= 0);
-    // Determine number of bridge ports and allocate array for weights
-    int numBridgePorts = getNumBridgePorts();
-    if (numBridgePorts < 0)
-    {
-       assert(!"Can't determine number of bridge ports!");
-       numBridgePorts = 20;
-    }
 
-    float* weightVector = new float[numBridgePorts];
+    // Determine number of bridge ports and allocate array for weights
+    int maxBridgePorts = DEFAULT_BRIDGE_MAX_IN_OUTPUTS;
+
+    float* weightVector = new float[maxBridgePorts];
     UtlString gainVectorString;
-    for(int weightIndex = 0; weightIndex < numBridgePorts; weightIndex++)
+    for(int weightIndex = 0; weightIndex < maxBridgePorts; weightIndex++)
     {
         // Mutually exclusve mix so a stream does not get its own feedback
         if(weightIndex == bridgeOutputPort)
@@ -4327,11 +4323,11 @@ OsStatus CpTopologyGraphInterface::setMixWeightForOutput(int bridgeOutputPort, f
         gainVectorString.appendFormat("%f, ", weightVector[weightIndex]);
     }
 
-    OsStatus status = setMixWeightsForOutput(bridgeOutputPort, numBridgePorts, weightVector);
+    OsStatus status = setMixWeightsForOutput(bridgeOutputPort, maxBridgePorts, weightVector);
 
     OsSysLog::add(FAC_CP, PRI_DEBUG,
         "CpTopologyGraphInterface::setMixWeightForOutput gain vector: {%s} length: %d setMixWeightsForOutput return: %d", 
-        gainVectorString.data(), numBridgePorts, status);
+        gainVectorString.data(), maxBridgePorts, status);
     delete[] weightVector;
     weightVector = NULL;
 
@@ -4372,16 +4368,12 @@ OsStatus CpTopologyGraphInterface::setConnectionWeightOnBridge(CpTopologyMediaCo
    inStreamName.append(STREAM_NAME_SUFFIX);
 
    // Determine number of bridge ports and allocate array for weights
-   int numBridgePorts = getNumBridgePorts();
-   if (numBridgePorts<0)
-   {
-      assert(!"Can't determine number of bridge ports!");
-      return OS_NOT_FOUND;
-   }
-   MpBridgeGain *weights = new MpBridgeGain[numBridgePorts];
+   int maxBridgePorts = DEFAULT_BRIDGE_MAX_IN_OUTPUTS;
+
+   MpBridgeGain *weights = new MpBridgeGain[maxBridgePorts];
    MpBridgeGain bridgeWeight = MPF_BRIDGE_FLOAT(weight);
 
-   for (i=0; i<numBridgePorts; i++)
+   for (i=0; i<maxBridgePorts; i++)
    {
       weights[i] = MP_BRIDGE_GAIN_UNDEFINED;
    }
@@ -4398,14 +4390,14 @@ OsStatus CpTopologyGraphInterface::setConnectionWeightOnBridge(CpTopologyMediaCo
          delete[] weights;
          return OS_FAILED;
       }
-      assert(port>=0 && port<numBridgePorts);
+      assert(port>=0 && port<maxBridgePorts);
       weights[port] = bridgeWeight;
    }
 
    MprBridge::setMixWeightsForOutput(DEFAULT_BRIDGE_RESOURCE_NAME,
                                      *mpTopologyGraph->getMsgQ(),
                                      destPort,
-                                     numBridgePorts,
+                                     maxBridgePorts,
                                      weights);
 
    delete[] weights;
@@ -4459,12 +4451,7 @@ OsStatus CpTopologyGraphInterface::setMicWeightOnBridge(float weight)
    UtlString inStreamName(VIRTUAL_NAME_LOCAL_STREAM_OUTPUT);
 
    // Determine number of bridge ports
-   int numBridgePorts = getNumBridgePorts();
-   if (numBridgePorts<0)
-   {
-      assert(!"Can't determine number of bridge ports!");
-      return OS_NOT_FOUND;
-   }
+   int maxBridgePorts = DEFAULT_BRIDGE_MAX_IN_OUTPUTS;
 
    // Get the port number of the Mic stream
    int port;
@@ -4474,14 +4461,14 @@ OsStatus CpTopologyGraphInterface::setMicWeightOnBridge(float weight)
       assert(!"Can't determine bridge port number for stream!");
       return OS_FAILED;
    }
-   assert(port>=0 && port<numBridgePorts);
+   assert(port>=0 && port<maxBridgePorts);
 
    // Allocate array for weights
-   MpBridgeGain *weights = new MpBridgeGain[numBridgePorts];
+   MpBridgeGain *weights = new MpBridgeGain[maxBridgePorts];
    MpBridgeGain bridgeWeight = MPF_BRIDGE_FLOAT(weight);
 
    // Fill in the weights vector
-   for (int i=0; i<numBridgePorts; i++)
+   for (int i=0; i<maxBridgePorts; i++)
    {
       weights[i] = bridgeWeight;
    }
@@ -4491,7 +4478,7 @@ OsStatus CpTopologyGraphInterface::setMicWeightOnBridge(float weight)
    MprBridge::setMixWeightsForInput(DEFAULT_BRIDGE_RESOURCE_NAME,
                                     *mpTopologyGraph->getMsgQ(),
                                     port,
-                                    numBridgePorts,
+                                    maxBridgePorts,
                                     weights);
 
    delete[] weights;
