@@ -229,12 +229,6 @@ void CircularBuffer::eraseBegin(unsigned long count)
 
 /* ============================ ACCESSORS ================================= */
 
-unsigned long CircularBuffer::getSize()
-{
-	OsLock lock(mMutex);
-	return mCount;
-}
-
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

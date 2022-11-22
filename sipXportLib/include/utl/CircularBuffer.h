@@ -59,7 +59,8 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
-	unsigned long getSize();
+	unsigned long getSize() { return mCount; }
+	unsigned long getCapacity() { return mCapacity; }
 //@}
 
 /* ============================ INQUIRY =================================== */
