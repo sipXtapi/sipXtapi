@@ -1399,7 +1399,9 @@ OsStatus CpPhoneMediaInterface::stopRecordBufferChannelAudio(int connectionId)
 OsStatus CpPhoneMediaInterface::recordCircularBufferChannelAudio(int connectionId,
                                                                  CircularBufferPtr & buffer,
                                                                  CpMediaInterface::CpAudioFileFormat recordingFormat,
-                                                                 unsigned long recordingBufferNotificationWatermark)
+                                                                 unsigned long recordingBufferNotificationWatermark,
+                                                                 int maxRecordTime,
+                                                                 int maxSilence)
 {
     return OS_NOT_YET_IMPLEMENTED;
 }

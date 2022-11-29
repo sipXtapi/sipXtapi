@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2021 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2021-2022 SIP Spectrum, Inc.  All rights reserved.
 // 
 // Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
@@ -355,11 +355,15 @@ public:
    virtual OsStatus recordCircularBufferChannelAudio(int connectionId,
                                                      CircularBufferPtr & buffer,
                                                      CpMediaInterface::CpAudioFileFormat recordingFormat,
-                                                     unsigned long recordingBufferNotificationWatermark);
+                                                     unsigned long recordingBufferNotificationWatermark,
+                                                     int maxRecordTime = -1,
+                                                     int maxSilence = -1);
    virtual OsStatus recordCircularBufferAudio(const UtlString& resourceName,
                                               CircularBufferPtr& buffer,
                                               CpMediaInterface::CpAudioFileFormat recordingFormat,
-                                              unsigned long recordingBufferNotificationWatermark);
+                                              unsigned long recordingBufferNotificationWatermark,
+                                              int maxRecordTime = -1,
+                                              int maxSilence = -1);
 
    virtual OsStatus stopRecordCircularBufferChannelAudio(int connectionId);
 

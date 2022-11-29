@@ -2238,15 +2238,19 @@ OsStatus CpTopologyGraphInterface::stopRecordBufferChannelAudio(int connectionId
 OsStatus CpTopologyGraphInterface::recordCircularBufferChannelAudio(int connectionId,  // connectionId is currently unused in this topology
                                                                     CircularBufferPtr& buffer,
                                                                     CpMediaInterface::CpAudioFileFormat recordingFormat,
-                                                                    unsigned long recordingBufferNotificationWatermark)
+                                                                    unsigned long recordingBufferNotificationWatermark,
+                                                                    int maxRecordTime,
+                                                                    int maxSilence)
 {
-   return recordCircularBufferAudio(DEFAULT_RECORDER_RESOURCE_NAME, buffer, recordingFormat, recordingBufferNotificationWatermark);
+   return recordCircularBufferAudio(DEFAULT_RECORDER_RESOURCE_NAME, buffer, recordingFormat, recordingBufferNotificationWatermark, maxRecordTime, maxSilence);
 }
 
 OsStatus CpTopologyGraphInterface::recordCircularBufferAudio(const UtlString& resourceName,
                                                              CircularBufferPtr & buffer,
                                                              CpMediaInterface::CpAudioFileFormat recordingFormat,
-                                                             unsigned long recordingBufferNotificationWatermark)
+                                                             unsigned long recordingBufferNotificationWatermark,
+                                                             int maxRecordTime,
+                                                             int maxSilence)
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2260,7 +2264,9 @@ OsStatus CpTopologyGraphInterface::recordCircularBufferAudio(const UtlString& re
                *mpTopologyGraph->getMsgQ(),
                buffer,
                format,
-               recordingBufferNotificationWatermark);
+               recordingBufferNotificationWatermark,
+               maxRecordTime,
+               maxSilence);
        }
    }
    return stat;

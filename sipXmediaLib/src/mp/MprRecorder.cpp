@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2021-2022 SIP Spectrum, Inc.  All rights reserved.
+// 
 // Copyright (C) 2006-2020 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -412,6 +414,8 @@ OsStatus MprRecorder::startCircularBuffer(const UtlString& namedResource,
                                           CircularBufferPtr & buffer,
                                           RecordFileFormat recordingFormat,
                                           unsigned long recordingBufferNotificationWatermark,
+                                          int time,
+                                          int silenceLength,
                                           int numChannels)
 {
     OsStatus stat;
@@ -424,6 +428,10 @@ OsStatus MprRecorder::startCircularBuffer(const UtlString& namedResource,
     stat = msgData.serialize((int)recordingFormat);
     assert(stat == OS_SUCCESS);
     stat = msgData.serialize(recordingBufferNotificationWatermark);
+    assert(stat == OS_SUCCESS);
+    stat = msgData.serialize(time);
+    assert(stat == OS_SUCCESS);
+    stat = msgData.serialize(silenceLength);
     assert(stat == OS_SUCCESS);
     stat = msgData.serialize(numChannels);
     assert(stat == OS_SUCCESS);
@@ -1253,6 +1261,8 @@ UtlBoolean MprRecorder::handleStartBuffer(MpAudioSample *pBuffer,
 UtlBoolean MprRecorder::handleStartCircularBuffer(CircularBufferPtr * buffer, 
                                                   RecordFileFormat recordingFormat,
                                                   unsigned long recordingBufferNotificationWatermark,
+                                                  int time,
+                                                  int silenceLength,
                                                   int numChannels)
 {
    if (mpCircularBuffer)
@@ -1273,7 +1283,7 @@ UtlBoolean MprRecorder::handleStartCircularBuffer(CircularBufferPtr * buffer,
    unsigned int codecSampleRate;
    prepareEncoder(recordingFormat, codecSampleRate);
 
-   startRecording(0, 0);
+   startRecording(time, silenceLength);
 
    OsSysLog::add(FAC_MP, PRI_DEBUG,
                  "MprRecorder::handleStartCircularBuffer() finished");
@@ -1363,6 +1373,8 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          CircularBufferPtr * buffer;
          RecordFileFormat recordingFormat;
          unsigned long recordingBufferNotificationWatermark;
+         int time;
+         int silenceLength;
          int numChannels;
 
          UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
@@ -1372,9 +1384,13 @@ UtlBoolean MprRecorder::handleMessage(MpResourceMsg& rMsg)
          assert(stat == OS_SUCCESS);
          stat = msgData.deserialize(recordingBufferNotificationWatermark);
          assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(time);
+         assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(silenceLength);
+         assert(stat == OS_SUCCESS);
          stat = msgData.deserialize(numChannels);
          assert(stat == OS_SUCCESS);
-         return handleStartCircularBuffer(buffer, recordingFormat, recordingBufferNotificationWatermark, numChannels);
+         return handleStartCircularBuffer(buffer, recordingFormat, recordingBufferNotificationWatermark, time, silenceLength, numChannels);
       }
       break;
 

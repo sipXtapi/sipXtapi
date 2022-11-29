@@ -219,7 +219,9 @@ public:
    virtual OsStatus recordCircularBufferChannelAudio(int connectionId,
                                                      CircularBufferPtr & buffer,
                                                      CpMediaInterface::CpAudioFileFormat recordingFormat,
-                                                     unsigned long recordingBufferNotificationWatermark);
+                                                     unsigned long recordingBufferNotificationWatermark,
+                                                     int maxRecordTime = -1,
+                                                     int maxSilence = -1);
 
    virtual OsStatus stopRecordCircularBufferChannelAudio(int connectionId);
 

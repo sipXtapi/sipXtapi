@@ -1,4 +1,6 @@
-//  
+//
+// Copyright (C) 2021-2022 SIP Spectrum, Inc.  All rights reserved.
+// 
 // Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -162,12 +164,18 @@ public:
                                        CircularBufferPtr & buffer,
                                        RecordFileFormat recordingFormat,
                                        unsigned long recordingBufferNotificationWatermark,
+                                       int time = 0,
+                                       int silenceLength = -1,
                                        int numChannels = 1);
      /**<
      *  @param[in] namedResource - resource name to send command to.
      *  @param[in] fgQ - flowgraph queue to send command to.
      *  @param[in] buffer - circular buffer store the samples into.
      *  @param[in] recordingBufferNotificationWatermark - buffer usage level (in samples) to send notifications for.
+     *  @param[in] time - max number of milliseconds to record, or 0 for no limit
+     *  @param[in] silenceLength - length of silence (in milliseconds) after
+     *             which recording is automatically stopped. This feature is
+     *             disabled if -1 is passed.
      *  @param[in] numChannels - the number of channels to record (>1 not supported for all formats)
      */
 
@@ -314,6 +322,8 @@ protected:
    UtlBoolean handleStartCircularBuffer(CircularBufferPtr * buffer, 
                                         RecordFileFormat recordingFormat,
                                         unsigned long recordingBufferNotificationWatermark,
+                                        int time,
+                                        int silenceLength,
                                         int numChannels);
 
      /// Handle MPRM_STOP message.
