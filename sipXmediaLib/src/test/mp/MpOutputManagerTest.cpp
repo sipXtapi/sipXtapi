@@ -54,7 +54,7 @@
 #  define NUM_DEVICE_TYPES 1
 #  include <mp/MpodWinMM.h>
 #  define OUTPUT_DRIVER MpodWinMM
-#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName(), 0
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
 #  define NUM_DEVICE_TYPES 3
