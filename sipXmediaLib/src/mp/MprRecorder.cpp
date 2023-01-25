@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021-2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2021-2023 SIP Spectrum, Inc.  All rights reserved.
 // 
 // Copyright (C) 2006-2020 SIPez LLC.  All rights reserved.
 //
@@ -49,6 +49,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define ETHERNET_MTU_BYTES 1500
+#define TRIM_SLACK_MS 200 // Allow up to 200 ms of silence at end of recordings that get trimmed
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -66,7 +67,8 @@ MprRecorder::MprRecorder(const UtlString& rName)
 , mNumFramesProcessed(0)
 , mSamplesRecorded(0)
 , mConsecutiveInactive(0)
-, mSilenceLength(0)
+, mSilenceFrames(0)
+, mTrimSlackFrames(0)
 , mFileDescriptor(-1)
 , mRecFormat(UNINITIALIZED_FORMAT)
 , mpBuffer(NULL)
@@ -519,13 +521,13 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 
    // maximum record time reached or final silence timeout.
    if (  (mFramesToRecord >= 0 && mFramesToRecord-- == 0)
-      || (mSilenceLength >= 0 && mConsecutiveInactive >= mSilenceLength))
+      || (mSilenceFrames >= 0 && mConsecutiveInactive >= mSilenceFrames))
    {
       OsSysLog::add(FAC_MP, PRI_INFO,
          "MprRecorder::doProcessFrame to finish recording because"
-         " mFramesToRecord=%d, mSilenceLength=%d,"
+         " mFramesToRecord=%d, mSilenceFrames=%d,"
          " mConsecutiveInactive=%d", mFramesToRecord,
-         mSilenceLength, mConsecutiveInactive);
+         mSilenceFrames, mConsecutiveInactive);
       finish(FINISHED_AUTO);
 
       // Push data further downstream
@@ -1021,8 +1023,10 @@ void MprRecorder::deleteOpusEncoder()
 
 void MprRecorder::trimSilenceFromEndOfRecording()
 {
-    if (mConsecutiveInactive > 0)
+    if (mConsecutiveInactive > mTrimSlackFrames)
     {
+        int framesToTrim = mConsecutiveInactive - mTrimSlackFrames;
+
         // Get the current length.
         uint32_t curLength = lseek(mFileDescriptor, 0, SEEK_END);
 
@@ -1035,11 +1039,11 @@ void MprRecorder::trimSilenceFromEndOfRecording()
             // frames are counted here based on 10ms of audio.
 
             // First calculate how many 40ms chunks we want to trim 
-            int gsmBlockstoTrim = mConsecutiveInactive / 4;
+            int gsmBlockstoTrim = framesToTrim / 4;
             sizeToReduceBy = gsmBlockstoTrim * 65 * mChannels;
             OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MprRecorder::trimSilenceFromEndOfRecording: reducing GSM file by framesOfSilence=%d, channels=%d, gsmBlockstoTrim=%d, curLength=%d, sizeToReduceBy=%d", 
-                mConsecutiveInactive, mChannels, gsmBlockstoTrim, curLength, sizeToReduceBy);
+                "MprRecorder::trimSilenceFromEndOfRecording: reducing GSM file by framesOfSilence=%d, channels=%d, framesToTrim=%d, gsmBlockstoTrim=%d, curLength=%d, sizeToReduceBy=%d", 
+                mConsecutiveInactive, mChannels, framesToTrim, gsmBlockstoTrim, curLength, sizeToReduceBy);
         }
         else if(mRecFormat == OGG_OPUS)
         {
@@ -1047,10 +1051,10 @@ void MprRecorder::trimSilenceFromEndOfRecording()
         }
         else
         {
-            sizeToReduceBy = mConsecutiveInactive * mLastEncodedFrameSize * mChannels;
+            sizeToReduceBy = framesToTrim * mLastEncodedFrameSize * mChannels;
             OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MprRecorder::trimSilenceFromEndOfRecording: reducing file by framesOfSilence=%d, channels=%d, lastEncodedFrameSize=%d, curLength=%d, sizeToReduceBy=%d", 
-                mConsecutiveInactive, mChannels, mLastEncodedFrameSize, curLength, sizeToReduceBy);
+                "MprRecorder::trimSilenceFromEndOfRecording: reducing file by framesOfSilence=%d, channels=%d, framesToTrim=%d, lastEncodedFrameSize=%d, curLength=%d, sizeToReduceBy=%d", 
+                mConsecutiveInactive, mChannels, framesToTrim, mLastEncodedFrameSize, curLength, sizeToReduceBy);
         }
 
         assert(sizeToReduceBy < curLength);
@@ -1454,12 +1458,13 @@ void MprRecorder::startRecording(int time, int silenceLength)
    if (silenceLength > 0)
    {
       // Convert to number of frames
-      mSilenceLength = silenceLength / iMsPerFrame;
+      mSilenceFrames = silenceLength / iMsPerFrame;
    }
    else
    {
-      mSilenceLength = -1;
+      mSilenceFrames = -1;
    }
+   mTrimSlackFrames = TRIM_SLACK_MS / iMsPerFrame;
 
    mSamplesRecorded = 0;
    mConsecutiveInactive = 0;

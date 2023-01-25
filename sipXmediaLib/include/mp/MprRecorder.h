@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021-2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2021-2023 SIP Spectrum, Inc.  All rights reserved.
 // 
 // Copyright (C) 2006-2019 SIPez LLC.  All rights reserved.
 //
@@ -252,7 +252,8 @@ protected:
    int mNumFramesProcessed;
    int mSamplesRecorded;
    int mConsecutiveInactive;
-   int mSilenceLength;
+   int mSilenceFrames;
+   int mTrimSlackFrames;
 
 ///@name File-related variables
 //@{
