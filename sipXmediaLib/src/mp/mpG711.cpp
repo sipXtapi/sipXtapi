@@ -1,4 +1,7 @@
 //  
+// Copyright (C) 2023 SIP Spectrum, Inc. http://www.sipspectrum.com 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//  
 // Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
@@ -98,8 +101,11 @@ size_t DecompressG711ALaw::getSamples(AudioSample *buffer, size_t length)
    AudioByte *byteBuff =
       reinterpret_cast<AudioByte *>(buffer);
    size_t read = readBytes(byteBuff,length);
-   for(long i=read-1; i>=0; i--)
-      buffer[i] = aLawDecodeTable[ byteBuff[i] ];
+   for (long i = read - 1; i >= 0; i--)
+   {
+       unsigned short pos = (unsigned char)byteBuff[i];
+       buffer[i] = aLawDecodeTable[pos];
+   }
    return read;
 }
 
@@ -116,10 +122,23 @@ AudioByte ALawEncode(AudioSample s)
 
 AudioSample ALawDecode(AudioByte alaw)
 {
-   alaw ^= 0x55;
-   unsigned char exponent = (alaw >> 4) & 0x7;
-   unsigned char mantissa = (alaw & 0xF) + (exponent?16:0);
-   unsigned long adjusted = (mantissa << (exponent + 4));
-   AudioSample  sRet = (AudioSample) adjusted;
-   return (alaw & 0x80)? -sRet : sRet;
+    int i;
+    int seg;
+
+    alaw ^= 0x55;
+    i = ((alaw & 0x0F) << 4);
+    seg = (((int)alaw & 0x70) >> 4);
+    if (seg != 0)
+        i = (i + 0x108) << (seg - 1);
+    else
+        i += 8;
+    return (AudioSample)(((alaw & 0x80) != 0) ? i : -i);
+
+   //Note: This alaw implementation plays back with a lot of static, it was replaced with above algorithm on 01/25/2023
+   //alaw ^= 0x55;
+   //unsigned char exponent = (alaw >> 4) & 0x7;
+   //unsigned char mantissa = (alaw & 0xF) + (exponent?16:0);
+   //unsigned long adjusted = (mantissa << (exponent + 4));
+   //AudioSample  sRet = (AudioSample) adjusted;
+   //return (alaw & 0x80)? -sRet : sRet;
 }
