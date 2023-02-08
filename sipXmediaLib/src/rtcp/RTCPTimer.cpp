@@ -321,6 +321,10 @@ unsigned int __stdcall CRTCPTimer::TimerThreadProc(void * lpParameter)
                    WaitForSingleObject(poRTCPTimer->m_hTerminateEvent,
                        poRTCPTimer->m_ulTimerPeriod);    // Poll for Terminate
 
+        if (dwRetValue == WAIT_FAILED)
+            // Bail on an error so we don't loop infinitly
+            break;
+
         // An Event was Detected.  It must be time to terminate.
         if (dwRetValue  == WAIT_OBJECT_0)
             break;
