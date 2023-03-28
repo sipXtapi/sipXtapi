@@ -41,7 +41,7 @@
 //#define RTL_ENABLED
 #undef RTL_AUDIO_ENABLED
 #ifndef EXTERNAL_PLC // [ 
-#  define ENABLE_NON_PLC_ADJUSTMENT
+//#  define ENABLE_NON_PLC_ADJUSTMENT    // the adjustStream code is buggy and can result in using uninitialized buffers - commenting out until it can be fixed
 #endif // !EXTERNAL_PLC ] 
 
 #ifdef RTL_ENABLED
