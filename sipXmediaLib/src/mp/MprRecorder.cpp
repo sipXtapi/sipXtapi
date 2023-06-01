@@ -649,7 +649,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 
 int MprRecorder::writeCircularBuffer(const char* channelData[], int dataSize)
 {
-    OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::doProcessFrame - TO_CIRCULAR_BUFFER, non-silence");
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::doProcessFrame - TO_CIRCULAR_BUFFER, non-silence");
     
     unsigned long newSize, previousSize, iterPreviousSize;
     int bytesPerSample = getBytesPerSample(mRecFormat);
