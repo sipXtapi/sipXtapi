@@ -1,0 +1,16 @@
+**/libsipXport_la-*.lo
+**/libsipXport_la-*.o
+**/testsuite-*.o
+**/libsipXunit_la-*.lo
+**/libsipXunit_la-*.o
+**/*.swp
+**/.dirstamp
+**/.deps
+src/os/linux/*.lo
+src/os/linux/*.o
+src/test/testplugin/*.la
+src/test/testplugin/*.lo
+src/test/testplugin/*.o
+src/test/utl/*.o
+src/hmac-sha1/*.lo
+src/hmac-sha1/*.o

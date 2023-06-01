@@ -48,8 +48,12 @@
 #endif // ANDROID ]
 
 // EXTERNAL FUNCTIONS
-#ifndef ANDROID // [
-static inline int gettid() {return syscall(SYS_gettid);}
+// May need to check for  GLIB less than some minor version
+// #ifdef __GLIBC_MINOR__ less than 31 and __GLIBC__  >= 2
+#if defined(ANDROID) // [
+// Not sure on the exact minor version here.  Its somewhere areoun 2.30
+#elif defined(__GLIBC__) && __GLIBC__== 2 && __GLIBC_MINOR__ < 30
+  static inline int gettid() {return syscall(SYS_gettid);}
 #endif // !ANDROID ]
 
 // EXTERNAL VARIABLES

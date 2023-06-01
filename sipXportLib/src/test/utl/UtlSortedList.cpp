@@ -573,9 +573,9 @@ public:
             const char* testDescription ; 
             UtlContainable* itemToRemove ; 
             int removeIndex ; 
-            size_t expectedIndex ; 
+            int expectedIndex ; 
             bool expectedResult ;
-            size_t expectedEntries ; 
+            int expectedEntries ; 
         };
         const char* prefix = "";
         switch(remType)
