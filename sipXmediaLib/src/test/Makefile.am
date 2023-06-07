@@ -15,7 +15,8 @@ testsuite_LDADD = \
     @SPEEXDSP_LIBS@ \
     ../libsipXmedia.la \
     $(GIPS_OBJS) \
-    @OPUS_STATIC_LIB@
+    @OPUS_STATIC_LIB@ \
+    -lrt
 
 # Had to add the following as AM_CPPFLAGS gets inserted in the Makefile after
 # the initial declairation of CXXCOMPILE
@@ -27,7 +28,7 @@ testsuite_CXXFLAGS = -I$(SIPXUNITINC) \
                      @OPUS_CFLAGS@
 
 testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
-    
+
 # NOTE: Several media releated units tests are located in
 ## sipXcallLib because they made references to CallManager
 testsuite_SOURCES = \
