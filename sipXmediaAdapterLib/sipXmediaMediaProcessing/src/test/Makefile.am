@@ -14,21 +14,25 @@ testsuite_LDADD = \
     @SIPXPORT_LIBS@ \
     @SIPXMEDIA_LIBS@ \
     ../libsipXmediaProcessing.la \
-    $(GIPS_OBJS)
+    $(GIPS_OBJS) \
+    -lrt
 
 testsuite_CXXFLAGS = -I$(SIPXUNITINC) \
                      @CPPUNIT_CFLAGS@
 
 testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 
-codecQualitySource/%.WAV: itu_peak_recordings.rar 
-	mkdir -p codecQualitySource
+codecQualitySource/%.WAV: | itu_peak_recordings.rar 
+	if [ ! -d codecQualitySource ] ; then mkdir -p codecQualitySource ; fi
+	if [ -d tmp777 ] ; then rm -rf tmp777 ; fi
 	mkdir tmp777; (cd tmp777; unrar e ../itu_peak_recordings.rar  CONFORMANCE\ TEST\ ITEMS)
 	cp tmp777/*REF*.WAV codecQualitySource
 	rm -rf tmp777
 
 itu_peak_recordings.rar: 
-	 wget --no-check-certificate https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip -O itu_peak_recordings.rar
+	wget --no-check-certificate https://extranet.itu.int/brdocsearch/R-REC/R-REC-BS/R-REC-BS.1387/R-REC-BS.1387-1-200111-I/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip -O itu_peak_recordings.rar
+
+#wget --no-check-certificate https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip -O itu_peak_recordings.rar
 
 CpPhoneMediaInterfaceTest.cpp: codecQualitySource/GREFCLA.WAV
     
