@@ -1,0 +1,101 @@
+name: SipX autotools Linux build
+on:
+  push:
+    #branches: [ $default-branch ]
+  pull_request:
+    # all PRs for now
+    #branches: [ $default-branch ]
+
+env:
+  CFLAGS: "-O0 -g -fPIC -fpermissive"
+  MAKE_USE_CPUS: " -j 1 "
+
+jobs:
+  # Label of the runner job
+  sipx-autotools-linux-build:
+    # You must use a Linux environment when using service containers or container jobs
+    #runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+    
+    steps:
+    
+      - name: install dev and runtime packages
+        run: |
+          sudo apt-get install git g++ subversion gdb make libpcre3-dev autoconf automake libtool pkg-config valgrind libasound2-dev alsa-utils libssl-dev patch libspeex-dev libspandsp-dev bc rar unrar unzip
+          find / -name librt-2.31.so -ls 2> /dev/null || true
+        
+      - name: checkout ${{ github.ref }}
+      # Downloads a copy of the code in your repository before running CI tests
+        uses: actions/checkout@v3
+        #with:
+        #  repository: sipXtapi/sipXtapi
+          
+      - name: view checkout results
+        run: |
+          ls -l
+          
+      - name: build sipXportLib
+        run: |
+          echo CFLAGS: $CFLAGS
+          cd sipXportLib
+          if [ ! -f configure ] ; then autoreconf -if ; fi
+          patch configure < ../configure.patch
+          if [ ! -f Makefile ] ; then ./configure --without-openssl --without-cppunit; fi
+          make $MAKE_USE_CPUS
+          make tests
+          
+      - name: build sipXsdpLib
+        run: |
+          echo PWD: `pwd`
+          echo CFLAGS: $CFLAGS
+          cd sipXsdpLib
+          if [ ! -f configure ] ; then autoreconf -if ; fi
+          patch configure < ../configure.patch
+          if [ ! -f Makefile ] ; then ./configure --without-openssl ; fi
+          make $MAKE_USE_CPUS
+          make tests
+
+      - name: build sipXtackLib
+        run: |
+          echo PWD: `pwd`
+          echo CFLAGS: $CFLAGS
+          cd sipXtackLib
+          if [ ! -f configure ] ; then autoreconf -if ; fi
+          patch configure < ../configure.patch
+          if [ ! -f Makefile ] ; then ./configure --without-openssl --disable-sipviewer; fi
+          make $MAKE_USE_CPUS
+          make tests
+
+      - name: build sipXmediaLib
+        run: |
+          echo PWD: `pwd`
+          echo CFLAGS: $CFLAGS
+          cd sipXmediaLib
+          if [ ! -f configure ] ; then autoreconf -if ; fi
+          patch configure < ../configure.patch
+          if [ ! -f Makefile ] ; then ./configure --without-openssl --disable-stream-player --enable-contrib-speex --enable-speex-dsp --enable-codec-speex --enable-codec-amr --enable-codec-amrwb --enable-codec-g726 --enable-codec-g722 --enable-codec-g7221 --enable-codec-g729 --enable-codec-ilbc --enable-codec-gsm --enable-codec-opus --enable-local-audio; fi
+          make $MAKE_USE_CPUS
+          make tests
+
+      - name: build sipXmediaAdapterLib
+        run: |
+          echo PWD: `pwd`
+          echo CFLAGS: $CFLAGS
+          cd sipXmediaAdapterLib
+          if [ ! -f configure ] ; then autoreconf -if ; fi
+          patch configure < ../configure.patch
+          if [ ! -f Makefile ] ; then ./configure --enable-topology-graph --without-openssl --enable-contrib-speex --enable-speex-dsp --disable-stream-player --enable-alsa-audio --enable-codec-gsm; fi
+          make $MAKE_USE_CPUS
+          make tests
+          
+      - name: build sipXcallLib
+        run: |
+          echo PWD: `pwd`
+          echo CFLAGS: $CFLAGS
+          cd sipXcallLib
+          if [ ! -f configure ] ; then autoreconf -if ; fi
+          patch configure < ../configure.patch
+          if [ ! -f Makefile ] ; then ./configure --without-openssl --enable-receivecall --enable-placecall; fi
+          make $MAKE_USE_CPUS
+          make tests
+
