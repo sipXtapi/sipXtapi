@@ -14,8 +14,7 @@ testsuite_LDADD = \
     @SIPXPORT_LIBS@ \
     @SIPXMEDIA_LIBS@ \
     ../libsipXmediaProcessing.la \
-    $(GIPS_OBJS) \
-    -lrt
+    $(GIPS_OBJS)
 
 testsuite_CXXFLAGS = -I$(SIPXUNITINC) \
                      @CPPUNIT_CFLAGS@
