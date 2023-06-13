@@ -1,0 +1,17 @@
+*.swp
+.deps/
+.dirstamp
+compile
+config.guess
+config.sub
+depcomp
+install-sh
+ltmain.sh
+missing
+sipXcommon.mak
+test-driver
+*-buildstamp.lo
+*-buildstamp.o
+*-buildstamp.cpp
+*-buildstamp.h
+
