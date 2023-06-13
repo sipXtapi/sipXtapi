@@ -15,8 +15,7 @@ testsuite_LDADD = \
     @SPEEXDSP_LIBS@ \
     ../libsipXmedia.la \
     $(GIPS_OBJS) \
-    @OPUS_STATIC_LIB@ \
-    -lrt
+    @OPUS_STATIC_LIB@
 
 # Had to add the following as AM_CPPFLAGS gets inserted in the Makefile after
 # the initial declairation of CXXCOMPILE

@@ -19,7 +19,8 @@ version_Age=0
 
 libsipXmedia_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
-	@GSM_LDFLAGS@
+	@GSM_LDFLAGS@ \
+        -lrt
 
 if ENABLE_LOCAL_AUDIO
 LOCAL_AUDIO_CXXFLAGS = -D_INCLUDE_AUDIO_SUPPORT
