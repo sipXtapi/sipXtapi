@@ -8,25 +8,38 @@ on:
 
 jobs:
   # Label of the runner job
-  sipx-MSVS2019-Windows10-build:
+  sipx-build:
 
-    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2019
+            solution_file: sipX-msvc16.sln
+            msvs_year: 2019
+            prog_root: \Program Files (x86)
+          - os: windows-2022
+            solution_file: sipX-msvc17.sln
+            msvs_year: 2022
+            prog_root: \Program Files
+
+    runs-on: ${{ matrix.os }}
     
     steps:
     
       - name: check env
         run: |
           $Env:Path
-          $Env:Path = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools; $Env:Path"
+          $Env:Path = "C:${{ matrix.prog_root }}\Microsoft Visual Studio\${{ matrix.msvs_year }}\Enterprise\Common7\Tools; $Env:Path"
           $env:Path
           echo $SHELL
           python3 --version
 
       - name: env cmd
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsMSBuildCmd.bat"
-          echo %PATH%
           systeminfo | findstr /B /C:"OS Name" /B /C:"OS Version"
+          call "C:${{ matrix.prog_root }}\Microsoft Visual Studio\${{ matrix.msvs_year }}\Enterprise\Common7\Tools\VsMSBuildCmd.bat"
+          echo %PATH%
         shell: cmd
 
       - name: checkout ${{ github.ref }}
@@ -35,13 +48,13 @@ jobs:
         with:
           repository: sipXtapi/sipXtapi
           
-      - name: MSVS build
+      #VsMSBuildCmd.bat -arch=x64 -winsdk="10.0.19041.0"
+      - name: MSVS ${{ matrix.msvs_year }} build
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsMSBuildCmd.bat"  -arch=x64 -winsdk="10.0.19041.0"
+          call "C:${{ matrix.prog_root }}\Microsoft Visual Studio\${{ matrix.msvs_year }}\Enterprise\Common7\Tools\VsMSBuildCmd.bat"  -arch=x64
           echo %PATH%
-          #VsMSBuildCmd.bat -arch=x64 -winsdk="10.0.19041.0"
           dir
-          msbuild.exe sipX-msvc16.sln /t:Clean,Build /p:Configuration=Release /p:Platform=x64
+          msbuild.exe ${{ matrix.solution_file }} /t:Clean,Build /p:Configuration=Release /p:Platform=x64
         shell: cmd
 
       
