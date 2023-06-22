@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2023 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -41,7 +41,7 @@
 //#define RTL_ENABLED
 #undef RTL_AUDIO_ENABLED
 #ifndef EXTERNAL_PLC // [ 
-//#  define ENABLE_NON_PLC_ADJUSTMENT    // the adjustStream code is buggy and can result in using uninitialized buffers - commenting out until it can be fixed
+#  define ENABLE_NON_PLC_ADJUSTMENT
 #endif // !EXTERNAL_PLC ] 
 
 #ifdef RTL_ENABLED
@@ -592,44 +592,46 @@ void crossJoin8(MpAudioSample *pSrc1Dst, MpAudioSample *pSrc2)
 }
 
 int MpJitterBuffer::adjustStream(MpAudioSample *pBuffer,
-                                 int bufferSize,
+                                 int bufferSizeSamples,
                                  unsigned numSamples,
                                  int wantedAdjustment)
 {
    // Don't do anything if wanted adjustment is too small.
-//   if (abs(wantedAdjustment) < numSamples/2)
+   //if (abs(wantedAdjustment) < numSamples/2)
    if (abs(wantedAdjustment) < 20)
    {
       return 0;
    }
 
-   int pos = 0;
+   int splicePointPos = 0;
+   unsigned numSamplesToSearch = 0;
    if (wantedAdjustment > 0)
    {
-      numSamples = sipx_min(numSamples, (unsigned)(wantedAdjustment+wantedAdjustment/8));
+       numSamplesToSearch = sipx_min(numSamples, (unsigned)(wantedAdjustment+wantedAdjustment/8));
+
       // Cannot expand past the maximum size of buffer, so only look for a splice point
       // within the window of the maximum possible shift.
       // Find a good place to glue
-      int maxExpand = sipx_min(numSamples-E_FRAME_WINDOW, bufferSize - numSamples-E_FRAME_WINDOW);
+      int maxExpand = sipx_min(numSamplesToSearch -E_FRAME_WINDOW, bufferSizeSamples - numSamples - E_FRAME_WINDOW);
       if(maxExpand > 0)
       {
-         pos = getMinEPosition(pBuffer, pBuffer+E_FRAME_WINDOW,
-                               maxExpand);
+         splicePointPos = getMinEPosition(pBuffer, pBuffer+E_FRAME_WINDOW, maxExpand);
       }
    }
    else
    {
-      numSamples = sipx_min(numSamples, (unsigned)(-wantedAdjustment+wantedAdjustment/8));
+      numSamplesToSearch = sipx_min(numSamples, (unsigned)(-wantedAdjustment+wantedAdjustment/8));
       // Find a good place to glue
-      pos = getMinEPosition(pBuffer, pBuffer+E_FRAME_WINDOW,
-                            numSamples-E_FRAME_WINDOW);
+      splicePointPos = getMinEPosition(pBuffer, pBuffer+E_FRAME_WINDOW, numSamplesToSearch -E_FRAME_WINDOW);
    }
 
    RTL_EVENT("MpJitterBuffer_adjustStream_wantedAdjustment", wantedAdjustment);
    RTL_EVENT("MpJitterBuffer_adjustStream_numSamples", numSamples);
-   RTL_EVENT("MpJitterBuffer_adjustStream_pos", pos);
+   RTL_EVENT("MpJitterBuffer_adjustStream_numSamplesToUse", numSamplesToSearch);
+   RTL_EVENT("MpJitterBuffer_adjustStream_pos", splicePointPos);
+
    // Go further only if we've got a good place to glue.
-   if (pos > 0)
+   if (splicePointPos > 0)
    {
       // Do we want to expand or to shrink?
       if (wantedAdjustment > 0)
@@ -639,20 +641,19 @@ int MpJitterBuffer::adjustStream(MpAudioSample *pBuffer,
              // Not enough samples to work with
              return(0);
          }
-
          else
          {
              // Expand
-             memmove(pBuffer+2*E_FRAME_WINDOW+pos, pBuffer+E_FRAME_WINDOW,
+             memmove(pBuffer+2*E_FRAME_WINDOW+splicePointPos, pBuffer+E_FRAME_WINDOW,
                      (numSamples-E_FRAME_WINDOW)*sizeof(MpAudioSample));
-             crossJoin8(pBuffer+E_FRAME_WINDOW+pos, pBuffer);
-             RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", pos + E_FRAME_WINDOW);
-             return pos + E_FRAME_WINDOW;
+             crossJoin8(pBuffer+E_FRAME_WINDOW+splicePointPos, pBuffer);
+             RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", splicePointPos + E_FRAME_WINDOW);
+             return splicePointPos + E_FRAME_WINDOW;
          }
       }
       else //if (wantedAdjustment > 0) // wantedAdjustment can't be 0
       {
-         if(numSamples <= (pos + 2 * E_FRAME_WINDOW))
+         if(numSamples <= (splicePointPos + 2 * E_FRAME_WINDOW))
          {
              // Not enough samples to work with
              return(0);
@@ -660,11 +661,11 @@ int MpJitterBuffer::adjustStream(MpAudioSample *pBuffer,
          else
          {
              // Shrink
-             crossJoin8(pBuffer, pBuffer+E_FRAME_WINDOW+pos);
-             memmove(pBuffer+E_FRAME_WINDOW, pBuffer+2*E_FRAME_WINDOW+pos,
-                     (numSamples-pos-2*E_FRAME_WINDOW)*sizeof(MpAudioSample));
-             RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", -(pos + E_FRAME_WINDOW));
-             return -(pos + E_FRAME_WINDOW);
+             crossJoin8(pBuffer, pBuffer+E_FRAME_WINDOW+splicePointPos);
+             memmove(pBuffer+E_FRAME_WINDOW, pBuffer+2*E_FRAME_WINDOW+splicePointPos,
+                     (numSamples - (splicePointPos + 2*E_FRAME_WINDOW))*sizeof(MpAudioSample));
+             RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", -(splicePointPos + E_FRAME_WINDOW));
+             return -(splicePointPos + E_FRAME_WINDOW);
           }
       }
    }
