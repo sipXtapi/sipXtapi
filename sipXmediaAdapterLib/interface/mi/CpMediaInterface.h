@@ -495,7 +495,7 @@ public:
                                        int numChannels = 1,
                                        int maxTime = 0,
                                        int silenceLength = -1,
-                                       UtlBoolean setupMultiChannelMixesAutomatically = TRUE) = 0;
+                                       UtlBoolean setupMixesAutomatically = TRUE) = 0;
    /**
     * @param[in] connectionId - handle for media connection to which recorder is relate
     * @param[in] szFile - name of file to record to
@@ -537,7 +537,9 @@ public:
                                              char* pBuffer,
                                              int bufferSize,
                                              int maxRecordTime = -1,
-                                             int maxSilence = -1) = 0 ;
+                                             int maxSilence = -1,
+                                             int numChannels = 1,
+                                             UtlBoolean setupMixesAutomatically = TRUE) = 0;
 
    /// @brief Stop recording to buffer
    virtual OsStatus stopRecordBufferChannelAudio(int connectionId) = 0 ;
@@ -547,7 +549,9 @@ public:
                                                      CpMediaInterface::CpAudioFileFormat recordingFormat,
                                                      unsigned long recordingBufferNotificationWatermark,
                                                      int maxRecordTime = -1,
-                                                     int maxSilence = -1) = 0;
+                                                     int maxSilence = -1,
+                                                     int numChannels = 1,
+                                                     UtlBoolean setupMixesAutomatically = TRUE) = 0;
 
    virtual OsStatus stopRecordCircularBufferChannelAudio(int connectionId) = 0;
 

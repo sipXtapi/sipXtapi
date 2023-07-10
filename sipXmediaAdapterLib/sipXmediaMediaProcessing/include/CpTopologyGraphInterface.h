@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2021-2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2021-2023 SIP Spectrum, Inc.  All rights reserved.
 // 
 // Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
@@ -342,12 +342,16 @@ public:
                                              char* pBuffer,
                                              int bufferSize,
                                              int maxRecordTime = -1,
-                                             int maxSilence = -1) ;
+                                             int maxSilence = -1,
+                                             int numChannels = 1,
+                                             UtlBoolean setupMixesAutomatically = TRUE) ;
    virtual OsStatus recordBufferAudio(const UtlString& resourceName, 
                                       char* pBuffer,
                                       int bufferSize,
                                       int maxRecordTime = -1,
-                                      int maxSilence = -1);
+                                      int maxSilence = -1,
+                                      int numChannels = 1,
+                                      UtlBoolean setupMixesAutomatically = TRUE);
 
    /// @copydoc CpMediaInterface::stopRecordBufferAudio
    virtual OsStatus stopRecordBufferChannelAudio(int connectionId) ;
@@ -357,13 +361,17 @@ public:
                                                      CpMediaInterface::CpAudioFileFormat recordingFormat,
                                                      unsigned long recordingBufferNotificationWatermark,
                                                      int maxRecordTime = -1,
-                                                     int maxSilence = -1);
+                                                     int maxSilence = -1,
+                                                     int numChannels = 1,
+                                                     UtlBoolean setupMixesAutomatically = TRUE);
    virtual OsStatus recordCircularBufferAudio(const UtlString& resourceName,
                                               CircularBufferPtr& buffer,
                                               CpMediaInterface::CpAudioFileFormat recordingFormat,
                                               unsigned long recordingBufferNotificationWatermark,
                                               int maxRecordTime = -1,
-                                              int maxSilence = -1);
+                                              int maxSilence = -1,
+                                              int numChannels = 1,
+                                              UtlBoolean setupMixesAutomatically = TRUE);
 
    virtual OsStatus stopRecordCircularBufferChannelAudio(int connectionId);
 
@@ -822,6 +830,9 @@ private:
 
       /// Set mixing weight from the Mic to all other Bridge ports.
     OsStatus setMicWeightOnBridge(float weight);
+
+      /// Setup the mixes for recording (routes audio to multiple channels)
+    void setupRecordingMixes(int numChannels);
 
       /// Disabled copy constructor
     CpTopologyGraphInterface(CpTopologyGraphInterface&);

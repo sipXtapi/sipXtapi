@@ -96,7 +96,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\pcre\include;include;contrib\libgsm\inc;contrib\libopus\opusfile\include;contrib\libopus\libopusenc\include;contrib\libopus\opus\include;contrib\libopus\libogg\include;contrib\libspeex\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ALWAYS_SEND_SILENCE;HAVE_SPEEX;HAVE_GSM;xxHAVE_ILBC;OPUS_FILE_RECORD_ENABLED;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;DEFAULT_CODECS_PATH=..\\bin;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=1;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_SPEEX;HAVE_GSM;xxHAVE_ILBC;OPUS_FILE_RECORD_ENABLED;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;DEFAULT_CODECS_PATH=..\\bin;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=2;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -124,7 +124,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\pcre\include;include;contrib\libgsm\inc;contrib\libopus\opusfile\include;contrib\libopus\libopusenc\include;contrib\libopus\opus\include;contrib\libopus\libogg\include;contrib\libspeex\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HAVE_SPEEX;HAVE_GSM;xxHAVE_ILBC;OPUS_FILE_RECORD_ENABLED;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;DEFAULT_CODECS_PATH=..\\bin;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=1;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_SPEEX;HAVE_GSM;xxHAVE_ILBC;OPUS_FILE_RECORD_ENABLED;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;DEFAULT_CODECS_PATH=..\\bin;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=2;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -155,7 +155,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>..\..\pcre\include;include;contrib\libgsm\inc;contrib\libopus\opusfile\include;contrib\libopus\libopusenc\include;contrib\libopus\opus\include;contrib\libopus\libogg\include;contrib\libspeex\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HAVE_SPEEX;HAVE_GSM;xxHAVE_ILBC;OPUS_FILE_RECORD_ENABLED;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;DEFAULT_CODECS_PATH=..\\bin;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=1;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_SPEEX;HAVE_GSM;xxHAVE_ILBC;OPUS_FILE_RECORD_ENABLED;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;DEFAULT_CODECS_PATH=..\\bin;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=2;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -184,7 +184,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>..\..\pcre\include;include;contrib\libgsm\inc;contrib\libopus\opusfile\include;contrib\libopus\libopusenc\include;contrib\libopus\opus\include;contrib\libopus\libogg\include;contrib\libspeex\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HAVE_SPEEX;HAVE_GSM;xxHAVE_ILBC;OPUS_FILE_RECORD_ENABLED;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;DEFAULT_CODECS_PATH=..\\bin;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=1;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_SPEEX;HAVE_GSM;xxHAVE_ILBC;OPUS_FILE_RECORD_ENABLED;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;DEFAULT_CODECS_PATH=..\\bin;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=2;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>

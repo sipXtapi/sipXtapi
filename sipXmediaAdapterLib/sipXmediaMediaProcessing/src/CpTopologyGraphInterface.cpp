@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2021-2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2021-2023 SIP Spectrum, Inc.  All rights reserved.
 // 
 // Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
@@ -2055,45 +2055,9 @@ OsStatus CpTopologyGraphInterface::recordAudio(const UtlString& resourceName,
    if(mpTopologyGraph != NULL)
    {
 #if MAXIMUM_RECORDER_CHANNELS > 1
-       if(setupMixesAutomatically)
-       {
-          int numLocalBridgePorts = mInitialTopologyBridgePorts;  
-          // getNumBridgePorts provides the number of used ports, not the maximum
-          //int totalBridgePorts = getNumBridgePorts();
-          int totalBridgePorts = DEFAULT_BRIDGE_MAX_IN_OUTPUTS;
-          float* recorderWeights = new float[totalBridgePorts];
-          for(int channelIndex = 0; channelIndex < numChannels; channelIndex++)
-          {
-              for(int portIndex = 0; portIndex < totalBridgePorts; portIndex++)
-              {
-                  recorderWeights[portIndex] = 0.0;
-
-                  // If first channel, all the local ports are eanbles
-                  if(channelIndex == 0 && 
-                     portIndex < numLocalBridgePorts)
-                  {
-                      recorderWeights[portIndex] = 1.0;
-                  }
-
-                  // If middle channel only a single remote stream is recorded
-                  if(channelIndex > 0 && channelIndex < numChannels -1 &&
-                     portIndex == numLocalBridgePorts + channelIndex - 1)
-                  {
-                      recorderWeights[portIndex] = 1.0;
-                  }
-
-                  // If last channel, all remaining remote streams are mixed in
-                  if(channelIndex == numChannels - 1 &&
-                     portIndex >= numLocalBridgePorts + channelIndex - 1)
-                  {
-                      recorderWeights[portIndex] = 1.0;
-                  }
-              }
-
-              // Set the weights for this channel on the recorder
-              setMixWeightsForOutput(channelIndex, totalBridgePorts, recorderWeights);
-          }
-          delete[] recorderWeights;
+      if(setupMixesAutomatically)
+      {
+         setupRecordingMixes(numChannels);
       }
 #endif
 
@@ -2200,26 +2164,38 @@ OsStatus CpTopologyGraphInterface::recordBufferChannelAudio(int connectionId, //
                                                             char* pBuffer,
                                                             int bufferSize,
                                                             int maxRecordTime,
-                                                            int maxSilence)
+                                                            int maxSilence,
+                                                            int numChannels,
+                                                            UtlBoolean setupMixesAutomatically)
 {
-   return recordBufferAudio(DEFAULT_RECORDER_RESOURCE_NAME, pBuffer, bufferSize, maxRecordTime, maxSilence);
+   return recordBufferAudio(DEFAULT_RECORDER_RESOURCE_NAME, pBuffer, bufferSize, maxRecordTime, maxSilence, numChannels, setupMixesAutomatically);
 }
 
 OsStatus CpTopologyGraphInterface::recordBufferAudio(const UtlString& resourceName,
                                                      char* pBuffer,
                                                      int bufferSize,
                                                      int maxRecordTime,
-                                                     int maxSilence) 
+                                                     int maxSilence,
+                                                     int numChannels,
+                                                     UtlBoolean setupMixesAutomatically)
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
    {
+#if MAXIMUM_RECORDER_CHANNELS > 1
+      if (setupMixesAutomatically)
+      {
+         setupRecordingMixes(numChannels);
+      }
+#endif
+
       stat = MprRecorder::startBuffer(resourceName,
                                       *mpTopologyGraph->getMsgQ(),
                                       (MpAudioSample*)pBuffer,
                                       bufferSize/sizeof(MpAudioSample),
                                       maxRecordTime,
-                                      maxSilence);
+                                      maxSilence,
+                                      numChannels);
    }
    return stat;
 }
@@ -2240,9 +2216,11 @@ OsStatus CpTopologyGraphInterface::recordCircularBufferChannelAudio(int connecti
                                                                     CpMediaInterface::CpAudioFileFormat recordingFormat,
                                                                     unsigned long recordingBufferNotificationWatermark,
                                                                     int maxRecordTime,
-                                                                    int maxSilence)
+                                                                    int maxSilence,
+                                                                    int numChannels,
+                                                                    UtlBoolean setupMixesAutomatically)
 {
-   return recordCircularBufferAudio(DEFAULT_RECORDER_RESOURCE_NAME, buffer, recordingFormat, recordingBufferNotificationWatermark, maxRecordTime, maxSilence);
+   return recordCircularBufferAudio(DEFAULT_RECORDER_RESOURCE_NAME, buffer, recordingFormat, recordingBufferNotificationWatermark, maxRecordTime, maxSilence, numChannels, setupMixesAutomatically);
 }
 
 OsStatus CpTopologyGraphInterface::recordCircularBufferAudio(const UtlString& resourceName,
@@ -2250,7 +2228,9 @@ OsStatus CpTopologyGraphInterface::recordCircularBufferAudio(const UtlString& re
                                                              CpMediaInterface::CpAudioFileFormat recordingFormat,
                                                              unsigned long recordingBufferNotificationWatermark,
                                                              int maxRecordTime,
-                                                             int maxSilence)
+                                                             int maxSilence,
+                                                             int numChannels,
+                                                             UtlBoolean setupMixesAutomatically)
 {
    OsStatus stat = OS_NOT_FOUND;
    if(mpTopologyGraph != NULL)
@@ -2260,13 +2240,21 @@ OsStatus CpTopologyGraphInterface::recordCircularBufferAudio(const UtlString& re
 
        if (stat == OS_SUCCESS)
        {
+#if MAXIMUM_RECORDER_CHANNELS > 1
+           if (setupMixesAutomatically)
+           {
+              setupRecordingMixes(numChannels);
+           }
+#endif
+
            stat = MprRecorder::startCircularBuffer(resourceName,
                *mpTopologyGraph->getMsgQ(),
                buffer,
                format,
                recordingBufferNotificationWatermark,
                maxRecordTime,
-               maxSilence);
+               maxSilence,
+               numChannels);
        }
    }
    return stat;
@@ -2309,7 +2297,7 @@ OsStatus CpTopologyGraphInterface::createPlaylistPlayer(MpStreamPlaylistPlayer**
 
 OsStatus CpTopologyGraphInterface::destroyPlaylistPlayer(MpStreamPlaylistPlayer* pPlayer)
 {
-   return OS_NOT_SUPPORTED;   
+   return OS_NOT_SUPPORTED;
 }
 
 
@@ -4490,6 +4478,47 @@ OsStatus CpTopologyGraphInterface::setMicWeightOnBridge(float weight)
    delete[] weights;
 
    return OS_SUCCESS;
+}
+
+void CpTopologyGraphInterface::setupRecordingMixes(int numChannels)
+{
+    int numLocalBridgePorts = mInitialTopologyBridgePorts;
+    // getNumBridgePorts provides the number of used ports, not the maximum
+    //int totalBridgePorts = getNumBridgePorts();
+    int totalBridgePorts = DEFAULT_BRIDGE_MAX_IN_OUTPUTS;
+    float* recorderWeights = new float[totalBridgePorts];
+    for (int channelIndex = 0; channelIndex < numChannels; channelIndex++)
+    {
+        for (int portIndex = 0; portIndex < totalBridgePorts; portIndex++)
+        {
+            recorderWeights[portIndex] = 0.0;
+
+            // If first channel, all the local ports are eanbles
+            if (channelIndex == 0 &&
+                portIndex < numLocalBridgePorts)
+            {
+                recorderWeights[portIndex] = 1.0;
+            }
+
+            // If middle channel only a single remote stream is recorded
+            if (channelIndex > 0 && channelIndex < numChannels - 1 &&
+                portIndex == numLocalBridgePorts + channelIndex - 1)
+            {
+                recorderWeights[portIndex] = 1.0;
+            }
+
+            // If last channel, all remaining remote streams are mixed in
+            if (channelIndex == numChannels - 1 &&
+                portIndex >= numLocalBridgePorts + channelIndex - 1)
+            {
+                recorderWeights[portIndex] = 1.0;
+            }
+        }
+
+        // Set the weights for this channel on the recorder
+        setMixWeightsForOutput(channelIndex, totalBridgePorts, recorderWeights);
+    }
+    delete[] recorderWeights;
 }
 
 /* ============================ FUNCTIONS ================================= */
