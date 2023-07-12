@@ -649,8 +649,10 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 
 int MprRecorder::writeCircularBuffer(const char* channelData[], int dataSize)
 {
+#ifdef TEST_PRINT
     OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::doProcessFrame - TO_CIRCULAR_BUFFER, non-silence");
-    
+#endif
+
     unsigned long newSize, previousSize, iterPreviousSize;
     int bytesPerSample = getBytesPerSample(mRecFormat);
     assert(bytesPerSample > 0);
@@ -1247,13 +1249,6 @@ UtlBoolean MprRecorder::handleStartBuffer(MpAudioSample *pBuffer,
    mRecordDestination = TO_BUFFER;
    mChannels = numChannels < 1 ? 1 : numChannels;
 
-   if(mChannels != 1)
-   {
-      OsSysLog::add(FAC_MP, PRI_WARNING,
-         "Multi-channel (%d) record not supported for record to buffer",
-         mChannels);
-   }
-
    startRecording(time, silenceLength);
 
    OsSysLog::add(FAC_MP, PRI_DEBUG,
@@ -1276,13 +1271,6 @@ UtlBoolean MprRecorder::handleStartCircularBuffer(CircularBufferPtr * buffer,
    mRecordingBufferNotificationWatermark = recordingBufferNotificationWatermark;
    mRecordDestination = TO_CIRCULAR_BUFFER;
    mChannels = numChannels < 1 ? 1 : numChannels;
-
-   if(mChannels != 1)
-   {
-      OsSysLog::add(FAC_MP, PRI_WARNING,
-         "Multi-channel (%d) record not supported for record to buffer",
-         mChannels);
-   }
 
    unsigned int codecSampleRate;
    prepareEncoder(recordingFormat, codecSampleRate);

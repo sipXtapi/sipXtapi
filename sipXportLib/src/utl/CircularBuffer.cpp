@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2023 SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2015-2019 SIPez LLC.  All rights reserved.
 //
 // $$
@@ -117,9 +119,11 @@ bool CircularBuffer::write(const ElementType * buffer, unsigned long bufferSize,
 		if (newSize != 0)
 			*newSize = mCount;
 
+#ifdef TEST_PRINT
 		OsSysLog::add(FAC_MP, PRI_DEBUG,
 			"CircularBuffer::write - Current size: %lu samples",
 			mCount);
+#endif
 
 		return true;
 #ifdef SIPX_USE_EXCEPTIONS
