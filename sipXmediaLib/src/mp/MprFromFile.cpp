@@ -1,3 +1,5 @@
+// 
+// Copyright (C) 2021-2023 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2005-2010 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -81,11 +83,31 @@ MprFromFile::~MprFromFile()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus MprFromFile::playBuffer(const UtlString& namedResource, OsMsgQ& fgQ, 
-                                 const char* audioBuffer, unsigned long bufSize, 
-                                 uint32_t inRate, uint32_t fgRate, int type, 
-                                 UtlBoolean repeat, OsProtectedEvent* notify,
-                                 UtlBoolean autoStopAfterFinish)
+int MprFromFile::CalculateStartIndex(size_t bufferLength, unsigned int startOffsetMs, uint32_t flowGraphSampleRate)
+{
+    if (startOffsetMs > 0)
+    {
+        int samplesPerMs = flowGraphSampleRate / 1000;
+        int startIndex = samplesPerMs * 2 /* bytes per sample - LPCM16 */ * startOffsetMs;
+        if (startIndex < bufferLength)
+        {
+            return startIndex;
+        }
+    }
+    return 0;
+}
+
+OsStatus MprFromFile::playBuffer(const UtlString& namedResource, 
+                                 OsMsgQ& fgQ, 
+                                 const char* audioBuffer, 
+                                 unsigned long bufSize, 
+                                 uint32_t inRate, 
+                                 uint32_t fgRate, 
+                                 int type, 
+                                 UtlBoolean repeat, 
+                                 OsProtectedEvent* notify,
+                                 UtlBoolean autoStopAfterFinish,
+                                 unsigned int startOffsetMs)
 {
    UtlString* fgAudBuffer = NULL;
    OsStatus stat = 
@@ -101,6 +123,8 @@ OsStatus MprFromFile::playBuffer(const UtlString& namedResource, OsMsgQ& fgQ,
 
    if(stat == OS_SUCCESS)
    {
+      int startIndex = CalculateStartIndex(fgAudBuffer->length(), startOffsetMs, fgRate);
+       
       MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_START,
                               namedResource);
       UtlSerialized &msgData = msg.getData();
@@ -109,6 +133,8 @@ OsStatus MprFromFile::playBuffer(const UtlString& namedResource, OsMsgQ& fgQ,
       stat = msgData.serialize(repeat);
       assert(stat == OS_SUCCESS);
       stat = msgData.serialize(autoStopAfterFinish);
+      assert(stat == OS_SUCCESS);
+      stat = msgData.serialize(startIndex);
       assert(stat == OS_SUCCESS);
       msgData.finishSerialize();
       stat = fgQ.send(msg, sOperationQueueTimeout);
@@ -127,12 +153,15 @@ OsStatus MprFromFile::playFile(const UtlString& namedResource,
                                uint32_t fgSampleRate,
                                const UtlString& filename, 
                                const UtlBoolean& repeat,
-                               UtlBoolean autoStopAfterFinish)
+                               UtlBoolean autoStopAfterFinish,
+                               unsigned int startOffsetMs)
 {
    UtlString* audioBuffer = NULL;
    OsStatus stat = readAudioFile(fgSampleRate, audioBuffer, filename);
    if(stat == OS_SUCCESS)
    {
+      int startIndex = CalculateStartIndex(audioBuffer->length(), startOffsetMs, fgSampleRate);
+
       MpPackedResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_START,
                               namedResource);
       UtlSerialized &msgData = msg.getData();
@@ -141,6 +170,8 @@ OsStatus MprFromFile::playFile(const UtlString& namedResource,
       stat = msgData.serialize(repeat);
       assert(stat == OS_SUCCESS);
       stat = msgData.serialize(autoStopAfterFinish);
+      assert(stat == OS_SUCCESS);
+      stat = msgData.serialize(startIndex);
       assert(stat == OS_SUCCESS);
       msgData.finishSerialize();
       stat = fgQ.send(msg, sOperationQueueTimeout);
@@ -758,7 +789,8 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
                totalBytesRead += bytesLeft;
                mFileBufferIndex += bytesLeft;
             }
-         } else 
+         } 
+         else 
          {
             if (mFileBufferIndex >= bufferLength) 
             {
@@ -815,7 +847,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
 // This is used in both old and new messaging schemes to initialize everything
 // and start playing a buffer, when a play is requested.
 UtlBoolean MprFromFile::handlePlay(UtlString* pBuffer, UtlBoolean repeat,
-                                   UtlBoolean autoStopAfterFinish)
+                                   UtlBoolean autoStopAfterFinish, unsigned int startIndex)
 {
    // Stop previous playback if still playing it.
    if (mState != STATE_IDLE)
@@ -832,7 +864,8 @@ UtlBoolean MprFromFile::handlePlay(UtlString* pBuffer, UtlBoolean repeat,
    mpFileBuffer = pBuffer;
    if (mpFileBuffer) 
    {
-      mFileBufferIndex = 0;
+      assert(startIndex < mpFileBuffer->length());
+      mFileBufferIndex = startIndex;
       mFileRepeat = repeat;
    }
    mAutoStopAfterFinish = autoStopAfterFinish;
@@ -956,6 +989,7 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
          UtlString *pAudioBuffer;
          UtlBoolean isRepeating;
          UtlBoolean autoStopAfterFinish;
+         unsigned int startIndex;
 
          UtlSerialized &msgData = ((MpPackedResourceMsg*)(&rMsg))->getData();
          stat = msgData.deserialize((void*&)pAudioBuffer);
@@ -964,8 +998,10 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
          assert(stat == OS_SUCCESS);
          stat = msgData.deserialize(autoStopAfterFinish);
          assert(stat == OS_SUCCESS);
+         stat = msgData.deserialize(startIndex);
+         assert(stat == OS_SUCCESS);
 
-         msgHandled = handlePlay(pAudioBuffer, isRepeating, autoStopAfterFinish);
+         msgHandled = handlePlay(pAudioBuffer, isRepeating, autoStopAfterFinish, startIndex);
       }
       break;
 

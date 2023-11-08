@@ -251,15 +251,16 @@ public:
      /// @copydoc CpMediaInterface::playAudio()
    virtual OsStatus playAudio(const char* url, 
                               UtlBoolean repeat,
-                              UtlBoolean local, 
-                              UtlBoolean remote,
-                              UtlBoolean mixWithMic = false,
-                              int downScaling = 100,
-                              UtlBoolean autoStopAfterFinish = TRUE);
+                              UtlBoolean local,               // currently unused in this topology
+                              UtlBoolean remote,              // currently unused in this topology
+                              UtlBoolean mixWithMic = false,  // currently unused in this topology
+                              int downScaling = 100,          // currently unused in this topology
+                              UtlBoolean autoStopAfterFinish = TRUE) override;
    virtual OsStatus playAudio(const UtlString& resourceName,
                               const char* url,
                               UtlBoolean repeat,
-                              UtlBoolean autoStopAfterFinish = TRUE);
+                              UtlBoolean autoStopAfterFinish = TRUE,
+                              unsigned int startOffsetMs = 0);
 
      /// @copydoc CpMediaInterface::playBuffer()
     virtual OsStatus playBuffer(char* buf, 
@@ -267,12 +268,12 @@ public:
                                 uint32_t bufRate, 
                                 int type, 
                                 UtlBoolean repeat,
-                                UtlBoolean local, 
-                                UtlBoolean remote,
+                                UtlBoolean local,               // currently unused in this topology
+                                UtlBoolean remote,              // currently unused in this topology
                                 OsProtectedEvent* event = NULL,
-                                UtlBoolean mixWithMic = false,
-                                int downScaling = 100,
-                                UtlBoolean autoStopOnFinish = TRUE);
+                                UtlBoolean mixWithMic = false,  // currently unused in this topology
+                                int downScaling = 100,          // currently unused in this topology
+                                UtlBoolean autoStopOnFinish = TRUE) override;
    virtual OsStatus playBuffer(const UtlString& resourceName,
                                char* buf,
                                unsigned long bufSize,
@@ -280,7 +281,8 @@ public:
                                int type,
                                UtlBoolean repeat,
                                OsProtectedEvent* event = NULL,
-                               UtlBoolean autoStopOnFinish = TRUE);
+                               UtlBoolean autoStopOnFinish = TRUE,
+                               unsigned int startOffsetMs = 0);
 
      /// @copydoc CpMediaInterface::pauseAudio()
    virtual OsStatus pauseAudio();

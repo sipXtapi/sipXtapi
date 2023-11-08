@@ -1890,7 +1890,8 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
 OsStatus CpTopologyGraphInterface::playAudio(const UtlString& resourceName, 
                                              const char* url,
                                              UtlBoolean repeat,
-                                             UtlBoolean autoStopAfterFinish)
+                                             UtlBoolean autoStopAfterFinish,
+                                             unsigned int startOffsetMs)
 {
     OsStatus stat = OS_NOT_FOUND;
     UtlString filename;
@@ -1901,8 +1902,12 @@ OsStatus CpTopologyGraphInterface::playAudio(const UtlString& resourceName,
     if(mpTopologyGraph && !filename.isNull())
     {
         stat = MprFromFile::playFile(resourceName,
-            *mpTopologyGraph->getMsgQ(), mpTopologyGraph->getSamplesPerSec(),
-            filename, repeat, autoStopAfterFinish);
+                                     *mpTopologyGraph->getMsgQ(), 
+                                     mpTopologyGraph->getSamplesPerSec(),
+                                     filename, 
+                                     repeat, 
+                                     autoStopAfterFinish,
+                                     startOffsetMs);
     }
 
     if(stat != OS_SUCCESS)
@@ -1935,16 +1940,24 @@ OsStatus CpTopologyGraphInterface::playBuffer(const UtlString& resourceName,
                                               int type,
                                               UtlBoolean repeat,
                                               OsProtectedEvent* pEvent,
-                                              UtlBoolean autoStopOnFinish)
+                                              UtlBoolean autoStopOnFinish,
+                                              unsigned int startOffsetMs)
 {
     OsStatus stat = OS_NOT_FOUND;
     if(mpTopologyGraph && buf)
     {
         uint32_t fgRate = mpTopologyGraph->getSamplesPerSec();
         stat = MprFromFile::playBuffer(resourceName,
-            *mpTopologyGraph->getMsgQ(),
-            buf, bufSize, bufRate, fgRate,
-            type, repeat, pEvent, autoStopOnFinish);
+                                       *mpTopologyGraph->getMsgQ(),
+                                       buf, 
+                                       bufSize, 
+                                       bufRate, 
+                                       fgRate,
+                                       type, 
+                                       repeat, 
+                                       pEvent, 
+                                       autoStopOnFinish,
+                                       startOffsetMs);
     }
 
     if(stat != OS_SUCCESS)

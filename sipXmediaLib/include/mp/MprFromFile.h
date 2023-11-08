@@ -1,3 +1,5 @@
+// 
+// Copyright (C) 2021-2023 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -65,6 +67,8 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+     /// Calculate where to start playing the file from if startOffsetMs is > 0
+    static int CalculateStartIndex(size_t bufferLength, unsigned int startOffsetMs, uint32_t flowGraphSampleRate);
 
       /// Play sound from buffer w/repeat option
     static OsStatus playBuffer(const UtlString& namedResource, 
@@ -74,7 +78,8 @@ public:
                                uint32_t inRate, uint32_t fgRate, 
                                int type, UtlBoolean repeat, 
                                OsProtectedEvent* notify,
-                               UtlBoolean autoStopAfterFinish = TRUE);
+                               UtlBoolean autoStopAfterFinish = TRUE,
+                               unsigned int startOffsetMs = 0);
       /**<
       *  @param[in] fgRate - the sample rate that the flowgraph is running at
       *             (this cannot determine that because it is a static method)
@@ -87,6 +92,9 @@ public:
       *             automatically transition to IDLE state immediately after
       *             FINISHED state is reached. Otherwise you need to call
       *             stopFile() to transition to IDLE state.
+      *  @param[in] startOffsetMs - start playing the file at the specified 
+      *             number of milliseconds into the file.  Use 0 to play
+      *             from the start of the file.
       *
       *  @returns the result of attempting to queue the message to this
       *           resource and/or converting the audio buffer data.
@@ -98,7 +106,8 @@ public:
                             uint32_t fgSampleRate,
                             const UtlString& filename,
                             const UtlBoolean& repeat,
-                            UtlBoolean autoStopAfterFinish = TRUE);
+                            UtlBoolean autoStopAfterFinish = TRUE,
+                            unsigned int startOffsetMs = 0);
      /**<
      *  Sends an MPRM_FROMFILE_START message to the named MprFromFile resource
      *  within the flowgraph who's queue is supplied. When the message 
@@ -117,6 +126,9 @@ public:
      *              automatically transition to IDLE state immediately after
      *              FINISHED state is reached. Otherwise you need to call
      *              stopFile() to transition to IDLE state.
+      *  @param[in] startOffsetMs - start playing the file at the specified 
+      *             number of milliseconds into the file.  Use 0 to play
+      *             from the start of the file.
      *
      *  @retval The result of attempting to queue the message to this resource.
      */
@@ -330,7 +342,7 @@ private:
 
      /// Initialize things to start playing the given buffer, upon receiving request to start.
    UtlBoolean handlePlay(UtlString* pBuffer, UtlBoolean repeat,
-                         UtlBoolean autoStopAfterFinish);
+                         UtlBoolean autoStopAfterFinish, unsigned int startIndex);
 
      /// Handle playback finish when the end of file/buffer is reached.
    UtlBoolean handleFinish();
