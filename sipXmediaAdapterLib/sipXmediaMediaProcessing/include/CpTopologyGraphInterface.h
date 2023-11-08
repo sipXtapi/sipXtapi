@@ -255,7 +255,7 @@ public:
                               UtlBoolean remote,              // currently unused in this topology
                               UtlBoolean mixWithMic = false,  // currently unused in this topology
                               int downScaling = 100,          // currently unused in this topology
-                              UtlBoolean autoStopAfterFinish = TRUE) override;
+                              UtlBoolean autoStopAfterFinish = TRUE);
    virtual OsStatus playAudio(const UtlString& resourceName,
                               const char* url,
                               UtlBoolean repeat,
@@ -273,7 +273,7 @@ public:
                                 OsProtectedEvent* event = NULL,
                                 UtlBoolean mixWithMic = false,  // currently unused in this topology
                                 int downScaling = 100,          // currently unused in this topology
-                                UtlBoolean autoStopOnFinish = TRUE) override;
+                                UtlBoolean autoStopOnFinish = TRUE);
    virtual OsStatus playBuffer(const UtlString& resourceName,
                                char* buf,
                                unsigned long bufSize,
