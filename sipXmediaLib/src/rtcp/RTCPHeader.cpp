@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2022-2024 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
@@ -149,7 +149,7 @@ int CRTCPHeader::VetPacket(unsigned char* buffer, int bufferLen)
     {
         if (0 != (bufferLen % 4)) 
         {
-            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPHeader::VetPacket: packet length, %d, is not a multiple of 4; padding and adjusting", bufferLen);
+            OsSysLog::add(FAC_MP, PRI_WARNING, "CRTCPHeader::VetPacket: packet length, %d, is not a multiple of 4; padding and adjusting", bufferLen);
             while (0 != (bufferLen % 4)) buffer[bufferLen++] = 0;
         }
         nRemain = bufferLen;
@@ -182,17 +182,24 @@ int CRTCPHeader::VetPacket(unsigned char* buffer, int bufferLen)
     }
     if (nRemain > 0) 
     {
-        OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPHeader::VetPacket: packet failed sanity check. Original len=%d, nRemain=%d", originalLen, nRemain);
-        UtlString buf;
-        unsigned char *tp = buffer;
-        int tl = originalLen;
-        while(tl > 0) 
+        if (nRemain > okLen)
         {
-            buf.appendFormat(" 0x%02X,", *tp++);
-            tl--;
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPHeader::VetPacket: packet failed sanity check. Original len=%d, nRemain=%d", originalLen, nRemain);
+            UtlString buf;
+            unsigned char* tp = buffer;
+            int tl = originalLen;
+            while (tl > 0)
+            {
+                buf.appendFormat(" 0x%02X,", *tp++);
+                tl--;
+            }
+            buf.strip(UtlString::trailing, ',');
+            OsSysLog::add(FAC_MP, PRI_WARNING, "RTCP Packet:    %s", buf.data());
         }
-        buf.strip(UtlString::trailing, ',');
-        OsSysLog::add(FAC_MP, PRI_ERR, "RTCP Packet:    %s", buf.data());
+        else
+        {
+            OsSysLog::add(FAC_MP, PRI_INFO, "CRTCPHeader::VetPacket: packet has extra bytes %d extra bytes that will be ignored. Original len=%d, Shortened len=%d", nRemain, originalLen, okLen);
+        }
     }
     return okLen;
 }
