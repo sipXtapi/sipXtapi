@@ -615,7 +615,7 @@ UtlString MpidWinMM::getDefaultDeviceName()
                     "MpidWinMM::getDefaultDeviceName: "
                     "No input audio devices present!");
    }
-   assert(nDevs != 0);
+   //assert(nDevs != 0);  // This assert is preventing CI builds from running unit tests (CI machines don't have audio devices)
 
    MMRESULT wavResult = MMSYSERR_NOERROR;
    WAVEINCAPS devCaps;
@@ -634,7 +634,7 @@ UtlString MpidWinMM::getDefaultDeviceName()
    {
       devName = devCaps.szPname;
    }
-   assert(wavResult == MMSYSERR_NOERROR);
+   // assert(wavResult == MMSYSERR_NOERROR); // This assert is preventing CI builds from running unit tests (CI machines don't have audio devices)
    return devName;
 }
 
