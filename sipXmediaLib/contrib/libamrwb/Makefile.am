@@ -98,7 +98,7 @@ $(top_srcdir)/26204-700_ANSI-C_source_code.zip $(top_srcdir)/26204-700.doc: $(to
 	chmod og-w $(top_srcdir)/26204-700.doc
 
 $(top_srcdir)/26204-700.zip:
-	cd $(top_srcdir) && $(DOWNLOADER_PROG) http://www.3gpp.org/ftp/Specs/archive/26_series/26.204/26204-700.zip
+	cd $(top_srcdir) && $(DOWNLOADER_PROG) https://www.3gpp.org/ftp/Specs/archive/26_series/26.204/26204-700.zip
 
 extraclean:
 	rm -f $(distdir)/*.c $(distdir)/*.h $(distdir)/readme.txt $(distdir)/26204-700.zip $(distdir)/26204-700.doc $(distdir)/26204-700_ANSI-C_source_code.zip
