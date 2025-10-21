@@ -1,0 +1,52 @@
+--- configure.orig	2025-10-21 14:37:47.590163644 -0400
++++ configure	2025-10-21 15:16:06.317696851 -0400
+@@ -310,10 +310,30 @@
+ {
+   return $?
+ }
+ as_nop=as_fn_nop
+ 
++#DGP
++# as_fn_set_status STATUS
++# -----------------------
++# Set $? to STATUS, without forking.
++as_fn_set_status ()
++{
++  return $1
++} # as_fn_set_status
++
++# as_fn_exit STATUS
++# -----------------
++# Exit the shell with STATUS, even in a "trap 0" or "set -e" context.
++as_fn_exit ()
++{
++  set +e
++  as_fn_set_status $1
++  exit $1
++} # as_fn_exit
++#DGP
++
+ # as_fn_mkdir_p
+ # -------------
+ # Create "$as_dir" as a directory, including parents if necessary.
+ as_fn_mkdir_p ()
+ {
+@@ -433,10 +453,18 @@
+   as_dirname=dirname
+ else
+   as_dirname=false
+ fi
+ 
++#DGP
++# Avoid depending upon Character Ranges.
++as_cr_letters='abcdefghijklmnopqrstuvwxyz'
++as_cr_LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
++as_cr_Letters=$as_cr_letters$as_cr_LETTERS
++as_cr_digits='0123456789'
++as_cr_alnum=$as_cr_Letters$as_cr_digits
++#DGP
+ 
+ # Determine whether it's possible to make 'echo' print without a newline.
+ # These variables are no longer used directly by Autoconf, but are AC_SUBSTed
+ # for compatibility with existing Makefiles.
+ ECHO_C= ECHO_N= ECHO_T=
