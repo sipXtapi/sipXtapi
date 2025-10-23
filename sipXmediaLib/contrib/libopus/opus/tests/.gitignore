@@ -1,0 +1,7 @@
+.dirstamp
+.libs/
+test_opus_api
+test_opus_decode
+test_opus_encode
+test_opus_padding
+
