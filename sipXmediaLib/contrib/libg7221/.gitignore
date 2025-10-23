@@ -1,0 +1,17 @@
+config-h.in
+config-h.in~
+config/compile
+config/config.guess
+config/config.sub
+config/install-sh
+config/ltmain.sh
+configure~
+force_fixed.txt
+g722_1.pc
+g722_1.spec
+src/.libs/
+src/dct4.h
+src/g722_1.h
+src/make_dct4_tables
+tests/regression_tests.sh
+
