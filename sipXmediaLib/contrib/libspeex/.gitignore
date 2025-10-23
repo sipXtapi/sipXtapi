@@ -9,6 +9,7 @@ Speex.kdevelop.pcs
 Speex.kdevses
 aclocal.m4
 autom4te.cache
+compile
 config.guess
 config.h.in
 config.sub
@@ -26,6 +27,7 @@ Speex.spec
 config.h
 config.log
 config.status
+INSTALL
 include/speex/speex_config_types.h
 *.swp
 testdenoise
@@ -34,8 +36,12 @@ testenc
 testenc_uwb
 testenc_wb
 libtool
+libspeex/testjitter
 speex.pc
+speexdsp.pc
 src/speexdec
 src/speexenc
 stamp-*
 patches
+
+
