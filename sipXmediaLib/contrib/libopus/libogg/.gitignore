@@ -1,0 +1,15 @@
+compile
+config.guess
+config.sub
+depcomp
+include/ogg/config_types.h
+install-sh
+ltmain.sh
+m4/libtool.m4
+missing
+ogg-uninstalled.pc
+ogg.pc
+src/.libs/
+src/test_bitwise
+src/test_framing
+
