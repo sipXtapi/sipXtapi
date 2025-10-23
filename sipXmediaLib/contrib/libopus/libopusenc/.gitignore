@@ -1,0 +1,13 @@
+.libs/
+compile
+config.guess
+config.sub
+depcomp
+doc/Doxyfile
+examples/.libs/
+examples/opusenc_example
+install-sh
+ltmain.sh
+m4/libtool.m4
+missing
+
