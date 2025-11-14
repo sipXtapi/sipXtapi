@@ -3,11 +3,11 @@ nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
 nobase_include_HEADERS =  \
    CpTopologyGraphInterface.h \
-   MaNotfTranslatorDispatcher.h
+   CpTopologyGraphFactoryImpl.h \
+   MaNotfTranslatorDispatcher.h \
+   sipXmediaFactoryImpl.h
    
 
 noinst_HEADERS = \
-   CpPhoneMediaInterface.h \
-   CpTopologyGraphFactoryImpl.h \
-   sipXmediaFactoryImpl.h
+   CpPhoneMediaInterface.h
 
