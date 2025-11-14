@@ -273,98 +273,101 @@ AC_DEFUN([CHECK_ANT],
 #
 # OpenSSL is required
 #
-AC_DEFUN([CHECK_SSL],
-[   AC_ARG_WITH(openssl,
-                [  --with-openssl=PATH      to openssl source directory],
+AC_DEFUN([CHECK_SIPX_SSL],
+[   AC_ARG_WITH(sipxopenssl,
+                [  --with-sipxopenssl=PATH      to openssl source directory],
                 [openssl_path=$withval],
-                [openssl_path="/usr/local /usr/local/ssl /usr/ssl /usr/pkg /usr / /sw/lib"]
+                [openssl_path="/usr/local /usr/lib /usr/local/ssl /usr/ssl /usr/pkg /usr / /sw/lib"]
                 )
+    AC_MSG_RESULT(openssl option: ${with-sipxopenssl} withval: ${withval})
     if test "$withval" != "no" ; then
     
-    AC_MSG_RESULT(openssl option: ${with-openssl} withval: ${withval})
-    AC_PATH_PROG([OPENSSL],[openssl])
-    AC_MSG_CHECKING([for openssl includes])
-    found_ssl_inc="no";
-    tried_path=""
-    for dir in $openssl_path ; do
-        if test -f "$dir/openssl/ssl.h"; then
-            found_ssl_inc="yes";
-            sslincdir="$dir"
-            break;
-        elif test -f "$dir/include/openssl/ssl.h"; then
-            found_ssl_inc="yes";
-            sslincdir="$dir/include"
-            break;
-        else
-            tried_path="${tried_path} $dir $dir/include"
-        fi
-    done
-    if test x_$found_ssl_inc != x_yes ; then
-        AC_MSG_ERROR(['openssl/ssl.h' not found; tried ${tried_path}])
-    else
-        AC_MSG_RESULT($sslincdir)
-        HAVE_SSL=yes
-        AC_SUBST(HAVE_SSL)
-        SSL_CFLAGS="-DHAVE_SSL"
+      AC_PATH_PROG([OPENSSL],[openssl])
+      AC_MSG_CHECKING([for openssl includes])
+      found_ssl_inc="no";
+      tried_path=""
+      for dir in $openssl_path ; do
+          if test -f "$dir/openssl/ssl.h"; then
+              found_ssl_inc="yes";
+              sslincdir="$dir"
+              break;
+          elif test -f "$dir/include/openssl/ssl.h"; then
+              found_ssl_inc="yes";
+              sslincdir="$dir/include"
+              break;
+          else
+              tried_path="${tried_path} $dir $dir/include"
+          fi
+      done
+      if test x_$found_ssl_inc != x_yes ; then
+          AC_MSG_ERROR(['openssl/ssl.h' not found; tried ${tried_path}])
+      else
+          AC_MSG_RESULT($sslincdir)
+          HAVE_SSL=yes
+          AC_SUBST(HAVE_SSL)
+          SSL_CFLAGS="-DHAVE_SSL"
 
-        # don't need to add -I/usr/include
-        if test "${sslincdir}" != "/usr/include"; then
-           SSL_CFLAGS="$SSL_CFLAGS -I$sslincdir"
-        fi
-    fi
-
-    AC_MSG_CHECKING([for openssl libraries])
-    found_ssl_lib="no";
-    for dir in $openssl_path ; do
-        if test -f "$dir/lib/libssl.so" -o "$dir/lib/libssl.a"; then
-            found_ssl_lib="yes";
-            ssllibdir="$dir/lib"
-            break;
-        # This test is an ugly hack to make sure that the current builds work.
-        # But our test should be improved to allow libssl.so to have any version
-        # and let the test succeed, since "-lssl" works with any version number.
-        elif test -f "$dir/lib/libssl.so.4"; then
-            found_ssl_lib="yes";
-            ssllibdir="$dir/lib"
-            break;
-        elif test -f "$dir/lib/openssl/libssl.so"; then
-            found_ssl_lib="yes";
-            ssllibdir="$dir/lib/openssl"
-            break;
-        elif test -f "$dir/lib/ssl/libssl.so"; then
-            found_ssl_lib="yes";
-            ssllibdir="$dir/lib/ssl"
-            break;
-        fi
-    done
-
-    if test x_$found_ssl_lib != x_yes ; then
-        AC_MSG_ERROR(['libssl.so' not found; tried $openssl_path, each with lib, lib/openssl, and lib/ssl])
-    else
-        AC_MSG_RESULT($ssllibdir)
-        AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir")
-        AC_SUBST(SSL_LIBS,"-lssl -lcrypto")
-    fi
-
-## openssl-devel rpm installs kerbose in another dir
-    AC_MSG_CHECKING(for extra kerberos includes)
-    krb_found="no"
-    for krbdir in $openssl_path ; do
-      if test -f "$krbdir/kerberos/include/krb5.h"; then
-        krb_found="yes"
-        break;
+          # don't need to add -I/usr/include
+          if test "${sslincdir}" != "/usr/include"; then
+             SSL_CFLAGS="$SSL_CFLAGS -I$sslincdir"
+          fi
       fi
-    done
-    if test x_$krb_found = x_yes; then
-        AC_MSG_RESULT($krbdir/kerberos/include)
-        SSL_CFLAGS="$SSL_CFLAGS -I$krbdir/kerberos/include"
+
+      AC_MSG_CHECKING([for openssl libraries])
+      found_ssl_lib="no";
+      for dir in $openssl_path ; do
+          if test -f "$dir/lib/libssl.so" -o "$dir/lib/libssl.a"; then
+              found_ssl_lib="yes";
+              ssllibdir="$dir/lib"
+              break;
+          # This test is an ugly hack to make sure that the current builds work.
+          # But our test should be improved to allow libssl.so to have any version
+          # and let the test succeed, since "-lssl" works with any version number.
+          elif test -f "$dir/lib/libssl.so.4"; then
+              found_ssl_lib="yes";
+              ssllibdir="$dir/lib"
+              break;
+          elif test -f "$dir/lib/openssl/libssl.so"; then
+              found_ssl_lib="yes";
+              ssllibdir="$dir/lib/openssl"
+              break;
+          elif test -f "$dir/lib/ssl/libssl.so"; then
+              found_ssl_lib="yes";
+              ssllibdir="$dir/lib/ssl"
+              break;
+          fi
+      done
+
+      if test x_$found_ssl_lib != x_yes ; then
+          AC_MSG_ERROR(['libssl.so' not found; tried $openssl_path, each with lib, lib/openssl, and lib/ssl])
+      else
+          AC_MSG_RESULT($ssllibdir)
+          AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir")
+          AC_SUBST(SSL_LIBS,"-lssl -lcrypto")
+      fi
+
+  ## openssl-devel rpm installs kerbose in another dir
+      AC_MSG_CHECKING(for extra kerberos includes)
+      krb_found="no"
+      for krbdir in $openssl_path ; do
+        if test -f "$krbdir/kerberos/include/krb5.h"; then
+          krb_found="yes"
+          break;
+        fi
+      done
+      if test x_$krb_found = x_yes; then
+          AC_MSG_RESULT($krbdir/kerberos/include)
+          SSL_CFLAGS="$SSL_CFLAGS -I$krbdir/kerberos/include"
+      else
+          AC_MSG_RESULT(['kerberos/include/krb5.h' not found - looked in $openssl_path])
+      fi
+
+      AC_SUBST(SSL_CFLAGS,"$SSL_CFLAGS")
+      AC_SUBST(SSL_CXXFLAGS,"$SSL_CFLAGS")
+
     else
-        AC_MSG_RESULT(['kerberos/include/krb5.h' not found - looked in $openssl_path])
-    fi
-
-    AC_SUBST(SSL_CFLAGS,"$SSL_CFLAGS")
-    AC_SUBST(SSL_CXXFLAGS,"$SSL_CFLAGS")
-
+      AC_SUBST(SSL_CFLAGS,"")
+      AC_SUBST(SSL_CXXFLAGS,"")
     fi # end if with openssl
 ])
 
