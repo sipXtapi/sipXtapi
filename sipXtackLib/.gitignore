@@ -9,6 +9,7 @@ bin/Makefile.in
 bin/sipxtacklib-config
 config.h
 config.h.in
+config.h.in~
 config.log
 config.properties
 config.status
