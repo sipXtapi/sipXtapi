@@ -11,7 +11,10 @@ CHECK_AUTOCONF
 
 AC_CONFIG_SRCDIR([src/os/OsConfigDb.cpp])
 AM_CONFIG_HEADER([config.h])
-AC_PROG_LIBTOOL
+# Used in older versions of autoconf/libtool
+#AC_PROG_LIBTOOL
+# The current way to build libs:
+LT_INIT
 
 # Checks for programs.
 AC_PROG_CXX
@@ -52,7 +55,7 @@ AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet_ntoa localtime_r memchr memset mkdir putenv rmdir select setenv socket strchr strdup strerror strrchr strstr strtol strtoul tzset])
 
 CHECK_PCRE
-CHECK_SSL
+CHECK_SIPX_SSL
 
 SFAC_INIT_FLAGS
 

@@ -58,7 +58,7 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 CHECK_CPPUNIT
 
 # Look for SSL libraries
-CHECK_SSL
+CHECK_SIPX_SSL
 
 # sipX dependencies
 SFAC_LIB_PORT
