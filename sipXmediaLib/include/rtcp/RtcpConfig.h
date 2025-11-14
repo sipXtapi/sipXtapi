@@ -46,11 +46,6 @@
 /* #undef EXCLUDE_RTCP */
 #endif /* VXWORKS ] */
 
-#ifdef WIN32 /* [ */
-#define EXCLUDE_RTCP
-#undef EXCLUDE_RTCP 
-#endif /* WIN32 ] */
-
 #ifndef EXCLUDE_RTCP /* [ */
 #define INCLUDE_RTCP
 #define PINGTEL_OSSOCKET
