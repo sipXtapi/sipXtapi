@@ -1,14 +1,19 @@
 .libs
+compile
 config.guess
 config.sub
 configure~
+depcomp
 doc/Doxyfile
+INSTALL
 install-sh
 ltmain.sh
 m4/libtool.m4
+missing
 opus-uninstalled.pc
 opus.pc
 opus_compare
 opus_demo
 repacketizer_demo
+test-driver
 
