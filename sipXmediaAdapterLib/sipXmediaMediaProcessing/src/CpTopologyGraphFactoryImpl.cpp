@@ -355,6 +355,10 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 
     mpConnectionResourceTopology = buildUnicastConnectionResourceTopology();
     mpMcastConnectionResourceTopology = buildMulticastConnectionResourceTopology();
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+       "CpTopologyGraphFactoryImpl: %d mixer channels, %d max recording channels",
+       MAXIMUM_RECORDER_CHANNELS, DEFAULT_BRIDGE_MAX_IN_OUTPUTS);
 }
 
 
