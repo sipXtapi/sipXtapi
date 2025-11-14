@@ -3,6 +3,7 @@ config.guess
 config.sub
 configure~
 depcomp
+INSTALL
 install-sh
 ltmain.sh
 missing
