@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2025 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -20,6 +20,7 @@
 // APPLICATION INCLUDES
 #include "mi/CpMediaInterface.h"
 #include "mi/CpMediaInterfaceFactoryImpl.h" 
+#include "sdp/SdpCodec.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
