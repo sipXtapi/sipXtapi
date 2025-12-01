@@ -8,24 +8,42 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+
+/*
+ * NOTE: This file historically defined clock_gettime to avoid linking with librt
+ * on older Linux or macOS systems. On modern platforms:
+ *
+ * 1. Linux (glibc ≥ 2.17) provides clock_gettime natively, no -lrt required.
+ * 2. MacOS (10.12+) provides clock_gettime natively.
+ *
+ * Defining your own clock_gettime on Linux is dangerous because it overrides
+ * the system implementation. This breaks C++ standard library components
+ * that rely on the correct system behavior, particularly std::condition_variable.
+ *
+ * std::condition_variable::wait_for and wait_until internally call clock_gettime
+ * for timed waits. If clock_gettime is overridden, timed waits can fail,
+ * return immediately, or never wake — causing serious bugs.
+ *
+ * Therefore, we only define clock_gettime if it is not already defined.
+ */
+ 
+
 #include <time.h>
 #include <sys/time.h>
 
-/* This function comes from librt.so. We would prefer not to need that library
- * but the RTCP code uses clock_gettime(). Rather than rewrite that code, we
- * just implement clock_gettime() using gettimeofday(). */
-
-#ifdef __APPLE__
-/* we don't even have the typedef on OS X */
-typedef int clockid_t;
+#ifndef clock_gettime
+#define NEED_CLOCK_GETTIME
 #endif
 
-int clock_gettime(clockid_t clock_id, struct timespec * tp)
+#ifdef NEED_CLOCK_GETTIME
+int clock_gettime(clockid_t clk_id, struct timespec* tp)
 {
-        struct timeval tv;
-        if(gettimeofday(&tv, NULL))
-                return -1;
-        tp->tv_sec = tv.tv_sec;
-        tp->tv_nsec = tv.tv_usec * 1000;
-        return 0;
+    struct timeval now;
+    gettimeofday(&now, NULL);
+
+    tp->tv_sec  = now.tv_sec;
+    tp->tv_nsec = now.tv_usec * 1000;
+
+    return 0;
 }
+#endif
