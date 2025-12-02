@@ -24,26 +24,31 @@
  * for timed waits. If clock_gettime is overridden, timed waits can fail,
  * return immediately, or never wake — causing serious bugs.
  *
- * Therefore, we only define clock_gettime if it is not already defined.
+ * Therefore: this implementation is guarded by HAVE_CLOCK_GETTIME,
+ * which Autoconf sets only after a successful compile+link test.
  */
  
-
+#include "config.h"
 #include <time.h>
 #include <sys/time.h>
 
-#ifndef clock_gettime
-#define NEED_CLOCK_GETTIME
+#ifndef HAVE_CLOCK_GETTIME
+
+#ifdef __APPLE__
+/* we don't even have the typedef on OS X */
+typedef int clockid_t;
 #endif
 
-#ifdef NEED_CLOCK_GETTIME
 int clock_gettime(clockid_t clk_id, struct timespec* tp)
 {
-    struct timeval now;
-    gettimeofday(&now, NULL);
+    (void)clk_id;
+    struct timeval tv;
+    if (gettimeofday(&tv, NULL) != 0)
+        return -1;
 
-    tp->tv_sec  = now.tv_sec;
-    tp->tv_nsec = now.tv_usec * 1000;
-
+    tp->tv_sec = tv.tv_sec;
+    tp->tv_nsec = (long)tv.tv_usec * 1000L;
     return 0;
 }
-#endif
+
+#endif /* !HAVE_CLOCK_GETTIME */
