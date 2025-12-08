@@ -1,7 +1,7 @@
 //
 // Copyright (C) 2021-2023 SIP Spectrum, Inc.  All rights reserved.
 // 
-// Copyright (C) 2006-2020 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2025 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1807,6 +1807,7 @@ int MprRecorder::writeFile(const char* channelData[], int dataSize)
     int bytesWritten = 0;
     int bytesPerSample = getBytesPerSample(mRecFormat);
 
+#ifdef TEST_PRINT
     OsSysLog::add(FAC_MP, PRI_DEBUG,
             "MprRecorder::writeFile %d record format: %d mChannels: %d dataSize: %d bytes/sample: %d bytesPerSample",
              mFileDescriptor,
@@ -1814,6 +1815,7 @@ int MprRecorder::writeFile(const char* channelData[], int dataSize)
              mChannels,
              dataSize,
              bytesPerSample);
+#endif
 
     if(mWhenToInterlace == POST_ENCODE_INTERLACE)
     {
@@ -1826,26 +1828,32 @@ int MprRecorder::writeFile(const char* channelData[], int dataSize)
 
 
         bytesWritten = write(mFileDescriptor, interlacedBuffer, interlacedSize);
+#ifdef TEST_PRINT
         OsSysLog::add(FAC_MP, PRI_DEBUG,
                       "MprRecorder::writeFile write fd: %d returned: %d (interlaced)",
                       mFileDescriptor, 
                       bytesWritten);
+#endif
     }
     else
     {
         bytesWritten = write(mFileDescriptor, channelData[0], dataSize);
+#ifdef TEST_PRINT
         OsSysLog::add(FAC_MP, PRI_DEBUG,
                       "MprRecorder::writeFile write fd: %d returned: %d (non-interlaced)",
                       mFileDescriptor, 
                       bytesWritten);
+#endif
         if(bytesWritten < 0)
         {
+#ifdef TEST_PRINT
             OsSysLog::add(FAC_MP, PRI_DEBUG,
                           "MprRecorder::writeFile write fd: %d returned: %d (non-interlaced) errno: %d (%s)",
                       mFileDescriptor, 
                       bytesWritten,
                       errno,
                       strerror(errno));
+#endif
         }
     }
 
