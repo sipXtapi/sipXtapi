@@ -187,11 +187,11 @@ public:
             {
                 *mpIsOpen = FALSE;
                 posted = true;
-                if (mpInputDeviceManager)
-                {
-                    MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT, mName);
-                    status = mpInputDeviceManager->postNotification(msg);
-                }
+            }
+            if (mpInputDeviceManager)
+            {
+                MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT, deviceName);
+                status = mpInputDeviceManager->postNotification(msg);
             }
             break;
 
@@ -880,8 +880,18 @@ void MpidWinMM::getWinNameForDevice(IMMDeviceEnumerator* deviceEnumeratorPtr, co
                 if (result == S_OK)
                 {
                     char deviceNameChar[256];
-                    size_t nameSize = wcstombs(deviceNameChar, winDeviceFriendlyName.pwszVal, sizeof(deviceNameChar)-1);
-                    if (nameSize > 0 && deviceNameChar[0])
+                    deviceNameChar[0] = '\0';
+                    int bytes = WideCharToMultiByte(
+                        CP_UTF8,
+                        0,
+                        winDeviceFriendlyName.pwszVal,
+                        -1,
+                        deviceNameChar,
+                        sizeof(deviceNameChar),
+                        NULL,
+                        NULL);
+                    
+                    if (bytes > 1)
                     {
                         deviceName = deviceNameChar;
                         
@@ -891,9 +901,12 @@ void MpidWinMM::getWinNameForDevice(IMMDeviceEnumerator* deviceEnumeratorPtr, co
                     }
                     else
                     {
+                        DWORD err = GetLastError();
                         OsSysLog::add(FAC_AUDIO, PRI_ERR,
                             "MpidWinMM::getWinNameForDevice: "
-                            "windeviceId: %ls name not valid???? size: %zu", winDeviceId, nameSize);
+                            "windeviceId: %ls WideCharToMultiByte failed bytes: %d err: %lu",
+                            winDeviceId, bytes, (unsigned long)err);
+
                     }
 
                     PropVariantClear(&winDeviceFriendlyName);
@@ -923,15 +936,23 @@ bool MpidWinMM::nameIsSame(const UtlString& a, const UtlString& b)
     bool nameSame = false;
     int lenA = a.length();
     int lenB = b.length();
+
     if (lenA > 1 && lenB > 1)
     {
-        if (lenA > lenB)
+        UtlString aNorm = a;
+        UtlString bNorm = b;
+
+        aNorm.toLower();
+        bNorm.toLower();
+
+        if (aNorm == bNorm)
         {
-            if (a.index(b) == 0)
-            {
-                nameSame = true;
-            }
-            else if (b.index(a) == 0)
+            nameSame = true;
+        }
+        else
+        {
+            // Allow prefix matching in either direction
+            if ((aNorm.index(bNorm) == 0) || (bNorm.index(aNorm) == 0))
             {
                 nameSame = true;
             }
