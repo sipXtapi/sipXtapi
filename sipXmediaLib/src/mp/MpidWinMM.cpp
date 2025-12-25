@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2025 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -49,24 +49,51 @@ public:
         mName(deviceName),
         mpInputDeviceManager(&inputManager),
         mpIsOpen(isOpenPtr),
-        mDeviceEnumeratorPtr(deviceEnumeratorPtr)
+        mDeviceEnumeratorPtr(deviceEnumeratorPtr),
+        mRefCount(1)
     {
     };
 
     ULONG _stdcall AddRef()
     {
-        return(1);
+        return((ULONG)::InterlockedIncrement(&mRefCount));
     };
 
     ULONG _stdcall Release()
     {
-        return(1);
+        ULONG refCount = (ULONG)::InterlockedDecrement(&mRefCount);
+
+        if (refCount == 0)
+        {
+            delete this;
+        }
+
+        return(refCount);
     };
 
     HRESULT _stdcall QueryInterface(REFIID riid,
                            void** ppvObject)
     {
-        return(S_OK);
+        HRESULT hr = E_NOINTERFACE;
+
+        if (ppvObject)
+        {
+            *ppvObject = NULL;
+
+            if ((riid == __uuidof(IUnknown)) ||
+                (riid == __uuidof(IMMNotificationClient)))
+            {
+                *ppvObject = static_cast<IMMNotificationClient*>(this);
+                AddRef();
+                hr = S_OK;
+            }
+        }
+        else
+        {
+            hr = E_POINTER;
+        }
+
+        return(hr);
     };
 
     HRESULT _stdcall OnDefaultDeviceChanged(EDataFlow flow,
@@ -233,6 +260,7 @@ public:
     MpInputDeviceManager* mpInputDeviceManager;
     UtlBoolean* mpIsOpen;
     IMMDeviceEnumerator* mDeviceEnumeratorPtr;
+    LONG mRefCount;
 };
 
 /* ============================ CREATORS ================================== */
@@ -906,7 +934,6 @@ void MpidWinMM::getWinNameForDevice(IMMDeviceEnumerator* deviceEnumeratorPtr, co
                             "MpidWinMM::getWinNameForDevice: "
                             "windeviceId: %ls WideCharToMultiByte failed bytes: %d err: %lu",
                             winDeviceId, bytes, (unsigned long)err);
-
                     }
 
                     PropVariantClear(&winDeviceFriendlyName);
