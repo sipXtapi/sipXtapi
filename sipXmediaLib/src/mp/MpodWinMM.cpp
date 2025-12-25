@@ -81,24 +81,44 @@ public:
         mpOutputDevice(outputDevice),
         mName(deviceName),
         mpOutputDeviceManager(outputManager),
-        mDeviceEnumeratorPtr(deviceEnumeratorPtr)
+        mDeviceEnumeratorPtr(deviceEnumeratorPtr),
+        mRefCount(1)
     {
     };
 
     ULONG _stdcall AddRef()
     {
-        return(1);
+        return((ULONG)::InterlockedIncrement(&mRefCount));
     };
 
     ULONG _stdcall Release()
     {
-        return(1);
+        return((ULONG)::InterlockedDecrement(&mRefCount));
     };
 
     HRESULT _stdcall QueryInterface(REFIID riid,
         void** ppvObject)
     {
-        return(S_OK);
+        HRESULT hr = E_NOINTERFACE;
+
+        if (ppvObject)
+        {
+            *ppvObject = NULL;
+
+            if ((riid == __uuidof(IUnknown)) ||
+                (riid == __uuidof(IMMNotificationClient)))
+            {
+                *ppvObject = static_cast<IMMNotificationClient*>(this);
+                AddRef();
+                hr = S_OK;
+            }
+        }
+        else
+        {
+            hr = E_POINTER;
+        }
+
+        return(hr);
     };
 
     HRESULT _stdcall OnDefaultDeviceChanged(EDataFlow flow,
@@ -285,6 +305,7 @@ public:
     UtlString mName;
     MpOutputDeviceManager* mpOutputDeviceManager;
     IMMDeviceEnumerator* mDeviceEnumeratorPtr;
+    LONG mRefCount;
 };
 
 /* ============================ CREATORS ================================== */
