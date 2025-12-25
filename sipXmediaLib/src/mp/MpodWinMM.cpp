@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2021 SIPez LLC.  All rights reservied.
+// Copyright (C) 2007-2025 SIPez LLC.  All rights reservied.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -232,6 +232,17 @@ public:
                 {
                     mpOutputDevice->switchToMMTimer();
                 }
+            }
+            // Post output device not present for devices that do not match the active one
+            else if (mpOutputDeviceManager)
+            {
+                MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT, deviceName);
+                status = mpOutputDeviceManager->postNotification(msg);
+            }
+            else
+            {
+                OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "MpodWinMM::OnDeviceStateChanged NULL mpOutputDeviceManager, no where to post DEVICE_NOT_PRESENT");
             }
             break;
 
