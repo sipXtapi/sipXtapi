@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2026 SIP Spectrum, Inc.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2006 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
@@ -55,12 +58,13 @@
 #define ATTR_STUN_NONCE                         0x0015
 #define ATTR_STUN_XOR_MAPPED_ADDRESS            0x0020
 #define ATTR_STUN_XOR_ONLY                      0x0021  // deprecated
-#define ATTR_STUN_FINGERPRINT                   0x0023
+#define ATTR_STUN_FINGERPRINT_BIS4              0x0023  // bis-04 fingerprint deprecated
 #define ATTR_STUN_XOR_MAPPED_ADDRESS2           0x8020  // deprecated
 #define ATTR_STUN_SERVER                        0x8022  
 #define ATTR_STUN_SERVER2                       0x0022  // deprecated
 #define ATTR_STUN_ALTERNATE_SERVER              0x8023  
 #define ATTR_STUN_BINDING_LIFETIME              0x8024 
+#define ATTR_STUN_FINGERPRINT                   0x8028  // RFC5389/8489 fingerprint
 
 #define ATTR_CHANGE_FLAG_PORT                   0x0002  // deprecated
 #define ATTR_CHANGE_FLAG_IP                     0x0004  // deprecated

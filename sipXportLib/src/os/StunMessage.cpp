@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2026 SIP Spectrum, Inc.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2006 Robert J. Andreasen, Jr.
@@ -39,6 +42,8 @@ extern "C" void hmac_sha1(const char* pBlob, size_t nBlob, const char* pKey, siz
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+
+#define STUN_CRC_FINAL_XOR 0x5354554e
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -291,12 +296,13 @@ bool StunMessage::encode(char* pBuf, size_t nBufLength, size_t& nActualLength)
 
         UtlCrc32 crc32 ;
         crc32.calc((unsigned char*) pBuf, nCrcLength) ;
+        unsigned long crcValue = crc32.getValue() ^ STUN_CRC_FINAL_XOR;
 
         mbFingerPrintValid = true ;
 
         bError = !(encodeAttributeHeader(ATTR_STUN_FINGERPRINT, 
                 sizeof(mFingerPrint), pTraverse, nBytesLeft) &&
-                encodeLong(crc32.getValue(), pTraverse, nBytesLeft)) ;
+                encodeLong(crcValue, pTraverse, nBytesLeft)) ;
     }
 
     if (!bError)
@@ -899,11 +905,11 @@ bool StunMessage::isStunMessage(const char* pBuf, uint16_t nBufLength)
             {
                 case MSG_STUN_BIND_REQUEST:
                 case MSG_STUN_SHARED_SECRET_REQUEST:
-                    // Is using bis4+, finger print is required with magic 
-                    // cookie
                     if (ntohl(header.magicId.id) == (uint32_t) STUN_MAGIC_COOKIE)
                     {
-                        bValid = isFingerPrintValid(pBuf, nBufLength, false) ;
+                        // RFC5389 dictates that finger print is NOT required, but if present 
+                        // we need to validate it.
+                        bValid = isFingerPrintValid(pBuf, nBufLength, true /* bMissingOk */);
                     }
                     else 
                     {
@@ -912,17 +918,14 @@ bool StunMessage::isStunMessage(const char* pBuf, uint16_t nBufLength)
                     }
                     break ;
                 case MSG_STUN_BIND_RESPONSE:
-                case MSG_STUN_BIND_ERROR_RESPONSE:                
+                case MSG_STUN_BIND_ERROR_RESPONSE:
                 case MSG_STUN_SHARED_SECRET_RESPONSE:
                 case MSG_STUN_SHARED_SECRET_ERROR_RESPONSE:
                     if (ntohl(header.magicId.id) == (uint32_t) STUN_MAGIC_COOKIE)
                     {
-                        // Not requiring the FINGERPRINT in responses to  
-                        // provide some backwards compatibility -- in reality,
-                        // the other side should complain about the 
-                        // FINGERPRINT -- so this only impacts servers which 
-                        // ignore the unknown attribute.
-                        bValid = isFingerPrintValid(pBuf, nBufLength, true) ;
+                        // RFC5389 dictates that finger print is NOT required, but if present 
+                        // we need to validate it.
+                        bValid = isFingerPrintValid(pBuf, nBufLength, true /* bMissingOk */) ;
                     }
                     else 
                     {
@@ -939,45 +942,50 @@ bool StunMessage::isStunMessage(const char* pBuf, uint16_t nBufLength)
     return bValid ;
 }
 
-bool StunMessage::isFingerPrintValid(const char* pBuf, uint16_t nBufLength, bool bMissingOk) 
+bool StunMessage::isFingerPrintValid(const char* pBuf, uint16_t nBufLength, bool bMissingOk)
 {
-    bool bValid = false ;
+    bool bValid = false;
 
     // Make sure we have enough room to check for the finger print
-    if (    pBuf && (nBufLength >= (sizeof(STUN_MESSAGE_HEADER) + 
-            sizeof(STUN_ATTRIBUTE_HEADER) + 
-            sizeof(uint32_t))))
+    if (pBuf && (nBufLength >= (sizeof(STUN_MESSAGE_HEADER) +
+        sizeof(STUN_ATTRIBUTE_HEADER) +
+        sizeof(uint32_t))))
     {
         // Assume this is the last parameter (required)
         const char* pLoc = pBuf + (nBufLength -
-                (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(uint32_t))) ;
+            (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(uint32_t)));
 
         // Make sure the attributes indicate a FingerPrint
-        STUN_ATTRIBUTE_HEADER* pHeader = (STUN_ATTRIBUTE_HEADER*) pLoc ;
-        if ((ntohs(pHeader->type) == ATTR_STUN_FINGERPRINT) && 
-                ntohs(pHeader->length) == sizeof(uint32_t))
-        {    
-            uint32_t fingerPrintValue = 0 ;
-            memcpy(&fingerPrintValue, 
-                    ((char*) pHeader) + sizeof(STUN_ATTRIBUTE_HEADER), 
-                    sizeof(uint32_t)) ;
-            fingerPrintValue = ntohl(fingerPrintValue) ;
-            
-            UtlCrc32 crc32 ;
-            crc32.calc((unsigned char*) pBuf, pLoc-pBuf) ;
-            if (crc32.getValue() == fingerPrintValue)
+        STUN_ATTRIBUTE_HEADER* pHeader = (STUN_ATTRIBUTE_HEADER*)pLoc;
+        uint16_t type = ntohs(pHeader->type);
+        if ((type == ATTR_STUN_FINGERPRINT_BIS4 || type == ATTR_STUN_FINGERPRINT) &&
+            ntohs(pHeader->length) == sizeof(uint32_t))
+        {
+            uint32_t fingerPrintValue = 0;
+            memcpy(&fingerPrintValue,
+                ((char*)pHeader) + sizeof(STUN_ATTRIBUTE_HEADER),
+                sizeof(uint32_t));
+            fingerPrintValue = ntohl(fingerPrintValue);
+
+            UtlCrc32 crc32;
+            crc32.calc((unsigned char*)pBuf, pLoc - pBuf);
+            unsigned long checksum = crc32.getValue();
+            if (type == ATTR_STUN_FINGERPRINT)
             {
-                bValid = true ;
+                checksum ^= STUN_CRC_FINAL_XOR;
+            }
+            if (checksum == fingerPrintValue)
+            {
+                bValid = true;
             }
         }
-        else if ((ntohs(pHeader->type) != ATTR_STUN_FINGERPRINT) &&             
-                bMissingOk)
+        else if(bMissingOk)
         {
-            bValid = true ;
+            bValid = true;
         }
     }
 
-    return bValid ;
+    return bValid;
 }
 
 bool StunMessage::isRequestOrNonErrorResponse() 
@@ -1319,10 +1327,15 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
             bValid = parseRawAttribute(pBuf, pHeader->length, mMessageIntegrity, sizeof(mMessageIntegrity)) ;
             mbMessageIntegrityValid = bValid ;
             break ;
-        case ATTR_STUN_FINGERPRINT:
+        case ATTR_STUN_FINGERPRINT_BIS4:
             bValid = parseLongAttribute(pBuf, pHeader->length, &mFingerPrint) ;
             mbFingerPrintValid = bValid ;
             break ;
+        case ATTR_STUN_FINGERPRINT:
+            bValid = parseLongAttribute(pBuf, pHeader->length, &mFingerPrint);
+            if(bValid) mFingerPrint ^= STUN_CRC_FINAL_XOR;
+            mbFingerPrintValid = bValid;
+            break;
         case ATTR_STUN_ERROR_CODE:
             bValid = parseErrorAttribute(pBuf, pHeader->length, &mError) ;
             mbErrorValid = bValid ;
@@ -1338,7 +1351,7 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
         case ATTR_STUN_XOR_MAPPED_ADDRESS:
         case ATTR_STUN_XOR_MAPPED_ADDRESS2:
             bValid = parseXorAddressAttribute(pBuf, pHeader->length, &mMappedAddress) ;
-            mbMappedAddressValid = bValid ;            
+            mbMappedAddressValid = bValid ;
             break ;
         case ATTR_STUN_XOR_ONLY:
             mbRequestXorOnly = true ;

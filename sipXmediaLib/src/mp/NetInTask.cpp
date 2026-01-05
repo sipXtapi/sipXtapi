@@ -230,42 +230,21 @@ OsStatus NetInTask::get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, bool isRtcp, i
             // Note: nRead could not be greater then buffer size.
             nRead = pRxpSkt->read(ib->getDataWritePtr(), ib->getMaximumPacketSize(), &fromIP, &fromPort);
 
-            if (nRead > 0) 
+            if (nRead > 0)
             {
-                // Demux known packet types that are typical on RTP streams
-                uint8_t first_byte = ib->getDataWritePtr()[0];
-                if (first_byte >= 0 && first_byte <= 1) {
-                    // STUN/TURN (Binding requests/TURN allocations)
-                    OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "NetInTask::get1Msg read %d from socket: %p descriptor: %d, first byte indicates STUN/TURN packet, ignoring.",
-                       nRead, pRxpSkt, pRxpSkt->getSocketDescriptor());
-                }
-                else if (first_byte >= 20 && first_byte <= 63) {
-                    // DTLS (Handshakes or encrypted keys)
-                    OsSysLog::add(FAC_MP, PRI_INFO,
-                       "NetInTask::get1Msg read %d from socket: %p descriptor: %d, first byte indicates DTLS handshake, ignoring.",
-                       nRead, pRxpSkt, pRxpSkt->getSocketDescriptor(), first_byte);
-                }
-                else if (first_byte < 128 || first_byte > 191) {
-                    // Not RTP or RTCP
-                    OsSysLog::add(FAC_MP, PRI_WARNING,
-                       "NetInTask::get1Msg read %d from socket: %p descriptor: %d, first byte is not RTP or RTCP: 0x%02x, ignoring.",
-                       nRead, pRxpSkt, pRxpSkt->getSocketDescriptor(), first_byte);
-                } else {
-                    // Set size of received data
-                    ib->setPacketSize(nRead);
+                // Set size of received data
+                ib->setPacketSize(nRead);
 
-                    // Set IP address and port of this packet
-                    ib->setIP(fromIP);
-                    ib->setUdpPort(fromPort);
+                // Set IP address and port of this packet
+                ib->setIP(fromIP);
+                ib->setUdpPort(fromPort);
 
-                    // Set time we receive this packet.
-                    ib->setTimecode(ostc);
+                // Set time we receive this packet.
+                ib->setTimecode(ostc);
 
-                    RTL_BLOCK("NetInTask.pushPacket");
-                    fwdTo->pushPacket(ib, isRtcp);
-                }
-            } 
+                RTL_BLOCK("NetInTask.pushPacket");
+                fwdTo->pushPacket(ib, isRtcp);
+            }
             else 
             {
                 OsSysLog::add(FAC_MP, PRI_DEBUG,

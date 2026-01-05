@@ -437,9 +437,12 @@ static const char* convertAttributeToString(unsigned short attribute)
         case ATTR_STUN_XOR_ONLY:
             szAttribute = "ATTR_STUN_XOR_ONLY" ;
             break ;
-        case ATTR_STUN_FINGERPRINT:
-            szAttribute = "ATTR_STUN_FINGERPRINT" ;
+        case ATTR_STUN_FINGERPRINT_BIS4:
+            szAttribute = "ATTR_STUN_FINGERPRINT_BIS4" ;
             break ;
+        case ATTR_STUN_FINGERPRINT:
+            szAttribute = "ATTR_STUN_FINGERPRINT";
+            break;
         case ATTR_STUN_SERVER:
         case ATTR_STUN_SERVER2:
             szAttribute = "ATTR_STUN_SERVER" ;
