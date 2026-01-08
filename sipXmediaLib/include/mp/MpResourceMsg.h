@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+//  
 // Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
@@ -49,6 +51,8 @@ public:
 
       MPRM_SET_SOCKETS,         ///< MprFromNet and containers set RTP/RTCP sockets
       MPRM_RESET_SOCKETS,       ///< MprFromNet and containers stop reading sockets
+
+      MPRM_SET_SRTP_PARAMS,     ///< MprFromNet and MprToNet: Set SRTP parameters
 
       // Add new built in resource operation messages above
 

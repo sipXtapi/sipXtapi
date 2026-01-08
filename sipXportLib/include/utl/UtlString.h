@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -49,15 +51,16 @@ class UtlString : public UtlCopyableContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
+    static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
     static const char* ssNull;
 
     static const size_t UTLSTRING_NOT_FOUND; ///< Returned from a search that failed.
 
-    static const size_t UTLSTRING_TO_END; /**< When specifying the length of a substring,
-                                           *   indicates that the substring should extend
-                                           *   to the end of the string. */
+    static const size_t UTLSTRING_TO_END;    /**< When specifying the length of a substring,
+                                               *   indicates that the substring should extend
+                                               *   to the end of the string. */
+    static const UtlString Empty;            ///< An empty UtlString object for use as a constant
 
     /**
      * Flags to the various strip methods

@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -1179,7 +1181,12 @@ UtlBoolean UtlString::operator==(const char *compareStr) const
 
 UtlBoolean UtlString::operator==(const UtlString& compareStr) const
 {
-    return compareTo(compareStr) == 0;
+   // Compare in a way that works with embedded nulls.
+   if (mSize == compareStr.mSize)
+   {
+      return memcmp(mpData, compareStr.mpData, mSize) == 0;
+   }
+   return FALSE;
 }
 
 UtlBoolean UtlString::operator!=(const char *compareStr) const

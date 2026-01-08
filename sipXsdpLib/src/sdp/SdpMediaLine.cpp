@@ -1,4 +1,6 @@
 //
+// Copyright (C) SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Plantronics
@@ -98,7 +100,11 @@ const char* SdpMediaLine::SdpCryptoSuiteTypeString[] =
    "NONE",
    "AES_CM_128_HMAC_SHA1_80",
    "AES_CM_128_HMAC_SHA1_32",
-   "F8_128_HMAC_SHA1_80"
+   "F8_128_HMAC_SHA1_80",
+   "AES_CM_192_HMAC_SHA1_80",
+   "AES_CM_192_HMAC_SHA1_32",
+   "AES_CM_256_HMAC_SHA1_80",
+   "AES_CM_256_HMAC_SHA1_32"
 };
 
 const char* SdpMediaLine::SdpCryptoKeyMethodString[] =
@@ -755,21 +761,45 @@ SdpMediaLine::getTcpConnectionAttributeFromString(const char * attrib)
 }
 
 SdpMediaLine::SdpCryptoSuiteType 
-SdpMediaLine::getCryptoSuiteTypeFromString(const char * type)
+SdpMediaLine::getCryptoSuiteTypeFromString(const char* type)
 {
    UtlString stringType(type);
 
-   if(stringType.compareTo("AES_CM_128_HMAC_SHA1_80", UtlString::ignoreCase) == 0)
+   if (stringType.compareTo("AES_CM_128_HMAC_SHA1_80", UtlString::ignoreCase) == 0)
    {
       return CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80;
    }
-   else if(stringType.compareTo("AES_CM_128_HMAC_SHA1_32", UtlString::ignoreCase) == 0)
+   else if (stringType.compareTo("AES_CM_128_HMAC_SHA1_32", UtlString::ignoreCase) == 0)
    {
       return CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_32;
    }
-   else if(stringType.compareTo("F8_128_HMAC_SHA1_80", UtlString::ignoreCase) == 0)
+   else if (stringType.compareTo("F8_128_HMAC_SHA1_80", UtlString::ignoreCase) == 0)
    {
       return CRYPTO_SUITE_TYPE_F8_128_HMAC_SHA1_80;
+   }
+   // RFC6188 places the _CM after the Master Key length for some reason - accept both
+   else if (stringType.compareTo("AES_CM_192_HMAC_SHA1_80", UtlString::ignoreCase) ||
+            stringType.compareTo("AES_192_CM_HMAC_SHA1_80", UtlString::ignoreCase))
+   {
+      return CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_80;
+   }
+   // RFC6188 places the _CM after the Master Key length for some reason - accept both
+   else if (stringType.compareTo("AES_CM_192_HMAC_SHA1_32", UtlString::ignoreCase) ||
+            stringType.compareTo("AES_192_CM_HMAC_SHA1_32", UtlString::ignoreCase))
+   {
+      return CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_32;
+   }
+   // RFC6188 places the _CM after the Master Key length for some reason - accept both
+   else if (stringType.compareTo("AES_CM_256_HMAC_SHA1_80", UtlString::ignoreCase) ||
+            stringType.compareTo("AES_256_CM_HMAC_SHA1_80", UtlString::ignoreCase))
+   {
+      return CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_80;
+   }
+   // RFC6188 places the _CM after the Master Key length for some reason - accept both
+   else if (stringType.compareTo("AES_CM_256_HMAC_SHA1_32", UtlString::ignoreCase) ||
+            stringType.compareTo("AES_256_CM_HMAC_SHA1_32", UtlString::ignoreCase))
+   {
+      return CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_32;
    }
    else
    {

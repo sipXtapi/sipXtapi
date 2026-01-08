@@ -119,6 +119,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodecPlugins", "CodecPlugins", "{81DA5110-9329-4266-936B-01303311B3CB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CoreLibraries", "CoreLibraries", "{0D0F2D7A-3432-493B-9952-A19F6A31B47B}"
+	ProjectSection(SolutionItems) = preProject
+		sipXmediaLib\contrib\libsrtp\srtp_17_0.vcxproj = sipXmediaLib\contrib\libsrtp\srtp_17_0.vcxproj
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{D9D70FD4-345D-4F0F-A094-EBA17C05AF29}"
 EndProject

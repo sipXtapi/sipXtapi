@@ -1074,6 +1074,24 @@
     <ClInclude Include="include\mp\StreamWAVFormatDecoder.h">
       <Filter>mp</Filter>
     </ClInclude>
+    <ClInclude Include="include\mp\MprBridgeSetGainsMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprDecodeConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprDecodeSelectCodecsMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MprEncodeConstructor.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpSetSocketsMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpSetSrtpParamsMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rtcp">

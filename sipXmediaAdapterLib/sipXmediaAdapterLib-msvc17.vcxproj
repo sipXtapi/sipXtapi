@@ -85,7 +85,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\..\pcre\include;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\pcre\include;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libsrtp\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_SPEEX;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=2;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -117,7 +117,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\..\pcre\include;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\pcre\include;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libsrtp\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_SPEEX;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=2;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -149,7 +149,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\pcre\include;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\pcre\include;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libsrtp\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_SPEEX;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=2;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -179,7 +179,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\pcre\include;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\pcre\include;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXmediaLib\contrib\libsrtp\include;..\sipXmediaLib\contrib\libspeex\include;..\sipXcallLib\include;..\sipXtackLib\include;interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_SPEEX;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY;DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY;DISABLE_STREAM_PLAYER;DEFAULT_BRIDGE_MAX_IN_OUTPUTS=10;MAXIMUM_RECORDER_CHANNELS=2;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
