@@ -442,6 +442,9 @@
     <ClCompile Include="src\mp\StreamWAVFormatDecoder.cpp">
       <Filter>mp</Filter>
     </ClCompile>
+    <ClCompile Include="src\mp\MpSrtp.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\rtcp\BaseClass.h">
@@ -1090,6 +1093,9 @@
       <Filter>mp</Filter>
     </ClInclude>
     <ClInclude Include="include\mp\MpSetSrtpParamsMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpSrtp.h">
       <Filter>mp</Filter>
     </ClInclude>
   </ItemGroup>

@@ -171,6 +171,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpRtpOutputConnection.cpp \
     mp/MprVad.cpp \
     mp/MprVoiceActivityNotifier.cpp \
+	mp/MpSrtp.cpp \
     mp/MpStreamFeeder.cpp \
     mp/MpStreamMsg.cpp \
     mp/MpStreamPlayer.cpp \

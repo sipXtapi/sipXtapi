@@ -317,6 +317,7 @@
     <ClCompile Include="src\mp\MprVoiceActivityNotifier.cpp" />
     <ClCompile Include="src\mp\MpSineWaveGeneratorDeviceDriver.cpp" />
     <ClCompile Include="src\mp\MpSpeakerSelectBase.cpp" />
+    <ClCompile Include="src\mp\MpSrtp.cpp" />
     <ClCompile Include="src\mp\MpStaticCodecInit.cpp" />
     <ClCompile Include="src\mp\MpStreamFeeder.cpp" />
     <ClCompile Include="src\mp\MpStreamMsg.cpp" />
@@ -502,6 +503,7 @@
     <ClInclude Include="include\mp\MpSetSrtpParamsMsg.h" />
     <ClInclude Include="include\mp\MpSineWaveGeneratorDeviceDriver.h" />
     <ClInclude Include="include\mp\MpSpeakerSelectBase.h" />
+    <ClInclude Include="include\mp\MpSrtp.h" />
     <ClInclude Include="include\mp\MpStaticCodecInit.h" />
     <ClInclude Include="include\mp\MpStreamFeeder.h" />
     <ClInclude Include="include\mp\MpStreamMsg.h" />

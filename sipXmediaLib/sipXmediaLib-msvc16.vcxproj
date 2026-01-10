@@ -317,6 +317,7 @@
     <ClCompile Include="src\mp\MprVoiceActivityNotifier.cpp" />
     <ClCompile Include="src\mp\MpSineWaveGeneratorDeviceDriver.cpp" />
     <ClCompile Include="src\mp\MpSpeakerSelectBase.cpp" />
+    <ClCompile Include="src\mp\MpSrtp.cpp" />
     <ClCompile Include="src\mp\MpStaticCodecInit.cpp" />
     <ClCompile Include="src\mp\MpStreamFeeder.cpp" />
     <ClCompile Include="src\mp\MpStreamMsg.cpp" />
@@ -431,12 +432,16 @@
     <ClInclude Include="include\mp\MpRawAudioBuffer.h" />
     <ClInclude Include="include\mp\MprBridge.h" />
     <ClInclude Include="include\mp\MprBridgeConstructor.h" />
+    <ClInclude Include="include\mp\MprBridgeSetGainsMsg.h" />
     <ClInclude Include="include\mp\MprDecode.h" />
+    <ClInclude Include="include\mp\MprDecodeConstructor.h" />
+    <ClInclude Include="include\mp\MprDecodeSelectCodecsMsg.h" />
     <ClInclude Include="include\mp\MprDejitter.h" />
     <ClInclude Include="include\mp\MprDelay.h" />
     <ClInclude Include="include\mp\MprDelayConstructor.h" />
     <ClInclude Include="include\mp\MprEchoSuppress.h" />
     <ClInclude Include="include\mp\MprEncode.h" />
+    <ClInclude Include="include\mp\MprEncodeConstructor.h" />
     <ClInclude Include="include\mp\MpResampler.h" />
     <ClInclude Include="include\mp\MpResamplerSpeex.h" />
     <ClInclude Include="include\mp\MpResNotificationMsg.h" />
@@ -494,8 +499,11 @@
     <ClInclude Include="include\mp\MprVadConstructor.h" />
     <ClInclude Include="include\mp\MprVoiceActivityNotifier.h" />
     <ClInclude Include="include\mp\MprVoiceActivityNotifierConstructor.h" />
+    <ClInclude Include="include\mp\MpSetSocketsMsg.h" />
+    <ClInclude Include="include\mp\MpSetSrtpParamsMsg.h" />
     <ClInclude Include="include\mp\MpSineWaveGeneratorDeviceDriver.h" />
     <ClInclude Include="include\mp\MpSpeakerSelectBase.h" />
+    <ClInclude Include="include\mp\MpSrtp.h" />
     <ClInclude Include="include\mp\MpStaticCodecInit.h" />
     <ClInclude Include="include\mp\MpStreamFeeder.h" />
     <ClInclude Include="include\mp\MpStreamMsg.h" />

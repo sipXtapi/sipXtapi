@@ -151,6 +151,7 @@ nobase_include_HEADERS =  \
     mp/MprVoiceActivityNotifierConstructor.h \
     mp/MpSineWaveGeneratorDeviceDriver.h \
     mp/MpSpeakerSelectBase.h \
+	mp/MpSrtp.h \
     mp/MpStaticCodecInit.h \
     mp/MpStreamFeeder.h \
     mp/MpStreamMsg.h \
