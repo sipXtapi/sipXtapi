@@ -8,7 +8,7 @@
 // SYSTEM INCLUDES
 
 #ifdef ENABLE_SRTP
-  // Note: RTCP is send from RTCPManager thread, and not yet implemented for SRTP encryption.
+  // Note: RTCP is sent from RTCPManager thread, and not yet implemented for SRTP encryption.
   //       It needs to share the same mSrtp session (ideally) as MpToNet, which is not thread-safe, so 
   //       we need to do some locking.  Since RTCP logic is currently buggy and typically disabled,
   //       we will leave this for later.

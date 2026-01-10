@@ -131,7 +131,6 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   // SRTP
    SdpMediaLine::SdpCryptoSuiteType mCryptoSuite;
    UtlString mCryptoKey;
 

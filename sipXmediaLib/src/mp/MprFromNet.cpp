@@ -44,7 +44,6 @@
 #include <os/OsDefs.h>
 #include <mp/MpResourceMsg.h>
 #include <mp/MpSetSocketsMsg.h>
-#include <mp/MpSetSrtpParamsMsg.h>
 #include <mp/NetInTask.h>
 
 // EXTERNAL FUNCTIONS
@@ -58,8 +57,8 @@
 
 //#define ENABLE_MULTIPLE_NETINTASKS
 
-MprFromNet::MprFromNet() :
-  mDiscardCtlMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
+MprFromNet::MprFromNet()
+: mDiscardCtlMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
 , mRegistrationSyncMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
 #ifdef ENABLE_MULTIPLE_NETINTASKS
 , mNetInTask(NetInTask::createNetInTask())
