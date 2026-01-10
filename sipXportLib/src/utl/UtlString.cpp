@@ -32,6 +32,7 @@ const UtlContainableType UtlString::TYPE = "UtlString";
 const char* UtlString::ssNull = "";
 const size_t UtlString::UTLSTRING_NOT_FOUND = (size_t) (-1);
 const size_t UtlString::UTLSTRING_TO_END = (size_t) (-1);
+const UtlString UtlString::Empty("", 0);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 

@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2021-2023 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2021-2026 SIP Spectrum, Inc.  All rights reserved.
 // 
 // Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
@@ -47,6 +47,7 @@
 #include <mp/MpMediaTask.h>
 #include <mp/MpCodecFactory.h>
 #include <mp/MprToNet.h>
+#include <mp/MpSrtp.h>
 #include <CpTopologyGraphInterface.h>
 #include <CpTopologyGraphFactoryImpl.h>
 #include <TypeConverter.h>
@@ -1466,8 +1467,26 @@ OsStatus CpTopologyGraphInterface::copyPayloadIds(int connectionId, int numCodec
 }
 
 OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
-                                             int numCodecs,
-                                             SdpCodec* sendCodecs[])
+                                                int numCodecs,
+                                                SdpCodec* sendCodecs[])
+{
+   return startRtpSendImpl(connectionId, numCodecs, sendCodecs, SdpMediaLine::CRYPTO_SUITE_TYPE_NONE, UtlString::Empty);
+}
+
+OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
+                                                int numCodecs,
+                                                SdpCodec* sendCodecs[],
+                                                SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                                const UtlString& cryptoKey)
+{
+   return startRtpSendImpl(connectionId, numCodecs, sendCodecs, cryptoSuite, cryptoKey);
+}
+
+OsStatus CpTopologyGraphInterface::startRtpSendImpl(int connectionId,
+                                                    int numCodecs,
+                                                    SdpCodec* sendCodecs[],
+                                                    SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                                    const UtlString& cryptoKey)
 {
    // need to set default payload types in get capabilities
 #ifdef TEST_PRINT
@@ -1620,6 +1639,8 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
              outConnectionName.data(), stat);
          assert(stat == OS_SUCCESS);
 
+         MpSrtp::setSrtpParams(outConnectionName, *(mpTopologyGraph->getMsgQ()), cryptoSuite, cryptoKey);
+
          // Set sockets to send to.
          pConnection->setSockets(*mediaConnection->mpRtpAudioSocket,
                                  *mediaConnection->mpRtcpAudioSocket);
@@ -1674,10 +1695,27 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
    return (returnCode);
 }
 
-
 OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
                                                    int numCodecs,
                                                    SdpCodec* receiveCodecs[])
+{
+   return startRtpReceiveImpl(connectionId, numCodecs, receiveCodecs, SdpMediaLine::CRYPTO_SUITE_TYPE_NONE, UtlString::Empty);
+}
+
+OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
+                                                   int numCodecs,
+                                                   SdpCodec* receiveCodecs[],
+                                                   SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                                   const UtlString& cryptoKey)
+{
+   return startRtpReceiveImpl(connectionId, numCodecs, receiveCodecs, cryptoSuite, cryptoKey);
+}
+
+OsStatus CpTopologyGraphInterface::startRtpReceiveImpl(int connectionId,
+                                                       int numCodecs,
+                                                       SdpCodec* receiveCodecs[],
+                                                       SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                                       const UtlString& cryptoKey)
 {
    OsStatus returnCode = OS_NOT_FOUND;
 
@@ -1739,6 +1777,8 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
       UtlString decoderName(DEFAULT_DECODE_RESOURCE_NAME);
       MpResourceTopology::replaceNumInName(decoderName, connectionId);
       decoderName.append(STREAM_NAME_SUFFIX);
+
+      MpSrtp::setSrtpParams(inConnectionName, *(mpTopologyGraph->getMsgQ()), cryptoSuite, cryptoKey);
 
       if (numCodecs)
       {

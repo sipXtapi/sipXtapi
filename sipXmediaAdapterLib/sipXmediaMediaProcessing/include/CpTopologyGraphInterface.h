@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2021-2023 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2021-2026 SIP Spectrum, Inc.  All rights reserved.
 // 
 // Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
@@ -20,6 +20,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <sdp/SdpCodecList.h>
+#include <sdp/SdpMediaLine.h>
 #include "mp/MpTypes.h"
 #include "mi/CpMediaInterface.h"
 #include <net/QoS.h>
@@ -202,14 +203,28 @@ public:
     virtual OsStatus copyPayloadIds(int connectionId, int numCodecs, SdpCodec* remoceCodecs[]);
 
      /// @copydoc CpMediaInterface::startRtpSend()
-   virtual OsStatus startRtpSend(int connectionId, 
-                                 int numCodecs,
-                                 SdpCodec* sendCodec[]);
+    virtual OsStatus startRtpSend(int connectionId,
+                                  int numCodecs,
+                                  SdpCodec* sendCodec[]);
 
-     /// @copydoc CpMediaInterface::setConnectionDestination()
-   virtual OsStatus startRtpReceive(int connectionId,
-                                    int numCodecs,
-                                    SdpCodec* sendCodec[]);
+    // Note:  ENABLE_SRTP must be defined for this version to encrypt SRTP
+    virtual OsStatus startRtpSend(int connectionId,
+                                  int numCodecs,
+                                  SdpCodec* sendCodec[],
+                                  SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                  const UtlString& cryptoKey);
+
+     /// @copydoc CpMediaInterface::startRtpReceive()
+    virtual OsStatus startRtpReceive(int connectionId,
+                                     int numCodecs,
+                                     SdpCodec* receiveCodec[]);
+
+    // Note:  ENABLE_SRTP must be defined for this version to decrypt SRTP
+    virtual OsStatus startRtpReceive(int connectionId,
+                                     int numCodecs,
+                                     SdpCodec* receiveCodec[],
+                                     SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                     const UtlString& cryptoKey);
 
      /// @copydoc CpMediaInterface::stopRtpSend()
    virtual OsStatus stopRtpSend(int connectionId);
@@ -835,6 +850,18 @@ private:
 
       /// Setup the mixes for recording (routes audio to multiple channels)
     void setupRecordingMixes(int numChannels);
+
+    virtual OsStatus startRtpSendImpl(int connectionId,
+                                      int numCodecs,
+                                      SdpCodec* sendCodec[],
+                                      SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                      const UtlString& cryptoKey);
+
+    virtual OsStatus startRtpReceiveImpl(int connectionId,
+                                         int numCodecs,
+                                         SdpCodec* receiveCodec[],
+                                         SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                         const UtlString& cryptoKey);
 
       /// Disabled copy constructor
     CpTopologyGraphInterface(CpTopologyGraphInterface&);

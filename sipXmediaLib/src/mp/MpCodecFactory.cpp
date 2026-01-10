@@ -18,6 +18,7 @@
 #include <mp/MpCodecFactory.h>
 #include <mp/MpEncoderBase.h>
 #include <mp/MpDecoderBase.h>
+#include <mp/MpSrtp.h>
 #include <sdp/SdpDefaultCodecFactory.h>
 #include <os/OsSysLog.h>
 #include <os/OsSharedLibMgr.h>
@@ -102,15 +103,20 @@ void MpCodecFactory::freeSingletonHandle()
 }
 
 MpCodecFactory::MpCodecFactory(void)
-: mCodecInfoCacheValid(FALSE)
-, mCachedCodecInfoNum(0)
-, mpCodecInfoCache(NULL)
+   : mCodecInfoCacheValid(FALSE)
+   , mCachedCodecInfoNum(0)
+   , mpCodecInfoCache(NULL)
 {
-
+   // Initialize SRTP library - we only need to do this once per application
+   // instance, and this singleton class is a good place to do it.
+   // Will NoOp if ENABLE_SRTP is not defined.
+   MpSrtp::globalInitialize();
 }
 
 MpCodecFactory::~MpCodecFactory()
 {
+   MpSrtp::globalShutdown();
+
    freeAllLoadedLibsAndCodec();
 
    MpCodecSubInfo* pinfo;

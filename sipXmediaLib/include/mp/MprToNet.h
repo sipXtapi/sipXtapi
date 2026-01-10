@@ -24,9 +24,11 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsSocket.h"
+#include <os/OsSocket.h>
+#include <sdp/SdpMediaLine.h>
 #include "mp/NetInTask.h"
 #include "mp/MpResourceMsg.h"
+#include "mp/MpSrtp.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/ISetSenderStatistics.h"
 #endif /* INCLUDE_RTCP ] */
@@ -110,6 +112,8 @@ public:
     // the namedResource will be one of the Connections (e.g. MpRtpOutputConnection).
    static OsStatus setSRAdjustUSecs(const UtlString& namedResource, OsMsgQ& fgQ, int adjustUSecs);
 
+   UtlBoolean setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -140,6 +144,7 @@ private:
 
    MprFromNet*  mpFromNetPal;
    MpFlowGraphBase* mpFlowGraph; ///< for debug purposes
+   MpSrtp       mSrtp;
    int          mRtcpPackets;
    int          mRtcpFrameCount;
    int          mRtcpFrameLimit;

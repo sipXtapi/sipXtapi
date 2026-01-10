@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+//  
 // Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -23,9 +25,11 @@
 
 // APPLICATION INCLUDES
 #include <os/OsMsgQ.h>
+#include <sdp/SdpMediaLine.h>
 #include "os/OsDefs.h"
 #include "mp/MpUdpBuf.h"
 #include "mp/MpRtpBuf.h"
+#include "mp/MpSrtp.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/IRTPDispatch.h"
 #include "rtcp/INetDispatch.h"
@@ -112,13 +116,15 @@ public:
      *  @note Must be called right after object construction!
      */
 
+   UtlBoolean setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
 
-#ifdef INCLUDE_RTCP /* [ */
+#ifdef INCLUDE_RTCP /* [ */   
      /// @brief These accessors were added by DMG to allow a Connection to access and modify
      /// RTP and RTCP stream informations
    void setDispatchers(IRTPDispatch *piRTPDispatch, INetDispatch *piRTCPDispatch);
@@ -152,10 +158,11 @@ private:
    UtlBoolean       mDiscardSelectedStream;
    RtpSRC           mDiscardedSSRC;
    MpFlowGraphBase* mpFlowGraph;
+   MpSrtp           mSrtp;
+
 #ifdef INCLUDE_RTCP /* [ */
    INetDispatch*    mpiRTCPDispatch;
    IRTPDispatch*    mpiRTPDispatch;
-
 #else /* INCLUDE_RTCP ] [ */
    rtpHandle        mInRtpHandle;
    int              mRtcpCount;
@@ -183,6 +190,7 @@ private:
 
      /// Parse UDP packet and return filled RTP packet buffer.
    static MpRtpBufPtr parseRtpPacket(const MpUdpBufPtr &buf);
+   static MpRtpBufPtr parseRtpPacket(const char* packetData, int packetLength, const in_addr& ip, int udpPort);
 
      /// Copy constructor (not implemented for this class)
    MprFromNet(const MprFromNet& rMprFromNet);

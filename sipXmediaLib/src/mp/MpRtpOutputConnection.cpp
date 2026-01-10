@@ -22,6 +22,7 @@
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MprEncode.h"
 #include "mp/MpIntResourceMsg.h"
+#include "mp/MpSetSrtpParamsMsg.h"
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #ifdef INCLUDE_RTCP /* [ */
@@ -140,7 +141,14 @@ UtlBoolean MpRtpOutputConnection::handleMessage(MpResourceMsg& message)
         handled = TRUE;
         MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&message;
         mpToNet->setSRAdjustUSecs(pMsg->getData());
+    }
+    break;
 
+    case MpResourceMsg::MPRM_SET_SRTP_PARAMS:
+    {
+       handled = TRUE;
+       MpSetSrtpParamsMsg* pMsg = (MpSetSrtpParamsMsg*)&message;
+       mpToNet->setSrtpParams(pMsg->getCryptoSuite(), pMsg->getCryptoKey());
     }
     break;
 

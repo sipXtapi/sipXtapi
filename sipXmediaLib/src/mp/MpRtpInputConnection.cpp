@@ -24,6 +24,7 @@
 #include "mp/MprRtpDispatcherActiveSsrcs.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpIntResourceMsg.h"
+#include "mp/MpSetSrtpParamsMsg.h"
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #ifdef INCLUDE_RTCP /* [ */
@@ -275,6 +276,14 @@ UtlBoolean MpRtpInputConnection::handleMessage(MpResourceMsg& rMsg)
          mpRtpDispatcher->setNotificationsEnabled(enabled);
       }
       break;
+
+   case MpResourceMsg::MPRM_SET_SRTP_PARAMS:
+   {
+       MpSetSrtpParamsMsg* pMsg = (MpSetSrtpParamsMsg*)&rMsg;
+       mpFromNet->setSrtpParams(pMsg->getCryptoSuite(), pMsg->getCryptoKey());
+       msgHandled = TRUE;
+   }
+   break;
 
    default:
       // If we don't handle the message here, let our parent try.

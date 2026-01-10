@@ -313,17 +313,22 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
    OsSocket*    pRtpSocket = mpRtpSocket;
 
 #ifdef DROP_SOME_PACKETS /* [ */
-   if (dropCount++ == dropLimit) {
+   if (dropCount++ == dropLimit) 
+   {
       dropCount = 0;
       numBytesSent = packetSize;
       packetSize = 0;
    } 
 #endif /* DROP_SOME_PACKETS ] */
-   if(!pRtpSocket) {
+   if(!pRtpSocket) 
+   {
       packetSize = 0;  // prevent dereference if NULL socket.
    }
-   if(packetSize)
+   if (packetSize)
    {
+      // Note: Will NoOp and return OS_SUCCESS if ENABLE_SRTP is not defined
+      mSrtp.srtpProtectIfNeeded((const uint8_t*)writeBytes, &packetSize, FALSE /* rtcp? */, pUdpPacket->getMaximumPacketSize());  // If failure, we still send the packet unencrypted.
+
       numBytesSent = pRtpSocket->write(writeBytes, packetSize);
    }
    else
@@ -394,7 +399,10 @@ OsStatus MprToNet::setSRAdjustUSecs(const UtlString& namedResource, OsMsgQ& fgQ,
    return fgQ.send(msg);
 }
 
-
+UtlBoolean MprToNet::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey)
+{
+   return mSrtp.setSrtpParams(cryptoSuite, cryptoKey, FALSE /* forUnprotect? */);
+}
 
 /* ============================ ACCESSORS ================================= */
 
