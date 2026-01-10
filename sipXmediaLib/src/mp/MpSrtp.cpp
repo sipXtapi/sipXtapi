@@ -15,8 +15,11 @@
   #ifdef ENABLE_RTCP
     #error "Conflict detected: ENABLE_SRTP and ENABLE_RTCP cannot both be defined, since SRTP is not implemented for RTCP sending. Please choose one."
   #endif
-
+#ifdef WIN32
 #include <srtp.h>
+#else
+#include <srtp2/srtp.h>	
+#endif
 #endif
 
 // APPLICATION INCLUDES
@@ -26,11 +29,6 @@
 #include "mp/MpSetSrtpParamsMsg.h"
 
 // EXTERNAL FUNCTIONS
-
-#ifndef ENABLE_SRTP
-// define empty struct to allow compilation without SRTP
-struct srtp_policy_t {};
-#endif
 
 // EXTERNAL VARIABLES
 // CONSTANTS
