@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc. https://www.sipspectrum.com
+//  
 // Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
@@ -196,6 +198,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+   UtlHashBag mDynamicCodecFilenamesLoaded;    ///< List of all loaded dynamic codec filenames. (used to avoid loading same codec plugin twice)
    UtlHashBag mCodecsInfo;                     ///< List of all known and workable codecs.
    mutable UtlBoolean mCodecInfoCacheValid;    ///< Should we rebuild MIME-subtypes cache?
    mutable unsigned   mCachedCodecInfoNum;     ///< Number of elements in mpMimeTypesCache.

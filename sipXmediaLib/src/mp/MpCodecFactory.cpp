@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc. https://www.sipspectrum.com
+//  
 // Copyright (C) 2006-2017 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -120,18 +122,25 @@ MpCodecFactory::~MpCodecFactory()
    freeAllLoadedLibsAndCodec();
 
    MpCodecSubInfo* pinfo;
-
    UtlHashBagIterator iter(mCodecsInfo);
    while ((pinfo = (MpCodecSubInfo*)iter()))
    { 
       if (!pinfo->getCodecCall()->isStatic()) {
          assert(!"Dynamically loaded codecs must be unloaded already");
       }
-      delete pinfo;     
+      delete pinfo;
    }
    mCodecsInfo.removeAll();
 
    delete[] mpCodecInfoCache;
+
+   UtlString* pFilename;
+   UtlHashBagIterator iter2(mDynamicCodecFilenamesLoaded);
+   while ((pFilename = (UtlString*)iter2()))
+   {
+      delete pFilename;
+   }
+   mDynamicCodecFilenamesLoaded.removeAll();
 }
 
 /* ============================= MANIPULATORS ============================= */
@@ -286,12 +295,23 @@ OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFil
       return OS_NOT_FOUND;
 
    do {
-      UtlString str = path;
-      str += OsPathBase::separator;
-      str += module.data();
-      res = loadDynCodec(str.data());
-      OsSysLog::add(FAC_MP, PRI_INFO, "MpCodecFactory::loadDynCodec(\"%s\") returned %d",
-                    str.data(), res);
+      UtlString* pCodecFilename = new UtlString(module.data());
+      // If plugin not already processed then try to load it
+      if (!mDynamicCodecFilenamesLoaded.contains(pCodecFilename))
+      {
+         UtlString str = path;
+         str += OsPathBase::separator;
+         str += *pCodecFilename;
+         res = loadDynCodec(str.data());
+         OsSysLog::add(FAC_MP, PRI_INFO, "MpCodecFactory::loadDynCodec(\"%s\") returned %d",
+            str.data(), res);
+         if (res == OS_SUCCESS)
+         {
+            mDynamicCodecFilenamesLoaded.insert(pCodecFilename);
+            pCodecFilename = NULL; // prevent deletion below
+         }
+         delete pCodecFilename;
+      }
    } while (fi.findNext(module) == OS_SUCCESS);
 
    return OS_SUCCESS;
