@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2023 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2023-2026 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2015-2019 SIPez LLC.  All rights reserved.
 //
@@ -45,7 +45,7 @@ CircularBuffer::CircularBuffer(unsigned long capacity)
 CircularBuffer::~CircularBuffer()
 {
 	if (mBufferBegin != 0)
-		delete mBufferBegin;
+		delete[] mBufferBegin;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -55,7 +55,7 @@ void CircularBuffer::initialize(unsigned long capacity)
 	OsLock lock(mMutex);
 
 	if (mBufferBegin != 0)
-		delete mBufferBegin;
+		delete[] mBufferBegin;
 
 	mCapacity = capacity;
 
