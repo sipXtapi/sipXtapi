@@ -397,6 +397,9 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
                     mInputDeviceHandle);
       mpInputDeviceManager->enableDevice(mInputDeviceHandle);
    }
+
+   // Wait until flowgraph is completely constructed
+   mpTopologyGraph->synchronize("flowgraph create");
 }
 
 
@@ -1718,7 +1721,6 @@ OsStatus CpTopologyGraphInterface::startRtpReceiveImpl(int connectionId,
                                                        const UtlString& cryptoKey)
 {
    OsStatus returnCode = OS_NOT_FOUND;
-
    CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
 
    if (mediaConnection == NULL)

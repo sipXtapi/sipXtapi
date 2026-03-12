@@ -131,6 +131,10 @@ OsStatus MpSrtp::setSrtpParams(const UtlString& resourceName, OsMsgQ& flowgraphM
    MpSetSrtpParamsMsg message(resourceName, cryptoSuite, cryptoKey);
    return(flowgraphMessageQueue.send(message, OsTime::OS_INFINITY /*sOperationQueueTimeout*/));
 #else
+   if (cryptoSuite != SdpMediaLine::CRYPTO_SUITE_TYPE_NONE)
+   {
+      OsSysLog::add(FAC_CP, PRI_WARNING, "setSrtpParams: a cryptoSuite was passed in but program was NOT compiled with ENABLE_SRTP flag");
+   }
    return OS_FAILED;
 #endif
 }
