@@ -5829,16 +5829,16 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetCurrentInputDevice(const SIPX_INST hInst,
         int minLen = 0;
         for (int i = 0; i < MAX_AUDIO_DEVICES; i++)
         {
-            if (pInst->outputAudioDevices[i])
+            if (pInst->inputAudioDevices[i])
             {
                 // Have to deal with partial matches ore partial string of full device name
                 // So use the smallest of the two
-                minLen = sipx_min(oldDevice.length(), strlen(pInst->outputAudioDevices[i]));
+                minLen = sipx_min(oldDevice.length(), strlen(pInst->inputAudioDevices[i]));
 
-                if (minLen > 0 && strncmp(oldDevice, pInst->outputAudioDevices[i], minLen))
+                if (minLen > 0 && strncmp(oldDevice, pInst->inputAudioDevices[i], minLen) == 0)
                 {
                     index = i;
-                    szDevice = pInst->outputAudioDevices[i];
+                    szDevice = pInst->inputAudioDevices[i];
                     rc = SIPX_RESULT_SUCCESS;
                     break;
                 }
@@ -5929,6 +5929,11 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetCurrentOutputDevice(const SIPX_INST hInst,
 
         // Get existing device
         OsStatus status = pInterface->getSpeakerDevice(oldDevice);
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+            "sipxAudioGetCurrentOutputDevice getSpeakerDevice status: %d oldDevice: \"%s\" len: %d",
+            status, oldDevice.data(), (int)oldDevice.length());
+#endif
 
         //assert(status == OS_SUCCESS) ;
         int minLen = 0;
@@ -5936,15 +5941,21 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetCurrentOutputDevice(const SIPX_INST hInst,
 
         for(int i = 0; i < MAX_AUDIO_DEVICES; i++)
         {
-            if(pInst->inputAudioDevices[i])
+            if(pInst->outputAudioDevices[i])
             {
                 // Have to deal with partial matches or partial string of full device name
                 // So use the smallest of the two
+                minLen = sipx_min(oldDevice.length(), strlen(pInst->outputAudioDevices[i]));
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                    "sipxAudioGetCurrentOutputDevice comparing oldDevice: \"%s\" to outputAudioDevices[%d]: \"%s\" minLen: %d",
+                    oldDevice.data(), i, pInst->outputAudioDevices[i], minLen);
+#endif
 
-                if (minLen > 0 && strncmp(oldDevice, pInst->inputAudioDevices[i], minLen))
+                if (minLen > 0 && strncmp(oldDevice, pInst->outputAudioDevices[i], minLen) == 0)
                 {
                     index = i;
-                    szDevice = pInst->inputAudioDevices[i];
+                    szDevice = pInst->outputAudioDevices[i];
                     rc = SIPX_RESULT_SUCCESS;
                     break;
                 }
