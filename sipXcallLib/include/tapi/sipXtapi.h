@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2021 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -3566,6 +3566,17 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipTcpPort(SIPX_INST hInst, int* pPor
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipTlsPort(SIPX_INST hInst, int* pPort) ;
 
+
+/**
+ * Add directory paths to search for codec plugins.
+ * This must be called before sipxInitialize for the paths
+ * to be used during codec loading.
+ *
+ * @param nCodecPaths Number of paths in the codecPaths array
+ * @param codecPaths Array of directory path strings to search
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigAddCodecPaths(const size_t nCodecPaths,
+                                                 const char* codecPaths[]);
 
 /**
  * Set the preferred bandwidth requirement for codec selection. Whenever 

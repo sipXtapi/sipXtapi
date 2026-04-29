@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2021 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2026 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2009 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -7452,6 +7452,29 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipTlsPort(SIPX_INST hInst, int* pPor
         }
     }
     return rc ;
+}
+
+
+SIPXTAPI_API SIPX_RESULT sipxConfigAddCodecPaths(const size_t nCodecPaths,
+                                                 const char* codecPaths[])
+{
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
+
+    if (nCodecPaths > 0 && codecPaths != NULL)
+    {
+        UtlString* paths = new UtlString[nCodecPaths];
+        for (size_t i = 0; i < nCodecPaths; i++)
+        {
+            paths[i] = codecPaths[i];
+        }
+
+        OsStatus status = CpMediaInterfaceFactoryImpl::addCodecPaths(nCodecPaths, paths);
+        delete[] paths;
+
+        rc = (status == OS_SUCCESS) ? SIPX_RESULT_SUCCESS : SIPX_RESULT_FAILURE;
+    }
+
+    return rc;
 }
 
 
