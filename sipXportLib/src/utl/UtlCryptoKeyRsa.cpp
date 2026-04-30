@@ -13,14 +13,13 @@
 
 #ifdef HAVE_SSL
 
-#include "utl/UtlCryptoKeyRsa.h"
-
 #include <openssl/rsa.h>
 #include <openssl/err.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
 
+#include "utl/UtlCryptoKeyRsa.h"
 
 UtlCryptoKeyRsa::UtlCryptoKeyRsa()
 : mpRsa(0)

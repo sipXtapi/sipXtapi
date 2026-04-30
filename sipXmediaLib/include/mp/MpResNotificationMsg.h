@@ -1,4 +1,7 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
@@ -68,7 +71,9 @@ public:
       MPRNM_INPUT_DEVICE_NOT_PRESENT,
       MPRNM_OUTPUT_DEVICE_NOT_PRESENT,
       MPRNM_INPUT_DEVICE_NOW_PRESENT,
-      MPRNM_OUTPUT_DEVICE_NOW_PRESENT
+      MPRNM_OUTPUT_DEVICE_NOW_PRESENT,
+      MPRNM_DTLS_HANDSHAKE_COMPLETE,    ///< MpResNotificationMsg base class
+      MPRNM_DTLS_HANDSHAKE_FAILED       ///< MprnIntMsg carrying MpDtls::FailureReason
    } RNMsgType;
 
    /* ============================ CREATORS ================================== */

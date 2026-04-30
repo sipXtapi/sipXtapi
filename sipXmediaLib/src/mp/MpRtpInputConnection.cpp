@@ -1,4 +1,7 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -25,6 +28,7 @@
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpIntResourceMsg.h"
 #include "mp/MpSetSrtpParamsMsg.h"
+#include "mp/MpSetDtlsParamsMsg.h"
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #ifdef INCLUDE_RTCP /* [ */
@@ -284,6 +288,22 @@ UtlBoolean MpRtpInputConnection::handleMessage(MpResourceMsg& rMsg)
        msgHandled = TRUE;
    }
    break;
+
+   case MpResourceMsg::MPRM_SET_DTLS_PARAMS:
+   {
+      MpSetDtlsParamsMsg* pMsg = (MpSetDtlsParamsMsg*)&rMsg;
+      mpFromNet->setDtls(pMsg->getDtls(), pMsg->getDestResourceName());
+      msgHandled = TRUE;
+   }
+   break;
+
+   case MpResourceMsg::MPRM_DTLS_PACKET:
+   case MpResourceMsg::MPRM_DTLS_RETRANSMIT:
+   case MpResourceMsg::MPRM_DTLS_HANDSHAKE_TIMEOUT:
+      // These messages are addressed to the MprFromNet child resource.
+      // Forward directly so MprFromNet::handleMessage processes them.
+      msgHandled = mpFromNet->handleMessage(rMsg);
+      break;
 
    default:
       // If we don't handle the message here, let our parent try.

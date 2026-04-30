@@ -1,4 +1,7 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
 //
 // $$
@@ -78,7 +81,9 @@ public:
       MI_NOTF_INPUT_DEVICE_NOT_PRESENT,
       MI_NOTF_OUTPUT_DEVICE_NOT_PRESENT,
       MI_NOTF_INPUT_DEVICE_NOW_PRESENT,
-      MI_NOTF_OUTPUT_DEVICE_NOW_PRESENT
+      MI_NOTF_OUTPUT_DEVICE_NOW_PRESENT,
+      MI_NOTF_DTLS_HANDSHAKE_COMPLETE,    ///< MiNotification base class
+      MI_NOTF_DTLS_HANDSHAKE_FAILED       ///< MiIntNotf carrying failure reason
    } NotfType;
 
      /// Connection ID that indicates invalid connection or no connection.

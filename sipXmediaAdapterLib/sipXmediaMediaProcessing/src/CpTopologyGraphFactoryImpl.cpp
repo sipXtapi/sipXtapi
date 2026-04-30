@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2007-2021 SIPez LLC. All rights reserved.
 //
 // $$
@@ -40,6 +43,8 @@
 #include <mp/MprSpeakerSelectorConstructor.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpMMTimer.h>
+#include <mp/MpDtlsIdentity.h>
+#include <mp/MpSrtp.h>
 #include "CpTopologyGraphFactoryImpl.h"
 #include "mi/CpMediaInterfaceFactory.h"
 #include "CpTopologyGraphInterface.h"
@@ -211,6 +216,11 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 , mDefaultToInputDevice(MP_INVALID_INPUT_DEVICE_HANDLE)
 , mNumMcastStreams(3)
 {
+    // Initialize SRTP library - we only need to do this once per application
+    // instance, and this singleton class is a good place to do it.
+    // Will NoOp if ENABLE_SRTP is not defined.
+    MpSrtp::globalInitialize();
+
     assert(MpMisc.RawAudioPool);
 #ifdef ANDROID
     int numBufferedFrames = 16;
@@ -428,6 +438,9 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
    mpInputDeviceManager = NULL;
    delete mpOutputDeviceManager;
    mpOutputDeviceManager = NULL;
+
+   MpDtlsIdentity::release();
+   MpSrtp::globalShutdown();
 }
 
 /* ============================ MANIPULATORS ============================== */

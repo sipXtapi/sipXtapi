@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
@@ -191,9 +194,16 @@ OsSSL::OsSSL(const char* authorityPath,
 
 OsSSL::~OsSSL()
 {
-   // Since error queue data structures are allocated automatically for new threads,
-   // they must be freed when threads are terminated in order to avoid memory leaks.
+   // Thread-specific error state cleanup
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+   // Legacy OpenSSL (Pre-1.1.0) required manual removal to avoid leaks.
+   // Note: ERR_remove_thread_state(NULL) was the preferred 1.0.x replacement for ERR_remove_state.
    ERR_remove_state(0);
+#else
+   // OpenSSL 1.1.0 and 3.x (including 3.5.5) handle thread-local cleanup 
+   // automatically via internal thread handlers or OPENSSL_thread_stop().
+   // No manual call to ERR_remove_state is required here.
+#endif
 
    if (mCTX)
    {
@@ -258,7 +268,15 @@ void OsSSL::releaseConnection(SSL*& connection)
    if (connection)
    {
       SSL_free(connection);
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+      // Legacy OpenSSL (Pre-1.1.0) required manual removal to avoid leaks.
+      // Note: ERR_remove_thread_state(NULL) was the preferred 1.0.x replacement for ERR_remove_state.
       ERR_remove_state(0);
+#else
+      // OpenSSL 1.1.0 and 3.x (including 3.5.5) handle thread-local cleanup 
+      // automatically via internal thread handlers or OPENSSL_thread_stop().
+      // No manual call to ERR_remove_state is required here.
+#endif
       connection = NULL;
    }
 }
@@ -504,34 +522,48 @@ void OsSSL::logError(const OsSysLogFacility facility,
 
 void OsSSL::dumpCipherList()
 {
-    char humanReadableName[1024];
-    SSL_CIPHER *cipher = NULL;
-    int cipherCount = 0;
-    const char* tokenName = NULL;
+   if (!mCTX) return;
 
-    while(cipherCount  <  sk_SSL_CIPHER_num(mCTX->cipher_list))
-    {
-    
-        // Get a cipher from the context
-        cipher = sk_SSL_CIPHER_value(mCTX->cipher_list, cipherCount);
+   char humanReadableName[1024];
+   const SSL_CIPHER* cipher = NULL;
+   const char* tokenName = NULL;
 
-        if(cipher)
-        {
-            // Get the cypher name
-            SSL_CIPHER_description(cipher, 
-                                   humanReadableName, 
-                                   sizeof(humanReadableName));
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+   STACK_OF(SSL_CIPHER)* cipherStack = SSL_CTX_get_ciphers(mCTX);
 
-            // get the cypher name token
+   if (cipherStack)
+   {
+      int cipherCount = sk_SSL_CIPHER_num(cipherStack);
+      for (int i = 0; i < cipherCount; i++)
+      {
+         // The return value here is const in OpenSSL 3.x
+         cipher = sk_SSL_CIPHER_value(cipherStack, i);
+
+         if (cipher)
+         {
+            SSL_CIPHER_description(cipher, humanReadableName, sizeof(humanReadableName));
             tokenName = SSL_CIPHER_get_name(cipher);
 
-            printf("Openssl cypher: %d %s %s\n",
-                cipherCount, tokenName, humanReadableName);
+            printf("Openssl cipher: %d %s %s\n", i, tokenName, humanReadableName);
+         }
+      }
+   }
+#else
+   // Legacy path remains the same but use the const cipher variable
+   int cipherCount = 0;
+   while (mCTX->cipher_list && cipherCount < sk_SSL_CIPHER_num(mCTX->cipher_list))
+   {
+      cipher = sk_SSL_CIPHER_value(mCTX->cipher_list, cipherCount);
+      if (cipher)
+      {
+         SSL_CIPHER_description(cipher, humanReadableName, sizeof(humanReadableName));
+         tokenName = SSL_CIPHER_get_name(cipher);
 
-        }
-        cipherCount++;
-    }
-
+         printf("Openssl cipher: %d %s %s\n", cipherCount, tokenName, humanReadableName);
+      }
+      cipherCount++;
+   }
+#endif
 }
 
 /********************************************************************************/

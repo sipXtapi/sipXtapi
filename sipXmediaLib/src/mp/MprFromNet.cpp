@@ -1,6 +1,7 @@
 //
-// Copyright (C) 2021-2026 SIP Spectrum, Inc. www.sipspectrum.com
-//  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2006-2016 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -45,6 +46,9 @@
 #include <mp/MpResourceMsg.h>
 #include <mp/MpSetSocketsMsg.h>
 #include <mp/NetInTask.h>
+#include <mp/MpFlowGraphBase.h>
+#include <mp/MpDtlsPacketMsg.h>
+#include <mp/MpDtls.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -70,6 +74,7 @@ MprFromNet::MprFromNet()
 , mDiscardSelectedStream(FALSE)
 , mDiscardedSSRC(0)
 , mpFlowGraph(NULL)
+, mpDtls(NULL)
 #ifdef INCLUDE_RTCP /* [ */
 , mpiRTCPDispatch(NULL)
 , mpiRTPDispatch(NULL)
@@ -192,6 +197,38 @@ UtlBoolean MprFromNet::handleMessage(MpResourceMsg& rMsg)
        }
        break;
 
+       case MpResourceMsg::MPRM_DTLS_PACKET:
+       {
+          if (mpDtls != NULL)
+          {
+             MpDtlsPacketMsg* pMsg = (MpDtlsPacketMsg*)&rMsg;
+             const UtlString& packet = pMsg->getPacket();
+             mpDtls->processIncomingPacket(packet.data(), packet.length());
+          }
+          handled = TRUE;
+       }
+       break;
+
+       case MpResourceMsg::MPRM_DTLS_RETRANSMIT:
+       {
+          if (mpDtls != NULL)
+          {
+             mpDtls->handleRetransmit();
+          }
+          handled = TRUE;
+       }
+       break;
+
+       case MpResourceMsg::MPRM_DTLS_HANDSHAKE_TIMEOUT:
+       {
+          if (mpDtls != NULL)
+          {
+             mpDtls->handleHandshakeTimeout();
+          }
+          handled = TRUE;
+       }
+       break;
+
        default:
            OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::handleMessage unhandled message type: %d",
                rMsg.getMsg());
@@ -205,6 +242,12 @@ UtlBoolean MprFromNet::handleMessage(MpResourceMsg& rMsg)
 UtlBoolean MprFromNet::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey)
 {
    return mSrtp.setSrtpParams(cryptoSuite, cryptoKey, TRUE /* forUnprotect? */);
+}
+
+void MprFromNet::setDtls(MpDtls* pDtls, const UtlString& resourceName)
+{
+   mpDtls = pDtls;
+   mDtlsResourceName = resourceName;
 }
 
 #ifndef INCLUDE_RTCP /* [ */
@@ -268,6 +311,57 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
 
    const char* packetData = udpBuf->getDataPtr();
    int packetSize = udpBuf->getPacketSize();
+
+   // RFC 7983 demultiplex when DTLS-SRTP is configured for this connection.
+   // This runs on the NetInTask thread; for DTLS records we ferry the
+   // bytes to the media thread via MpDtlsPacketMsg, where MpDtls actually
+   // processes them. Note: RTCP traffic is not currently DTLS-demuxed.
+   if (mpDtls != NULL && !isRtcp && packetSize > 0)
+   {
+      unsigned char firstByte = (unsigned char)packetData[0];
+
+      if (firstByte >= 20 && firstByte <= 63)
+      {
+         // DTLS record. Post to media thread for MpDtls processing.
+         // Don't fall through to the SRTP unprotect path.
+         ret = OS_FAILED;
+         if (mpFlowGraph != NULL && !mDtlsResourceName.isNull())
+         {
+            MpDtlsPacketMsg msg(mDtlsResourceName, packetData, packetSize);
+            ret = mpFlowGraph->getMsgQ()->send(msg, OsTime::OS_INFINITY);
+         }
+         if (ret != OS_SUCCESS)
+         {
+            OsSysLog::add(FAC_MP, PRI_WARNING, "MprFromNet::pushPacket: post DTLS packet failed (%d), dropping", ret);
+         }
+         return ret;
+      }
+      else if (firstByte <= 3)
+      {
+         // STUN - should have been picked off by OsNatDatagramSocket - drop
+         return OS_SUCCESS;
+      }
+      else if (firstByte >= 128 && firstByte <= 191)
+      {
+         // RTP/RTCP. Pre-handshake-or-pre-keyed we drop -- packets can't be
+         // authenticated yet. Once both DTLS is active AND SRTP keys have
+         // been installed via MpSetSrtpParamsMsg, fall through to the
+         // existing srtpUnprotectIfNeeded path.
+         if (!mpDtls->isActive() || !mSrtp.isSessionCreated())
+         {
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "MprFromNet::pushPacket payload of size: %d dropped while waiting for DTLS-SRTP handshake to finish",
+               packetSize);
+            return OS_INVALID;
+         }
+         // fall through
+      }
+      else
+      {
+         // Unrecognized first byte - drop.
+         OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::pushPacket: Unrecognized first byte (0x%02x)", firstByte);
+         return OS_INVALID;
+      }
+   }
 
    // Note: Will NoOp and return OS_SUCCESS if ENABLE_SRTP is not defined
    if (!mSrtp.srtpUnprotectIfNeeded((const uint8_t*)packetData, &packetSize, isRtcp))

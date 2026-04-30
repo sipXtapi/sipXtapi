@@ -24,5 +24,8 @@
     <ClCompile Include="..\sipXportLib\src\test\os\UnitTestLogHooks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sipXmediaMediaProcessing\src\test\CpDtlsTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

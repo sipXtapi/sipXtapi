@@ -1,5 +1,6 @@
 // 
-// Copyright (C) 2021-2026 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 // 
@@ -91,6 +92,121 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+    /// @name DTLS-SRTP identity and global configuration
+    ///
+    /// These static methods configure DTLS-SRTP at the process level.
+    /// Call them (optionally) once at application startup. If
+    /// setDtlsIdentity() is never called, a self-signed ECDSA P-256
+    /// certificate is auto-generated on first need (first call to
+    /// getLocalDtlsFingerprint(), or first DTLS-SRTP connection).
+    ///
+    /// These methods have no effect unless the library is built with
+    /// ENABLE_SRTP and HAVE_SSL defined.
+    //@{
+
+    /// Install the long-lived DTLS identity (certificate + private key)
+    /// used for all DTLS-SRTP handshakes.
+    static OsStatus setDtlsIdentity(const UtlString& certPemPath,
+       const UtlString& privateKeyPemPath);
+    /**
+    *  @param[in] certPemPath - path to a PEM-encoded X.509 certificate.
+    *  @param[in] privateKeyPemPath - path to a PEM-encoded private key
+    *             matching the certificate. May be the same file as
+    *             certPemPath if the key is bundled with the cert.
+    *
+    *  @retval OS_SUCCESS   identity loaded successfully.
+    *  @retval OS_NOT_FOUND a file could not be opened.
+    *  @retval OS_FAILED    the files could not be parsed, the key does
+    *                       not match the cert, or the library is not
+    *                       built with ENABLE_SRTP and HAVE_SSL defines.
+    *
+    *  @note Must be called before any DTLS-SRTP connection is created
+    *        and before the first call to getLocalDtlsFingerprint() if
+    *        you want to avoid triggering auto-generation.
+    */
+
+    /// Get the fingerprint of our local DTLS certificate, for the SIP
+    /// layer to include in outgoing SDP as an a=fingerprint attribute.
+    static OsStatus getLocalDtlsFingerprint(UtlString& fingerprint,
+       const UtlString& hashAlgorithm = "SHA-256");
+    /**
+    *  @param[out] fingerprint - upper-case hex string with colon
+    *              separators, e.g. "AB:CD:EF:...". The caller is
+    *              responsible for prepending the hash algorithm name
+    *              (e.g. "SHA-256 ") when building the SDP line.
+    *  @param[in]  hashAlgorithm - one of "SHA-256" (default), "SHA-1",
+    *              "SHA-384", "SHA-512".
+    *
+    *  @retval OS_SUCCESS        fingerprint returned.
+    *  @retval OS_INVALID_ARGUMENT  unsupported hashAlgorithm.
+    *  @retval OS_FAILED         the library is not built with
+    *                            ENABLE_SRTP and HAVE_SSL defines,
+    *                            or cert auto-gen failed.
+    *
+    *  @note If setDtlsIdentity() has not been called, this triggers
+    *        auto-generation of a self-signed certificate on first use.
+    */
+
+    /// Restrict and order the list of SRTP profiles offered during the
+    /// DTLS use_srtp extension negotiation (RFC 5764).
+    static OsStatus setDtlsSrtpProfiles(int numProfiles,
+                                        const SdpMediaLine::SdpCryptoSuiteType profiles[]);
+    /**
+    *  @param[in] numProfiles - number of entries in the profiles array.
+    *             Zero restores the default list.
+    *  @param[in] profiles - ordered list, highest preference first.
+    *             Only suites supported by DTLS-SRTP's use_srtp
+    *             extension are accepted:
+    *             - CRYPTO_SUITE_TYPE_AEAD_AES_128_GCM (not supported in default Windows build from contrib)
+    *             - CRYPTO_SUITE_TYPE_AEAD_AES_256_GCM (not supported in default Windows build from contrib)
+    *             - CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80
+    *             - CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_32
+    *             Other suites in SdpCryptoSuiteType (e.g. AES-192,
+    *             AES-256 CM, F8) are valid for SDES-SRTP but have no
+    *             registered use_srtp profile and will be rejected.
+    *
+    *             The two GCM suites further require that libsrtp was
+    *             built with an external crypto backend (OpenSSL or NSS).
+    *             A libsrtp built with no external crypto -- which is
+    *             the default for the prebuilt libsrtp shipped on
+    *             Windows -- will reject GCM here at API time so callers
+    *             get an immediate error rather than a silent
+    *             negotiate-then-fail at SRTP key install time. Linux
+    *             distributions typically ship libsrtp built with NSS
+    *             or OpenSSL and accept all four.
+    *
+    *             Capability is detected at MpSrtp::globalInitialize()
+    *             time; check the FAC_MP startup log for the support
+    *             matrix.
+    *
+    *  @retval OS_SUCCESS  profile list updated.
+    *  @retval OS_INVALID_ARGUMENT  a profile in the list is not
+    *                               supported by DTLS-SRTP, or the
+    *                               linked-in libsrtp lacks the cipher
+    *                               for it.
+    *  @retval OS_FAILED   the library is not
+    *                      built with ENABLE_SRTP and HAVE_SSL defines.
+    *
+    *  Default list (when this method is never called):
+    *     AEAD_AES_128_GCM, AEAD_AES_256_GCM,
+    *     AES_CM_128_HMAC_SHA1_80, AES_CM_128_HMAC_SHA1_32
+    *  -- with any suites unsupported by the linked-in libsrtp filtered
+    *  out before being offered on the wire.
+    */
+
+    /// Set the maximum time to wait for a DTLS handshake to complete.
+    static OsStatus setDtlsHandshakeTimeout(int timeoutSeconds);
+    /**
+    *  @param[in] timeoutSeconds - maximum handshake duration. If the
+    *             handshake does not complete within this window, the
+    *             connection fires a DTLS_HANDSHAKE_FAILED notification
+    *             with reason TIMEOUT. Default is 20 seconds.
+    *
+    *  @retval OS_SUCCESS        timeout updated.
+    *  @retval OS_INVALID_ARGUMENT  timeoutSeconds <= 0.
+    */
+
+    //@}
      /// @copydoc CpMediaInterface::createConnection()
    virtual OsStatus createConnection(int& connectionId,
                                      const char* szLocalAddress,
@@ -198,6 +314,80 @@ public:
                                              const char* rtpHostAddress, 
                                              int rtpPort,
                                              int rtcpPort);
+
+   /// Configure a connection to use DTLS-SRTP. The DTLS handshake
+   /// will run over the same UDP sockets as RTP, and the resulting
+   /// SRTP master keys are installed automatically when the
+   /// handshake completes.
+   ///
+   /// @note Use the non-SRTP-key overload of startRtpSend() and
+   ///       startRtpReceive() for DTLS-SRTP connections -- the keys
+   ///       come from the handshake, not the caller. Calling the
+   ///       SDES overload on a connection already configured for
+   ///       DTLS-SRTP is an error.
+   ///
+   /// @note ENABLE_SRTP and HAVE_SSL must be defined for this method to
+   ///       establish an actual DTLS-SRTP session.
+   virtual OsStatus setDtlsSrtpParams(int connectionId,
+                                      CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                      const UtlString& remoteFingerprint,
+                                      const UtlString& hashAlgorithm,
+                                      SdpMediaLine::SdpTcpSetupAttribute role,
+                                      int numProfilesOverride = 0,
+                                      const SdpMediaLine::SdpCryptoSuiteType* profilesOverride = NULL);
+   /**
+   *  The DTLS handshake begins when this method AND
+   *  setConnectionDestination() have both been called for the given
+   *  connectionId. The two calls may occur in either order. Until
+   *  the handshake completes, any RTP sent is dropped and any RTP
+   *  received is discarded (DTLS packets on the same socket are
+   *  routed to the handshake engine).
+   *
+   *  On handshake completion or failure, a notification is dispatched
+   *  via the notification dispatcher (see setNotificationDispatcher):
+   *    - DTLS_HANDSHAKE_COMPLETE on success
+   *    - DTLS_HANDSHAKE_FAILED on fingerprint mismatch, cert error,
+   *      timeout, or protocol error
+   *
+   *  @param[in] connectionId - connection to configure.
+   *  @param[in] mediaType - CpMediaInterface::AUDIO_STREAM or
+   *             CpMediaInterface::VIDEO_STREAM
+   *  @param[in] remoteFingerprint - the peer's certificate fingerprint
+   *             as received in their SDP a=fingerprint attribute, in
+   *             upper-case colon-separated hex (e.g. "AB:CD:..."),
+   *             without the hash algorithm prefix.
+   *  @param[in] hashAlgorithm - algorithm that produced
+   *             remoteFingerprint (e.g. "SHA-256"). Must match what
+   *             was in the peer's SDP.
+   *  @param[in] role - resolved setup role from SDP a=setup:
+   *             negotiation. Must be TCP_SETUP_ATTRIBUTE_ACTIVE
+   *             (we are the DTLS client) or
+   *             TCP_SETUP_ATTRIBUTE_PASSIVE (we are the DTLS server).
+   *             TCP_SETUP_ATTRIBUTE_ACTPASS is invalid here -- the
+   *             SIP layer must resolve actpass before calling.
+   *  @param[in] numProfilesOverride - if non-zero, overrides the
+   *             factory-level default profile list for this
+   *             connection only.
+   *  @param[in] profilesOverride - per-connection profile list.
+   *             Ignored if numProfilesOverride is 0. The same
+   *             eligibility rules as setDtlsSrtpProfiles apply: each
+   *             entry must have an RFC 5764 use_srtp registration AND
+   *             must be supported by the linked-in libsrtp build (GCM
+   *             requires libsrtp built with OpenSSL or NSS).
+   *
+   *  @retval OS_SUCCESS        connection configured; handshake will
+   *                            start when destination is also set.
+   *  @retval OS_NOT_FOUND      invalid connectionId.
+   *  @retval OS_INVALID_ARGUMENT  bad fingerprint format, unsupported
+   *                            hashAlgorithm, invalid role, an override
+   *                            profile not supported by DTLS-SRTP, or
+   *                            an override profile whose cipher is
+   *                            missing from the linked-in libsrtp
+   *                            build.
+   *  @retval OS_FAILED         not built with ENABLE_SRTP or HAVE_SSL, or
+   *                            the connection is already configured
+   *                            for SDES-SRTP.
+   */
 
     /// @copydoc CpMediaInterface::copyPayloadIds
     virtual OsStatus copyPayloadIds(int connectionId, int numCodecs, SdpCodec* remoceCodecs[]);
@@ -527,6 +717,36 @@ public:
                                       int bandWidth,
                                       int& videoBandwidth,
                                       int& videoFramerate);
+
+   /// Query the DTLS-SRTP handshake state for a connection.
+   /// Non-blocking. Useful as a poll-based alternative to the
+   /// DTLS_HANDSHAKE_COMPLETE / DTLS_HANDSHAKE_FAILED notifications.
+   virtual OsStatus getDtlsSrtpStatus(int connectionId,
+                                      CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                      UtlBoolean& handshakeComplete,
+                                      UtlBoolean& fingerprintVerified,
+                                      SdpMediaLine::SdpCryptoSuiteType& negotiatedSuite);
+   /**
+   *  @param[in]  connectionId - connection to query.
+   *  @param[in]  mediaType - CpMediaInterface::AUDIO_STREAM or
+   *              CpMediaInterface::VIDEO_STREAM
+   *  @param[out] handshakeComplete - TRUE if the DTLS handshake has
+   *              finished (successfully or not). FALSE if still in
+   *              progress or not yet started.
+   *  @param[out] fingerprintVerified - TRUE if handshakeComplete is
+   *              TRUE AND the peer's certificate matched the
+   *              remoteFingerprint passed to setDtlsSrtpParams().
+   *              Always FALSE if handshakeComplete is FALSE.
+   *  @param[out] negotiatedSuite - the SRTP suite selected by the
+   *              use_srtp extension negotiation. Valid only when
+   *              handshakeComplete and fingerprintVerified are both
+   *              TRUE; CRYPTO_SUITE_TYPE_NONE otherwise.
+   *
+   *  @retval OS_SUCCESS    status returned.
+   *  @retval OS_NOT_FOUND  invalid connectionId, or the connection
+   *                        is not configured for DTLS-SRTP.
+   *  @retval OS_FAILED     not built with ENABLE_SRTP and HAVE_SSL.
+   */
 
    //! Calculate the current cost for the current set of 
    //! sending/receiving codecs.

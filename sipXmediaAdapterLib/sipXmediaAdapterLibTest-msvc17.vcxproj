@@ -381,6 +381,7 @@
   <ItemGroup>
     <ClCompile Include="..\sipXportLib\src\test\os\UnitTestLogHooks.cpp" />
     <ClCompile Include="sipXmediaMediaProcessing\src\test\CpCryptoTest.cpp" />
+    <ClCompile Include="sipXmediaMediaProcessing\src\test\CpDtlsTest.cpp" />
     <ClCompile Include="sipXmediaMediaProcessing\src\test\CpPhoneMediaInterfaceTest.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>

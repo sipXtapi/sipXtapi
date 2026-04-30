@@ -243,6 +243,8 @@
     <ClCompile Include="src\mp\MpDecoderBase.cpp" />
     <ClCompile Include="src\mp\MpDecoderPayloadMap.cpp" />
     <ClCompile Include="src\mp\MpDspUtils.cpp" />
+    <ClCompile Include="src\mp\MpDtls.cpp" />
+    <ClCompile Include="src\mp\MpDtlsIdentity.cpp" />
     <ClCompile Include="src\mp\MpDTMFDetector.cpp" />
     <ClCompile Include="src\mp\MpEncoderBase.cpp" />
     <ClCompile Include="src\mp\MpFlowGraphBase.cpp" />
@@ -400,6 +402,9 @@
     <ClInclude Include="include\mp\MpDspUtilsShift.h" />
     <ClInclude Include="include\mp\MpDspUtilsSum.h" />
     <ClInclude Include="include\mp\MpDspUtilsSumVect.h" />
+    <ClInclude Include="include\mp\MpDtls.h" />
+    <ClInclude Include="include\mp\MpDtlsIdentity.h" />
+    <ClInclude Include="include\mp\MpDtlsPacketMsg.h" />
     <ClInclude Include="include\mp\MpDTMFDetector.h" />
     <ClInclude Include="include\mp\MpEncoderBase.h" />
     <ClInclude Include="include\mp\MpFlowGraphBase.h" />
@@ -499,6 +504,7 @@
     <ClInclude Include="include\mp\MprVadConstructor.h" />
     <ClInclude Include="include\mp\MprVoiceActivityNotifier.h" />
     <ClInclude Include="include\mp\MprVoiceActivityNotifierConstructor.h" />
+    <ClInclude Include="include\mp\MpSetDtlsParamsMsg.h" />
     <ClInclude Include="include\mp\MpSetSocketsMsg.h" />
     <ClInclude Include="include\mp\MpSetSrtpParamsMsg.h" />
     <ClInclude Include="include\mp\MpSineWaveGeneratorDeviceDriver.h" />

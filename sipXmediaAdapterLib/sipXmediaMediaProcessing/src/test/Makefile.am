@@ -40,6 +40,7 @@ CpPhoneMediaInterfaceTest.cpp: codecQualitySource/GREFCLA.WAV
 testsuite_SOURCES = \
     ../../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
     CpCryptoTest.cpp \
+    CpDtlsTest.cpp \
     CpPhoneMediaInterfaceTest.cpp
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for

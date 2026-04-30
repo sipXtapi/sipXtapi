@@ -1,5 +1,6 @@
 // 
 // Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
@@ -183,7 +184,9 @@ public:
       CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_80,   // RFC6188
       CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_32,   // RFC6188
       CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_80,   // RFC6188
-      CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_32    // RFC6188
+      CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_32,   // RFC6188
+      CRYPTO_SUITE_TYPE_AEAD_AES_128_GCM,          // RFC7714 (typical in WebRTC DTLS-SRTP)
+      CRYPTO_SUITE_TYPE_AEAD_AES_256_GCM           // RFC7714 (typical in WebRTC DTLS-SRTP)
    } SdpCryptoSuiteType;
    static const char* SdpCryptoSuiteTypeString[];
 

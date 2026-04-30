@@ -1,4 +1,7 @@
 // 
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2008-2009 SIPez LLC
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
@@ -11,8 +14,7 @@
 // Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 #ifdef HAVE_SSL
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
+#include <sipxunittests.h>
 #include "mi/CpMediaInterfaceFactory.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
 #include "CpTopologyGraphInterface.h"
@@ -56,7 +58,7 @@
 
 extern unsigned char sine_330hz_16b_8k_signed[160116];
 
-class CpCryptoTest : public CppUnit::TestCase
+class CpCryptoTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(CpCryptoTest);
    CPPUNIT_TEST(testCryptoOuroboros);

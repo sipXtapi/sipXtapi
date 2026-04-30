@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -32,7 +35,13 @@
 #include <openssl/err.h>
 #include <openssl/rand.h>
 
-#  ifdef WIN32
+#ifdef WIN32
+#  if OPENSSL_VERSION_NUMBER >= 0x10100000L
+      // OpenSSL 1.1.x naming convention (usually matches 3.x)
+#     pragma comment (lib, "libcrypto.lib")
+#     pragma comment (lib, "libssl.lib")
+#  else
+      // Legacy OpenSSL 1.0.x and older
 #     pragma comment (lib, "libeay32.lib")
 #     pragma comment (lib, "ssleay32.lib")
 #  endif
@@ -87,6 +96,13 @@ OsEncryption::OsEncryption(void)
     mHeaderLen = 0;
 #if defined (OSENCRYPTION)
     mAlgorithm = NULL;
+    mContext = NULL;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    mContext = EVP_CIPHER_CTX_new();
+#else
+    mContext = (EVP_CIPHER_CTX*)malloc(sizeof(EVP_CIPHER_CTX));
+    if (mContext) EVP_CIPHER_CTX_init(mpContext);
+#endif
     memset(&mContext, 0, sizeof(mContext));
 #endif
 }
@@ -95,6 +111,18 @@ OsEncryption::OsEncryption(void)
 OsEncryption::~OsEncryption(void)
 {
     release(); // open encryption algorithms
+#if defined (OSENCRYPTION)
+    if (mContext)
+    {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+       EVP_CIPHER_CTX_free(mContext);
+#else
+       EVP_CIPHER_CTX_cleanup(mContext);
+       free(mContext);
+#endif
+       mContext = NULL;
+    }
+#endif
 }
 
 
@@ -181,7 +209,6 @@ OsStatus OsEncryption::release(void)
 OsStatus OsEncryption::init(Direction direction)
 {
     OsStatus retval = OS_FAILED;
-
 #if defined(OSENCRYPTION)
     release();
 
@@ -189,18 +216,46 @@ OsStatus OsEncryption::init(Direction direction)
     {
         ERR_clear_error();
 
+        // 1. Initializing algorithms is handled automatically in 1.1.0+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
         SSLeay_add_all_algorithms();
+#endif
+
+        // 2. Setup the PBE algorithm
         mAlgorithm = PKCS5_pbe_set(NID_pbeWithMD5AndDES_CBC,
-            PKCS5_DEFAULT_ITER, mSalt, mSaltLen);
+                                   PKCS5_DEFAULT_ITER, mSalt, mSaltLen);
 
         if (mAlgorithm != NULL)
         {
-            EVP_CIPHER_CTX_init(&(mContext));
-            if (EVP_PBE_CipherInit(mAlgorithm->algorithm, (const char *)mKey, mKeyLen,
-                                   mAlgorithm->parameter, &(mContext), (int)direction))
+            // 3. Ensure the context is initialized/reset
+            if (mContext == NULL)
             {
-                int blockSize = EVP_CIPHER_CTX_block_size(&mContext);
-                int allocLen = mDataLen + mHeaderLen + blockSize + 1; // plus 1 for null terminator on decrypt
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+                mContext = EVP_CIPHER_CTX_new();
+#else
+                mpContext = (EVP_CIPHER_CTX*)malloc(sizeof(EVP_CIPHER_CTX));
+                if (mpContext) EVP_CIPHER_CTX_init(mpContext);
+#endif
+            }
+            else
+            {
+                // If it already exists, just reset it for a new operation
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+                EVP_CIPHER_CTX_reset(mContext);
+#else
+                EVP_CIPHER_CTX_cleanup(mpContext);
+                EVP_CIPHER_CTX_init(mpContext);
+#endif
+            }
+
+            if (mContext != NULL && 
+                EVP_PBE_CipherInit(mAlgorithm->algorithm, (const char *)mKey, mKeyLen,
+                                   mAlgorithm->parameter, mContext, (int)direction))
+            {
+                // 4. Use the context pointer to get block size
+                int blockSize = EVP_CIPHER_CTX_block_size(mContext);
+                int allocLen = mDataLen + mHeaderLen + blockSize + 1; 
+                
                 mResults = (unsigned char *)OPENSSL_malloc(allocLen);
                 if (mResults == NULL)
                 {
@@ -270,11 +325,11 @@ OsStatus OsEncryption::crypto(Direction direction)
             }
 
             int outLenPart1 = 0;
-            if (EVP_CipherUpdate(&(mContext), out, &outLenPart1, in, inLen))
+            if (EVP_CipherUpdate(mContext, out, &outLenPart1, in, inLen))
             {
                 out += outLenPart1;
                 int outLenPart2 = 0;
-                if (EVP_CipherFinal(&(mContext), out, &outLenPart2))
+                if (EVP_CipherFinal(mContext, out, &outLenPart2))
                 {
                     outLen += outLenPart1 + outLenPart2;
                     retval = OS_SUCCESS;
@@ -302,16 +357,38 @@ UtlBoolean OsEncryption::openSslError(void)
     unsigned long err = ERR_get_error();
     if (err != 0)
     {
+        // 1. Loading strings is automatic in 1.1.0 and 3.x. 
+        // Only call these on legacy 1.0.x versions.
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
         ERR_load_crypto_strings();
         ERR_load_ERR_strings();
+#endif
+
         char errbuff[256];
         errbuff[0] = 0;
         ERR_error_string_n(err, errbuff, sizeof(errbuff));
-        osPrintf("OpenSLL ERROR:\n\tlib:%s\n\tfunction:%s\n\treason:%s\n",
-            ERR_lib_error_string(err),
-            ERR_func_error_string(err),
-            ERR_reason_error_string(err));
+
+        // 2. ERR_func_error_string is deprecated in 3.x and usually returns NULL.
+        // We use a guard to handle the display gracefully.
+        const char* libStr    = ERR_lib_error_string(err);
+        const char* reasonStr = ERR_reason_error_string(err);
+        
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+        const char* funcStr = "N/A (OpenSSL 3.x)";
+#else
+        const char* funcStr = ERR_func_error_string(err);
+#endif
+
+        osPrintf("OpenSSL ERROR:\n\tlib:%s\n\tfunction:%s\n\treason:%s\n\tfull:%s\n",
+            libStr ? libStr : "unknown",
+            funcStr ? funcStr : "unknown",
+            reasonStr ? reasonStr : "unknown",
+            errbuff);
+
+        // 3. Freeing strings is also unnecessary/automatic in modern versions.
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
         ERR_free_strings();
+#endif
 
         return TRUE;
     }
@@ -319,3 +396,4 @@ UtlBoolean OsEncryption::openSslError(void)
 
     return FALSE;
 }
+#endif

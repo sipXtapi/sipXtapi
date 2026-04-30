@@ -1,4 +1,7 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
@@ -21,10 +24,20 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // TYPEDEFS
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 typedef struct rsa_st        RSA;
 typedef struct evp_cipher_st EVP_CIPHER;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+typedef struct evp_md_st     EVP_MD;
+#else
 typedef struct env_md_st     EVP_MD;
-
+#endif
+#ifdef __cplusplus
+}
+#endif
 // DEFINES
 // MACROS
 // STATIC VARIABLE INITIALIZATIONS

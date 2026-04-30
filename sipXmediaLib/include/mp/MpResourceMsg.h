@@ -1,6 +1,7 @@
 //  
 // Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
-//  
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2007-2011 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
@@ -53,6 +54,10 @@ public:
       MPRM_RESET_SOCKETS,       ///< MprFromNet and containers stop reading sockets
 
       MPRM_SET_SRTP_PARAMS,     ///< MprFromNet and MprToNet: Set SRTP parameters
+      MPRM_SET_DTLS_PARAMS,     ///< MpSetDtlsParamsMsg - wire MpDtls into MprFromNet/MprToNet
+      MPRM_DTLS_PACKET,         ///< MprFromNet to MediaThread for MpDtls processing
+      MPRM_DTLS_RETRANSMIT,     ///< DTLS timer from MpDtls
+      MPRM_DTLS_HANDSHAKE_TIMEOUT, ///< DTLS timer from MpDtls
 
       // Add new built in resource operation messages above
 

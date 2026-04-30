@@ -1,4 +1,7 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
 //
 // $$
@@ -115,6 +118,26 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
                                   resNotf.getOriginatingResourceName(),
                                   resNotf.getConnectionId(),
                                   resNotf.getStreamId());
+            stat = mpAbstractedMsgDispatcher->post(miNotf);
+         }
+         break;
+      case MpResNotificationMsg::MPRNM_DTLS_HANDSHAKE_COMPLETE:
+         {
+            MiNotification miNotf(lookupNotfType(notfType),
+                                  resNotf.getOriginatingResourceName(),
+                                  resNotf.getConnectionId(),
+                                  resNotf.getStreamId());
+            stat = mpAbstractedMsgDispatcher->post(miNotf);
+         }
+         break;
+      case MpResNotificationMsg::MPRNM_DTLS_HANDSHAKE_FAILED:
+         {
+            MprnIntMsg& mediaLibNotf = (MprnIntMsg&)resNotf;
+            MiIntNotf miNotf(lookupNotfType(notfType),
+                             mediaLibNotf.getOriginatingResourceName(),
+                             mediaLibNotf.getValue(),
+                             (int)(mediaLibNotf.getConnectionId()),
+                             mediaLibNotf.getStreamId());
             stat = mpAbstractedMsgDispatcher->post(miNotf);
          }
          break;
@@ -352,6 +375,12 @@ MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgTy
    case MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOW_PRESENT:
        miNotfType = MiNotification::MI_NOTF_OUTPUT_DEVICE_NOW_PRESENT;
        break;
+   case MpResNotificationMsg::MPRNM_DTLS_HANDSHAKE_COMPLETE:
+      miNotfType = MiNotification::MI_NOTF_DTLS_HANDSHAKE_COMPLETE;
+      break;
+   case MpResNotificationMsg::MPRNM_DTLS_HANDSHAKE_FAILED:
+      miNotfType = MiNotification::MI_NOTF_DTLS_HANDSHAKE_FAILED;
+      break;
    case MpResNotificationMsg::MPRNM_TONE_DETECT_ON:
        miNotfType = MiNotification::MI_NOTF_TONE_DETECT_ON;
        break;

@@ -1,4 +1,7 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
@@ -13,15 +16,15 @@
 
 #ifdef HAVE_SSL
 
-#include "utl/UtlCryptoKeySym.h"
-
-#include "utl/UtlRandom.h"
-
 #include <openssl/rsa.h>
 #include <openssl/err.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
+
+#include "utl/UtlCryptoKeySym.h"
+
+#include "utl/UtlRandom.h"
 
 UtlCryptoKeySym::UtlCryptoKeySym()
 : mpCipher(EVP_des_cbc())
@@ -144,53 +147,62 @@ int UtlCryptoKeySym::encrypt(const unsigned char* pSrc,
 
    *pDestLen = 0;
 
-   // Make sure we have a key (and IV if needed) before proceeding
    if (!mpKey || (!mpIv && mIvLen))
    {
       osPrintf("*****Need valid key before encrypting");
       return 0;
    }
 
-   EVP_CIPHER_CTX ctx;
-   EVP_CIPHER_CTX_init(&ctx);
+   // --- ALLOCATION LOGIC ---
+   EVP_CIPHER_CTX* pCtx;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+   // Modern OpenSSL (1.1.x, 3.x+)
+   pCtx = EVP_CIPHER_CTX_new();
+#else
+   // Legacy OpenSSL (1.0.x)
+   pCtx = (EVP_CIPHER_CTX*)malloc(sizeof(EVP_CIPHER_CTX));
+   if (pCtx) EVP_CIPHER_CTX_init(pCtx);
+#endif
 
-   if (!EVP_EncryptInit_ex(&ctx, mpCipher, NULL,
-      mpKey->data(), mpIv->data()))
+   if (!pCtx)
    {
-      osPrintf("*****EVP_EncryptInit_ex failed");
-      setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
+      osPrintf("*****Failed to allocate EVP_CIPHER_CTX");
       return 0;
    }
 
-   // Go ahead and encrypt the src data into the dest buffer
-
+   // --- ENCRYPTION LOGIC ---
+   int success = 0;
    int bytesWritten = 0;
-   unsigned char* pDestTail = pDest;
-   if (!EVP_EncryptUpdate(&ctx, pDestTail, &bytesWritten, pSrc, srcLen))
-   {
-      osPrintf("*****EVP_EncryptUpdate failed");
-      setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
-      return 0;
-   }
-
-   pDestTail += bytesWritten;
    int bytesFinal = 0;
-   if (!EVP_EncryptFinal_ex(&ctx, pDestTail, &bytesFinal))
+
+   if (EVP_EncryptInit_ex(pCtx, mpCipher, NULL, mpKey->data(), mpIv->data()))
    {
-      osPrintf("*****EVP_EncryptFinal_ex failed");
-      setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
-      return 0;
+      if (EVP_EncryptUpdate(pCtx, pDest, &bytesWritten, pSrc, srcLen))
+      {
+         if (EVP_EncryptFinal_ex(pCtx, pDest + bytesWritten, &bytesFinal))
+         {
+            *pDestLen = bytesWritten + bytesFinal;
+            success = 1;
+            setLastError(0);
+         }
+      }
    }
 
-   // How many total bytes did we write to pDest?
-   *pDestLen = bytesWritten + bytesFinal;
+   if (!success)
+   {
+      osPrintf("*****Encryption failed");
+      setLastError(ERR_get_error());
+   }
 
-   EVP_CIPHER_CTX_cleanup(&ctx);
-   setLastError(0);
-   return *pDestLen;
+   // --- CLEANUP LOGIC ---
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+   EVP_CIPHER_CTX_free(pCtx);
+#else
+   EVP_CIPHER_CTX_cleanup(pCtx);
+   free(pCtx);
+#endif
+
+   return success ? *pDestLen : 0;
 }
 
 int UtlCryptoKeySym::getMaxDecryptedSize(int srcLen) const
@@ -216,46 +228,56 @@ int UtlCryptoKeySym::decrypt(const unsigned char* pSrc,
       return 0;
    }
 
-   EVP_CIPHER_CTX ctx;
-   EVP_CIPHER_CTX_init(&ctx);
+   // --- ALLOCATION LOGIC ---
+   EVP_CIPHER_CTX* pCtx;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+   // Modern OpenSSL (1.1.x, 3.x+)
+   pCtx = EVP_CIPHER_CTX_new();
+#else
+   // Legacy OpenSSL (1.0.x)
+   pCtx = (EVP_CIPHER_CTX*)malloc(sizeof(EVP_CIPHER_CTX));
+   if (pCtx) EVP_CIPHER_CTX_init(pCtx);
+#endif
 
-   if (!EVP_DecryptInit_ex(&ctx, mpCipher, NULL,
-      mpKey->data(), mpIv->data()))
+   if (!pCtx)
    {
-      osPrintf("*****EVP_DecryptInit_ex failed");
-      setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
+      osPrintf("*****Failed to allocate EVP_CIPHER_CTX");
       return 0;
    }
 
-   // Go ahead and encrypt the src data into the dest buffer
-
+   // --- DECRYPTION LOGIC ---
+   int success = 0;
    int bytesWritten = 0;
-   unsigned char* pDestTail = pDest;
-   if (!EVP_DecryptUpdate(&ctx, pDestTail, &bytesWritten, pSrc, srcLen))
-   {
-      osPrintf("*****EVP_DecryptUpdate failed");
-      setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
-      return 0;
-   }
-
-   pDestTail += bytesWritten;
    int bytesFinal = 0;
-   if (!EVP_DecryptFinal_ex(&ctx, pDestTail, &bytesFinal))
+
+   if (EVP_DecryptInit_ex(pCtx, mpCipher, NULL, mpKey->data(), mpIv->data()))
    {
-      osPrintf("*****EVP_DecryptFinal_ex failed");
-      setLastError(ERR_get_error());
-      EVP_CIPHER_CTX_cleanup(&ctx);
-      return 0;
+      if (EVP_DecryptUpdate(pCtx, pDest, &bytesWritten, pSrc, srcLen))
+      {
+         if (EVP_DecryptFinal_ex(pCtx, pDest + bytesWritten, &bytesFinal))
+         {
+            *pDestLen = bytesWritten + bytesFinal;
+            success = 1;
+            setLastError(0);
+         }
+      }
    }
 
-   // How many total bytes did we write to pDest?
-   *pDestLen = bytesWritten + bytesFinal;
+   if (!success)
+   {
+      osPrintf("*****Decryption failed (Check key/IV or padding)");
+      setLastError(ERR_get_error());
+   }
 
-   EVP_CIPHER_CTX_cleanup(&ctx);
-   setLastError(0);
-   return *pDestLen;
+   // --- CLEANUP LOGIC ---
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+   EVP_CIPHER_CTX_free(pCtx);
+#else
+   EVP_CIPHER_CTX_cleanup(pCtx);
+   free(pCtx);
+#endif
+
+   return success ? *pDestLen : 0;
 }
 
 int UtlCryptoKeySym::getTotalKeyLength()

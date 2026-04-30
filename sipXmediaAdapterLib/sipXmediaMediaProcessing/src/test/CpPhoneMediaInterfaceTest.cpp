@@ -1,4 +1,7 @@
 // 
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2005-2009 SIPfoundry Inc.
@@ -58,6 +61,24 @@
 #define TEST_RTP_PORT_RANGE_START 9500
 #define TEST_RTP_PORT_RANGE_END 9900
 
+#ifdef WIN32
+#include <string>
+static std::string getExecutableDir()
+{
+   char buf[MAX_PATH];
+   memset(buf, 0, sizeof(buf));
+   DWORD len = GetModuleFileNameA(GetModuleHandle(NULL), buf, sizeof(buf) - 1);
+   // Remove executable name
+   for (char* p = buf + len; p > buf; p--) {
+      if (*p == '\\') {
+         *p = 0;
+         break;
+      }
+   }
+   return std::string(buf);
+}
+#endif
+
 class StoreSignalNotification : public OsNotification
 {
 public:
@@ -109,7 +130,6 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testStreamNotifications);
     CPPUNIT_TEST(testVoiceNotifications);
     CPPUNIT_TEST_SUITE_END();
-
     public:
 
     CpMediaInterfaceFactory* mpMediaFactory;
@@ -148,6 +168,7 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
 #ifdef WIN32
                                    "..\\sipXmediaLib\\bin",
                                    "..\\..\\sipXmediaLib\\bin",
+                                   getExecutableDir().c_str(),
 #elif __pingtel_on_posix__
                                    "../../../../../sipXmediaLib/bin",
                                    "../../../../sipXmediaLib/bin",
@@ -1313,6 +1334,8 @@ class CpPhoneMediaInterfaceTest : public SIPX_UNIT_BASE_CLASS
         supportedSinkCodecs.getCodecs(numSupportedSinkCodecs, supportedSinkCodecArray);
         printf("Num supported codecs: %d\n",
                numSupportedSinkCodecs);
+
+        CPPUNIT_ASSERT(numSupportedSinkCodecs >= 2);
 
         const int numCodecsToUse = 2;
         SdpCodec* codecsToUse[numCodecsToUse];

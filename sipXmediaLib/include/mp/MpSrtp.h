@@ -1,6 +1,6 @@
 //  
-// Copyright (C) 2026 SIP Specturn, Inc.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,11 +60,28 @@ public:
 
    // Static helper method to initialize the SRTP library. The SRTP library
    // only needs to be initialized once per applciation instance, on application startup.
+   // Also probes libsrtp at first call to determine which SRTP crypto suites
+   // the linked-in libsrtp build actually supports (GCM suites in particular
+   // require libsrtp to have been built against an external crypto backend
+   // such as OpenSSL or NSS); results are cached for isCryptoSuiteSupported().
    static OsStatus globalInitialize();
 
    // Static helper method to shutdown the SRTP library. Only called once
    // on application shutdown.
    static OsStatus globalShutdown();
+
+   // Returns TRUE if the linked-in libsrtp build supports the given SRTP
+   // crypto suite, FALSE otherwise. Useful for SDES- and DTLS-SRTP code
+   // that wants to filter or validate suite lists against runtime capability.
+   //
+   // The result is determined by a one-time probe run at globalInitialize()
+   // that attempts srtp_create() with each suite. Returns FALSE for suites
+   // that have no libsrtp policy mapping at all (e.g. F8) and for
+   // CRYPTO_SUITE_TYPE_NONE.
+   //
+   // Must not be called before globalInitialize(); doing so returns FALSE
+   // for every suite.
+   static bool isCryptoSuiteSupported(SdpMediaLine::SdpCryptoSuiteType suite);
 
    // Static helper method to send a MpSetSrtpParamsMsg to media resources for processing.
    // Eventually to be consumed by MprFromNet and MprToNet media processors.
@@ -79,6 +96,8 @@ public:
    // Note:  The cryptoKey for unprotect come from the remote partys SDP offer/answer, and
    //        the cryptoKey for protect comes from our local SDP offer/answer.
    UtlBoolean setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey, UtlBoolean forUnprotect);
+
+   UtlBoolean isSessionCreated() { return mSrtpSessionCreated; }
 
    // Note: The passed in buffer is modified in place to contain the unprotected data.
    //       The returned size will always be <= the passed in size.

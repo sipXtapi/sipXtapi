@@ -1,4 +1,7 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
@@ -14,17 +17,24 @@
 #ifdef HAVE_SSL
 #include <ctype.h>
 
-#include "utl/UtlCryptoKey.h"
-
 #include <openssl/rsa.h>
 #include <openssl/err.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 #include <openssl/pem.h>
 
+#include "utl/UtlCryptoKey.h"
+
 #ifdef WIN32
-#  pragma comment (lib, "libeay32.lib")
-#  pragma comment (lib, "ssleay32.lib")
+#  if OPENSSL_VERSION_NUMBER >= 0x10100000L
+      // OpenSSL 1.1.x naming convention (usually matches 3.x)
+#     pragma comment (lib, "libcrypto.lib")
+#     pragma comment (lib, "libssl.lib")
+#  else
+      // Legacy OpenSSL 1.0.x and older
+#     pragma comment (lib, "libeay32.lib")
+#     pragma comment (lib, "ssleay32.lib")
+#  endif
 #endif
 
 // Static initialization
@@ -203,35 +213,63 @@ int UtlCryptoKey::computeDigest(const unsigned char* pSrc,
 
    *pDestLen = 0;
 
-   EVP_MD_CTX mdctx;
-   EVP_MD_CTX_init(&mdctx);
-
+   // 1. Allocation Logic
+   EVP_MD_CTX* pMdCtx;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+   // Modern OpenSSL (1.1.x, 3.x+)
+   pMdCtx = EVP_MD_CTX_new();
+#else
+   // Legacy OpenSSL (1.0.x)
+   pMdCtx = (EVP_MD_CTX*)malloc(sizeof(EVP_MD_CTX));
+   if (pMdCtx) EVP_MD_CTX_init(pMdCtx);
+   
+   // Initialization is only required on very old versions
    OpenSSL_add_all_digests();
+#endif
 
-   if (!EVP_DigestInit_ex(&mdctx, spMdAlg, NULL))
+   if (!pMdCtx)
+   {
+      osPrintf("*****Failed to allocate EVP_MD_CTX");
+      return 0;
+   }
+
+   int success = 0;
+
+   // 2. Digest Logic
+   if (EVP_DigestInit_ex(pMdCtx, spMdAlg, NULL))
+   {
+      if (EVP_DigestUpdate(pMdCtx, pSrc, srcLen))
+      {
+         unsigned int len = 0;
+         if (EVP_DigestFinal_ex(pMdCtx, pDest, &len))
+         {
+            *pDestLen = (int)len;
+            success = 1;
+         }
+         else
+         {
+            osPrintf("*****EVP_DigestFinal_ex failed");
+         }
+      }
+      else
+      {
+         osPrintf("*****EVP_DigestUpdate failed");
+      }
+   }
+   else
    {
       osPrintf("*****EVP_DigestInit_ex failed");
-      EVP_MD_CTX_cleanup(&mdctx);
-      return 0;
    }
 
-   if (!EVP_DigestUpdate(&mdctx, pSrc, srcLen))
-   {
-      osPrintf("*****EVP_DigestUpdate failed");
-      EVP_MD_CTX_cleanup(&mdctx);
-      return 0;
-   }
+   // 3. Cleanup Logic
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+   EVP_MD_CTX_free(pMdCtx);
+#else
+   EVP_MD_CTX_cleanup(pMdCtx);
+   free(pMdCtx);
+#endif
 
-   if (!EVP_DigestFinal_ex(&mdctx, pDest, (unsigned*)pDestLen))
-   {
-      osPrintf("*****EVP_DigestFinal_ex failed");
-      EVP_MD_CTX_cleanup(&mdctx);
-      *pDestLen = 0;
-      return 0;
-   }
-
-   EVP_MD_CTX_cleanup(&mdctx);
-   return *pDestLen;
+   return success ? *pDestLen : 0;
 }
 
 UtlCryptoData* UtlCryptoKey::computeDigest(const unsigned char* pSrc, int srcLen)

@@ -119,9 +119,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodecPlugins", "CodecPlugins", "{81DA5110-9329-4266-936B-01303311B3CB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CoreLibraries", "CoreLibraries", "{0D0F2D7A-3432-493B-9952-A19F6A31B47B}"
-	ProjectSection(SolutionItems) = preProject
-		sipXmediaLib\contrib\libsrtp\srtp_17_0.vcxproj = sipXmediaLib\contrib\libsrtp\srtp_17_0.vcxproj
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{D9D70FD4-345D-4F0F-A094-EBA17C05AF29}"
 EndProject
@@ -134,6 +131,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgg729", "sipXmediaLib\src\mp\codecs\plgg729\plgg729-msvc17.vcxproj", "{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libg729a", "sipXmediaLib\contrib\libg729a\libg729a-msvc17.vcxproj", "{7205CB37-45B6-4E08-B0C1-258912A5746D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libSRTP", "sipXmediaLib\contrib\libsrtp\srtp_17_0.vcxproj", "{EEF031CB-FED8-451E-A471-91EC8D4F6750}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -752,6 +751,30 @@ Global
 		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Win32
 		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|x64.ActiveCfg = Release|x64
 		{7205CB37-45B6-4E08-B0C1-258912A5746D}.Release|x64.Build.0 = Release|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|Pocket PC 2003 (ARMV4).Build.0 = Debug|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|SDK1_emu (ARMV4I).Build.0 = Debug|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|sipx_CE60_emulator (ARMV4I).Build.0 = Debug|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|Win32.Build.0 = Debug|Win32
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Build.0 = Debug|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|x64.ActiveCfg = Debug|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Debug|x64.Build.0 = Debug|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|Pocket PC 2003 (ARMV4).Build.0 = Release|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|SDK1_emu (ARMV4I).ActiveCfg = Release|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|SDK1_emu (ARMV4I).Build.0 = Release|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|sipx_CE60_emulator (ARMV4I).ActiveCfg = Release|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|sipx_CE60_emulator (ARMV4I).Build.0 = Release|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|Win32.ActiveCfg = Release|Win32
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|Win32.Build.0 = Release|Win32
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Build.0 = Release|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|x64.ActiveCfg = Release|x64
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -790,6 +813,7 @@ Global
 		{B9C94D26-C90D-4860-8195-56929E893777} = {81DA5110-9329-4266-936B-01303311B3CB}
 		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC} = {81DA5110-9329-4266-936B-01303311B3CB}
 		{7205CB37-45B6-4E08-B0C1-258912A5746D} = {9FC2F1F1-1276-4A0D-A49E-F2184862BFA7}
+		{EEF031CB-FED8-451E-A471-91EC8D4F6750} = {0D0F2D7A-3432-493B-9952-A19F6A31B47B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BEC6112C-CAC5-4082-8A3C-13255B9369C6}

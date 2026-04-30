@@ -1,5 +1,6 @@
 //  
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -46,6 +47,7 @@
 #include "mp/MprFromNet.h"
 #include "mp/MpIntResourceMsg.h"
 #include "mp/dmaTask.h"
+#include "mp/MpDtls.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -69,6 +71,7 @@ static int doPadRtp = 1;
 // Constructor
 MprToNet::MprToNet()
 :  mpFromNetPal(NULL)
+,  mpDtls(NULL)
 ,  mRtcpPackets(0)
 ,  mRtcpFrameCount(0)
 ,  mRtcpFrameLimit(500)
@@ -86,7 +89,6 @@ MprToNet::MprToNet()
 ,  mpiRTPAccumulator(NULL)
 #endif /* INCLUDE_RTCP ] */
 ,  mSRAdjustUSecs(0)
-
 {
 }
 
@@ -182,8 +184,8 @@ int dropEvery(int limit)
 #endif // DROP_SOME_PACKETS ]
 
 int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
-                       const unsigned char* payloadData, int payloadOctets,
-                       unsigned int timestamp, void* csrcList)
+   const unsigned char* payloadData, int payloadOctets,
+   unsigned int timestamp, void* csrcList)
 {
    MpRtpBufPtr pRtpPacket;
    char paddingLength;
@@ -191,6 +193,23 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
    // Nothing to do when no socket specified.
    if (mpRtpSocket == NULL)
       return 0;
+
+   // If DTLS-SRTP is configured but the handshake hasn't completed yet,
+   // drop outbound RTP. Sending plaintext during the handshake window
+   // would (a) leak unprotected media to the wire and (b) be rejected
+   // by the peer once SRTP is active. The encoder keeps producing
+   // frames; we just don't ship them. Once the handshake finishes,
+   // MpSetSrtpParamsMsg arrives at this resource and mSrtp.srtpProtect
+   // begins protecting normally on subsequent writes.
+   // There is a small race between when mpDtls isActive returns true 
+   // and when we process the SRTP keys set, so we also check mSrtp 
+   // isSessionCreated.
+   if (mpDtls != NULL && (!mpDtls->isActive() || !mSrtp.isSessionCreated()))
+   {
+      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprToNet::writeRtp payloadType: %d of size: %d dropped while waiting for DTLS-SRTP handshake to finish",
+         payloadType, payloadOctets);
+      return 0;
+   }
 
    // Allocate new RTP packet.
    pRtpPacket = MpMisc.RtpPool->getBuffer();
@@ -402,6 +421,11 @@ OsStatus MprToNet::setSRAdjustUSecs(const UtlString& namedResource, OsMsgQ& fgQ,
 UtlBoolean MprToNet::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey)
 {
    return mSrtp.setSrtpParams(cryptoSuite, cryptoKey, FALSE /* forUnprotect? */);
+}
+
+void MprToNet::setDtls(MpDtls* pDtls)
+{
+   mpDtls = pDtls;
 }
 
 /* ============================ ACCESSORS ================================= */

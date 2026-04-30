@@ -1,6 +1,7 @@
 //  
 // Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
-//  
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -54,6 +55,7 @@ class MpResourceMsg;
 class NetInTask;
 class UtlString;
 class MpFlowGraphBase;
+class MpDtls;
 
 /// The "From Network" media processing resource
 class MprFromNet
@@ -118,6 +120,14 @@ public:
 
    UtlBoolean setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey);
 
+   /// Wire in the per-connection DTLS-SRTP handshake engine. After
+   /// this is called, inbound packets that are DTLS records (per RFC
+   /// 7983 first-byte demux) are fed to the engine instead of the
+   /// SRTP unprotect path. The pointer is borrowed.
+   /// Posted from MpRtpInputConnection::handleMessage in response to
+   /// an MpSetDtlsParamsMsg. Always runs on the media thread.
+   void setDtls(MpDtls* pDtls, const UtlString& resourceName);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -159,6 +169,8 @@ private:
    RtpSRC           mDiscardedSSRC;
    MpFlowGraphBase* mpFlowGraph;
    MpSrtp           mSrtp;
+   MpDtls*          mpDtls;   ///< Borrowed; NULL until DTLS-SRTP configured.
+   UtlString        mDtlsResourceName; ///< Set by setDtls; used to address MpDtlsPacketMsg from the NetInTask thread back to ourselves on the media thread.
 
 #ifdef INCLUDE_RTCP /* [ */
    INetDispatch*    mpiRTCPDispatch;

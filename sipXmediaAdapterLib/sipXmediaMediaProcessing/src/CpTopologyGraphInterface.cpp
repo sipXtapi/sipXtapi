@@ -1,6 +1,7 @@
 // 
 // Copyright (C) 2021-2026 SIP Spectrum, Inc.  All rights reserved.
-// 
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2006-2021 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2009 SIPfoundry Inc.
@@ -48,6 +49,8 @@
 #include <mp/MpCodecFactory.h>
 #include <mp/MprToNet.h>
 #include <mp/MpSrtp.h>
+#include <mp/MpDtls.h>
+#include <mp/MpDtlsIdentity.h>
 #include <CpTopologyGraphInterface.h>
 #include <CpTopologyGraphFactoryImpl.h>
 #include <TypeConverter.h>
@@ -105,6 +108,7 @@ public:
     , mRtpVideoSending(FALSE)
     , mRtpVideoReceiving(FALSE)
     , mpVideoCodec(NULL)
+    , mpVideoDtls(NULL)
 #endif
     , mRtpAudioSendHostPort(0)
     , mRtcpAudioSendHostPort(0)
@@ -116,6 +120,7 @@ public:
     , mpCodecFactory(NULL)
     , mContactType(CONTACT_AUTO)
     , mbAlternateDestinations(FALSE)
+    , mpAudioDtls(NULL)
     {
     };
 
@@ -185,13 +190,24 @@ public:
         {
             delete mpAudioCodec;
             mpAudioCodec = NULL; 
-        }              
+        }
+
+        if (mpAudioDtls)
+        {
+           delete mpAudioDtls;
+           mpAudioDtls = NULL;
+        }
 
 #ifdef VIDEO
         if(mpVideoCodec)
         {
             delete mpVideoCodec;
             mpVideoCodec = NULL;
+        }
+        if (mpVideoDtls)
+        {
+           delete mpVideoDtls;
+           mpVideoDtls = NULL;
         }
 #endif
 
@@ -220,6 +236,7 @@ public:
     UtlBoolean mRtpVideoSending;
     UtlBoolean mRtpVideoReceiving;
     SdpCodec* mpVideoCodec;
+    MpDtls* mpVideoDtls;
 #endif
 
     int mRtpAudioSendHostPort;
@@ -234,6 +251,9 @@ public:
     UtlString mLocalAddress;
     UtlBoolean mbAlternateDestinations;
     UtlHashMap mConnectionProperties;
+
+    // Per-connection DTLS-SRTP handshake engine.
+    MpDtls* mpAudioDtls;
 };
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -483,6 +503,42 @@ void CpTopologyGraphInterface::release()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+/* ============================ DTLS-SRTP =================================== */
+
+OsStatus CpTopologyGraphInterface::setDtlsIdentity(const UtlString& certPemPath,
+   const UtlString& privateKeyPemPath)
+{
+   MpDtlsIdentity* identity = MpDtlsIdentity::getInstance();
+   if (identity == NULL)
+   {
+      return OS_FAILED;
+   }
+   return identity->setIdentity(certPemPath, privateKeyPemPath);
+}
+
+OsStatus CpTopologyGraphInterface::getLocalDtlsFingerprint(UtlString& fingerprint,
+   const UtlString& hashAlgorithm)
+{
+   fingerprint = "";
+   MpDtlsIdentity* identity = MpDtlsIdentity::getInstance();
+   if (identity == NULL)
+   {
+      return OS_FAILED;
+   }
+   return identity->getFingerprint(fingerprint, hashAlgorithm);
+}
+
+OsStatus CpTopologyGraphInterface::setDtlsSrtpProfiles(int numProfiles,
+                                                       const SdpMediaLine::SdpCryptoSuiteType profiles[])
+{
+   return MpDtls::setDefaultProfiles(numProfiles, profiles);
+}
+
+OsStatus CpTopologyGraphInterface::setDtlsHandshakeTimeout(int timeoutSeconds)
+{
+   return MpDtls::setHandshakeTimeoutSeconds(timeoutSeconds);
+}
 
 OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
                                                     const char* szLocalAddress,
@@ -1202,6 +1258,16 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                     pMediaConnection->mRtcpAudioSendHostPort = 0 ;
                 }
             }
+
+            // If DTLS-SRTP is configured for this connection, hand the destination
+            // to the engine. May trigger the handshake if MpDtls was waiting on it.
+            if (pMediaConnection->mpAudioDtls && pMediaConnection->mpRtpAudioSocket)
+            {
+               pMediaConnection->mpAudioDtls->setDestination(
+                  pMediaConnection->mpRtpAudioSocket,
+                  pMediaConnection->mRtpAudioSendHostAddress,
+                  pMediaConnection->mRtpAudioSendHostPort);
+            }
         }
 
         else if(mediaType == CpMediaInterface::VIDEO_STREAM)
@@ -1258,7 +1324,17 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
             {
                 pMediaConnection->mRtpVideoSendHostPort = 0 ;
                 pMediaConnection->mRtcpVideoSendHostPort = 0 ;
-            }        
+            }
+
+            // If DTLS-SRTP is configured for this connection, hand the destination
+            // to the engine. May trigger the handshake if MpDtls was waiting on it.
+            if (pMediaConnection->mpVideoDtls && pMediaConnection->mpRtpVideoSocket)
+            {
+               pMediaConnection->mpVideoDtls->setDestination(
+                  pMediaConnection->mpRtpVideoSocket,
+                  pMediaConnection->mRtpVideoSendHostAddress,
+                  pMediaConnection->mRtpVideoSendHostPort);
+            }
 #endif
         }
     }
@@ -1423,6 +1499,199 @@ OsStatus CpTopologyGraphInterface::addVideoRtcpConnectionDestination(int        
     }
 #endif
     return returnCode ;    
+}
+
+OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
+                                                     CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                                     const UtlString& remoteFingerprint,
+                                                     const UtlString& hashAlgorithm,
+                                                     SdpMediaLine::SdpTcpSetupAttribute role,
+                                                     int numProfilesOverride,
+                                                     const SdpMediaLine::SdpCryptoSuiteType* profilesOverride)
+{
+   // API-boundary validation.
+   if (role != SdpMediaLine::TCP_SETUP_ATTRIBUTE_ACTIVE &&
+      role != SdpMediaLine::TCP_SETUP_ATTRIBUTE_PASSIVE)
+   {
+      OsSysLog::add(FAC_CP, PRI_ERR,
+         "CpTopologyGraphInterface::setDtlsSrtpParams: invalid role=%d "
+         "(must be ACTIVE or PASSIVE; ACTPASS must be resolved by SIP layer)",
+         role);
+      return OS_INVALID_ARGUMENT;
+   }
+
+   // If a per-connection override list was supplied, validate it strictly
+   // against both DTLS-SRTP eligibility and runtime libsrtp capability.
+   // We don't want to silently drop entries the caller explicitly asked
+   // for; the lenient silent-skip semantics in MpDtls::buildOpenSslProfileList
+   // are reserved for internal callers (e.g. the engine built-in default
+   // and process-wide default flowing through the same builder).
+   //
+   // Two distinct rejection reasons get distinct log messages so the
+   // operator can tell whether they need to fix their suite list (no
+   // DTLS-SRTP equivalent) or rebuild libsrtp (cipher missing).
+   if (numProfilesOverride > 0 && profilesOverride != NULL)
+   {
+      for (int i = 0; i < numProfilesOverride; i++)
+      {
+         if (MpDtls::isSrtpCryptoSuiteDtlsEligible(profilesOverride[i]))
+         {
+            continue;
+         }
+         // Has use_srtp registration, so the only way to fail
+         // isDtlsSrtpEligible is for libsrtp to lack the cipher
+         // (in practice GCM on a libsrtp built without external
+         // crypto).
+         OsSysLog::add(FAC_CP, PRI_ERR,
+            "CpTopologyGraphInterface::setDtlsSrtpParams: profilesOverride[%d]=%s "
+            "is not supported for DTLS-SRTP or by the linked-in libsrtp build",
+             i, SdpMediaLine::SdpCryptoSuiteTypeString[profilesOverride[i]]);
+         return OS_INVALID_ARGUMENT;
+      }
+   }
+
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+   if (mediaConnection == NULL)
+   {
+      return OS_NOT_FOUND;
+   }
+
+   // Pick the right slot, resource names, socket, and destination based
+   // on stream type.
+   MpDtls**   ppDtls;
+   UtlString  inResourceName;
+   UtlString  outResourceName;
+   OsSocket*  pRtpSocket;
+   UtlString* pSendAddr;
+   int*       pSendPort;
+   UtlBoolean destinationSet;
+
+   if (mediaType == CpMediaInterface::AUDIO_STREAM)
+   {
+      ppDtls          = &mediaConnection->mpAudioDtls;
+      inResourceName  = DEFAULT_RTP_INPUT_RESOURCE_NAME;
+      outResourceName = DEFAULT_RTP_OUTPUT_RESOURCE_NAME;
+      pRtpSocket      = mediaConnection->mpRtpAudioSocket;
+      pSendAddr       = &mediaConnection->mRtpAudioSendHostAddress;
+      pSendPort       = &mediaConnection->mRtpAudioSendHostPort;
+      destinationSet  = mediaConnection->mAudioDestinationSet;
+   }
+   else  // VIDEO_STREAM
+   {
+#ifdef VIDEO
+      ppDtls          = &mediaConnection->mpVideoDtls;
+      inResourceName  = DEFAULT_VIDEO_RTP_INPUT_RESOURCE_NAME;
+      outResourceName = DEFAULT_VIDEO_RTP_OUTPUT_RESOURCE_NAME;
+      pRtpSocket      = mediaConnection->mpRtpVideoSocket;
+      pSendAddr       = &mediaConnection->mRtpVideoSendHostAddress;
+      pSendPort       = &mediaConnection->mRtpVideoSendHostPort;
+      destinationSet  = mediaConnection->mVideoDestinationSet;
+#else
+      return OS_NOT_SUPPORTED;
+#endif
+   }
+
+   MpResourceTopology::replaceNumInName(inResourceName,  connectionId);
+   MpResourceTopology::replaceNumInName(outResourceName, connectionId);
+
+   // Lazy-construct the per-stream MpDtls.
+   bool newMpDtlsCreated = false;
+   if (*ppDtls == NULL)
+   {
+      *ppDtls = new MpDtls();
+      newMpDtlsCreated = true;
+   }
+   MpDtls* pDtls = *ppDtls;
+
+   MpDtls::DtlsRole dtlsRole =
+      (role == SdpMediaLine::TCP_SETUP_ATTRIBUTE_ACTIVE)
+         ? MpDtls::DTLS_ROLE_CLIENT
+         : MpDtls::DTLS_ROLE_SERVER;
+
+   OsStatus status = pDtls->setParams(remoteFingerprint, hashAlgorithm,
+                                      dtlsRole,
+                                      numProfilesOverride, profilesOverride);
+   if (status != OS_SUCCESS)
+   {
+      if (newMpDtlsCreated) delete *ppDtls;
+      *ppDtls = NULL;
+      return status;
+   }
+
+   pDtls->setSrtpInstallTargets(inResourceName, outResourceName,
+                                mpTopologyGraph->getMsgQ());
+   pDtls->setNotificationDispatcher(mpTopologyGraph->getNotificationDispatcher());
+   pDtls->setConnectionId(connectionId);
+
+   // If destination is already known for this stream type, hand it over now.
+   if (destinationSet && pRtpSocket)
+   {
+      pDtls->setDestination(pRtpSocket, *pSendAddr, *pSendPort);
+   }
+
+   // Post the wire-up message to both From-Net and To-Net resources for
+   // this stream type.
+   OsStatus sIn  = MpDtls::setDtlsParams(inResourceName,
+                                         *(mpTopologyGraph->getMsgQ()),
+                                         pDtls);
+   OsStatus sOut = MpDtls::setDtlsParams(outResourceName,
+                                         *(mpTopologyGraph->getMsgQ()),
+                                         pDtls);
+   if (sIn != OS_SUCCESS || sOut != OS_SUCCESS)
+   {
+      OsSysLog::add(FAC_CP, PRI_ERR,
+         "CpTopologyGraphInterface::setDtlsSrtpParams: post failed "
+         "(in=%d, out=%d, mediaType=%d)", sIn, sOut, mediaType);
+      return OS_FAILED;
+   }
+
+   return OS_SUCCESS;
+}
+
+OsStatus CpTopologyGraphInterface::getDtlsSrtpStatus(int connectionId,
+                                                     CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                                     UtlBoolean& handshakeComplete,
+                                                     UtlBoolean& fingerprintVerified,
+                                                     SdpMediaLine::SdpCryptoSuiteType& negotiatedSuite)
+{
+   // Sensible defaults in case the caller ignores the return value.
+   handshakeComplete = FALSE;
+   fingerprintVerified = FALSE;
+   negotiatedSuite = SdpMediaLine::CRYPTO_SUITE_TYPE_NONE;
+
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+   if (mediaConnection == NULL)
+   {
+      return OS_NOT_FOUND;
+   }
+
+   MpDtls* pDtls = (mediaType == CpMediaInterface::AUDIO_STREAM)
+      ? mediaConnection->mpAudioDtls
+#ifdef VIDEO
+      : mediaConnection->mpVideoDtls;
+#else
+      : NULL;
+#endif
+   if (pDtls == NULL)
+   {
+      // DTLS-SRTP not configured on this connection.
+      return OS_NOT_FOUND;
+   }
+
+   MpDtls::DtlsState     state;
+   MpDtls::FailureReason reason;
+   OsStatus status = pDtls->getStatus(state, reason, negotiatedSuite, fingerprintVerified);
+   if (status == OS_SUCCESS)
+   {
+      // Map MpDtls's 5-state model to the API's "complete" flag.
+      // Per the header doc, "complete" means the handshake has *finished*
+      // (successfully OR not). It is FALSE while still in progress and
+      // FALSE before it even started.
+      handshakeComplete = (state == MpDtls::DTLS_STATE_ACTIVE ||
+         state == MpDtls::DTLS_STATE_FAILED) ? TRUE : FALSE;
+   }
+
+   return status;
 }
 
 OsStatus CpTopologyGraphInterface::copyPayloadIds(int connectionId, int numCodecs, SdpCodec* remoteCodecs[])
@@ -1642,7 +1911,12 @@ OsStatus CpTopologyGraphInterface::startRtpSendImpl(int connectionId,
              outConnectionName.data(), stat);
          assert(stat == OS_SUCCESS);
 
-         MpSrtp::setSrtpParams(outConnectionName, *(mpTopologyGraph->getMsgQ()), cryptoSuite, cryptoKey);
+         // If we aren't using DTLS-SRTP, then set the cryptoSuite to what was passed in, otherwise it
+         // comes from DTLS-SRTP handshake
+         if (!mediaConnection->mpAudioDtls)
+         {
+            MpSrtp::setSrtpParams(outConnectionName, *(mpTopologyGraph->getMsgQ()), cryptoSuite, cryptoKey);
+         }
 
          // Set sockets to send to.
          pConnection->setSockets(*mediaConnection->mpRtpAudioSocket,
@@ -1670,6 +1944,13 @@ OsStatus CpTopologyGraphInterface::startRtpSendImpl(int connectionId,
           // codecs to make inteligent choice at media layer
           UtlString videoConnectionName(DEFAULT_VIDEO_RTP_OUTPUT_RESOURCE_NAME);
           MpResourceTopology::replaceNumInName(videoConnectionName, connectionId);
+
+          // If we aren't using DTLS-SRTP, then set the cryptoSuite to what was passed in, otherwise it
+          // comes from DTLS-SRTP handshake
+          if (!mediaConnection->mpVideoDtls)
+          {
+             MpSrtp::setSrtpParams(videoConnectionName, *(mpTopologyGraph->getMsgQ()), cryptoSuite, cryptoKey);
+          }
 
           MprFromNet::setSockets(videoConnectionName, *(mpTopologyGraph->getMsgQ()),
               mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtcpVideoSocket);
@@ -1780,7 +2061,12 @@ OsStatus CpTopologyGraphInterface::startRtpReceiveImpl(int connectionId,
       MpResourceTopology::replaceNumInName(decoderName, connectionId);
       decoderName.append(STREAM_NAME_SUFFIX);
 
-      MpSrtp::setSrtpParams(inConnectionName, *(mpTopologyGraph->getMsgQ()), cryptoSuite, cryptoKey);
+      // If we aren't using DTLS-SRTP, then set the cryptoSuite to what was passed in, otherwise it
+      // comes from DTLS-SRTP handshake
+      if (!mediaConnection->mpAudioDtls)
+      {
+         MpSrtp::setSrtpParams(inConnectionName, *(mpTopologyGraph->getMsgQ()), cryptoSuite, cryptoKey);
+      }
 
       if (numCodecs)
       {
@@ -1804,6 +2090,13 @@ OsStatus CpTopologyGraphInterface::startRtpReceiveImpl(int connectionId,
                               *(mpTopologyGraph->getMsgQ()),
                               receiveCodecs,
                               numCodecs);
+
+      // If we aren't using DTLS-SRTP, then set the cryptoSuite to what was passed in, otherwise it
+      // comes from DTLS-SRTP handshake
+      if (!mediaConnection->mpVideoDtls)
+      {
+         MpSrtp::setSrtpParams(inVideoConnectionName, *(mpTopologyGraph->getMsgQ()), cryptoSuite, cryptoKey);
+      }
 
       // Enabled video in RTP stream
       MprDecode::enable(inVideoConnectionName, *(mpTopologyGraph->getMsgQ()));

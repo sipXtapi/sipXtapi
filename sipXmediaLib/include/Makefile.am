@@ -45,6 +45,9 @@ nobase_include_HEADERS =  \
     mp/MpDspUtilsShift.h \
     mp/MpDspUtilsSum.h \
     mp/MpDspUtilsSumVect.h \
+    mp/MpDtls.h \
+    mp/MpDtlsIdentity.h \
+    mp/MpDtlsPacketMsg.h \
     mp/MpDTMFDetector.h \
     mp/MpEncoderBase.h \
     mp/MpFlowGraphBase.h \
@@ -149,9 +152,12 @@ nobase_include_HEADERS =  \
     mp/MprVadConstructor.h \
     mp/MprVoiceActivityNotifier.h \
     mp/MprVoiceActivityNotifierConstructor.h \
+    mp/MpSetDtlsParamsMsg.h \
+    mp/MpSetSocketsMsg.h \
+    mp/MpSetSrtpParamsMsg.h \
     mp/MpSineWaveGeneratorDeviceDriver.h \
     mp/MpSpeakerSelectBase.h \
-	mp/MpSrtp.h \
+    mp/MpSrtp.h \
     mp/MpStaticCodecInit.h \
     mp/MpStreamFeeder.h \
     mp/MpStreamMsg.h \

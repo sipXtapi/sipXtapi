@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
@@ -134,21 +137,36 @@ UtlBoolean OsSSLConnectionSocket::reconnect()
 
 void OsSSLConnectionSocket::close()
 {
-    if (mSSL)
-    {
-       if (mIsConnected)
-          SSL_shutdown(mSSL);
-       else
-          SSL_clear(mSSL);
-    }
+   if (mSSL)
+   {
+      if (mIsConnected)
+      {
+         // SSL_shutdown should ideally be called until it returns 1, 
+         // but for a socket close, a single call is the standard approach.
+         SSL_shutdown(mSSL);
+      }
+      else
+      {
+         SSL_clear(mSSL);
+      }
+   }
 
-   /* Clean up. */
-    OsConnectionSocket::close();
+   /* Clean up underlying socket. */
+   OsConnectionSocket::close();
 
    if (mSSL)
    {
       SSL_free(mSSL);
+
+      // --- Thread-local cleanup logic ---
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+      // Required for 1.0.x to prevent memory leaks on thread exit.
       ERR_remove_state(0);
+#else
+      // In 1.1.x and 3.x, this is handled automatically.
+      // Manually calling the old function will cause linker errors.
+#endif
+
       mSSL = NULL;
    }
 }

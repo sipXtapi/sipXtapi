@@ -4,6 +4,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef EXCLUDE_RTCP
+
 #include <os/OsIntTypes.h>
 
 #include <sipxunittests.h>
@@ -260,3 +262,5 @@ protected:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(RtcpParserTest);
+
+#endif

@@ -1,6 +1,6 @@
 //  
-// Copyright (C) 2026 SIP Specturn, Inc.
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,8 +12,8 @@
   //       It needs to share the same mSrtp session (ideally) as MpToNet, which is not thread-safe, so 
   //       we need to do some locking.  Since RTCP logic is currently buggy and typically disabled,
   //       we will leave this for later.
-  #ifdef ENABLE_RTCP
-    #error "Conflict detected: ENABLE_SRTP and ENABLE_RTCP cannot both be defined, since SRTP is not implemented for RTCP sending. Please choose one."
+  #ifndef EXCLUDE_RTCP
+    #error "Conflict detected: ENABLE_SRTP defined without EXCLUDE_RTCP.  Both SRTP and RTCP cannot both be enabled, since SRTP is not implemented for RTCP sending. Please choose one.  Define EXCLUDE_RTCP to disable RTCP."
   #endif
 #ifdef WIN32
 #include <srtp.h>
@@ -33,6 +33,136 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+
+// Capability cache populated by globalInitialize(). Indexed by
+// SdpMediaLine::SdpCryptoSuiteType. A 'true' entry means we ran a
+// successful srtp_create() probe with that suite at startup.
+//
+// Suites with no MpSrtp policy mapping (CRYPTO_SUITE_TYPE_NONE,
+// F8_128_HMAC_SHA1_80) are never probed and stay false. Suites that
+// have a mapping but whose underlying cipher is missing from the
+// linked-in libsrtp build (typically GCM on a libsrtp built with no
+// external crypto backend) also stay false.
+//
+// Sized to the largest enumerator + 1.
+namespace
+{
+   const int kCryptoSuiteCount =
+      SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_256_GCM + 1;
+}
+static bool sSuiteSupported[kCryptoSuiteCount] = { false };
+static bool sCapabilitiesProbed = false;
+
+#ifdef ENABLE_SRTP
+namespace
+{
+   /// Try to construct a one-off srtp_t with the given suite to see if
+   /// the linked-in libsrtp can actually do it. Returns true on
+   /// srtp_create() success. Used only by globalInitialize().
+   bool probeCryptoSuite(SdpMediaLine::SdpCryptoSuiteType suite)
+   {
+      srtp_policy_t policy;
+      memset(&policy, 0, sizeof(policy));
+
+      switch (suite)
+      {
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80:
+            srtp_crypto_policy_set_aes_cm_128_hmac_sha1_80(&policy.rtp);
+            srtp_crypto_policy_set_aes_cm_128_hmac_sha1_80(&policy.rtcp);
+            break;
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_32:
+            srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32(&policy.rtp);
+            srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32(&policy.rtcp);
+            break;
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_80:
+            srtp_crypto_policy_set_aes_cm_192_hmac_sha1_80(&policy.rtp);
+            srtp_crypto_policy_set_aes_cm_192_hmac_sha1_80(&policy.rtcp);
+            break;
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_32:
+            srtp_crypto_policy_set_aes_cm_192_hmac_sha1_32(&policy.rtp);
+            srtp_crypto_policy_set_aes_cm_192_hmac_sha1_32(&policy.rtcp);
+            break;
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_80:
+            srtp_crypto_policy_set_aes_cm_256_hmac_sha1_80(&policy.rtp);
+            srtp_crypto_policy_set_aes_cm_256_hmac_sha1_80(&policy.rtcp);
+            break;
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_32:
+            srtp_crypto_policy_set_aes_cm_256_hmac_sha1_32(&policy.rtp);
+            srtp_crypto_policy_set_aes_cm_256_hmac_sha1_32(&policy.rtcp);
+            break;
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_128_GCM:
+            srtp_crypto_policy_set_aes_gcm_128_16_auth(&policy.rtp);
+            srtp_crypto_policy_set_aes_gcm_128_16_auth(&policy.rtcp);
+            break;
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_256_GCM:
+            srtp_crypto_policy_set_aes_gcm_256_16_auth(&policy.rtp);
+            srtp_crypto_policy_set_aes_gcm_256_16_auth(&policy.rtcp);
+            break;
+         default:
+            // No libsrtp mapping (NONE, F8) -- nothing to probe.
+            return false;
+      }
+
+      // Provide a key buffer of the exact length the policy expects;
+      // the contents don't matter for srtp_create's purposes -- it just
+      // needs a non-NULL pointer to copy from. Stack-allocated upper
+      // bound covers all currently mapped suites (32-byte key + 14-byte
+      // salt for AEAD_AES_256_GCM is the largest).
+      uint8_t keyBuf[64] = { 0 };
+      policy.ssrc.type = ssrc_any_inbound;
+      policy.key       = keyBuf;
+      policy.window_size = 64;
+      policy.next      = NULL;
+
+      srtp_t session = NULL;
+      srtp_err_status_t status = srtp_create(&session, &policy);
+      if (status == srtp_err_status_ok)
+      {
+         srtp_dealloc(session);
+         return true;
+      }
+      // srtp_err_status_algo_fail is the typical "not built with this
+      // cipher" return; treat any non-OK status as unsupported.
+      return false;
+   }
+
+   /// Run the probe for every suite we care about, populate the cache,
+   /// and emit a single INFO log line summarizing the support matrix.
+   void probeAllCryptoSuites()
+   {
+      static const SdpMediaLine::SdpCryptoSuiteType probeList[] = {
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80,
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_32,
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_80,
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_32,
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_80,
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_32,
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_128_GCM,
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_256_GCM
+      };
+      const int probeCount = (int)(sizeof(probeList) / sizeof(probeList[0]));
+
+      UtlString summary;
+      for (int i = 0; i < probeCount; i++)
+      {
+         SdpMediaLine::SdpCryptoSuiteType suite = probeList[i];
+         bool ok = probeCryptoSuite(suite);
+         sSuiteSupported[suite] = ok;
+
+         if (!summary.isNull())
+         {
+            summary.append(", ");
+         }
+         summary.append(SdpMediaLine::SdpCryptoSuiteTypeString[suite]);
+         summary.append(ok ? "=yes" : "=no");
+      }
+
+      OsSysLog::add(FAC_MP, PRI_INFO,
+         "MpSrtp: libsrtp crypto suite capabilities: %s",
+         summary.data());
+   }
+}
+#endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -109,6 +239,16 @@ OsStatus MpSrtp::globalInitialize()
          OsSysLog::add(FAC_MP, PRI_ERR, "MpSrtp::globalInitialize: srtp_install_event_handler failed, status=%d", status);
       }
    }
+
+   // Probe libsrtp crypto suite support exactly once, regardless of
+   // whether the event-handler install above failed (that's a non-fatal
+   // diagnostic concern; it doesn't affect crypto availability). After
+   // this returns, isCryptoSuiteSupported() is a pure cache read.
+   if (!sCapabilitiesProbed)
+   {
+      probeAllCryptoSuites();
+      sCapabilitiesProbed = true;
+   }
    return (status ? OS_FAILED : OS_SUCCESS);
 #else
    return OS_FAILED;
@@ -122,6 +262,18 @@ OsStatus MpSrtp::globalShutdown()
 #else
    return OS_FAILED;
 #endif
+}
+
+bool MpSrtp::isCryptoSuiteSupported(SdpMediaLine::SdpCryptoSuiteType suite)
+{
+   if (suite < 0 || suite >= kCryptoSuiteCount)
+   {
+      return false;
+   }
+   // If globalInitialize() has not run yet, the cache is all-false,
+   // which is the safe answer (callers will treat the suite as
+   // unsupported and either skip it or reject it).
+   return sSuiteSupported[suite];
 }
 
 OsStatus MpSrtp::setSrtpParams(const UtlString& resourceName, OsMsgQ& flowgraphMessageQueue, SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey)
@@ -155,6 +307,7 @@ UtlBoolean MpSrtp::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, c
       }
       else
       {
+         OsSysLog::add(FAC_MP, PRI_INFO, "MpSrtp::setSrtpParams: deallocating SRTP session: purpose=%s", forUnprotect ? "Inbound/Unprotect" : "Outbound/Protect");
          deallocateSrtpSession();
       }
    }
@@ -194,6 +347,18 @@ UtlBoolean MpSrtp::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, c
       case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_32:
          srtp_crypto_policy_set_aes_cm_256_hmac_sha1_32(&srtpPolicy.rtp);
          srtp_crypto_policy_set_aes_cm_256_hmac_sha1_32(&srtpPolicy.rtcp);
+         break;
+      case SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_128_GCM:
+         // RFC 7714 - AES-128 GCM with 16-byte auth tag (128-bit tag).
+         // Key material: 16-byte master key + 12-byte master salt = 28 bytes.
+         srtp_crypto_policy_set_aes_gcm_128_16_auth(&srtpPolicy.rtp);
+         srtp_crypto_policy_set_aes_gcm_128_16_auth(&srtpPolicy.rtcp);
+         break;
+      case SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_256_GCM:
+         // RFC 7714 - AES-256 GCM with 16-byte auth tag (128-bit tag).
+         // Key material: 32-byte master key + 12-byte master salt = 44 bytes.
+         srtp_crypto_policy_set_aes_gcm_256_16_auth(&srtpPolicy.rtp);
+         srtp_crypto_policy_set_aes_gcm_256_16_auth(&srtpPolicy.rtcp);
          break;
       case SdpMediaLine::CRYPTO_SUITE_TYPE_F8_128_HMAC_SHA1_80:
       default:
@@ -239,7 +404,7 @@ UtlBoolean MpSrtp::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, c
       return FALSE;
    }
 
-   OsSysLog::add(FAC_MP, PRI_INFO, "MpSrtp::setSrtpParams: Srtp enabled, cryptoSuite=%s, purpose=%s", SdpMediaLine::SdpCryptoSuiteTypeString[mCryptoSuite], forUnprotect ? "Inbound/Unprotect" : "Outbound/Protect");
+   OsSysLog::add(FAC_MP, PRI_INFO, "MpSrtp::setSrtpParams: Srtp enabled, cryptoSuite=%s, purpose=%s", this, SdpMediaLine::SdpCryptoSuiteTypeString[mCryptoSuite], forUnprotect ? "Inbound/Unprotect" : "Outbound/Protect");
    mSrtpSessionCreated = TRUE;
 
    return TRUE;

@@ -445,6 +445,12 @@
     <ClCompile Include="src\mp\MpSrtp.cpp">
       <Filter>mp</Filter>
     </ClCompile>
+    <ClCompile Include="src\mp\MpDtlsIdentity.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mp\MpDtls.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\rtcp\BaseClass.h">
@@ -1096,6 +1102,18 @@
       <Filter>mp</Filter>
     </ClInclude>
     <ClInclude Include="include\mp\MpSrtp.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDtlsIdentity.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDtls.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpSetDtlsParamsMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpDtlsPacketMsg.h">
       <Filter>mp</Filter>
     </ClInclude>
   </ItemGroup>

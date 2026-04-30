@@ -1,5 +1,6 @@
 //  
 // Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2006-2018 SIPez LLC.  All rights reserved.
 //
@@ -45,6 +46,7 @@
 // FORWARD DECLARATIONS
 class MprFromNet;
 class MpFlowGraphBase;
+class MpDtls;
 
 /**
 *  @brief The RTP writer
@@ -116,6 +118,10 @@ public:
 
    UtlBoolean setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey);
 
+   /// Wire in the per-connection DTLS-SRTP handshake engine. The pointer is borrowed.
+   /// Posted from MpRtpOutputConnection::handleMessage in response to
+   /// an MpSetDtlsParamsMsg. Always runs on the media thread.
+   void setDtls(MpDtls* pDtls);
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -147,6 +153,7 @@ private:
    MprFromNet*  mpFromNetPal;
    MpFlowGraphBase* mpFlowGraph; ///< for debug purposes
    MpSrtp       mSrtp;
+   MpDtls*      mpDtls;   ///< Borrowed; NULL until DTLS-SRTP configured.
    int          mRtcpPackets;
    int          mRtcpFrameCount;
    int          mRtcpFrameLimit;
