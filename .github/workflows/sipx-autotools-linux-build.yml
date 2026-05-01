@@ -28,7 +28,7 @@ jobs:
       - name: install dev and runtime packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y git g++ subversion gdb make libpcre3-dev autoconf automake libtool pkg-config valgrind libasound2-dev alsa-utils libssl-dev patch libspeex-dev libspandsp-dev bc unzip
+          sudo apt-get install -y git g++ subversion gdb make libpcre3-dev autoconf automake libtool pkg-config valgrind libasound2-dev alsa-utils libssl-dev patch libspeex-dev libspandsp-dev bc unrar unzip
           find / -name 'librt-*.so' -ls 2> /dev/null || true
 
       - name: checkout ${{ github.ref }}
