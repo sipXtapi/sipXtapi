@@ -375,7 +375,70 @@ def get_host_info():
     return info
 
 
-def build_json_output(project_results, host_info, date_label, time_label):
+def get_git_info():
+    """Gather git repo information for the JSON output."""
+    info = {
+        "branch": "unknown",
+        "commit": "unknown",
+        "commit_full": "unknown",
+        "dirty": False,
+        "dirty_files": [],
+        "ci": os.environ.get("CI", "false").lower() == "true",
+        "run_id": os.environ.get("GITHUB_RUN_ID"),
+        "annotation": "",
+    }
+
+    try:
+        info["branch"] = subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            text=True, stderr=subprocess.DEVNULL
+        ).strip()
+
+        if info["branch"] == "HEAD":
+            env_branch = os.environ.get("GITHUB_REF_NAME", "")
+            if env_branch:
+                info["branch"] = env_branch
+
+        info["commit_full"] = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            text=True, stderr=subprocess.DEVNULL
+        ).strip()
+        info["commit"] = info["commit_full"][:7]
+
+        dirty_rc = subprocess.call(
+            ["git", "diff", "--quiet"],
+            stderr=subprocess.DEVNULL
+        )
+        staged_rc = subprocess.call(
+            ["git", "diff", "--cached", "--quiet"],
+            stderr=subprocess.DEVNULL
+        )
+        info["dirty"] = (dirty_rc != 0) or (staged_rc != 0)
+
+        if info["dirty"]:
+            diff_output = subprocess.check_output(
+                ["git", "diff", "--name-only"],
+                text=True, stderr=subprocess.DEVNULL
+            ).strip()
+            staged_output = subprocess.check_output(
+                ["git", "diff", "--cached", "--name-only"],
+                text=True, stderr=subprocess.DEVNULL
+            ).strip()
+            files = set()
+            if diff_output:
+                files.update(diff_output.splitlines())
+            if staged_output:
+                files.update(staged_output.splitlines())
+            info["dirty_files"] = sorted(files)
+
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        print("Warning: not in a git repo or git not available, "
+              "git metadata will not be included")
+
+    return info
+
+
+def build_json_output(project_results, host_info, git_info, date_label, time_label):
     """Build the JSON output dict matching test_summary_to_json.sh schema."""
     output = {
         "builddate": date_label,
@@ -385,6 +448,14 @@ def build_json_output(project_results, host_info, date_label, time_label):
         "hostos": host_info["hostos"],
         "hostdistro": host_info["hostdistro"],
         "hostkernel": host_info["hostkernel"],
+        "branch": git_info["branch"],
+        "commit": git_info["commit"],
+        "commit_full": git_info["commit_full"],
+        "dirty": git_info["dirty"],
+        "dirty_files": git_info["dirty_files"],
+        "ci": git_info["ci"],
+        "run_id": git_info["run_id"],
+        "annotation": git_info["annotation"],
         "projects": project_results,
     }
     return output
@@ -560,8 +631,9 @@ def main():
 
     # Build and write JSON
     host_info = get_host_info()
+    git_info = get_git_info()
     json_output = build_json_output(
-        project_results, host_info, date_label, time_label
+        project_results, host_info, git_info, date_label, time_label
     )
 
     if args.output:
