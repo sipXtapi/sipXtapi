@@ -163,7 +163,7 @@ def parse_succeeded_line(output, test_name):
     """Parse the 'ClassName: succeeded N/M tests' line from test output.
     Returns (passed, total) or None if not found."""
     class_name = test_name.split("::")[0]
-    pattern = re.escape(class_name) + r":\s+succeeded\s+(\d+)/(\d+)\s+test"
+    pattern = re.escape(class_name) + r":\s+\d+\s+test\s+methods,\s+(\d+)/(\d+)\s+test\s+points"
     match = re.search(pattern, output)
     if match:
         return int(match.group(1)), int(match.group(2))
@@ -197,7 +197,6 @@ def run_single_test(exe_path, test_name, work_dir, timeout):
             result["outcome"] = "aborts"
         else:
             result["outcome"] = "fail"
-            result["failures"] = proc.returncode
 
         # Parse the succeeded line for pass/total counts
         counts = parse_succeeded_line(result["stdout"], test_name)
@@ -211,6 +210,9 @@ def run_single_test(exe_path, test_name, work_dir, timeout):
         else:
             result["ran"] = 1
             result["passed"] = 0
+
+        if result["outcome"] == "fail":
+            result["failures"] = result["ran"] - result["passed"]
 
     except subprocess.TimeoutExpired:
         result["outcome"] = "hangs"
@@ -296,8 +298,9 @@ def run_project_tests(
         test_result = run_single_test(exe_path, test_name, work_dir, timeout)
 
         outcome = test_result["outcome"]
-        proj_result["ran"] += test_result["ran"]
-        proj_result["passed"] += test_result["passed"]
+        if outcome not in ("hangs", "aborts"):
+            proj_result["ran"] += test_result["ran"]
+            proj_result["passed"] += test_result["passed"]
 
         if outcome == "success":
             print("  [OK]")
@@ -498,11 +501,28 @@ def main():
     print("Config:    %s" % args.config)
     print("Timeout:   %d seconds" % args.timeout)
 
+    if IS_WINDOWS:
+        codec_dir = os.path.join(repo_root, "x64", "bin")
+        codec_pattern = "codec_"
+        if os.path.isdir(codec_dir):
+            codecs = [f for f in os.listdir(codec_dir)
+                      if f.startswith(codec_pattern) and f.endswith(".dll")]
+            print("Codecs:    %d found in %s" % (len(codecs), codec_dir))
+            if not codecs:
+                print("ERROR: No codec DLLs found in %s" % codec_dir)
+                print("Copy codec_*.dll to %s before running tests" % codec_dir)
+                return 1
+        else:
+            print("ERROR: Codec directory not found: %s" % codec_dir)
+            print("Create %s and copy codec_*.dll there" % codec_dir)
+            return 1
+
     # Override exe path pattern for non-default arch on Windows
     if IS_WINDOWS and args.arch != "x64":
         print("Arch:      %s" % args.arch)
 
     # Timestamp for file naming and JSON
+    start_time = time.time()
     now = time.localtime()
     date_label = time.strftime("%Y%m%d", now)
     time_label = time.strftime("%H%M", now)
@@ -556,6 +576,11 @@ def main():
     with open(json_path, "w") as fh:
         json.dump(json_output, fh, indent=2)
     print("\nJSON results written to: %s" % json_path)
+
+    elapsed = time.time() - start_time
+    minutes = int(elapsed // 60)
+    seconds = int(elapsed % 60)
+    print("Total time: %d:%02d (%d seconds)" % (minutes, seconds, int(elapsed)))
 
     # Exit with non-zero if any tests failed
     return 0 if all_passed else 1
