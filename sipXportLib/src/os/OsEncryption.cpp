@@ -45,7 +45,8 @@
 #     pragma comment (lib, "libeay32.lib")
 #     pragma comment (lib, "ssleay32.lib")
 #  endif
-#endif
+#endif // WIN32
+#endif // HAVE_SSL
 
 #ifdef _VXWORKS
 #include <resolvLib.h>
@@ -396,4 +397,3 @@ UtlBoolean OsEncryption::openSslError(void)
 
     return FALSE;
 }
-#endif
