@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2021 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC. All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -422,6 +422,24 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
    mpConnectionResourceTopology = NULL;
    delete mpMcastConnectionResourceTopology;
    mpMcastConnectionResourceTopology = NULL;
+
+   if (mTranslatorDispatcher.getDispatcher() != NULL)
+   {
+       OsSysLog::add(FAC_MP, PRI_ERR,
+           "CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl "
+           "translator dispatcher not cleaned up, "
+           "inner dispatcher: %p",
+           mTranslatorDispatcher.getDispatcher());
+       mTranslatorDispatcher.setDispatcher(NULL);
+       if (mpInputDeviceManager)
+       {
+           mpInputDeviceManager->removeNotificationDispatcher(&mTranslatorDispatcher);
+       }
+       if (mpOutputDeviceManager)
+       {
+           mpOutputDeviceManager->removeNotificationDispatcher(&mTranslatorDispatcher);
+       }
+   }
 
    // Free input and output device managers.
    delete mpInputDeviceManager;
@@ -1404,6 +1422,29 @@ void CpTopologyGraphFactoryImpl::setDispatcher(OsMsgDispatcher* dispatcher)
         {
             mpOutputDeviceManager->addNotificationDispatcher(&mTranslatorDispatcher);
         }
+    }
+}
+
+void CpTopologyGraphFactoryImpl::removeDispatcher(OsMsgDispatcher* dispatcher)
+{
+    if (dispatcher && dispatcher == mTranslatorDispatcher.getDispatcher())
+    {
+        mTranslatorDispatcher.setDispatcher(NULL);
+        if (mpInputDeviceManager)
+        {
+            mpInputDeviceManager->removeNotificationDispatcher(&mTranslatorDispatcher);
+        }
+        if (mpOutputDeviceManager)
+        {
+            mpOutputDeviceManager->removeNotificationDispatcher(&mTranslatorDispatcher);
+        }
+    }
+    else
+    {
+        OsSysLog::add(FAC_MP, PRI_WARNING,
+            "CpTopologyGraphFactoryImpl::removeDispatcher "
+            "dispatcher %p does not match current %p",
+            dispatcher, mTranslatorDispatcher.getDispatcher());
     }
 }
 

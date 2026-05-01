@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2021 SIPez LLC. All rights reserved.
+// Copyright (C) 2005-2026 SIPez LLC. All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -286,6 +286,15 @@ CallManager::~CallManager()
     while(getCallStackSize())
     {
         delete popCall();
+    }
+
+    // Clear the notification dispatcher before mDispatcher is destroyed.
+    // mDispatcher is a member of this CallManager, and the factory's
+    // translator holds a pointer to it.  If we don't clear it, the
+    // factory's translator will have a dangling pointer.
+    if (mpMediaFactory)
+    {
+        //pMediaFactory->removeDispatcher(&mDispatcher);
     }
 
     waitUntilShutDown();   

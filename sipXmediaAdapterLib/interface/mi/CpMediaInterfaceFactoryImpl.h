@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2021 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2026 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -243,6 +243,9 @@ public:
 
    /// @brief Set the dispatcher for flowgraph independent media events/messages
    virtual void setDispatcher(OsMsgDispatcher* dispatcher) = 0;
+
+   /// @brief Remove the previously set dispatcher and unregister from device managers
+   virtual void removeDispatcher(OsMsgDispatcher* dispatcher) = 0;
 
      /// @brief Get the speaker volume
    virtual OsStatus getSpeakerVolume(int& iVolume) const = 0 ;

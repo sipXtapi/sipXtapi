@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2021 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC. All rights reserved.
 //
 //
 // $$
@@ -152,8 +152,14 @@ public:
     // virtual (unless we make this virtual on CpMediaInterfaceFactoryImpl this does more harm than good)
     MpResourceTopology* getConnectionResourceTopology() const;
 
-    /// @brief Set the dispatcher for flowgraph independent media events/messages
+    /// @brief Set the dispatcher for flowgraph independent media events/messages.
+    /// Only a single dispatcher is supported.  Setting a new dispatcher replaces
+    /// the previous one.  Use removeDispatcher to clear.
     void setDispatcher(OsMsgDispatcher* dispatcher);
+
+    /// @brief Remove the previously set dispatcher and unregister the
+    /// translator from the device managers' notification lists.
+    void removeDispatcher(OsMsgDispatcher* dispatcher);
 
       /// @brief Set the resource topology to be added to the flow graph when
       /// adding an multicast RTP connection.

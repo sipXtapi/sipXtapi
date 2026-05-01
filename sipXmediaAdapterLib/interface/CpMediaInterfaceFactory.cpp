@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2021 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2026 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -97,6 +97,11 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(const char* publ
 void CpMediaInterfaceFactory::setDispatcher(OsMsgDispatcher* dispatcher)
 {
     mpFactoryImpl->setDispatcher(dispatcher);
+}
+
+void CpMediaInterfaceFactory::removeDispatcher(OsMsgDispatcher* dispatcher)
+{
+    mpFactoryImpl->removeDispatcher(dispatcher);
 }
 
 // Static method to add codec paths

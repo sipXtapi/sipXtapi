@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2021 SIPez LLC.
+// Copyright (C) 2005-2026 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -103,6 +103,9 @@ public:
 
    /// @brief Set the dispatcher for flowgraph independent media events/messages
    void setDispatcher(OsMsgDispatcher* dispatcher);
+
+   /// @brief Remove the previously set dispatcher and unregister from device managers
+   void removeDispatcher(OsMsgDispatcher* dispatcher);
 
      /// Add directory paths to the codec search path.
    static OsStatus addCodecPaths(const size_t nCodecPaths, const UtlString codecPaths[]);
