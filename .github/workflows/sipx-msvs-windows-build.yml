@@ -64,19 +64,30 @@ jobs:
         # expected path and prints MSBuild / cl.exe versions for diagnostics.
         # If a future update breaks the build, the last passing CI run shows
         # the exact toolchain versions to compare against.
+        #
+        # Notes:
+        # - We avoid `if exist (...) else (...)` because the VS 2019 path
+        #   contains "Program Files (x86)" and cmd.exe parses the `)` of
+        #   `(x86)` as the close of the `if` block. Use goto labels instead.
+        # - `cl.exe` with no args prints its banner and exits non-zero on
+        #   some versions; we run it last and don't fail the step on its
+        #   exit code.
         run: |
           echo === VsMSBuildCmd.bat path check ===
-          if exist "${{ matrix.vs_devcmd_path }}" (
-            echo Found: ${{ matrix.vs_devcmd_path }}
-          ) else (
-            echo MISSING: ${{ matrix.vs_devcmd_path }}
-            exit /b 1
-          )
+          if not exist "${{ matrix.vs_devcmd_path }}" goto :missing
+          echo Found: ${{ matrix.vs_devcmd_path }}
+          goto :found
+          :missing
+          echo MISSING: ${{ matrix.vs_devcmd_path }}
+          exit /b 1
+          :found
           echo.
           echo === MSBuild and cl.exe versions ===
           call "${{ matrix.vs_devcmd_path }}" -arch=x64
           msbuild.exe -version
-          cl.exe 2>&1 | findstr /C:"Version"
+          echo.
+          cl.exe
+          exit /b 0
         shell: cmd
 
       - name: checkout ${{ github.ref }}
