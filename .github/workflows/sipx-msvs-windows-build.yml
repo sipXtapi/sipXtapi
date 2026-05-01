@@ -14,47 +14,93 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2019
+          - msvs_year: 2019
             solution_file: sipX-msvc16.sln
-            msvs_year: 2019
-            prog_root: \Program Files (x86)
-          - os: windows-2022
+            # VS 2019 is no longer available on any GitHub-hosted runner image.
+            # We install Build Tools via chocolatey onto windows-2022 below.
+            vs_devcmd_path: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\Tools\VsMSBuildCmd.bat'
+            install_vs2019: true
+          - msvs_year: 2022
             solution_file: sipX-msvc17.sln
-            msvs_year: 2022
-            prog_root: \Program Files
+            # VS 2022 Enterprise is pre-installed on windows-2022.
+            vs_devcmd_path: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsMSBuildCmd.bat'
+            install_vs2019: false
 
-    runs-on: ${{ matrix.os }}
-    
+    # windows-2019 was retired by GitHub on 2025-06-30. Both matrix rows now
+    # run on windows-2022; the VS 2019 row installs Build Tools at runtime.
+    runs-on: windows-2022
+
     steps:
-    
-      - name: check env
-        run: |
-          $Env:Path
-          $Env:Path = "C:${{ matrix.prog_root }}\Microsoft Visual Studio\${{ matrix.msvs_year }}\Enterprise\Common7\Tools; $Env:Path"
-          $env:Path
-          echo $SHELL
-          python3 --version
 
-      - name: env cmd
+      - name: system info
         run: |
           systeminfo | findstr /B /C:"OS Name" /B /C:"OS Version"
-          call "C:${{ matrix.prog_root }}\Microsoft Visual Studio\${{ matrix.msvs_year }}\Enterprise\Common7\Tools\VsMSBuildCmd.bat"
-          echo %PATH%
+          python3 --version
+        shell: cmd
+
+      - name: install Visual Studio 2019 Build Tools
+        if: matrix.install_vs2019
+        run: |
+          # Install the VS 2019 Build Tools shell, then the C++ workload.
+          # The workload package is what actually pulls in cl.exe / MSBuild
+          # for v142; without it you get an empty shell.
+          choco install -y visualstudio2019buildtools
+          choco install -y visualstudio2019-workload-vctools
+        shell: cmd
+
+      - name: print installed VS 2019 chocolatey versions
+        if: matrix.install_vs2019
+        # Print the chocolatey package versions actually installed so that
+        # if a future chocolatey update breaks the build we can identify the
+        # last good versions from a passing CI run and pin to them.
+        run: |
+          echo === chocolatey package versions ===
+          choco list visualstudio2019buildtools
+          choco list visualstudio2019-workload-vctools
+        shell: cmd
+
+      - name: verify build environment
+        # Runs for both matrix rows. Confirms VsMSBuildCmd.bat exists at the
+        # expected path and prints MSBuild / cl.exe versions for diagnostics.
+        # If a future update breaks the build, the last passing CI run shows
+        # the exact toolchain versions to compare against.
+        #
+        # Notes:
+        # - We avoid `if exist (...) else (...)` because the VS 2019 path
+        #   contains "Program Files (x86)" and cmd.exe parses the `)` of
+        #   `(x86)` as the close of the `if` block. Use goto labels instead.
+        # - `cl.exe` with no args prints its banner and exits non-zero on
+        #   some versions; we run it last and don't fail the step on its
+        #   exit code.
+        run: |
+          echo === VsMSBuildCmd.bat path check ===
+          if not exist "${{ matrix.vs_devcmd_path }}" goto :missing
+          echo Found: ${{ matrix.vs_devcmd_path }}
+          goto :found
+          :missing
+          echo MISSING: ${{ matrix.vs_devcmd_path }}
+          exit /b 1
+          :found
+          echo.
+          echo === MSBuild and cl.exe versions ===
+          call "${{ matrix.vs_devcmd_path }}" -arch=x64
+          msbuild.exe -version
+          echo.
+          cl.exe
+          exit /b 0
         shell: cmd
 
       - name: checkout ${{ github.ref }}
         # Downloads a copy of the code in your repository before running CI tests
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: sipXtapi/sipXtapi
-          
-      #VsMSBuildCmd.bat -arch=x64 -winsdk="10.0.19041.0"
+
       - name: MSVS ${{ matrix.msvs_year }} build
         run: |
-          call "C:${{ matrix.prog_root }}\Microsoft Visual Studio\${{ matrix.msvs_year }}\Enterprise\Common7\Tools\VsMSBuildCmd.bat"  -arch=x64
+          call "${{ matrix.vs_devcmd_path }}" -arch=x64
           echo %PATH%
           dir
           msbuild.exe ${{ matrix.solution_file }} /t:Clean,Build /p:Configuration=Release /p:Platform=x64
         shell: cmd
 
-      

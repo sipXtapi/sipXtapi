@@ -13,45 +13,69 @@ env:
 jobs:
   # Label of the runner job
   sipx-autotools-linux-build:
-    # You must use a Linux environment when using service containers or container jobs
-    #runs-on: ubuntu-latest
-    runs-on: ubuntu-20.04
-    
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
+
+    runs-on: ${{ matrix.os }}
+
     steps:
-    
+
       - name: install dev and runtime packages
         run: |
-          sudo apt-get install git g++ subversion gdb make libpcre3-dev autoconf automake libtool pkg-config valgrind libasound2-dev alsa-utils libssl-dev patch libspeex-dev libspandsp-dev bc rar unrar unzip
-          find / -name librt-2.31.so -ls 2> /dev/null || true
-        
+          sudo apt-get update
+          sudo apt-get install -y git g++ subversion gdb make libpcre3-dev autoconf automake libtool pkg-config valgrind libasound2-dev alsa-utils libssl-dev patch libspeex-dev libspandsp-dev bc unrar unzip
+          find / -name 'librt-*.so' -ls 2> /dev/null || true
+
       - name: checkout ${{ github.ref }}
       # Downloads a copy of the code in your repository before running CI tests
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         #with:
         #  repository: sipXtapi/sipXtapi
-          
+
       - name: view checkout results
         run: |
           ls -l
-          
+
+      - name: detect autoconf version and select patch
+        id: patch
+        run: |
+          autoconf_version=$(autoconf --version | head -1 | grep -oP '\d+\.\d+')
+          echo "using autoconf version: $autoconf_version"
+          major=$(echo "$autoconf_version" | cut -d. -f1)
+          minor=$(echo "$autoconf_version" | cut -d. -f2)
+          if [ "$major" -eq 2 ] && [ "$minor" -ge 70 ]; then
+            PATCH_FILE="../configure-2.70+.patch"
+          else
+            PATCH_FILE="../configure.patch"
+          fi
+          echo "Using patch file: $PATCH_FILE"
+          echo "PATCH_FILE=$PATCH_FILE" >> "$GITHUB_ENV"
+
       - name: build sipXportLib
         run: |
           echo CFLAGS: $CFLAGS
+          echo PATCH_FILE: $PATCH_FILE
           cd sipXportLib
           if [ ! -f configure ] ; then autoreconf -if ; fi
-          patch configure < ../configure.patch
-          if [ ! -f Makefile ] ; then ./configure --without-openssl --without-cppunit; fi
+          patch configure < ${PATCH_FILE}
+          if [ ! -f Makefile ] ; then ./configure --without-sipxopenssl --without-cppunit; fi
           make $MAKE_USE_CPUS
           make tests
-          
+
       - name: build sipXsdpLib
         run: |
           echo PWD: `pwd`
           echo CFLAGS: $CFLAGS
+          echo PATCH_FILE: $PATCH_FILE
           cd sipXsdpLib
           if [ ! -f configure ] ; then autoreconf -if ; fi
-          patch configure < ../configure.patch
-          if [ ! -f Makefile ] ; then ./configure --without-openssl ; fi
+          patch configure < ${PATCH_FILE}
+          if [ ! -f Makefile ] ; then ./configure --without-sipxopenssl ; fi
           make $MAKE_USE_CPUS
           make tests
 
@@ -59,10 +83,11 @@ jobs:
         run: |
           echo PWD: `pwd`
           echo CFLAGS: $CFLAGS
+          echo PATCH_FILE: $PATCH_FILE
           cd sipXtackLib
           if [ ! -f configure ] ; then autoreconf -if ; fi
-          patch configure < ../configure.patch
-          if [ ! -f Makefile ] ; then ./configure --without-openssl --disable-sipviewer; fi
+          patch configure < ${PATCH_FILE}
+          if [ ! -f Makefile ] ; then ./configure --without-sipxopenssl --disable-sipviewer; fi
           make $MAKE_USE_CPUS
           make tests
 
@@ -70,10 +95,11 @@ jobs:
         run: |
           echo PWD: `pwd`
           echo CFLAGS: $CFLAGS
+          echo PATCH_FILE: $PATCH_FILE
           cd sipXmediaLib
           if [ ! -f configure ] ; then autoreconf -if ; fi
-          patch configure < ../configure.patch
-          if [ ! -f Makefile ] ; then ./configure --without-openssl --disable-stream-player --enable-contrib-speex --enable-speex-dsp --enable-codec-speex --enable-codec-amr --enable-codec-amrwb --enable-codec-g726 --enable-codec-g722 --enable-codec-g7221 --enable-codec-g729 --enable-codec-ilbc --enable-codec-gsm --enable-codec-opus --enable-local-audio; fi
+          patch configure < ${PATCH_FILE}
+          if [ ! -f Makefile ] ; then ./configure --without-sipxopenssl --disable-stream-player --enable-contrib-speex --enable-speex-dsp --enable-codec-speex --enable-codec-amr --enable-codec-amrwb --enable-codec-g726 --enable-codec-g722 --enable-codec-g7221 --enable-codec-g729 --enable-codec-ilbc --enable-codec-gsm --enable-codec-opus --enable-local-audio; fi
           make $MAKE_USE_CPUS
           make tests
 
@@ -81,21 +107,22 @@ jobs:
         run: |
           echo PWD: `pwd`
           echo CFLAGS: $CFLAGS
+          echo PATCH_FILE: $PATCH_FILE
           cd sipXmediaAdapterLib
           if [ ! -f configure ] ; then autoreconf -if ; fi
-          patch configure < ../configure.patch
-          if [ ! -f Makefile ] ; then ./configure --enable-topology-graph --without-openssl --enable-contrib-speex --enable-speex-dsp --disable-stream-player --enable-alsa-audio --enable-codec-gsm; fi
+          patch configure < ${PATCH_FILE}
+          if [ ! -f Makefile ] ; then ./configure --enable-topology-graph --without-sipxopenssl --enable-contrib-speex --enable-speex-dsp --disable-stream-player --enable-alsa-audio --enable-codec-gsm; fi
           make $MAKE_USE_CPUS
           make tests
-          
+
       - name: build sipXcallLib
         run: |
           echo PWD: `pwd`
           echo CFLAGS: $CFLAGS
+          echo PATCH_FILE: $PATCH_FILE
           cd sipXcallLib
           if [ ! -f configure ] ; then autoreconf -if ; fi
-          patch configure < ../configure.patch
-          if [ ! -f Makefile ] ; then ./configure --without-openssl --enable-receivecall --enable-placecall; fi
+          patch configure < ${PATCH_FILE}
+          if [ ! -f Makefile ] ; then ./configure --without-sipxopenssl --enable-receivecall --enable-placecall; fi
           make $MAKE_USE_CPUS
           make tests
-

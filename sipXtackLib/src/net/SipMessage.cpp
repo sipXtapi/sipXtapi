@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2019 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -3806,13 +3806,13 @@ void SipMessage::addLastRouteUri(const char* routeUri)
             routeString.append(SIP_MULTIFIELD_SEPARATOR);
         }
         // Make sure the route is in name-addr format
-        if(strstr(routeUri,"<") <= 0)
+        if(strstr(routeUri,"<") == 0)
         {
             routeString.append("<");
         }
 
         routeString.append(routeUri);
-        if(strstr(routeUri, ">") <= 0)
+        if(strstr(routeUri, ">") == 0)
         {
             routeString.append(">");
         }
