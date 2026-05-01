@@ -35,6 +35,7 @@
 /resiprocate-contrib-[0-9]*.zip
 repro_*.db
 reproInfo.hxx
+/test_summary_20*json
 
 /SVN-VERSION
 /.make_prefs
