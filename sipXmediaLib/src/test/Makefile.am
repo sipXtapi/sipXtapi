@@ -71,9 +71,29 @@ codecQualitySource/%.WAV: | itu_peak_recordings.rar
 	cp tmp777/*REF*.WAV codecQualitySource
 	rm -rf tmp777
 
-itu_peak_recordings.rar: 
-	wget --no-check-certificate https://extranet.itu.int/brdocsearch/R-REC/R-REC-BS/R-REC-BS.1387/R-REC-BS.1387-1-200111-I/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip -O itu_peak_recordings.rar
+# ITU has retired the public download URLs for the BS.1387-1 conformance
+# test recordings (the old extranet path now redirects to a search page,
+# and dms_pubrec returns 403). We try the network first so anyone with a
+# working URL gets a fresh copy, and fall back to the committed copy in
+# sipXmediaLib/contrib/itu/ if the download fails or yields a non-archive
+# (e.g. an HTML redirect page).
+itu_peak_recordings.rar:
+	@echo "=== Attempting ITU download of $@ ==="
+	@if wget --no-check-certificate -q --tries=2 --timeout=30 \
+          https://extranet.itu.int/brdocsearch/R-REC/R-REC-BS/R-REC-BS.1387/R-REC-BS.1387-1-200111-I/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip \
+          -O $@.tmp \
+          && unrar t $@.tmp >/dev/null 2>&1 ; then \
+          mv $@.tmp $@ ; \
+          echo "=== Using freshly downloaded archive ===" ; \
+        else \
+          rm -f $@.tmp ; \
+          echo "=== Download failed or returned non-archive; using committed copy ===" ; \
+          cp ../../contrib/itu/itu_peak_recordings.rar.committed $@ ; \
+        fi
+
+#	wget --no-check-certificate https://extranet.itu.int/brdocsearch/R-REC/R-REC-BS/R-REC-BS.1387/R-REC-BS.1387-1-200111-I/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip -O itu_peak_recordings.rar
  
+# Older URL, kept for reference:
 #wget --no-check-certificate https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1387-1-200111-I\!\!ZIP-E.zip -O itu_peak_recordings.rar
 
 mp/MpCodecsQualityTest.cpp: codecQualitySource/GREFCLA.WAV
