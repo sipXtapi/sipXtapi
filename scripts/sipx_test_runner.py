@@ -185,11 +185,10 @@ def run_single_test(exe_path, test_name, work_dir, timeout):
         proc = subprocess.run(
             [exe_path, test_name],
             capture_output=True,
-            text=True,
             timeout=timeout,
             cwd=work_dir,
         )
-        result["stdout"] = proc.stdout + proc.stderr
+        result["stdout"] = proc.stdout.decode("utf-8", errors="replace") + proc.stderr.decode("utf-8", errors="replace")
 
         if proc.returncode == 0:
             result["outcome"] = "success"
