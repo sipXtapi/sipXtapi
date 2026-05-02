@@ -238,6 +238,27 @@ def apply_filters(test_list, include_filter, exclude_list):
     return filtered
 
 
+def remove_sipxtapi_log(work_dir):
+    """Delete the shared sipXtapi log file before the first sipXtapi test runs.
+
+    The sipXtapi test suite hardcodes its log filename to sipXtapiTests.txt
+    (set via sipxConfigSetLogFile in sipXtapiTestSuite::setUp), and unlike
+    the other projects' per-class hooks, nothing truncates this file
+    between runs.  Without this cleanup the file grows without bound
+    across runs (observed at 1+ GB).
+
+    Removing it once per run, before the first sipXtapi test, gives a
+    fresh log for the run while preserving log output across all the
+    sipXtapi tests within that single run.
+    """
+    log_path = os.path.join(work_dir, "sipXtapiTests.txt")
+    try:
+        if os.path.isfile(log_path):
+            os.remove(log_path)
+            print("  Removed stale sipXtapi log: %s" % log_path)
+    except OSError as exc:
+        print("  Warning: could not remove %s: %s" % (log_path, exc))
+
 def run_project_tests(
     repo_root, project, config, timeout,
     include_filter, exclude_list, test_list_map
@@ -275,6 +296,9 @@ def run_project_tests(
 
     # Apply filters
     tests_to_run = apply_filters(all_tests, include_filter, exclude_list)
+
+    if project == "sipXtapi" and tests_to_run:
+        remove_sipxtapi_log(work_dir)
 
     print("  Tests to run: %d (of %d discovered)" % (
         len(tests_to_run), len(all_tests)
@@ -357,6 +381,7 @@ def get_host_info():
         "hostos": platform.system(),
         "hostkernel": platform.release(),
         "hostdistro": "",
+        "build_toolchain": "",
     }
 
     if IS_WINDOWS:
@@ -372,6 +397,26 @@ def get_host_info():
                         break
         except OSError:
             info["hostdistro"] = platform.platform()
+
+    if IS_WINDOWS:
+        vs_paths = [
+            ("msvc-2022", r"C:\Program Files\Microsoft Visual Studio\2022"),
+            ("msvc-2019", r"C:\Program Files (x86)\Microsoft Visual Studio\2019"),
+        ]
+        for label, path in vs_paths:
+            if os.path.isdir(path):
+                info["build_toolchain"] = label
+                break
+    else:
+        try:
+            gcc_out = subprocess.check_output(
+                ["gcc", "--version"],
+                text=True, stderr=subprocess.DEVNULL
+            ).splitlines()[0]
+            gcc_ver = gcc_out.split()[-1]
+            info["build_toolchain"] = "gcc-" + gcc_ver
+        except (FileNotFoundError, subprocess.CalledProcessError, IndexError):
+            pass
 
     return info
 
@@ -449,6 +494,7 @@ def build_json_output(project_results, host_info, git_info, date_label, time_lab
         "hostos": host_info["hostos"],
         "hostdistro": host_info["hostdistro"],
         "hostkernel": host_info["hostkernel"],
+        "build_toolchain": host_info["build_toolchain"],
         "branch": git_info["branch"],
         "commit": git_info["commit"],
         "commit_full": git_info["commit_full"],
