@@ -128,7 +128,9 @@ jobs:
           make tests
 
       - name: run unit tests
-        run: python3 scripts/sipx_test_runner.py || true
+        run: |
+          ulimit -a
+          python3 scripts/sipx_test_runner.py || true
 
       - name: push test results
         if: github.event_name == 'push'
