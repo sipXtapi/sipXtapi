@@ -126,3 +126,41 @@ jobs:
           if [ ! -f Makefile ] ; then ./configure --without-sipxopenssl --enable-receivecall --enable-placecall; fi
           make $MAKE_USE_CPUS
           make tests
+
+      - name: run unit tests
+        run: python3 scripts/sipx_test_runner.py || true
+
+      - name: push test results
+        if: github.event_name == 'push'
+        env:
+          DEPLOY_KEY: ${{ secrets.RESULTS_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no"
+
+          BRANCH="${GITHUB_REF_NAME}"
+          git clone git@github.com:sipXtapi/sipXtapi-test-results.git results-repo
+          mkdir -p "results-repo/summaries/${BRANCH}/${PLATFORM_LABEL}"
+          cp test_summary_*.json "results-repo/summaries/${BRANCH}/${PLATFORM_LABEL}/"
+
+          cd results-repo
+          git config user.name "sipXtapi CI"
+          git config user.email "ci@sipxtapi.org"
+          git add .
+          git commit -m "${PLATFORM_LABEL} ${BRANCH} $(date +%Y%m%d_%H%M)"
+          for attempt in 1 2 3; do
+            git pull --rebase && git push && break
+            sleep 5
+          done
+
+      - name: upload test summary artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-summary-${{ matrix.os }}
+          path: test_summary_*.json
+          retention-days: 90
+          if-no-files-found: ignore
+
