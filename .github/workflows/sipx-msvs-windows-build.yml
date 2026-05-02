@@ -104,6 +104,12 @@ jobs:
           msbuild.exe ${{ matrix.solution_file }} /t:Clean,Build /p:Configuration=Release /p:Platform=x64
         shell: cmd
 
+      - name: copy codec DLLs for test runner
+        run: |
+          if not exist x64\bin mkdir x64\bin
+          xcopy x64\Release\codec_*.dll x64\bin\ /Y
+        shell: cmd
+
       - name: run unit tests
         run: python scripts/sipx_test_runner.py
         shell: cmd
