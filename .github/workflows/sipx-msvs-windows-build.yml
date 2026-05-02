@@ -29,6 +29,8 @@ jobs:
     # windows-2019 was retired by GitHub on 2025-06-30. Both matrix rows now
     # run on windows-2022; the VS 2019 row installs Build Tools at runtime.
     runs-on: windows-2022
+    env:
+      PLATFORM_LABEL: windows-vs${{ matrix.msvs_year }}
 
     steps:
 
