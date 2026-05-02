@@ -187,6 +187,7 @@ def run_single_test(exe_path, test_name, work_dir, timeout):
             capture_output=True,
             timeout=timeout,
             cwd=work_dir,
+            start_new_session=True,
         )
         result["stdout"] = proc.stdout.decode("utf-8", errors="replace") + proc.stderr.decode("utf-8", errors="replace")
 
