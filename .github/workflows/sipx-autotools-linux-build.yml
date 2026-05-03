@@ -130,9 +130,12 @@ jobs:
       - name: run unit tests
         run: |
           ulimit -a
+          stdbuf -oL bash -c 'while true; do echo "=== RESOURCES $(date -u +%H:%M:%S) ==="; free -m; ps -e | wc -l; sleep 30; done' &
+          MONITOR_PID=$!
           echo "=== START: $(date -u +%Y-%m-%dT%H:%M:%S) ==="
           python3 scripts/sipx_test_runner.py --timeout 30 2>&1 | tee test_runner_output.txt || true
           echo "=== END: $(date -u +%Y-%m-%dT%H:%M:%S) ==="
+          kill $MONITOR_PID 2>/dev/null || true
 
       - name: upload test runner log
         if: always()
