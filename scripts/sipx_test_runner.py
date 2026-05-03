@@ -204,7 +204,8 @@ def run_single_test(exe_path, test_name, work_dir, timeout):
             except subprocess.TimeoutExpired:
                 stdout_bytes = b""
             result["stdout"] = stdout_bytes.decode("utf-8", errors="replace") if stdout_bytes else ""
-            if "ABORT: due to caught signal" in result["stdout"]:
+            if ("ABORT: due to caught signal" in result["stdout"]
+                    or "buffer overflow detected" in result["stdout"]):
                 result["outcome"] = "aborts"
                 result["ran"] = 1
                 result["passed"] = 0

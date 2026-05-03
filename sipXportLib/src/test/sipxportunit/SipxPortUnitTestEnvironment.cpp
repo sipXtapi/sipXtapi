@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2010-2017 SIPez LLC  All rights reserved.
+// Copyright (C) 2010-2026 SIPez LLC  All rights reserved.
 // 
 // $$
 // Author: Daniel Petrie
@@ -260,7 +260,12 @@ void SipxPortUnitTestEnvironment::runTests(const char* testClassFilterName)
     // We are recovering from an exception/signal that was caught
     else
     {
-        if(sCurrentTestMethodIndex == -1)
+        if(testMethodName)
+        {
+            printOut("recovered from failure in single-method run, exiting\n");
+            sCurrentTestClassIndex = sTotalTestClassCount;
+        }
+        else if(sCurrentTestMethodIndex == -1)
         {
             // caught signal before running first method of test class
             // something must be wrong with the initialization or
@@ -270,7 +275,9 @@ void SipxPortUnitTestEnvironment::runTests(const char* testClassFilterName)
             char buffer[256];
             sprintf(buffer, "initialization or construction of: %s failed skipping to class: %s\n",
                     sTestClassesToRun[sCurrentTestClassIndex-1]->getClassName(),
-                    sTestClassesToRun[sCurrentTestClassIndex]->getClassName());
+                    sCurrentTestClassIndex < sTotalTestClassCount
+                        ? sTestClassesToRun[sCurrentTestClassIndex]->getClassName()
+                        : "(none)");
             printOut(buffer);
 
         }
