@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2026 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -347,9 +347,16 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                
                // Get the state element
                UtlString state, event, code;
-               state = (groupNode->FirstChild("state"))->FirstChild()->Value();
-               
-               ucElement = groupNode->FirstChild("state")->ToElement();
+               TiXmlNode *stateNode = groupNode->FirstChild("state");
+               if (stateNode)
+               {
+                  TiXmlNode *stateText = stateNode->FirstChild();
+                  if (stateText)
+                  {
+                     state = stateText->Value();
+                  }
+                  ucElement = stateNode->ToElement();
+               }
                if (ucElement)
                {
                   event = ucElement->Attribute("event");
@@ -378,7 +385,11 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                   TiXmlNode *subNode1 = subNode->FirstChild("identity");
                   if (subNode1)
                   {
-                     identity = subNode1->FirstChild()->Value();
+                     TiXmlNode *identityText = subNode1->FirstChild();
+                     if (identityText)
+                     {
+                        identity = identityText->Value();
+                     }
                      ucElement = subNode1->ToElement();
                      if (ucElement)
                      {                  
@@ -387,11 +398,15 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                      }
                   }
                   
-                  ucElement = subNode->FirstChild("target")->ToElement();
-                  if (ucElement)
+                  TiXmlNode *localTargetNode = subNode->FirstChild("target");
+                  if (localTargetNode)
                   {
-                     target = ucElement->Attribute("uri");
-                     pDialog->setLocalTarget(target);
+                     ucElement = localTargetNode->ToElement();
+                     if (ucElement)
+                     {
+                        target = ucElement->Attribute("uri");
+                        pDialog->setLocalTarget(target);
+                     }
                   }
                }
                
@@ -402,7 +417,11 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                   TiXmlNode *subNode1 = subNode->FirstChild("identity");
                   if (subNode1)
                   {
-                     identity = subNode1->FirstChild()->Value();
+                     TiXmlNode *identityText = subNode1->FirstChild();
+                     if (identityText)
+                     {
+                        identity = identityText->Value();
+                     }
                      ucElement = subNode1->ToElement();
                      if (ucElement)
                      {
@@ -411,11 +430,15 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                      }
                   }
                   
-                  ucElement = subNode->FirstChild("target")->ToElement();
-                  if (ucElement)
+                  TiXmlNode *remoteTargetNode = subNode->FirstChild("target");
+                  if (remoteTargetNode)
                   {
-                     target = ucElement->Attribute("uri");
-                     pDialog->setRemoteTarget(target);      
+                     ucElement = remoteTargetNode->ToElement();
+                     if (ucElement)
+                     {
+                        target = ucElement->Attribute("uri");
+                        pDialog->setRemoteTarget(target);
+                     }
                   }
                }
              
