@@ -182,14 +182,34 @@ def run_single_test(exe_path, test_name, work_dir, timeout):
     }
 
     try:
-        proc = subprocess.run(
+        proc = subprocess.Popen(
             [exe_path, test_name],
-            capture_output=True,
-            timeout=timeout,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             cwd=work_dir,
             start_new_session=True,
         )
-        result["stdout"] = proc.stdout.decode("utf-8", errors="replace") + proc.stderr.decode("utf-8", errors="replace")
+        try:
+            stdout_bytes, _ = proc.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            if IS_WINDOWS:
+                proc.kill()
+            else:
+                try:
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                except OSError:
+                    proc.kill()
+            try:
+                stdout_bytes, _ = proc.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                stdout_bytes = b""
+            result["stdout"] = stdout_bytes.decode("utf-8", errors="replace") if stdout_bytes else ""
+            result["outcome"] = "hangs"
+            result["ran"] = 1
+            result["passed"] = 0
+            return result
+
+        result["stdout"] = stdout_bytes.decode("utf-8", errors="replace") if stdout_bytes else ""
 
         if proc.returncode == 0:
             result["outcome"] = "success"
@@ -213,11 +233,6 @@ def run_single_test(exe_path, test_name, work_dir, timeout):
 
         if result["outcome"] == "fail":
             result["failures"] = result["ran"] - result["passed"]
-
-    except subprocess.TimeoutExpired:
-        result["outcome"] = "hangs"
-        result["ran"] = 1
-        result["passed"] = 0
 
     except (FileNotFoundError, OSError) as exc:
         result["outcome"] = "error"
