@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -112,6 +112,7 @@ class MpOutputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testEnableDisable);
    CPPUNIT_TEST(testEnableDisableFast);
    CPPUNIT_TEST(testTickerNotification);
+   CPPUNIT_TEST(testEnableAfterSwitchToMMTimer);
    CPPUNIT_TEST(measureJitter);
    CPPUNIT_TEST_SUITE_END();
 
@@ -245,6 +246,70 @@ public:
          }
          delete[] sampleData;
       }
+   }
+
+   void testEnableAfterSwitchToMMTimer()
+   {
+   #ifdef WIN32
+       CallbackUserData userData;
+       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+   
+       if (!driver.isDeviceValid())
+       {
+           printf("No output device available, skipping testEnableAfterSwitchToMMTimer\n");
+           return;
+       }
+   
+       CPPUNIT_ASSERT(!driver.isEnabled());
+       CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+   
+       userData.mDriver = &driver;
+       userData.mTickTime = NULL;
+       OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+       sampleDataSz = 0;
+   
+       // Enable the device
+       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+           driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
+                               0, notificationCallback));
+       CPPUNIT_ASSERT(driver.isEnabled());
+       CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+   
+       // Let it run briefly
+       OsTask::delay(50);
+   
+       // Simulate device failure by switching to fallback timer
+       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.switchToMMTimer());
+       CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+   
+       // Let the fallback timer run briefly
+       OsTask::delay(50);
+   
+       // Disable
+       driver.disableDevice();
+       CPPUNIT_ASSERT(!driver.isEnabled());
+       // Timer still exists after disable (not cleaned up there)
+       CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+   
+       // Re-enable -- this is the key test.
+       // Before the fix, mpTickerTimer would survive and internalPushFrame
+       // would silently discard all audio.
+       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+           driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
+                               0, notificationCallback));
+       CPPUNIT_ASSERT(driver.isEnabled());
+       CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+   
+       // Let it run to confirm audio is flowing
+       OsTask::delay(100);
+   
+       // Clean up
+       driver.disableDevice();
+       CPPUNIT_ASSERT(!driver.isEnabled());
+   #else
+       // This test is Windows-specific
+       printf("Skipping testEnableAfterSwitchToMMTimer on non-Windows platform\n");
+   #endif
    }
 
    void measureJitter()
