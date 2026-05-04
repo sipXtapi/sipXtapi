@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2010 SIPez LLC. 
+// Copyright (C) 2007-2026 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
@@ -141,13 +141,41 @@ OsStatus SipTcpServer::createServerSocket(const char* szBindAddr, int& port, con
         {
             port = pSocket->getLocalHostPort();
             SIPX_CONTACT_ADDRESS contact;
-            strcpy(contact.cIpAddress, szBindAddr);
+            if (szBindAddr == NULL || strlen(szBindAddr) >= sizeof(contact.cIpAddress))
+            {
+                OsSysLog::add(FAC_SIP, PRI_ERR,
+                              "SipTcpServer::createServerSocket bound IP too long: %u >= %u: '%s'",
+                              (unsigned)(szBindAddr ? strlen(szBindAddr) : 0),
+                              (unsigned)sizeof(contact.cIpAddress),
+                              szBindAddr ? szBindAddr : "(null)");
+                pSocket->close();
+                delete pSocket;
+                pSocket = NULL;
+                return OS_FAILED;
+            }
+            strncpy(contact.cIpAddress, szBindAddr, sizeof(contact.cIpAddress) - 1);
+            contact.cIpAddress[sizeof(contact.cIpAddress) - 1] = '\0';
+
             contact.iPort = port;
             contact.eContactType = CONTACT_LOCAL;
             UtlString adapterName;
 
             getContactAdapterName(adapterName, contact.cIpAddress, false);
-            strcpy(contact.cInterface, adapterName.data());
+            if (adapterName.length() >= sizeof(contact.cInterface))
+            {
+                OsSysLog::add(FAC_SIP, PRI_ERR,
+                              "SipTcpServer::createServerSocket adapter name too long: %u >= %u: '%s'",
+                              (unsigned)adapterName.length(),
+                              (unsigned)sizeof(contact.cInterface),
+                              adapterName.data());
+                pSocket->close();
+                delete pSocket;
+                pSocket = NULL;
+                return OS_FAILED;
+            }
+            strncpy(contact.cInterface, adapterName.data(), sizeof(contact.cInterface) - 1);
+            contact.cInterface[sizeof(contact.cInterface) - 1] = '\0';
+
             contact.eTransportType = TRANSPORT_TCP;
             mSipUserAgent->addContactAddress(contact);
        
