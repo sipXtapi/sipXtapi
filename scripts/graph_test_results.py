@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 #
-# Copyright (C) 2026 [FILL IN OWNER]
-# Licensed under [FILL IN LICENSE]
+# Copyright (C) 2026 SIPez LLC. .  All rights reservied.
 #
 # graph_test_results.py
 #
@@ -25,6 +25,7 @@ import datetime
 import json
 import os
 import sys
+import re
 from collections import defaultdict
 
 import plotly.graph_objects as go
@@ -157,10 +158,22 @@ def is_complete_run(summary, min_total_ran):
     return total_ran(summary) >= min_total_ran
 
 
+TOOLCHAIN_RE = re.compile(r"^([a-z]+-\d+)")
+
+def normalize_toolchain(raw):
+    if not raw:
+        return "unknown"
+    m = TOOLCHAIN_RE.match(raw)
+    if not m:
+        return "unknown"
+    return m.group(1)
+
+
 def series_label(summary):
     host = summary.get("hostname") or "unknown"
     distro = summary.get("hostdistro") or "unknown"
-    return "%s (%s)" % (host, distro)
+    toolchain = normalize_toolchain(summary.get("build_toolchain"))
+    return "%s (%s) [%s]" % (host, distro, toolchain)
 
 
 def group_by_series(summaries):
@@ -201,24 +214,36 @@ def assign_platform_colors(platform_labels):
     return color_map
 
 
-def _project_values(grouped, project, stat):
+def _project_values(grouped, project, stat, include_hover=False):
     # Returns dict: platform_label -> (list of x datetimes, list of y values)
     result = {}
     for label, runs in grouped.items():
         xs = []
         ys = []
+        hover = []
         for s in runs:
             proj = s.get("projects", {}).get(project)
             if not isinstance(proj, dict):
                 xs.append(s["_datetime"])
                 ys.append(0)
-                continue
-            try:
-                ys.append(int(proj.get(stat, 0)))
-            except (TypeError, ValueError):
-                ys.append(0)
-            xs.append(s["_datetime"])
-        result[label] = (xs, ys)
+            else:
+                try:
+                    ys.append(int(proj.get(stat, 0)))
+                except (TypeError, ValueError):
+                    ys.append(0)
+                xs.append(s["_datetime"])
+            if include_hover:
+                hover.append([
+                    s.get("hostname") or "unknown",
+                    s.get("hostdistro") or "unknown",
+                    s.get("hostarch") or "unknown",
+                    s.get("hostkernel") or "unknown",
+                    s.get("build_toolchain") or "unknown",
+                ])
+        if include_hover:
+            result[label] = (xs, ys, hover)
+        else:
+            result[label] = (xs, ys)
     return result
 
 
@@ -232,9 +257,19 @@ def build_project_figure(project, grouped, color_map):
     )
 
     # Top subplot: one line per platform, "ran"
-    ran_data = _project_values(grouped, project, "ran")
+    ran_data = _project_values(grouped, project, "ran", include_hover=True)
+    hover_tmpl = (
+        "<b>%{customdata[0]}</b><br>"
+        "distro: %{customdata[1]}<br>"
+        "arch: %{customdata[2]}<br>"
+        "kernel: %{customdata[3]}<br>"
+        "toolchain: %{customdata[4]}<br>"
+        "%{x}<br>"
+        "{stat_label}: %{y}<extra></extra>"
+    )
+
     for label in sorted(ran_data.keys()):
-        xs, ys = ran_data[label]
+        xs, ys, hv = ran_data[label]
         fig.add_trace(
             go.Scatter(
                 x=xs, y=ys,
@@ -243,20 +278,21 @@ def build_project_figure(project, grouped, color_map):
                 legendgroup=label,
                 line=dict(color=color_map[label]["ran"], width=2),
                 marker=dict(size=5),
-                hovertemplate="%s<br>%%{x}<br>ran: %%{y}<extra></extra>" % label,
+                customdata=hv,
+                hovertemplate=hover_tmpl.replace("{stat_label}", "ran"),
             ),
             row=1, col=1,
         )
 
     # Bottom subplot: per platform, stacked failed -> hangs -> aborts
-    failed_data = _project_values(grouped, project, "failed")
-    hangs_data = _project_values(grouped, project, "hangs")
-    aborts_data = _project_values(grouped, project, "aborts")
+    failed_data = _project_values(grouped, project, "failed", include_hover=True)
+    hangs_data = _project_values(grouped, project, "hangs", include_hover=True)
+    aborts_data = _project_values(grouped, project, "aborts", include_hover=True)
 
     for label in sorted(grouped.keys()):
-        xs_f, ys_f = failed_data[label]
-        xs_h, ys_h = hangs_data[label]
-        xs_a, ys_a = aborts_data[label]
+        xs_f, ys_f, hv_f = failed_data[label]
+        xs_h, ys_h, hv_h = hangs_data[label]
+        xs_a, ys_a, hv_a = aborts_data[label]
 
         # stackgroup keyed by platform so the three areas stack on each
         # other but different platforms do not stack across each other.
@@ -267,45 +303,48 @@ def build_project_figure(project, grouped, color_map):
         fig.add_trace(
             go.Scatter(
                 x=xs_f, y=ys_f,
-                mode="lines",
+                mode="lines+markers",
                 name=label + " failed",
                 legendgroup=label,
                 showlegend=False,
                 stackgroup=stackgroup,
                 line=dict(width=0.5, color=color_map[label]["failed"]),
                 fillcolor=color_map[label]["failed"],
-                hovertemplate=("%s<br>%%{x}<br>failed: %%{y}<extra></extra>"
-                               % label),
+                marker=dict(size=3, color=color_map[label]["failed"], opacity=0.7),
+                customdata=hv_f,
+                hovertemplate=hover_tmpl.replace("{stat_label}", "failed"),
             ),
             row=2, col=1,
         )
         fig.add_trace(
             go.Scatter(
                 x=xs_h, y=ys_h,
-                mode="lines",
+                mode="lines+markers",
                 name=label + " hangs",
                 legendgroup=label,
                 showlegend=False,
                 stackgroup=stackgroup,
                 line=dict(width=0.5, color=color_map[label]["hangs"]),
                 fillcolor=color_map[label]["hangs"],
-                hovertemplate=("%s<br>%%{x}<br>hangs: %%{y}<extra></extra>"
-                               % label),
+                marker=dict(size=3, color=color_map[label]["hangs"], opacity=0.7),
+                customdata=hv_h,
+                hovertemplate=hover_tmpl.replace("{stat_label}", "hangs"),
             ),
             row=2, col=1,
         )
         fig.add_trace(
             go.Scatter(
                 x=xs_a, y=ys_a,
-                mode="lines",
+                mode="lines+markers",
                 name=label + " aborts",
                 legendgroup=label,
                 showlegend=False,
                 stackgroup=stackgroup,
                 line=dict(width=0.5, color=color_map[label]["aborts"]),
                 fillcolor=color_map[label]["aborts"],
-                hovertemplate=("%s<br>%%{x}<br>aborts: %%{y}<extra></extra>"
-                               % label),
+                marker=dict(size=3, color=color_map[label]["aborts"], opacity=0.7),
+                customdata=hv_a,
+                hovertemplate=hover_tmpl.replace("{stat_label}", "aborts"),
             ),
             row=2, col=1,
         )
@@ -315,11 +354,16 @@ def build_project_figure(project, grouped, color_map):
         hovermode="x unified",
         legend=dict(title="Platform (click to toggle)"),
         height=800,
+        hoverlabel=dict(font=dict(size=10)),
     )
     fig.update_xaxes(title_text="date", row=2, col=1)
     fig.update_yaxes(title_text="ran", exponentformat="none",
+                     tickformat="d",
+                     tickmode="auto", nticks=6,
                      rangemode="nonnegative", row=1, col=1)
     fig.update_yaxes(title_text="problems", exponentformat="none",
+                     tickformat="d",
+                     tickmode="auto", nticks=6,
                      rangemode="nonnegative", row=2, col=1)
 
     return fig
