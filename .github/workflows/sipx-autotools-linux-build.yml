@@ -17,11 +17,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-22.04
-          - ubuntu-24.04
+        include:
+          - os: ubuntu-22.04
+            toolchain: gcc-11
+          - os: ubuntu-24.04
+            toolchain: gcc-13
 
     runs-on: ${{ matrix.os }}
+    env:
+      PLATFORM_LABEL: linux-${{ matrix.os }}-${{ matrix.toolchain }}
 
     steps:
 
