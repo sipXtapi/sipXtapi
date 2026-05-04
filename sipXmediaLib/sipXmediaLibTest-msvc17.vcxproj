@@ -234,7 +234,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
       <PreprocessorDefinitions>_DEBUG;WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;OPUS_FILE_RECORD_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeaderOutputFile>.\Debug/sipXmediaLibTest-msvc17.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>
@@ -255,7 +255,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib;C:\work\libiLBC\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)sipXmediaLibTest.pdb</ProgramDatabaseFile>
       <GenerateMapFile>false</GenerateMapFile>
@@ -284,7 +284,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
       <AdditionalIncludeDirectories>..\..\pcre\include;..\sipXportLib\src\test;..\sipXportLib\include;include;..\sipXtackLib\include;..\sipXsdpLib\include;src\test;../sipXportLib/src/test;contrib\libopus\opusfile\include;contrib\libopus\libopusenc\include;contrib\libopus\opus\include;contrib\libopus\libogg\include;../sipXportLib/src/test/sipxportunit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;OPUS_FILE_RECORD_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeaderOutputFile>.\Debug/sipXmediaLibTest-msvc17.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>
@@ -305,7 +305,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib;C:\work\libiLBC\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)sipXmediaLibTest.pdb</ProgramDatabaseFile>
       <GenerateMapFile>false</GenerateMapFile>
