@@ -553,6 +553,17 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
       return OS_FAILED;
    }
 
+   // Clean up fallback timer if it was activated due to a previous device failure.
+   // The timer will be recreated by switchToMMTimer if needed again.
+   if (mpTickerTimer)
+   {
+       OsSysLog::add(FAC_MP, PRI_DEBUG,
+           "MpodWinMM::enableDevice stopping and deleting fallback MMTimer");
+       mpTickerTimer->stop();
+       delete mpTickerTimer;
+       mpTickerTimer = NULL;
+   }
+
    // Set some wave header stat information.
    mSamplesPerFrame = samplesPerFrame;
    mSamplesPerSec = samplesPerSec;
