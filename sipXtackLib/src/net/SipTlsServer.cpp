@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2026 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -181,15 +181,40 @@ OsStatus SipTlsServer::createServerSocket(const char* szBindAddr,
             
             port = pServerSocket->getLocalHostPort();
             SIPX_CONTACT_ADDRESS contact;
-            strcpy(contact.cIpAddress, szBindAddr);
+            if (szBindAddr == NULL || strlen(szBindAddr) >= sizeof(contact.cIpAddress))
+            {
+                OsSysLog::add(FAC_SIP, PRI_ERR,
+                              "SipTlsServer::createServerSocket bound IP too long: %u >= %u: '%s'",
+                              (unsigned)(szBindAddr ? strlen(szBindAddr) : 0),
+                              (unsigned)sizeof(contact.cIpAddress),
+                              szBindAddr ? szBindAddr : "(null)");
+                pServerSocket->close();
+                delete pServerSocket;
+                pServerSocket = NULL;
+                return OS_FAILED;
+            }
+            strncpy(contact.cIpAddress, szBindAddr, sizeof(contact.cIpAddress) - 1);
+            contact.cIpAddress[sizeof(contact.cIpAddress) - 1] = '\0';
+
             contact.iPort = port;
             contact.eContactType = CONTACT_LOCAL;
-            char szAdapterName[16];
-            memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
-            
+            UtlString adapterName;
+            getContactAdapterName(adapterName, contact.cIpAddress, false);
+            if (adapterName.length() >= sizeof(contact.cInterface))
+            {
+                OsSysLog::add(FAC_SIP, PRI_ERR,
+                              "SipTlsServer::createServerSocket adapter name too long: %u >= %u: '%s'",
+                              (unsigned)adapterName.length(),
+                              (unsigned)sizeof(contact.cInterface),
+                              adapterName.data());
+                pServerSocket->close();
+                delete pServerSocket;
+                pServerSocket = NULL;
+                return OS_FAILED;
+            }
+            strncpy(contact.cInterface, adapterName.data(), sizeof(contact.cInterface) - 1);
+            contact.cInterface[sizeof(contact.cInterface) - 1] = '\0';
 
-            getContactAdapterName(szAdapterName, contact.cIpAddress, false);
-            strcpy(contact.cInterface, szAdapterName);
             contact.eTransportType = TRANSPORT_TLS;
             mSipUserAgent->addContactAddress(contact);
        
