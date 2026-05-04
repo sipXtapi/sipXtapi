@@ -26,6 +26,7 @@ import platform
 import re
 import signal
 import subprocess
+import struct
 import sys
 import time
 
@@ -67,6 +68,54 @@ def find_repo_root():
             break
         check = parent
     return os.path.abspath(os.getcwd())
+
+
+def detect_msvc_from_exe(exe_path):
+    """Return 'msvc-2015', 'msvc-2017', 'msvc-2019', or 'msvc-2022'
+    based on the linker version stored in a Windows PE executable.
+    Returns empty string if the file cannot be read or recognized.
+
+    Reads the MajorLinkerVersion / MinorLinkerVersion fields in the
+    PE optional header. Mapping:
+        14.0   -> VS 2015
+        14.1x  -> VS 2017
+        14.2x  -> VS 2019
+        14.3x  -> VS 2022
+    """
+    try:
+        with open(exe_path, "rb") as fh:
+            fh.seek(0x3C)
+            pe_offset_bytes = fh.read(4)
+            if len(pe_offset_bytes) != 4:
+                return ""
+            pe_offset = struct.unpack("<I", pe_offset_bytes)[0]
+            fh.seek(pe_offset)
+            if fh.read(4) != b"PE\x00\x00":
+                return ""
+            # Skip the 20-byte COFF file header to reach the optional header.
+            fh.seek(pe_offset + 4 + 20)
+            magic = fh.read(2)
+            if len(magic) != 2:
+                return ""
+            major_byte = fh.read(1)
+            minor_byte = fh.read(1)
+            if len(major_byte) != 1 or len(minor_byte) != 1:
+                return ""
+            major_n = major_byte[0]
+            minor_n = minor_byte[0]
+            if major_n != 14:
+                return ""
+            if minor_n >= 40:
+                return "msvc-future"
+            if minor_n >= 30:
+                return "msvc-2022"
+            if minor_n >= 20:
+                return "msvc-2019"
+            if minor_n >= 10:
+                return "msvc-2017"
+            return "msvc-2015"
+    except (OSError, struct.error):
+        return ""
 
 
 def get_test_exe_path(repo_root, project, config):
@@ -394,7 +443,7 @@ def run_project_tests(
     return proj_result
 
 
-def get_host_info():
+def get_host_info(repo_root, config):
     """Gather host information for the JSON output."""
     info = {
         "hostname": platform.node(),
@@ -420,14 +469,9 @@ def get_host_info():
             info["hostdistro"] = platform.platform()
 
     if IS_WINDOWS:
-        vs_paths = [
-            ("msvc-2022", r"C:\Program Files\Microsoft Visual Studio\2022"),
-            ("msvc-2019", r"C:\Program Files (x86)\Microsoft Visual Studio\2019"),
-        ]
-        for label, path in vs_paths:
-            if os.path.isdir(path):
-                info["build_toolchain"] = label
-                break
+        sample_exe = get_test_exe_path(repo_root, "sipXportLib", config)
+        info["build_toolchain"] = detect_msvc_from_exe(sample_exe)
+
     else:
         try:
             gcc_out = subprocess.check_output(
@@ -698,7 +742,7 @@ def main():
     all_passed = print_summary(project_results)
 
     # Build and write JSON
-    host_info = get_host_info()
+    host_info = get_host_info(repo_root, args.config)
     git_info = get_git_info()
     json_output = build_json_output(
         project_results, host_info, git_info, date_label, time_label
@@ -720,6 +764,10 @@ def main():
     minutes = int(elapsed // 60)
     seconds = int(elapsed % 60)
     print("Total time: %d:%02d (%d seconds)" % (minutes, seconds, int(elapsed)))
+
+    if IS_WINDOWS and host_info["build_toolchain"] in ("", "msvc-future"):
+        print("WARNING: could not map MSVC linker version to a year label.")
+        print("WARNING: build_toolchain = '%s' - update detect_msvc_from_exe." % host_info["build_toolchain"])
 
     # Exit with non-zero if any tests failed
     return 0 if all_passed else 1
