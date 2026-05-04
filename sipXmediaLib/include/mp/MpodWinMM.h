@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -142,6 +142,9 @@ public:
      /// @brief Inquire if the windows device is valid
    inline UtlBoolean isDeviceValid();
 
+   /// @brief Inquire if the device is using the fallback MMTimer
+   inline UtlBoolean isUsingFallbackTimer() const;
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -264,6 +267,11 @@ private:
 UtlBoolean MpodWinMM::isDeviceValid()
 {
    return mWinMMDeviceId >= 0;
+}
+
+UtlBoolean MpodWinMM::isUsingFallbackTimer() const
+{
+    return (mpTickerTimer != NULL);
 }
 
 #endif  // _MpodWinMM_h_
