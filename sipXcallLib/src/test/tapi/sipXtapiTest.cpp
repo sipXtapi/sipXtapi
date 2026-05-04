@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -138,7 +138,7 @@ void sipXtapiTestSuite::setUp()
 
     if (g_hInst4 == NULL)
     {
-        sipxInitialize(&g_hInst4, 12070, 12070, 12071, 12050, 32, HINST4_ADDRESS, "127.0.0.1, false, NULL, NULL, NULL, true, INTERNAL_SAMPLE_RATE, DEVICE_SAMPLE_RATE") ;
+        sipxInitialize(&g_hInst4, 12070, 12070, 12071, 12050, 32, HINST4_ADDRESS, "127.0.0.1", false, NULL, NULL, NULL, true, INTERNAL_SAMPLE_RATE, DEVICE_SAMPLE_RATE) ;
         sipxConfigSetConnectionIdleTimeout(g_hInst4, 7) ;
     }
 
