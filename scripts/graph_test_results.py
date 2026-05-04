@@ -86,6 +86,11 @@ def parse_args():
         help="Minimum sum of 'ran' across all projects for a run to be"
              " considered complete. Default: %d" % DEFAULT_MIN_TOTAL_RAN
     )
+    p.add_argument(
+        "--hide-hostname", action="store_true",
+        help="Omit hostname from legend labels (still shown on hover)."
+             " Useful for CI runners with random hostnames."
+    )
     return p.parse_args()
 
 
@@ -169,17 +174,19 @@ def normalize_toolchain(raw):
     return m.group(1)
 
 
-def series_label(summary):
-    host = summary.get("hostname") or "unknown"
+def series_label(summary, show_hostname=True):
     distro = summary.get("hostdistro") or "unknown"
     toolchain = normalize_toolchain(summary.get("build_toolchain"))
-    return "%s (%s) [%s]" % (host, distro, toolchain)
+    if show_hostname:
+        host = summary.get("hostname") or "unknown"
+        return "%s (%s) [%s]" % (host, distro, toolchain)
+    return "%s [%s]" % (distro, toolchain)
 
 
-def group_by_series(summaries):
+def group_by_series(summaries, show_hostname=True):
     groups = defaultdict(list)
     for s in summaries:
-        groups[series_label(s)].append(s)
+        groups[series_label(s, show_hostname)].append(s)
     for label in groups:
         groups[label].sort(key=lambda s: s["_datetime"])
     return dict(groups)
@@ -191,6 +198,26 @@ def _hsv_family(hue):
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
         return "rgb(%d,%d,%d)" % (int(r * 255), int(g * 255), int(b * 255))
     return (rgb(hue, 0.25, 0.98), rgb(hue, 0.65, 0.75), rgb(hue, 0.85, 0.45))
+
+
+def _rgba(rgb_str, alpha):
+    inside = rgb_str[rgb_str.index("(") + 1:rgb_str.rindex(")")]
+    return "rgba(%s,%g)" % (inside, alpha)
+
+
+def _integer_ticks(values, target_count=6):
+    if not values:
+        return [0, 1]
+    vmax = max(values)
+    if vmax <= 0:
+        return [0, 1]
+    if vmax < target_count:
+        return list(range(0, vmax + 1))
+    step = max(1, vmax // (target_count - 1))
+    ticks = list(range(0, vmax + 1, step))
+    if ticks[-1] < vmax:
+        ticks.append(vmax)
+    return ticks
 
 
 def assign_platform_colors(platform_labels):
@@ -289,6 +316,15 @@ def build_project_figure(project, grouped, color_map):
     hangs_data = _project_values(grouped, project, "hangs", include_hover=True)
     aborts_data = _project_values(grouped, project, "aborts", include_hover=True)
 
+    top_values = []
+    for label in ran_data:
+        top_values.extend(ran_data[label][1])
+    bottom_values = []
+    for label in failed_data:
+        bottom_values.extend(failed_data[label][1])
+        bottom_values.extend(hangs_data[label][1])
+        bottom_values.extend(aborts_data[label][1])
+
     for label in sorted(grouped.keys()):
         xs_f, ys_f, hv_f = failed_data[label]
         xs_h, ys_h, hv_h = hangs_data[label]
@@ -309,7 +345,7 @@ def build_project_figure(project, grouped, color_map):
                 showlegend=False,
                 stackgroup=stackgroup,
                 line=dict(width=0.5, color=color_map[label]["failed"]),
-                fillcolor=color_map[label]["failed"],
+                fillcolor=_rgba(color_map[label]["failed"], 0.15),
                 marker=dict(size=3, color=color_map[label]["failed"], opacity=0.7),
                 customdata=hv_f,
                 hovertemplate=hover_tmpl.replace("{stat_label}", "failed"),
@@ -325,7 +361,7 @@ def build_project_figure(project, grouped, color_map):
                 showlegend=False,
                 stackgroup=stackgroup,
                 line=dict(width=0.5, color=color_map[label]["hangs"]),
-                fillcolor=color_map[label]["hangs"],
+                fillcolor=_rgba(color_map[label]["hangs"], 0.15),
                 marker=dict(size=3, color=color_map[label]["hangs"], opacity=0.7),
                 customdata=hv_h,
                 hovertemplate=hover_tmpl.replace("{stat_label}", "hangs"),
@@ -341,7 +377,7 @@ def build_project_figure(project, grouped, color_map):
                 showlegend=False,
                 stackgroup=stackgroup,
                 line=dict(width=0.5, color=color_map[label]["aborts"]),
-                fillcolor=color_map[label]["aborts"],
+                fillcolor=_rgba(color_map[label]["aborts"], 0.15),
                 marker=dict(size=3, color=color_map[label]["aborts"], opacity=0.7),
                 customdata=hv_a,
                 hovertemplate=hover_tmpl.replace("{stat_label}", "aborts"),
@@ -359,11 +395,11 @@ def build_project_figure(project, grouped, color_map):
     fig.update_xaxes(title_text="date", row=2, col=1)
     fig.update_yaxes(title_text="ran", exponentformat="none",
                      tickformat="d",
-                     tickmode="auto", nticks=6,
+                     tickmode="array", tickvals=_integer_ticks(top_values),
                      rangemode="nonnegative", row=1, col=1)
     fig.update_yaxes(title_text="problems", exponentformat="none",
                      tickformat="d",
-                     tickmode="auto", nticks=6,
+                     tickmode="array", tickvals=_integer_ticks(bottom_values),
                      rangemode="nonnegative", row=2, col=1)
 
     return fig
@@ -464,7 +500,7 @@ def main():
               % (args.min_total_ran, skipped), file=sys.stderr)
         return 1
 
-    grouped = group_by_series(complete)
+    grouped = group_by_series(complete, show_hostname=not args.hide_hostname)
     color_map = assign_platform_colors(grouped.keys())
 
     if not os.path.isdir(args.output):
