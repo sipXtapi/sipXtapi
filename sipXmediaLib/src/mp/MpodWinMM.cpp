@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2025 SIPez LLC.  All rights reservied.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reservied.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1071,6 +1071,16 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
                                       
 OsStatus MpodWinMM::switchToMMTimer()
 {
+    // Don't switch to the fallback timer if the device is not enabled.
+    // This prevents the COM callback thread from modifying mpTickerTimer
+    // while enableDevice/disableDevice is in progress on the media task thread.
+    if (!isEnabled())
+    {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MpodWinMM::switchToMMTimer device not enabled, ignoring");
+        return OS_SUCCESS;
+    }
+
     if (mDevHandle)
     {
         OsSysLog::add(FAC_MP, PRI_WARNING,
