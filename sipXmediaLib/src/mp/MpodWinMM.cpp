@@ -884,7 +884,7 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
 
    // If we have a MMTimer, something has gone wrong with the output device
    // So don't touch the wave device if we don't have to.  We could get hung.
-   if (mpTickerTimer)
+   if (mDevHandle == NULL)
    {
    }
 
