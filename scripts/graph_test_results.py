@@ -56,9 +56,9 @@ DEFAULT_SNAPSHOT_LAST_N = 20
 # from PLATFORM_COLOR_FAMILIES which encodes platform identity.
 SNAPSHOT_OUTCOME_COLORS = {
     "pass":  "rgb(99,153,34)",
-    "fail":  "rgb(239,159,39)",
-    "hang":  "rgb(186,117,23)",
-    "abort": "rgb(163,45,45)",
+    "fail":  "rgb(245,200,40)",
+    "hang":  "rgb(210,110,30)",
+    "abort": "rgb(150,30,30)",
     "error": "rgb(136,135,128)",
 }
 
