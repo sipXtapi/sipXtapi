@@ -250,6 +250,11 @@ public:
 
                 if(mpOutputDevice)
                 {
+                    OsSysLog::add(FAC_AUDIO, PRI_INFO,
+                        "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged "
+                        "device not present, switching to MMTimer: %s",
+                        deviceName.data());
+
                     mpOutputDevice->switchToMMTimer();
                 }
             }
@@ -1147,6 +1152,19 @@ OsStatus MpodWinMM::switchToMMTimer()
                     }
                 }
             }
+
+            // Notify that this output device is removed or dead
+            // Do we need to differentiate???
+            if (mpOutputManger)
+            {
+                MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT, getDeviceName());
+                status = mpOutputManger->postNotification(msg);
+            }
+            else
+            {
+                OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "MpodWinMM::switchToMMTimer NULL mpOutputManager, no where to post DEVICE_NOT_PRESENT");
+            }
         }
         else
         {
@@ -1160,18 +1178,6 @@ OsStatus MpodWinMM::switchToMMTimer()
             "MpodWinMM::switchToMMTimer NULL mpTickerNotification");
     }
 
-    // Notify that this output device is removed or dead
-    // Do we need to differentiate???
-    if (mpOutputManger)
-    {
-        MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT, getDeviceName());
-        status = mpOutputManger->postNotification(msg);
-    }
-    else
-    {
-        OsSysLog::add(FAC_MP, PRI_WARNING,
-            "MpodWinMM::switchToMMTimer NULL mpOutputManager, no where to post DEVICE_NOT_PRESENT");
-    }
 
     return(status);
 }
