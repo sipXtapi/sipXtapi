@@ -1008,7 +1008,9 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
                    waveOutClose(mDevHandle);
                    mDevHandle = NULL;
                    mWinMMDeviceId = -1;
-                   // and return OS_FAILED.
+                   switchToMMTimer();
+                   // Have to lie to keep the flowgraph going
+                   status = OS_SUCCESS;
                }
 
                return(status);
@@ -1057,6 +1059,9 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
                    waveOutClose(mDevHandle);
                    mDevHandle = NULL;
                    mWinMMDeviceId = -1;
+                   switchToMMTimer();
+                   // Have to lie to keep the flowgraph going
+                   status = OS_SUCCESS;
                }
            }
            else // res != MMSYSERR_NOERROR
