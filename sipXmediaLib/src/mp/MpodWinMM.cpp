@@ -766,10 +766,13 @@ OsStatus MpodWinMM::disableDevice()
    audioOutCallH = NULL;
 #endif // USE_OLD_VOLUME_REGULATION_CODE ]
 
-   res = waveOutClose(mDevHandle);
-   if ( res != MMSYSERR_NOERROR )
+   if (mDevHandle)
    {
-      showWaveError("waveOutClose", res, -1, __LINE__);
+      res = waveOutClose(mDevHandle);
+      if ( res != MMSYSERR_NOERROR )
+      {
+         showWaveError("waveOutClose", res, -1, __LINE__);
+      }
    }
 
    // Delete the buffers that were allocated in enableDevice()
@@ -806,6 +809,9 @@ OsStatus MpodWinMM::resetDevice()
 
             if (res == MMSYSERR_NODRIVER)
             {
+                mDevHandle = NULL;
+                mWinMMDeviceId = -1;
+
                 // Keep the ticks going until the device is switch to a valid one
                 switchToMMTimer();
             }
@@ -832,10 +838,13 @@ OsStatus MpodWinMM::resetDevice()
         // MMSYSERR_INVALHANDLE will be returned.
         for (i = 0; i < mNumOutBuffers; i++)
         {
-            res = waveOutUnprepareHeader(mDevHandle, &mpWaveHeaders[i], sizeof(WAVEHDR));
-            if (res != MMSYSERR_NOERROR)
+            if (mDevHandle)
             {
-                showWaveError("waveOutUnprepareHeader", res, i, __LINE__);
+                res = waveOutUnprepareHeader(mDevHandle, &mpWaveHeaders[i], sizeof(WAVEHDR));
+                if (res != MMSYSERR_NOERROR)
+                {
+                    showWaveError("waveOutUnprepareHeader", res, i, __LINE__);
+                }
             }
         }
     }
@@ -896,6 +905,9 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
 
           if (res == MMSYSERR_NODRIVER)
           {
+              mDevHandle = NULL;
+              mWinMMDeviceId = -1;
+
               // Keep the ticks going until the device is switch to a valid one
               switchToMMTimer();
           }
@@ -983,6 +995,9 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
 
                if (res == MMSYSERR_NODRIVER)
                {
+                   mDevHandle = NULL;
+                   mWinMMDeviceId = -1;
+
                    // Keep the ticks going until the device is switch to a valid one
                    switchToMMTimer();
                    // Have to lie to keep the flowgraph going
@@ -1026,6 +1041,9 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
                {
                    OsSysLog::add(FAC_MP, PRI_ERR,
                        "waveOutWrite to removed device, need to switch devices or use CPU ticker");
+
+                   mDevHandle = NULL;
+                   mWinMMDeviceId = -1;
 
                    // Keep the ticks going until the device is switch to a valid one
                    switchToMMTimer();
@@ -1099,7 +1117,7 @@ OsStatus MpodWinMM::switchToMMTimer()
 
     if (mDevHandle)
     {
-        OsSysLog::add(FAC_MP, PRI_WARNING,
+        OsSysLog::add(FAC_MP, PRI_ERR,
             "MpodWinMM::switchToMMTimer called with active wave device: %p %d",
             mDevHandle,
             mWinMMDeviceId);
@@ -1187,7 +1205,7 @@ OsStatus MpodWinMM::signal(const intptr_t eventData)
 {
     if (mDevHandle)
     {
-        OsSysLog::add(FAC_MP, PRI_WARNING,
+        OsSysLog::add(FAC_MP, PRI_ERR,
             "MpodWinMM::signal called with active wave device: %p %d, %d buffers used. leaking device??",
             mDevHandle,
             mWinMMDeviceId,
