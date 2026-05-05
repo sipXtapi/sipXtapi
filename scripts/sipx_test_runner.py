@@ -41,6 +41,8 @@ PROJECTS = [
     "sipXtapi",
 ]
 
+SCHEMA_VERSION = 2
+
 # Default timeout per test in seconds
 DEFAULT_TIMEOUT = 90
 
@@ -238,7 +240,7 @@ def run_single_test(exe_path, test_name, work_dir, timeout):
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             cwd=work_dir,
-            start_new_session=True,
+            start_new_session=(not IS_WINDOWS),
         )
         try:
             stdout_bytes, _ = proc.communicate(timeout=timeout)
@@ -341,6 +343,7 @@ def run_project_tests(
 
     proj_result = {
         "testFailures": {},
+        "testCounts": {},
         "ran": 0,
         "passed": 0,
         "failed": 0,
@@ -392,6 +395,15 @@ def run_project_tests(
         sys.stdout.flush()
 
         test_result = run_single_test(exe_path, test_name, work_dir, timeout)
+
+        # Record per-test counts for every test that ran, regardless of
+        # outcome.  For hangs/aborts the succeeded-line never appeared so
+        # the values are [0, 0].  For success-with-no-summary-line the
+        # values mirror the synthesized [1, 1] used in the rollups.
+        proj_result["testCounts"][test_name] = [
+            test_result["passed"],
+            test_result["ran"],
+        ]
 
         outcome = test_result["outcome"]
         if outcome not in ("hangs", "aborts"):
@@ -554,6 +566,7 @@ def get_git_info():
 def build_json_output(project_results, host_info, git_info, date_label, time_label):
     """Build the JSON output dict matching test_summary_to_json.sh schema."""
     output = {
+        "schema_version": SCHEMA_VERSION,
         "builddate": date_label,
         "buildtime": time_label,
         "hostname": host_info["hostname"],
