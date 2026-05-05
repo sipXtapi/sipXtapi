@@ -12,11 +12,17 @@
 #   Top:    one line per platform showing the count of test points run.
 #   Bottom: stacked areas per platform showing failed / hangs / aborts.
 #
-# An index.html links to all project pages.
+# A flakiness_snapshot.html page summarizes the most recent N runs per
+# platform, showing tests with non-pass outcomes as stacked horizontal
+# bars (pass / fail / hang / abort) plus a sortable summary table.
+# Always-passing tests are filtered out.
+#
+# An index.html links to the snapshot page and all project pages.
 #
 # Usage:
 #   python3 graph_test_results.py [--input DIR ...] [--output DIR]
 #                                 [--recursive] [--min-total-ran N]
+#                                 [--snapshot-last-n-runs N]
 #
 
 import argparse
@@ -44,6 +50,19 @@ CANONICAL_PROJECTS = [
 ]
 
 DEFAULT_MIN_TOTAL_RAN = 10000
+DEFAULT_SNAPSHOT_LAST_N = 20
+
+# Outcome palette for the flakiness snapshot bars. Categorical, distinct
+# from PLATFORM_COLOR_FAMILIES which encodes platform identity.
+SNAPSHOT_OUTCOME_COLORS = {
+    "pass":  "rgb(99,153,34)",
+    "fail":  "rgb(239,159,39)",
+    "hang":  "rgb(186,117,23)",
+    "abort": "rgb(163,45,45)",
+    "error": "rgb(136,135,128)",
+}
+
+SNAPSHOT_OUTCOME_ORDER = ["pass", "fail", "hang", "abort", "error"]
 
 # Predefined color families. Each family has three shades, lightest to
 # darkest, used for failed / hangs / aborts respectively. The middle
@@ -90,6 +109,12 @@ def parse_args():
         "--hide-hostname", action="store_true",
         help="Omit hostname from legend labels (still shown on hover)."
              " Useful for CI runners with random hostnames."
+    )
+    p.add_argument(
+        "--snapshot-last-n-runs", type=int, default=DEFAULT_SNAPSHOT_LAST_N,
+        help="Number of most recent runs per platform to include in the"
+             " flakiness snapshot page. Default: %d"
+             % DEFAULT_SNAPSHOT_LAST_N
     )
     return p.parse_args()
 
@@ -143,6 +168,7 @@ def load_summary(path):
 
     data["_datetime"] = dt
     data["_path"] = path
+    data["_schema_version"] = data.get("schema_version", 1)
     return data
 
 
@@ -416,6 +442,368 @@ def write_project_html(fig, outdir, project):
     return out_path
 
 
+def _classify_failure_outcome(reason):
+    # testFailures values are short strings like "hangs", "aborts", or
+    # a free-form failure summary.  Normalize to one of our outcome keys.
+    if reason is None:
+        return "fail"
+    s = str(reason).strip().lower()
+    if s == "hangs" or s == "hang":
+        return "hang"
+    if s == "aborts" or s == "abort":
+        return "abort"
+    if s == "error" or s.startswith("error"):
+        return "error"
+    return "fail"
+
+
+def _run_test_universe(summary):
+    # Returns a set of "ClassName::method" names attempted in this run.
+    # For schema_version >= 2, this is exactly testCounts.keys() unioned
+    # across all projects.  For schema_version 1, returns None to signal
+    # "unknown" so the caller can fall back to the cross-run union.
+    if summary.get("_schema_version", 1) < 2:
+        return None
+    universe = set()
+    projects = summary.get("projects", {})
+    for proj in projects.values():
+        if not isinstance(proj, dict):
+            continue
+        counts = proj.get("testCounts")
+        if isinstance(counts, dict):
+            universe.update(counts.keys())
+    return universe
+
+
+def _last_n_runs_per_platform(grouped, last_n):
+    # grouped is already sorted ascending by datetime per platform.
+    out = {}
+    for label, runs in grouped.items():
+        if last_n > 0 and len(runs) > last_n:
+            out[label] = runs[-last_n:]
+        else:
+            out[label] = list(runs)
+    return out
+
+
+def aggregate_flakiness(runs):
+    # Returns a list of dicts, one per test that was not always-pass:
+    #   { "test": str, "pass": int, "fail": int, "hang": int,
+    #     "abort": int, "error": int, "total": int, "non_pass": int,
+    #     "flake_score": float, "last_commit": str, "last_dirty": bool,
+    #     "last_outcome": str }
+    # last_* fields describe the most recent non-pass occurrence; if the
+    # test has only passes (which can't happen here since those are
+    # filtered out), they describe the most recent run.
+    if not runs:
+        return []
+
+    # Build a per-run failure map and the per-run universe (what was
+    # attempted).  Also track the union of names ever seen, to use as a
+    # fallback universe for v1 runs.
+    seen_universe = set()
+    per_run = []
+    for s in runs:
+        failures = {}
+        projects = s.get("projects", {})
+        for proj in projects.values():
+            if not isinstance(proj, dict):
+                continue
+            tf = proj.get("testFailures")
+            if isinstance(tf, dict):
+                for name, reason in tf.items():
+                    failures[name] = _classify_failure_outcome(reason)
+            counts = proj.get("testCounts")
+            if isinstance(counts, dict):
+                seen_universe.update(counts.keys())
+        seen_universe.update(failures.keys())
+        run_universe = _run_test_universe(s)
+        per_run.append((s, failures, run_universe))
+
+    # Tally per test.  For each run, every test in the run's universe
+    # gets either an outcome from failures or "pass".  v1 runs use the
+    # union universe as a (best-effort) fallback.
+    tally = {}
+    last_info = {}
+    for s, failures, universe in per_run:
+        if universe is None:
+            universe = seen_universe
+        for name in universe:
+            outcome = failures.get(name, "pass")
+            row = tally.setdefault(name, {
+                "pass": 0, "fail": 0, "hang": 0, "abort": 0, "error": 0,
+            })
+            row[outcome] = row.get(outcome, 0) + 1
+            if outcome != "pass":
+                last_info[name] = {
+                    "commit": s.get("commit") or "",
+                    "dirty": bool(s.get("dirty")),
+                    "outcome": outcome,
+                    "datetime": s["_datetime"],
+                }
+
+    rows = []
+    for name, counts in tally.items():
+        non_pass = (counts["fail"] + counts["hang"]
+                    + counts["abort"] + counts["error"])
+        if non_pass == 0:
+            continue
+        total = counts["pass"] + non_pass
+        flake = (min(counts["pass"], non_pass) / float(total)
+                 if total else 0.0)
+        info = last_info.get(name, {
+            "commit": "", "dirty": False, "outcome": "", "datetime": None,
+        })
+        rows.append({
+            "test": name,
+            "pass": counts["pass"],
+            "fail": counts["fail"],
+            "hang": counts["hang"],
+            "abort": counts["abort"],
+            "error": counts["error"],
+            "non_pass": non_pass,
+            "total": total,
+            "flake_score": flake,
+            "last_commit": info["commit"],
+            "last_dirty": info["dirty"],
+            "last_outcome": info["outcome"],
+        })
+
+    rows.sort(key=lambda r: (-r["non_pass"], r["pass"], r["test"]))
+    return rows
+
+
+def build_flakiness_figure(rows, platform_label, last_n):
+    # Stacked horizontal bars, one row per test, segments per outcome.
+    fig = go.Figure()
+
+    if not rows:
+        fig.update_layout(
+            title="%s -- last %d runs (no failing tests)"
+                  % (platform_label, last_n),
+            height=200,
+        )
+        return fig
+
+    # Plotly bars draw top-to-bottom in reverse y order.  We want the
+    # worst test at the top, so reverse the sorted list for plotting.
+    plot_rows = list(reversed(rows))
+    test_names = [r["test"] for r in plot_rows]
+
+    for outcome in SNAPSHOT_OUTCOME_ORDER:
+        values = [r[outcome] for r in plot_rows]
+        if not any(v > 0 for v in values):
+            continue
+        custom = [[r["last_commit"],
+                   "yes" if r["last_dirty"] else "no",
+                   r["total"]] for r in plot_rows]
+        fig.add_trace(go.Bar(
+            y=test_names,
+            x=values,
+            name=outcome,
+            orientation="h",
+            marker=dict(color=SNAPSHOT_OUTCOME_COLORS[outcome]),
+            customdata=custom,
+            hovertemplate=(
+                "<b>%{y}</b><br>"
+                + outcome + ": %{x}<br>"
+                "total runs: %{customdata[2]}<br>"
+                "last non-pass commit: %{customdata[0]}<br>"
+                "last non-pass dirty: %{customdata[1]}<extra></extra>"
+            ),
+        ))
+
+    height = max(220, 28 * len(plot_rows) + 140)
+    fig.update_layout(
+        title="%s -- last %d runs" % (platform_label, last_n),
+        barmode="stack",
+        height=height,
+        margin=dict(l=320, r=40, t=60, b=40),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02,
+                    xanchor="right", x=1),
+        hoverlabel=dict(font=dict(size=11)),
+    )
+    fig.update_xaxes(title_text="run count", rangemode="nonnegative",
+                     tickformat="d")
+    fig.update_yaxes(automargin=True, tickfont=dict(size=10))
+    return fig
+
+
+def _render_summary_table_html(rows):
+    # Sortable HTML table built with vanilla JS.  Columns match the
+    # mockup: test, pass, fail, hang, abort, error, total, flake_score.
+    if not rows:
+        return ("<p style='color:#888;font-style:italic'>"
+                "No tests with non-pass outcomes in this window."
+                "</p>")
+    headers = [
+        ("test",         "test"),
+        ("pass",         "pass"),
+        ("fail",         "fail"),
+        ("hang",         "hang"),
+        ("abort",        "abort"),
+        ("error",        "err"),
+        ("total",        "total"),
+        ("flake_score",  "flake"),
+    ]
+    html = []
+    html.append("<table class='snapshot-table'>")
+    html.append("<thead><tr>")
+    for key, label in headers:
+        html.append("<th data-key='%s'>%s</th>" % (key, label))
+    html.append("</tr></thead><tbody>")
+    for r in rows:
+        html.append("<tr>")
+        html.append("<td class='mono'>%s</td>" % r["test"])
+        html.append("<td class='num'>%d</td>" % r["pass"])
+        html.append("<td class='num'>%d</td>" % r["fail"])
+        html.append("<td class='num'>%d</td>" % r["hang"])
+        html.append("<td class='num'>%d</td>" % r["abort"])
+        html.append("<td class='num'>%d</td>" % r["error"])
+        html.append("<td class='num'>%d</td>" % r["total"])
+        html.append("<td class='num'>%.2f</td>" % r["flake_score"])
+        html.append("</tr>")
+    html.append("</tbody></table>")
+    return "\n".join(html)
+
+
+SNAPSHOT_TABLE_SORT_JS = """
+<script>
+(function () {
+  var tables = document.querySelectorAll('table.snapshot-table');
+  tables.forEach(function (tbl) {
+    var ths = tbl.querySelectorAll('th[data-key]');
+    var tbody = tbl.querySelector('tbody');
+    var state = { key: null, desc: true };
+    ths.forEach(function (th) {
+      th.style.cursor = 'pointer';
+      th.addEventListener('click', function () {
+        var key = th.getAttribute('data-key');
+        if (state.key === key) { state.desc = !state.desc; }
+        else { state.key = key; state.desc = (key !== 'test'); }
+        var idx = Array.prototype.indexOf.call(ths, th);
+        var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+        rows.sort(function (a, b) {
+          var ca = a.cells[idx].textContent.trim();
+          var cb = b.cells[idx].textContent.trim();
+          var na = parseFloat(ca), nb = parseFloat(cb);
+          if (!isNaN(na) && !isNaN(nb)) {
+            return state.desc ? nb - na : na - nb;
+          }
+          return state.desc ? cb.localeCompare(ca) : ca.localeCompare(cb);
+        });
+        rows.forEach(function (r) { tbody.appendChild(r); });
+      });
+    });
+  });
+})();
+</script>
+"""
+
+
+def write_flakiness_snapshot_html(outdir, grouped, last_n):
+    # Build the figure + table for each platform, stack them on one
+    # page.  Returns the output path or None if there is no data.
+    last_runs = _last_n_runs_per_platform(grouped, last_n)
+    sections = []
+    any_data = False
+    chart_count = 0
+    for label in sorted(last_runs.keys()):
+        runs = last_runs[label]
+        if not runs:
+            continue
+        rows = aggregate_flakiness(runs)
+        if not rows:
+            sections.append(
+                ("<section>"
+                 "<h2>%s</h2>"
+                 "<p style='color:#666'>last %d runs: all tests passing</p>"
+                 "</section>") % (label, len(runs))
+            )
+            continue
+        any_data = True
+        fig = build_flakiness_figure(rows, label, len(runs))
+        # First chart loads plotly.js from CDN; subsequent charts on the
+        # same page reuse the loaded library.
+        plotlyjs_arg = "cdn" if chart_count == 0 else False
+        chart_html = plotly.offline.plot(
+            fig,
+            include_plotlyjs=plotlyjs_arg,
+            output_type="div",
+        )
+        chart_count += 1
+        table_html = _render_summary_table_html(rows)
+        section = (
+            "<section>"
+            "<h2>%s</h2>"
+            "<p class='meta-line'>last %d runs &middot; "
+            "%d tests with non-pass outcomes</p>"
+            "%s"
+            "<details open><summary>Summary table "
+            "(click headers to sort)</summary>"
+            "%s"
+            "</details>"
+            "</section>"
+        ) % (label, len(runs), len(rows), chart_html, table_html)
+        sections.append(section)
+
+    rows_html = []
+    rows_html.append("<!doctype html>")
+    rows_html.append("<html><head><meta charset='ascii'>")
+    rows_html.append("<title>sipX flakiness snapshot</title>")
+    rows_html.append("<style>")
+    rows_html.append("body{font-family:sans-serif;max-width:1100px;"
+                     "margin:2em auto;padding:0 1em}")
+    rows_html.append("h1{border-bottom:1px solid #ccc}")
+    rows_html.append("h2{margin-top:2em;border-bottom:1px solid #eee;"
+                     "padding-bottom:0.2em}")
+    rows_html.append(".meta-line{color:#666;font-size:0.9em;"
+                     "margin:0 0 0.6em}")
+    rows_html.append("section{margin-bottom:2.5em}")
+    rows_html.append("details{margin-top:1em}")
+    rows_html.append("summary{cursor:pointer;color:#444;font-size:0.9em}")
+    rows_html.append("table.snapshot-table{border-collapse:collapse;"
+                     "width:100%;font-size:13px;margin-top:0.6em;"
+                     "table-layout:auto}")
+    rows_html.append("table.snapshot-table th{background:#f4f4f4;"
+                     "text-align:left;padding:6px 10px;"
+                     "border-bottom:1px solid #ddd}")
+    rows_html.append("table.snapshot-table td{padding:5px 10px;"
+                     "border-bottom:1px solid #f0f0f0}")
+    rows_html.append("table.snapshot-table td.mono{font-family:monospace;"
+                     "font-size:12px;white-space:nowrap;"
+                     "max-width:480px;overflow:hidden;"
+                     "text-overflow:ellipsis}")
+    rows_html.append("table.snapshot-table td.num{text-align:right;"
+                     "font-variant-numeric:tabular-nums}")
+    rows_html.append("</style>")
+    rows_html.append("</head><body>")
+    rows_html.append("<h1>sipX flakiness snapshot</h1>")
+    rows_html.append("<p><a href='index.html'>&larr; back to index</a></p>")
+    if not any_data and not sections:
+        rows_html.append("<p>No runs available.</p>")
+    elif not any_data:
+        rows_html.append("<p>All tests passing across all platforms in"
+                         " the snapshot window.</p>")
+        rows_html.extend(sections)
+    else:
+        rows_html.append("<p style='color:#666;font-size:0.9em'>"
+                         "Showing tests with at least one non-pass"
+                         " outcome in the most recent runs per platform."
+                         " Click table headers to sort.</p>")
+        rows_html.extend(sections)
+    rows_html.append(SNAPSHOT_TABLE_SORT_JS)
+    rows_html.append("<p style='color:#888;font-size:0.85em'>"
+                     "Generated %s</p>"
+                     % datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+    rows_html.append("</body></html>")
+
+    out_path = os.path.join(outdir, "flakiness_snapshot.html")
+    with open(out_path, "w") as f:
+        f.write("\n".join(rows_html))
+    return out_path
+
+
 def write_index(outdir, projects, platform_labels, run_count,
                 date_range, skipped_count):
     if date_range[0] and date_range[1]:
@@ -455,6 +843,15 @@ def write_index(outdir, projects, platform_labels, run_count,
         rows.append("(none)")
     rows.append("</dd>")
     rows.append("</dl></div>")
+
+    rows.append("<h2>Reports</h2>")
+    rows.append("<ul>")
+    rows.append("<li><a href='flakiness_snapshot.html'>"
+                "Current flakiness snapshot</a> "
+                "<span style='color:#888;font-size:0.85em'>"
+                "(tests with non-pass outcomes in the most recent runs)"
+                "</span></li>")
+    rows.append("</ul>")
 
     rows.append("<h2>Project graphs</h2>")
     rows.append("<ul>")
@@ -510,6 +907,11 @@ def main():
         fig = build_project_figure(project, grouped, color_map)
         out_path = write_project_html(fig, args.output, project)
         print("wrote %s" % out_path)
+
+    snapshot_path = write_flakiness_snapshot_html(
+        args.output, grouped, args.snapshot_last_n_runs,
+    )
+    print("wrote %s" % snapshot_path)
 
     all_dts = [s["_datetime"] for s in complete]
     date_range = (min(all_dts), max(all_dts))
