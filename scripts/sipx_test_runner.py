@@ -105,8 +105,10 @@ def detect_msvc_from_exe(exe_path):
             minor_n = minor_byte[0]
             if major_n != 14:
                 return ""
-            if minor_n >= 40:
+            if minor_n >= 60:
                 return "msvc-future"
+            if minor_n >= 50:
+                return "msvc-2026"
             if minor_n >= 30:
                 return "msvc-2022"
             if minor_n >= 20:
