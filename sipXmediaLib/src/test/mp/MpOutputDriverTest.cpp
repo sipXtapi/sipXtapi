@@ -113,6 +113,9 @@ class MpOutputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testEnableDisableFast);
    CPPUNIT_TEST(testTickerNotification);
    CPPUNIT_TEST(testEnableAfterSwitchToMMTimer);
+   CPPUNIT_TEST(testMultipleEnableDisableCyclesAfterFallback);
+   CPPUNIT_TEST(testSwitchToMMTimerWhenDisabled);
+   CPPUNIT_TEST(testPushFrameDuringFallback);
    CPPUNIT_TEST(measureJitter);
    CPPUNIT_TEST_SUITE_END();
 
@@ -309,6 +312,211 @@ public:
    #else
        // This test is Windows-specific
        printf("Skipping testEnableAfterSwitchToMMTimer on non-Windows platform\n");
+   #endif
+   }
+
+void testMultipleEnableDisableCyclesAfterFallback()
+   {
+   #ifdef WIN32
+      // Test #4: Verify enable->fallback->disable->enable->disable cycles
+      // do not get stuck in fallback mode. Direct regression for the
+      // "no audio after reconnect" bug (Change 5: mpTickerTimer leak across
+      // disable/enable). Each successful enable must clear the fallback
+      // timer before opening the wave device.
+
+      CallbackUserData userData;
+      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+
+      if (!driver.isDeviceValid())
+      {
+         printf("No output device available, skipping testMultipleEnableDisableCyclesAfterFallback\n");
+         return;
+      }
+
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+
+      const int CYCLES = 5;
+      for (int cycle = 0; cycle < CYCLES; cycle++)
+      {
+         UtlString cycleMsg;
+         cycleMsg.appendFormat("cycle: %d", cycle);
+
+         // Enable -- must clear any leftover fallback timer from the
+         // previous cycle.
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(cycleMsg.data(), OS_SUCCESS,
+            driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                                TEST_SAMPLES_PER_SECOND,
+                                0, notificationCallback));
+         CPPUNIT_ASSERT_MESSAGE(cycleMsg.data(), driver.isEnabled());
+         CPPUNIT_ASSERT_MESSAGE(cycleMsg.data(),
+                                !driver.isUsingFallbackTimer());
+
+         OsTask::delay(50);
+
+         // Force the fallback path. This is what would happen on a real
+         // USB unplug.
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(cycleMsg.data(), OS_SUCCESS,
+                                      driver.switchToMMTimer());
+         CPPUNIT_ASSERT_MESSAGE(cycleMsg.data(),
+                                driver.isUsingFallbackTimer());
+
+         OsTask::delay(50);
+
+         driver.disableDevice();
+         CPPUNIT_ASSERT_MESSAGE(cycleMsg.data(), !driver.isEnabled());
+      }
+
+      // After the loop, prove the next enable still works cleanly with
+      // no leftover fallback state.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+   #else
+      printf("Skipping testMultipleEnableDisableCyclesAfterFallback on non-Windows platform\n");
+   #endif
+   }
+
+   void testSwitchToMMTimerWhenDisabled()
+   {
+   #ifdef WIN32
+      // Test #5: Verify the isEnabled() guard at the top of
+      // switchToMMTimer (Change 5). Calling switchToMMTimer on a disabled
+      // device must not create a fallback timer and must not crash. This
+      // simulates a COM callback firing during or after disableDevice.
+
+      CallbackUserData userData;
+      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+
+      if (!driver.isDeviceValid())
+      {
+         printf("No output device available, skipping testSwitchToMMTimerWhenDisabled\n");
+         return;
+      }
+
+      // Case A: never enabled.
+      CPPUNIT_ASSERT(!driver.isEnabled());
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+      // Should be a no-op. Return value is OS_SUCCESS by current contract.
+      driver.switchToMMTimer();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+      CPPUNIT_ASSERT_MESSAGE("switchToMMTimer must not create a timer when device was never enabled",
+                             !driver.isUsingFallbackTimer());
+
+      // Case B: enabled then cleanly disabled.
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+      OsTask::delay(50);
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+
+      // Now the late COM-callback case.
+      driver.switchToMMTimer();
+      CPPUNIT_ASSERT_MESSAGE("switchToMMTimer must not create a timer after disableDevice",
+                             !driver.isUsingFallbackTimer());
+      CPPUNIT_ASSERT(!driver.isEnabled());
+
+      // Case C: re-enable must still work after the spurious switchToMMTimer.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+   #else
+      printf("Skipping testSwitchToMMTimerWhenDisabled on non-Windows platform\n");
+   #endif
+   }
+
+   void testPushFrameDuringFallback()
+   {
+   #ifdef WIN32
+      // Test #6: pushFrame must succeed and must not crash while the
+      // device is in fallback mode (mDevHandle is NULL). Direct regression
+      // for Change 7 (pushFrame check on mDevHandle instead of
+      // mpTickerTimer) and Change 3 (mDevHandle reliably NULL after
+      // failure). Verifies internalPushFrame's silent-discard path also
+      // returns success so the flowgraph keeps ticking.
+
+      CallbackUserData userData;
+      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+
+      if (!driver.isDeviceValid())
+      {
+         printf("No output device available, skipping testPushFrameDuringFallback\n");
+         return;
+      }
+
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+
+      // Build a small buffer of audio data the test will push.
+      const int TEST_PUSH_FRAMES = 50;
+      const int samplesPerFrame = TEST_SAMPLES_PER_FRAME_SIZE;
+      sampleDataSz = TEST_PUSH_FRAMES * samplesPerFrame;
+      sampleData = new MpAudioSample[sampleDataSz];
+      calculateSampleData(440, sampleData, sampleDataSz, samplesPerFrame,
+                          TEST_SAMPLES_PER_SECOND);
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(samplesPerFrame, TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+
+      // Force fallback mode. After this, mDevHandle should be NULL and
+      // pushFrame must follow the silent-discard path.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.switchToMMTimer());
+      CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+
+      // Push frames directly from this thread (not via the callback), to
+      // exercise the pushFrame path independently of the fallback timer
+      // tick rate.
+      MpFrameTime t = 0;
+      for (int i = 0; i < TEST_PUSH_FRAMES; i++)
+      {
+         UtlString frameMsg;
+         frameMsg.appendFormat("pushFrame iteration: %d", i);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(frameMsg.data(), OS_SUCCESS,
+            driver.pushFrame(samplesPerFrame,
+                             sampleData + samplesPerFrame * i,
+                             t));
+         t += samplesPerFrame;
+      }
+
+      // Also push a zero-length frame -- another path through pushFrame.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.pushFrame(0, NULL, t));
+
+      // Disable while in fallback mode -- must not crash even though
+      // mDevHandle is NULL.
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+
+      delete[] sampleData;
+      sampleData = NULL;
+      sampleDataSz = 0;
+   #else
+      printf("Skipping testPushFrameDuringFallback on non-Windows platform\n");
    #endif
    }
 

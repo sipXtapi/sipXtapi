@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2019 SIPez LLC.  All rights reserved. 
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
 #include <os/OsSysLog.h>
+#include <os/OsMsgDispatcher.h>
+#include <mp/MpResNotificationMsg.h>
+
 
 #define TEST_SAMPLES_PER_FRAME_SIZE   80    ///< in samples
 #define BUFFER_NUM                    500
@@ -110,6 +113,7 @@ class MpOutputDeviceManagerTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testEnableDisable);
    CPPUNIT_TEST(testEnableDisableFast);
    CPPUNIT_TEST(testMixing);
+   CPPUNIT_TEST(testNotificationDispatchOnFallback);
    CPPUNIT_TEST_SUITE_END();
 
 
@@ -343,6 +347,128 @@ public:
 
          CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &device);
       }
+   }
+
+   void testNotificationDispatchOnFallback()
+   {
+   #ifdef WIN32
+      // Test #10: Verify the manager dispatches exactly one
+      // MPRNM_OUTPUT_DEVICE_NOT_PRESENT notification when the driver
+      // enters fallback mode (Change 2 regression -- spurious
+      // notifications from redundant switchToMMTimer calls). Also
+      // verifies that after removeNotificationDispatcher, no further
+      // notifications reach the dispatcher.
+
+      MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
+                                          TEST_SAMPLES_PER_SECOND,
+                                          TEST_MIXER_BUFFER_LENGTH);
+
+      // Driver must be MpodWinMM specifically -- only it has the COM /
+      // wave-failure fallback machinery being tested. The manager
+      // pointer is required: switchToMMTimer routes notifications
+      // through the manager's dispatcher list, so a driver constructed
+      // with a NULL manager will silently drop the notification.
+      MpodWinMM driver(MpodWinMM::getDefaultDeviceName(), &deviceManager);
+
+      if (!driver.isDeviceValid())
+      {
+         printf("No output device available, skipping testNotificationDispatchOnFallback\n");
+         return;
+      }
+
+      MpOutputDeviceHandle deviceId = deviceManager.addDevice(&driver);
+      CPPUNIT_ASSERT(deviceId > 0);
+
+      // Hook up our dispatcher BEFORE enabling so we see all events.
+      OsMsgDispatcher notfDispatcher;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         deviceManager.addNotificationDispatcher(&notfDispatcher));
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, deviceManager.enableDevice(deviceId));
+      CPPUNIT_ASSERT(deviceManager.isDeviceEnabled(deviceId));
+
+      // Drain anything the manager itself might have posted at enable.
+      OsMsg* pMsg = NULL;
+      while (notfDispatcher.numMsgs() > 0)
+      {
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+            notfDispatcher.receive(pMsg, OsTime(0)));
+         if (pMsg) pMsg->releaseMsg();
+         pMsg = NULL;
+      }
+
+      // Trigger fallback. First call posts the notification.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.switchToMMTimer());
+      CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+
+      // Poll for the notification rather than relying on a fixed delay.
+      // The post may go through a queued path on another thread.
+      const int POLL_MAX_LOOPS = 20;
+      for (int loop = 0;
+           loop < POLL_MAX_LOOPS && notfDispatcher.numMsgs() < 1;
+           loop++)
+      {
+         OsTask::delay(50);
+      }
+
+      // Exactly one DEVICE_NOT_PRESENT notification expected.
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "Expected exactly one notification after first switchToMMTimer",
+         1, notfDispatcher.numMsgs());
+
+      pMsg = NULL;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         notfDispatcher.receive(pMsg, OsTime(100)));
+      CPPUNIT_ASSERT(pMsg != NULL);
+      if (pMsg != NULL)
+      {
+         CPPUNIT_ASSERT_EQUAL((int)OsMsg::MP_RES_NOTF_MSG,
+                              (int)pMsg->getMsgType());
+         CPPUNIT_ASSERT_EQUAL(
+            (int)MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT,
+            (int)pMsg->getMsgSubType());
+         pMsg->releaseMsg();
+         pMsg = NULL;
+      }
+
+      // Redundant switchToMMTimer must NOT post another notification
+      // (Change 2 dedupe). Return value is not asserted: the
+      // implementation may legitimately return non-success to signal
+      // "no-op, already in fallback mode". What matters is the
+      // notification count.
+      driver.switchToMMTimer();
+      OsTask::delay(50);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "Redundant switchToMMTimer must not post a duplicate notification",
+         0, notfDispatcher.numMsgs());
+
+      // Remove the dispatcher. Subsequent activity must not reach it.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         deviceManager.removeNotificationDispatcher(&notfDispatcher));
+
+      // Disable while in fallback. Must not crash. The return value is
+      // not asserted because disabling a device that is in fallback
+      // mode (mDevHandle already NULL per Change 3) may report a
+      // non-success status from the manager layer; that behavior is
+      // out of scope for this test. What matters here is: no
+      // notifications must reach the dispatcher we already removed.
+      OsStatus disableStatus = deviceManager.disableDevice(deviceId);
+      if (disableStatus != OS_SUCCESS)
+      {
+         OsSysLog::add(FAC_MP, PRI_INFO,
+            "testNotificationDispatchOnFallback: disableDevice during "
+            "fallback returned %d (non-success acceptable in this test)",
+            (int)disableStatus);
+      }
+      OsTask::delay(50);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "No notifications must reach a removed dispatcher",
+         0, notfDispatcher.numMsgs());
+
+      CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &driver);
+   #else
+      printf("Skipping testNotificationDispatchOnFallback on non-Windows platform\n");
+   #endif
    }
 
 protected:
