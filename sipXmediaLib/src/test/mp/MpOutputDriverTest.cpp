@@ -116,6 +116,8 @@ class MpOutputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testMultipleEnableDisableCyclesAfterFallback);
    CPPUNIT_TEST(testSwitchToMMTimerWhenDisabled);
    CPPUNIT_TEST(testPushFrameDuringFallback);
+   CPPUNIT_TEST(testRedundantSwitchToMMTimer);
+   CPPUNIT_TEST(testFallbackTimerProducesTicks);
    CPPUNIT_TEST(measureJitter);
    CPPUNIT_TEST_SUITE_END();
 
@@ -253,7 +255,7 @@ public:
 
    void testEnableAfterSwitchToMMTimer()
    {
-   #ifdef WIN32
+#  ifdef WIN32
        CallbackUserData userData;
        OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
    
@@ -309,15 +311,15 @@ public:
        // Clean up
        driver.disableDevice();
        CPPUNIT_ASSERT(!driver.isEnabled());
-   #else
+#  else
        // This test is Windows-specific
        printf("Skipping testEnableAfterSwitchToMMTimer on non-Windows platform\n");
-   #endif
+#  endif
    }
 
 void testMultipleEnableDisableCyclesAfterFallback()
    {
-   #ifdef WIN32
+#  ifdef WIN32
       // Test #4: Verify enable->fallback->disable->enable->disable cycles
       // do not get stuck in fallback mode. Direct regression for the
       // "no audio after reconnect" bug (Change 5: mpTickerTimer leak across
@@ -380,14 +382,14 @@ void testMultipleEnableDisableCyclesAfterFallback()
 
       driver.disableDevice();
       CPPUNIT_ASSERT(!driver.isEnabled());
-   #else
+#  else
       printf("Skipping testMultipleEnableDisableCyclesAfterFallback on non-Windows platform\n");
-   #endif
+#  endif
    }
 
    void testSwitchToMMTimerWhenDisabled()
    {
-   #ifdef WIN32
+#  ifdef WIN32
       // Test #5: Verify the isEnabled() guard at the top of
       // switchToMMTimer (Change 5). Calling switchToMMTimer on a disabled
       // device must not create a fallback timer and must not crash. This
@@ -442,14 +444,14 @@ void testMultipleEnableDisableCyclesAfterFallback()
       CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
       driver.disableDevice();
       CPPUNIT_ASSERT(!driver.isEnabled());
-   #else
+#  else
       printf("Skipping testSwitchToMMTimerWhenDisabled on non-Windows platform\n");
-   #endif
+#  endif
    }
 
    void testPushFrameDuringFallback()
    {
-   #ifdef WIN32
+#  ifdef WIN32
       // Test #6: pushFrame must succeed and must not crash while the
       // device is in fallback mode (mDevHandle is NULL). Direct regression
       // for Change 7 (pushFrame check on mDevHandle instead of
@@ -515,9 +517,143 @@ void testMultipleEnableDisableCyclesAfterFallback()
       delete[] sampleData;
       sampleData = NULL;
       sampleDataSz = 0;
-   #else
+#  else
       printf("Skipping testPushFrameDuringFallback on non-Windows platform\n");
-   #endif
+#  endif
+   }
+
+   void testRedundantSwitchToMMTimer()
+   {
+#  ifdef WIN32
+      // Test #1: Driver-level dedupe across many redundant
+      // switchToMMTimer calls. Test #10 covers N=2 at the manager
+      // level. This covers N>2 and exercises the path where multiple
+      // COM callbacks could fire in rapid succession (e.g. the OS
+      // delivering DEVICE_STATE_NOTPRESENT plus a session disconnect
+      // event for the same physical unplug).
+
+      CallbackUserData userData;
+      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+
+      if (!driver.isDeviceValid())
+      {
+         printf("No output device available, skipping testRedundantSwitchToMMTimer\n");
+         return;
+      }
+
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+
+      OsTask::delay(50);
+
+      // First call must succeed and put us in fallback mode.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.switchToMMTimer());
+      CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+
+      // Hammer it. Each subsequent call must be a safe no-op: must
+      // not crash, must leave isUsingFallbackTimer true, must not
+      // mutate the timer (we cannot directly observe the pointer here,
+      // but #10 verifies no duplicate notification is dispatched).
+      const int REDUNDANT_CALLS = 25;
+      for (int i = 0; i < REDUNDANT_CALLS; i++)
+      {
+         UtlString iterMsg;
+         iterMsg.appendFormat("redundant call: %d", i);
+         // Return value is not asserted -- the implementation may
+         // return non-success on a no-op redundant call (see
+         // testNotificationDispatchOnFallback in MpOutputManagerTest).
+         driver.switchToMMTimer();
+         CPPUNIT_ASSERT_MESSAGE(iterMsg.data(),
+                                driver.isUsingFallbackTimer());
+         CPPUNIT_ASSERT_MESSAGE(iterMsg.data(), driver.isEnabled());
+      }
+
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+#  else
+      printf("Skipping testRedundantSwitchToMMTimer on non-Windows platform\n");
+#  endif
+   }
+
+   void testFallbackTimerProducesTicks()
+   {
+#  ifdef WIN32
+      // Test #2: Prove the fallback timer actually fires after
+      // switchToMMTimer. testEnableAfterSwitchToMMTimer only verifies
+      // isUsingFallbackTimer() is true; it does not verify ticks are
+      // arriving. Without this test, a regression that installs the
+      // timer but fails to start it would silently pass -- and the
+      // flowgraph would hang (no audio, no progress) on a real USB
+      // unplug.
+
+      CallbackUserData userData;
+      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+
+      if (!driver.isDeviceValid())
+      {
+         printf("No output device available, skipping testFallbackTimerProducesTicks\n");
+         return;
+      }
+
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+      // rateIndex is consulted by driverCallback to compute
+      // samplesPerFrame. Anchor it to the 8000 Hz entry.
+      rateIndex = 0;
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+
+      // Let the wave-driver path settle so we know any ticks we count
+      // after switchToMMTimer come from the fallback timer, not from
+      // queued WOM_DONE callbacks still in flight.
+      OsTask::delay(100);
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.switchToMMTimer());
+      CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+
+      // Snapshot the tick count, wait, and confirm progress.
+      int ticksBefore = frameInCallback;
+      const int MEASURE_MS = 500;
+      OsTask::delay(MEASURE_MS);
+      int ticksAfter = frameInCallback;
+      int ticksObserved = ticksAfter - ticksBefore;
+
+      // At TEST_FRAME_RATE per second, expected ticks in MEASURE_MS
+      // is roughly TEST_FRAME_RATE * MEASURE_MS / 1000. We accept a
+      // generous lower bound (>= 25%) to absorb scheduler jitter on
+      // CI hosts. The strict check is: more than zero ticks fired.
+      const int expectedTicks = (TEST_FRAME_RATE * MEASURE_MS) / 1000;
+      const int minAcceptable = expectedTicks / 4;
+      UtlString tickMsg;
+      tickMsg.appendFormat("Fallback timer not producing ticks: "
+                           "observed=%d expected~=%d minAcceptable=%d "
+                           "ticksBefore=%d ticksAfter=%d",
+                           ticksObserved, expectedTicks, minAcceptable,
+                           ticksBefore, ticksAfter);
+      CPPUNIT_ASSERT_MESSAGE(tickMsg.data(),
+                             ticksObserved >= minAcceptable);
+      CPPUNIT_ASSERT_MESSAGE(tickMsg.data(), ticksObserved > 0);
+
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+#  else
+      printf("Skipping testFallbackTimerProducesTicks on non-Windows platform\n");
+#  endif
    }
 
    void measureJitter()
