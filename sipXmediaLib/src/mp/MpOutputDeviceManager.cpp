@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2021 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -628,6 +628,27 @@ OsStatus MpOutputDeviceManager::addNotificationDispatcher(OsMsgDispatcher* notif
 
     if (notifyDispatcher)
     {
+        // Warn if there is already a dispatcher registered. The current
+        // dispatch policy (see getNotificationDispatcher and
+        // postNotification) sends each notification only to the most
+        // recently added dispatcher; earlier dispatchers are silently
+        // shadowed until the new head is removed. A second caller
+        // registering here will quietly suppress notifications to the
+        // first caller, which is almost always a bug at the call site.
+        if (mNotifiers.entries() > 0)
+        {
+            OsMsgDispatcher* shadowed = getNotificationDispatcher();
+            OsSysLog::add(FAC_MP, PRI_WARNING,
+                "MpOutputDeviceManager::addNotificationDispatcher: "
+                "registering dispatcher %p while %d dispatcher(s) "
+                "already registered. New dispatcher will shadow "
+                "previous head %p; previous dispatcher(s) will not "
+                "receive notifications until this one is removed.",
+                notifyDispatcher,
+                (int)mNotifiers.entries(),
+                shadowed);
+        }
+
         mNotifiers.insertAt(0, new UtlVoidPtr(notifyDispatcher));
     }
 
