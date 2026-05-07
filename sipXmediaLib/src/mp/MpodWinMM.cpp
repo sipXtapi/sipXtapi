@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2026 SIPez LLC.  All rights reservied.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -54,6 +54,19 @@
 #  define CBTYPE DWORD_PTR
 #endif
 
+// Comment out the line below (or build with -DWMM_TRACE=1) to enable
+// per-call trace instrumentation. Used during win_device_changes
+// investigation; kept gated for future diagnostics during Changes 9
+// and 10. Remove this and all WMM_TRACE_PRINTF call sites once those
+// changes are complete and stable.
+//#define WMM_TRACE 1
+
+#ifdef WMM_TRACE
+#  define WMM_TRACE_PRINTF(...) do { printf(__VA_ARGS__); fflush(stdout); } while(0)
+#else
+#  define WMM_TRACE_PRINTF(...) ((void)0)
+#endif
+
 // EXTERNAL FUNCTIONS
 extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWnt.cpp
 
@@ -69,6 +82,26 @@ extern HWAVEOUT audioOutCallH;
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+//
+// Convention for mWinMMDeviceId vs mDevHandle:
+//
+//   mDevHandle = NULL          --> no live wave resource (normal when
+//                                  disabled, also set on transient error
+//                                  recovery paths to release the handle).
+//   mWinMMDeviceId = -1         --> this object no longer represents any
+//                                  Windows device. Set only at construction
+//                                  time when the named device is not found.
+//                                  NEVER set this from runtime error paths;
+//                                  doing so makes the device permanently
+//                                  unrecoverable, defeating USB
+//                                  unplug/replug recovery.
+//   mpTickerTimer != NULL      --> in fallback mode due to a wave-API
+//                                  failure or device-removed COM event.
+//                                  enableDevice will reattempt waveOutOpen
+//                                  from the same mWinMMDeviceId on the
+//                                  next enable.
+//
 
 class MpodWinMM::MpWinOutputAudioDeviceNotifier : public IMMNotificationClient
 {
@@ -546,6 +579,8 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
 {
     OsSysLog::add(FAC_MP, PRI_DEBUG,
         "MpodWinMM::enableDevice");
+    WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu enableDevice ENTRY mIsEnabled=%d mDevHandle=%p mWinMMDeviceId=%d mpTickerTimer=%p\n",
+          GetCurrentThreadId(), (int)mIsEnabled, mDevHandle, mWinMMDeviceId, mpTickerTimer);
 
    // If the device is not valid, let the user know it's bad.
    if ( !isDeviceValid() )
@@ -569,6 +604,9 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
        mpTickerTimer = NULL;
    }
 
+   WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu enableDevice past_timer_cleanup mpTickerTimer=%p mDevHandle=%p mWinMMDeviceId=%d\n",
+          GetCurrentThreadId(), mpTickerTimer, mDevHandle, mWinMMDeviceId);
+
    // Set some wave header stat information.
    mSamplesPerFrame = samplesPerFrame;
    mSamplesPerSec = samplesPerSec;
@@ -589,10 +627,17 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    wavFormat.wBitsPerSample = sizeof(MpAudioSample) * 8;
    wavFormat.cbSize = 0;
 
+   WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu enableDevice about_to_waveOutOpen mWinMMDeviceId=%d\n",
+          GetCurrentThreadId(), mWinMMDeviceId);
+
    MMRESULT res = waveOutOpen(&mDevHandle, mWinMMDeviceId, &wavFormat, 
                                (CBTYPE)waveOutCallbackStatic, 
                                (CBTYPE)this, 
                                CALLBACK_FUNCTION);
+
+   WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu enableDevice waveOutOpen_returned res=%d mDevHandle=%p\n",
+          GetCurrentThreadId(), (int)res, mDevHandle);
+
    if( res != MMSYSERR_NOERROR )
    {
       // If waveOutOpen failed, print out the error info,
@@ -600,7 +645,8 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
       showWaveError("MpodWinMM::enableDevice", res, -1, __LINE__);
       waveOutClose(mDevHandle);
       mDevHandle = NULL; // Open didn't work, reset device handle to NULL
-      mWinMMDeviceId = -1; // Make device invalid.
+      // mWinMMDeviceId intentionally NOT cleared (see file header
+      // comment): waveOutOpen failure does not prove the device is gone.
 
       switchToMMTimer();
 
@@ -631,6 +677,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
       // There will be as many pointers as are out buffers, as
       // they're all currently empty.
       UtlVoidPtr* pVoidPtr = (UtlVoidPtr*)mUnusedVPtrList.get();
+
       pVoidPtr->setValue(&mpWaveHeaders[i]);
       mEmptyHeaderList.insert(pVoidPtr);
 
@@ -654,7 +701,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
          showWaveError("waveOutPrepareHeader", res, i, __LINE__);
          waveOutClose(mDevHandle);
          mDevHandle = NULL;
-         mWinMMDeviceId = -1;
+         // mWinMMDeviceId intentionally NOT cleared.
 
          switchToMMTimer();
 
@@ -683,7 +730,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
                     "Error kickstart pushing silent frames!");
       waveOutClose(mDevHandle);
       mDevHandle = NULL;
-      mWinMMDeviceId = -1;
+      // mWinMMDeviceId intentionally NOT cleared.
 
       // and return OS_FAILED.
       return OS_FAILED;
@@ -720,12 +767,18 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    }
 #endif
 
+   WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu enableDevice EXIT(success) mDevHandle=%p mWinMMDeviceId=%d mpTickerTimer=%p\n",
+          GetCurrentThreadId(), mDevHandle, mWinMMDeviceId, mpTickerTimer);
+
    return OS_SUCCESS;
 }
 
 
 OsStatus MpodWinMM::disableDevice()
 {
+   WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu disableDevice ENTRY mIsEnabled=%d mDevHandle=%p mpTickerTimer=%p\n",
+          GetCurrentThreadId(), (int)mIsEnabled, mDevHandle, mpTickerTimer);
+
    OsStatus status = OS_SUCCESS;
    MMRESULT   res;
 
@@ -748,14 +801,20 @@ OsStatus MpodWinMM::disableDevice()
    // since we'll be partially disabled from here on out.
    mIsEnabled = FALSE;
 
-   // Cleanup
-   if ( mDevHandle == NULL )
+   // mDevHandle may be NULL here if the wave device experienced a
+   // failure (NODRIVER, etc.) and was nulled by an error path before
+   // disableDevice was reached. That is NOT a reason to short-circuit
+   // the cleanup -- the wave handle is gone but the buffer-pointer
+   // lists, allocated mpWaveBuffers, and sample-rate state still need
+   // to be reset, otherwise the next enableDevice will fail in the
+   // buffer-allocation loop (mUnusedVPtrList drained empty, NULL deref
+   // on UtlVoidPtr::setValue). resetDevice and the waveOutClose block
+   // below both already handle a NULL handle gracefully.
+   if (mDevHandle == NULL)
    {
-      OsSysLog::add(FAC_MP, PRI_ERR, 
-                    "During windows device driver disable, "
-                    "device handle was invalid while in enabled state!");
-      // The device handle seems to be in a weird state - it's not valid.
-      return OS_INVALID_STATE;
+      OsSysLog::add(FAC_MP, PRI_NOTICE,
+                    "MpodWinMM::disableDevice: handle was already NULL "
+                    "(prior failure?); proceeding with non-wave cleanup.");
    }
 
    status = resetDevice();
@@ -791,6 +850,10 @@ OsStatus MpodWinMM::disableDevice()
    mCurFrameTime = 0;
    mTotSampleCount = 0;
 
+   WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu disableDevice EXIT status=%d mUnusedVPtrList.entries=%u mEmptyHeaderList.entries=%u\n",
+          GetCurrentThreadId(), (int)status,
+          mUnusedVPtrList.entries(), mEmptyHeaderList.entries());
+
    return status;
 }
 
@@ -799,52 +862,57 @@ OsStatus MpodWinMM::resetDevice()
     OsStatus status = OS_SUCCESS;
     MMRESULT res;
 
+    // Wave-API reset, only meaningful if we still hold a handle.
     if (mDevHandle)
     {
-        // Reset performs a stop, returns all the buffers within windows multimedia
+        // Reset performs a stop, returns all the buffers within
+        // windows multimedia.
         res = waveOutReset(mDevHandle);
         if (res != MMSYSERR_NOERROR)
         {
             showWaveError("waveOutReset", res, -1, __LINE__);
-
             if (res == MMSYSERR_NODRIVER)
             {
                 mDevHandle = NULL;
-                mWinMMDeviceId = -1;
-
-                // Keep the ticks going until the device is switch to a valid one
+                // mWinMMDeviceId intentionally NOT cleared.
+                // Keep the ticks going until the device is switch
+                // to a valid one.
                 switchToMMTimer();
             }
         }
+    }
 
-        // We'll be accessing the vptr and empty header lists, so acquire the mutex
-        mEmptyHdrVPtrListsMutex.acquire();
+    // Drain mEmptyHeaderList back into mUnusedVPtrList. This MUST
+    // run regardless of whether mDevHandle was non-NULL on entry:
+    // the void-pointer list is internal bookkeeping and is needed
+    // for the next enableDevice's buffer-alloc loop. Skipping this
+    // when mDevHandle is already NULL (e.g. signal() nulled it
+    // during fallback) leaves the next enable with a starved
+    // mUnusedVPtrList and a NULL deref in the buffer-alloc loop.
+    mEmptyHdrVPtrListsMutex.acquire();
+    unsigned nEmpties = mEmptyHeaderList.entries();
+    unsigned i;
+    for (i = 0; i < nEmpties; i++)
+    {
+        mUnusedVPtrList.insert(mEmptyHeaderList.get());
+    }
+    mEmptyHdrVPtrListsMutex.release();
 
-        // clear out the empty header list, as we don't want to continue filling
-        // buffers after a wave reset.  Put the cleared out entries in the unused
-        // void ptr list for use when this next gets enabled.
-        unsigned nEmpties = mEmptyHeaderList.entries();
-        unsigned i;
-        for (i = 0; i < nEmpties; i++)
-        {
-            mUnusedVPtrList.insert(mEmptyHeaderList.get());
-        }
+    WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu resetDevice drain_done mUnusedVPtrList.entries=%u mEmptyHeaderList.entries=%u\n",
+           GetCurrentThreadId(),
+           mUnusedVPtrList.entries(), mEmptyHeaderList.entries());
 
-        // Release the mutex as we're done accessing the vptr and empty header lists.
-        mEmptyHdrVPtrListsMutex.release();
-
-        // Must unprepare the headers after a reset, but before the device is closed
-        // (if this is done after waveOutClose, mDevHandle will be invalid and 
-        // MMSYSERR_INVALHANDLE will be returned.
+    // Unprepare the wave headers, only if we still hold a handle.
+    // Must happen after waveOutReset and before waveOutClose;
+    // otherwise MMSYSERR_INVALHANDLE will be returned.
+    if (mDevHandle)
+    {
         for (i = 0; i < mNumOutBuffers; i++)
         {
-            if (mDevHandle)
+            res = waveOutUnprepareHeader(mDevHandle, &mpWaveHeaders[i], sizeof(WAVEHDR));
+            if (res != MMSYSERR_NOERROR)
             {
-                res = waveOutUnprepareHeader(mDevHandle, &mpWaveHeaders[i], sizeof(WAVEHDR));
-                if (res != MMSYSERR_NOERROR)
-                {
-                    showWaveError("waveOutUnprepareHeader", res, i, __LINE__);
-                }
+                showWaveError("waveOutUnprepareHeader", res, i, __LINE__);
             }
         }
     }
@@ -906,7 +974,8 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
           if (res == MMSYSERR_NODRIVER)
           {
               mDevHandle = NULL;
-              mWinMMDeviceId = -1;
+              // mWinMMDeviceId intentionally NOT cleared. A failed
+              // metrics query does not prove the device is gone.
 
               // Keep the ticks going until the device is switch to a valid one
               switchToMMTimer();
@@ -996,7 +1065,8 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
                if (res == MMSYSERR_NODRIVER)
                {
                    mDevHandle = NULL;
-                   mWinMMDeviceId = -1;
+                   // mWinMMDeviceId intentionally NOT cleared.
+
 
                    // Keep the ticks going until the device is switch to a valid one
                    switchToMMTimer();
@@ -1007,7 +1077,7 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
                {
                    waveOutClose(mDevHandle);
                    mDevHandle = NULL;
-                   mWinMMDeviceId = -1;
+                   // mWinMMDeviceId intentionally NOT cleared.
                    switchToMMTimer();
                    // Have to lie to keep the flowgraph going
                    status = OS_SUCCESS;
@@ -1045,7 +1115,7 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
                        "waveOutWrite to removed device, need to switch devices or use CPU ticker");
 
                    mDevHandle = NULL;
-                   mWinMMDeviceId = -1;
+                   // mWinMMDeviceId intentionally NOT cleared.
 
                    // Keep the ticks going until the device is switch to a valid one
                    switchToMMTimer();
@@ -1055,10 +1125,10 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
 
                else if (res != WAVERR_UNPREPARED)
                {
-                   // Then close and invalidate this device.
+                   // Then close the device. mWinMMDeviceId is left
+                   // intact -- the named device may still be valid.
                    waveOutClose(mDevHandle);
                    mDevHandle = NULL;
-                   mWinMMDeviceId = -1;
                    switchToMMTimer();
                    // Have to lie to keep the flowgraph going
                    status = OS_SUCCESS;
@@ -1208,6 +1278,9 @@ OsStatus MpodWinMM::switchToMMTimer()
 /// @brief callback used by MpMMTimer when output device is not providing ticks
 OsStatus MpodWinMM::signal(const intptr_t eventData)
 {
+    WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu signal ENTRY mIsEnabled=%d mDevHandle=%p mpTickerNotification=%p\n",
+           GetCurrentThreadId(), (int)mIsEnabled, mDevHandle, mpTickerNotification);
+
     if (mDevHandle)
     {
         OsSysLog::add(FAC_MP, PRI_ERR,
@@ -1218,7 +1291,13 @@ OsStatus MpodWinMM::signal(const intptr_t eventData)
 
         // Don't close device as it sometimes hangs.
         mDevHandle = NULL;
-        mWinMMDeviceId = -1;
+        // mWinMMDeviceId intentionally NOT cleared. The defensive
+        // cleanup of mDevHandle is appropriate (we cannot prove the
+        // handle is still safe to close), but invalidating the device
+        // identity here was the root cause of the customer "no audio
+        // after reconnect" symptom: the next enableDevice would refuse
+        // because isDeviceValid() returned false. The named device may
+        // still be present; let the next enableDevice retry.
     }
 
     // send a ticker notification tokeep the MediaTask processing frames
@@ -1252,6 +1331,7 @@ OsStatus MpodWinMM::signal(const intptr_t eventData)
     }
 #endif
 
+    WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu signal EXIT\n", GetCurrentThreadId());
 
     return(OS_SUCCESS);
 }
@@ -1319,6 +1399,10 @@ WAVEHDR* MpodWinMM::initWaveHeader(int n)
 
 void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
 {
+   WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu finalizeProcessedHeader ENTRY mIsEnabled=%d mUnusedVPtrList.entries=%u mEmptyHeaderList.entries=%u\n",
+          GetCurrentThreadId(), (int)mIsEnabled,
+          mUnusedVPtrList.entries(), mEmptyHeaderList.entries());
+
    mEmptyHdrVPtrListsMutex.acquire();
 
    // Check to see if we have any free pointers, and if we're enabled.
