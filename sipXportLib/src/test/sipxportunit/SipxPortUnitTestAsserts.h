@@ -1,6 +1,6 @@
 // 
 //
-// Copyright (C) 2010-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2010-2026 SIPez LLC.  All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -27,6 +27,41 @@
 
 #define KNOWN_EFENCE_BUG(EFENCE_MSG, BUG_NUM) \
      CPPUNIT_ASSERT_MESSAGE("EFENCE_BUG: " EFENCE_MSG " " BUG_NUM, 0)
+
+//
+// SIPX_TEST_SKIP(REASON)
+//
+// Indicates that a test cannot run in the current environment (e.g. no
+// audio hardware available, missing OS feature, etc.). Today this is
+// implemented as a test failure: it prints a "SIPX_TEST_SKIP:" marker
+// line to stdout and fires CPPUNIT_ASSERT_MESSAGE with the same marker
+// in the failure summary, so any environment that cannot run the test
+// reports a real failure rather than silently passing.
+//
+// Future work: reimplement as a real third state ("skipped") tracked
+// separately from passes and failures, with the runner reporting skip
+// counts alongside pass/fail counts. All call sites should be
+// unaffected by that change -- the macro contract is "this test cannot
+// run here, record that fact in a way the runner can see."
+//
+// REASON must be a string literal describing why the test cannot run.
+// It is included in both the stdout marker and the failure message so
+// the operator can tell at a glance why a given test did not produce a
+// meaningful result.
+//
+// Usage:
+//     if (!driver.isDeviceValid())
+//     {
+//         SIPX_TEST_SKIP("no valid output audio device available");
+//     }
+//
+#define SIPX_TEST_SKIP(REASON) \
+     { \
+         (void)sizeof("" REASON ""); \
+         printf("SIPX_TEST_SKIP: %s\n", REASON); \
+         CPPUNIT_ASSERT_MESSAGE("SIPX_TEST_SKIP: " REASON, 0); \
+         return; \
+     }
 
 #define ASSERT_STR_EQUAL(STRING1, STRING2) \
     ASSERT_STR_EQUAL_MESSAGE("", STRING1, STRING2)
