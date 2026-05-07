@@ -118,6 +118,8 @@ class MpOutputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testPushFrameDuringFallback);
    CPPUNIT_TEST(testRedundantSwitchToMMTimer);
    CPPUNIT_TEST(testFallbackTimerProducesTicks);
+   CPPUNIT_TEST(testReEnableAfterFallbackDisable);
+   CPPUNIT_TEST(testReEnableAfterFallbackDisableProducesAudio);
    CPPUNIT_TEST(measureJitter);
    CPPUNIT_TEST_SUITE_END();
 
@@ -261,8 +263,7 @@ public:
    
        if (!driver.isDeviceValid())
        {
-           printf("No output device available, skipping testEnableAfterSwitchToMMTimer\n");
-           return;
+           SIPX_TEST_SKIP("no valid output audio device available");
        }
    
        CPPUNIT_ASSERT(!driver.isEnabled());
@@ -312,8 +313,7 @@ public:
        driver.disableDevice();
        CPPUNIT_ASSERT(!driver.isEnabled());
 #  else
-       // This test is Windows-specific
-       printf("Skipping testEnableAfterSwitchToMMTimer on non-Windows platform\n");
+       SIPX_TEST_SKIP("MpodWinMM and switchToMMTimer are Windows-only");
 #  endif
    }
 
@@ -653,6 +653,191 @@ void testMultipleEnableDisableCyclesAfterFallback()
       CPPUNIT_ASSERT(!driver.isEnabled());
 #  else
       printf("Skipping testFallbackTimerProducesTicks on non-Windows platform\n");
+#  endif
+   }
+
+   void testReEnableAfterFallbackDisable()
+   {
+#  ifdef WIN32
+      // Minimal regression test for the "no audio after reconnect"
+      // customer scenario at the driver API level. Sequence:
+      //   1. enable
+      //   2. switchToMMTimer (force fallback)
+      //   3. disable
+      //   4. enable again -- MUST return OS_SUCCESS
+      //
+      // testEnableAfterSwitchToMMTimer covers the same path but
+      // asserts on switchToMMTimer's return value. That assertion is
+      // over-specified: switchToMMTimer can legitimately return
+      // non-success on edge cases (e.g. when called with the timer
+      // already set; see testNotificationDispatchOnFallback in
+      // MpOutputManagerTest.cpp). This test deliberately ignores
+      // switchToMMTimer's return so it cannot fail for that reason.
+      // It tests one fact and only one fact: the second enableDevice
+      // call must succeed.
+
+      CallbackUserData userData;
+      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+
+      if (!driver.isDeviceValid())
+      {
+         SIPX_TEST_SKIP("no valid output audio device available");
+      }
+
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+
+      // Step 1: first enable.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+
+      // Step 2: force fallback. Return value not asserted by design.
+      driver.switchToMMTimer();
+      CPPUNIT_ASSERT_MESSAGE(
+         "switchToMMTimer must transition the driver into fallback mode",
+         driver.isUsingFallbackTimer());
+
+      // Step 3: disable from fallback. Return value not asserted by
+      // design (some failure modes return non-success but still
+      // leave the device disabled).
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+
+      // Step 4: re-enable. THIS IS THE KEY ASSERTION. Before the fix,
+      // this returns OS_INVALID_STATE (521) because signal() cleared
+      // mWinMMDeviceId during the fallback window.
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "Re-enable after disable from fallback mode must succeed. "
+         "Failure here means the customer 'no audio after reconnect' "
+         "regression has returned.",
+         OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+
+      // Clean up.
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+#  else
+      SIPX_TEST_SKIP("MpodWinMM and switchToMMTimer are Windows-only");
+#  endif
+   }
+
+   void testReEnableAfterFallbackDisableProducesAudio()
+   {
+#  ifdef WIN32
+      // Stronger version of testReEnableAfterFallbackDisable. Same
+      // enable -> switchToMMTimer -> disable -> enable sequence, but
+      // after the re-enable we let the wave callback drive pushFrame
+      // for a window and verify the wave callback actually fires.
+      //
+      // testReEnableAfterFallbackDisable proves the API state machine
+      // is correct (return value, isEnabled, isUsingFallbackTimer).
+      // It does NOT prove the wave subsystem is genuinely producing
+      // ticks after the re-enable. A regression that left the driver
+      // in some half-open state where enableDevice returns success
+      // but no callbacks fire would silently pass that test. This
+      // one would catch it.
+
+      CallbackUserData userData;
+      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+
+      if (!driver.isDeviceValid())
+      {
+         SIPX_TEST_SKIP("no valid output audio device available");
+      }
+
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+
+      // Build sample data so driverCallback has something real to
+      // push. driverCallback indexes sampleData by frameInCallback;
+      // size for several seconds of frames at the test sample rate.
+      // rateIndex is consulted by driverCallback to compute
+      // samplesPerFrame; anchor it to the 8000 Hz entry in
+      // sampleRates[].
+      rateIndex = 0;
+      const int AUDIO_WINDOW_MS = 500;
+      const int samplesPerFrame =
+         sampleRates[rateIndex] / TEST_FRAME_RATE;
+      sampleDataSz = sampleRates[rateIndex] * 2;
+      sampleData = new MpAudioSample[sampleDataSz];
+      calculateSampleData(440, sampleData, sampleDataSz,
+                          samplesPerFrame, sampleRates[rateIndex]);
+
+      // First enable.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(samplesPerFrame,
+                             sampleRates[rateIndex],
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+
+      // Force fallback. Return value not asserted (see
+      // testReEnableAfterFallbackDisable for the rationale).
+      driver.switchToMMTimer();
+      CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+
+      // Disable from fallback. Return value not asserted.
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+
+      // Re-enable. KEY API ASSERTION.
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "Re-enable after disable from fallback mode must succeed",
+         OS_SUCCESS,
+         driver.enableDevice(samplesPerFrame,
+                             sampleRates[rateIndex],
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+      CPPUNIT_ASSERT_MESSAGE(
+         "Re-enabled driver must be on the wave path, not fallback",
+         !driver.isUsingFallbackTimer());
+
+      // KEY AUDIO-FLOW ASSERTION. Snapshot frameInCallback, wait,
+      // and confirm the wave callback fired during the window.
+      // driverCallback is invoked from the wave subsystem when
+      // WOM_DONE messages arrive; if the device is genuinely on the
+      // wave path and consuming buffers, frameInCallback will
+      // increase.
+      const int beforeCount = frameInCallback;
+      OsTask::delay(AUDIO_WINDOW_MS);
+      const int afterCount = frameInCallback;
+      const int delta = afterCount - beforeCount;
+
+      printf("testReEnableAfterFallbackDisableProducesAudio: "
+             "frameInCallback delta over %d ms: %d\n",
+             AUDIO_WINDOW_MS, delta);
+
+      // Conservative threshold: at the test sample rate and frame
+      // size, the wave callback should fire many tens of times in
+      // 500 ms. We assert >= 1 to keep the test robust against
+      // timing jitter on slow CI hardware -- the fact being verified
+      // is "the wave path is alive after re-enable," not "callback
+      // rate matches some specific number."
+      CPPUNIT_ASSERT_MESSAGE(
+         "Wave callback must fire at least once after re-enable from "
+         "fallback. Zero callbacks means the device is silently dead "
+         "even though enableDevice returned success.",
+         delta >= 1);
+
+      // Clean up.
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+      delete[] sampleData;
+      sampleData = NULL;
+      sampleDataSz = 0;
+#  else
+      SIPX_TEST_SKIP("MpodWinMM and switchToMMTimer are Windows-only");
 #  endif
    }
 
