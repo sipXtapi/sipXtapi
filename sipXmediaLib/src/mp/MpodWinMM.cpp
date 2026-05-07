@@ -375,26 +375,12 @@ MpodWinMM::MpodWinMM(const UtlString& name,
     mWinAudioDeviceChangeCallback = new MpWinOutputAudioDeviceNotifier(this, name, mpOutputManger, mDeviceEnumeratorPtr);
     MpidWinMM::registerDeviceEnumerator(mDeviceEnumeratorPtr, mWinAudioDeviceChangeCallback);
 
-   WAVEOUTCAPS devCaps;
-   // Grab the number of output devices that are available.
-   UINT nInputDevs = waveOutGetNumDevs();
-
-   // Search through the output devices looking for the input device specified.
-   MMRESULT wavResult = MMSYSERR_NOERROR;
-   unsigned i;
-   for ( i = 0; i < nInputDevs; i++ )
-   {
-      MMRESULT res = waveOutGetDevCaps(i, &devCaps, sizeof(devCaps));
-      if ( res != MMSYSERR_NOERROR )
-      {
-         wavResult = res;
-      } 
-      else if ( strncmp(name, devCaps.szPname, MAXPNAMELEN) == 0 )
-      {
-         mWinMMDeviceId = i;
-         break;
-      }
-   }
+   // Resolve the WinMM device index from the device name. Same
+   // helper is used at the top of enableDevice for renumber
+   // recovery; using it here keeps post-construction state
+   // identical to what enableDevice would resolve immediately
+   // afterward.
+   mWinMMDeviceId = resolveDeviceIdByName();
 
    // Allocate the wave headers and buffer pointers for use with 
    // windows audio routines.  
@@ -416,6 +402,7 @@ MpodWinMM::MpodWinMM(const UtlString& name,
       return;
    }
 
+   unsigned i;
    for ( i = 0; i < mNumOutBuffers; i++ )
    {
       mpWaveBuffers[i] = NULL;
@@ -577,10 +564,33 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
                                  MpFrameTime currentFrameTime,
                                  OsCallback &frameTicker)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
         "MpodWinMM::enableDevice");
-    WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu enableDevice ENTRY mIsEnabled=%d mDevHandle=%p mWinMMDeviceId=%d mpTickerTimer=%p\n",
-          GetCurrentThreadId(), (int)mIsEnabled, mDevHandle, mWinMMDeviceId, mpTickerTimer);
+   WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu enableDevice ENTRY mIsEnabled=%d mDevHandle=%p mWinMMDeviceId=%d mpTickerTimer=%p\n",
+         GetCurrentThreadId(), (int)mIsEnabled, mDevHandle, mWinMMDeviceId, mpTickerTimer);
+
+   // Re-resolve the WinMM device index by name. Windows can
+   // renumber devices between construction and now (e.g. USB
+   // unplug/replug), so the cached index may be stale or now
+   // belong to a different device. Always look up the current
+   // index from the current device list. If the named device
+   // is not currently enumerated, we treat that as
+   // OS_INVALID_STATE -- same behavior as today's
+   // not-found-at-construction case.
+   int currentId = resolveDeviceIdByName();
+   if (currentId != mWinMMDeviceId)
+   {
+      OsSysLog::add(FAC_MP, PRI_INFO,
+         "MpodWinMM::enableDevice: WINDEVICE_RENUMBER detected for "
+         "'%s': WinMM index changed from %d to %d. (If you see "
+         "this in production logs, the win_device_changes Change 9 "
+         "renumber-recovery path is doing real work for this "
+         "customer.)",
+         getDeviceName().data(),
+         mWinMMDeviceId,
+         currentId);
+   }
+   mWinMMDeviceId = currentId;
 
    // If the device is not valid, let the user know it's bad.
    if ( !isDeviceValid() )
@@ -918,6 +928,34 @@ OsStatus MpodWinMM::resetDevice()
     }
 
     return (status);
+}
+
+int MpodWinMM::resolveDeviceIdByName()
+{
+    // Walk WinMM's current waveOut device enumeration looking for
+    // a device whose Pname matches our mName (the UtlString base).
+    // Returns the current index (>= 0) on match, or -1 if no
+    // match. Always re-queries Windows; never consults a cached
+    // value. Used at construction and at the top of every
+    // enableDevice call so the driver is robust to Windows
+    // renumbering devices across unplug/replug.
+    UINT nDevs = waveOutGetNumDevs();
+    WAVEOUTCAPS devCaps;
+    for (UINT i = 0; i < nDevs; i++)
+    {
+        MMRESULT res = waveOutGetDevCaps(i, &devCaps, sizeof(devCaps));
+        if (res != MMSYSERR_NOERROR)
+        {
+            // Skip this index; one bad device should not prevent
+            // discovery of others.
+            continue;
+        }
+        if (strncmp(getDeviceName().data(), devCaps.szPname, MAXPNAMELEN) == 0)
+        {
+            return (int)i;
+        }
+    }
+    return -1;
 }
 
 OsStatus MpodWinMM::pushFrame(unsigned int numSamples,

@@ -259,6 +259,14 @@ private:
      */
 
    OsStatus resetDevice();
+
+   /// @brief Walk WinMM enumeration and return the current device
+   /// index for a device whose name matches mName, or -1 if no
+   /// such device exists right now. Always re-queries Windows;
+   /// does not consult any cached value. Used at construction
+   /// (initial resolution) and at the top of every enableDevice
+   /// (renumber recovery).
+   int resolveDeviceIdByName();
 };
 
 
