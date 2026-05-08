@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2025 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -37,6 +37,22 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 #define SAFE_RELEASE(ptr) if ((ptr) != NULL) { (ptr)->Release(); (ptr) = NULL; }
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+//
+// Convention for mWinMMDeviceId vs mDevHandle (input side):
+//
+//   mDevHandle = NULL          --> no live wave-in resource (normal when
+//                                  disabled, also set on transient error
+//                                  paths to release the handle).
+//   mWinMMDeviceId = -1        --> this object no longer represents any
+//                                  Windows device. Set only at construction
+//                                  time when the named device is not found.
+//                                  NEVER set this from runtime error paths;
+//                                  doing so makes the device permanently
+//                                  unrecoverable, defeating USB
+//                                  unplug/replug recovery. Mirror of the
+//                                  output-side discipline in MpodWinMM.cpp.
+//
 
 class MpidWinMM::MpWinInputAudioDeviceNotifier : public IMMNotificationClient
 {
@@ -482,7 +498,9 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
         showWaveError("MpidWinMM::enableDevice", res, -1, __LINE__);
         waveInClose(mDevHandle);
         mDevHandle = NULL; // Open didn't work, reset device handle to NULL
-        mWinMMDeviceId = -1; // Make device invalid.
+        // mWinMMDeviceId intentionally NOT cleared (see file header
+        // comment): waveInOpen failure does not prove the device is
+        // gone.
 
         // and return OS_FAILED.
         return status;
@@ -514,7 +532,7 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
             showWaveError("waveInPrepareHeader", res, i, __LINE__);
             waveInClose(mDevHandle);
             mDevHandle = NULL;
-            mWinMMDeviceId = -1;
+            // mWinMMDeviceId intentionally NOT cleared.
 
             // and return OS_FAILED.
             return status;
@@ -525,7 +543,7 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
             showWaveError("waveInAddBuffer", res, i, __LINE__);
             waveInClose(mDevHandle);
             mDevHandle = NULL;
-            mWinMMDeviceId = -1;
+            // mWinMMDeviceId intentionally NOT cleared.
 
             // and return OS_FAILED.
             return status;
@@ -542,7 +560,7 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
         showWaveError("waveInStart", res, -1, __LINE__);
         waveInClose(mDevHandle);
         mDevHandle = NULL;
-        mWinMMDeviceId = -1;
+        // mWinMMDeviceId intentionally NOT cleared.
 
         // and return OS_FAILED.
         return status;
@@ -575,21 +593,32 @@ OsStatus MpidWinMM::disableDevice()
     // while waveInReset is called causing a deadlock.
     mIsEnabled = FALSE;
 
-    // Cleanup
+    // mDevHandle may be NULL here if the wave device experienced a
+    // failure (NODRIVER, callback-cascade, etc.) and was nulled by an
+    // error path before disableDevice was reached. That is NOT a
+    // reason to short-circuit cleanup -- the wave handle is gone but
+    // the allocated mpWaveBuffers and sample-rate state still need to
+    // be reset for a clean post-disable state.
     if (mDevHandle == NULL)
     {
-        return OS_INVALID_STATE;
+        OsSysLog::add(FAC_MP, PRI_NOTICE,
+                      "MpidWinMM::disableDevice: handle was already "
+                      "NULL (prior failure?); proceeding with "
+                      "non-wave cleanup.");
     }
 
     // Reset performs a stop, resets the buffers, and marks them
     // for being sent to the callback.
     // The remaining data in the windows buffers *IS* sent to the callback,
     // So be sure to watch for it and drop it on the floor.
-    res = waveInReset(mDevHandle);
-    if (res != MMSYSERR_NOERROR)
+    if (mDevHandle)
     {
-        showWaveError("waveInReset", res, -1, __LINE__);
-    } 
+        res = waveInReset(mDevHandle);
+        if (res != MMSYSERR_NOERROR)
+        {
+            showWaveError("waveInReset", res, -1, __LINE__);
+        } 
+    }
 
     // Must unprepare the headers after a reset, but before the device is closed
     // (if this is done after waveInClose, mDevHandle will be invalid and 
@@ -604,10 +633,13 @@ OsStatus MpidWinMM::disableDevice()
         }
     }
 
-    res = waveInClose(mDevHandle);
-    if (res != MMSYSERR_NOERROR)
+    if (mDevHandle)
     {
-        showWaveError("waveInClose", res, -1, __LINE__);
+        res = waveInClose(mDevHandle);
+        if (res != MMSYSERR_NOERROR)
+        {
+            showWaveError("waveInClose", res, -1, __LINE__);
+        }
     }
 
     // Delete the buffers that were allocated in enableDevice()
@@ -768,7 +800,7 @@ void MpidWinMM::processAudioInput(HWAVEIN hwi,
               {
                  waveInClose(mDevHandle);
                  mDevHandle = NULL;
-                 mWinMMDeviceId = -1;
+                 // mWinMMDeviceId intentionally NOT cleared.
               }
 
               if (res == MMSYSERR_NODRIVER)
