@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2008-2010 SIPez LLC.  All rights reserved.
+// Copyright (C) 2008-2026 SIPez LLC.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
@@ -350,7 +350,7 @@ public:
          delete[] storedSignal;
          storedSignal = NULL;
       }
-      catch (CppUnit::Exception& e) {
+      catch (...) {
          // If there is an exception anywhere in here, we need to explicitly
          // remove the sine wave device, otherwise we will get assertion 
          // failures from the input device manager destructor
@@ -358,7 +358,7 @@ public:
             inputDeviceManager.removeDevice(sineWaveDeviceId));
 
          // and rethrow the exeption
-         throw(e);
+         throw;
       }
 
       CPPUNIT_ASSERT_EQUAL((MpInputDeviceDriver*)sineWaveDevice, 
