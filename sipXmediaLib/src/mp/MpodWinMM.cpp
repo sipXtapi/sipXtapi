@@ -939,8 +939,15 @@ int MpodWinMM::resolveDeviceIdByName()
     // value. Used at construction and at the top of every
     // enableDevice call so the driver is robust to Windows
     // renumbering devices across unplug/replug.
+    //
+    // Continues walking after the first match to detect Pname
+    // collisions (typically caused by MAXPNAMELEN truncation
+    // collapsing distinct device names into the same string).
+    // Logs a warning if a collision is found; first match still
+    // wins, matching constructor behavior.
     UINT nDevs = waveOutGetNumDevs();
     WAVEOUTCAPS devCaps;
+    int firstMatchIdx = -1;
     for (UINT i = 0; i < nDevs; i++)
     {
         MMRESULT res = waveOutGetDevCaps(i, &devCaps, sizeof(devCaps));
@@ -952,10 +959,40 @@ int MpodWinMM::resolveDeviceIdByName()
         }
         if (strncmp(getDeviceName().data(), devCaps.szPname, MAXPNAMELEN) == 0)
         {
-            return (int)i;
+            if (firstMatchIdx < 0)
+            {
+                firstMatchIdx = (int)i;
+            }
+            else
+            {
+                // Multiple WinMM entries report the same szPname.
+                // szPname is MAXPNAMELEN (32) chars including null,
+                // so distinct device names that share a 31-char
+                // prefix collapse into one string here. The first
+                // match wins (matching constructor behavior), but
+                // the choice is ambiguous: the application may have
+                // intended a different device than the one we are
+                // about to use.
+                OsSysLog::add(FAC_MP, PRI_WARNING,
+                   "MpodWinMM::resolveDeviceIdByName: device name "
+                   "'%s' matches multiple WinMM entries (at least "
+                   "indices %d and %d). Likely szPname truncation "
+                   "(MAXPNAMELEN=%d). Using first match (%d). The "
+                   "application may be opening a different device "
+                   "than intended. Possible workaround: rename the "
+                   "devices in Windows Sound settings to differ "
+                   "within the first %d characters; this works on "
+                   "some systems but depends on whether the driver "
+                   "populates szPname from the editable friendly "
+                   "name.",
+                   getDeviceName().data(),
+                   firstMatchIdx, (int)i, MAXPNAMELEN, firstMatchIdx,
+                   MAXPNAMELEN - 1);
+                break;  // one warning is enough
+            }
         }
     }
-    return -1;
+    return firstMatchIdx;
 }
 
 OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
