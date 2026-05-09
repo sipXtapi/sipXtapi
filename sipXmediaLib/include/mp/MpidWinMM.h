@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2021 SIPez LLC. 
+// Copyright (C) 2007-2026 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
@@ -187,6 +187,14 @@ private:
     IMMNotificationClient* mWinAudioDeviceChangeCallback; ///< Callback interface for audio
                               ///< device state changes.
     IMMDeviceEnumerator* mDeviceEnumeratorPtr;
+
+      /// @brief Walk WinMM enumeration and return the current device
+      /// index for a device whose name matches mName, or -1 if no
+      /// such device exists right now. Always re-queries Windows;
+      /// does not consult any cached value. Used at construction
+      /// (initial resolution) and at the top of every enableDevice
+      /// (renumber recovery).
+    int resolveDeviceIdByName();
 
       /// @brief Copy constructor (not implemented for this class)
     MpidWinMM(const MpInputDeviceDriver& rMpInputDeviceDriver);

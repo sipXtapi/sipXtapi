@@ -361,38 +361,12 @@ MpidWinMM::MpidWinMM(const UtlString& name,
     OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
         "MpidWinMM::MpidWinMM:(name=\"%s\")", name.data());
 
-    WAVEINCAPS devCaps;
-    // Grab the number of input devices that are available.
-    UINT nInputDevs = waveInGetNumDevs();
-
-    // Search through the input devices looking for the input device specified.
-    MMRESULT wavResult = MMSYSERR_NOERROR;
-    unsigned i;
-    for (i = 0; i < nInputDevs; i++)
-    {
-        MMRESULT res = waveInGetDevCaps(i, &devCaps, sizeof(devCaps));
-        if (res != MMSYSERR_NOERROR)
-        {
-            wavResult = res;
-            OsSysLog::add(FAC_MP, PRI_ERR,
-                "MpidWinMM::MpidWinMM waveInGetDevCaps[%d] returned: %d", i, wavResult);
-        } 
-        else if (strncmp(name, devCaps.szPname, MAXPNAMELEN) == 0)
-        {
-            mWinMMDeviceId = i;
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MpidWinMM::MpidWinMM found \"%s\" at: %d",
-                devCaps.szPname,
-                i);
-            break;
-        }
-        else
-        {
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MpidWinMM::MpidWinMM looking for: \"%s\" found: \"%s\"", 
-                name.data(), devCaps.szPname);
-        }
-    }
+    // Resolve the WinMM device index from the device name. Same
+    // helper is used at the top of enableDevice for renumber
+    // recovery; using it here keeps post-construction state
+    // identical to what enableDevice would resolve immediately
+    // afterward.
+    mWinMMDeviceId = resolveDeviceIdByName();
 
     // Allocate the wave headers and buffer pointers for use with 
     // windows audio routines.  
@@ -401,6 +375,7 @@ MpidWinMM::MpidWinMM(const UtlString& name,
     // buffer size (#samplesPerFrame) until then.
     mpWaveHeaders = new WAVEHDR[mNumInBuffers];
     mpWaveBuffers = new LPSTR[mNumInBuffers];
+    unsigned i;
     for (i = 0; i < mNumInBuffers; i++)
     {
         mpWaveBuffers[i] = NULL;
@@ -453,6 +428,29 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
 
     // reset the number of addBuffer failures, as we're starting fresh now.
     mnAddBufferFailures = 0;
+
+    // Re-resolve the WinMM device index by name. Windows can
+    // renumber devices between construction and now (e.g. USB
+    // unplug/replug), so the cached index may be stale or now
+    // belong to a different device. Always look up the current
+    // index from the current device list. If the named device
+    // is not currently enumerated, we treat that as
+    // OS_INVALID_STATE -- same behavior as today's
+    // not-found-at-construction case.
+    int currentId = resolveDeviceIdByName();
+    if (currentId != mWinMMDeviceId)
+    {
+       OsSysLog::add(FAC_MP, PRI_INFO,
+          "MpidWinMM::enableDevice: WINDEVICE_RENUMBER detected for "
+          "'%s': WinMM index changed from %d to %d. (If you see "
+          "this in production logs, the win_device_changes Change 9 "
+          "renumber-recovery path is doing real work for this "
+          "customer.)",
+          getDeviceName().data(),
+          mWinMMDeviceId,
+          currentId);
+    }
+    mWinMMDeviceId = currentId;
 
     // If the device is not valid, let the user know it's bad.
     if (!isDeviceValid())
@@ -834,6 +832,71 @@ MpidWinMM::waveInCallbackStatic(HWAVEIN hwi,
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+int MpidWinMM::resolveDeviceIdByName()
+{
+    // Walk WinMM's current waveIn device enumeration looking for
+    // a device whose Pname matches our mName (the UtlString base).
+    // Returns the current index (>= 0) on match, or -1 if no
+    // match. Always re-queries Windows; never consults a cached
+    // value. Used at construction and at the top of every
+    // enableDevice call so the driver is robust to Windows
+    // renumbering devices across unplug/replug.
+    //
+    // Continues walking after the first match to detect Pname
+    // collisions (typically caused by MAXPNAMELEN truncation
+    // collapsing distinct device names into the same string).
+    // Logs a warning if a collision is found; first match still
+    // wins, matching constructor behavior.
+    UINT nDevs = waveInGetNumDevs();
+    WAVEINCAPS devCaps;
+    int firstMatchIdx = -1;
+    for (UINT i = 0; i < nDevs; i++)
+    {
+        MMRESULT res = waveInGetDevCaps(i, &devCaps, sizeof(devCaps));
+        if (res != MMSYSERR_NOERROR)
+        {
+            // Skip this index; one bad device should not prevent
+            // discovery of others.
+            continue;
+        }
+        if (strncmp(getDeviceName().data(), devCaps.szPname, MAXPNAMELEN) == 0)
+        {
+            if (firstMatchIdx < 0)
+            {
+                firstMatchIdx = (int)i;
+            }
+            else
+            {
+                // Multiple WinMM entries report the same szPname.
+                // szPname is MAXPNAMELEN (32) chars including null,
+                // so distinct device names that share a 31-char
+                // prefix collapse into one string here. The first
+                // match wins (matching constructor behavior), but
+                // the choice is ambiguous: the application may have
+                // intended a different device than the one we are
+                // about to use.
+                OsSysLog::add(FAC_MP, PRI_WARNING,
+                   "MpidWinMM::resolveDeviceIdByName: device name "
+                   "'%s' matches multiple WinMM entries (at least "
+                   "indices %d and %d). Likely szPname truncation "
+                   "(MAXPNAMELEN=%d). Using first match (%d). The "
+                   "application may be opening a different device "
+                   "than intended. Possible workaround: rename the "
+                   "devices in Windows Sound settings to differ "
+                   "within the first %d characters; this works on "
+                   "some systems but depends on whether the driver "
+                   "populates szPname from the editable friendly "
+                   "name.",
+                   getDeviceName().data(),
+                   firstMatchIdx, (int)i, MAXPNAMELEN, firstMatchIdx,
+                   MAXPNAMELEN - 1);
+                break;  // one warning is enough
+            }
+        }
+    }
+    return firstMatchIdx;
+}
 
 IMMDeviceEnumerator* MpidWinMM::getWinDeviceEnumerator()
 {
