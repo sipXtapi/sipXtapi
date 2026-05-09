@@ -131,6 +131,42 @@ jobs:
           make $MAKE_USE_CPUS
           make tests
 
+      - name: install Scream virtual audio driver
+        shell: powershell
+        run: |
+          # Start Windows audio service (off by default on hosted runners)
+          Set-Service -Name audiosrv -StartupType Automatic
+          Start-Service -Name audiosrv
+
+          # Download a signed Scream release
+          $url = "https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip"
+          Invoke-WebRequest -Uri $url -OutFile Scream.zip
+          Expand-Archive -Path Scream.zip -DestinationPath Scream
+
+          # Trust the test certificate so the unsigned-for-this-machine
+          # driver can install without prompting
+          $cert = (Get-AuthenticodeSignature "Scream\Install\driver\x64\Scream.sys").SignerCertificate
+          $store = [System.Security.Cryptography.X509Certificates.X509Store]::new("TrustedPublisher","LocalMachine")
+          $store.Open("ReadWrite")
+          $store.Add($cert)
+          $store.Close()
+
+          # Install the driver
+          cd Scream\Install\driver\x64
+          .\Install.bat
+
+          # Confirm the endpoint is present
+          Get-CimInstance Win32_SoundDevice | Format-Table Name, Status
+
+      - name: verify audio endpoint usable
+        shell: powershell
+        run: |
+          Add-Type -AssemblyName System.Speech
+          $synth = [System.Speech.Synthesis.SpeechSynthesizer]::new()
+          # If this throws, there is no usable output endpoint.
+          $synth.SetOutputToDefaultAudioDevice()
+          Write-Host "default audio device usable"
+
       - name: run unit tests
         run: |
           ulimit -a
