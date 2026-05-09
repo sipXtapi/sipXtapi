@@ -120,6 +120,12 @@ class MpOutputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testFallbackTimerProducesTicks);
    CPPUNIT_TEST(testReEnableAfterFallbackDisable);
    CPPUNIT_TEST(testReEnableAfterFallbackDisableProducesAudio);
+   CPPUNIT_TEST(testOutputDriverWithEmptyName);
+   CPPUNIT_TEST(testDestroyWhileEnabled);
+   CPPUNIT_TEST(testDestroyWhileInFallback);
+   CPPUNIT_TEST(testDoubleEnableOutputDevice);
+   CPPUNIT_TEST(testDoubleDisableOutputDevice);
+   CPPUNIT_TEST(testDisableWithoutEnable);
    CPPUNIT_TEST(measureJitter);
    CPPUNIT_TEST_SUITE_END();
 
@@ -838,6 +844,254 @@ void testMultipleEnableDisableCyclesAfterFallback()
       sampleDataSz = 0;
 #  else
       SIPX_TEST_SKIP("MpodWinMM and switchToMMTimer are Windows-only");
+#  endif
+   }
+
+   void testOutputDriverWithEmptyName()
+   {
+#  ifdef WIN32
+      // Construct an output driver with the empty string as a device
+      // name. The empty-string-means-default convention is consumed
+      // at the sipXmediaAdapterLib layer (CpTopologyGraphFactoryImpl
+      // resolves "" to OUTPUT_DRIVER_DEFAULT_NAME before constructing
+      // the driver), so the driver should never see "" in practice.
+      // This test pins down what happens if it does: empty string
+      // matches no device, isDeviceValid is false.
+
+      MpodWinMM driver("", NULL);
+
+      CPPUNIT_ASSERT_MESSAGE(
+         "Driver constructed with empty-string name must report "
+         "isDeviceValid() == false (empty string matches no device).",
+         !driver.isDeviceValid());
+
+      CallbackUserData userData;
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+
+      OsStatus enableStatus = driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                                                  TEST_SAMPLES_PER_SECOND,
+                                                  0, notificationCallback);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "enableDevice on empty-name driver must return "
+         "OS_INVALID_STATE.",
+         OS_INVALID_STATE, enableStatus);
+#  else
+      SIPX_TEST_SKIP("MpodWinMM is Windows-only");
+#  endif
+   }
+
+   void testDestroyWhileEnabled()
+   {
+#  ifdef WIN32
+      // Construct, enable, then destroy without an explicit disable.
+      // The destructor's fallback path must clean up cleanly.
+      // Real-world callers should always disable before destroy, but
+      // the destructor has machinery for the case where they don't,
+      // and that machinery should not crash, leak, or assert in
+      // production builds.
+
+      CallbackUserData userData;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+
+      {
+         MpodWinMM driver(MpodWinMM::getDefaultDeviceName(), NULL);
+
+         if (!driver.isDeviceValid())
+         {
+            SIPX_TEST_SKIP("no valid output audio device available");
+         }
+
+         userData.mDriver = &driver;
+
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+            driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                                TEST_SAMPLES_PER_SECOND,
+                                0, notificationCallback));
+         CPPUNIT_ASSERT(driver.isEnabled());
+
+         OsTask::delay(50);
+
+         // Driver goes out of scope here, destructor runs while
+         // isEnabled() is true. Must not crash.
+      }
+
+      // If we got here, the destructor succeeded. The test passes
+      // by not crashing.
+#  else
+      SIPX_TEST_SKIP("MpodWinMM is Windows-only");
+#  endif
+   }
+
+   void testDestroyWhileInFallback()
+   {
+#  ifdef WIN32
+      // Construct, enable, force fallback via switchToMMTimer, then
+      // destroy without an explicit disable. The destructor must
+      // clean up both the enabled state AND the fallback timer.
+
+      CallbackUserData userData;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+
+      {
+         MpodWinMM driver(MpodWinMM::getDefaultDeviceName(), NULL);
+
+         if (!driver.isDeviceValid())
+         {
+            SIPX_TEST_SKIP("no valid output audio device available");
+         }
+
+         userData.mDriver = &driver;
+
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+            driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                                TEST_SAMPLES_PER_SECOND,
+                                0, notificationCallback));
+         CPPUNIT_ASSERT(driver.isEnabled());
+
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.switchToMMTimer());
+         CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+
+         OsTask::delay(50);
+
+         // Driver goes out of scope here, destructor runs while
+         // both isEnabled() and isUsingFallbackTimer() are true.
+         // Must not crash, must not leak the fallback timer.
+      }
+
+      // If we got here, the destructor succeeded.
+#  else
+      SIPX_TEST_SKIP("MpodWinMM is Windows-only");
+#  endif
+   }
+
+   void testDoubleEnableOutputDevice()
+   {
+#  ifdef WIN32
+      // Verify the output driver's "if (isEnabled()) return
+      // OS_FAILED" guard. Calling enableDevice on an already-enabled
+      // driver must return non-success and must not disturb the
+      // enabled state.
+
+      MpodWinMM driver(MpodWinMM::getDefaultDeviceName(), NULL);
+
+      if (!driver.isDeviceValid())
+      {
+         SIPX_TEST_SKIP("no valid output audio device available");
+      }
+
+      CallbackUserData userData;
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+
+      // Second enableDevice on the already-enabled driver. Must
+      // not crash, must not return OS_SUCCESS, must leave the
+      // driver enabled.
+      OsStatus secondStatus = driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                                                  TEST_SAMPLES_PER_SECOND,
+                                                  0, notificationCallback);
+      CPPUNIT_ASSERT_MESSAGE(
+         "Double enableDevice must not return OS_SUCCESS.",
+         secondStatus != OS_SUCCESS);
+      CPPUNIT_ASSERT_MESSAGE(
+         "Double enableDevice must leave the driver enabled.",
+         driver.isEnabled());
+
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+#  else
+      SIPX_TEST_SKIP("MpodWinMM is Windows-only");
+#  endif
+   }
+
+   void testDoubleDisableOutputDevice()
+   {
+#  ifdef WIN32
+      // Verify disableDevice's behavior when called on an
+      // already-disabled driver. Must not crash, must not return
+      // OS_SUCCESS, must not transition state.
+
+      MpodWinMM driver(MpodWinMM::getDefaultDeviceName(), NULL);
+
+      if (!driver.isDeviceValid())
+      {
+         SIPX_TEST_SKIP("no valid output audio device available");
+      }
+
+      CallbackUserData userData;
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(driver.isEnabled());
+
+      OsTask::delay(50);
+
+      // First disable.
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+
+      // Second disable on the already-disabled driver. Must not
+      // return OS_SUCCESS and must leave the driver disabled.
+      OsStatus secondStatus = driver.disableDevice();
+      CPPUNIT_ASSERT_MESSAGE(
+         "Double disableDevice must not return OS_SUCCESS.",
+         secondStatus != OS_SUCCESS);
+      CPPUNIT_ASSERT_MESSAGE(
+         "Double disableDevice must leave the driver disabled.",
+         !driver.isEnabled());
+#  else
+      SIPX_TEST_SKIP("MpodWinMM is Windows-only");
+#  endif
+   }
+
+   void testDisableWithoutEnable()
+   {
+#  ifdef WIN32
+      // disableDevice called on a never-enabled driver. Must not
+      // crash, must not return OS_SUCCESS, must not transition the
+      // driver into an enabled state.
+
+      MpodWinMM driver(MpodWinMM::getDefaultDeviceName(), NULL);
+
+      if (!driver.isDeviceValid())
+      {
+         SIPX_TEST_SKIP("no valid output audio device available");
+      }
+
+      CPPUNIT_ASSERT_MESSAGE(
+         "Driver must not be enabled at construction.",
+         !driver.isEnabled());
+
+      OsStatus disableStatus = driver.disableDevice();
+      CPPUNIT_ASSERT_MESSAGE(
+         "disableDevice on never-enabled driver must not return "
+         "OS_SUCCESS.",
+         disableStatus != OS_SUCCESS);
+      CPPUNIT_ASSERT_MESSAGE(
+         "disableDevice on never-enabled driver must leave the "
+         "driver in non-enabled state.",
+         !driver.isEnabled());
+#  else
+      SIPX_TEST_SKIP("MpodWinMM is Windows-only");
 #  endif
    }
 

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,11 @@ class MpInputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(MpInputDeviceDriverTest);
    CPPUNIT_TEST(testSetup);
+   CPPUNIT_TEST(testNonexistentInputDevice);
+   CPPUNIT_TEST(testReEnableInputDevice);
+   CPPUNIT_TEST(testInputDriverWithEmptyName);
+   CPPUNIT_TEST(testDoubleEnableInputDevice);
+   CPPUNIT_TEST(testDoubleDisableInputDevice);
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -214,6 +219,253 @@ public:
          printf(" derivatives: %s\n", derivPlotStr.data());
          printf("weighted avg: %s\n", derivWAvgStr.data());
       }  // if pInDevDriver != NULL
+   }
+
+   void testNonexistentInputDevice()
+   {
+#  ifdef WIN32
+      // Construct an input driver with a name that cannot match any
+      // enumerated device. Verifies the driver lands in the
+      // "device-not-found" state cleanly: isDeviceValid returns
+      // false, isEnabled returns false, getDeviceId returns < 0,
+      // and enableDevice returns OS_INVALID_STATE.
+
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME,
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames,
+                                    *mpBufPool);
+
+      // A name that contains characters no real device would have.
+      MpidWinMM driver("__no_such_device_name_test__", inDevMgr);
+
+      CPPUNIT_ASSERT_MESSAGE(
+         "Driver constructed with a non-existent name must report "
+         "isDeviceValid() == false.",
+         !driver.isDeviceValid());
+
+      CPPUNIT_ASSERT_MESSAGE(
+         "A freshly-constructed driver must not report enabled.",
+         !driver.isEnabled());
+
+      CPPUNIT_ASSERT_MESSAGE(
+         "A driver not added to a manager must report deviceId < 0.",
+         driver.getDeviceId() < 0);
+
+      // enableDevice on an invalid driver must return OS_INVALID_STATE
+      // and must not transition to enabled.
+      OsStatus enableStatus = driver.enableDevice(MIDDT_SAMPLES_PER_FRAME,
+                                                  mSamplesPerSecond,
+                                                  0);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "enableDevice on a non-existent device must return "
+         "OS_INVALID_STATE.",
+         OS_INVALID_STATE, enableStatus);
+      CPPUNIT_ASSERT_MESSAGE(
+         "Failed enableDevice must not leave the driver enabled.",
+         !driver.isEnabled());
+#  else
+      SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
+   }
+
+   void testReEnableInputDevice()
+   {
+#  ifdef WIN32
+      // Construct, add to manager, enable, disable, enable, disable.
+      // Direct coverage for the disable-cleanup fix in Change 8
+      // mirror: a second enable must succeed even after the first
+      // enable+disable cycle has fully exercised the driver's
+      // buffer allocation, prepare-header, add-buffer, and reset
+      // paths.
+
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME,
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames,
+                                    *mpBufPool);
+
+      MpidWinMM* pDriver = new MpidWinMM(MpidWinMM::getDefaultDeviceName(),
+                                         inDevMgr);
+
+      if (!pDriver->isDeviceValid())
+      {
+         delete pDriver;
+         SIPX_TEST_SKIP("no valid input audio device available");
+      }
+
+      MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pDriver);
+      CPPUNIT_ASSERT(iDrvHnd > 0);
+
+      // First enable/disable cycle.
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "First enableDevice must succeed.",
+         OS_SUCCESS, inDevMgr.enableDevice(iDrvHnd));
+      CPPUNIT_ASSERT(pDriver->isEnabled());
+
+      // Brief delay so the wave callback has a chance to run; not
+      // required for correctness of the re-enable, but makes the
+      // test exercise the full enable-with-callbacks path rather
+      // than a near-immediate disable.
+      OsTask::delay(50);
+
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "First disableDevice must succeed.",
+         OS_SUCCESS, inDevMgr.disableDevice(iDrvHnd));
+      CPPUNIT_ASSERT(!pDriver->isEnabled());
+
+      // Second enable/disable cycle. The key assertion: this must
+      // succeed. Before Change 8 mirror, the driver could leave
+      // residual state that caused the second enable to fail or
+      // crash.
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "Second enableDevice must succeed. Failure here means the "
+         "input-side disable cleanup is leaving residual state that "
+         "prevents re-enable.",
+         OS_SUCCESS, inDevMgr.enableDevice(iDrvHnd));
+      CPPUNIT_ASSERT(pDriver->isEnabled());
+
+      OsTask::delay(50);
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.disableDevice(iDrvHnd));
+      CPPUNIT_ASSERT(!pDriver->isEnabled());
+
+      inDevMgr.removeDevice(iDrvHnd);
+      delete pDriver;
+#  else
+      SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
+   }
+
+   void testInputDriverWithEmptyName()
+   {
+#  ifdef WIN32
+      // Construct an input driver with the empty string as a device
+      // name. The empty-string-means-default convention is consumed
+      // at the sipXmediaAdapterLib layer, so the driver should never
+      // see "" in practice. This test pins down what happens if it
+      // does: empty string matches no device, isDeviceValid is false,
+      // enableDevice returns OS_INVALID_STATE.
+
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME,
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames,
+                                    *mpBufPool);
+
+      MpidWinMM driver("", inDevMgr);
+
+      CPPUNIT_ASSERT_MESSAGE(
+         "Driver constructed with empty-string name must report "
+         "isDeviceValid() == false (empty string matches no device).",
+         !driver.isDeviceValid());
+
+      OsStatus enableStatus = driver.enableDevice(MIDDT_SAMPLES_PER_FRAME,
+                                                  mSamplesPerSecond,
+                                                  0);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "enableDevice on empty-name driver must return "
+         "OS_INVALID_STATE.",
+         OS_INVALID_STATE, enableStatus);
+#  else
+      SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
+   }
+
+   void testDoubleEnableInputDevice()
+   {
+#  ifdef WIN32
+      // Verify the input driver's "if (isEnabled()) return OS_FAILED"
+      // guard. Calling enableDevice on an already-enabled driver must
+      // return non-success and must not disturb the enabled state.
+
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME,
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames,
+                                    *mpBufPool);
+
+      MpidWinMM* pDriver = new MpidWinMM(MpidWinMM::getDefaultDeviceName(),
+                                         inDevMgr);
+
+      if (!pDriver->isDeviceValid())
+      {
+         delete pDriver;
+         SIPX_TEST_SKIP("no valid input audio device available");
+      }
+
+      MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pDriver);
+      CPPUNIT_ASSERT(iDrvHnd > 0);
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.enableDevice(iDrvHnd));
+      CPPUNIT_ASSERT(pDriver->isEnabled());
+
+      // Second enableDevice on the already-enabled driver. Must not
+      // crash, must not return OS_SUCCESS, must leave the driver
+      // enabled.
+      OsStatus secondStatus = pDriver->enableDevice(MIDDT_SAMPLES_PER_FRAME,
+                                                    mSamplesPerSecond,
+                                                    0);
+      CPPUNIT_ASSERT_MESSAGE(
+         "Double enableDevice must not return OS_SUCCESS.",
+         secondStatus != OS_SUCCESS);
+      CPPUNIT_ASSERT_MESSAGE(
+         "Double enableDevice must leave the driver enabled.",
+         pDriver->isEnabled());
+
+      // Clean up.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.disableDevice(iDrvHnd));
+      inDevMgr.removeDevice(iDrvHnd);
+      delete pDriver;
+#  else
+      SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
+   }
+
+   void testDoubleDisableInputDevice()
+   {
+#  ifdef WIN32
+      // Verify disableDevice's behavior when called on an
+      // already-disabled driver. Must not crash and must not
+      // transition state in unexpected ways.
+
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME,
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames,
+                                    *mpBufPool);
+
+      MpidWinMM* pDriver = new MpidWinMM(MpidWinMM::getDefaultDeviceName(),
+                                         inDevMgr);
+
+      if (!pDriver->isDeviceValid())
+      {
+         delete pDriver;
+         SIPX_TEST_SKIP("no valid input audio device available");
+      }
+
+      MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pDriver);
+      CPPUNIT_ASSERT(iDrvHnd > 0);
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.enableDevice(iDrvHnd));
+      CPPUNIT_ASSERT(pDriver->isEnabled());
+
+      OsTask::delay(50);
+
+      // First disable.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.disableDevice(iDrvHnd));
+      CPPUNIT_ASSERT(!pDriver->isEnabled());
+
+      // Second disable on the already-disabled driver. Must not
+      // return OS_SUCCESS and must not crash.
+      OsStatus secondStatus = pDriver->disableDevice();
+      CPPUNIT_ASSERT_MESSAGE(
+         "Double disableDevice must not return OS_SUCCESS.",
+         secondStatus != OS_SUCCESS);
+      CPPUNIT_ASSERT_MESSAGE(
+         "Double disableDevice must leave the driver disabled.",
+         !pDriver->isEnabled());
+
+      inDevMgr.removeDevice(iDrvHnd);
+      delete pDriver;
+#  else
+      SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
    }
 
    void tearDown()
