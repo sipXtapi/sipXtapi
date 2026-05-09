@@ -131,43 +131,48 @@ jobs:
           make $MAKE_USE_CPUS
           make tests
 
-      - name: install Scream virtual audio driver
-        shell: powershell
+      - name: provide a virtual audio device
         run: |
-          # Start Windows audio service (off by default on hosted runners)
-          Set-Service -Name audiosrv -StartupType Automatic
-          Start-Service -Name audiosrv
-
-          # Download a signed Scream release
-          $url = "https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip"
-          Invoke-WebRequest -Uri $url -OutFile Scream.zip
-          Expand-Archive -Path Scream.zip -DestinationPath Scream
-
-          # Trust the test certificate so the unsigned-for-this-machine
-          # driver can install without prompting
-          $cert = (Get-AuthenticodeSignature "Scream\Install\driver\x64\Scream.sys").SignerCertificate
-          $store = [System.Security.Cryptography.X509Certificates.X509Store]::new("TrustedPublisher","LocalMachine")
-          $store.Open("ReadWrite")
-          $store.Add($cert)
-          $store.Close()
-
-          # Install the driver
-          cd Scream\Install\driver\x64
-          .\Install.bat
-
-          # Confirm the endpoint is present
-          Get-CimInstance Win32_SoundDevice | Format-Table Name, Status
+          if sudo modprobe snd-aloop 2>/dev/null; then
+            echo "Using snd-aloop loopback device"
+            cat > ~/.asoundrc <<'EOF'
+          pcm.!default {
+            type plug
+            slave.pcm "hw:Loopback,0,0"
+          }
+          ctl.!default {
+            type hw
+            card Loopback
+          }
+          EOF
+            aplay -l
+            arecord -l
+          else
+            echo "snd-aloop unavailable; falling back to PulseAudio null sink"
+            sudo apt-get install -y pulseaudio pulseaudio-utils libasound2-plugins
+            pulseaudio --start --exit-idle-time=-1 \
+              --load="module-null-sink sink_name=DummyOutput" \
+              --load="module-null-source source_name=DummySource"
+            cat > ~/.asoundrc <<'EOF'
+          pcm.!default { type pulse }
+          ctl.!default { type pulse }
+          EOF
+            pactl info
+            pactl list short sinks
+          fi
 
       - name: verify audio endpoint usable
-        shell: powershell
         run: |
-          Add-Type -AssemblyName System.Speech
-          $synth = [System.Speech.Synthesis.SpeechSynthesizer]::new()
-          # If this throws, there is no usable output endpoint.
-          $synth.SetOutputToDefaultAudioDevice()
-          Write-Host "default audio device usable"
+          # Use 50ms of zeros at the rates the tests actually use.
+          # 48000 Hz / 16 kHz are both rates the sipX tests open with.
+          timeout 5 aplay -D default -q -d 1 -t raw -f S16_LE -r 48000 -c 2 /dev/zero
+          echo "audio endpoint OK at 48000 Hz"
+          timeout 5 aplay -D default -q -d 1 -t raw -f S16_LE -r 16000 -c 1 /dev/zero
+          echo "audio endpoint OK at 16000 Hz"
 
       - name: run unit tests
+        env:
+          SIPX_ALSA_DEVICE_NAME: default
         run: |
           ulimit -a
           stdbuf -oL bash -c 'while true; do echo "=== RESOURCES $(date -u +%H:%M:%S) ==="; free -m; ps -e | wc -l; sleep 30; done' &
