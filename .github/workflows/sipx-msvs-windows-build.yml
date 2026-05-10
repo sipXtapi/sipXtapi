@@ -112,49 +112,38 @@ jobs:
           xcopy x64\Release\codec_*.dll x64\bin\ /Y
         shell: cmd
 
-      - name: install virtual audio device
+      - name: install virtual audio driver
         shell: powershell
         run: |
           Set-Service -Name audiosrv -StartupType Automatic
           Start-Service -Name audiosrv
 
-          $url = "https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip"
-          Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\Scream.zip"
-          Expand-Archive -Path "$env:TEMP\Scream.zip" -DestinationPath "$env:TEMP\Scream" -Force
+          $url = "https://github.com/VirtualDrivers/Virtual-Audio-Driver/releases/download/25.7.14/VAD_25.7.14_Signed_x64.zip"
+          # NOTE: filename guessed - verify in the release before running
+          Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\VAD.zip"
+          Expand-Archive -Path "$env:TEMP\VAD.zip" -DestinationPath "$env:TEMP\VAD" -Force
 
-          # Find Install.bat regardless of nesting depth
-          $installBat = Get-ChildItem -Path "$env:TEMP\Scream" -Filter Install.bat -Recurse | Select-Object -First 1
-          if (-not $installBat) {
-            Write-Error "Install.bat not found in extracted zip"
-            Get-ChildItem -Path "$env:TEMP\Scream" -Recurse | Select-Object FullName
-            exit 1
-          }
-          Write-Host "Found installer at: $($installBat.FullName)"
+          $inf = Get-ChildItem -Path "$env:TEMP\VAD" -Filter VirtualAudioDriver.inf -Recurse | Select-Object -First 1
+          Write-Host "Found INF at: $($inf.FullName)"
 
-          # Find the .sys for cert extraction (also via search, not hardcoded path)
-          $sys = Get-ChildItem -Path "$env:TEMP\Scream" -Filter Scream.sys -Recurse | Select-Object -First 1
-          if (-not $sys) {
-            Write-Error "Scream.sys not found"
-            exit 1
-          }
+          # Trust the SignPath cert (it should already be trusted on Windows Server 2022, but belt-and-suspenders)
+          $sys = Get-ChildItem -Path "$env:TEMP\VAD" -Filter VirtualAudioDriver.sys -Recurse | Select-Object -First 1
           $cert = (Get-AuthenticodeSignature $sys.FullName).SignerCertificate
           if ($cert) {
             $store = [System.Security.Cryptography.X509Certificates.X509Store]::new("TrustedPublisher","LocalMachine")
             $store.Open("ReadWrite"); $store.Add($cert); $store.Close()
-            Write-Host "Trusted Scream signing cert"
-          } else {
-            Write-Host "WARNING: no signature on Scream.sys, install will likely fail"
           }
 
-          # Run the installer from its own directory so its relative paths resolve
-          Push-Location $installBat.Directory.FullName
-          & $installBat.FullName
-          $rc = $LASTEXITCODE
-          Pop-Location
-          Write-Host "Install.bat exit code: $rc"
+          # Install via pnputil
+          pnputil /add-driver $inf.FullName /install
+          Write-Host "pnputil exit code: $LASTEXITCODE"
 
-          # Show what audio devices are now visible
+          # Trigger device enumeration without reboot
+          pnputil /scan-devices
+
+          # Show what happened
           Get-CimInstance Win32_SoundDevice | Format-Table Name, Status, Manufacturer
+          Get-PnpDevice -Class MEDIA | Format-Table FriendlyName, Status, Class
 
       - name: verify audio endpoint usable
         shell: powershell
