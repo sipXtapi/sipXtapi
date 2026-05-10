@@ -118,32 +118,82 @@ jobs:
           Set-Service -Name audiosrv -StartupType Automatic
           Start-Service -Name audiosrv
 
-          $url = "https://github.com/VirtualDrivers/Virtual-Audio-Driver/releases/download/25.7.14/VAD_25.7.14_Signed_x64.zip"
-          # NOTE: filename guessed - verify in the release before running
-          Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\VAD.zip"
-          Expand-Archive -Path "$env:TEMP\VAD.zip" -DestinationPath "$env:TEMP\VAD" -Force
+          # Pin to the specific release tag so we get reproducible behavior.
+          # Bump the tag deliberately when the project ships a new release.
+          $tag = "25.7.14"
+          $apiUrl = "https://api.github.com/repos/VirtualDrivers/Virtual-Audio-Driver/releases/tags/$tag"
 
-          $inf = Get-ChildItem -Path "$env:TEMP\VAD" -Filter VirtualAudioDriver.inf -Recurse | Select-Object -First 1
+          Write-Host "Fetching release metadata from $apiUrl"
+          $headers = @{ "User-Agent" = "sipxtapi-ci" }
+          if ($env:GITHUB_TOKEN) {
+            # Authenticated requests get a 5000/hr rate limit instead of 60/hr.
+            # GITHUB_TOKEN is provided automatically by Actions.
+            $headers["Authorization"] = "Bearer $env:GITHUB_TOKEN"
+          }
+          $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
+          Write-Host "Release '$($release.name)' has $($release.assets.Count) asset(s):"
+          $release.assets | ForEach-Object { Write-Host "  - $($_.name)  ($([math]::Round($_.size/1MB,2)) MB)" }
+
+          # Pick the asset that looks like a signed x64 zip.
+          # The release page calls it "Signed" - prefer that, fall back to any zip.
+          $asset = $release.assets |
+            Where-Object { $_.name -match '\.zip$' -and $_.name -match '(signed|x64)' } |
+            Select-Object -First 1
+          if (-not $asset) {
+            $asset = $release.assets | Where-Object { $_.name -match '\.zip$' } | Select-Object -First 1
+          }
+          if (-not $asset) {
+            Write-Error "No .zip asset found in release $tag"
+            exit 1
+          }
+          Write-Host "Selected asset: $($asset.name)"
+          Write-Host "Download URL: $($asset.browser_download_url)"
+
+          $zipPath = "$env:TEMP\VAD.zip"
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath -Headers @{ "User-Agent" = "sipxtapi-ci" }
+          Expand-Archive -Path $zipPath -DestinationPath "$env:TEMP\VAD" -Force
+
+          Write-Host "Extracted contents:"
+          Get-ChildItem -Path "$env:TEMP\VAD" -Recurse | Select-Object FullName | Format-Table -AutoSize
+
+          $inf = Get-ChildItem -Path "$env:TEMP\VAD" -Filter "*.inf" -Recurse |
+                 Where-Object { $_.Name -match 'VirtualAudioDriver' } |
+                 Select-Object -First 1
+          if (-not $inf) {
+            Write-Error "VirtualAudioDriver.inf not found in extracted zip"
+            exit 1
+          }
           Write-Host "Found INF at: $($inf.FullName)"
 
-          # Trust the SignPath cert (it should already be trusted on Windows Server 2022, but belt-and-suspenders)
-          $sys = Get-ChildItem -Path "$env:TEMP\VAD" -Filter VirtualAudioDriver.sys -Recurse | Select-Object -First 1
-          $cert = (Get-AuthenticodeSignature $sys.FullName).SignerCertificate
-          if ($cert) {
-            $store = [System.Security.Cryptography.X509Certificates.X509Store]::new("TrustedPublisher","LocalMachine")
-            $store.Open("ReadWrite"); $store.Add($cert); $store.Close()
+          $sys = Get-ChildItem -Path "$env:TEMP\VAD" -Filter "VirtualAudioDriver.sys" -Recurse | Select-Object -First 1
+          if ($sys) {
+            $sig = Get-AuthenticodeSignature $sys.FullName
+            Write-Host "Driver signature status: $($sig.Status)"
+            Write-Host "Signer: $($sig.SignerCertificate.Subject)"
+            Write-Host "Cert valid until: $($sig.SignerCertificate.NotAfter)"
+            if ($sig.SignerCertificate) {
+              $store = [System.Security.Cryptography.X509Certificates.X509Store]::new("TrustedPublisher","LocalMachine")
+              $store.Open("ReadWrite"); $store.Add($sig.SignerCertificate); $store.Close()
+              Write-Host "Added signer to TrustedPublisher store"
+            }
           }
 
-          # Install via pnputil
-          pnputil /add-driver $inf.FullName /install
-          Write-Host "pnputil exit code: $LASTEXITCODE"
+          Write-Host "Running pnputil /add-driver $($inf.FullName) /install"
+          $pnpOutput = & pnputil /add-driver $inf.FullName /install 2>&1
+          $rc = $LASTEXITCODE
+          $pnpOutput | ForEach-Object { Write-Host "  $_" }
+          Write-Host "pnputil exit code: $rc"
 
-          # Trigger device enumeration without reboot
+          Write-Host "Running pnputil /scan-devices to enumerate without reboot"
           pnputil /scan-devices
 
-          # Show what happened
-          Get-CimInstance Win32_SoundDevice | Format-Table Name, Status, Manufacturer
-          Get-PnpDevice -Class MEDIA | Format-Table FriendlyName, Status, Class
+          Start-Sleep -Seconds 3
+
+          Write-Host "Win32_SoundDevice query:"
+          Get-CimInstance Win32_SoundDevice | Format-Table Name, Status, Manufacturer -AutoSize
+
+          Write-Host "PnP MEDIA-class devices:"
+          Get-PnpDevice -Class MEDIA -ErrorAction SilentlyContinue | Format-Table FriendlyName, Status, Class -AutoSize
 
       - name: verify audio endpoint usable
         shell: powershell
