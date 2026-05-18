@@ -404,7 +404,7 @@ UtlBoolean MpSrtp::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, c
       return FALSE;
    }
 
-   OsSysLog::add(FAC_MP, PRI_INFO, "MpSrtp::setSrtpParams: Srtp enabled, cryptoSuite=%s, purpose=%s", this, SdpMediaLine::SdpCryptoSuiteTypeString[mCryptoSuite], forUnprotect ? "Inbound/Unprotect" : "Outbound/Protect");
+   OsSysLog::add(FAC_MP, PRI_INFO, "MpSrtp::setSrtpParams: Srtp enabled, cryptoSuite=%s, purpose=%s", SdpMediaLine::SdpCryptoSuiteTypeString[mCryptoSuite], forUnprotect ? "Inbound/Unprotect" : "Outbound/Protect");
    mSrtpSessionCreated = TRUE;
 
    return TRUE;
