@@ -203,3 +203,55 @@ following:
 	Once the batch file completes, sipXportLib, sipXtackLib, sipXmediaLib, 
 	sipXmediaAdapterLib, and all associated unit tests are built.
 
+
+SRTP Support
+============
+SDES SRTP and DTLS SRTP are both supported in sipXmediaLib / sipXmediaAdpaterLib
+However this support is disabled in the default builds.
+
+At this time SRTP support for RTCP has NOT been implemented and it is required
+to disable RTCP support in sipXmediaLib in order to enable SRTP support.
+
+The following requirements are needed to enable SRTP support in sipXtapi:
+- The preprocessor defines: ENABLE_SRTP and EXCLUDE_RTCP must be defined in the
+  following components:
+  - sipXmediaLib
+  - sipXmediaLibTest
+  - sipXmediaAdapterLib
+  - sipXmediaAdpaterLibTest
+  - mstream sample program
+- for DTLS SRTP support, HAVE_SSL must be defined in the following components:
+  - sipXportLib
+  - sipXmediaLib
+  - sipXtackLib
+  - sipXmediaAdpaterLibTest
+
+Application Use
+---------------
+SDES-SRTP Support:
+SDES-SRTP is enabled on a per-connection basis through the startRtpSend() and 
+startRtpReceive() overloads on CpTopologyGraphInterface that accept a 
+SdpMediaLine::SdpCryptoSuiteType and a base64-encoded master key+salt string. 
+The SIP/SDP layer is responsible for negotiating the crypto suite and key via 
+the SDP a=crypto attribute (RFC 4568), then passing those values into the two 
+startRtp* calls after setConnectionDestination(). The standard (no-crypto) 
+overloads of both methods remain available for unencrypted sessions; calling 
+the crypto overload on a connection already configured for DTLS-SRTP is an error.
+
+DTLS-SRTP (RFC 5764) Support:
+At application startup, optionally call the static 
+CpTopologyGraphInterface::setDtlsIdentity() with paths to a PEM certificate and 
+matching private key; if omitted, a self-signed ECDSA P-256 certificate is 
+auto-generated on first use. Call the static getLocalDtlsFingerprint() to retrieve 
+the fingerprint string to advertise in outgoing SDP a=fingerprint lines. Per 
+connection, call setDtlsSrtpParams() with the remote fingerprint, hash algorithm 
+(e.g. "SHA-256"), and the resolved a=setup role (TCP_SETUP_ATTRIBUTE_ACTIVE or 
+TCP_SETUP_ATTRIBUTE_PASSIVE — the SIP layer must resolve actpass before calling). 
+The DTLS handshake starts automatically once both setDtlsSrtpParams() and 
+setConnectionDestination() have been called; SRTP keys are installed internally 
+on completion. Use the non-keyed overloads of startRtpSend() and startRtpReceive() 
+for DTLS-SRTP connections — do not pass keys manually. Completion or failure is 
+reported via the notification dispatcher as DTLS_HANDSHAKE_COMPLETE or 
+DTLS_HANDSHAKE_FAILED. The static setDtlsSrtpProfiles() and setDtlsHandshakeTimeout() 
+methods allow optional process-level tuning of the offered cipher suites and 
+handshake timeout respectively.
