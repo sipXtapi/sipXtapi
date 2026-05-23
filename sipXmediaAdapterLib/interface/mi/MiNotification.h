@@ -83,7 +83,8 @@ public:
       MI_NOTF_INPUT_DEVICE_NOW_PRESENT,
       MI_NOTF_OUTPUT_DEVICE_NOW_PRESENT,
       MI_NOTF_DTLS_HANDSHAKE_COMPLETE,    ///< MiNotification base class
-      MI_NOTF_DTLS_HANDSHAKE_FAILED       ///< MiIntNotf carrying failure reason
+      MI_NOTF_DTLS_HANDSHAKE_FAILED,      ///< MiIntNotf carrying failure reason
+      MI_NOTF_ICE_CANDIDATE_NOMINATED     ///< MiStringNotf carrying nominated candidate information
    } NotfType;
 
      /// Connection ID that indicates invalid connection or no connection.

@@ -1,5 +1,6 @@
-//
-// Copyright (C) SIP Spectrum, Inc.  All rights reserved.
+// 
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007-2012 SIPez LLC.  All rights reserved.
 //
@@ -39,8 +40,10 @@ const char* SdpMediaLine::SdpTransportProtocolTypeString[] =
 {
     // WARNING: this array must stay in synch. with the enum SdpTransportProtocolType
    "NONE",
+   "UNKNOWN",
    "UDP",
    "RTP/AVP",
+   "RTP/AVPF",
    "RTP/SAVP",
    "RTP/SAVPF",
    "TCP",
@@ -50,6 +53,7 @@ const char* SdpMediaLine::SdpTransportProtocolTypeString[] =
    "DCCP/TLS",
    "DCCP/TLS/RTP/SAVP",
    "UDP/TLS/RTP/SAVP",
+   "UDP/TLS/RTP/SAVPF",
    "TCP/TLS/RTP/SAVP"
 };
 
@@ -642,6 +646,10 @@ SdpMediaLine::getTransportProtocolTypeFromString(const UtlString& stringType)
    {
       return PROTOCOL_TYPE_RTP_AVP;
    }
+   else if (stringType.compareTo("RTP/AVPF", UtlString::ignoreCase) == 0)
+   {
+      return PROTOCOL_TYPE_RTP_AVPF;
+   }
    else if(stringType.compareTo("RTP/SAVP", UtlString::ignoreCase) == 0)
    {
       return PROTOCOL_TYPE_RTP_SAVP;
@@ -677,6 +685,10 @@ SdpMediaLine::getTransportProtocolTypeFromString(const UtlString& stringType)
    else if(stringType.compareTo("UDP/TLS/RTP/SAVP", UtlString::ignoreCase) == 0)
    {
       return PROTOCOL_TYPE_UDP_TLS_RTP_SAVP;
+   }
+   else if (stringType.compareTo("UDP/TLS/RTP/SAVPF", UtlString::ignoreCase) == 0)
+   {
+      return PROTOCOL_TYPE_UDP_TLS_RTP_SAVPF;
    }
    else if(stringType.compareTo("TCP/TLS/RTP/SAVP", UtlString::ignoreCase) == 0)
    {

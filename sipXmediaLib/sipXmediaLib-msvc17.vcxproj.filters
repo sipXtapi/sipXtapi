@@ -1116,6 +1116,9 @@
     <ClInclude Include="include\mp\MpDtlsPacketMsg.h">
       <Filter>mp</Filter>
     </ClInclude>
+    <ClInclude Include="include\mp\MprnIceNominatedMsg.h">
+      <Filter>mp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rtcp">

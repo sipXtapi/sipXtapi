@@ -1,4 +1,7 @@
 // 
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2006 Pingtel Corp.
 // 
 // $$
@@ -218,6 +221,103 @@ public:
      * notification object is discarded.
      */
     virtual void setReadNotification(OsNotification* pNotification) = 0 ;
+
+    /**
+     * Configure ICE credentials for this socket. Once set, the
+     * OsNatAgentTask STUN responder will:
+     *   - Validate USERNAME on incoming STUN Binding Requests
+     *   - Validate MESSAGE-INTEGRITY using localPwd as the
+     *     HMAC-SHA1 key
+     *   - Include MESSAGE-INTEGRITY and FINGERPRINT in outgoing
+     *     Binding Responses, signed with localPwd
+     *
+     * Without this call, the STUN responder operates in legacy mode
+     * (no integrity validation, no signed responses) -- preserving
+     * historical sipXtapi behavior for non-ICE peers.
+     *
+     * remotePwd is stored but not currently used. It is reserved for
+     * a future full-ICE implementation that initiates outbound STUN
+     * Binding Requests; ice-lite mode (the current behavior) only
+     * responds, so only local credentials are referenced on the wire.
+     *
+     * Default implementation is a no-op, allowing IStunSocket
+     * implementations that don't need ICE support to ignore the call.
+     */
+    virtual void setIceCredentials(const UtlString& /*localUfrag*/,
+                                   const UtlString& /*localPwd*/,
+                                   const UtlString& /*remoteUfrag*/,
+                                   const UtlString& /*remotePwd*/)
+    {
+    }
+
+    /**
+     * Retrieve a snapshot of the ICE credentials configured for this
+     * socket. Returns true if credentials have been set, false
+     * otherwise. Outputs are populated only when this returns true.
+     *
+     * Default implementation returns false (no credentials).
+     */
+    virtual bool getIceCredentials(UtlString& /*localUfrag*/,
+                                   UtlString& /*localPwd*/,
+                                   UtlString& /*remoteUfrag*/,
+                                   UtlString& /*remotePwd*/)
+    {
+        return false ;
+    }
+
+    /**
+     * Cheap inquiry: are ICE credentials configured on this socket?
+     * Equivalent to getIceCredentials() but skips the string copies.
+     *
+     * Default implementation returns false.
+     */
+    virtual bool hasIceCredentials()
+    {
+        return false ;
+    }
+
+    /**
+     * Callback type invoked when a STUN Binding Request carrying the
+     * USE-CANDIDATE attribute arrives (RFC 8445 7.3.1.5). The callback
+     * is called on the OsNatAgentTask thread.
+     *
+     * @param remoteIp   Source IP of the nominating packet (NUL-terminated).
+     * @param remotePort Source port of the nominating packet.
+     * @param userData   Opaque pointer supplied to setIceNominationCallback.
+     */
+    typedef void (*IceNominationCallback)(const char* remoteIp,
+                                          int         remotePort,
+                                          void*       userData) ;
+
+    /**
+     * Register a callback to be invoked on the first STUN Binding Request
+     * carrying USE-CANDIDATE. The callback fires exactly once per session;
+     * subsequent USE-CANDIDATE packets are ignored until the socket is
+     * reconfigured.
+     *
+     * Pass callback=NULL to deregister.
+     *
+     * Default implementation is a no-op.
+     */
+    virtual void setIceNominationCallback(IceNominationCallback callback,
+                                          void*                 userData)
+    {
+        (void)callback ;
+        (void)userData ;
+    }
+
+    /**
+     * Fire the registered ICE nomination callback.
+     * Called by OsNatAgentTask after a valid USE-CANDIDATE Binding Request.
+     * No-op if no callback is registered or it has already fired.
+     *
+     * Default implementation is a no-op.
+     */
+    virtual void fireIceNomination(const UtlString& remoteIp, int remotePort)
+    {
+        (void)remoteIp ;
+        (void)remotePort ;
+    }
 
 /* ============================ ACCESSORS ================================= */
 

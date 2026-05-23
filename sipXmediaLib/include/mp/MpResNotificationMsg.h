@@ -73,7 +73,8 @@ public:
       MPRNM_INPUT_DEVICE_NOW_PRESENT,
       MPRNM_OUTPUT_DEVICE_NOW_PRESENT,
       MPRNM_DTLS_HANDSHAKE_COMPLETE,    ///< MpResNotificationMsg base class
-      MPRNM_DTLS_HANDSHAKE_FAILED       ///< MprnIntMsg carrying MpDtls::FailureReason
+      MPRNM_DTLS_HANDSHAKE_FAILED,      ///< MprnIntMsg carrying MpDtls::FailureReason
+      MPRNM_ICE_CANDIDATE_NOMINATED     ///< MprnIceNominatedMsg carrying remote IP + port
    } RNMsgType;
 
    /* ============================ CREATORS ================================== */

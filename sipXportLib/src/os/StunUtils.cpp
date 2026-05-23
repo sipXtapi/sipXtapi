@@ -1,3 +1,6 @@
+// 
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -387,91 +390,103 @@ static const char* convertAttributeToString(unsigned short attribute)
 
     switch (attribute)
     {
-        case ATTR_STUN_MAPPED_ADDRESS:
+       case ATTR_STUN_MAPPED_ADDRESS:
             szAttribute = "ATTR_STUN_MAPPED_ADDRESS" ;
             break ;
-        case ATTR_STUN_RESPONSE_ADDRESS:
+       case ATTR_STUN_RESPONSE_ADDRESS:
             szAttribute = "ATTR_STUN_RESPONSE_ADDRESS" ;
             break ;
-        case ATTR_STUN_CHANGE_REQUEST:
+       case ATTR_STUN_CHANGE_REQUEST:
             szAttribute = "ATTR_STUN_CHANGE_REQUEST" ;
             break ;
-        case ATTR_STUN_SOURCE_ADDRESS:
+       case ATTR_STUN_SOURCE_ADDRESS:
             szAttribute = "ATTR_STUN_SOURCE_ADDRESS" ;
             break ;
-        case ATTR_STUN_CHANGED_ADDRESS:    
+       case ATTR_STUN_CHANGED_ADDRESS:
             szAttribute = "ATTR_STUN_CHANGED_ADDRESS" ;
             break ;
-        case ATTR_STUN_USERNAME:           
+       case ATTR_STUN_USERNAME:
             szAttribute = "ATTR_STUN_USERNAME" ;
             break ;
-        case ATTR_STUN_PASSWORD:           
+       case ATTR_STUN_PASSWORD:
             szAttribute = "ATTR_STUN_PASSWORD" ;
             break ;
-        case ATTR_STUN_MESSAGE_INTEGRITY:  
+       case ATTR_STUN_MESSAGE_INTEGRITY:
             szAttribute = "ATTR_STUN_MESSAGE_INTEGRITY" ;
             break ;
-        case ATTR_STUN_ERROR_CODE:
+       case ATTR_STUN_ERROR_CODE:
             szAttribute = "ATTR_STUN_ERROR_CODE" ;
             break ;
-        case ATTR_STUN_UNKNOWN_ATTRIBUTE:
+       case ATTR_STUN_UNKNOWN_ATTRIBUTE:
             szAttribute = "ATTR_STUN_UNKNOWN_ATTRIBUTE" ;
             break ;
-        case ATTR_STUN_REFLECTED_FROM:
+       case ATTR_STUN_REFLECTED_FROM:
             szAttribute = "ATTR_STUN_REFLECTED_FROM" ;
             break ;
-        case ATTR_STUN_ALTERNATE_SERVER:
-        case ATTR_STUN_ALTERNATE_SERVER2:
+       case ATTR_STUN_ALTERNATE_SERVER:
+       case ATTR_STUN_ALTERNATE_SERVER2:
             szAttribute = "ATTR_STUN_ALTERNATE_SERVER" ;
             break ;
-        case ATTR_STUN_REALM:
+       case ATTR_STUN_REALM:
             szAttribute = "ATTR_STUN_REALM" ;
             break ;
-        case ATTR_STUN_NONCE:
+       case ATTR_STUN_NONCE:
             szAttribute = "ATTR_STUN_NONCE" ;
             break ;        
-        case ATTR_STUN_XOR_MAPPED_ADDRESS:
-        case ATTR_STUN_XOR_MAPPED_ADDRESS2:
+       case ATTR_STUN_XOR_MAPPED_ADDRESS:
+       case ATTR_STUN_XOR_MAPPED_ADDRESS2:
             szAttribute = "ATTR_STUN_XOR_MAPPED_ADDRESS" ;
             break ;
-        case ATTR_STUN_XOR_ONLY:
+       case ATTR_STUN_XOR_ONLY:
             szAttribute = "ATTR_STUN_XOR_ONLY" ;
             break ;
-        case ATTR_STUN_FINGERPRINT_BIS4:
+       case ATTR_STUN_FINGERPRINT_BIS4:
             szAttribute = "ATTR_STUN_FINGERPRINT_BIS4" ;
             break ;
-        case ATTR_STUN_FINGERPRINT:
-            szAttribute = "ATTR_STUN_FINGERPRINT";
-            break;
-        case ATTR_STUN_SERVER:
-        case ATTR_STUN_SERVER2:
+       case ATTR_STUN_FINGERPRINT:
+          szAttribute = "ATTR_STUN_FINGERPRINT";
+          break;
+       case ATTR_STUN_SERVER:
+       case ATTR_STUN_SERVER2:
             szAttribute = "ATTR_STUN_SERVER" ;
             break ;
-        case ATTR_STUN_BINDING_LIFETIME:
+       case ATTR_STUN_BINDING_LIFETIME:
             szAttribute = "ATTR_STUN_BINDING_LIFETIME" ;
             break ;
-        case ATTR_TURN_LIFETIME:
-            szAttribute = "ATTR_TURN_LIFETIME" ;
+       case ATTR_STUN_PRIORITY:
+            szAttribute = "ATTR_STUN_PRIORITY" ;
             break ;
-        case ATTR_TURN_MAGIC_COOKIE:
-            szAttribute = "ATTR_TURN_MAGIC_COOKIE" ;
+       case ATTR_STUN_USE_CANDIDATE:
+            szAttribute = "ATTR_STUN_USE_CANDIDATE" ;
             break ;
-        case ATTR_TURN_BANDWIDTH:
+       case ATTR_STUN_ICE_CONTROLLED:
+            szAttribute = "ATTR_STUN_ICE_CONTROLLED" ;
+            break ;
+       case ATTR_STUN_ICE_CONTROLLING:
+            szAttribute = "ATTR_STUN_ICE_CONTROLLING" ;
+            break ;
+       case ATTR_TURN_LIFETIME:
+          szAttribute = "ATTR_TURN_LIFETIME" ;
+          break ;
+       case ATTR_TURN_MAGIC_COOKIE:
+          szAttribute = "ATTR_TURN_MAGIC_COOKIE" ;
+          break ;
+       case ATTR_TURN_BANDWIDTH:
             szAttribute = "ATTR_TURN_BANDWIDTH" ;
             break ;
-        case ATTR_TURN_DESTINATION_ADDRESS:
+       case ATTR_TURN_DESTINATION_ADDRESS:
             szAttribute = "ATTR_TURN_DESTINATION_ADDRESS" ;
             break ;
-        case ATTR_TURN_REMOTE_ADDRESS:
+       case ATTR_TURN_REMOTE_ADDRESS:
             szAttribute = "ATTR_TURN_REMOTE_ADDRESS" ;
             break ;
-        case ATTR_TURN_DATA:
+       case ATTR_TURN_DATA:
             szAttribute = "ATTR_TURN_DATA" ;
             break ;
-        case ATTR_TURN_RELAY_ADDRESS:
+       case ATTR_TURN_RELAY_ADDRESS:
             szAttribute = "ATTR_TURN_RELAY_ADDRESS" ;
             break ;
-        case ATTR_TURN_REQUESTED_TRANSPORT:
+       case ATTR_TURN_REQUESTED_TRANSPORT:
             szAttribute = "ATTR_TURN_REQUESTED_TRANSPORT" ;
             break ;
     }
@@ -487,8 +502,8 @@ void StunUtils::debugDump(char* pPacket, size_t nPacket, UtlString& output)
 
     char* pTraverse = pPacket ;
 
-    if (    StunMessage::isStunMessage(pPacket, nPacket) || 
-            TurnMessage::isTurnMessage(pPacket, nPacket))
+    if (StunMessage::isStunMessage(pPacket, nPacket) || 
+        TurnMessage::isTurnMessage(pPacket, nPacket))
     {
         STUN_MESSAGE_HEADER msgHeader ;
         memcpy(&msgHeader, pPacket, sizeof(msgHeader)) ;
@@ -510,43 +525,47 @@ void StunUtils::debugDump(char* pPacket, size_t nPacket, UtlString& output)
         }
         output.append("\n") ;
 
-        while (pTraverse < (pPacket + nPacket) )
+        while (pTraverse < (pPacket + nPacket))
         {
-            if (((pPacket + nPacket) - pTraverse) >= sizeof(STUN_ATTRIBUTE_HEADER))
-            {
-                STUN_ATTRIBUTE_HEADER attrHeader ;
-                memcpy(&attrHeader, pTraverse, sizeof(attrHeader)) ;
-                pTraverse += sizeof(attrHeader) ;            
-                
-                sprintf(cTemp, "attr t=0x%04X/%s, l=%d\n  v=", 
-                    ntohs(attrHeader.type), 
-                    convertAttributeToString(ntohs(attrHeader.type)),
-                    ntohs(attrHeader.length)) ;
-                output.append(cTemp) ;           
- 
-                if (((pPacket + nPacket) - pTraverse) >= ntohs(attrHeader.length))
-                {
-                    for (int i=0; i<ntohs(attrHeader.length); i++)
-                    {
-                        unsigned char ch = *pTraverse ;
-                        sprintf(cTemp, "%02X", ch) ;
-                        cTemp[2] = 0 ;
-                        *pTraverse++ ;
-                        output.append(cTemp) ;
-                    }
-                    output.append("\n") ;
-                }
-                else
-                {
-                    output.append("**CORRUPT PACKET LENGTH**\n") ;
-                    break ;
-                }
-            }
-            else
-            {
-                output.append("**CORRUPT PACKET ATTR HEADER**\n") ;
-                break ;
-            }
+           if (((pPacket + nPacket) - pTraverse) >= sizeof(STUN_ATTRIBUTE_HEADER))
+           {
+              STUN_ATTRIBUTE_HEADER attrHeader;
+              memcpy(&attrHeader, pTraverse, sizeof(attrHeader));
+
+              uint16_t attrType = ntohs(attrHeader.type);
+              uint16_t attrLen = ntohs(attrHeader.length);
+
+              // Calculate padding: total size must be a multiple of 4
+              int paddedLen = (attrLen + 3) & ~3;
+
+              pTraverse += sizeof(STUN_ATTRIBUTE_HEADER); // Move past header
+
+              sprintf(cTemp, "attr t=0x%04X/%s, l=%d, v=", attrType, convertAttributeToString(attrType), attrLen);
+              output.append(cTemp);
+
+              if (((pPacket + nPacket) - (pTraverse - sizeof(STUN_ATTRIBUTE_HEADER))) >= (sizeof(STUN_ATTRIBUTE_HEADER) + paddedLen))
+              {
+                 // Print the actual data (only the 'attrLen' bytes)
+                 for (int i = 0; i < attrLen; i++)
+                 {
+                    sprintf(cTemp, "%02X", (unsigned char)*pTraverse++);
+                    output.append(cTemp);
+                 }
+                 output.append("\n");
+
+                 // Advance pointer by the remaining padding bytes
+                 pTraverse += (paddedLen - attrLen);
+              }
+              else
+              {
+                 output.append("**CORRUPT PACKET LENGTH**\n");
+                 break;
+              }
+           }
+           else
+           {
+              break; // End of packet
+           }
         }
     }
     else

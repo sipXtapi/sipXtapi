@@ -1,3 +1,6 @@
+// 
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //  
 // Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
@@ -43,6 +46,25 @@
 // STATIC VARIABLE INITIALIZATIONS
 OsMutex OsNatAgentTask::sLock(OsMutex::Q_FIFO) ;
 OsNatAgentTask* OsNatAgentTask::spInstance = NULL ;
+
+// LOCAL HELPERS
+
+/// Validate the USERNAME attribute of an inbound ICE Binding Request.
+/// Per RFC 5245 7.1.2.3 / RFC 8445 7.2.2, USERNAME has the form
+/// "LFRAG:RFRAG" where LFRAG is the *receiver's* ufrag (us).
+bool validateIceUsername(const char* userBuf,
+   const UtlString& expectedLocalUfrag,
+   const UtlString& expectedRemoteUfrag)
+{
+   if (!userBuf)
+   {
+      return false;
+   }
+   UtlString expected(expectedLocalUfrag);
+   expected.append(":");
+   expected.append(expectedRemoteUfrag);
+   return strcmp(userBuf, expected.data()) == 0;
+}
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -216,7 +238,6 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
                     msg.getMagicId(&magicId) ;
                     respMsg.setMagicId(magicId) ;
 
-
                     // Check for unknown attributes
                     if (msg.getUnknownParsedAttributes(unknownAttributes, 
                             STUN_MAX_UNKNOWN_ATTRIBUTES, nUnknownAttributes) &&
@@ -230,39 +251,98 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
                     }
                     else
                     {
-                        // TODO: Send Error if changed port/ip is requested
-
-                        // Set Response type
-                        respMsg.setType(MSG_STUN_BIND_RESPONSE) ;                        
-
-                         // Obey XOR request
-                        if (msg.getRequestXorOnly())
+                        // ICE credential check (if configured on this socket).
+                        // For sockets in ice-lite mode (WebRTC peers), we
+                        // validate USERNAME and MESSAGE-INTEGRITY using the
+                        // local credentials advertised in our SDP a=ice-pwd /
+                        // a=ice-ufrag. Sockets without credentials configured
+                        // fall through to the legacy unauthenticated path.
+                        UtlString iceLocalUfrag, iceLocalPwd ;
+                        UtlString iceRemoteUfrag, iceRemotePwd ;
+                        bool bIceEnabled = pSocket->getIceCredentials(iceLocalUfrag, iceLocalPwd,
+                                                                      iceRemoteUfrag, iceRemotePwd) ;
+                        bool bIceDrop = false ;
+                        if (bIceEnabled)
                         {
-                            respMsg.setSendXorOnly() ;
+                            char username[STUN_MAX_STRING_LENGTH + 1] = { 0 } ;
+                            if (!msg.getUsername(username) || 
+                                !validateIceUsername(username, iceLocalUfrag, iceRemoteUfrag))
+                            {
+                                OsSysLog::add(FAC_NET, PRI_INFO,
+                                    "OsNatAgentTask: ICE Binding Request from %s:%d "
+                                    "dropped (USERNAME validation failed)",
+                                    rMsg.getReceivedIp().data(),
+                                    rMsg.getReceivedPort()) ;
+                                bIceDrop = true ;
+                            }
+                            else if (!msg.isMessageIntegrityValid(iceLocalPwd.data(),
+                                                                  iceLocalPwd.length()))
+                            {
+                                OsSysLog::add(FAC_NET, PRI_INFO,
+                                    "OsNatAgentTask: ICE Binding Request from %s:%d "
+                                    "dropped (MESSAGE-INTEGRITY validation failed)",
+                                    rMsg.getReceivedIp().data(),
+                                    rMsg.getReceivedPort()) ;
+                                bIceDrop = true ;
+                            }
                         }
 
-                        // Set Mapped Address
-                        respMsg.setMappedAddress(rMsg.getReceivedIp(), rMsg.getReceivedPort()) ;
-
-                        // Set Source Address
-                        respMsg.setSourceAddress(pSocket->getSocket()->getLocalIp(), pSocket->getSocket()->getLocalHostPort()) ;
-
-                        // Check for response address
-                        char cResponseAddress[64] ;
-                        uint16_t responsePort ;
-                        if (msg.getResponseAddress(cResponseAddress, responsePort))
+                        if (!bIceDrop)
                         {
-                            respMsg.setReflectedFrom(pSocket->getSocket()->getLocalIp(), pSocket->getSocket()->getLocalHostPort()) ;
-                            sendToAddress = cResponseAddress ;
-                            sendToPort = responsePort ;
-                        }
-                        else
-                        {
-                            sendToAddress = rMsg.getReceivedIp() ;
-                            sendToPort = rMsg.getReceivedPort() ;
-                        }
+                            // TODO: Send Error if changed port/ip is requested
 
-                        sendMessage(&respMsg, pSocket, sendToAddress, sendToPort, STUN_DISCOVERY_PACKET) ;
+                            // Set Response type
+                            respMsg.setType(MSG_STUN_BIND_RESPONSE) ;
+
+                             // Obey XOR request
+                            if (msg.getRequestXorOnly())
+                            {
+                                respMsg.setSendXorOnly() ;
+                            }
+
+                            // Set Mapped Address
+                            respMsg.setMappedAddress(rMsg.getReceivedIp(), rMsg.getReceivedPort()) ;
+
+                            // Set Source Address
+                            respMsg.setSourceAddress(pSocket->getSocket()->getLocalIp(), pSocket->getSocket()->getLocalHostPort()) ;
+
+                            // Check for response address
+                            char cResponseAddress[64] ;
+                            uint16_t responsePort ;
+                            if (msg.getResponseAddress(cResponseAddress, responsePort))
+                            {
+                                respMsg.setReflectedFrom(pSocket->getSocket()->getLocalIp(), pSocket->getSocket()->getLocalHostPort()) ;
+                                sendToAddress = cResponseAddress ;
+                                sendToPort = responsePort ;
+                            }
+                            else
+                            {
+                                sendToAddress = rMsg.getReceivedIp() ;
+                                sendToPort = rMsg.getReceivedPort() ;
+                            }
+
+                            // For ICE(-lite) responses, sign the response with our
+                            // local password and include FINGERPRINT. Browsers
+                            // require both attributes on ICE Binding Responses.
+                            if (bIceEnabled)
+                            {
+                                // Note: setPassword() is used here to set the key for MESSAGE-INTEGRITY, not to 
+                                //       add a PASSWORD attribute to the message.  Password attributes are only
+                                //       added when in LegacyMode handling.
+                                respMsg.setPassword(iceLocalPwd.data());
+                                respMsg.setIncludeMessageIntegrity(true) ;
+                                respMsg.setIncludeFingerPrint(true) ;
+
+                                // Check for USE-CANDIDATE (RFC 8445 7.3.1.5): the browser is nominating this
+                                // candidate pair.  Notify the upper layers.
+                                if (msg.getUseCandidate())
+                                {
+                                   pSocket->fireIceNomination(sendToAddress, sendToPort);
+                                }
+                            }
+
+                            sendMessage(&respMsg, pSocket, sendToAddress, sendToPort, STUN_DISCOVERY_PACKET) ;
+                        }
                     }
                 }
                 break ;

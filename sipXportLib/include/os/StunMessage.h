@@ -59,12 +59,16 @@
 #define ATTR_STUN_XOR_MAPPED_ADDRESS            0x0020
 #define ATTR_STUN_XOR_ONLY                      0x0021  // deprecated
 #define ATTR_STUN_FINGERPRINT_BIS4              0x0023  // bis-04 fingerprint deprecated
+#define ATTR_STUN_PRIORITY                      0x0024  // ICE RFC8445
+#define ATTR_STUN_USE_CANDIDATE                 0x0025  // ICE RFC8445
 #define ATTR_STUN_XOR_MAPPED_ADDRESS2           0x8020  // deprecated
 #define ATTR_STUN_SERVER                        0x8022  
 #define ATTR_STUN_SERVER2                       0x0022  // deprecated
 #define ATTR_STUN_ALTERNATE_SERVER              0x8023  
 #define ATTR_STUN_BINDING_LIFETIME              0x8024 
 #define ATTR_STUN_FINGERPRINT                   0x8028  // RFC5389/8489 fingerprint
+#define ATTR_STUN_ICE_CONTROLLED                0x8029  // ICE RFC8445
+#define ATTR_STUN_ICE_CONTROLLING               0x802A  // ICE RFC8445
 
 #define ATTR_CHANGE_FLAG_PORT                   0x0002  // deprecated
 #define ATTR_CHANGE_FLAG_IP                     0x0004  // deprecated
@@ -287,6 +291,8 @@ class StunMessage
 
     void setAltServer(const char* szIp, uint16_t port) ;
 
+    void setUseCandidate(bool set) ;
+
 /* ============================ ACCESSORS ================================= */
 
     void getMagicId(STUN_MAGIC_ID* pMagicId) ;
@@ -333,6 +339,8 @@ class StunMessage
 
     bool getFingerPrint(bool& bValid) ;
 
+    bool getUseCandidate() ;
+
 /* ============================ INQUIRY =================================== */
 
     virtual bool validateMessageType(uint16_t type) ;
@@ -371,6 +379,8 @@ class StunMessage
     bool encodeAttributeError(STUN_ATTRIBUTE_ERROR* pError, char*& pBuf, size_t& nBytesLeft) ;
 
     bool encodeAttributesUnknown(STUN_ATTRIBUTE_UNKNOWN* pAttributes, char*& pBuf, size_t& nBytesLeft) ;
+
+    bool encodeFlag(uint16_t type, char*& pBuf, size_t& nBytesLeft) ;
 
     virtual bool parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf) ;
 
@@ -437,9 +447,10 @@ class StunMessage
     bool                   mbIncludeMessageIntegrity ;
     STUN_ATTRIBUTE_ADDRESS mAltServer ;
     bool                   mbAltServerValid ;
+    bool                   mbUseCandidate ;
     bool                   mbIncludeFingerPrint ;
     char                   mbFingerPrintValid ;
-    uint32_t          mFingerPrint ;
+    uint32_t               mFingerPrint ;
     char*                  mpRawData ;
     size_t                 mnRawData ;
     bool                   mbLegacyMode ;

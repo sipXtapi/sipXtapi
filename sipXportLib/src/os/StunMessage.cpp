@@ -125,6 +125,7 @@ void StunMessage::reset()
     mbIncludeMessageIntegrity = false ;
     memset(&mAltServer, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
     mbAltServerValid = false ;
+    mbUseCandidate = false ;
     mbIncludeFingerPrint = !mbLegacyMode ;
     mbFingerPrintValid = false ;
     mFingerPrint = 0 ;
@@ -272,14 +273,36 @@ bool StunMessage::encode(char* pBuf, size_t nBufLength, size_t& nActualLength)
     // Calc/add message integrity (already made room)
     if (mbIncludeMessageIntegrity && isRequestOrNonErrorResponse())
     {
+        // HMAC is computed over the message bytes from the start of the
+        // header up to (but not including) the MESSAGE-INTEGRITY attribute.
+        // The header's length field at the time of HMAC computation must
+        // reflect a message that includes MESSAGE-INTEGRITY but excludes
+        // FINGERPRINT (RFC 5389 §15.4). We patch the length field in the
+        // already-encoded buffer for the HMAC, then restore the on-wire
+        // length (which includes both MESSAGE-INTEGRITY and FINGERPRINT)
+        // before FINGERPRINT is appended.
         int nSHA1Length = nActualLength - (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mMessageIntegrity)) ;
         if (mbIncludeFingerPrint)
         {
             nSHA1Length -= (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mFingerPrint)) ;
         }
 
-        calculateHmacSha1(pBuf, nSHA1Length, NULL, STUN_MAX_MESSAGE_INTEGRITY_LENGTH, 
-                mMessageIntegrity) ;
+        // Patch length field at offset 2 to exclude FINGERPRINT.
+        // Header length = (total - HEADER_SIZE) but with FINGERPRINT space removed.
+        uint16_t origLenBE ;
+        memcpy(&origLenBE, pBuf + 2, sizeof(uint16_t)) ;
+        if (mbIncludeFingerPrint)
+        {
+            uint16_t patchedLen = (uint16_t)(nActualLength - sizeof(STUN_MESSAGE_HEADER)
+                                  - (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mFingerPrint))) ;
+            uint16_t patchedLenBE = htons(patchedLen) ;
+            memcpy(pBuf + 2, &patchedLenBE, sizeof(uint16_t)) ;
+        }
+
+        calculateHmacSha1(pBuf, nSHA1Length, mPassword, strlen(mPassword), mMessageIntegrity) ;
+
+        // Restore on-wire length.
+        memcpy(pBuf + 2, &origLenBE, sizeof(uint16_t)) ;
 
         mbMessageIntegrityValid = true ;
 
@@ -357,12 +380,12 @@ bool StunMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
     }
 
     // Add Change Request
-        if ((!bError) && mbChangeRequestValid)
-        {
-            bError = !(encodeAttributeHeader(ATTR_STUN_CHANGE_REQUEST, 
-                sizeof(uint32_t), pTraverse, nBytesLeft) &&
-                encodeLong(mChangeRequest, pTraverse, nBytesLeft)) ;
-        }
+    if ((!bError) && mbChangeRequestValid)
+    {
+        bError = !(encodeAttributeHeader(ATTR_STUN_CHANGE_REQUEST, 
+            sizeof(uint32_t), pTraverse, nBytesLeft) &&
+            encodeLong(mChangeRequest, pTraverse, nBytesLeft)) ;
+    }
 
     // Add Source Address
     if ((!bError) && mbSourceAddressValid)
@@ -378,8 +401,11 @@ bool StunMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
                 nBytesLeft) ;
     }
     
-    // Add Password
-    if ((!bError) && mbPasswordValid)
+    // Add Password - only for legacy mode (bis 4) since RFC 5389 or RFC 8445 
+    // doesn't allow password attribute and instead requires message integrity
+    // For ICE use, we should never be communicating the password in the clear
+    // on the RTP stream.
+    if ((!bError) && mbPasswordValid && mbLegacyMode)
     {
         bError = !encodeString(ATTR_STUN_PASSWORD, mPassword, pTraverse, 
                 nBytesLeft) ;
@@ -432,6 +458,12 @@ bool StunMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
                 nBytesLeft) ;
     }
 
+    // Add Use-Candidate (if set)
+    if ((!bError) && mbUseCandidate)
+    {
+       bError = !encodeFlag(ATTR_STUN_USE_CANDIDATE, pTraverse, nBytesLeft) ;
+    }
+
     nBytesUsed = nBufLength - nBytesLeft ;
 
     return bError ;
@@ -440,6 +472,7 @@ bool StunMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
 void StunMessage::setMagicId(STUN_MAGIC_ID& rMagicId)
 {
     memcpy(&mMsgHeader.magicId, &rMagicId, sizeof(STUN_MAGIC_ID)) ;
+    mbLegacyMode = mMsgHeader.magicId.id != STUN_MAGIC_COOKIE;
 }
 
 void StunMessage::setTransactionId(STUN_TRANSACTION_ID& rTransactionId)
@@ -628,6 +661,11 @@ void StunMessage::setAltServer(const char* szIp, uint16_t port)
     mAltServer.address = ntohl(inet_addr(szIp)) ;
     mAltServer.port = port ;
     mbAltServerValid = true ;
+}
+
+void StunMessage::setUseCandidate(bool set)
+{
+   mbUseCandidate = set ;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -861,6 +899,10 @@ bool StunMessage::getAltServer(char* szIp, uint16_t& rPort)
     return mbAltServerValid ;        
 }
 
+bool StunMessage::getUseCandidate()
+{
+   return mbUseCandidate ;
+}
 
 /* ============================ INQUIRY =================================== */
 
@@ -1013,9 +1055,90 @@ bool StunMessage::isRequestOrNonErrorResponse()
 
 bool StunMessage::isMessageIntegrityValid(const char* cPassword, size_t nPassword)
 {
-    return false ;
-}
+    // Validate the MESSAGE-INTEGRITY attribute on a parsed inbound message
+    // by recomputing the HMAC-SHA1 over the raw on-wire bytes and comparing
+    // against the received 20-byte value.
+    //
+    // RFC 5389 15.4: MESSAGE-INTEGRITY may be the last attribute, OR may be
+    // followed by FINGERPRINT (the only attribute permitted to follow it).
+    // The HMAC was computed by the sender with the message header's length
+    // field set to exclude FINGERPRINT but include MESSAGE-INTEGRITY itself.
+    if (!cPassword || nPassword == 0 || !mpRawData || mnRawData < sizeof(STUN_MESSAGE_HEADER))
+    {
+        return false ;
+    }
 
+    const size_t miAttrSize = sizeof(STUN_ATTRIBUTE_HEADER) + STUN_MAX_MESSAGE_INTEGRITY_LENGTH ;
+    const size_t fpAttrSize = sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(uint32_t) ;
+
+    // Locate MESSAGE-INTEGRITY. Try the FINGERPRINT-present layout first
+    // (it's the more common case for ICE traffic from browsers), then fall
+    // back to MESSAGE-INTEGRITY as the last attribute.
+    size_t miOffset = 0 ;
+    bool   bHasFingerprint = false ;
+
+    if (mnRawData >= sizeof(STUN_MESSAGE_HEADER) + miAttrSize + fpAttrSize)
+    {
+        size_t candidate = mnRawData - miAttrSize - fpAttrSize ;
+        STUN_ATTRIBUTE_HEADER* pHdr = (STUN_ATTRIBUTE_HEADER*)(mpRawData + candidate) ;
+        if (ntohs(pHdr->type) == ATTR_STUN_MESSAGE_INTEGRITY &&
+            ntohs(pHdr->length) == STUN_MAX_MESSAGE_INTEGRITY_LENGTH)
+        {
+            // Also confirm a FINGERPRINT follows.
+            STUN_ATTRIBUTE_HEADER* pFp = (STUN_ATTRIBUTE_HEADER*)(mpRawData + candidate + miAttrSize) ;
+            uint16_t fpType = ntohs(pFp->type) ;
+            if ((fpType == ATTR_STUN_FINGERPRINT || fpType == ATTR_STUN_FINGERPRINT_BIS4) &&
+                ntohs(pFp->length) == sizeof(uint32_t))
+            {
+                miOffset = candidate ;
+                bHasFingerprint = true ;
+            }
+        }
+    }
+
+    if (miOffset == 0 && mnRawData >= sizeof(STUN_MESSAGE_HEADER) + miAttrSize)
+    {
+        size_t candidate = mnRawData - miAttrSize ;
+        STUN_ATTRIBUTE_HEADER* pHdr = (STUN_ATTRIBUTE_HEADER*)(mpRawData + candidate) ;
+        if (ntohs(pHdr->type) == ATTR_STUN_MESSAGE_INTEGRITY &&
+            ntohs(pHdr->length) == STUN_MAX_MESSAGE_INTEGRITY_LENGTH)
+        {
+            miOffset = candidate ;
+        }
+    }
+
+    if (miOffset == 0)
+    {
+        return false ;  // MESSAGE-INTEGRITY not present
+    }
+
+    // HMAC is computed over bytes [0..miOffset), but with the header's
+    // length field temporarily set to exclude FINGERPRINT while including
+    // MESSAGE-INTEGRITY. Work on a copy to avoid mutating mpRawData.
+    size_t hmacInputLen = miOffset ;
+    char* workBuf = (char*)malloc(hmacInputLen) ;
+    if (!workBuf)
+    {
+        return false ;
+    }
+    memcpy(workBuf, mpRawData, hmacInputLen) ;
+
+    // Patch length field at offset 2: message size excluding the 20-byte
+    // STUN header itself, including MESSAGE-INTEGRITY, excluding FINGERPRINT.
+    uint16_t patchedLen = (uint16_t)(miOffset + miAttrSize - sizeof(STUN_MESSAGE_HEADER)) ;
+    uint16_t patchedLenBE = htons(patchedLen) ;
+    memcpy(workBuf + 2, &patchedLenBE, sizeof(uint16_t)) ;
+
+    char computed[STUN_MAX_MESSAGE_INTEGRITY_LENGTH] ;
+    calculateHmacSha1(workBuf, hmacInputLen, cPassword, nPassword, computed) ;
+    free(workBuf) ;
+
+    const char* pReceivedHmac = mpRawData + miOffset + sizeof(STUN_ATTRIBUTE_HEADER) ;
+    bool bMatch = (memcmp(computed, pReceivedHmac, STUN_MAX_MESSAGE_INTEGRITY_LENGTH) == 0) ;
+
+    (void)bHasFingerprint ;  // currently unused; kept for diagnostic logging if needed
+    return bMatch ;
+}
 
 bool StunMessage::isFingerPrintValid() 
 {
@@ -1273,6 +1396,17 @@ bool StunMessage::encodeAttributesUnknown(STUN_ATTRIBUTE_UNKNOWN* pAttributes, c
     return bRC ;
 }
 
+bool StunMessage::encodeFlag(uint16_t type, char*& pBuf, size_t& nBytesLeft)
+{
+   bool bRC = false;
+   
+   if (nBytesLeft >= sizeof(STUN_ATTRIBUTE_HEADER))
+   {
+      bRC = encodeAttributeHeader(type, 0, pBuf, nBytesLeft);
+   }
+
+   return bRC;
+}
 
 bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
 {
@@ -1367,10 +1501,31 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
             bValid = parseAddressAttribute(pBuf, pHeader->length, &mAltServer) ;
             mbAltServerValid = bValid ;
             break ;
+        case ATTR_STUN_PRIORITY:
+            // We don't actually need to parse the priority value, but we want to recognize the attribute as valid if it is present
+            // TODO eventually parse and expose the priority value if we find a use for it (64bit integer value)
+            bValid = true;
+            break;
+        case ATTR_STUN_USE_CANDIDATE:
+           if (pHeader->length == 0)
+           {
+              mbUseCandidate = true;
+              bValid = true;
+           }
+           else
+           {
+              bValid = false;
+           }
+           break;
         default:
             if ((pHeader->type <= 0x7FFF) && (mUnknownParsedAttributes.nTypes < STUN_MAX_UNKNOWN_ATTRIBUTES))
             {
                 mUnknownParsedAttributes.type[mUnknownParsedAttributes.nTypes++] = pHeader->type ;
+            }
+            if (pHeader->type > 0x7FFF)
+            {
+               // Comprehension is not required for parameters in this range, just treat as valid
+               bValid = true;
             }
             break ;
     }
@@ -1522,21 +1677,13 @@ bool StunMessage::parseUnknownAttribute(char* pBuf, size_t nLength, STUN_ATTRIBU
     return bValid ;
 }
 
-// zero pads to 64 boundry and results will be 20 bytes long for hmac/sha1
 void StunMessage::calculateHmacSha1(const char* pDataIn, 
                                     size_t      nDataIn, 
                                     const char* pKey, 
                                     size_t      nKey, 
                                     char        results[20]) 
 {
-    size_t nPaddedLength = ((nDataIn + 63) / 64) * 64 ;
-    char* pTempBuf = (char*) malloc(nPaddedLength) ;
-    memset(pTempBuf, 0, nPaddedLength) ;
-    memcpy(pTempBuf, pDataIn, nDataIn) ;
-
-    memset(results, 0, 20) ;
-    hmac_sha1(pTempBuf, nPaddedLength, pKey, nKey, results) ;
-    free(pTempBuf) ;
+   hmac_sha1(pDataIn, nDataIn, pKey, nKey, results);
 }
 
 

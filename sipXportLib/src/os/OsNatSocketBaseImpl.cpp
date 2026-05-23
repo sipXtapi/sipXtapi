@@ -1,3 +1,6 @@
+// 
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -41,7 +44,12 @@
 /* ============================ CREATORS ================================== */
 
 OsNatSocketBaseImpl::OsNatSocketBaseImpl() :
-      mReadNotificationLock(OsMutex::Q_FIFO)
+      mReadNotificationLock(OsMutex::Q_FIFO),
+      mIceCredsLock(OsMutex::Q_FIFO),
+      mbIceCredsSet(false),
+      mpIceNominationCallback(NULL),
+      mpIceNominationUserData(NULL),
+      mbIceNominationFired(false)
 {
     miRecordTimes = ONDS_MARK_NONE ;
     mpReadNotification = NULL ;
@@ -115,6 +123,94 @@ void OsNatSocketBaseImpl::setReadNotification(OsNotification* pNotification)
 
     mpReadNotification = pNotification ;
 }
+
+
+void OsNatSocketBaseImpl::setIceCredentials(const UtlString& localUfrag,
+                                            const UtlString& localPwd,
+                                            const UtlString& remoteUfrag,
+                                            const UtlString& remotePwd)
+{
+    OsLock lock(mIceCredsLock) ;
+
+    mIceLocalUfrag  = localUfrag ;
+    mIceLocalPwd    = localPwd ;
+    mIceRemoteUfrag = remoteUfrag ;
+    mIceRemotePwd   = remotePwd ;
+
+    // Treat as "set" only when all required fields are non-empty.
+    // Empty localUfrag, remoteUfrag or localPwd would render integrity
+    // validation and username validation meaningless; we'd rather fall
+    // back to legacy mode in that case.
+    mbIceCredsSet = !localUfrag.isNull() && !localPwd.isNull() && !remoteUfrag.isNull() ;
+}
+
+
+bool OsNatSocketBaseImpl::getIceCredentials(UtlString& localUfrag,
+                                            UtlString& localPwd,
+                                            UtlString& remoteUfrag,
+                                            UtlString& remotePwd)
+{
+    OsLock lock(mIceCredsLock) ;
+
+    if (!mbIceCredsSet)
+    {
+        return false ;
+    }
+
+    localUfrag  = mIceLocalUfrag ;
+    localPwd    = mIceLocalPwd ;
+    remoteUfrag = mIceRemoteUfrag ;
+    remotePwd   = mIceRemotePwd ;
+    return true ;
+}
+
+
+bool OsNatSocketBaseImpl::hasIceCredentials()
+{
+    OsLock lock(mIceCredsLock) ;
+    return mbIceCredsSet ;
+}
+
+
+void OsNatSocketBaseImpl::setIceNominationCallback(
+        IStunSocket::IceNominationCallback callback,
+        void*                              userData)
+{
+    OsLock lock(mIceCredsLock) ;
+
+    mpIceNominationCallback = callback ;
+    mpIceNominationUserData = userData ;
+    mbIceNominationFired    = false ;   // reset on reconfigure
+}
+
+
+void OsNatSocketBaseImpl::fireIceNomination(const UtlString& remoteIp, int remotePort)
+{
+    IceNominationCallback cb ;
+    void*                 ud ;
+
+    {
+        OsLock lock(mIceCredsLock) ;
+
+        // One-shot: ignore subsequent USE-CANDIDATE packets for this session.
+        if (mbIceNominationFired || mpIceNominationCallback == NULL)
+        {
+            return ;
+        }
+        mbIceNominationFired = true ;
+        cb = mpIceNominationCallback ;
+        ud = mpIceNominationUserData ;
+    }
+
+    // Invoke outside the lock — the callback may call back into sipX
+    // layers that acquire their own locks.
+    OsSysLog::add(FAC_NET, PRI_INFO,
+        "OsNatSocketBaseImpl::fireIceNomination: ICE candidate nominated: %s:%d",
+        remoteIp.data(), remotePort) ;
+
+    cb(remoteIp.data(), remotePort, ud) ;
+}
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

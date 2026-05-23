@@ -1,4 +1,6 @@
-// $Id$
+// 
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.// $Id$
 //
 // Copyright (C) 2005 Pingtel Corp.
 //
@@ -13,6 +15,7 @@
 #include "os/OsMutex.h"
 #include "os/IStunSocket.h"
 #include "os/OsNotification.h"
+#include "utl/UtlString.h"
 
 // The follow defines are used to keep track of what has been recorded for
 // various time-based metrics.
@@ -35,6 +38,66 @@ public:
      * notification object is discarded.
      */
     virtual void setReadNotification(OsNotification* pNotification) ;
+
+    /**
+     * Configure ICE credentials for this socket. Once set, the STUN
+     * responder in OsNatAgentTask will:
+     *   - Validate USERNAME on incoming STUN Binding Requests
+     *   - Validate MESSAGE-INTEGRITY using localPwd as the HMAC-SHA1 key
+     *   - Include MESSAGE-INTEGRITY and FINGERPRINT in outgoing
+     *     Binding Responses, signed with localPwd
+     *
+     * Without this call, the STUN responder operates in legacy mode
+     * (no integrity validation, no signed responses) -- preserving the
+     * historical sipXtapi behavior.
+     *
+     * remotePwd is stored but not currently used. It is reserved for
+     * a future full-ICE implementation that initiates outbound STUN
+     * Binding Requests; ice-lite mode (the current behavior) only
+     * responds, so only local credentials are referenced on the wire.     
+     *
+     * Thread-safe: may be called from any thread. The OsNatAgentTask
+     * thread reads the credentials under the same lock when servicing
+     * STUN messages.
+     */
+    virtual void setIceCredentials(const UtlString& localUfrag,
+                                   const UtlString& localPwd,
+                                   const UtlString& remoteUfrag,
+                                   const UtlString& remotePwd) ;
+
+    /**
+     * Retrieve a snapshot of the ICE credentials configured for this
+     * socket. Returns true if credentials have been set (via
+     * setIceCredentials), false otherwise.
+     *
+     * Outputs are copies, safe for the caller to retain regardless of
+     * concurrent reconfiguration. The four output strings are populated
+     * only when this function returns true.
+     */
+    virtual bool getIceCredentials(UtlString& localUfrag,
+                                   UtlString& localPwd,
+                                   UtlString& remoteUfrag,
+                                   UtlString& remotePwd) ;
+
+    /**
+     * Cheap inquiry: are ICE credentials configured on this socket?
+     * Equivalent to getIceCredentials() but skips the string copies.
+     */
+    virtual bool hasIceCredentials() ;
+
+    /**
+     * Register a callback to be invoked on the first STUN Binding Request
+     * carrying USE-CANDIDATE. See IStunSocket::IceNominationCallback.
+     * Thread-safe.
+     */
+    virtual void setIceNominationCallback(IStunSocket::IceNominationCallback callback,
+                                          void* userData) ;
+
+    /**
+     * Fire the registered ICE nomination callback (one-shot).
+     * Called by OsNatAgentTask. Thread-safe.
+     */
+    virtual void fireIceNomination(const UtlString& remoteIp, int remotePort) ;
     
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -105,6 +168,22 @@ protected:
     OsDateTime            mLastWrite ;
     OsMutex               mReadNotificationLock ;
     OsNotification*       mpReadNotification ;
+
+    // ICE credentials state. mIceCredsLock protects all five fields
+    // below; held briefly across copies in get/set. mbIceCredsSet
+    // doubles as the "ICE enabled?" flag for OsNatAgentTask.
+    OsMutex               mIceCredsLock ;
+    UtlString             mIceLocalUfrag ;
+    UtlString             mIceLocalPwd ;
+    UtlString             mIceRemoteUfrag ;
+    UtlString             mIceRemotePwd ;
+    bool                  mbIceCredsSet ;
+
+    // ICE nomination callback. Protected by mIceCredsLock.
+    // The higher layer passes 'this' as userData and casts it back in the callback.
+    IStunSocket::IceNominationCallback mpIceNominationCallback ; ///< NULL until set
+    void*                              mpIceNominationUserData ;  ///< opaque context
+    bool                               mbIceNominationFired ;     ///< one-shot guard
     
 };
 

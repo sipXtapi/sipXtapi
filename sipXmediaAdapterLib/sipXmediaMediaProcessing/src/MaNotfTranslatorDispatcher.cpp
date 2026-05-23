@@ -18,6 +18,7 @@
 #include <mp/MprnProgressMsg.h>
 #include <mp/MprnRtpStreamActivityMsg.h>
 #include <mp/MprnStringMsg.h>
+#include <mp/MprnIceNominatedMsg.h>
 
 // APPLICATION INCLUDES
 #include <MaNotfTranslatorDispatcher.h>
@@ -138,6 +139,25 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
                              mediaLibNotf.getValue(),
                              (int)(mediaLibNotf.getConnectionId()),
                              mediaLibNotf.getStreamId());
+            stat = mpAbstractedMsgDispatcher->post(miNotf);
+         }
+         break;
+      case MpResNotificationMsg::MPRNM_ICE_CANDIDATE_NOMINATED:
+         {
+            // Pass the nomination upward as a string notification carrying
+            // "ip:port" so the SIP/application layer can observe it if desired.
+            // CpTopologyGraphInterface intercepts this notification before
+            // it reaches here to call setConnectionDestination, so by the
+            // time this fires the media stack is already configured.
+            MprnIceNominatedMsg& nomMsg = (MprnIceNominatedMsg&)resNotf;
+            UtlString addrStr(nomMsg.getRemoteIp());
+            addrStr += ":";
+            addrStr.appendFormat("%d", nomMsg.getRemotePort());
+            MiStringNotf miNotf(lookupNotfType(notfType),
+                                nomMsg.getOriginatingResourceName(),
+                                addrStr,
+                                (int)nomMsg.getConnectionId(),
+                                nomMsg.getStreamId());
             stat = mpAbstractedMsgDispatcher->post(miNotf);
          }
          break;
@@ -380,6 +400,9 @@ MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgTy
       break;
    case MpResNotificationMsg::MPRNM_DTLS_HANDSHAKE_FAILED:
       miNotfType = MiNotification::MI_NOTF_DTLS_HANDSHAKE_FAILED;
+      break;
+   case MpResNotificationMsg::MPRNM_ICE_CANDIDATE_NOMINATED:
+      miNotfType = MiNotification::MI_NOTF_ICE_CANDIDATE_NOMINATED;
       break;
    case MpResNotificationMsg::MPRNM_TONE_DETECT_ON:
        miNotfType = MiNotification::MI_NOTF_TONE_DETECT_ON;

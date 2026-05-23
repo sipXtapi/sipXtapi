@@ -467,6 +467,7 @@
     <ClInclude Include="include\mp\MprHookConstructor.h" />
     <ClInclude Include="include\mp\MprMixer.h" />
     <ClInclude Include="include\mp\MprnDTMFMsg.h" />
+    <ClInclude Include="include\mp\MprnIceNominatedMsg.h" />
     <ClInclude Include="include\mp\MprnIntMsg.h" />
     <ClInclude Include="include\mp\MprnProgressMsg.h" />
     <ClInclude Include="include\mp\MprnRtpStreamActivityMsg.h" />

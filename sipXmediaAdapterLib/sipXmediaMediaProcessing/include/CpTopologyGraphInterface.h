@@ -389,6 +389,66 @@ public:
    *                            for SDES-SRTP.
    */
 
+   /// Configure ICE credentials for a connection, enabling ice-lite
+   /// STUN authentication on the RTP socket. Required when the remote
+   /// peer is a WebRTC endpoint (e.g. a browser).
+   ///
+   /// When credentials are set, the STUN responder will:
+   ///   - Validate USERNAME on incoming Binding Requests. Usernames are
+   ///     in the form "LFRAG:RFRAG" must match localUfrag:remoteUfrag.
+   ///   - Validate MESSAGE-INTEGRITY using localPwd as the HMAC-SHA1
+   ///     key.
+   ///   - Include MESSAGE-INTEGRITY and FINGERPRINT on outgoing
+   ///     Binding Responses, signed with localPwd.
+   ///
+   /// Without this call, the STUN responder for the connection
+   /// operates in legacy mode (no integrity validation, no signed
+   /// responses), preserving the historical sipXtapi behavior for
+   /// non-ICE peers.
+   ///
+   /// The credentials should be set after the connection's RTP socket
+   /// has been created (via createConnection) and before media flows.
+   /// In practice this means immediately after the SIP layer has
+   /// generated the local ICE credentials for the SDP answer.
+   ///
+   /// Note: remotePwd is stored for forward compatibility with a future
+   ///       full-ICE implementation but is not currently used; ice-lite
+   ///       mode never initiates outbound STUN Binding Requests for ICE
+   ///       and so does not need the peer's credentials.
+   virtual OsStatus setIceCredentials(int connectionId,
+                                      CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                      const UtlString& localUfrag,
+                                      const UtlString& localPwd,
+                                      const UtlString& remoteUfrag = "",
+                                      const UtlString& remotePwd   = "");
+   /**
+   *  @param[in] connectionId - connection to configure.
+   *  @param[in] mediaType - CpMediaInterface::AUDIO_STREAM or
+   *             CpMediaInterface::VIDEO_STREAM.
+   *  @param[in] localUfrag - the value advertised in our SDP answer
+   *             as a=ice-ufrag. Must be non-empty.
+   *  @param[in] localPwd   - the value advertised in our SDP answer
+   *             as a=ice-pwd. Must be non-empty.
+   *  @param[in] remoteUfrag - the peer's a=ice-ufrag from their SDP.
+   *  @param[in] remotePwd   - the peer's a=ice-pwd. Stored but not
+   *             used in ice-lite mode.
+   *
+   *  @retval OS_SUCCESS         credentials applied.
+   *  @retval OS_NOT_FOUND       invalid connectionId or no RTP socket
+   *                             for the requested mediaType.
+   *  @retval OS_INVALID_ARGUMENT  empty localUfrag or empty localPwd.
+   */
+
+    /// Called by the ICE nomination trampoline when USE-CANDIDATE is received,
+    /// in a valid STUN Binding Request.  Calls setConnectionDestination with 
+    /// the nominated address and posts MI_NOTF_ICE_CANDIDATE_NOMINATED for the
+    /// SIP / application layer. 
+    /// Not for external use.
+    void handleIceNomination(int connectionId, 
+                             CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                             const char* remoteIp, 
+                             int remotePort);
+
     /// @copydoc CpMediaInterface::copyPayloadIds
     virtual OsStatus copyPayloadIds(int connectionId, int numCodecs, SdpCodec* remoceCodecs[]);
 

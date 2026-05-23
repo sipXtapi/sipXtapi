@@ -69,19 +69,22 @@ public:
    {
        // WARNING: this enum must stay in synch. with SdpTransportProtocolTypeString
       PROTOCOL_TYPE_NONE,
-      PROTOCOL_TYPE_UDP,         // "udp" - RFC4566
-      PROTOCOL_TYPE_RTP_AVP,     // "RTP/AVP" - RFC4566
-      PROTOCOL_TYPE_RTP_SAVP,    // "RTP/SAVP" - RFC4566
-      PROTOCOL_TYPE_RTP_SAVPF,   // "RTP/SAVPF" - RFC3711
-      PROTOCOL_TYPE_TCP,         // "TCP" - RFC4145
-      PROTOCOL_TYPE_TCP_RTP_AVP, // "TCP/RTP/AVP" - RFC4571
-      PROTOCOL_TYPE_TCP_TLS,     // "TCP/TLS" - RFC4572
-      PROTOCOL_TYPE_UDP_TLS,     // "UDP/TLS" - draft-fischl-mmusic-sdp-dtls-04
-      PROTOCOL_TYPE_DCCP_TLS,    // "DCCP/TLS" - draft-fischl-mmusic-sdp-dtls-04
-      PROTOCOL_TYPE_DCCP_TLS_RTP_SAVP, // "DCCP/TLS/RTP/SAVP" - draft-fischl-mmusic-sdp-dtls-04
-      PROTOCOL_TYPE_UDP_TLS_RTP_SAVP,  // "UDP/TLS/RTP/SAVP" - draft-fischl-mmusic-sdp-dtls-04
-      PROTOCOL_TYPE_TCP_TLS_RTP_SAVP   // "TCP/TLS/RTP/SAVP" - draft-fischl-mmusic-sdp-dtls-04
-   } SdpTransportProtocolType;     
+      PROTOCOL_TYPE_UNKNOWN,
+      PROTOCOL_TYPE_UDP,         // "udp" - RFC 4566
+      PROTOCOL_TYPE_RTP_AVP,     // "RTP/AVP" - RFC 3551, RFC 4566
+      PROTOCOL_TYPE_RTP_AVPF,    // "RTP/AVPF" - RFC4585
+      PROTOCOL_TYPE_RTP_SAVP,    // "RTP/SAVP" - RFC 3711
+      PROTOCOL_TYPE_RTP_SAVPF,   // "RTP/SAVPF" - RFC 5124
+      PROTOCOL_TYPE_TCP,         // "TCP" - RFC 4145
+      PROTOCOL_TYPE_TCP_RTP_AVP, // "TCP/RTP/AVP" - RFC 4571
+      PROTOCOL_TYPE_TCP_TLS,     // "TCP/TLS" - RFC 4572
+      PROTOCOL_TYPE_UDP_TLS,     // "UDP/TLS" - RFC 5764
+      PROTOCOL_TYPE_DCCP_TLS,    // "DCCP/TLS" - RFC 5764
+      PROTOCOL_TYPE_DCCP_TLS_RTP_SAVP, // "DCCP/TLS/RTP/SAVP" - RFC 5764
+      PROTOCOL_TYPE_UDP_TLS_RTP_SAVP,  // "UDP/TLS/RTP/SAVP" - RFC 5764, RFC 7345
+      PROTOCOL_TYPE_UDP_TLS_RTP_SAVPF,  // "UDP/TLS/RTP/SAVPF" - RFC 5764, RFC 7345
+      PROTOCOL_TYPE_TCP_TLS_RTP_SAVP   // "TCP/TLS/RTP/SAVP" - RFC 5764
+   } SdpTransportProtocolType;
    static const char* SdpTransportProtocolTypeString[];
 
    class SdpConnection : public UtlCopyableContainable

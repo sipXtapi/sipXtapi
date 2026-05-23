@@ -228,6 +228,8 @@ MpDtls::~MpDtls()
    OsLock lock(mLock);
    teardownSsl();
 #endif
+
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpDtls::~MpDtls: destroyed");
 }
 
 // static

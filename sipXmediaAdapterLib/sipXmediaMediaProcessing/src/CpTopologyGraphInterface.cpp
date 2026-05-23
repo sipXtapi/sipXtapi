@@ -54,6 +54,35 @@
 #include <CpTopologyGraphInterface.h>
 #include <CpTopologyGraphFactoryImpl.h>
 #include <TypeConverter.h>
+#include <mp/MprnIceNominatedMsg.h>
+
+// ICE nomination context and trampoline. A per-connection context struct
+// carries the information the callback needs to call back into the right
+// CpTopologyGraphInterface instance.
+
+struct CpIceNominationContext
+{
+   CpTopologyGraphInterface*           pInterface;
+   int                                 connectionId;
+   CpMediaInterface::MEDIA_STREAM_TYPE mediaType;
+};
+
+/// Static trampoline — signature matches IStunSocket::IceNominationCallback.
+/// Called on the OsNatAgentTask thread; setConnectionDestination is
+/// thread-safe, so no additional synchronisation is required here.
+static void iceNominationTrampoline(const char* remoteIp,
+                                    int         remotePort,
+                                    void*       userData)
+{
+   CpIceNominationContext* ctx = static_cast<CpIceNominationContext*>(userData);
+   if (ctx && ctx->pInterface)
+   {
+      ctx->pInterface->handleIceNomination(ctx->connectionId,
+                                           ctx->mediaType,
+                                           remoteIp,
+                                           remotePort);
+   }
+}
 
 #if MAXIMUM_RECORDER_CHANNELS > 1
 #  include <mp/MpResourceFactory.h>
@@ -121,6 +150,10 @@ public:
     , mContactType(CONTACT_AUTO)
     , mbAlternateDestinations(FALSE)
     , mpAudioDtls(NULL)
+    , mpAudioIceNominationContext(NULL)
+#ifdef VIDEO
+    , mpVideoIceNominationContext(NULL)
+#endif
     {
     };
 
@@ -198,6 +231,14 @@ public:
            mpAudioDtls = NULL;
         }
 
+        // Free ICE nomination contexts.
+        delete mpAudioIceNominationContext;
+        mpAudioIceNominationContext = NULL;
+#ifdef VIDEO
+        delete mpVideoIceNominationContext;
+        mpVideoIceNominationContext = NULL;
+#endif
+
 #ifdef VIDEO
         if(mpVideoCodec)
         {
@@ -254,6 +295,13 @@ public:
 
     // Per-connection DTLS-SRTP handshake engine.
     MpDtls* mpAudioDtls;
+
+    // ICE nomination callback contexts — one per stream. Allocated in
+    // setIceCredentials, freed in the destructor. Owned by this struct.
+    CpIceNominationContext* mpAudioIceNominationContext;
+#ifdef VIDEO
+    CpIceNominationContext* mpVideoIceNominationContext;
+#endif
 };
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -763,9 +811,6 @@ CpTopologyGraphInterface::setNotificationDispatcher(OsMsgDispatcher* pNotificati
    }
    else
    {
-      // Otherwise, remove any dispatchers from the flowgraph, so as not to waste
-      // posting notifications to the translator dispatcher when it won't
-      // be doing anything with them.
       mpTopologyGraph->setNotificationDispatcher(NULL);
    }
    return oldDispatcher;
@@ -1236,7 +1281,9 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                     }
                 }
 
-                if(pMediaConnection->mpRtcpAudioSocket && (remoteRtcpPort > 0))           
+                // Port 9 in SDP is an indication of "port not specified".  In that case, do not set the destination on the RTCP socket.
+                // Ports 1-8 are also all assigned to legacy protocols and are not valid for RTP/RTCP, so treat those as discard as well.
+                if(pMediaConnection->mpRtcpAudioSocket && (remoteRtcpPort > 9))
                 {
                     if (!pMediaConnection->mIsMulticast)
                     {
@@ -1297,7 +1344,9 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                                                       TRUE);
                 }
 
-                if(pMediaConnection->mpRtcpVideoSocket && (remoteRtcpPort > 0))
+                // Port 9 in SDP is an indication of "port not specified".  In that case, do not set the destination on the RTCP socket.
+                // Ports 1-8 are also all assigned to legacy protocols and are not valid for RTP/RTCP, so treat those as discard as well.
+                if(pMediaConnection->mpRtcpVideoSocket && (remoteRtcpPort > 9))
                 {
                     pMediaConnection->mRtcpVideoSendHostPort = remoteRtcpPort;               
                     if (!pMediaConnection->mIsMulticast)
@@ -1646,6 +1695,139 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
    }
 
    return OS_SUCCESS;
+}
+
+OsStatus CpTopologyGraphInterface::setIceCredentials(int connectionId,
+                                                     CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                                     const UtlString& localUfrag,
+                                                     const UtlString& localPwd,
+                                                     const UtlString& remoteUfrag,
+                                                     const UtlString& remotePwd)
+{
+   // Reject empty local credentials and remoteUgrag -- integrity validation
+   // and username validation would be meaningless without them.
+   if (localUfrag.isNull() || localPwd.isNull() || remoteUfrag.isNull())
+   {
+      OsSysLog::add(FAC_CP, PRI_ERR,
+         "CpTopologyGraphInterface::setIceCredentials: "
+         "empty localUfrag, remoteUfrag or localPwd (connectionId=%d)", connectionId);
+      return OS_INVALID_ARGUMENT;
+   }
+
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+   if (mediaConnection == NULL)
+   {
+      return OS_NOT_FOUND;
+   }
+
+   // Pick the right RTP socket based on stream type.
+   OsSocket* pRtpSocket;
+   if (mediaType == CpMediaInterface::AUDIO_STREAM)
+   {
+      pRtpSocket = mediaConnection->mpRtpAudioSocket;
+   }
+   else  // VIDEO_STREAM
+   {
+#ifdef VIDEO
+      pRtpSocket = mediaConnection->mpRtpVideoSocket;
+#else
+      return OS_NOT_SUPPORTED;
+#endif
+   }
+
+   if (pRtpSocket == NULL)
+   {
+      OsSysLog::add(FAC_CP, PRI_ERR,
+         "CpTopologyGraphInterface::setIceCredentials: "
+         "no RTP socket for connectionId=%d mediaType=%d",
+         connectionId, mediaType);
+      return OS_NOT_FOUND;
+   }
+
+   // The RTP socket is an OsNatDatagramSocket (per the same convention
+   // used elsewhere in this file). OsNatDatagramSocket inherits
+   // OsNatSocketBaseImpl which inherits IStunSocket, so we can call
+   // setIceCredentials through the IStunSocket interface. The setter
+   // is thread-safe (internal mutex), so no flowgraph message hop is
+   // required.
+   OsNatDatagramSocket* pNatSocket = (OsNatDatagramSocket*)pRtpSocket;
+   pNatSocket->setIceCredentials(localUfrag, localPwd, remoteUfrag, remotePwd);
+
+   // Register the plain-C trampoline callback. A per-connection context
+   // struct is allocated and stored on the media connection so it lives as
+   // long as the connection. The trampoline calls handleIceNomination() which
+   // calls setConnectionDestination() and fires the notification upward.
+   //
+   // We only create one context per call to setIceCredentials
+   CpIceNominationContext* ctx = new CpIceNominationContext();
+   ctx->pInterface   = this;
+   ctx->connectionId = connectionId;
+   ctx->mediaType    = mediaType;
+
+   // Store on the connection so it lives as long as the connection.
+   // Audio and video each get their own context.
+   if (mediaType == CpMediaInterface::AUDIO_STREAM)
+   {
+      delete mediaConnection->mpAudioIceNominationContext;
+      mediaConnection->mpAudioIceNominationContext = ctx;
+   }
+#ifdef VIDEO
+   else
+   {
+      delete mediaConnection->mpVideoIceNominationContext;
+      mediaConnection->mpVideoIceNominationContext = ctx;
+   }
+#endif
+
+   pNatSocket->setIceNominationCallback(iceNominationTrampoline, ctx) ;
+
+   OsSysLog::add(FAC_CP, PRI_DEBUG,
+      "CpTopologyGraphInterface::setIceCredentials: "
+      "applied to connectionId=%d mediaType=%d (localUfrag=%s, remoteUfrag=%s)",
+      connectionId, mediaType, localUfrag.data(), remoteUfrag.data());
+
+   return OS_SUCCESS;
+}
+
+void CpTopologyGraphInterface::handleIceNomination(
+        int                                 connectionId,
+        CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+        const char*                         remoteIp,
+        int                                 remotePort)
+{
+   OsSysLog::add(FAC_CP, PRI_INFO,
+      "CpTopologyGraphInterface::handleIceNomination: "
+      "connectionId=%d mediaType=%d remote=%s:%d — calling setConnectionDestination",
+      connectionId, mediaType, remoteIp, remotePort);
+
+   // Call setConnectionDestination with the ICE-nominated address.
+   // rtcp-mux: remotePort+1 is used for RTCP; if the peer uses rtcp-mux
+   // this value is ignored. Either way it's harmless.
+   setConnectionDestination(connectionId,
+                            mediaType,
+                            0,             // stream index
+                            remoteIp,
+                            remotePort,
+                            remotePort + 1);
+
+   // Post MPRNM_ICE_CANDIDATE_NOMINATED so the SIP/application layer can
+   // observe the nomination event. Resource name reflects the stream type.
+   //
+   // Note: This message will get consumed by MaNotfTranslatorDispatcher and 
+   //       converted into a MiNotification::MI_NOTF_ICE_CANDIDATE_NOMINATED
+   //       with an object type of MiStringNotf with the value string containing
+   //       the nominated candidate in "host:port" format for application consumption.
+   OsMsgDispatcher* pDispatcher = mpTopologyGraph ? mpTopologyGraph->getNotificationDispatcher() : NULL;
+   if (pDispatcher)
+   {
+      UtlString resourceName = (mediaType == CpMediaInterface::AUDIO_STREAM)
+          ? UtlString(DEFAULT_RTP_INPUT_RESOURCE_NAME)
+          : UtlString(DEFAULT_VIDEO_RTP_INPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(resourceName, connectionId);
+
+      MprnIceNominatedMsg msg(resourceName, connectionId, UtlString(remoteIp), remotePort);
+      pDispatcher->post(msg);
+   }
 }
 
 OsStatus CpTopologyGraphInterface::getDtlsSrtpStatus(int connectionId,
@@ -4477,8 +4659,29 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
        mpTopologyGraph->destroyResources(*mediaConnection->mpResourceTopology,
                                          mediaConnection->getValue());
        mediaConnection->setValue(-1);
-       // I don't think this fence is required.
-//       mpTopologyGraph->synchronize();
+
+       // CRITICAL: This synchronize() is required, NOT optional.  It was previously
+       //           commented out.
+       //
+       // destroyResources() posts a destroy message to the flowgraph queue and
+       // returns immediately — it does NOT wait for the resources to actually
+       // be destructed. Without this fence:
+       //
+       //   1. The call-control thread returns from destroyResources(), continues
+       //      through deleteMediaConnection(), eventually deletes mediaConnection,
+       //      which runs ~CpTopologyMediaConnection and frees mpAudioDtls.
+       //
+       //   2. Meanwhile the flowgraph thread is still draining its queue. Any
+       //      MPRM_DTLS_PACKET (or MPRM_DTLS_RETRANSMIT / MPRM_DTLS_HANDSHAKE_TIMEOUT)
+       //      queued before the destroy message gets dispatched to MprFromNet,
+       //      which calls mpDtls->processIncomingPacket() on a freed pointer
+       //
+       // synchronize() blocks the call-control thread until the flowgraph has
+       // processed every message up to and including the destroy. By the time
+       // it returns, MprFromNet/MprToNet have been destructed and no further
+       // references to mpAudioDtls / mpVideoDtls exist anywhere in the flowgraph
+       // — so the subsequent ~CpTopologyMediaConnection can safely delete them.
+       mpTopologyGraph->synchronize("CpTopologyGraphInterface::deleteMediaConnection");
    }
 
    if(!mediaConnection->mIsCustomSockets && mediaConnection->mpRtpAudioSocket)
