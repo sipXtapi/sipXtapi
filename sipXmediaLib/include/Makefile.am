@@ -114,6 +114,7 @@ nobase_include_HEADERS =  \
     mp/MprFromStream.h \
     mp/MprMixer.h \
     mp/MprnDTMFMsg.h \
+    mp/MprnIceNominatedMsg.h \
     mp/MprnIntMsg.h \
     mp/MprnProgressMsg.h \
     mp/MprnRtpStreamActivityMsg.h \
