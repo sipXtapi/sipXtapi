@@ -202,13 +202,38 @@ public:
         UtlString deviceName;
         MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, deviceId, deviceName);
         UtlString stateString("unknown");
+        UtlString flowString("unknown");
         bool posted = false;
         OsStatus status = OS_UNSPECIFIED;
+
+        MpidWinMM::MpAudioEndpointFlow flow = MpidWinMM::MP_FLOW_UNKNOWN;
+        bool flowKnown = MpidWinMM::getEndpointDataFlow(mDeviceEnumeratorPtr, deviceId, flow);
+        if (flowKnown)
+        {
+            flowString = (flow == MpidWinMM::MP_FLOW_CAPTURE) ? "capture" :
+                         (flow == MpidWinMM::MP_FLOW_RENDER)  ? "render"  : "other";
+        }
 
         switch (newState)
         {
         case DEVICE_STATE_ACTIVE:
             stateString = "active";
+            if (!flowKnown)
+            {
+                OsSysLog::add(FAC_AUDIO, PRI_WARNING,
+                    "MpWinInputAudioDeviceNotifier::OnDeviceStateChanged"
+                    " could not determine flow for active device %s, skipping",
+                    deviceName.data());
+                break;
+            }
+            if (flow != MpidWinMM::MP_FLOW_CAPTURE)
+            {
+                OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+                    "MpWinInputAudioDeviceNotifier::OnDeviceStateChanged"
+                    " skipping non-capture active device %s flow %s",
+                    deviceName.data(), flowString.data());
+                break;
+            }
             if (nameIsSame(deviceName, mName))
             {
                 posted = true;
@@ -231,6 +256,22 @@ public:
                 *mpIsOpen = FALSE;
                 posted = true;
             }
+            if (!flowKnown)
+            {
+                OsSysLog::add(FAC_AUDIO, PRI_WARNING,
+                    "MpWinInputAudioDeviceNotifier::OnDeviceStateChanged"
+                    " could not determine flow for not-present device %s, skipping notification",
+                    deviceName.data());
+                break;
+            }
+            if (flow != MpidWinMM::MP_FLOW_CAPTURE)
+            {
+                OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+                    "MpWinInputAudioDeviceNotifier::OnDeviceStateChanged"
+                    " skipping non-capture not-present device %s flow %s",
+                    deviceName.data(), flowString.data());
+                break;
+            }
             if (mpInputDeviceManager)
             {
                 MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT, deviceName);
@@ -244,9 +285,10 @@ public:
         }
 
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
-            "MpWinInputAudioDeviceNotifier::OnDeviceStateChanged(%s, %s) same: %s, status: %d",
+            "MpWinInputAudioDeviceNotifier::OnDeviceStateChanged(%s, %s, %s) same: %s, status: %d",
             deviceName.data(),
             stateString.data(),
+            flowString.data(),
             posted ? "true" : "false",
             status);
 
@@ -1057,6 +1099,59 @@ void MpidWinMM::getWinNameForDevice(IMMDeviceEnumerator* deviceEnumeratorPtr, co
             "MpidWinMM::getWinNameForDevice: "
             "Failed to get IMMDeviceEnumerator");
     }
+}
+
+// static
+bool MpidWinMM::getEndpointDataFlow(IMMDeviceEnumerator* deviceEnumeratorPtr,
+                                    LPCWSTR deviceId,
+                                    MpAudioEndpointFlow& flow)
+{
+    flow = MP_FLOW_UNKNOWN;
+    if (!deviceEnumeratorPtr || !deviceId)
+    {
+        OsSysLog::add(FAC_AUDIO, PRI_WARNING,
+            "MpidWinMM::getEndpointDataFlow: NULL enumerator or deviceId");
+        return false;
+    }
+
+    IMMDevice* device = NULL;
+    HRESULT hr = deviceEnumeratorPtr->GetDevice(deviceId, &device);
+    if (hr != S_OK || !device)
+    {
+        OsSysLog::add(FAC_AUDIO, PRI_WARNING,
+            "MpidWinMM::getEndpointDataFlow: GetDevice failed hr=0x%08lx",
+            (unsigned long)hr);
+        return false;
+    }
+
+    IMMEndpoint* endpoint = NULL;
+    hr = device->QueryInterface(__uuidof(IMMEndpoint), (void**)&endpoint);
+    SAFE_RELEASE(device);
+    if (hr != S_OK || !endpoint)
+    {
+        OsSysLog::add(FAC_AUDIO, PRI_WARNING,
+            "MpidWinMM::getEndpointDataFlow: QueryInterface(IMMEndpoint) failed hr=0x%08lx",
+            (unsigned long)hr);
+        return false;
+    }
+
+    EDataFlow comFlow;
+    hr = endpoint->GetDataFlow(&comFlow);
+    SAFE_RELEASE(endpoint);
+    if (hr != S_OK)
+    {
+        OsSysLog::add(FAC_AUDIO, PRI_WARNING,
+            "MpidWinMM::getEndpointDataFlow: GetDataFlow failed hr=0x%08lx",
+            (unsigned long)hr);
+        return false;
+    }
+
+    if (comFlow == eRender)
+        flow = MP_FLOW_RENDER;
+    else if (comFlow == eCapture)
+        flow = MP_FLOW_CAPTURE;
+
+    return true;
 }
 
 bool MpidWinMM::nameIsSame(const UtlString& a, const UtlString& b)

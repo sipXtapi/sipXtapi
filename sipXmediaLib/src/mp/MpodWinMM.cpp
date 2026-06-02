@@ -244,20 +244,42 @@ public:
         UtlString deviceName;
         MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, deviceId, deviceName);
         UtlString stateString("unknown");
+        UtlString flowString("unknown");
         bool posted = false;
         OsStatus status = OS_UNSPECIFIED;
+
+        MpidWinMM::MpAudioEndpointFlow flow = MpidWinMM::MP_FLOW_UNKNOWN;
+        bool flowKnown = MpidWinMM::getEndpointDataFlow(mDeviceEnumeratorPtr, deviceId, flow);
+        if (flowKnown)
+        {
+            flowString = (flow == MpidWinMM::MP_FLOW_RENDER)   ? "render"  :
+                         (flow == MpidWinMM::MP_FLOW_CAPTURE)  ? "capture" : "other";
+        }
 
         switch (newState)
         {
         case DEVICE_STATE_ACTIVE:
             stateString = "active";
+            if (!flowKnown)
+            {
+                OsSysLog::add(FAC_AUDIO, PRI_WARNING,
+                    "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged"
+                    " could not determine flow for active device %s, skipping",
+                    deviceName.data());
+                break;
+            }
+            if (flow != MpidWinMM::MP_FLOW_RENDER)
+            {
+                OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+                    "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged"
+                    " skipping non-render active device %s flow %s",
+                    deviceName.data(), flowString.data());
+                break;
+            }
             if (MpidWinMM::nameIsSame(deviceName, mName))
             {
                 posted = true;
             }
-
-            // Regardless of whether the newly active device matches this one,
-            // send a notification in case the app wants to switch
             if (mpOutputDeviceManager)
             {
                 MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOW_PRESENT, deviceName);
@@ -266,7 +288,8 @@ public:
             else
             {
                 OsSysLog::add(FAC_MP, PRI_WARNING,
-                    "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged NULL mpOutputManager, no where to post DEVICE_NOW_PRESENT: (%s)",
+                    "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged"
+                    " NULL mpOutputDeviceManager, no where to post DEVICE_NOW_PRESENT: (%s)",
                     deviceName.data());
             }
             break;
@@ -280,27 +303,41 @@ public:
             if (MpidWinMM::nameIsSame(deviceName, mName))
             {
                 posted = true;
-
-                if(mpOutputDevice)
+                if (mpOutputDevice)
                 {
                     OsSysLog::add(FAC_AUDIO, PRI_INFO,
-                        "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged "
-                        "device not present, switching to MMTimer: %s",
+                        "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged"
+                        " device not present, switching to MMTimer: %s",
                         deviceName.data());
-
                     mpOutputDevice->switchToMMTimer();
                 }
             }
-            // Post output device not present for devices that do not match the active one
             else if (mpOutputDeviceManager)
             {
+                if (!flowKnown)
+                {
+                    OsSysLog::add(FAC_AUDIO, PRI_WARNING,
+                        "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged"
+                        " could not determine flow for not-present device %s, skipping notification",
+                        deviceName.data());
+                    break;
+                }
+                if (flow != MpidWinMM::MP_FLOW_RENDER)
+                {
+                    OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
+                        "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged"
+                        " skipping non-render not-present device %s flow %s",
+                        deviceName.data(), flowString.data());
+                    break;
+                }
                 MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_OUTPUT_DEVICE_NOT_PRESENT, deviceName);
                 status = mpOutputDeviceManager->postNotification(msg);
             }
             else
             {
                 OsSysLog::add(FAC_MP, PRI_WARNING,
-                    "MpodWinMM::OnDeviceStateChanged NULL mpOutputDeviceManager, no where to post DEVICE_NOT_PRESENT");
+                    "MpodWinMM::OnDeviceStateChanged NULL mpOutputDeviceManager,"
+                    " no where to post DEVICE_NOT_PRESENT");
             }
             break;
 
@@ -310,9 +347,10 @@ public:
         }
 
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
-            "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged(%s, %s) same: %s, status: %d devMgr: %p",
+            "MpWinOutputAudioDeviceNotifier::OnDeviceStateChanged(%s, %s, %s) same: %s, status: %d devMgr: %p",
             deviceName.data(),
             stateString.data(),
+            flowString.data(),
             posted ? "true" : "false",
             status,
             mpOutputDeviceManager);

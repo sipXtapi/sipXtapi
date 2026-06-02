@@ -176,6 +176,9 @@ protected:
     static void unregisterDeviceEnumerator(IMMDeviceEnumerator* deviceEnumeratorPtr, IMMNotificationClient* winAudioDeviceChangeCallback);
     static void getWinNameForDevice(IMMDeviceEnumerator* deviceEnumeratorPtr, const LPCWSTR winDeviceId, UtlString& deviceName);
 
+    enum MpAudioEndpointFlow { MP_FLOW_UNKNOWN, MP_FLOW_RENDER, MP_FLOW_CAPTURE };
+    static bool getEndpointDataFlow(IMMDeviceEnumerator* deviceEnumeratorPtr, LPCWSTR deviceId, MpAudioEndpointFlow& flow);
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
