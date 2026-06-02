@@ -13,16 +13,17 @@
 #include <mp/MpAudioBuf.h>
 #include <mp/MpInputDeviceManager.h>
 #ifdef WIN32
-#include <mp/MpidWinMM.h>
+#   include <mp/MpidWinMM.h>
+#   include <mmdeviceapi.h>
 #elif defined ANDROID
 #   include <mp/MpidAndroid.h>
 #   include <mp/MpAndroidAudioTrack.h>
 #elif defined __linux__
-#include <mp/MpidOss.h>
+#   include <mp/MpidOss.h>
 #elif defined __APPLE__
-#include <mp/MpidCoreAudio.h>
+#   include <mp/MpidCoreAudio.h>
 #else
-#include <mp/MpSineWaveGeneratorDeviceDriver.h>
+#   include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #endif
 #include <os/OsTask.h>
 #include <utl/UtlString.h>
@@ -40,6 +41,7 @@ class MpInputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testDoubleEnableInputDevice);
    CPPUNIT_TEST(testDoubleDisableInputDevice);
    CPPUNIT_TEST(testIsDeviceHardwareDetached);
+   CPPUNIT_TEST(testGetEndpointDataFlow);
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -527,6 +529,71 @@ void testIsDeviceHardwareDetached()
 #  else
       SIPX_TEST_SKIP("MpidWinMM is Windows-only");
 #  endif
+   }
+
+   void testGetEndpointDataFlow()
+   {
+#ifdef WIN32
+       IMMDeviceEnumerator* pEnum = MpidWinMM::getWinDeviceEnumerator();
+       if (!pEnum)
+       {
+           SIPX_TEST_SKIP("could not get IMMDeviceEnumerator");
+       }
+   
+       IMMDeviceCollection* pCollection = NULL;
+       HRESULT hr = pEnum->EnumAudioEndpoints(eAll, DEVICE_STATE_ACTIVE, &pCollection);
+       if (hr != S_OK || !pCollection)
+       {
+           pEnum->Release();
+           SIPX_TEST_SKIP("no active audio endpoints available");
+       }
+   
+       UINT count = 0;
+       pCollection->GetCount(&count);
+       if (count == 0)
+       {
+           pCollection->Release();
+           pEnum->Release();
+           SIPX_TEST_SKIP("no active audio endpoints available");
+       }
+   
+       for (UINT i = 0; i < count; i++)
+       {
+           IMMDevice* pDevice = NULL;
+           if (pCollection->Item(i, &pDevice) != S_OK || !pDevice)
+               continue;
+   
+           LPWSTR pwszId = NULL;
+           if (pDevice->GetId(&pwszId) != S_OK || !pwszId)
+           {
+               pDevice->Release();
+               continue;
+           }
+   
+           MpidWinMM::MpAudioEndpointFlow flow = MpidWinMM::MP_FLOW_UNKNOWN;
+           bool result = MpidWinMM::getEndpointDataFlow(pEnum, pwszId, flow);
+   
+           UtlString deviceName;
+           MpidWinMM::getWinNameForDevice(pEnum, pwszId, deviceName);
+   
+           UtlString msg;
+           msg.appendFormat("getEndpointDataFlow failed for device: %s", deviceName.data());
+           CPPUNIT_ASSERT_MESSAGE(msg.data(), result);
+   
+           msg = "";
+           msg.appendFormat("unexpected MP_FLOW_UNKNOWN for device: %s", deviceName.data());
+           CPPUNIT_ASSERT_MESSAGE(msg.data(),
+               flow == MpidWinMM::MP_FLOW_RENDER || flow == MpidWinMM::MP_FLOW_CAPTURE);
+   
+           CoTaskMemFree(pwszId);
+           pDevice->Release();
+       }
+   
+       pCollection->Release();
+       pEnum->Release();
+#else
+       SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#endif
    }
 
    void tearDown()
