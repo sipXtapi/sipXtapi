@@ -39,6 +39,7 @@ class MpInputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testInputDriverWithEmptyName);
    CPPUNIT_TEST(testDoubleEnableInputDevice);
    CPPUNIT_TEST(testDoubleDisableInputDevice);
+   CPPUNIT_TEST(testIsDeviceHardwareDetached);
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -461,6 +462,66 @@ public:
          "Double disableDevice must leave the driver disabled.",
          !pDriver->isEnabled());
 
+      inDevMgr.removeDevice(iDrvHnd);
+      delete pDriver;
+#  else
+      SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
+   }
+
+void testIsDeviceHardwareDetached()
+   {
+#  ifdef WIN32
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME,
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames,
+                                    *mpBufPool);
+
+      MpidWinMM* pDriver = new MpidWinMM(MpidWinMM::getDefaultDeviceName(),
+                                         inDevMgr);
+
+      if (!pDriver->isDeviceValid())
+      {
+         delete pDriver;
+         SIPX_TEST_SKIP("no valid input audio device available");
+      }
+
+      MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pDriver);
+      CPPUNIT_ASSERT(iDrvHnd > 0);
+
+      // Before enable: not detached.
+      CPPUNIT_ASSERT(!pDriver->isDeviceHardwareDetached());
+      CPPUNIT_ASSERT(!inDevMgr.isDeviceInFallbackMode(iDrvHnd));
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.enableDevice(iDrvHnd));
+      CPPUNIT_ASSERT(pDriver->isEnabled());
+
+      // Enabled with hardware open: not detached.
+      CPPUNIT_ASSERT(!pDriver->isDeviceHardwareDetached());
+      CPPUNIT_ASSERT(!inDevMgr.isDeviceInFallbackMode(iDrvHnd));
+
+      // Simulate hardware detach (USB unplug).
+      pDriver->setIsOpenForTesting(FALSE);
+      CPPUNIT_ASSERT_MESSAGE(
+         "isDeviceHardwareDetached must return TRUE when enabled but mIsOpen is FALSE",
+         pDriver->isDeviceHardwareDetached());
+      CPPUNIT_ASSERT_MESSAGE(
+         "isDeviceInFallbackMode must return TRUE when driver is hardware-detached",
+         inDevMgr.isDeviceInFallbackMode(iDrvHnd));
+
+      // Disable clears the detached state (mIsEnabled becomes FALSE).
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.disableDevice(iDrvHnd));
+      CPPUNIT_ASSERT(!pDriver->isEnabled());
+      CPPUNIT_ASSERT(!pDriver->isDeviceHardwareDetached());
+      CPPUNIT_ASSERT(!inDevMgr.isDeviceInFallbackMode(iDrvHnd));
+
+      // Re-enable must succeed after the simulated detach + disable cycle.
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "Re-enable after simulated detach must succeed.",
+         OS_SUCCESS, inDevMgr.enableDevice(iDrvHnd));
+      CPPUNIT_ASSERT(pDriver->isEnabled());
+
+      inDevMgr.disableDevice(iDrvHnd);
       inDevMgr.removeDevice(iDrvHnd);
       delete pDriver;
 #  else

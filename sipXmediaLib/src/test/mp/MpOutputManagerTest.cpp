@@ -116,6 +116,7 @@ class MpOutputDeviceManagerTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testNotificationDispatchOnFallback);
    CPPUNIT_TEST(testMostRecentDispatcherWins);
    CPPUNIT_TEST(testDisableDeviceWhileInFallback);
+   CPPUNIT_TEST(testIsDeviceInFallbackMode);
    CPPUNIT_TEST_SUITE_END();
 
 
@@ -470,6 +471,55 @@ public:
       CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &driver);
 #  else
       printf("Skipping testNotificationDispatchOnFallback on non-Windows platform\n");
+#  endif
+   }
+
+void testIsDeviceInFallbackMode()
+   {
+#  ifdef WIN32
+      MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
+                                          TEST_SAMPLES_PER_SECOND,
+                                          TEST_MIXER_BUFFER_LENGTH);
+
+      MpodWinMM driver(MpodWinMM::getDefaultDeviceName(), &deviceManager);
+      if (!driver.isDeviceValid())
+      {
+         printf("No output device available, skipping testIsDeviceInFallbackMode\n");
+         return;
+      }
+
+      MpOutputDeviceHandle deviceId = deviceManager.addDevice(&driver);
+      CPPUNIT_ASSERT(deviceId > 0);
+
+      // Before enable: not in fallback.
+      CPPUNIT_ASSERT(!deviceManager.isDeviceInFallbackMode(deviceId));
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, deviceManager.enableDevice(deviceId));
+      CPPUNIT_ASSERT(deviceManager.isDeviceEnabled(deviceId));
+
+      // Enabled with hardware: not in fallback.
+      CPPUNIT_ASSERT(!deviceManager.isDeviceInFallbackMode(deviceId));
+
+      // Force fallback.
+      driver.switchToMMTimer();
+      CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+      CPPUNIT_ASSERT_MESSAGE(
+         "isDeviceInFallbackMode must return TRUE when driver is in fallback mode",
+         deviceManager.isDeviceInFallbackMode(deviceId));
+
+      // Disable from fallback -- may return non-success per testDisableDeviceWhileInFallback,
+      // but enableDevice must still succeed and clear the fallback timer.
+      deviceManager.disableDevice(deviceId);
+
+      // Re-enable must succeed and must clear fallback state.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, deviceManager.enableDevice(deviceId));
+      CPPUNIT_ASSERT(deviceManager.isDeviceEnabled(deviceId));
+      CPPUNIT_ASSERT(!deviceManager.isDeviceInFallbackMode(deviceId));
+
+      deviceManager.disableDevice(deviceId);
+      CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &driver);
+#  else
+      printf("Skipping testIsDeviceInFallbackMode on non-Windows platform\n");
 #  endif
    }
 
