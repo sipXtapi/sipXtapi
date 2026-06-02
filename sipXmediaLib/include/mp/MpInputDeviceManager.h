@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -414,6 +414,10 @@ public:
      *
      *  @param deviceId - (in) The device to determine enabled status of.
      */
+
+     /// @brief Returns TRUE if the device is enabled but its hardware has been
+     ///        detached (e.g. USB unplug while the input driver was active).
+   UtlBoolean isDeviceInFallbackMode(MpInputDeviceHandle deviceId) const;
 
 //@}
 

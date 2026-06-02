@@ -46,6 +46,7 @@ struct IMMNotificationClient;
 class MpidWinMM : public MpInputDeviceDriver
 {
     friend class MpodWinMM;
+    friend class MpInputDeviceDriverTest;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -124,6 +125,9 @@ public:
       /// @brief Inquire if the windows device is valid
     inline UtlBoolean isDeviceValid();
 
+     /// @brief Returns TRUE if enabled but the wave device has been lost (mIsOpen FALSE).
+   virtual UtlBoolean isDeviceHardwareDetached() const;
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -161,6 +165,9 @@ protected:
       */
 
     static bool nameIsSame(const UtlString& a, const UtlString& b);
+
+     /// @brief For testing only: directly set mIsOpen to simulate hardware detach.
+   void setIsOpenForTesting(UtlBoolean isOpen) { mIsOpen = isOpen; }
 
       // Windows device accessors
     class MpWinInputAudioDeviceNotifier;

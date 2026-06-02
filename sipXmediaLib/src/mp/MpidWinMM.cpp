@@ -698,6 +698,12 @@ UtlString MpidWinMM::getDefaultDeviceName()
 
 
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean MpidWinMM::isDeviceHardwareDetached() const
+{
+    return (mIsEnabled && !mIsOpen);
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 WAVEHDR* MpidWinMM::initWaveHeader(int n)

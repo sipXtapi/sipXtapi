@@ -145,6 +145,9 @@ public:
    /// @brief Inquire if the device is using the fallback MMTimer
    inline UtlBoolean isUsingFallbackTimer() const;
 
+   /// @brief Returns TRUE if enabled but wave device has been lost (fallback active).
+   inline UtlBoolean isDeviceHardwareDetached() const;
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -280,6 +283,11 @@ UtlBoolean MpodWinMM::isDeviceValid()
 UtlBoolean MpodWinMM::isUsingFallbackTimer() const
 {
     return (mpTickerTimer != NULL);
+}
+
+inline UtlBoolean MpodWinMM::isDeviceHardwareDetached() const
+{
+   return isUsingFallbackTimer();
 }
 
 #endif  // _MpodWinMM_h_

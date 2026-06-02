@@ -1165,6 +1165,26 @@ UtlBoolean MpInputDeviceManager::isDeviceEnabled(MpInputDeviceHandle deviceId) c
    return(enabledState);
 }
 
+UtlBoolean MpInputDeviceManager::isDeviceInFallbackMode(MpInputDeviceHandle deviceId) const
+{
+   UtlBoolean result = FALSE;
+   OsReadLock lock(mRwMutex);
+
+   UtlInt deviceKey(deviceId);
+   MpAudioInputConnection* connectionFound =
+      (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+   if (connectionFound)
+   {
+      MpInputDeviceDriver* deviceDriver = connectionFound->getDeviceDriver();
+      if (deviceDriver)
+      {
+         result = deviceDriver->isDeviceHardwareDetached();
+      }
+   }
+   return result;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 //
 // $$
@@ -192,6 +192,11 @@ public:
 
      /// Inquire if this driver is enabled
    virtual UtlBoolean isEnabled() const;
+
+
+     /// @brief Returns TRUE if the device is enabled but hardware has been detached.
+     ///        Base class always returns FALSE; platform drivers override as needed.
+   virtual UtlBoolean isDeviceHardwareDetached() const { return FALSE; }
 
 //@}
 

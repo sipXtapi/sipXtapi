@@ -560,11 +560,23 @@ OsStatus CpTopologyGraphFactoryImpl::setSpeakerDevice(const UtlString& device)
 
     }
 
-    // Enable the device if it was not already
+    // Enable the device if it was not already, or if it is enabled but
+    // hardware-detached (USB unplug put it into fallback mode).
+    UtlBoolean outputInFallback = (deviceId > MP_INVALID_OUTPUT_DEVICE_HANDLE &&
+                                   mpOutputDeviceManager->isDeviceInFallbackMode(deviceId));
+    if (outputInFallback)
+    {
+        OsSysLog::add(FAC_CP, PRI_INFO,
+            "CpTopologyGraphFactoryImpl::setSpeakerDevice(%s) "
+            "device in fallback mode, disabling before re-enable",
+            device.data());
+        mpOutputDeviceManager->disableDevice(deviceId);
+    }
     if(deviceId > MP_INVALID_OUTPUT_DEVICE_HANDLE &&
-       !mpOutputDeviceManager->isDeviceEnabled(deviceId))
+       (!mpOutputDeviceManager->isDeviceEnabled(deviceId) || outputInFallback))
     {
         status = mpOutputDeviceManager->enableDevice(deviceId);
+
         OsSysLog::add(FAC_CP, PRI_DEBUG, 
             "CpTopologyGraphFactoryImpl::setSpeakerDevice enableDevice id: %d (%s) returned: %d",
             deviceId, device.data(), status);
@@ -662,11 +674,23 @@ OsStatus CpTopologyGraphFactoryImpl::setMicrophoneDevice(const UtlString& device
         }
     }
 
-    // Enable the device if it was not already
+    // Enable the device if it was not already, or if it is enabled but
+    // hardware-detached (USB unplug left the input driver in a failed state).
+    UtlBoolean inputInFallback = (deviceId > MP_INVALID_INPUT_DEVICE_HANDLE &&
+                                  mpInputDeviceManager->isDeviceInFallbackMode(deviceId));
+    if (inputInFallback)
+    {
+        OsSysLog::add(FAC_CP, PRI_INFO,
+            "CpTopologyGraphFactoryImpl::setMicrophoneDevice(%s) "
+            "device in fallback mode, disabling before re-enable",
+            device.data());
+        mpInputDeviceManager->disableDevice(deviceId);
+    }
     if(deviceId > MP_INVALID_INPUT_DEVICE_HANDLE &&
-       !mpInputDeviceManager->isDeviceEnabled(deviceId))
+       (!mpInputDeviceManager->isDeviceEnabled(deviceId) || inputInFallback))
     {
         status = mpInputDeviceManager->enableDevice(deviceId);
+
         OsSysLog::add(FAC_CP, PRI_DEBUG, 
             "CpTopologyGraphFactoryImpl::setMicrophoneDevice enableDevice id: %d (%s) returned: %d",
             deviceId, device.data(), status);

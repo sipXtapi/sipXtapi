@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2026 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007 SIPfoundry Inc.
@@ -155,6 +155,10 @@ public:
 
       /// @brief Inquire if the device is valid
     virtual UtlBoolean isDeviceValid() = 0;
+
+     /// @brief Returns TRUE if the device is enabled but hardware has been detached.
+     ///        Base class always returns FALSE; platform drivers override as needed.
+   virtual UtlBoolean isDeviceHardwareDetached() const { return FALSE; }
 
 //@}
 

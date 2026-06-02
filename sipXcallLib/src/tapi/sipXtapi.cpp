@@ -6024,14 +6024,13 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
                     if (requestedDevice.length() > 2 &&
                         availableDevice.index(requestedDevice) == 0)
                     {
-                        // Match
-                        if (strcmp(szDevice, oldDevice) != 0)
-                        {
-                            strncpy(pInst->micSetting.device, pInst->inputAudioDevices[i], sizeof(pInst->micSetting.device)-1) ;
-                            status = pInterface->setMicrophoneDevice(pInst->micSetting.device) ;
-                            // GIPS returns -1 on the call to set audio input device, no matter what
-                            //assert(status == OS_SUCCESS) ;
-                        }
+                        // No long guard against re-enabling same device as the device
+                        // may have been unplugged or in a failed state.  Always enable.
+                        //if (strcmp(szDevice, oldDevice) != 0)
+                        strncpy(pInst->micSetting.device, pInst->inputAudioDevices[i], sizeof(pInst->micSetting.device)-1) ;
+                        status = pInterface->setMicrophoneDevice(pInst->micSetting.device) ;
+                        // GIPS returns -1 on the call to set audio input device, no matter what
+                        //assert(status == OS_SUCCESS) ;
                         rc = (status==OS_SUCCESS) ? SIPX_RESULT_SUCCESS :
                              (status==OS_NOT_YET_IMPLEMENTED) ? SIPX_RESULT_NOT_IMPLEMENTED :
                              SIPX_RESULT_FAILURE;
@@ -6205,8 +6204,10 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
         }
 
         // Set the device if it changed and this is the active device group
-        if ((pInst->enabledSpeaker == SPEAKER) && 
-            (oldDevice.compareTo(pInst->speakerSettings[SPEAKER].device) != 0))
+        if (pInst->enabledSpeaker == SPEAKER)
+        // We have scenarios where the device name does not change, but we stil need to enable it.
+        // e.g. device gets unplugged or has a failure.  Don't guard against same device enable.
+        // (oldDevice.compareTo(pInst->speakerSettings[SPEAKER].device) != 0))
         {
             OsStatus status = pInterface->setSpeakerDevice(pInst->speakerSettings[SPEAKER].device);
             rc = (status==OS_SUCCESS) ? SIPX_RESULT_SUCCESS :
