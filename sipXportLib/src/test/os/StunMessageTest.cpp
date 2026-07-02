@@ -1,8 +1,6 @@
 #include "StunMessageTest.h"
 #include "os/StunMessage.h"
-#include <cppunit/CompilerOutputter.h>
-#include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/ui/text/TestRunner.h>
+#include <sipxunittests.h>
 #include <string.h>
 
 /*
@@ -258,4 +256,86 @@ void StunMessageTestSuite::testFingerPrint()
     check.reset() ;
     check.parse(cBuf, length) ;
     CPPUNIT_ASSERT(check.isFingerPrintValid() == false) ;
+}
+
+
+// Exercise the attribute-length handling in StunMessage::parse().
+//
+// Each STUN attribute has a 16-bit length; in non-legacy mode the parser
+// advances over the attribute rounded up ("padded") to a 4-byte boundary.
+// The bounds check must validate the PADDED length against the bytes
+// remaining -- validating only the unpadded length let an attribute whose
+// length is not a multiple of 4, placed near the end of the message, pass
+// the check while the padded advance exceeded the remaining bytes.  That
+// wrapped the size_t remaining-bytes counter and drove the loop past the
+// end of the receive buffer (heap over-read).
+void StunMessageTestSuite::testMalformedAttributePadding()
+{
+    // Positive control: a well-formed non-legacy message whose attribute
+    // length (3) is not a multiple of 4 must still round-trip.  Non-legacy
+    // mode (bLegacyMode = false) is what applies the 4-byte padding, so this
+    // confirms the bounds check does not reject legitimate padded attributes.
+    {
+        StunMessage src(NULL, false) ;
+        src.reset() ;
+        src.allocTransactionId() ;
+        src.setType(MSG_STUN_BIND_REQUEST) ;
+        src.setUsername("abc") ;
+
+        char   cBuf[4096] ;
+        size_t length ;
+        CPPUNIT_ASSERT(src.encode(cBuf, sizeof(cBuf), length)) ;
+
+        StunMessage parsed(NULL, false) ;
+        CPPUNIT_ASSERT(parsed.parse(cBuf, length) == true) ;
+        char szUser[STUN_MAX_STRING_LENGTH + 1] ;
+        CPPUNIT_ASSERT(parsed.getUsername(szUser)) ;
+        CPPUNIT_ASSERT(strcmp(szUser, "abc") == 0) ;
+    }
+
+    // Malformed: the padded attribute length overruns the remaining bytes.
+    // Message length = 9 (a 4-byte attribute header + a 5-byte body).  The
+    // unpadded length (5) equals the 5 bytes left after the attribute header,
+    // so it passes the old check, but the padded length (8) exceeds them.
+    // The magic cookie forces non-legacy mode so the 4-byte padding applies.
+    {
+        unsigned char pkt[] = {
+            0x00, 0x01,             // type   = Binding Request
+            0x00, 0x09,             // length = 9 (attribute section)
+            0x21, 0x12, 0xA4, 0x42, // magic cookie -> non-legacy mode
+            0x00, 0x00, 0x00, 0x00, // transaction id (12 bytes)
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x06,             // attribute type
+            0x00, 0x05,             // attribute length = 5 (padded to 8)
+            0x41, 0x42, 0x43, 0x44, 0x45 // 5 bytes of body
+        };
+        // 20-byte header + 9 attribute bytes = 29.
+        CPPUNIT_ASSERT_EQUAL((size_t) 29, sizeof(pkt)) ;
+
+        StunMessage msg ;
+        CPPUNIT_ASSERT(msg.parse((char*) pkt, sizeof(pkt)) == false) ;
+    }
+
+    // Malformed: the attribute's declared length exceeds the bytes remaining
+    // outright.  Message length = 8 (4-byte header + 4-byte body), but the
+    // attribute claims a length of 10.
+    {
+        unsigned char pkt[] = {
+            0x00, 0x01,             // type   = Binding Request
+            0x00, 0x08,             // length = 8 (attribute section)
+            0x21, 0x12, 0xA4, 0x42, // magic cookie -> non-legacy mode
+            0x00, 0x00, 0x00, 0x00, // transaction id (12 bytes)
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x06,             // attribute type
+            0x00, 0x0A,             // attribute length = 10 (only 4 remain)
+            0x41, 0x42, 0x43, 0x44  // 4 bytes of body
+        };
+        // 20-byte header + 8 attribute bytes = 28.
+        CPPUNIT_ASSERT_EQUAL((size_t) 28, sizeof(pkt)) ;
+
+        StunMessage msg ;
+        CPPUNIT_ASSERT(msg.parse((char*) pkt, sizeof(pkt)) == false) ;
+    }
 }

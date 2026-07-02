@@ -312,6 +312,7 @@
     <ClCompile Include="src\test\os\OsTimerTaskTest.cpp" />
     <ClCompile Include="src\test\os\OsTimerTest.cpp" />
     <ClCompile Include="src\test\os\OsTimeTest.cpp" />
+    <ClCompile Include="src\test\os\StunMessageTest.cpp" />
     <ClCompile Include="src\test\os\UnitTestLogHooks.cpp" />
     <ClCompile Include="src\test\utl\UtlChainTest.cpp" />
     <ClCompile Include="src\test\utl\UtlContainableTestStub.cpp" />
@@ -349,9 +350,6 @@
     <ClInclude Include="src\test\utl\UtlPerformanceStrings.h" />
     <ClInclude Include="src\test\utl\UtlStringTest.h" />
     <ClInclude Include="stdafx.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="sipXportLib-msvc17.vcxproj">

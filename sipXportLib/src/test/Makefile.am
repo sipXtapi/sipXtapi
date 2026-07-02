@@ -58,6 +58,7 @@ testsuite_SOURCES = \
     os/OsTimerTaskTest.cpp \
     os/OsTimerTest.cpp \
     os/OsTimeTest.cpp \
+    os/StunMessageTest.cpp \
     utl/CircularBufferTest.cpp \
     utl/PluginHooksTest.cpp \
     utl/TestPlugin.h \
