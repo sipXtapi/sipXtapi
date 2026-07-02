@@ -591,12 +591,15 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const char* packetData, int packetLength,
       return rtpBuf;
    }
 
-   RtpSRC* pCSRCsrc = (RtpSRC*)packetData + offset;
+   // Note the parentheses: offset is a byte count, so it must be added to the
+   // byte pointer *before* the cast to RtpSRC*.  Casting first would scale
+   // offset by sizeof(RtpSRC) and read from the wrong (out-of-bounds) location.
+   RtpSRC* pCSRCsrc = (RtpSRC*)(packetData + offset);
    RtpSRC* pCSRCdst = rtpBuf->getRtpCSRCs();
    int i;
    for (i=0; i<csrcCount; i++) {
       RtpSRC temp = *pCSRCsrc++;
-      *pCSRCdst = ntohl(temp);  // use temp to avoid side effects if ntohl is a macro.
+      *pCSRCdst++ = ntohl(temp);  // use temp to avoid side effects if ntohl is a macro.
    }
    offset += csrcSize;
 
