@@ -143,8 +143,9 @@ public:
                                                    pDecBinData, decBinLength);
          ((OsNatDatagramSocket*)rtpSocket)->enableTransparentReads(false);
 
-         rtcpSocket = new OsNatDatagramSocket(0, NULL,localPort == 0 ? 0 : localPort+1,
-            localAddress, NULL);
+         rtcpSocket = new OsNatDatagramSocket(localPort == 0 ? 0 : localPort + 1, localAddress,
+                                              localPort == 0 ? 0 : localPort+1, localAddress, 
+                                              NULL);
          ((OsNatDatagramSocket*)rtcpSocket)->enableTransparentReads(false);
       }
 
