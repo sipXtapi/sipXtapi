@@ -252,6 +252,27 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
     {
         unsigned long ulBytesProcessed = 0;
 
+        // Ensure there are enough bytes remaining to safely read the RTCP
+        // fixed header before peeking into it.  GetPayloadType() reads the
+        // byte at offset 1 and GetReportLength() reads the 16-bit length
+        // field at offset 2, so at least 4 bytes must remain.
+        if (ulBufferLength < sizeof(uint32_t))
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: truncated RTCP header, %lu byte(s) remaining", ulBufferLength);
+            break;
+        }
+
+        // Validate the report's declared length against the bytes actually
+        // remaining BEFORE dispatching to a handler.  The length is a 16-bit
+        // attacker-controlled field ((n+1)*4, up to 262144 bytes); a report
+        // that claims to extend past the buffer must be rejected here so no
+        // handler parses adjacent heap as report fields (CWE-191/CWE-125).
+        if (GetReportLength(puchDataBuffer) > ulBufferLength)
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: report length %lu exceeds remaining buffer %lu", GetReportLength(puchDataBuffer), ulBufferLength);
+            break;
+        }
+
         // Let's peek into the RTCP header to determine the payload type of an
         //  RTCP report and route it to the appropriate handler.
         switch(GetPayloadType(puchDataBuffer))
@@ -343,6 +364,18 @@ void CRTCPSource::ProcessPacket(unsigned char *puchDataBuffer,
             if (0 != (0xf & i)) osPrintf("\n");
         }
 #endif /* DEBUG_RTCP_PACKETS ] */
+        // Guard against attacker-controlled length fields before advancing.
+        // A report length of zero would spin this loop forever; a length
+        // greater than the remaining buffer would wrap ulBufferLength
+        // (unsigned) below and let the loop walk off the end of the packet,
+        // processing adjacent heap memory as further RTCP sub-reports
+        // (CWE-191, unbounded heap read).
+        if (ulBytesProcessed == 0 || ulBytesProcessed > ulBufferLength)
+        {
+            OsSysLog::add(FAC_MP, PRI_ERR, "CRTCPSource::ProcessPacket: report length %lu invalid for remaining buffer %lu", ulBytesProcessed, ulBufferLength);
+            break;
+        }
+
         // Adjust length remaining and the buffer pointer so that we are
         // prepared to recognize and process other reports.
         puchDataBuffer  += ulBytesProcessed;
