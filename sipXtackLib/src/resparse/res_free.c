@@ -10,6 +10,11 @@
  *  v1.3        Correct a couple of resource-specific entries
  *              Free individual question structures
  *                      July 1997
+ *
+ *  v1.4        Tolerate null records when freeing a partially parsed
+ *              response.  res_parse() now rejects crafted responses part
+ *              way through a section, leaving unparsed slots null; free_rr()
+ *              no-ops on null and free_response() skips null question slots.
  */
 
 #include        "resparse/rr.h"
@@ -22,6 +27,15 @@ void
 free_rr(rrp)
         s_rr    *rrp;
 {
+                /*
+                 *  Nothing to do for a null record.  free_response() walks the
+                 *  full record count from the header, but a response whose
+                 *  parse failed part way (e.g. an inflated record count or a
+                 *  truncated record) leaves unparsed slots null.
+                 */
+        if (rrp == NULL)
+                return;
+
                 /*
                  *  Free generic RR memory
                  */
@@ -141,6 +155,9 @@ free_response(resp)
 /*      if ((n = ntohs((u_short)resp->header.qdcount))) { remove ntohs --GAT */
         if ((n =       (u_short)resp->header.qdcount) ) {
                 for ( i=0 ; i<n ; i++ ) {
+                        /* Slots past the point where parsing failed are null. */
+                        if (resp->question[i] == NULL)
+                                continue;
                         free(resp->question[i]->qname);
                         resp->question[i]->qname = NULL;
                         free(resp->question[i]);

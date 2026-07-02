@@ -305,6 +305,7 @@
     <ClCompile Include="src\test\net\NetAttributeTokenizerTest.cpp" />
     <ClCompile Include="src\test\net\NetBase64CodecTest.cpp" />
     <ClCompile Include="src\test\net\NetMd5CodecTest.cpp" />
+    <ClCompile Include="src\test\net\ResParseTest.cpp" />
     <ClCompile Include="src\test\net\SdpBodyTest.cpp" />
     <ClCompile Include="src\test\net\SipContactDbTest.cpp" />
     <ClCompile Include="src\test\net\SipDialogEventTest.cpp" />

@@ -37,6 +37,7 @@ testsuite_SOURCES = \
     net/NetAttributeTokenizerTest.cpp \
     net/NetBase64CodecTest.cpp \
     net/NetMd5CodecTest.cpp \
+    net/ResParseTest.cpp \
     net/SdpBodyTest.cpp \
     net/SipContactDbTest.cpp \
     net/SipDialogEventTest.cpp \
