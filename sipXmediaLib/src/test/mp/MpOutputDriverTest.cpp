@@ -168,6 +168,11 @@ public:
       userData.mTickTime = NULL;
       OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
       sampleDataSz = 0;
+      // The callback derives its frame size from sampleRates[rateIndex]; this
+      // test enables the device at TEST_SAMPLES_PER_SECOND (== sampleRates[0]),
+      // so reset the shared globals a prior test method may have left dirty.
+      rateIndex = 0;
+      frameInCallback = 0;
 
       for (int i=0; i<ENABLE_DISABLE_TEST_RUNS_NUMBER; i++)
       {
@@ -192,6 +197,10 @@ public:
       userData.mTickTime = NULL;
       OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
       sampleDataSz = 0;
+      // See testEnableDisable: keep the callback's frame size (sampleRates
+      // [rateIndex]) consistent with the rate the device is enabled at.
+      rateIndex = 0;
+      frameInCallback = 0;
 
       for (int i=0; i<ENABLE_DISABLE_FAST_TEST_RUNS_NUMBER; i++)
       {
@@ -363,8 +372,12 @@ protected:
       }
       else
       {
+         // Out of sample data: insert a silent frame.  A NULL sample buffer
+         // means "silence", but the driver still requires a *full* frame, so
+         // numSamples must be the frame size -- not 0.  Passing 0 trips the
+         // mSamplesPerFrame == numSamples assertion in MpodWinMM::pushFrame.
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              pData->mDriver->pushFrame(0, NULL, frameTime));
+                              pData->mDriver->pushFrame(samplesPerFrame, NULL, frameTime));
       }
       frameInCallback++;
       frameTime += samplesPerFrame;
