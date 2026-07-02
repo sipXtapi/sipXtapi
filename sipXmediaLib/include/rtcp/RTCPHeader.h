@@ -110,6 +110,9 @@ public:
  *
  * Inputs:   unsigned char *buffer   - Data Buffer received from Network Source
  *           int           bufferLen - Length of Data Buffer
+ *           int           bufferCapacity - Total bytes allocated for buffer
+ *                                     (must be >= bufferLen). Padding is only
+ *                                     written within this capacity.
  *
  * Outputs:  OsSysLog messages
  *
@@ -127,7 +130,9 @@ public:
  *              is not a multiple of 4, this routine will write 0 to the
  *              1, 2, or 3 bytes following the end of the packet and then
  *              round the length up to that next multiple of 4 before walking
- *              the chunks.
+ *              the chunks.  The padding bytes are only written when they fit
+ *              within bufferCapacity; otherwise the length is rounded down to
+ *              the previous multiple of 4 so nothing is written out of bounds.
  *
  *              After making sure that the length is a multiple of 4, the
  *              headers will be walked.  The checks are
@@ -139,7 +144,7 @@ public:
  *
  */
 
-    static int VetPacket(unsigned char* buffer, int bufferLen);
+    static int VetPacket(unsigned char* buffer, int bufferLen, int bufferCapacity);
 
 /**
  *

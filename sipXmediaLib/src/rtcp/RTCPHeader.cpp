@@ -130,7 +130,7 @@ CRTCPHeader::~CRTCPHeader(void)
  */
 
 
-int CRTCPHeader::VetPacket(unsigned char* buffer, int bufferLen)
+int CRTCPHeader::VetPacket(unsigned char* buffer, int bufferLen, int bufferCapacity)
 {
     int okLen = 0;
     int nRemain = -1;
@@ -140,17 +140,32 @@ int CRTCPHeader::VetPacket(unsigned char* buffer, int bufferLen)
     int originalLen = bufferLen;
 
     // Special rule for LifeSize box and its non-compliant APP packets...
-    if ((63 == bufferLen) && ('L' == buffer[44]) && ('S' == buffer[45])) 
+    if ((63 == bufferLen) && (bufferLen < bufferCapacity) &&
+        ('L' == buffer[44]) && ('S' == buffer[45]))
     {
         // Silently fix it... we know it is happening, don't nag
         buffer[bufferLen++] = 0;
     }
-    if (bufferLen > 7) 
+    if (bufferLen > 7)
     {
-        if (0 != (bufferLen % 4)) 
+        if (0 != (bufferLen % 4))
         {
-            OsSysLog::add(FAC_MP, PRI_WARNING, "CRTCPHeader::VetPacket: packet length, %d, is not a multiple of 4; padding and adjusting", bufferLen);
-            while (0 != (bufferLen % 4)) buffer[bufferLen++] = 0;
+            // Round the length to a multiple of 4.  Only write the zero
+            // padding bytes if they fit within the allocated buffer capacity;
+            // writing past the received data into a buffer with no headroom
+            // is an out-of-bounds heap write (CWE-787).  When there is not
+            // enough capacity, round the length down instead so we never
+            // write out of bounds.
+            if (((bufferLen + 3) & ~3) <= bufferCapacity)
+            {
+                OsSysLog::add(FAC_MP, PRI_WARNING, "CRTCPHeader::VetPacket: packet length, %d, is not a multiple of 4; padding and adjusting", bufferLen);
+                while (0 != (bufferLen % 4)) buffer[bufferLen++] = 0;
+            }
+            else
+            {
+                OsSysLog::add(FAC_MP, PRI_WARNING, "CRTCPHeader::VetPacket: packet length, %d, is not a multiple of 4 and buffer capacity %d has no room to pad; truncating", bufferLen, bufferCapacity);
+                bufferLen &= ~3;
+            }
         }
         nRemain = bufferLen;
 

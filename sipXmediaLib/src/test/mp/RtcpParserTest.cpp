@@ -73,19 +73,19 @@ public:
                0xff,0xbf,0xcc,0x00,0x40,0x1f,0xcd,0x53,0xe2,0x01,0x11,0x4c,0x69,0x8f,0xcc,0x00,
                0x40,0x1f,0xcd,0x53,0xe2,0x01,0x11,0x4c,0x69
             };
-            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 63);  // the original packet
+            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 63, (int)sizeof(bogusLifeSizePacket));  // the original packet
             CPPUNIT_ASSERT_EQUAL(ret, 64);
-            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 64);  // All is good
+            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 64, (int)sizeof(bogusLifeSizePacket));  // All is good
             CPPUNIT_ASSERT_EQUAL(ret, 64);
-            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 76);  // trailing garbage
+            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 76, (int)sizeof(bogusLifeSizePacket));  // trailing garbage
             CPPUNIT_ASSERT_EQUAL(ret, 64);
-            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 67);  // trailing garbage, odd
+            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 67, (int)sizeof(bogusLifeSizePacket));  // trailing garbage, odd
             CPPUNIT_ASSERT_EQUAL(ret, 64);
-            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 55);  // APP too short
+            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 55, (int)sizeof(bogusLifeSizePacket));  // APP too short
             CPPUNIT_ASSERT_EQUAL(ret, 36);
-            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 7);   // too short
+            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 7, (int)sizeof(bogusLifeSizePacket));   // too short
             CPPUNIT_ASSERT_EQUAL(ret, 0);
-            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 0);   // too short
+            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 0, (int)sizeof(bogusLifeSizePacket));   // too short
             CPPUNIT_ASSERT_EQUAL(ret, 0);
         }
         {
@@ -115,11 +115,11 @@ public:
                 0x98, 0x79, 0xf3, 0xd3, 0x25, 0x0f, 0xbf
 
             };
-            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 63);  // the original packet
+            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 63, (int)sizeof(bogusLifeSizePacket));  // the original packet
             CPPUNIT_ASSERT_EQUAL(ret, 64);
-            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 64);  // All is good
+            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 64, (int)sizeof(bogusLifeSizePacket));  // All is good
             CPPUNIT_ASSERT_EQUAL(ret, 64);
-            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 76);  // trailing garbage
+            ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 76, (int)sizeof(bogusLifeSizePacket));  // trailing garbage
             CPPUNIT_ASSERT_EQUAL(ret, 64);
         }
     }

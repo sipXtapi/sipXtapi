@@ -440,7 +440,7 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
       // Dispatch the RTCP data packet to the RTCP Source object registered
       if(mpiRTCPDispatch)
       {
-         int nBytes = CRTCPHeader::VetPacket((unsigned char*)packetData, packetSize);
+         int nBytes = CRTCPHeader::VetPacket((unsigned char*)packetData, packetSize, udpBuf->getMaximumPacketSize());
          if (nBytes > 0) 
          {
             mpiRTCPDispatch->ProcessPacket((unsigned char*)packetData, nBytes);
