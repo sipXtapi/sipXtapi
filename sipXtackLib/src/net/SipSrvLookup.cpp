@@ -1,3 +1,6 @@
+//
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Licensed by SIPfoundry under the LGPL license.
 //  
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
@@ -840,13 +843,21 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       }
       // Use res_query, not res_search, so defaulting rules are not
       // applied to the domain.
-      if (res_query(name, C_IN, type,
-                    (unsigned char*) answer, sizeof (answer)) == -1)
+      int answer_len = res_query(name, C_IN, type,
+                                 (unsigned char*) answer, sizeof (answer));
+      if (answer_len == -1)
       {
          // res_query failed, return.
          break;
       }
-      response = res_parse((char*) &answer);
+      // res_query returns the true message length, which can exceed the
+      // supplied buffer when the response was truncated (TC bit).  Clamp to
+      // the bytes actually stored so the parser's bounds stay within 'answer'.
+      if (answer_len > (int) sizeof(answer))
+      {
+         answer_len = (int) sizeof(answer);
+      }
+      response = res_parse((char*) &answer, answer_len);
       if (response == NULL)
       {
          // res_parse failed, return.
