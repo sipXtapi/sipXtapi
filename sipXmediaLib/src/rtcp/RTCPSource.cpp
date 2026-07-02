@@ -769,6 +769,12 @@ unsigned long CRTCPSource::ProcessSDESReport(unsigned char *puchRTCPReport)
     unsigned long       ulReportSize     = GetReportLength(puchRTCPReport);
     CSourceDescription *poSDESReport     = NULL;
 
+    // One byte past the end of this SDES packet.  Used to bound SDES field
+    //  parsing so a report missing its null terminator cannot read past the
+    //  packet buffer.  puchRTCPReport advances per chunk below, so capture
+    //  the end now while it still points at the start of the packet.
+    unsigned char      *puchReportEnd    = puchRTCPReport + ulReportSize;
+
     // Pull the Report Count from the header so we no how many reports we need
     //  to process
     ulReportCount = GetReportCount(puchRTCPReport);
@@ -825,7 +831,7 @@ unsigned long CRTCPSource::ProcessSDESReport(unsigned char *puchRTCPReport)
         // A SDES object exists to processes this report.  Let's delegate to
         //  its parsing methods to complete this report's processing.
         if((ulSDESLength =
-             poSDESReport->ParseSDESReport(bRTCPHeader, puchRTCPReport)) == 0)
+             poSDESReport->ParseSDESReport(bRTCPHeader, puchRTCPReport, puchReportEnd)) == 0)
         {
             osPrintf("**** FAILURE **** CRTCPSource::ProcessSDESReport()"
                                   " - Unable to Parse Inbound SDES Report\n");

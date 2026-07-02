@@ -90,6 +90,12 @@ public:
  *                      TRUE indicates an RTCP Header preceeds the report
  *              unsigned char *puchReportBuffer -
  *                      Buffer containing the contents of the SDES Report
+ *              unsigned char *puchReportEnd -
+ *                      One byte past the last valid byte of the enclosing RTCP
+ *                      packet.  Field parsing will not read at or beyond this
+ *                      pointer.  May be NULL when the boundary is unknown, in
+ *                      which case it is derived from the RTCP header length
+ *                      (header path only).
  *
  * Outputs:     None
  *
@@ -106,7 +112,8 @@ public:
  *
  */
     virtual unsigned long ParseSDESReport(bool bHeader,
-                                       unsigned char *puchReportBuffer) = 0;
+                                       unsigned char *puchReportBuffer,
+                                       unsigned char *puchReportEnd = NULL) = 0;
 
 /**
  *

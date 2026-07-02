@@ -1241,6 +1241,12 @@ unsigned long CSourceDescription::FormatSDESReport(bool bIncludeHeader,
  * Inputs:   bool bIncludeHeader - TRUE if RTCP Header preceeds report
  *           unsigned char *puchReportBuffer
  *               - Character Buffer containing the contents of the SDES Report
+ *           unsigned char *puchReportEnd
+ *               - One byte past the last valid byte of the enclosing RTCP
+ *                 packet.  Field parsing will not read at or beyond this
+ *                 pointer.  May be NULL when the boundary is unknown, in which
+ *                 case it is derived from the RTCP header length (header path
+ *                 only).
  *
  * Outputs:  None
  *
@@ -1257,7 +1263,8 @@ unsigned long CSourceDescription::FormatSDESReport(bool bIncludeHeader,
  *
  */
 unsigned long CSourceDescription::ParseSDESReport(
-                          bool bIncludeHeader, unsigned char *puchReportBuffer)
+                          bool bIncludeHeader, unsigned char *puchReportBuffer,
+                          unsigned char *puchReportEnd)
 {
 
     unsigned char    *puchPayloadBuffer = puchReportBuffer;
@@ -1274,6 +1281,11 @@ unsigned long CSourceDescription::ParseSDESReport(
 
         // Good header.  Let's bump the payload pointer and continue.
         puchPayloadBuffer += GetHeaderLength();
+
+        // If the caller did not supply an explicit boundary, derive one from
+        //  the RTCP header length so field parsing cannot run off the packet.
+        if(puchReportEnd == NULL)
+            puchReportEnd = puchReportBuffer + GetReportLength();
     }
     else
     {
@@ -1287,7 +1299,7 @@ unsigned long CSourceDescription::ParseSDESReport(
     m_ulContentMask = 0;
     m_ulChangeMask = 0;
 
-    while((ulFieldLength = ExtractFieldInfo(puchPayloadBuffer)))
+    while((ulFieldLength = ExtractFieldInfo(puchPayloadBuffer, puchReportEnd)))
         puchPayloadBuffer += ulFieldLength;
 
     // Bump the pointer to account for the Terminator
@@ -1373,10 +1385,18 @@ bool CSourceDescription::FormulateCName(void)
  *
  * Inputs:   unsigned char *puchReportBuffer
  *                                         - Buffer containing the SDES Report
+ *           unsigned char *puchReportEnd
+ *                                         - One byte past the last valid byte
+ *                                           of the enclosing RTCP packet.  The
+ *                                           field header and field data must
+ *                                           lie below this pointer or 0 is
+ *                                           returned.  May be NULL to disable
+ *                                           the boundary check.
  *
  * Outputs:  None
  *
- * Returns:  unsigned long - Number of octets processed
+ * Returns:  unsigned long - Number of octets processed (0 on terminator or
+ *                           when the field would exceed puchReportEnd)
  *
  * Description: Extracts the field information contents of an SDES report using
  *              the buffer passed in by the caller. Each field entry shall
@@ -1388,15 +1408,30 @@ bool CSourceDescription::FormulateCName(void)
  *
  */
 unsigned long
-         CSourceDescription::ExtractFieldInfo(unsigned char *puchReportBuffer)
+         CSourceDescription::ExtractFieldInfo(unsigned char *puchReportBuffer,
+                                              unsigned char *puchReportEnd)
 {
     bool bChanged;
     unsigned char *puchPayloadBuffer = puchReportBuffer;
+
+    // Make sure the 2-octet field header (type + length) lies within the
+    //  report boundary before reading it.  Without this check a report that
+    //  is missing its null terminator would cause the parse loop to read past
+    //  the end of the packet buffer (CWE-125).
+    if(puchReportEnd != NULL && puchPayloadBuffer + 2 > puchReportEnd)
+        return(0);
 
     // Get the Field type and length located
     //  within the first 2 octets of the SDES chunk
     unsigned long ulFieldType   = (unsigned long)*puchPayloadBuffer++;
     unsigned long ulFieldLength = (unsigned long)*puchPayloadBuffer++;
+
+    // Ensure the declared field data also lies within the report boundary.
+    //  Field lengths are attacker-controlled (0-255); a field claiming more
+    //  bytes than remain would let the Set* handlers copy out-of-bounds heap
+    //  data into fixed member buffers.
+    if(puchReportEnd != NULL && puchPayloadBuffer + ulFieldLength > puchReportEnd)
+        return(0);
 
     // Evaluate the field type to determine how we
     //  will process and store the information

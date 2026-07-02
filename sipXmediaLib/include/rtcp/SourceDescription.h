@@ -751,6 +751,12 @@ unsigned long FormatSDESReport(bool bHeader,
  * Inputs:   bool bHeader - TRUE indicates an RTCP Header preceeds the report
  *           unsigned char *puchReportBuffer
  *                                        - Buffer containing the SDES Report
+ *           unsigned char *puchReportEnd
+ *                                        - One byte past the last valid byte of
+ *                                          the enclosing RTCP packet.  Field
+ *                                          parsing will not read at or beyond
+ *                                          this pointer.  May be NULL when the
+ *                                          boundary is unknown (legacy callers).
  *
  * Outputs:  None
  *
@@ -767,7 +773,8 @@ unsigned long FormatSDESReport(bool bHeader,
  *
  */
     unsigned long ParseSDESReport(bool bHeader,
-                                  unsigned char *puchReportBuffer);
+                                  unsigned char *puchReportBuffer,
+                                  unsigned char *puchReportEnd = NULL);
 
 
 
@@ -854,10 +861,16 @@ unsigned long FormatSDESReport(bool bHeader,
  *
  * Inputs:      unsigned char *puchReportBuffer
  *                         - Buffer containing the contents of the SDES Report
+ *              unsigned char *puchReportEnd
+ *                         - One byte past the last valid byte of the enclosing
+ *                           RTCP packet.  The field header and field data must
+ *                           lie below this pointer or 0 is returned.  May be
+ *                           NULL to disable the boundary check.
  *
  * Outputs:     None
  *
- * Returns:     unsigned long - Number of octets processed
+ * Returns:     unsigned long - Number of octets processed (0 on terminator or
+ *                              when the field would exceed puchReportEnd)
  *
  * Description: Extracts the field information contents of an SDES report using
  *              the buffer passed in by the caller.  Each field entry shall
@@ -868,7 +881,8 @@ unsigned long FormatSDESReport(bool bHeader,
  *
  *
  */
-    unsigned long ExtractFieldInfo(unsigned char *puchReportBuffer);
+    unsigned long ExtractFieldInfo(unsigned char *puchReportBuffer,
+                                   unsigned char *puchReportEnd);
 
 
 /**
