@@ -180,8 +180,11 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
                 header.length = ntohs(header.length) ;                
                 int paddedLength = mbLegacyMode ? header.length : ((header.length + 3) / 4) * 4 ;
                 pTraverse += sizeof(STUN_ATTRIBUTE_HEADER) ;
-                iBytesLeft -= sizeof(STUN_ATTRIBUTE_HEADER) ; 
-                if (header.length <= iBytesLeft)
+                iBytesLeft -= sizeof(STUN_ATTRIBUTE_HEADER) ;
+                // Validate the PADDED length against the remaining bytes.  The
+                // padded length (not header.length) is what advances pTraverse
+                // and is subtracted from iBytesLeft below.
+                if ((size_t) paddedLength <= iBytesLeft)
                 {
                     bValid = parseAttribute(&header, pTraverse) ;
                     pTraverse += paddedLength ;
@@ -277,7 +280,7 @@ bool StunMessage::encode(char* pBuf, size_t nBufLength, size_t& nActualLength)
         // header up to (but not including) the MESSAGE-INTEGRITY attribute.
         // The header's length field at the time of HMAC computation must
         // reflect a message that includes MESSAGE-INTEGRITY but excludes
-        // FINGERPRINT (RFC 5389 §15.4). We patch the length field in the
+        // FINGERPRINT (RFC 5389 section 15.4). We patch the length field in the
         // already-encoded buffer for the HMAC, then restore the on-wire
         // length (which includes both MESSAGE-INTEGRITY and FINGERPRINT)
         // before FINGERPRINT is appended.
