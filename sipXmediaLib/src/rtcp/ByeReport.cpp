@@ -194,8 +194,24 @@ unsigned long CByeReport::ParseByeReport(unsigned char *puchReportBuffer)
     if(puchPayloadBuffer - puchReportBuffer < (long)GetReportLength())
     {
         uint32_t ulReasonLength = (uint32_t)*puchPayloadBuffer++;
-        SetReason(puchPayloadBuffer, ulReasonLength);
-        puchPayloadBuffer += ulReasonLength;
+
+        // Clamp the attacker-controlled reason length to the bytes actually
+        // remaining within this report.  Without this, SetReason() would copy
+        // up to 255 bytes starting past the end of the packet buffer, leaking
+        // adjacent heap memory into the reason field (CWE-125).
+        long lBytesRemaining =
+            (long)GetReportLength() - (puchPayloadBuffer - puchReportBuffer);
+        if((long)ulReasonLength > lBytesRemaining)
+            ulReasonLength = (lBytesRemaining > 0) ? (uint32_t)lBytesRemaining : 0;
+
+        // Only store the reason when there is at least one byte of bounded
+        // reason data.  Calling SetReason() with a zero length takes its
+        // NULL-terminated strcpy() path, which would scan past the buffer.
+        if(ulReasonLength > 0)
+        {
+            SetReason(puchPayloadBuffer, ulReasonLength);
+            puchPayloadBuffer += ulReasonLength;
+        }
 
     }
 
