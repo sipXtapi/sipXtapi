@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2025 SIP Spectrum, Inc.  All rights reserved.
+//  
 // Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
 //
 // $$
@@ -11,6 +13,7 @@
 #include <sipxunittests.h>
 #include "mp/MpFlowGraphBase.h"
 #include "rtcp/RTCPSession.h"
+#include "rtcp/RTCPSource.h"
 
 
 /**
@@ -22,6 +25,7 @@ class RtcpParserTest : public SIPX_UNIT_BASE_CLASS
 
     // Register methods to be called for testing here
     CPPUNIT_TEST(testBadPaddedPacket);
+    CPPUNIT_TEST(testProcessPacketBounds);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -122,6 +126,76 @@ public:
             ret = CRTCPHeader::VetPacket(bogusLifeSizePacket, 76, (int)sizeof(bogusLifeSizePacket));  // trailing garbage
             CPPUNIT_ASSERT_EQUAL(ret, 64);
         }
+    }
+
+    // Exercise the compound-packet length handling in CRTCPSource::ProcessPacket.
+    //
+    // A single RTCP packet may contain several concatenated sub-reports; each
+    // sub-report's length is a 16-bit, attacker-controlled field scaled to
+    // (n+1)*4 bytes (up to 262144).  The processing loop must never advance
+    // past the end of the received buffer no matter what that field claims.
+    // Before the fix, a sub-report length larger than the remaining buffer
+    // wrapped the unsigned remaining-length counter and drove the loop off the
+    // end of the packet, reading ~256KB of adjacent heap as further reports.
+    //
+    // We build the sub-reports out of APP (PT 204) reports on purpose: unlike
+    // SR/RR/SDES/BYE, the APP path only consumes GetReportLength() bytes and
+    // does not raise events, so ProcessPacket can be driven with null notify /
+    // statistics interfaces without needing the whole flow-graph object
+    // cluster.  Each case must simply return -- before the fix the malformed
+    // ones would hang or read past the buffer.
+    void testProcessPacketBounds()
+    {
+        // A CRTCPSource with no event/statistics sinks.  The constructor and
+        // destructor null-check both interfaces, and the APP report path never
+        // dispatches events, so nothing dereferences them here.
+        CRTCPSource* pSource = new CRTCPSource(0x12345678, NULL, NULL);
+        CPPUNIT_ASSERT(pSource != NULL);
+
+        // 1. A single well-formed APP report that exactly fills the buffer.
+        //    length field = 1 -> (1+1)*4 = 8 bytes.  Should be consumed and
+        //    the loop should terminate cleanly.
+        unsigned char validApp[] = {
+            0x80, 0xCC, 0x00, 0x01, 0xAA, 0xBB, 0xCC, 0xDD
+        };
+        pSource->ProcessPacket(validApp, sizeof(validApp));
+
+        // 2. A single report whose length field is inflated far beyond the
+        //    buffer (0xFFFF -> 262144 bytes) while only 8 bytes are present.
+        //    This is the core CVE scenario; the loop must reject it.
+        unsigned char inflatedApp[] = {
+            0x80, 0xCC, 0xFF, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD
+        };
+        pSource->ProcessPacket(inflatedApp, sizeof(inflatedApp));
+
+        // 3. A report length that overruns the buffer by a little: length
+        //    field = 2 -> 12 bytes, but only 8 are present.
+        unsigned char overrunApp[] = {
+            0x80, 0xCC, 0x00, 0x02, 0xAA, 0xBB, 0xCC, 0xDD
+        };
+        pSource->ProcessPacket(overrunApp, sizeof(overrunApp));
+
+        // 4. A valid APP report followed by a second report whose length is
+        //    inflated.  The first is consumed; the malformed second must stop
+        //    the loop rather than wrap the remaining-length counter.
+        unsigned char validThenInflated[] = {
+            0x80, 0xCC, 0x00, 0x01, 0xAA, 0xBB, 0xCC, 0xDD, // valid 8-byte APP
+            0x80, 0xCC, 0xFF, 0xFF                          // length claims 262144
+        };
+        pSource->ProcessPacket(validThenInflated, sizeof(validThenInflated));
+
+        // 5. Fewer bytes remaining than the 4-byte fixed RTCP header.
+        unsigned char truncatedHeader[] = { 0x80, 0xCC, 0x00 };
+        pSource->ProcessPacket(truncatedHeader, sizeof(truncatedHeader));
+
+        // 6. Empty buffer -- the loop must not run at all.
+        pSource->ProcessPacket(truncatedHeader, 0);
+
+        // Reaching here means every packet above was processed without
+        // hanging or running past its buffer.
+        CPPUNIT_ASSERT_MESSAGE("ProcessPacket returned for all bounds cases", true);
+
+        pSource->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
 
 
