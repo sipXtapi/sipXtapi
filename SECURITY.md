@@ -41,6 +41,6 @@ notified.
 
 We thank the following researchers for responsibly reporting security issues:
 
-- **Tristan Madani** &lt;TristanInSec@gmail.com&gt; — a set of pre-authentication
+- **Tristan Madani** — a set of pre-authentication
   memory-safety issues in the STUN, RTP, RTCP, and DNS response parsers (heap
   out-of-bounds reads/writes and integer underflows), reported in 2026.
