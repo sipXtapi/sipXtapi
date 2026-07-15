@@ -174,6 +174,7 @@ nobase_include_HEADERS =  \
     mp/MpTopologyGraph.h \
     mp/MpTypes.h \
     mp/MpVadBase.h \
+    mp/MpVadEnergyAdaptive.h \
     mp/MpVadSimple.h \
     mp/NetInTask.h \
     mp/RtpHeader.h \

@@ -36,6 +36,13 @@
 #define MP_BRIDGE_GAIN_MUTED          MP_BRIDGE_GAIN_MIN
 #define MP_BRIDGE_GAIN_PASSTHROUGH    MPF_BRIDGE_FLOAT(1.0f)
 
+// Maximum AGC make-up gain the bridge applies to a unity-weighted input. Caps
+// how far a quiet talker (or a noisy "active" line) is normalized toward full
+// scale; ~18 dB (8x). Lower for gentler leveling (e.g. MPF_BRIDGE_FLOAT(4.0f),
+// ~12 dB); raise toward MP_BRIDGE_GAIN_MAX for more. Must stay <=
+// MP_BRIDGE_GAIN_MAX so the fixed-point gain cannot overflow/wrap.
+#define MP_BRIDGE_GAIN_MAKEUP_MAX     MPF_BRIDGE_FLOAT(8.0f)
+
 #define MAX_AMPLITUDE_ROUND  (1<<(MP_AUDIO_SAMPLE_SIZE-1))
 
 // EXTERNAL FUNCTIONS

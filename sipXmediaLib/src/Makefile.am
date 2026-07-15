@@ -186,6 +186,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpTopologyGraph.cpp \
     mp/MpTypes.cpp \
     mp/MpVadBase.cpp \
+    mp/MpVadEnergyAdaptive.cpp \
     mp/MpVadSimple.cpp \
     mp/MpVideoResource.cpp \
     mp/NetInTask.cpp \

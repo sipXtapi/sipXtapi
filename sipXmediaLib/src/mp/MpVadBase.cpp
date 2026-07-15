@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2022-2026 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2008-2014 SIPez LLC.  All rights reserved.
 //
@@ -14,6 +14,7 @@
 // APPLICATION INCLUDES
 #include "mp/MpVadBase.h"
 #include "mp/MpVadSimple.h"
+#include "mp/MpVadEnergyAdaptive.h"
 #include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
@@ -37,7 +38,11 @@ MpVadBase *MpVadBase::createVad(const UtlString &name)
    if (algName == MpVadSimple::name)
    {
       return new MpVadSimple();
-   } 
+   }
+   else if (algName == MpVadEnergyAdaptive::name)
+   {
+      return new MpVadEnergyAdaptive();
+   }
    else
    {
 #ifdef EXTERNAL_VAD // [

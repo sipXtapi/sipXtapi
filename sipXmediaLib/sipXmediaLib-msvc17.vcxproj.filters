@@ -400,6 +400,9 @@
     <ClCompile Include="src\mp\MpVadBase.cpp">
       <Filter>mp</Filter>
     </ClCompile>
+    <ClCompile Include="src\mp\MpVadEnergyAdaptive.cpp">
+      <Filter>mp</Filter>
+    </ClCompile>
     <ClCompile Include="src\mp\MpVadSimple.cpp">
       <Filter>mp</Filter>
     </ClCompile>
@@ -1039,6 +1042,9 @@
       <Filter>mp</Filter>
     </ClInclude>
     <ClInclude Include="include\mp\MpVadBase.h">
+      <Filter>mp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mp\MpVadEnergyAdaptive.h">
       <Filter>mp</Filter>
     </ClInclude>
     <ClInclude Include="include\mp\MpVadSimple.h">

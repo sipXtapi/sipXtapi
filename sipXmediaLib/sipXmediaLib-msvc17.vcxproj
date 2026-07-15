@@ -330,6 +330,7 @@
     <ClCompile Include="src\mp\MpTypes.cpp" />
     <ClCompile Include="src\mp\MpUdpBuf.cpp" />
     <ClCompile Include="src\mp\MpVadBase.cpp" />
+    <ClCompile Include="src\mp\MpVadEnergyAdaptive.cpp" />
     <ClCompile Include="src\mp\MpVadSimple.cpp" />
     <ClCompile Include="src\mp\NetInTask.cpp" />
     <ClCompile Include="src\mp\SpeakerThreadWnt.cpp" />
@@ -524,6 +525,7 @@
     <ClInclude Include="include\mp\MpTypes.h" />
     <ClInclude Include="include\mp\MpUdpBuf.h" />
     <ClInclude Include="include\mp\MpVadBase.h" />
+    <ClInclude Include="include\mp\MpVadEnergyAdaptive.h" />
     <ClInclude Include="include\mp\MpVadSimple.h" />
     <ClInclude Include="include\mp\NetInTask.h" />
     <ClInclude Include="include\mp\RtpHeader.h" />

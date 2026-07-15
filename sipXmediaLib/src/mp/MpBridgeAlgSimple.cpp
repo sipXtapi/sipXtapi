@@ -23,6 +23,36 @@
 // MACROS
 // STATIC VARIABLE INITIALIZATIONS
 
+// Amplitude used to drive the bridge AGC make-up gain. Active speech uses its
+// measured amplitude (so quiet talkers are leveled up toward full scale).
+// Silence and comfort noise use full scale, which makes the make-up gain
+// (weight * MAX_AMPLITUDE_ROUND / amplitude) collapse to just the configured
+// mix weight - i.e. no boost - so a non-talking participant's background noise
+// is not slowly amplified as the AGC envelope decays.
+static inline MpAudioSample bridgeAgcAmplitude(const MpAudioBufPtr &pBuf)
+{
+   MpAudioSample amplitude =
+      isActiveAudio(pBuf->getSpeechType()) ? pBuf->getAmplitude()
+                                           : MpSpeechParams::MAX_AMPLITUDE;
+   return (amplitude == 0) ? (MpAudioSample)1 : amplitude;
+}
+
+// Compute the bridge AGC make-up gain (weight * full-scale / amplitude),
+// capped at MP_BRIDGE_GAIN_MAKEUP_MAX. The cap limits how aggressively a quiet
+// or noisy input is boosted toward full scale, and (being <= MP_BRIDGE_GAIN_MAX)
+// also keeps the fixed-point int16 gain from overflowing/wrapping negative.
+static inline MpBridgeGain bridgeScaledGain(MpBridgeGain weight,
+                                            MpAudioSample amplitude)
+{
+#ifdef MP_FIXED_POINT
+   int32_t raw = ((int32_t)weight * MAX_AMPLITUDE_ROUND) / amplitude;
+   return (MpBridgeGain)((raw > MP_BRIDGE_GAIN_MAKEUP_MAX) ? MP_BRIDGE_GAIN_MAKEUP_MAX : raw);
+#else
+   MpBridgeGain raw = (weight * MAX_AMPLITUDE_ROUND) / amplitude;
+   return (raw > MP_BRIDGE_GAIN_MAKEUP_MAX) ? MP_BRIDGE_GAIN_MAKEUP_MAX : raw;
+#endif
+}
+
 /* //////////////////////////////// PUBLIC //////////////////////////////// */
 
 /* =============================== CREATORS =============================== */
@@ -77,8 +107,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
       if (mpPrevAmplitudes[i] < 0 && inBufs[i].isValid())
       {
          MpAudioBufPtr pAudioBuf = inBufs[i];
-         MpAudioSample amplitude = pAudioBuf->getAmplitude();
-         mpPrevAmplitudes[i] = amplitude == 0 ? 1 : amplitude;
+         mpPrevAmplitudes[i] = bridgeAgcAmplitude(pAudioBuf);
       }
    }
 
@@ -145,11 +174,9 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
             }
 
             MpAudioSample prevAmplitude = mpPrevAmplitudes[inputNum];
-            MpAudioSample curAmplitude = pFrame->getAmplitude();
-            if (curAmplitude == 0)
-            {
-               curAmplitude = 1;
-            }
+            // Gate AGC make-up gain on speech type: silence / comfort noise
+            // use full scale (no boost); active speech uses measured amplitude.
+            MpAudioSample curAmplitude = bridgeAgcAmplitude(pFrame);
 
             if (  pInputGains[inputNum] == MP_BRIDGE_GAIN_PASSTHROUGH
                && prevAmplitude == MpSpeechParams::MAX_AMPLITUDE
@@ -170,8 +197,8 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
             else if (curAmplitude == prevAmplitude)
             {
                // Calculate gain taking into account input amplitude.
-               MpBridgeGain scaledGain = (MpBridgeGain)
-                  ((pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/curAmplitude);
+               MpBridgeGain scaledGain =
+                  bridgeScaledGain(pInputGains[inputNum], curAmplitude);
 
                MpDspUtils::addMul_I(pFrame->getSamplesPtr(),
                                     scaledGain,
@@ -191,10 +218,8 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
             {
                // Calculate gain start and end taking into account previous
                // and current input amplitudes.
-               MpBridgeGain scaledGainStart = (MpBridgeGain)
-                  ((pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/prevAmplitude);
-               MpBridgeGain scaledGainEnd = (MpBridgeGain)
-                  ((pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/curAmplitude);
+               MpBridgeGain scaledGainStart = bridgeScaledGain(pInputGains[inputNum], prevAmplitude);
+               MpBridgeGain scaledGainEnd   = bridgeScaledGain(pInputGains[inputNum], curAmplitude);
 
                MpDspUtils::addMulLinear_I(pFrame->getSamplesPtr(),
                                           scaledGainStart,
@@ -246,8 +271,16 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
    }
 #endif
 
-   // Save input amplitudes for later use.
-   saveAmplitudes(inBufs, inBufsSize);
+   // Save input amplitudes for later use, with the same VAD gating as the
+   // make-up gain so prevAmplitude stays consistent next frame.
+   for (int i=0; i<inBufsSize; i++)
+   {
+      if (inBufs[i].isValid())
+      {
+         MpAudioBufPtr pAudioBuf = inBufs[i];
+         mpPrevAmplitudes[i] = bridgeAgcAmplitude(pAudioBuf);
+      }
+   }
 
    return TRUE;
 }
