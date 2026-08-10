@@ -148,6 +148,12 @@ public:
    /// @brief Returns TRUE if enabled but wave device has been lost (fallback active).
    inline UtlBoolean isDeviceHardwareDetached() const;
 
+   /// @brief Fallback timer ticks in the current fallback episode, 0 if none.
+   inline int getFallbackTickCount() const { return mFallbackSignalCount; }
+
+   /// @brief Frames discarded in the current fallback episode, 0 if none.
+   inline int getFallbackDiscardCount() const { return mFallbackDiscardCount; }
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -180,6 +186,13 @@ protected:
      /**< 
      *  This should only be called by the windows wave output multimedia.
      */
+
+     /// @brief Log a summary of the current fallback episode.
+     /**
+     *  @param context - caller name for the log line, e.g. "enableDevice".
+     *  Emits nothing when no fallback episode is in progress.
+     */
+   void logFallbackSummary(const char* context);
 
 protected:
      /// @brief internal method to handle final writing of audio to the output device
@@ -214,6 +227,15 @@ protected:
    OsAtomicLightBool mExitFlag; ///< Should processing thread finish its execution?
    MpMMTimer* mpTickerTimer;   ///< Optional timer to provide media subsystem ticks when output
                                ///< device is not working properly.
+   int mFallbackSignalCount;   ///< Fallback timer ticks since entering
+                               ///< fallback. Zero means not counting yet.
+   int mFallbackDiscardCount;  ///< Frames discarded by internalPushFrame
+                               ///< since entering fallback.
+   int mFallbackFramePeriodMs; ///< Frame period captured when fallback
+                               ///< began. Sampled at entry because
+                               ///< getFramePeriod() asserts on a zeroed
+                               ///< mSamplesPerSec, and disableDevice()
+                               ///< zeroes it while the timer keeps running.
 
 #ifndef DONTUSE_SLIST
      /// Structure used to pass WMM message data to processing thread.

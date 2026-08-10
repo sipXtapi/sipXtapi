@@ -402,6 +402,9 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mTotSampleCount(0)
 , mWinAudioDeviceChangeCallback(NULL)
 , mpTickerTimer(NULL)
+, mFallbackSignalCount(0)
+, mFallbackDiscardCount(0)
+, mFallbackFramePeriodMs(0)
 , mDeviceEnumeratorPtr(NULL)
 {
     OsSysLog::add(FAC_MP, PRI_DEBUG,
@@ -517,6 +520,7 @@ MpodWinMM::~MpodWinMM()
 
    if (mpTickerTimer)
    {
+       logFallbackSummary("~MpodWinMM");
        OsStatus status = mpTickerTimer->stop();
        if (status != OS_SUCCESS)
        {
@@ -647,6 +651,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    {
        OsSysLog::add(FAC_MP, PRI_DEBUG,
            "MpodWinMM::enableDevice stopping and deleting fallback MMTimer");
+       logFallbackSummary("enableDevice");
        mpTickerTimer->stop();
        delete mpTickerTimer;
        mpTickerTimer = NULL;
@@ -1275,9 +1280,23 @@ OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples,
    // Running on the MMTimer as something is wrong with the output device
    else
    {
-             // DON'T CHECK IN
-        OsSysLog::add(FAC_MP, PRI_DEBUG,
-            "MpodWinMM::internalPushFrame mpTickerTimer no pushing or shoving");
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MpodWinMM::internalPushFrame mpTickerTimer no pushing or shoving");
+#endif
+
+      // Counted, not logged. internalPushFrame is downstream of signal()
+      // on the same thread, so a divergence between these two counts in
+      // the periodic line means the flowgraph stopped producing frames
+      // while the fallback timer kept ticking.
+      mFallbackDiscardCount++;
+      if (mFallbackDiscardCount == 1)
+      {
+         OsSysLog::add(FAC_MP, PRI_WARNING,
+            "MpodWinMM::internalPushFrame discarding output frames for "
+            "device '%s' while in fallback mode",
+            getDeviceName().data());
+      }
 
       // We lie, to keep the flowgraph going
       status = OS_SUCCESS;
@@ -1342,7 +1361,13 @@ OsStatus MpodWinMM::switchToMMTimer()
                     // Start with tick period microseconds
                     unsigned int periodMicroSecs = (1000 * // milliseconds/microsecond
                         1000 * mSamplesPerFrame) / mSamplesPerSec;  // milliseconds/frame
-                        
+
+                    // Each fallback episode counts from zero so the totals in the
+                    // periodic and exit log lines are per-episode, not cumulative.
+                    mFallbackSignalCount = 0;
+                    mFallbackDiscardCount = 0;
+                    mFallbackFramePeriodMs = (int)getFramePeriod();
+
                     status = mpTickerTimer->run(periodMicroSecs);
                     if (status != OS_SUCCESS)
                     {
@@ -1429,8 +1454,45 @@ OsStatus MpodWinMM::signal(const intptr_t eventData)
         }
         else
         {
+#ifdef TEST_PRINT
             OsSysLog::add(FAC_MP, PRI_DEBUG,
                 "MpodWinMM::signal mpTickerNotification signal succeeded");
+#endif
+
+            if (mpTickerTimer != NULL)
+            {
+               // Rate-limited fallback reporting. The per-tick lines above are
+               // 100 Hz and unusable in production; these are ~0.2 Hz.
+               // Both counters are incremented on this same thread: signal()
+               // drives internalPushFrame() synchronously through the flowgraph
+               // ticker, so no atomics are needed. Revisit if the flowgraph
+               // ticker ever becomes a queued cross-thread dispatch.
+               mFallbackSignalCount++;
+
+               if (mFallbackSignalCount == 1)
+               {
+                  OsSysLog::add(FAC_MP, PRI_WARNING,
+                     "MpodWinMM::signal fallback timer active for device '%s', "
+                     "output audio discarded until device recovers",
+                     getDeviceName().data());
+               }
+               else
+               {
+                  int framePeriodMs = mFallbackFramePeriodMs;
+                  int ticksPerLog = (framePeriodMs > 0) ? (5000 / framePeriodMs) : 500;
+                  if (ticksPerLog < 1) ticksPerLog = 1;
+
+                  if ((mFallbackSignalCount % ticksPerLog) == 0)
+                  {
+                     OsSysLog::add(FAC_MP, PRI_NOTICE,
+                        "MpodWinMM::signal fallback active %d sec: %d ticks, "
+                        "%d frames discarded",
+                        (mFallbackSignalCount * framePeriodMs) / 1000,
+                        mFallbackSignalCount,
+                        mFallbackDiscardCount);
+                  }
+               }
+            }
         }
     }
 #ifdef TEST_PRINT
@@ -1628,6 +1690,28 @@ DWORD WINAPI MpodWinMM::ThreadMMProc(LPVOID lpMessage)
    }
    OsSysLog::add(FAC_MP, PRI_DEBUG,
       "MpodWinMM::ThreadMMProc exiting");
+}
+
+void MpodWinMM::logFallbackSummary(const char* context)
+{
+   if (mFallbackSignalCount == 0 && mFallbackDiscardCount == 0)
+   {
+      return;
+   }
+
+   int framePeriodMs = mFallbackFramePeriodMs;
+   int elapsedSec = (framePeriodMs > 0)
+                    ? (mFallbackSignalCount * framePeriodMs) / 1000
+                    : 0;
+
+   OsSysLog::add(FAC_MP, PRI_NOTICE,
+      "MpodWinMM::%s leaving fallback for device '%s' after %d ticks "
+      "(%d sec), %d frames discarded",
+      context,
+      getDeviceName().data(),
+      mFallbackSignalCount,
+      elapsedSec,
+      mFallbackDiscardCount);
 }
 
 /* //////////////////////// PROTECTED STATIC //////////////////////////////// */

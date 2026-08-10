@@ -118,6 +118,7 @@ class MpOutputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testPushFrameDuringFallback);
    CPPUNIT_TEST(testRedundantSwitchToMMTimer);
    CPPUNIT_TEST(testFallbackTimerProducesTicks);
+   CPPUNIT_TEST(testFallbackCounters);
    CPPUNIT_TEST(testReEnableAfterFallbackDisable);
    CPPUNIT_TEST(testReEnableAfterFallbackDisableProducesAudio);
    CPPUNIT_TEST(testOutputDriverWithEmptyName);
@@ -659,6 +660,109 @@ void testMultipleEnableDisableCyclesAfterFallback()
       CPPUNIT_ASSERT(!driver.isEnabled());
 #  else
       printf("Skipping testFallbackTimerProducesTicks on non-Windows platform\n");
+#  endif
+   }
+
+   void testFallbackCounters()
+   {
+#  ifdef WIN32
+      // Verify the fallback episode counters that drive the rate-limited
+      // fallback logging in MpodWinMM::signal(). Asserting on the counters
+      // rather than on log file contents keeps this runnable in CI.
+      //
+      // Covers: the tick counter advances while in fallback; the discard
+      // counter tracks it (signal() drives internalPushFrame()
+      // synchronously on the same thread, so divergence means the
+      // flowgraph stopped producing while the timer kept ticking -- which
+      // is exactly what the periodic log line exists to expose); and
+      // switchToMMTimer restarts the count per episode rather than
+      // accumulating across episodes.
+
+      CallbackUserData userData;
+      MpodWinMM driver(MpodWinMM::getDefaultDeviceName(), NULL);
+
+      if (!driver.isDeviceValid())
+      {
+         SIPX_TEST_SKIP("no valid output audio device available");
+      }
+
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+      // rateIndex is consulted by driverCallback to compute
+      // samplesPerFrame. Anchor it to the 8000 Hz entry.
+      rateIndex = 0;
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT_MESSAGE("Tick counter must be zero before fallback",
+                             driver.getFallbackTickCount() == 0);
+      CPPUNIT_ASSERT_MESSAGE("Discard counter must be zero before fallback",
+                             driver.getFallbackDiscardCount() == 0);
+
+      // ===== Episode 1 =====
+      driver.switchToMMTimer();
+      CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+
+      const int MEASURE_MS = 300;
+      OsTask::delay(MEASURE_MS);
+
+      int ticks = driver.getFallbackTickCount();
+      int discards = driver.getFallbackDiscardCount();
+
+      UtlString msg;
+      msg.appendFormat("episode 1: ticks=%d discards=%d expected~=%d",
+                       ticks, discards, MEASURE_MS / TEST_MSEC_PER_FRAME);
+
+      // The fact under test is that the counter advances at a plausible
+      // rate, not that it hits an exact number. Bounds are generous to
+      // absorb scheduler jitter on virtualized CI hosts.
+      const int expected = MEASURE_MS / TEST_MSEC_PER_FRAME;
+      CPPUNIT_ASSERT_MESSAGE(msg.data(), ticks > 0);
+      CPPUNIT_ASSERT_MESSAGE(msg.data(), ticks >= expected / 4);
+      CPPUNIT_ASSERT_MESSAGE(msg.data(), ticks <= expected * 4);
+
+      // The two counters must stay within a frame or two of each other.
+      // NOTE: pushFrame can return OS_FAILED if a fallback tick lands
+      // while the device is being disabled, in which case
+      // internalPushFrame is not reached and the counts diverge. That
+      // is the disable-during-fallback race, not a counter bug.
+      int skew = ticks - discards;
+      if (skew < 0) skew = -skew;
+      CPPUNIT_ASSERT_MESSAGE(msg.data(), skew <= 2);
+
+      // Counters survive disableDevice -- the fallback timer deliberately
+      // does too -- and are reset by switchToMMTimer at the start of the
+      // next episode, not at the end of this one.
+      driver.disableDevice();
+      CPPUNIT_ASSERT_MESSAGE("Counters must survive disableDevice",
+                             driver.getFallbackTickCount() > 0);
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE,
+                             TEST_SAMPLES_PER_SECOND,
+                             0, notificationCallback));
+      CPPUNIT_ASSERT(!driver.isUsingFallbackTimer());
+
+      // ===== Episode 2: must restart from zero, not accumulate =====
+      driver.switchToMMTimer();
+      CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
+      OsTask::delay(50);
+
+      int ticks2 = driver.getFallbackTickCount();
+      UtlString msg2;
+      msg2.appendFormat("episode 2: ticks=%d (episode 1 was %d)",
+                        ticks2, ticks);
+      CPPUNIT_ASSERT_MESSAGE(msg2.data(), ticks2 > 0);
+      CPPUNIT_ASSERT_MESSAGE(msg2.data(), ticks2 < ticks);
+
+      driver.disableDevice();
+      CPPUNIT_ASSERT(!driver.isEnabled());
+#  else
+      SIPX_TEST_SKIP("MpodWinMM is Windows-only");
 #  endif
    }
 
