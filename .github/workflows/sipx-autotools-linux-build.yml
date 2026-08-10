@@ -45,45 +45,28 @@ jobs:
         run: |
           ls -l
 
-      - name: probe 3gpp download reachability
-        continue-on-error: true
-        run: |
-          URL=https://www.3gpp.org/ftp/Specs/archive/26_series/26.104/26104-700.zip
-          REF=https://www.3gpp.org/ftp/Specs/archive/26_series/26.104/
-          UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+      - name: configure wget for 3gpp downloads run: |
+          # www.3gpp.org is behind a bot filter that 403s the default
+          # wget User-Agent. Confirmed by probe: same egress IP, same
+          # second, browser UA succeeds where default UA fails. Set it
+          # here rather than in the contrib configure so the value does
+          # not end up in CONFIGURE_OPTIONS, which is pasted into a
+          # sed script and breaks on embedded quotes.
+          cat > ~/.wgetrc <<'EOF'
+          user_agent = Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+          tries = 3
+          timeout = 30
+          EOF
+          cat ~/.wgetrc
 
-          echo "=== 1. curl, default UA ==="
-          curl -sS -L --max-time 60 -o /tmp/p1.bin -D /tmp/h1.txt \
-               -w 'http_code=%{http_code} size=%{size_download}\n' "$URL" || true
-          sed -n '1,40p' /tmp/h1.txt || true
-          file /tmp/p1.bin || true
-
-          echo "=== 2. curl, browser UA + referer ==="
-          curl -sS -L --max-time 60 -A "$UA" -e "$REF" \
-               -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
-               -H 'Accept-Language: en-US,en;q=0.9' \
-               -o /tmp/p2.bin -D /tmp/h2.txt \
-               -w 'http_code=%{http_code} size=%{size_download}\n' "$URL" || true
-          sed -n '1,40p' /tmp/h2.txt || true
-          file /tmp/p2.bin || true
-          head -c 4 /tmp/p2.bin | od -c | head -2 || true
-
-          echo "=== 3. wget, default UA ==="
-          wget --server-response --tries=1 --timeout=30 -O /tmp/p3.bin "$URL" 2>&1 | head -40 || true
-          file /tmp/p3.bin || true
-
-          echo "=== 4. wget, browser UA + referer ==="
-          wget --server-response --tries=1 --timeout=30 \
-               --user-agent="$UA" --referer="$REF" \
-               --header='Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
-               --header='Accept-Language: en-US,en;q=0.9' \
-               -O /tmp/p4.bin "$URL" 2>&1 | head -40 || true
-          file /tmp/p4.bin || true
-          unzip -t /tmp/p4.bin > /dev/null 2>&1 && echo "p4 IS a valid zip" || echo "p4 is NOT a valid zip"
-
-          echo "=== runner egress IP ==="
-          curl -sS --max-time 20 https://api.ipify.org || true
-          echo
+          # Fail fast with a clear message if the bot filter changes,
+          # rather than surfacing as a wget 403 deep inside a recursive
+          # make. Cache-buster so we measure the origin, not the edge.
+          wget -q -O /tmp/3gpp-probe.zip \
+               "https://www.3gpp.org/ftp/Specs/archive/26_series/26.104/26104-700.zip?cb=$RANDOM"
+          unzip -t /tmp/3gpp-probe.zip > /dev/null
+          echo "3gpp download OK"
+          rm -f /tmp/3gpp-probe.zip
 
       - name: detect autoconf version and select patch
         id: patch
@@ -143,7 +126,7 @@ jobs:
           cd sipXmediaLib
           if [ ! -f configure ] ; then autoreconf -if ; fi
           patch configure < ${PATCH_FILE}
-          if [ ! -f Makefile ] ; then ./configure --without-sipxopenssl --disable-stream-player --enable-contrib-speex --enable-speex-dsp --enable-codec-speex --enable-codec-amr --enable-codec-amrwb --enable-codec-g726 --enable-codec-g722 --enable-codec-g7221 --enable-codec-g729 --enable-codec-ilbc --enable-codec-gsm --enable-codec-opus --enable-local-audio --with-downloader="wget --user-agent=Mozilla/5.0 --tries=3 --timeout=30" ; fi
+          if [ ! -f Makefile ] ; then ./configure --without-sipxopenssl --disable-stream-player --enable-contrib-speex --enable-speex-dsp --enable-codec-speex --enable-codec-amr --enable-codec-amrwb --enable-codec-g726 --enable-codec-g722 --enable-codec-g7221 --enable-codec-g729 --enable-codec-ilbc --enable-codec-gsm --enable-codec-opus --enable-local-audio ; fi
           make $MAKE_USE_CPUS
           make tests
 
