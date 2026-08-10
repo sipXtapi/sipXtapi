@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2009 SIPez LLC. 
+// Copyright (C) 2007-2026 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
@@ -37,6 +37,7 @@ const char * const MpMMTimerWnt::TYPE = "Windows Multimedia";
 MpMMTimerWnt::MpMMTimerWnt(MpMMTimer::MMTimerType type)
 : MpMMTimer(type)
 , mbTimerStarted(FALSE)
+, mbBeginPeriodActive(FALSE)
 , mPeriodMSec(0)
 , mEventHandle(0)
 , mpNotification(NULL)
@@ -116,17 +117,21 @@ OsStatus MpMMTimerWnt::run(unsigned usecPeriodic)
    // (this used to be set to msecPeriodic)
    if(timeBeginPeriod(mResolution) != TIMERR_NOERROR)
    {
+      // Non-fatal: we get coarser resolution, but the periodic event
+      // below can still be armed. Remember that no matching
+      // timeEndPeriod is owed, so stop() must not make one.
+      mbBeginPeriodActive = FALSE;
       status = OS_LIMIT_REACHED;
       OsSysLog::add(FAC_MP, PRI_WARNING, 
-         "Couldn't set minimum MMTIMER begin period to %s ms", 
+         "Couldn't set minimum MMTIMER begin period to %d ms", 
          mResolution);
    }
    else
    {
-      mPeriodMSec = msecPeriodic;
+      mbBeginPeriodActive = TRUE;
       status = OS_SUCCESS;
-      mbTimerStarted = TRUE;
    }
+   mPeriodMSec = msecPeriodic;
 
    if(mTimerType == Notification)
    {
@@ -151,6 +156,34 @@ OsStatus MpMMTimerWnt::run(unsigned usecPeriodic)
                       );
    }
 
+   // mbTimerStarted must mean "a periodic event is armed", because
+   // that is what stop() keys off to decide whether to kill it. Do
+   // not set it from timeBeginPeriod's result: that call can fail
+   // while timeSetEvent still succeeds, which previously left an
+   // armed timer that stop() refused to kill.
+   if(mTimerId == 0)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR,
+         "MpMMTimerWnt::run timeSetEvent failed for period %d ms",
+         mPeriodMSec);
+      if(mbBeginPeriodActive)
+      {
+         timeEndPeriod(mResolution);
+         mbBeginPeriodActive = FALSE;
+      }
+      if(mTimerType == Linear && mEventHandle != 0)
+      {
+         CloseHandle(mEventHandle);
+         mEventHandle = 0;
+      }
+      mPeriodMSec = 0;
+      status = OS_FAILED;
+   }
+   else
+   {
+      mbTimerStarted = TRUE;
+   }
+
    return status;
 }
 
@@ -166,31 +199,51 @@ OsStatus MpMMTimerWnt::stop()
       return OS_INVALID_STATE;
    }
 
-   // for multimedia timer, there must be a matching timeEndPeriod call to the
-   // timeBeginPeriod call that was originally made.
-   if(timeEndPeriod(mResolution) != TIMERR_NOERROR)
+   // Kill the periodic event FIRST, and never return before doing so.
+   // timeSetEvent was given TIME_KILL_SYNCHRONOUS, so timeKillEvent
+   // does not return until any in-flight callback has completed.
+   // The previous ordering returned OS_FAILED on a timeEndPeriod
+   // failure without ever calling timeKillEvent, leaving the timer
+   // armed while the caller went on to delete this object; the next
+   // tick then dereferenced freed memory via dwUser.
+   if(mTimerId == 0)
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, 
-         "Couldn't set minimum MMTIMER end period to %d ms", 
-         mResolution);
-      return OS_FAILED;
+         "MpMMTimerWnt::stop - No timer to kill!");
+   }
+   else
+   {
+      MMRESULT killResult = timeKillEvent(mTimerId);
+      if(killResult != TIMERR_NOERROR)
+      {
+         OsSysLog::add(FAC_MP, PRI_ERR,
+            "MpMMTimerWnt::stop - timeKillEvent(%u) failed: %u",
+            mTimerId, killResult);
+      }
+      mTimerId = 0;
+   }
+
+   // Matching call for the timeBeginPeriod made in run(). Only make
+   // it if that call actually succeeded, otherwise the system-wide
+   // timer resolution refcount is unbalanced.
+   if(mbBeginPeriodActive)
+   {
+      if(timeEndPeriod(mResolution) != TIMERR_NOERROR)
+      {
+         OsSysLog::add(FAC_MP, PRI_WARNING, 
+            "Couldn't set minimum MMTIMER end period to %d ms", 
+            mResolution);
+      }
+      mbBeginPeriodActive = FALSE;
    }
 
    // Reset vars to stopped state.
    mPeriodMSec = 0;
    mbTimerStarted = FALSE;
 
-   // Stop periodic ticking.. Happens in all cases - Linear and Notification.
-   if(mTimerId == 0 || 
-      timeKillEvent(mTimerId) == MMSYSERR_INVALPARAM)
-   {
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
-         "MpMMTimerWnt - No timer to kill!");
-   }
-
    // If we're in linear mode, then we were using events, 
    // so clean up the event used.
-   if(mTimerType == Linear)
+   if(mTimerType == Linear && mEventHandle != 0)
    {
       // Close and reset the event handle.
       CloseHandle(mEventHandle);

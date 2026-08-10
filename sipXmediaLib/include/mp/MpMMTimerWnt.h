@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2009 SIPez LLC. 
+// Copyright (C) 2007-2026 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2007-2009 SIPfoundry Inc.
@@ -91,6 +91,9 @@ public:
 protected:
    BOOL mbInitialized; ///< Whether we're fully initialized or not, or are in some failure state.
    BOOL mbTimerStarted; ///< Indicator of timer started or not.
+   BOOL mbBeginPeriodActive; ///< TRUE if run()'s timeBeginPeriod
+                                   ///< succeeded and a matching
+                                   ///< timeEndPeriod is still owed.
    unsigned mPeriodMSec; ///< The current millisecond period being used.  0 when no timer.
    unsigned mResolution; ///< Cached timer resolution in ms, queried for and stored at startup.
    HANDLE mEventHandle; ///< Only valid in Linear mode, holds handle to an event.
