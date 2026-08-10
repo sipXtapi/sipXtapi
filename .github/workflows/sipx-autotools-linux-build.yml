@@ -45,7 +45,8 @@ jobs:
         run: |
           ls -l
 
-      - name: configure wget for 3gpp downloads run: |
+      - name: configure wget for 3gpp downloads 
+        run: |
           # www.3gpp.org is behind a bot filter that 403s the default
           # wget User-Agent. Confirmed by probe: same egress IP, same
           # second, browser UA succeeds where default UA fails. Set it
