@@ -741,7 +741,7 @@ MpAudioOutputConnection* MpOutputDeviceManager::findConnectionBlocking(
    UtlInt deviceKey(deviceId);
    MpAudioOutputConnection* connection = NULL;
 
-   for (int i = 0; i < tries; i--)
+   for (int i = 0; i < tries; i++)
    {
       // Lookup connection on every iteration, as we may lose it when released
       // lock.
