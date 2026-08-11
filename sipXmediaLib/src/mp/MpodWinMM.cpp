@@ -364,15 +364,12 @@ public:
         UtlString deviceName;
         MpidWinMM::getWinNameForDevice(mDeviceEnumeratorPtr, deviceId, deviceName);
 
-        LPOLESTR* guidString = NULL;
-        StringFromCLSID(key.fmtid, guidString);
-
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
-            "MpWinOutputAudioDeviceNotifier::OnPropertyValueChanged(%s, %s)",
-            deviceName,
-            guidString);
-
-        ::CoTaskMemFree(guidString);
+            "MpWinOutputAudioDeviceNotifier::OnPropertyValueChanged(%s, "
+            "fmtid.Data1: 0x%08lX pid: %lu)",
+            deviceName.data(),
+            (unsigned long)key.fmtid.Data1,
+            (unsigned long)key.pid);
 
         return(S_OK);
     };
