@@ -1054,7 +1054,9 @@ OsStatus MpInputDeviceManager::getTimeDerivatives(MpInputDeviceHandle deviceId,
    }
    else
    {
-      printf("MpInputDeviceManager::pushFrame device(%d) not found\n", deviceId);
+      OsSysLog::add(FAC_MP, PRI_ERR,
+         "MpInputDeviceManager::getTimeDerivatives device(%d) not found",
+         deviceId);
    }
    nDerivatives = nActualDerivs;
    return(stat);
