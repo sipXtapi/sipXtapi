@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,13 +65,15 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
    MpResNotificationMsg::RNMsgType notfType = 
       (MpResNotificationMsg::RNMsgType)(msg.getMsgSubType());
 
-   // DO NOT CHECK IN
-//#ifdef TEST_PRINT
+   // Log the target dispatcher before dereferencing the message, and the
+   // message contents after. The order lets a fault be attributed to one
+   // or the other from the log alone.
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-           "MaNotfTranslatorDispatcher::post message type: %d subtype: %d",
+           "MaNotfTranslatorDispatcher::post entry type: %d subtype: %d "
+           "dispatcher: %p",
            (int) messageType,
-           notfType);
-//#endif
+           notfType,
+           mpAbstractedMsgDispatcher);
 
    // we should have a resource notification message - if not, something is wrong.
    if(messageType != OsMsg::MP_RES_NOTF_MSG)
@@ -87,6 +89,11 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
    else if(mpAbstractedMsgDispatcher)
    {
       MpResNotificationMsg& resNotf = (MpResNotificationMsg&)msg;
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+              "MaNotfTranslatorDispatcher::post resource: '%s' connection: %d",
+              resNotf.getOriginatingResourceName().data(),
+              (int) resNotf.getConnectionId());
+
       switch(notfType)
       {
       case MpResNotificationMsg::MPRNM_FROMFILE_STARTED:
@@ -246,6 +253,11 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
        OsSysLog::add(FAC_MP, PRI_WARNING,
            "MaNotfTranslatorDispatcher::post message dropped, NULL dispatcher");
    }
+
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+       "MaNotfTranslatorDispatcher::post exit subtype: %d status: %d",
+       notfType,
+       stat);
 
    return(stat);
 }
