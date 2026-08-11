@@ -159,8 +159,11 @@ OsStatus MpMMTimerWnt::run(unsigned usecPeriodic)
    // mbTimerStarted must mean "a periodic event is armed", because
    // that is what stop() keys off to decide whether to kill it. Do
    // not set it from timeBeginPeriod's result: that call can fail
-   // while timeSetEvent still succeeds, which previously left an
-   // armed timer that stop() refused to kill.
+   // while timeSetEvent still succeeds, 
+   // mbTimerStarted means "a periodic event is armed", which is what
+   // stop() keys off. It must reflect timeSetEvent's result, not
+   // timeBeginPeriod's: the period request can fail while the event
+   // still arms successfully.
    if(mTimerId == 0)
    {
       OsSysLog::add(FAC_MP, PRI_ERR,
@@ -202,10 +205,12 @@ OsStatus MpMMTimerWnt::stop()
    // Kill the periodic event FIRST, and never return before doing so.
    // timeSetEvent was given TIME_KILL_SYNCHRONOUS, so timeKillEvent
    // does not return until any in-flight callback has completed.
-   // The previous ordering returned OS_FAILED on a timeEndPeriod
-   // failure without ever calling timeKillEvent, leaving the timer
-   // armed while the caller went on to delete this object; the next
-   // tick then dereferenced freed memory via dwUser.
+// Kill the periodic event before releasing the timer period, and
+   // never return before doing so: callers may delete this object
+   // immediately after stop(), and a still-armed timer would then
+   // dereference freed memory through dwUser. timeSetEvent was given
+   // TIME_KILL_SYNCHRONOUS, so timeKillEvent does not return until any
+   // in-flight callback has completed.
    if(mTimerId == 0)
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, 
