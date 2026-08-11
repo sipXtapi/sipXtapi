@@ -630,6 +630,14 @@ OsStatus MpidWinMM::disableDevice()
     // while waveInReset is called causing a deadlock.
     mIsEnabled = FALSE;
 
+    // The wave calls below can block indefinitely when the underlying
+    // device has been removed. Log around each one so a stall can be
+    // located from the log alone. OsSysLog::add is asynchronous and
+    // written by a separate task, so these survive a blocked caller.
+    OsSysLog::add(FAC_MP, PRI_NOTICE,
+        "MpidWinMM::disableDevice '%s' entry, mDevHandle: %p winMMId: %d",
+        getDeviceName().data(), mDevHandle, mWinMMDeviceId);
+
     // mDevHandle may be NULL here if the wave device experienced a
     // failure (NODRIVER, callback-cascade, etc.) and was nulled by an
     // error path before disableDevice was reached. That is NOT a
@@ -650,16 +658,22 @@ OsStatus MpidWinMM::disableDevice()
     // So be sure to watch for it and drop it on the floor.
     if (mDevHandle)
     {
+        OsSysLog::add(FAC_MP, PRI_NOTICE,
+           "MpidWinMM::disableDevice calling waveInReset");
         res = waveInReset(mDevHandle);
         if (res != MMSYSERR_NOERROR)
         {
             showWaveError("waveInReset", res, -1, __LINE__);
         } 
+
+        OsSysLog::add(FAC_MP, PRI_NOTICE, "MpidWinMM::disableDevice waveInReset returned");
     }
 
     // Must unprepare the headers after a reset, but before the device is closed
     // (if this is done after waveInClose, mDevHandle will be invalid and 
     // MMSYSERR_INVALHANDLE will be returned.
+    OsSysLog::add(FAC_MP, PRI_NOTICE,
+        "MpidWinMM::disableDevice unpreparing %d headers", mNumInBuffers);
     unsigned i;
     for (i=0; i < mNumInBuffers; i++) 
     {
@@ -672,6 +686,7 @@ OsStatus MpidWinMM::disableDevice()
 
     if (mDevHandle)
     {
+        OsSysLog::add(FAC_MP, PRI_NOTICE, "MpidWinMM::disableDevice calling waveInClose");
         res = waveInClose(mDevHandle);
         if (res != MMSYSERR_NOERROR)
         {
@@ -693,6 +708,10 @@ OsStatus MpidWinMM::disableDevice()
     mSamplesPerFrame = 0;
     mSamplesPerSec = 0;
     mCurrentFrameTime = 0;
+
+    OsSysLog::add(FAC_MP, PRI_NOTICE,
+        "MpidWinMM::disableDevice '%s' exit, status: %d",
+        getDeviceName().data(), status);
 
     return status;
 }
