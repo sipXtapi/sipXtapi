@@ -212,8 +212,9 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
          MprnStringMsg& mediaStringNotif = (MprnStringMsg&)resNotf;
          UtlString sps;
          mediaStringNotif.getValue(sps);
-         printf("MaNotfTranslatorDispatcher::post got MpResNotificationMsg::MPRNM_H264_SPS connection ID: %d\n",
-             mediaStringNotif.getConnectionId());
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MaNotfTranslatorDispatcher::post MPRNM_H264_SPS connection: %d",
+                 (int) mediaStringNotif.getConnectionId());
 
          MiStringNotf miStringNotif(MiNotification::MI_NOTF_H264_SPS,
                                     mediaStringNotif.getOriginatingResourceName(),
@@ -227,8 +228,10 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
 
       case MpResNotificationMsg::MPRNM_H264_PPS:
       {
-         printf("MaNotfTranslatorDispatcher::post got MpResNotificationMsg::MPRNM_H264_PPS\n");
          MprnStringMsg& mediaStringNotif = (MprnStringMsg&)resNotf;
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MaNotfTranslatorDispatcher::post MPRNM_H264_PPS connection: %d",
+                 (int) mediaStringNotif.getConnectionId());
          UtlString pps;
          mediaStringNotif.getValue(pps);
 
