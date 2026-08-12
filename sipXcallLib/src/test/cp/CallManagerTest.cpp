@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2010 SIPez LLC. All rights reserved.
+// Copyright (C) 2006-2026 SIPez LLC. All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -175,7 +175,27 @@ public:
 #endif
             delete pCallManager;
         }
-        
+
+        // Each CallManager registers its mDispatcher with the shared
+        // media factory and must unregister before being destroyed.
+        // A surviving registration means the factory holds a pointer
+        // into freed memory, which faults on the next device
+        // notification. The factory is still alive at this point.
+        CpMediaInterfaceFactory* pFactory = sipXmediaFactoryFactory(NULL);
+        int dispatcherCount =
+            pFactory->getFactoryImplementation()->getNotificationDispatcherCount();
+        sipxDestroyMediaFactoryFactory();
+
+        if (dispatcherCount >= 0)
+        {
+            char dispatcherMsg[200];
+            sprintf(dispatcherMsg,
+                    "%d notification dispatcher(s) still registered after "
+                    "destroying %d CallManager(s)",
+                    dispatcherCount, NUM_OF_RUNS);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(dispatcherMsg, 0, dispatcherCount);
+        }
+
         for (i=0; i<NUM_OF_RUNS; ++i)
         {
             sipxDestroyMediaFactoryFactory() ;
