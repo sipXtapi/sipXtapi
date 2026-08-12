@@ -400,6 +400,9 @@ public:
      ///        detached (e.g. USB unplug put the output driver into fallback mode).
    UtlBoolean isDeviceInFallbackMode(MpOutputDeviceHandle deviceId) const;
 
+     /// @brief Number of notification dispatchers currently registered.
+   int getNotificationDispatcherCount() const { return (int)mNotifiers.entries(); }
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

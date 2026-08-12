@@ -419,6 +419,9 @@ public:
      ///        detached (e.g. USB unplug while the input driver was active).
    UtlBoolean isDeviceInFallbackMode(MpInputDeviceHandle deviceId) const;
 
+     /// @brief Number of notification dispatchers currently registered.
+   int getNotificationDispatcherCount() const { return (int)mNotifiers.entries(); }
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
