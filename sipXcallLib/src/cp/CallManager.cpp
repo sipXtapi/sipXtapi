@@ -294,7 +294,7 @@ CallManager::~CallManager()
     // factory's translator will have a dangling pointer.
     if (mpMediaFactory)
     {
-        //pMediaFactory->removeDispatcher(&mDispatcher);
+        mpMediaFactory->removeDispatcher(&mDispatcher);
     }
 
     waitUntilShutDown();   
