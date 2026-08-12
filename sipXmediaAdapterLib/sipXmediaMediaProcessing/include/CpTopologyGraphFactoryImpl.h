@@ -194,6 +194,10 @@ public:
     static int getMaxInputConnections();
 
     virtual OsStatus getVideoCpuValue(int& cpuValue) const;
+
+      /// @copydoc CpMediaInterfaceFactoryImpl::getNotificationDispatcherCount()
+    virtual int getNotificationDispatcherCount() const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */

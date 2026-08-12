@@ -1487,6 +1487,15 @@ MpInputDeviceManager* CpTopologyGraphFactoryImpl::getInputDeviceManager() const
     return(mpInputDeviceManager);
 }
 
+int CpTopologyGraphFactoryImpl::getNotificationDispatcherCount() const
+{
+    // Input and output managers are registered with together in
+    // setDispatcher and unregistered together in removeDispatcher, so
+    // either one answers for both.
+    return(mpInputDeviceManager ?
+           mpInputDeviceManager->getNotificationDispatcherCount() : -1);
+}
+
 OsStatus CpTopologyGraphFactoryImpl::getVideoCpuValue(int& cpuValue) const
 {
     cpuValue = SdpCodec::SDP_CODEC_CPU_VERY_HIGH;

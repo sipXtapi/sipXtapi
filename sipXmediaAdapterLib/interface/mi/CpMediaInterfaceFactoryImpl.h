@@ -354,6 +354,15 @@ public:
       return OS_NOT_SUPPORTED ;
    }
 
+     /// @brief Number of notification dispatchers registered with the device managers.
+     /**
+     *  Returns -1 if this factory implementation does not manage audio
+     *  device notification dispatchers. Callers that register a dispatcher
+     *  via setDispatcher are expected to unregister it via removeDispatcher
+     *  before the dispatcher is destroyed; this accessor makes the
+     *  outstanding registration count observable.
+     */
+   virtual int getNotificationDispatcherCount() const { return -1; }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
