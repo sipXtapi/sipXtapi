@@ -447,6 +447,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
     <ClCompile Include="src\test\mp\MpTestResource.cpp" />
     <ClCompile Include="src\test\mp\MpWBInputOutputDeviceTest.cpp" />
     <ClCompile Include="src\test\mp\RtcpParserTest.cpp" />
+    <ClCompile Include="src\test\mp\TLinkedListTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\test\mp\dtmf5_48khz_16b_signed.h" />

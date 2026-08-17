@@ -59,7 +59,8 @@ testsuite_SOURCES = \
     mp/MpOutputManagerTest.cpp \
     mp/MpMMTimerTest.cpp \
     mp/MpWBInputOutputDeviceTest.cpp \
-    mp/RtcpParserTest.cpp 
+    mp/RtcpParserTest.cpp \
+    mp/TLinkedListTest.cpp
 
 does_not_build = \
     mp/MprDelayTest.cpp 

@@ -1,3 +1,5 @@
+//  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -892,7 +894,7 @@ TENTRY CTLinkedList<TENTRY>::RemoveFirstEntry()
     ptLink = ResetIterator();
 
 //  If the Iterator is equal to NULL, then the list is empty
-    if(!ptLink)
+    if(ptLink)
     {
         //  Remove entry
         retVal = RemoveLink(ptLink);
