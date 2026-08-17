@@ -174,6 +174,23 @@ void InitializeCriticalSection(CRITICAL_SECTION *csSynchronized)
     *csSynchronized = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
 }
 
+//  IMPORTANT:  unlike the Win32 CRITICAL_SECTION this stands in for, the
+//  OsBSem underneath is NOT recursive.  A thread that already owns one of
+//  these and asks for it again blocks against itself, forever.
+//
+//  That makes the rule for RTCP collection code absolute: a list lock must
+//  never be held across an outbound call that can re-enter the list -- object
+//  teardown, a Release() that can run a destructor, or any IRTCPNotify
+//  callback.  See CRTCPSession::TerminateAllConnections(),
+//  CRTCPSession::ResetAllConnections() and ~CRTCManager() for the
+//  detach-then-act and snapshot-then-act shapes that satisfy it.
+//
+//  These critical sections only ever guard short list manipulations, so
+//  failing to acquire one for seconds on end does not mean contention, it
+//  means the lock is never coming back.  Say so, once, in terms that name the
+//  actual bug -- the previous version retried forever while logging a bare
+//  "dead lock semiphore" line every second, which reported the symptom on
+//  Linux and nothing at all about the cause.
 void EnterCriticalSection(CRITICAL_SECTION *csSynchronized)
 {
 #if TEST_PRINT
@@ -185,20 +202,41 @@ void EnterCriticalSection(CRITICAL_SECTION *csSynchronized)
 //  its semaphore
     if(*csSynchronized)
     {
+        const int DEADLOCK_SUSPECT_SECONDS = 5;
+
         OsTime timeOut(1, 0);
         OsStatus status = OS_FAILED;
-        do
+        int      iSecondsWaited = 0;
+
+        while((status = (*csSynchronized)->acquire(timeOut)) != OS_SUCCESS)
         {
-            status = (*csSynchronized)->acquire(timeOut);
-            if(status != OS_SUCCESS)
+            iSecondsWaited++;
+
+            if(iSecondsWaited == DEADLOCK_SUSPECT_SECONDS)
+            {
+                OsSysLog::add(FAC_MP, PRI_CRIT,
+                    "RTCP EnterCriticalSection: semaphore %p still not acquired "
+                    "after %d seconds -- probable self-deadlock.  This lock is "
+                    "not recursive; a caller is almost certainly holding it "
+                    "across a callback or a destructor that re-enters it.",
+                    csSynchronized, iSecondsWaited);
+                OsSysLog::flush();
+
+//              Debug builds trap here so the offending call site names itself
+//              in the stack.  Release builds deliberately keep waiting: a hang
+//              is recoverable information in a core dump, whereas proceeding
+//              without the lock would corrupt the list this guards.
+                assert(!"RTCP critical section self-deadlock: a list lock is "
+                        "held across a callback that re-enters it");
+            }
+            else
             {
                 OsSysLog::add(FAC_MP, PRI_ERR,
-                    "RTCP EnterCriticalSection acquire returned: %d dead lock semiphore: %p",
-                    status,
-                    csSynchronized);
+                    "RTCP EnterCriticalSection: semaphore %p not acquired after "
+                    "%d second(s), acquire returned %d",
+                    csSynchronized, iSecondsWaited, status);
             }
-
-        } while(status != OS_SUCCESS);
+        }
     }
 }
 

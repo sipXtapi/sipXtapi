@@ -705,6 +705,27 @@ bool CRTCManager::ProcessMessage(CMessage *poMessage)
     // Check the event registration list for those subscribers that have a
     // matching interest.  For each matching interest, use the recipients
     // IRTCPNotify interface to deliver the message.
+    //
+    // This dispatch runs with the registration list lock HELD, which is the
+    // one place in the RTCP code that calls out while holding a list lock.
+    // It is deliberate.  The list holds one entry per live MpFlowGraphBase --
+    // that is, one per active call -- so it has no natural bound, and the
+    // alternatives are both worse than what they would prevent: a fixed-size
+    // snapshot would silently drop event notifications for calls past the cap,
+    // and a dynamically sized one would put an allocation on the hottest path
+    // in the subsystem.
+    //
+    // What makes it safe is that a subscriber cannot be destroyed inside this
+    // loop.  Advise() takes a reference before adding the subscriber, and the
+    // AddRef()/Release() pair below brackets the entire dispatch, so the count
+    // stays at two or more throughout and ~MpFlowGraphBase() -- which is what
+    // calls Unadvise() -- cannot run here.
+    //
+    // THE CONSTRAINT THIS RELIES ON:  an IRTCPNotify handler must never call
+    // Advise() or Unadvise(), directly or indirectly.  Doing so re-enters this
+    // lock, which under POSIX is a non-recursive OsBSem.  No handler does so
+    // today; one that did would trip the self-deadlock assert in
+    // EnterCriticalSection() (see BaseClass.cpp) rather than hanging silently.
     m_tRegistrationList.TakeLock();
     IRTCPNotify *piRTCPNotify = m_tRegistrationList.GetFirstEntry();
 
