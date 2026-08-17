@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2022-2026 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
@@ -855,10 +855,6 @@ void CRTCManager::NewSDES(IGetSrcDescription *piGetSrcDescription,
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-	delete poMessage;
-	poMessage = NULL;
-#endif
     }
 }
 
@@ -912,10 +908,6 @@ void CRTCManager::UpdatedSDES(IGetSrcDescription *piGetSrcDescription,
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 
@@ -967,10 +959,6 @@ void CRTCManager::SenderReportReceived(
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 
@@ -1022,10 +1010,6 @@ void CRTCManager::ReceiverReportReceived(
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 
@@ -1076,10 +1060,6 @@ void CRTCManager::ByeReportReceived(IGetByeInfo        *piGetByeInfo,
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 
@@ -1127,10 +1107,6 @@ void CRTCManager::SDESReportSent(IGetSrcDescription *piGetSrcDescription,
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 
@@ -1180,10 +1156,6 @@ void CRTCManager::SenderReportSent(IGetSenderStatistics *piGetSenderStatistics,
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 
@@ -1235,10 +1207,6 @@ void CRTCManager::ReceiverReportSent(
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 
@@ -1289,10 +1257,6 @@ void CRTCManager::ByeReportSent(IGetByeInfo      *piGetByeInfo,
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 
@@ -1345,10 +1309,6 @@ void CRTCManager::LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 
@@ -1399,10 +1359,6 @@ void CRTCManager::RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 
@@ -1446,10 +1402,6 @@ void CRTCManager::RTCPReportingAlarm(IRTCPConnection     *piRTCPConnection,
     if(poMessage)
     {
         Post(poMessage);
-#if defined(__pingtel_on_posix__)
-        delete poMessage;
-        poMessage = NULL;
-#endif
     }
 }
 #endif /* INCLUDE_RTCP ] */

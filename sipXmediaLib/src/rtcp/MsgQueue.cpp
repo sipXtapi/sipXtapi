@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+//
 // Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -277,6 +279,12 @@ void * CMsgQueue::InitMessageThread(void * argument1)
 * Caveats:
 *
 ************************************************************************|<>|*/
+//  OWNERSHIP CONTRACT:  Post() consumes poMessage on every platform and on
+//  every path, success or failure.  Callers must NOT delete the message after
+//  calling Post().  The platform backends differ in how the message reaches
+//  the message loop -- WIN32/vxWorks hand the pointer itself to the queue,
+//  while the POSIX OsMsgQ enqueues a *copy* -- so centralizing disposal here
+//  is the only way to keep a single, unambiguous owner.
 bool CMsgQueue::Post(CMessage *poMessage)
 {
 
@@ -285,11 +293,19 @@ bool CMsgQueue::Post(CMessage *poMessage)
 //  Let's check whether the MessageEvent is still valid. It may become
 //  invalid at the initial stages of startup or at termination.
     if(m_hMessageEvent == NULL)
+    {
+        delete poMessage;
         return(FALSE);
+    }
 
-//  Presumably all is well.  Let's add the message to the list
+//  Presumably all is well.  Let's add the message to the list.  On success
+//  the list owns the pointer and MessageLoop()/FlushMessages() will delete
+//  it; on failure it was never enqueued, so we dispose of it here.
     if(!AddEntry(poMessage))
+    {
+        delete poMessage;
         return(FALSE);
+    }
 
 //  The Entry has been successfully added.  Let's set the message event
 //  to actuate its being processed.
@@ -298,26 +314,42 @@ bool CMsgQueue::Post(CMessage *poMessage)
 #elif defined(_VXWORKS) /* ] [ */
 //  Check whether the Message Queue was successfully initialized
     if(m_ulMsgQID == NULL)
+    {
+        delete poMessage;
         return(FALSE);
+    }
 
-//  Use the vxWorks Message Posting routine to place the message on the FIFO
+//  Use the vxWorks Message Posting routine to place the message on the FIFO.
+//  The FIFO stores the pointer, so on success the queue owns the message and
+//  MessageLoop() deletes it.  Nothing was enqueued on failure, so delete it.
     if(msgQSend(m_ulMsgQID,
                (char *)(&poMessage),
                 sizeof(CMessage *),
                 NO_WAIT_TIME,
                 MSG_PRI_NORMAL) == ERROR)
     {
+        delete poMessage;
         return(FALSE);
     }
 #elif defined(__pingtel_on_posix__) /* ] [ */
     if(m_pMsgQ == NULL)
+    {
+        poMessage->releaseMsg();
         return(FALSE);
+    }
 #ifdef RTCP_LINUX_DEBUG
     osPrintf("DEBUG: RTCP Message queue queueing message! (type %X)\n", poMessage->GetMsgType());
 #endif
-    if(m_pMsgQ->send(*(OsMsg *)poMessage, OsTime::NO_WAIT_TIME))
-        return(FALSE);
+//  OsMsgQShared::send() enqueues a copy of the message (it calls
+//  rMsg.createCopy()), and MessageLoop() deletes that copy.  The original is
+//  therefore ours to dispose of on BOTH paths.  releaseMsg() deletes a
+//  non-reusable OsMsg, so this must happen exactly once -- previously the
+//  caller deleted it a second time, double-freeing every posted event.
+    OsStatus sendStatus = m_pMsgQ->send(*(OsMsg *)poMessage, OsTime::NO_WAIT_TIME);
     poMessage->releaseMsg();
+
+    if(sendStatus != OS_SUCCESS)
+        return(FALSE);
 #endif /* ] */
 
     return(TRUE);
