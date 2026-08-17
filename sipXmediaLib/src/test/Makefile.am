@@ -60,6 +60,7 @@ testsuite_SOURCES = \
     mp/MpMMTimerTest.cpp \
     mp/MpWBInputOutputDeviceTest.cpp \
     mp/RtcpParserTest.cpp \
+    mp/RtcpStressTest.cpp \
     mp/TLinkedListTest.cpp
 
 does_not_build = \

@@ -23,8 +23,19 @@
 // Constants
 #define DEBUGGING_RTCP_REPORTS
 #ifdef DEBUGGING_RTCP_REPORTS /* [ */
-#ifdef _VXWORKS /* [ */
 static int REPORT_PERIOD_MS =   5000;   // 5 Seconds
+
+// Test hook for shortening the reporting cadence.  The period is sampled when
+// a connection is constructed, so this affects connections created after the
+// call; it returns the previous value so a caller can restore it.
+//
+// This used to be available only under VxWorks.  It is needed on every
+// platform because at the production 5 second cadence a teardown almost never
+// coincides with a reporting alarm, which makes the window that
+// CRTCPConnection::m_tTeardownLock guards -- GenerateRTCPReports() on the
+// CRTCManager thread versus Terminate() on the application thread --
+// impractical to provoke.  RtcpStressTest drives it down to a few tens of
+// milliseconds so that collision happens continuously instead of by luck.
 extern "C" {extern int adjustRtcpPeriod(int x);};
 
 int adjustRtcpPeriod(int newPeriod) {
@@ -34,9 +45,6 @@ int adjustRtcpPeriod(int newPeriod) {
    }
    return save;
 }
-#else /* _VXWORKS ] [ */
-const int REPORT_PERIOD_MS =   5000;   // 5 Seconds
-#endif /* _VXWORKS ] */
 #else /* DEBUGGING_RTCP_REPORTS ] [ */
 const int REPORT_PERIOD_MS =   5000;   // 5 Seconds
 #endif /* DEBUGGING_RTCP_REPORTS ] */

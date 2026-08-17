@@ -58,6 +58,20 @@ typedef uint32_t ssrc_t;
 typedef uint32_t rtpts_t;
 
 
+// DIAGNOSTIC TOGGLE -- normally OFF.
+//
+// Enabling this threads the caller's __LINE__ through every AddRef()/Release()
+// and makes CBaseClass log each one with the object pointer and the resulting
+// count.  That is how an unbalanced reference is tracked down: take a leaked
+// address from a CRT heap dump and grep the log for it; the AddRef with no
+// matching Release names the line that leaked it.
+//
+// It changes method signatures across the whole RTCP subsystem, so flipping it
+// forces a full rebuild, and the log volume is enormous -- pair it with a
+// short, low-thread-count run or the output is unusable.  Note also that
+// serialising every reference operation behind the log perturbs the timing of
+// exactly the races such a hunt is usually chasing.  Re-comment the #undef
+// when finished.
 #define RTCP_DEBUG_REFCOUNTS
 #undef RTCP_DEBUG_REFCOUNTS
 #ifdef RTCP_DEBUG_REFCOUNTS /* [ */

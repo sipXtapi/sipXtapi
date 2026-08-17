@@ -105,13 +105,26 @@ CRTCPRender::~CRTCPRender(void)
     if(m_piRTCPNotify)
         m_piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
+    // The Sender Report carries exactly one reference on our behalf, taken
+    // when Initialize() constructed it.  The only other reference is the one
+    // GetSenderStatInterface() hands to MprToNet, and ~MprToNet() releases
+    // that itself.
+    //
+    // A second Release() used to sit here, described as compensating for "a
+    // missing one... somewhere" that was leaving these at a reference count of
+    // one.  Nothing is missing: the extra Release() drove the count straight
+    // past zero.  With no media stack attached the object is freed by the
+    // first Release() and the second one reads freed memory immediately; with
+    // MprToNet attached the count is two here, the pair frees the report while
+    // MprToNet still holds a reference, and ~MprToNet() then releases freed
+    // memory -- ~MpFlowGraphBase() terminates the RTCP session before it
+    // destroys its resources, so that ordering is the normal one.
+    //
+    // This stayed hidden for as long as ~CRTCPRender() was unreachable:
+    // CTLinkedList::RemoveFirstEntry() was inverted, so
+    // TerminateAllConnections() never terminated anything and connections
+    // leaked instead of being destroyed.
     ((ISenderReport *)m_poSenderReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-    // HACK:  Adding this call to Release() to compensate for a missing one... somewhere...
-    //    to fix that we were leaking these with ref count == 1.
-    ((ISenderReport *)m_poSenderReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
-    ///////////////////////////////////////////////////////////////////////////////////////
 
     ((IReceiverReport *)m_poReceiverReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     ((IByeReport *)m_poByeReport)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));

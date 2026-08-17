@@ -446,7 +446,9 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
     <ClCompile Include="src\test\mp\MprToSpkrTest.cpp" />
     <ClCompile Include="src\test\mp\MpTestResource.cpp" />
     <ClCompile Include="src\test\mp\MpWBInputOutputDeviceTest.cpp" />
+    <ClCompile Include="..\sipXportLib\src\test\os\UnitTestLogHooks.cpp" />
     <ClCompile Include="src\test\mp\RtcpParserTest.cpp" />
+    <ClCompile Include="src\test\mp\RtcpStressTest.cpp" />
     <ClCompile Include="src\test\mp\TLinkedListTest.cpp" />
   </ItemGroup>
   <ItemGroup>
