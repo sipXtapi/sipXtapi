@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2022-2026 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
@@ -18,6 +18,7 @@
 #ifdef INCLUDE_RTCP /* [ */
 
 #include "os/OsSysLog.h"
+#include "os/OsLock.h"
 
 // Constants
 #define DEBUGGING_RTCP_REPORTS
@@ -70,15 +71,21 @@ CRTCPConnection::CRTCPConnection(ssrc_t localSSRC,
         CRTCPTimer(REPORT_PERIOD_MS),
         m_piRTCPNetworkRender(NULL),
         m_poRTCPRender(NULL),
-        m_poRTCPSource(NULL)
+        m_poRTCPSource(NULL),
+        m_tTeardownLock(OsMutex::Q_PRIORITY)
 {
     OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::CRTCPConnection() -> %p, localSSRC=0x%08X", this, localSSRC);
 
-    ////////////////////////////////////////////////////////////////////////////
-    // HACK:  Adding this to compensate for a missing AddRef()... somewhere...
-    //   that results in this being deleted one Release() too soon.
-    AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
-    ////////////////////////////////////////////////////////////////////////////
+    // NOTE: this object is created with a single reference, which is taken to
+    // be the one owned by the CRTCPSession connection list once
+    // CreateRTCPConnection() adds it there.  The SECOND reference -- the one
+    // owned by the caller receiving the returned interface -- is taken by
+    // CreateRTCPConnection() only after the object has been successfully
+    // initialized and added to that list.
+    //
+    // A blanket AddRef() used to live here to make the two-owner count come
+    // out right, but taking it this early also made the failure paths in
+    // CreateRTCPConnection() (which Release() exactly once) leak the object.
 
     // Cache SSRC
     m_SSRC = localSSRC;
@@ -97,8 +104,6 @@ CRTCPConnection::CRTCPConnection(ssrc_t localSSRC,
         m_ulEventInterest = m_piRTCPNotify->GetEventInterest();
         m_piRTCPNotify->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
     }
-
-
 }
 
 /**
@@ -137,7 +142,6 @@ CRTCPConnection::~CRTCPConnection(void)
     m_piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     // m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
     // m_poRTCPSource->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
-
 }
 
 /**
@@ -219,7 +223,6 @@ bool CRTCPConnection::Initialize(void)
     piReceiverStats->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     return(bInitialized);
-
 }
 
 
@@ -406,23 +409,41 @@ void CRTCPConnection::GenerateRTCPReports(unsigned char *puchByeReason,
     IGetByeInfo            *piGetByeInfo;
     unsigned long           ulReportMask;
 
-    // Check whether Render object is still active
-    if (!m_bInitialized) return;  // SLG - check under lock?, since this is called from CRTCManager thread, and application thread could destroy CpTopologyGraphInterface or call deleteConnection at the same time
+    // Serialize against StopRenderer()/Terminate() running on the application
+    // thread.  This method runs on the CRTCManager message thread, so testing
+    // m_bInitialized outside the lock would be a time-of-check/time-of-use
+    // window: teardown could clear the flag and NULL m_poRTCPRender between
+    // the test below and the dereferences that follow.  The lock is held
+    // across BOTH the test and every use of m_poRTCPRender.
+    {
+        OsLock lock(m_tTeardownLock);
 
-    // Let's instruct the RTCP Render object to go generate some RTCP reports.
-    // If a Bye Reason has been provided, we must also tack a Bye report onto
-    //  the end of the other outgoing reports; otherwise, send out the normal
-    //  complement of reports.
-    if(puchByeReason)
-        ulReportMask =
-           m_poRTCPRender->GenerateByeReport(aulCSRC, ulCSRCs, puchByeReason);
-    else
-        ulReportMask = m_poRTCPRender->GenerateRTCPReports();
+        // Check whether Render object is still active
+        if (!m_bInitialized) return;
 
-    // Let's get the interface to all the reports just generated so that we
-    //  may use them in upcoming event notifications
-    m_poRTCPRender->GetStatistics(&piGetSrcDescription, &piSenderStatistics,
-                                  &piReceiverStatistics, &piGetByeInfo);
+        // Let's instruct the RTCP Render object to go generate some RTCP reports.
+        // If a Bye Reason has been provided, we must also tack a Bye report onto
+        //  the end of the other outgoing reports; otherwise, send out the normal
+        //  complement of reports.
+        if(puchByeReason)
+            ulReportMask =
+               m_poRTCPRender->GenerateByeReport(aulCSRC, ulCSRCs, puchByeReason);
+        else
+            ulReportMask = m_poRTCPRender->GenerateRTCPReports();
+
+        // Let's get the interface to all the reports just generated so that we
+        //  may use them in upcoming event notifications.  GetStatistics()
+        //  AddRef()s each interface it hands back, so the report objects stay
+        //  alive for the notifications below even once the lock is dropped and
+        //  the render object is subsequently released by teardown.
+        m_poRTCPRender->GetStatistics(&piGetSrcDescription, &piSenderStatistics,
+                                      &piReceiverStatistics, &piGetByeInfo);
+    }
+
+    // The lock is deliberately released before issuing notifications: these
+    // call out through m_piRTCPNotify into the session and RTCManager, and
+    // holding a connection lock across those callbacks would invite lock-order
+    // inversion with the collection locks taken on the other side.
 
     // Check to see which events were generate and issue the associated
     //  notifications
@@ -498,19 +519,36 @@ bool CRTCPConnection::StopRenderer(void)
     CRTCPTimer::Shutdown();
 
     // Send Notification to Parent Session so that it can do something
-    //  intelligent
+    //  intelligent.
+    //
+    // NOTE: this callback MUST be made before m_bInitialized is cleared and
+    // MUST NOT be made while holding m_tTeardownLock.
+    //   - Ordering: the session responds by calling back into
+    //     GenerateRTCPReports() to emit the closing BYE report, which returns
+    //     early unless m_bInitialized is still TRUE.
+    //   - Locking: the session handler also takes the session's connection
+    //     list lock (via GetEntry).  TerminateAllConnections() acquires those
+    //     two locks in the opposite order (list lock, then connection lock),
+    //     so holding the connection lock across this callback would be an
+    //     ABBA deadlock between the application and CRTCManager threads.
     if(m_piRTCPNotify)
         m_piRTCPNotify->RTCPConnectionStopped((IRTCPConnection *)this);
 
-    // Reset connection to uninitialized
-    m_bInitialized = FALSE;
-
-    // Clear the Network Render interface if it has already been registered
-    if(m_piRTCPNetworkRender)
+    // Serialize the state transition against GenerateRTCPReports() running on
+    // the CRTCManager thread.
     {
-        m_poRTCPRender->ClearNetworkRender();
-        m_piRTCPNetworkRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
-        m_piRTCPNetworkRender = NULL;
+        OsLock lock(m_tTeardownLock);
+
+        // Reset connection to uninitialized
+        m_bInitialized = FALSE;
+
+        // Clear the Network Render interface if it has already been registered
+        if(m_piRTCPNetworkRender)
+        {
+            m_poRTCPRender->ClearNetworkRender();
+            m_piRTCPNetworkRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+            m_piRTCPNetworkRender = NULL;
+        }
     }
 
     return(TRUE);
@@ -539,23 +577,36 @@ bool CRTCPConnection::Terminate()
 {
 
     OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPConnection::Terminate(%p)", this);
-    // Let's Stop the Render if it hasn't already been done
+
+    // Let's Stop the Render if it hasn't already been done.  This is called
+    // OUTSIDE m_tTeardownLock on purpose -- it issues the RTCPConnectionStopped
+    // callback, which re-enters this object and takes the session's connection
+    // list lock (see the note in StopRenderer()).
     StopRenderer();
 
-    // Release RTCP Source object
-    if(m_poRTCPSource)
+    // Serialize the teardown of the Source and Render objects against
+    // GenerateRTCPReports() on the CRTCManager thread.  That method holds this
+    // same lock across its m_bInitialized test AND its use of m_poRTCPRender,
+    // so it can never be left dereferencing a render object that is released
+    // and NULLed here.
     {
-        // m_poRTCPSource->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__)); while (m_poRTCPSource->Release(__LINE__));
-        m_poRTCPSource->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
-        m_poRTCPSource = NULL;
-    }
+        OsLock lock(m_tTeardownLock);
 
-    // Release RTCP Render object
-    if(m_poRTCPRender)
-    {
-        // m_poRTCPRender->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__)); while(m_poRTCPRender->Release(__LINE__));
-        m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
-        m_poRTCPRender = NULL;
+        // Release RTCP Source object
+        if(m_poRTCPSource)
+        {
+            // m_poRTCPSource->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__)); while (m_poRTCPSource->Release(__LINE__));
+            m_poRTCPSource->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+            m_poRTCPSource = NULL;
+        }
+
+        // Release RTCP Render object
+        if(m_poRTCPRender)
+        {
+            // m_poRTCPRender->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__)); while(m_poRTCPRender->Release(__LINE__));
+            m_poRTCPRender->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
+            m_poRTCPRender = NULL;
+        }
     }
 
     return(TRUE);

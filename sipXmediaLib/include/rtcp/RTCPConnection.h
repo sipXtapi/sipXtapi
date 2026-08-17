@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2022-2026 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
@@ -19,6 +19,7 @@
 #include "rtcp/RtcpConfig.h"
 
 //  Includes
+#include "os/OsMutex.h"
 #include "NetworkChannel.h"
 #include "RTCPSource.h"
 #include "RTCPRender.h"
@@ -805,6 +806,32 @@ private:        // Private Data Members
  */
       CRTCPSource *m_poRTCPSource;
 
+
+/**
+ *
+ * Attribute Name:  m_tTeardownLock
+ *
+ * Type:            OsMutex
+ *
+ * Description: Serializes connection teardown against report generation.
+ *
+ *              GenerateRTCPReports() runs on the CRTCManager message thread
+ *              (driven by the reporting alarm), while StopRenderer() and
+ *              Terminate() run on the application thread by way of
+ *              CpTopologyGraphInterface::deleteConnection/release and
+ *              CRTCPSession::TerminateAllConnections.  Teardown clears
+ *              m_bInitialized and then releases and NULLs m_poRTCPRender and
+ *              m_poRTCPSource, which is precisely the state the report
+ *              generator dereferences.  Without this lock the m_bInitialized
+ *              test is a time-of-check/time-of-use window: the reporting
+ *              thread can pass the test and then dereference a render object
+ *              that the application thread has just freed.
+ *
+ *              OsMutex is recursive, so Terminate() may hold it across its
+ *              call to StopRenderer().
+ *
+ */
+      OsMutex m_tTeardownLock;
 
 };
 

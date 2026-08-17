@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2022-2026 SIP Spectrum, Inc.  All rights reserved.
 //
 // Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
@@ -199,9 +199,20 @@ IRTCPConnection * CRTCPSession::CreateRTCPConnection(ssrc_t localSSRC)
     }
 #endif /* RTCP_DEBUG ] */
 
-    // Increment the reference count to account for the
-    //  interface being returned
-    //  I THINK THIS IS THE LEAK:  ((IRTCPConnection *)poRTCPConnection)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
+    // Increment the reference count to account for the interface being
+    // returned.  The connection now carries exactly two references:
+    //
+    //   1. the one it was constructed with, which belongs to this session's
+    //      connection list and is released by TerminateRTCPConnection() or
+    //      TerminateAllConnections() when the entry is removed; and
+    //   2. this one, which belongs to the caller and is released when the
+    //      caller is done with the interface (for the media subsystem, in
+    //      ~MpFlowGraphBase() as it drains mRtcpConnMap).
+    //
+    // Taking this reference HERE rather than in the constructor matters: every
+    // failure path above Release()s exactly once, so an early AddRef() would
+    // leave those paths one reference short and leak the connection.
+    ((IRTCPConnection *)poRTCPConnection)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     return((IRTCPConnection *)poRTCPConnection);
 }
@@ -370,11 +381,30 @@ void CRTCPSession::TerminateAllConnections(void)
     // Reset All Connections
     ResetAllConnections((unsigned char *)"Normal Session Termination");
 
-    // Remove all RTCP Connections
-    TakeLock();
-    CRTCPConnection *poRTCPConnection = RemoveFirstEntry();
-    while (poRTCPConnection != NULL)
+    // Remove all RTCP Connections.
+    //
+    // Terminate() MUST NOT be called while holding the connection list lock.
+    // It reaches StopRenderer(), which notifies the session via
+    // RTCPConnectionStopped(); that handler calls GetEntry() and so re-enters
+    // this very lock.  On Win32 the underlying CRITICAL_SECTION is recursive
+    // and tolerates that, but under POSIX CRITICAL_SECTION is a non-recursive
+    // OsBSem whose EnterCriticalSection() retries forever -- the teardown
+    // would hang permanently instead of failing.
+    //
+    // So detach one connection at a time under the lock and terminate it once
+    // the lock has been dropped.  Note this re-reads the FIRST entry on every
+    // pass rather than using RemoveNextEntry(): the list's iterator is shared
+    // mutable state, so a cursor cannot be carried across an unlocked window.
+    while (TRUE)
     {
+        TakeLock();
+        CRTCPConnection *poRTCPConnection = RemoveFirstEntry();
+        ReleaseLock();
+
+        // List is drained
+        if (poRTCPConnection == NULL)
+            break;
+
 #if RTCP_DEBUG /* [ */
         if(bPingtelDebug)
         {
@@ -390,11 +420,7 @@ void CRTCPSession::TerminateAllConnections(void)
 
         // Release reference
         ((IRTCPConnection *)poRTCPConnection)->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
-
-        // Remove Next Entry
-        poRTCPConnection = RemoveNextEntry();
     }
-    ReleaseLock();
 
 }
 
