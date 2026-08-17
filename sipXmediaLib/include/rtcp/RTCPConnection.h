@@ -827,8 +827,12 @@ private:        // Private Data Members
  *              thread can pass the test and then dereference a render object
  *              that the application thread has just freed.
  *
- *              OsMutex is recursive, so Terminate() may hold it across its
- *              call to StopRenderer().
+ *              No lock is held across an outbound IRTCPNotify callback:
+ *              Terminate() calls StopRenderer() before acquiring, and
+ *              StopRenderer() issues RTCPConnectionStopped() before its own
+ *              lock scope.  Each acquisition is therefore a leaf, so this
+ *              lock never nests with the session connection list lock and
+ *              correctness does not depend on OsMutex being recursive.
  *
  */
       OsMutex m_tTeardownLock;

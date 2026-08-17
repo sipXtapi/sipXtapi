@@ -185,34 +185,58 @@ CRTCManager::~CRTCManager(void)
         m_piSDESReport->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
 
     // Iterate through the EventRegistration List and release all references
-    // to objects contained therein
-    m_tRegistrationList.TakeLock();
-    piRTCPNotify = m_tRegistrationList.RemoveFirstEntry();
-    while (piRTCPNotify != NULL)
+    // to objects contained therein.
+    //
+    // Release() MUST NOT be called while holding the registration list lock.
+    // Dropping the last reference to a subscriber destroys it, and subscribers
+    // unregister themselves from their destructors -- MpFlowGraphBase, which
+    // gets its Release() from DECLARE_IBASE_M, calls Unadvise() in
+    // ~MpFlowGraphBase() and so re-enters this list.  That breaks on both
+    // platforms: under POSIX CRITICAL_SECTION is a non-recursive OsBSem whose
+    // EnterCriticalSection() retries forever, and on Win32 the lock is
+    // recursive but the nested RemoveEntry() rewinds m_ptIterator, corrupting
+    // the cursor this loop is still using.
+    //
+    // Detach one entry at a time under the lock and release it once the lock
+    // is dropped.  The FIRST entry is re-read on every pass rather than using
+    // RemoveNextEntry(), because the list iterator is shared mutable state and
+    // cannot be carried across an unlocked window.
+    while (TRUE)
     {
+        m_tRegistrationList.TakeLock();
+        piRTCPNotify = m_tRegistrationList.RemoveFirstEntry();
+        m_tRegistrationList.ReleaseLock();
+
+        // List is drained
+        if (piRTCPNotify == NULL)
+            break;
+
         // Release Reference
         piRTCPNotify->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
-
-        // Get Next Entry
-        piRTCPNotify = m_tRegistrationList.RemoveNextEntry();
     }
-    m_tRegistrationList.ReleaseLock();
 
     // Iterate through the RTCP Session object List and release all references
-    // to those objects
-    m_tSessionList.TakeLock();
-    piRTCPSession = m_tSessionList.RemoveFirstEntry();
-    while (piRTCPSession != NULL)
+    // to those objects.
+    //
+    // As above, neither TerminateAllConnections() nor Release() may run while
+    // the session list lock is held: both reach out into connection teardown
+    // and event notification, which take further locks and can destroy objects
+    // that unregister themselves on the way out.
+    while (TRUE)
     {
+        m_tSessionList.TakeLock();
+        piRTCPSession = m_tSessionList.RemoveFirstEntry();
+        m_tSessionList.ReleaseLock();
+
+        // List is drained
+        if (piRTCPSession == NULL)
+            break;
+
         // Terminate All RTCP Connections
         piRTCPSession->TerminateAllConnections();
 
         piRTCPSession->Release(ADD_RELEASE_CALL_ARGS(__LINE__));
-
-        // Get Next Entry
-        piRTCPSession = m_tSessionList.RemoveNextEntry();
     }
-    m_tSessionList.ReleaseLock();
 
     // Clear RTC Manager pointer
     m_spoRTCManager = NULL;

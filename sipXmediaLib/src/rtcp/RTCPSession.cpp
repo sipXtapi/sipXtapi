@@ -331,24 +331,57 @@ void CRTCPSession::ResetAllConnections(unsigned char *puchReason)
         ReleaseLock();
     }
 
-    // Check each entry of the connection list again
+    // Snapshot the connection list, then generate the reports with the list
+    // lock RELEASED.  GenerateRTCPReports() transmits packets and fires
+    // IRTCPNotify callbacks; running those under the lock is what turns any
+    // handler that touches this list into a POSIX hang, since the shim maps
+    // CRITICAL_SECTION onto a non-recursive OsBSem that spins forever rather
+    // than failing.  It happens to be survivable today only because the
+    // session's *Sent handlers merely forward to the RTCManager message
+    // queue -- an accident of the current handlers, not a property we should
+    // keep depending on.
+    //
+    // A reference is held on each connection across the unlocked window so a
+    // concurrent teardown cannot free one out from under the loop below.
+    CRTCPConnection *apoRTCPConnections[MAX_CONNECTIONS];
+    unsigned long ulConnections = 0;
+
     TakeLock();
     poRTCPConnection = GetFirstEntry();
-    while (poRTCPConnection != NULL)
+    while (poRTCPConnection != NULL && ulConnections < MAX_CONNECTIONS)
     {
-
         // Bump Reference Count of Connection Object
         poRTCPConnection->AddRef(ADD_RELEASE_CALL_ARGS(-__LINE__));
-
-        poRTCPConnection->GenerateRTCPReports(puchReason, aulCSRC, ulCSRCs);
-
-        // Release Reference to Connection Object
-        poRTCPConnection->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
+        apoRTCPConnections[ulConnections++] = poRTCPConnection;
 
         // Get Next Entry
         poRTCPConnection = GetNextEntry();
     }
+
+    // A non-NULL entry here means the loop stopped on the array bound rather
+    // than the end of the list.  Nothing caps the connection count at creation
+    // time, so say so loudly instead of silently skipping those connections --
+    // on the teardown path this method is what generates their BYE reports.
+    bool bTruncated = (poRTCPConnection != NULL);
+
     ReleaseLock();
+
+    if (bTruncated)
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+            "CRTCPSession::ResetAllConnections: session %lu has more than %d "
+            "connections; no reports generated for the remainder",
+            GetSessionID(), MAX_CONNECTIONS);
+    }
+
+    for (unsigned long ulIndex = 0; ulIndex < ulConnections; ulIndex++)
+    {
+        apoRTCPConnections[ulIndex]->GenerateRTCPReports(puchReason,
+                                                         aulCSRC, ulCSRCs);
+
+        // Release Reference to Connection Object
+        apoRTCPConnections[ulIndex]->Release(ADD_RELEASE_CALL_ARGS(-__LINE__));
+    }
 }
 
 
