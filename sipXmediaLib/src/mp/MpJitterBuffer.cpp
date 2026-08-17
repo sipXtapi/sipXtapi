@@ -1,3 +1,6 @@
+//
+// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2006-2023 SIPez LLC.  All rights reserved.
 //
@@ -174,7 +177,16 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    // before decoding next packet.
    if (mIsFirstPacket)
    {
-      assert(rtpPacket.isValid());
+      // A valid packet is REQUIRED to seed stream state on the first call.
+      // The callers (MprDecode::doProcessFrame) guarantee this today via the
+      // isFirstRtpPulled/mIsStreamInitialized handshake, but enforce it
+      // locally so a future caller or reordering cannot turn this into a
+      // null dereference (via MpRtpBufPtr::operator->) on the media hot path.
+      if (!rtpPacket.isValid())
+      {
+         assert(rtpPacket.isValid());   // surface caller bugs in debug builds
+         return OS_FAILED;
+      }
       mStreamSeq = rtpPacket->getRtpSequenceNumber();
       mStreamTimestamp = rtpPacket->getRtpTimestamp();
       // mIsFirstPacket will be set to FALSE after all checks.
