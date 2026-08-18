@@ -27,6 +27,8 @@
 #endif
 #include <os/OsTask.h>
 #include <utl/UtlString.h>
+#include <utl/UtlSList.h>
+#include <utl/UtlSListIterator.h>
 
 #define MIDDT_SAMPLES_PER_FRAME 80
 #define MIDDT_NBUFS 20
@@ -41,6 +43,8 @@ class MpInputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testDoubleEnableInputDevice);
    CPPUNIT_TEST(testDoubleDisableInputDevice);
    CPPUNIT_TEST(testIsDeviceHardwareDetached);
+   CPPUNIT_TEST(testCaptureEndpointsMatchWinMM);
+   CPPUNIT_TEST(testRenderEndpointsMatchWinMM);
    CPPUNIT_TEST(testGetEndpointDataFlow);
    CPPUNIT_TEST_SUITE_END();
 
@@ -528,6 +532,187 @@ void testIsDeviceHardwareDetached()
       delete pDriver;
 #  else
       SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
+   }
+
+#ifdef WIN32
+   // Collect friendly names of all MMDevice endpoints in the ACTIVE
+   // state for the given flow. Caller owns the UtlString entries.
+   void collectActiveEndpointNames(IMMDeviceEnumerator* enumerator,
+                                   EDataFlow flow,
+                                   DWORD stateMask,
+                                   UtlSList& names)
+   {
+      IMMDeviceCollection* collection = NULL;
+      HRESULT hr = enumerator->EnumAudioEndpoints(flow,
+                                                  stateMask,
+                                                  &collection);
+      CPPUNIT_ASSERT_MESSAGE("EnumAudioEndpoints failed",
+                             hr == S_OK && collection != NULL);
+
+      UINT count = 0;
+      hr = collection->GetCount(&count);
+      CPPUNIT_ASSERT_MESSAGE("IMMDeviceCollection::GetCount failed",
+                             hr == S_OK);
+
+      for (UINT i = 0; i < count; i++)
+      {
+         IMMDevice* device = NULL;
+         if (collection->Item(i, &device) == S_OK && device != NULL)
+         {
+            LPWSTR endpointId = NULL;
+            if (device->GetId(&endpointId) == S_OK && endpointId != NULL)
+            {
+               UtlString name;
+               MpidWinMM::getWinNameForDevice(enumerator, endpointId, name);
+               names.append(new UtlString(name));
+               CoTaskMemFree(endpointId);
+            }
+            device->Release();
+         }
+      }
+
+      collection->Release();
+   }
+
+   // The device change watcher decides whether a state change is news
+   // by tracking which endpoints were ACTIVE. That is only a valid
+   // proxy for the application visible device list if MMDevice ACTIVE
+   // covers everything WinMM enumerates, with corresponding names.
+   void compareEnumerations(UtlBoolean isCapture)
+   {
+      const char* label = isCapture ? "capture" : "render";
+
+      UINT winmmCount = isCapture ? waveInGetNumDevs() : waveOutGetNumDevs();
+      if (winmmCount == 0)
+      {
+         SIPX_TEST_SKIP("no WinMM audio devices present");
+      }
+
+      // Deliberately not released: matches current driver behavior,
+      // where this enumerator is retained for the life of the object.
+      // See the TODO in ~MpodWinMM.
+      IMMDeviceEnumerator* enumerator = MpidWinMM::getWinDeviceEnumerator();
+      CPPUNIT_ASSERT_MESSAGE("could not obtain IMMDeviceEnumerator",
+                             enumerator != NULL);
+
+      UtlSList activeNames;
+collectActiveEndpointNames(enumerator,
+                                 isCapture ? eCapture : eRender,
+                                 DEVICE_STATE_ACTIVE,
+                                 activeNames);
+
+      // Endpoints in every state, to see whether this machine has any
+      // non-active endpoints at all. Without them the ACTIVE-only
+      // comparison above proves nothing.
+      UtlSList allNames;
+      collectActiveEndpointNames(enumerator,
+                                 isCapture ? eCapture : eRender,
+                                 DEVICE_STATEMASK_ALL,
+                                 allNames);
+      printf("ENDPOINTCHECK %s endpoints all states: %d active: %d\n",
+             label, (int) allNames.entries(), (int) activeNames.entries());
+      UtlSListIterator allIterator(allNames);
+      UtlString* anyName = NULL;
+      while ((anyName = (UtlString*) allIterator()))
+      {
+         printf("ENDPOINTCHECK   %s any-state: \"%s\"\n",
+                label, anyName->data());
+      }
+      fflush(stdout);
+      allNames.destroyAll();
+
+      printf("ENDPOINTCHECK %s WinMM devices: %u MMDevice active endpoints: %d\n",
+             label, winmmCount, (int) activeNames.entries());
+      fflush(stdout);
+      OsSysLog::add(FAC_AUDIO, PRI_INFO,
+         "MpInputDeviceDriverTest: %s WinMM devices: %u "
+         "MMDevice active endpoints: %d",
+         label, winmmCount, (int) activeNames.entries());
+
+      int unmatched = 0;
+
+      for (UINT i = 0; i < winmmCount; i++)
+      {
+         UtlString winmmName;
+         if (isCapture)
+         {
+            WAVEINCAPSA caps;
+            if (waveInGetDevCapsA(i, &caps, sizeof(caps)) != MMSYSERR_NOERROR)
+            {
+               continue;
+            }
+            winmmName = caps.szPname;
+         }
+         else
+         {
+            WAVEOUTCAPSA caps;
+            if (waveOutGetDevCapsA(i, &caps, sizeof(caps)) != MMSYSERR_NOERROR)
+            {
+               continue;
+            }
+            winmmName = caps.szPname;
+         }
+
+         UtlBoolean found = FALSE;
+         UtlSListIterator iterator(activeNames);
+         UtlString* endpointName = NULL;
+         while (!found && (endpointName = (UtlString*) iterator()))
+         {
+            if (MpidWinMM::nameIsSame(winmmName, *endpointName))
+            {
+               found = TRUE;
+            }
+         }
+
+         printf("ENDPOINTCHECK %s WinMM[%u] \"%s\" %s\n",
+             label, i, winmmName.data(),
+             found ? "matched" : "NO ACTIVE MMDevice MATCH");
+         fflush(stdout);
+         OsSysLog::add(FAC_AUDIO, found ? PRI_INFO : PRI_ERR,
+            "MpInputDeviceDriverTest: %s WinMM[%u] \"%s\" %s",
+            label, i, winmmName.data(),
+            found ? "matched an active endpoint"
+                  : "HAS NO ACTIVE MMDevice MATCH");
+
+         if (!found)
+         {
+            unmatched++;
+         }
+      }
+
+      int activeCount = (int) activeNames.entries();
+      activeNames.destroyAll();
+
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "MMDevice ACTIVE endpoint count differs from WinMM device count; "
+         "the active endpoint set may not track the application visible "
+         "device list",
+         (int) winmmCount, activeCount);
+
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "one or more WinMM devices had no matching active MMDevice "
+         "endpoint; the active endpoint set is not a valid proxy for "
+         "the application visible device list",
+         0, unmatched);
+   }
+#endif
+
+   void testCaptureEndpointsMatchWinMM()
+   {
+#  ifdef WIN32
+      compareEnumerations(TRUE);
+#  else
+      SIPX_TEST_SKIP("MMDevice enumeration is Windows-only");
+#  endif
+   }
+
+   void testRenderEndpointsMatchWinMM()
+   {
+#  ifdef WIN32
+      compareEnumerations(FALSE);
+#  else
+      SIPX_TEST_SKIP("MMDevice enumeration is Windows-only");
 #  endif
    }
 
