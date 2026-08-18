@@ -49,6 +49,10 @@ class MpSrtpTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testSrtcpRejectsTamperedPacket);
     CPPUNIT_TEST(testSrtcpRejectsForeignKey);
 
+    CPPUNIT_TEST(testMuxClassifiesRtcpByPacketType);
+    CPPUNIT_TEST(testMuxLeavesStunAndDtlsAlone);
+    CPPUNIT_TEST(testMuxClassifiesProtectedTrafficToo);
+
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -434,6 +438,110 @@ public:
 
         CPPUNIT_ASSERT_MESSAGE("SRTCP under a foreign key was accepted",
             !receiver.srtpUnprotectIfNeeded(packet, &size, TRUE));
+    }
+
+    /* ============== rtcp-mux demultiplexing ========================= */
+    //
+    // With RFC 5761 both kinds of packet share a port, so MprFromNet can no
+    // longer tell them apart by which socket delivered them and classifies by
+    // packet type instead.  These pin that rule down directly: the end-to-end
+    // muxed tests in CpSrtcpTest drive the SEND side, and removing this
+    // classification does not make them fail, so without these the receive
+    // side would be uncovered.
+
+    // RFC 5761 section 4: RTCP packet types occupy 192-223 and no RTP payload
+    // type collides with them.
+    void testMuxClassifiesRtcpByPacketType()
+    {
+        unsigned char buf[64];
+
+        // Every RTCP type in the range classifies as RTCP.
+        for (int pt = 192; pt <= 223; pt++)
+        {
+            buf[0] = 0x80;
+            buf[1] = (unsigned char)pt;
+            CPPUNIT_ASSERT_MESSAGE("RTCP packet type not recognised",
+                MpSrtp::isRtcpPacket(buf, sizeof(buf)));
+        }
+
+        // sipXtapi's static and dynamic RTP payload types classify as RTP,
+        // with and without the marker bit set (which is what puts the second
+        // byte above 127 and is the reason the 64-95 range is unusable).
+        static const int rtpPayloadTypes[] = { 0, 3, 8, 9, 18, 34, 96, 97, 110, 127 };
+        for (int i = 0; i < (int)(sizeof(rtpPayloadTypes)/sizeof(rtpPayloadTypes[0])); i++)
+        {
+            buf[0] = 0x80;
+            buf[1] = (unsigned char)rtpPayloadTypes[i];
+            CPPUNIT_ASSERT_MESSAGE("RTP misclassified as RTCP",
+                !MpSrtp::isRtcpPacket(buf, sizeof(buf)));
+
+            buf[1] = (unsigned char)(rtpPayloadTypes[i] | 0x80);   // marker set
+            CPPUNIT_ASSERT_MESSAGE("marked RTP misclassified as RTCP",
+                !MpSrtp::isRtcpPacket(buf, sizeof(buf)));
+        }
+    }
+
+    // STUN and DTLS share the port too; they must fall through to the demux
+    // that handles them rather than being mistaken for control traffic.
+    void testMuxLeavesStunAndDtlsAlone()
+    {
+        unsigned char buf[64];
+        memset(buf, 0, sizeof(buf));
+
+        // STUN: first byte 0-3 (RFC 7983).
+        for (int b0 = 0; b0 <= 3; b0++)
+        {
+            buf[0] = (unsigned char)b0;
+            buf[1] = 0xC8;      // would be an RTCP type if we only looked here
+            CPPUNIT_ASSERT_MESSAGE("STUN misclassified as RTCP",
+                !MpSrtp::isRtcpPacket(buf, sizeof(buf)));
+        }
+
+        // DTLS records: first byte 20-63.
+        for (int b0 = 20; b0 <= 63; b0++)
+        {
+            buf[0] = (unsigned char)b0;
+            buf[1] = 0xC8;
+            CPPUNIT_ASSERT_MESSAGE("DTLS record misclassified as RTCP",
+                !MpSrtp::isRtcpPacket(buf, sizeof(buf)));
+        }
+
+        // Runt datagrams cannot be classified at all.
+        buf[0] = 0x80;
+        CPPUNIT_ASSERT(!MpSrtp::isRtcpPacket(buf, 1));
+        CPPUNIT_ASSERT(!MpSrtp::isRtcpPacket(buf, 0));
+        CPPUNIT_ASSERT(!MpSrtp::isRtcpPacket(NULL, 64));
+    }
+
+    // The classification has to work on protected traffic, because the
+    // receiver has to decide which unprotect context to use BEFORE it can
+    // decrypt anything.  RFC 3711 leaves the first two bytes of both SRTP and
+    // SRTCP in the clear, which is what makes that possible -- so a real
+    // protected packet must classify the same as its plaintext.
+    void testMuxClassifiesProtectedTrafficToo()
+    {
+        const UtlString key = makeKey(0x5c);
+
+        MpSrtp senderRtp;
+        MpSrtp senderRtcp;
+        CPPUNIT_ASSERT(senderRtp.setSrtpParams(
+            SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80, key, FALSE));
+        CPPUNIT_ASSERT(senderRtcp.setSrtpParams(
+            SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80, key, FALSE));
+
+        unsigned char rtp[BUF_SIZE];
+        int rtpLen = buildRtpPacket(rtp, 0x1fcd53e2, 4242);
+        int rtpSize = rtpLen;
+        CPPUNIT_ASSERT(senderRtp.srtpProtectIfNeeded(rtp, &rtpSize, FALSE, BUF_SIZE));
+        CPPUNIT_ASSERT_MESSAGE("protected RTP misclassified as RTCP",
+            !MpSrtp::isRtcpPacket(rtp, rtpSize));
+
+        unsigned char rtcp[BUF_SIZE];
+        int rtcpLen = buildSenderReport(rtcp, 0x1fcd53e2);
+        int rtcpSize = rtcpLen;
+        CPPUNIT_ASSERT(senderRtcp.srtpProtectIfNeeded(rtcp, &rtcpSize, TRUE, BUF_SIZE));
+        CPPUNIT_ASSERT_MESSAGE("protected RTCP not recognised as RTCP",
+            MpSrtp::isRtcpPacket(rtcp, rtcpSize));
     }
 };
 

@@ -186,6 +186,26 @@ public:
    // 3. Packet Type (Byte 1) must be in the RTCP range (192-223)
    static bool isValidSrtcp(const uint8_t* buf, size_t len);
 
+   // Classify a datagram arriving on an rtcp-mux'ed port (RFC 5761) as RTCP
+   // or not.  Lives here beside isValidSrtp/isValidSrtcp because it is the
+   // same kind of question -- what is this packet -- and because keeping it
+   // free of media-stack dependencies is what makes it unit testable.
+   //
+   // RFC 5761 section 4 makes the decision possible: the RTCP packet types
+   // 192-223 are chosen so no RTP payload type collides with them, even with
+   // the marker bit set.  That is why sipXtapi allocates dynamic payload IDs
+   // from 96 upward (SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC + 1) and never
+   // uses the 64-95 range, which would alias into the RTCP range.
+   //
+   // Unlike isValidSrtp/isValidSrtcp this imposes no length floor beyond the
+   // two bytes it reads: plain RTCP can be as short as 8 bytes.  Returns
+   // false for anything outside the RTP/RTCP first-byte band, so STUN and
+   // DTLS records fall through to the demux that handles them.  RFC 3711
+   // leaves both inspected bytes in the clear, so protected and unprotected
+   // traffic classify alike -- which matters because the receiver must pick
+   // an unprotect context before it can decrypt anything.
+   static bool isRtcpPacket(const uint8_t* buf, size_t len);
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

@@ -126,6 +126,10 @@ public:
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+     /// Inbound packet counts from the connection's MprFromNet.
+     /// See MprFromNet::getRtcpPacketCount for the threading caveat.
+   void getPacketCounts(int& rtpPackets, int& rtcpPackets) const;
+
 protected:
 
    enum

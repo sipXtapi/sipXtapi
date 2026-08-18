@@ -244,6 +244,20 @@ OsStatus MpRtpInputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
 }
 
 
+void MpRtpInputConnection::getPacketCounts(int& rtpPackets, int& rtcpPackets) const
+{
+   if (mpFromNet != NULL)
+   {
+      rtpPackets  = mpFromNet->getRtpPacketCount();
+      rtcpPackets = mpFromNet->getRtcpPacketCount();
+   }
+   else
+   {
+      rtpPackets  = 0;
+      rtcpPackets = 0;
+   }
+}
+
 UtlBoolean MpRtpInputConnection::handleMessage(MpResourceMsg& rMsg)
 {
    UtlBoolean msgHandled = FALSE;

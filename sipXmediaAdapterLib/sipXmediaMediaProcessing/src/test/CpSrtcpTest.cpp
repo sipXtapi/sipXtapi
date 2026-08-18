@@ -115,6 +115,8 @@ class CpSrtcpTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testOutboundRtcpIsProtectedWithSdesKeys);
    CPPUNIT_TEST(testMuxedRtcpArrivesOnRtpPort);
    CPPUNIT_TEST(testMuxedRtcpIsProtectedWithSdesKeys);
+   CPPUNIT_TEST(testMuxedRtcpIsReceivedOnRtpPort);
+   CPPUNIT_TEST(testMuxedRtpIsNotCountedAsRtcp);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -454,6 +456,238 @@ public:
                              looksLikeRtcp(report, size));
       CPPUNIT_ASSERT_EQUAL_MESSAGE("decrypted compound is malformed",
                                    size, rtcpDeclaredLength(report, size));
+   }
+
+   /// Build an RTCP Sender Report for the given SSRC. 28 bytes.
+   static int buildSenderReport(unsigned char* buf, uint32_t ssrc)
+   {
+      memset(buf, 0, 28);
+      buf[0] = 0x80;                    // V=2, P=0, RC=0
+      buf[1] = 200;                     // PT = SR
+      buf[2] = 0x00; buf[3] = 0x06;     // length = 6 (28 bytes)
+      buf[4] = (unsigned char)(ssrc >> 24);
+      buf[5] = (unsigned char)(ssrc >> 16);
+      buf[6] = (unsigned char)(ssrc >> 8);
+      buf[7] = (unsigned char)(ssrc);
+      buf[8]  = 0xc7;                   // NTP timestamp msw
+      buf[12] = 0x40;                   // NTP timestamp lsw
+      buf[19] = 0xe8;                   // RTP timestamp
+      buf[23] = 0x64;                   // sender packet count
+      buf[26] = 0x27; buf[27] = 0x10;   // sender octet count
+      return 28;
+   }
+
+   /// Build an RTP packet: 12 byte header plus a short payload.
+   static int buildRtpPacket(unsigned char* buf, uint32_t ssrc, uint16_t seq)
+   {
+      memset(buf, 0, 16);
+      buf[0] = 0x80;                    // V=2
+      buf[1] = 0;                       // M=0, PT=0 (PCMU)
+      buf[2] = (unsigned char)(seq >> 8);
+      buf[3] = (unsigned char)(seq);
+      buf[7] = 0x64;                    // timestamp
+      buf[8]  = (unsigned char)(ssrc >> 24);
+      buf[9]  = (unsigned char)(ssrc >> 16);
+      buf[10] = (unsigned char)(ssrc >> 8);
+      buf[11] = (unsigned char)(ssrc);
+      buf[12] = 0xde; buf[13] = 0xad; buf[14] = 0xbe; buf[15] = 0xef;
+      return 16;
+   }
+
+   /// Stand up a muxed, SDES-keyed endpoint that is RECEIVING, and hand back
+   /// its connection plus the port everything should be sent to.
+   ///
+   /// The peer here is a plain socket rather than a second media interface:
+   /// that way the test controls exactly which bytes hit the port and when,
+   /// which is what makes the assertions about classification unambiguous.
+   void buildReceivingMuxedEndpoint(const UtlString& localAddress,
+                                    SdpMediaLine::SdpCryptoSuiteType suite,
+                                    const UtlString& key,
+                                    CpTopologyGraphInterface*& outTi,
+                                    int& outConnId,
+                                    int& outNumCodecs,
+                                    SdpCodec**& outCodecs)
+   {
+      buildEndpoint(SRTCP_TEST_ENDPOINT_PORT, localAddress, outTi, outConnId);
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         outTi->setRtcpMux(outConnId, CpMediaInterface::AUDIO_STREAM, TRUE));
+
+      SdpCodecList      codecList;
+      UtlString         capAddr;
+      int               capRtpPort = 0, capRtcpPort = 0;
+      int               capVideoRtp = 0, capVideoRtcp = 0;
+      SdpSrtpParameters capSrtp;
+      int               capVideoBw = 0, capVideoFr = 0;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         outTi->getCapabilities(outConnId, capAddr, capRtpPort, capRtcpPort,
+                                capVideoRtp, capVideoRtcp, codecList, capSrtp,
+                                /*bandWidth=*/0, capVideoBw, capVideoFr));
+      outNumCodecs = 0;
+      outCodecs = NULL;
+      codecList.getCodecs(outNumCodecs, outCodecs);
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         outTi->setConnectionDestination(outConnId, localAddress.data(),
+                                         SRTCP_TEST_RTP_SINK_PORT,
+                                         SRTCP_TEST_RTP_SINK_PORT, 0, 0));
+
+      if (suite == SdpMediaLine::CRYPTO_SUITE_TYPE_NONE)
+      {
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+            outTi->startRtpReceive(outConnId, outNumCodecs, outCodecs));
+      }
+      else
+      {
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+            outTi->startRtpReceive(outConnId, outNumCodecs, outCodecs, suite, key));
+      }
+   }
+
+   /// Poll the connection's inbound RTCP count until it moves, or give up.
+   static int waitForRtcpCount(CpTopologyGraphInterface* ti, int connId,
+                               int atLeast, int timeoutMs)
+   {
+      int elapsed = 0;
+      int rtp = 0, rtcp = 0;
+      while (elapsed < timeoutMs)
+      {
+         if (ti->getRtpPacketCounts(connId, CpMediaInterface::AUDIO_STREAM,
+                                    rtp, rtcp) == OS_SUCCESS && rtcp >= atLeast)
+         {
+            return rtcp;
+         }
+         OsTask::delay(25);
+         elapsed += 25;
+      }
+      return rtcp;
+   }
+
+   /* ============== rtcp-mux, end-to-end RECEIVE ==================== */
+
+   // The send-side muxed tests prove reports leave on the RTP port. This is
+   // the other half: that a report ARRIVING on the RTP port is recognised as
+   // RTCP, unprotected with the SRTCP context, and accepted.
+   //
+   // Worth having because it is genuinely uncovered otherwise: with the
+   // classification in MprFromNet::pushPacket removed entirely, every other
+   // test in this suite and in CpDtlsTest still passes.
+   void testMuxedRtcpIsReceivedOnRtpPort()
+   {
+      const SdpMediaLine::SdpCryptoSuiteType suite =
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80;
+      CPPUNIT_ASSERT_MESSAGE("libsrtp lacks AES_CM_128_HMAC_SHA1_80",
+                             MpSrtp::isCryptoSuiteSupported(suite));
+
+      UtlString localAddress("127.0.0.1");
+      OsSocket::getHostIp(&localAddress);
+
+      const UtlString key = makeKey(0x2e);
+
+      CpTopologyGraphInterface* ti;
+      int connId, numCodecs;
+      SdpCodec** codecs;
+      buildReceivingMuxedEndpoint(localAddress, suite, key,
+                                  ti, connId, numCodecs, codecs);
+
+      int rtpBefore = 0, rtcpBefore = 0;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         ti->getRtpPacketCounts(connId, CpMediaInterface::AUDIO_STREAM,
+                                rtpBefore, rtcpBefore));
+
+      // Protect a Sender Report with the same key the endpoint was given for
+      // its receive direction, and send it to the endpoint's RTP port.
+      MpSrtp sender;
+      CPPUNIT_ASSERT(sender.setSrtpParams(suite, key, FALSE /* forUnprotect */));
+
+      unsigned char report[256];
+      int len = buildSenderReport(report, 0x51ee7a11);
+      int size = len;
+      CPPUNIT_ASSERT(sender.srtpProtectIfNeeded(report, &size, TRUE /* rtcp */,
+                                                sizeof(report)));
+      CPPUNIT_ASSERT_MESSAGE("test packet is not SRTCP", size > len);
+
+      OsDatagramSocket peer(SRTCP_TEST_ENDPOINT_PORT, localAddress.data(),
+                            SRTCP_TEST_RTP_SINK_PORT, localAddress.data());
+      CPPUNIT_ASSERT_MESSAGE("could not bind peer socket", peer.isOk());
+
+      // A few copies: the SRTCP replay window accepts increasing indices, and
+      // sending more than one removes any dependence on a single datagram
+      // surviving the loopback.
+      for (int i = 0; i < 3; i++)
+      {
+         unsigned char copy[256];
+         int copyLen = buildSenderReport(copy, 0x51ee7a11);
+         int copySize = copyLen;
+         CPPUNIT_ASSERT(sender.srtpProtectIfNeeded(copy, &copySize, TRUE,
+                                                   sizeof(copy)));
+         CPPUNIT_ASSERT_EQUAL(copySize,
+            peer.write((const char*)copy, copySize));
+         OsTask::delay(20);
+      }
+
+      int rtcpAfter = waitForRtcpCount(ti, connId, rtcpBefore + 1, 3000);
+
+      CPPUNIT_ASSERT_MESSAGE("SRTCP sent to the muxed RTP port was never "
+                             "accepted -- classified as RTP, gated, or failed "
+                             "to unprotect",
+                             rtcpAfter > rtcpBefore);
+
+      ti->deleteConnection(connId);
+      ti->release();
+      for (int i = 0; i < numCodecs; i++) delete codecs[i];
+      delete[] codecs;
+   }
+
+   // The converse: RTP arriving on the same muxed port must NOT be counted as
+   // RTCP. Without this, a classifier that simply said "everything here is
+   // RTCP" would pass the test above.
+   void testMuxedRtpIsNotCountedAsRtcp()
+   {
+      UtlString localAddress("127.0.0.1");
+      OsSocket::getHostIp(&localAddress);
+
+      CpTopologyGraphInterface* ti;
+      int connId, numCodecs;
+      SdpCodec** codecs;
+      buildReceivingMuxedEndpoint(localAddress,
+                                  SdpMediaLine::CRYPTO_SUITE_TYPE_NONE,
+                                  UtlString(), ti, connId, numCodecs, codecs);
+
+      int rtpBefore = 0, rtcpBefore = 0;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         ti->getRtpPacketCounts(connId, CpMediaInterface::AUDIO_STREAM,
+                                rtpBefore, rtcpBefore));
+
+      OsDatagramSocket peer(SRTCP_TEST_ENDPOINT_PORT, localAddress.data(),
+                            SRTCP_TEST_RTP_SINK_PORT, localAddress.data());
+      CPPUNIT_ASSERT_MESSAGE("could not bind peer socket", peer.isOk());
+
+      for (int i = 0; i < 5; i++)
+      {
+         unsigned char rtp[64];
+         int rtpLen = buildRtpPacket(rtp, 0x51ee7a11, (uint16_t)(700 + i));
+         CPPUNIT_ASSERT_EQUAL(rtpLen, peer.write((const char*)rtp, rtpLen));
+         OsTask::delay(20);
+      }
+
+      // Give the receive path time to have got it wrong.
+      OsTask::delay(500);
+
+      int rtpAfter = 0, rtcpAfter = 0;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         ti->getRtpPacketCounts(connId, CpMediaInterface::AUDIO_STREAM,
+                                rtpAfter, rtcpAfter));
+
+      CPPUNIT_ASSERT_EQUAL_MESSAGE("RTP on the muxed port was counted as RTCP",
+                                   rtcpBefore, rtcpAfter);
+      CPPUNIT_ASSERT_MESSAGE("RTP on the muxed port was not received at all",
+                             rtpAfter > rtpBefore);
+
+      ti->deleteConnection(connId);
+      ti->release();
+      for (int i = 0; i < numCodecs; i++) delete codecs[i];
+      delete[] codecs;
    }
 
    /* ============== rtcp-mux, unencrypted =========================== */

@@ -1958,6 +1958,47 @@ void CpTopologyGraphInterface::handleIceNomination(
    }
 }
 
+OsStatus CpTopologyGraphInterface::getRtpPacketCounts(int connectionId,
+                                                     CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                                     int& rtpPackets,
+                                                     int& rtcpPackets)
+{
+   rtpPackets  = 0;
+   rtcpPackets = 0;
+
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+   if (mediaConnection == NULL)
+   {
+      return OS_NOT_FOUND;
+   }
+
+   UtlString inResourceName;
+   if (mediaType == CpMediaInterface::AUDIO_STREAM)
+   {
+      inResourceName = DEFAULT_RTP_INPUT_RESOURCE_NAME;
+   }
+   else
+   {
+#ifdef VIDEO
+      inResourceName = DEFAULT_VIDEO_RTP_INPUT_RESOURCE_NAME;
+#else
+      return OS_NOT_SUPPORTED;
+#endif
+   }
+   MpResourceTopology::replaceNumInName(inResourceName, connectionId);
+
+   MpRtpInputConnection* pConnection = NULL;
+   if (mpTopologyGraph->lookupResource(inResourceName,
+                                       (MpResource*&)pConnection) != OS_SUCCESS
+       || pConnection == NULL)
+   {
+      return OS_NOT_FOUND;
+   }
+
+   pConnection->getPacketCounts(rtpPackets, rtcpPackets);
+   return OS_SUCCESS;
+}
+
 OsStatus CpTopologyGraphInterface::setRtcpMux(int connectionId,
                                              CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
                                              UtlBoolean enabled)

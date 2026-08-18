@@ -476,6 +476,24 @@ bool MpSrtp::isValidSrtcp(const uint8_t* buf, size_t len)
    return (pt >= 192 && pt <= 223);
 }
 
+bool MpSrtp::isRtcpPacket(const uint8_t* buf, size_t len)
+{
+   if (buf == NULL || len < 2)
+   {
+      return false;
+   }
+
+   // Must be in the RTP/RTCP band at all (RFC 7983): rules out STUN and DTLS.
+   if (buf[0] < 128 || buf[0] > 191)
+   {
+      return false;
+   }
+
+   // RFC 5761 section 4: RTCP packet types occupy 192-223, disjoint from every
+   // RTP payload type including those with the marker bit set.
+   return (buf[1] >= 192 && buf[1] <= 223);
+}
+
 // Note: The passed in buffer is modified in place to contain the unprotected data.
 //       The returned size will always be <= the passed in size.
 UtlBoolean MpSrtp::srtpUnprotectIfNeeded(const uint8_t* data, int* size, UtlBoolean rtcp)

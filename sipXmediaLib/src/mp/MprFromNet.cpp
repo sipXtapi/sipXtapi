@@ -391,10 +391,10 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
    if (mRtcpMux && packetSize >= 2)
    {
       unsigned char b0 = (unsigned char)packetData[0];
-      unsigned char b1 = (unsigned char)packetData[1];
       if (b0 >= 128 && b0 <= 191)
       {
-         isRtcp = (b1 >= 192 && b1 <= 223);
+         isRtcp = MpSrtp::isRtcpPacket((const uint8_t*)packetData,
+                                       (size_t)packetSize) ? true : false;
       }
    }
 
@@ -535,6 +535,14 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
 #ifdef INCLUDE_RTCP /* [ */
    else
    {  // RTCP packet
+      // Counted here rather than on arrival: by this point the packet has been
+      // classified as RTCP, survived any DTLS gating, and been unprotected, so
+      // the count means "RTCP we accepted" rather than "datagrams that showed
+      // up".  That is what makes it useful for answering whether the peer's
+      // RTCP is actually getting through -- particularly with rtcp-mux, where
+      // it arrives on the RTP socket and is told apart by packet type.
+      mNumPktsRtcp++;
+
       // Dispatch the RTCP data packet to the RTCP Source object registered
       if(mpiRTCPDispatch)
       {

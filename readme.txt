@@ -219,7 +219,8 @@ differ:
   - SDES (RFC 4568) carries one master key per media line, and it protects
     both SRTP and SRTCP however the ports are laid out.
   - DTLS-SRTP (RFC 5764) keys a DTLS association, and without rtcp-mux RTP
-    and RTCP are separate associations with unrelated master keys.
+    and RTCP are separate associations with unrelated master keys.  With
+    rtcp-mux there is one association and one key covering both.
 
 Notes on the SRTCP implementation:
 - Outbound RTCP is rendered on the RTCP manager thread rather than the media
@@ -243,8 +244,28 @@ Notes on the SRTCP implementation:
   RTP association keys SRTP and the RTCP association keys SRTCP, from two
   unrelated master keys.  Both must complete before getDtlsSrtpStatus()
   reports the connection complete and verified.
-- Once rtcp-mux (RFC 5761) is supported there will be a single port and hence
-  a single association keying both; that work is not done yet.
+- rtcp-mux (RFC 5761) is supported.  Enable it per connection and stream with
+  CpTopologyGraphInterface::setRtcpMux() once multiplexing has actually been
+  NEGOTIATED -- section 5.1.1 forbids multiplexing unless the answer echoes
+  a=rtcp-mux.  Nothing needs to be called at offer time: a connection keeps
+  listening on both ports until told otherwise, which is what an offerer that
+  proposed mux is required to do.
+  When enabled:
+    - RTCP is sent to, and expected on, the RTP port.  The RTCP socket stays
+      open but idle, and the rtcpPort argument of setConnectionDestination()
+      is ignored.
+    - Inbound packets can no longer be told apart by which socket delivered
+      them, so they are classified by packet type instead (section 4: the RTCP
+      types 192-223 never collide with an RTP payload type).  sipXtapi's own
+      dynamic payload IDs start at 96 and so never alias.
+    - DTLS-SRTP collapses to a single association covering the one port, which
+      keeps both halves of its key material.
+  Call it BEFORE startRtpSend()/startRtpReceive() and before the DTLS
+  handshake is triggered; it is refused once RTP is running, since the socket
+  layout cannot change under a live stream.
+  Note the SDP attribute itself is not implemented anywhere in sipXsdpLib or
+  sipXtackLib -- negotiating a=rtcp-mux is the application's job, and this API
+  is how the result is communicated to the media layer.
 
 The following requirements are needed to enable SRTP support in sipXtapi:
 - The preprocessor define ENABLE_SRTP must be defined in:

@@ -336,6 +336,24 @@ public:
                                       int numProfilesOverride = 0,
                                       const SdpMediaLine::SdpCryptoSuiteType* profilesOverride = NULL);
 
+   /// Inbound packet counts for a connection: RTP accepted, and RTCP
+   /// accepted (classified, ungated, and successfully unprotected).
+   ///
+   /// Intended for diagnostics -- "is the peer's media arriving", "is its
+   /// RTCP getting through" -- and in particular for confirming RTCP is being
+   /// received at all when rtcp-mux puts it on the RTP port, where a
+   /// misclassification would otherwise fail silently.
+   ///
+   /// The counters are incremented on the NetInTask thread and read here
+   /// without synchronisation, so a value may lag the wire by a packet. That
+   /// is immaterial for the questions they answer.
+   ///
+   /// @retval OS_NOT_FOUND - no such connection, or its input resource is gone.
+   virtual OsStatus getRtpPacketCounts(int connectionId,
+      CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+      int& rtpPackets,
+      int& rtcpPackets);
+
    /// Enable RFC 5761 RTP/RTCP multiplexing on a connection: RTCP is sent to,
    /// and expected on, the RTP port instead of a separate one.
    ///

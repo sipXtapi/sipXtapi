@@ -129,6 +129,17 @@ public:
                             const UtlString& cryptoKey,
                             MpSrtpKeyUse keyUse = MP_SRTP_KEY_USE_RTP_AND_RTCP);
 
+   /// Number of inbound RTP packets accepted, and of inbound RTCP packets
+   /// accepted (classified, ungated, unprotected).
+   ///
+   /// These are diagnostic counters incremented on the NetInTask thread and
+   /// read from whichever thread asks. Reading an int that another thread is
+   /// incrementing can miss the very latest packet, which does not matter for
+   /// the questions they answer: is media arriving, is the peer's RTCP getting
+   /// through, is anything being silently discarded.
+   int getRtpPacketCount() const  { return mNumPktsRtp; }
+   int getRtcpPacketCount() const { return mNumPktsRtcp; }
+
    /// Post an MPRM_SET_RTCP_MUX to the named resource.
    static OsStatus setRtcpMux(const UtlString& resourceName,
                               OsMsgQ& flowgraphMessageQueue,
