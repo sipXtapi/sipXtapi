@@ -565,6 +565,68 @@ bool CRTCPConnection::StopRenderer(void)
 
 /**
  *
+ * Method Name:  SetSrtpParams
+ *
+ *
+ * Inputs:       SdpMediaLine::SdpCryptoSuiteType cryptoSuite
+ *               const UtlString&                 cryptoKey
+ *
+ * Outputs:      None
+ *
+ * Returns:      void
+ *
+ * Description:  Hands the outbound SRTP key material to the RTCP Render
+ *               object so that generated reports go out as SRTCP.
+ *
+ * Usage Notes:  Runs on the media thread.  m_tTeardownLock is taken for the
+ *               same reason GenerateRTCPReports() takes it: Terminate() can
+ *               release and NULL m_poRTCPRender from the application thread.
+ *               m_bInitialized is deliberately NOT consulted -- keys legally
+ *               arrive before StartRenderer() has ever run.
+ *
+ */
+void CRTCPConnection::SetSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                    const UtlString& cryptoKey)
+{
+    OsLock lock(m_tTeardownLock);
+
+    if(m_poRTCPRender)
+    {
+        m_poRTCPRender->SetSrtpParams(cryptoSuite, cryptoKey);
+    }
+}
+
+
+/**
+ *
+ * Method Name:  SetSrtpRequired
+ *
+ *
+ * Inputs:       bool bRequired
+ *
+ * Outputs:      None
+ *
+ * Returns:      void
+ *
+ * Description:  Tells the RTCP Render object to withhold reports until keys
+ *               are installed.
+ *
+ * Usage Notes:  See SetSrtpParams() for the locking rationale.
+ *
+ */
+void CRTCPConnection::SetSrtpRequired(bool bRequired)
+{
+    OsLock lock(m_tTeardownLock);
+
+    if(m_poRTCPRender)
+    {
+        m_poRTCPRender->SetSrtpRequired(bRequired);
+    }
+}
+
+
+/**
+ *
  * Method Name:  Terminate
  *
  *

@@ -150,7 +150,38 @@ UtlBoolean MpRtpOutputConnection::handleMessage(MpResourceMsg& message)
     {
        handled = TRUE;
        MpSetSrtpParamsMsg* pMsg = (MpSetSrtpParamsMsg*)&message;
-       mpToNet->setSrtpParams(pMsg->getCryptoSuite(), pMsg->getCryptoKey());
+       const MpSrtpKeyUse keyUse = pMsg->getKeyUse();
+
+       // RTP and RTCP are protected by separate contexts on separate threads:
+       // MprToNet on the media thread, CRTCPRender on the CRTCManager thread.
+       // Which of them a given key belongs to depends on how it was
+       // negotiated, so route by the key use rather than handing every key to
+       // both.
+       //
+       //   SDES        -> RTP_AND_RTCP; one master key covers the media line
+       //                  (RFC 4568), whatever the port layout.
+       //   DTLS-SRTP   -> RTP_ONLY or RTCP_ONLY; without rtcp-mux each
+       //                  transport runs its own association with its own
+       //                  master key (RFC 5764 section 3), and each discards
+       //                  the half it does not need (section 4.2).  Feeding
+       //                  the RTP association's key to the RTCP renderer, as
+       //                  this used to do unconditionally, produces SRTCP no
+       //                  conformant peer can authenticate.
+       if (keyUse != MP_SRTP_KEY_USE_RTCP_ONLY)
+       {
+          mpToNet->setSrtpParams(pMsg->getCryptoSuite(), pMsg->getCryptoKey());
+       }
+
+#ifdef INCLUDE_RTCP /* [ */
+       if (keyUse != MP_SRTP_KEY_USE_RTP_ONLY && mpiRTCPConnection)
+       {
+           mpiRTCPConnection->SetSrtpParams(pMsg->getCryptoSuite(), pMsg->getCryptoKey());
+       }
+#endif /* INCLUDE_RTCP ] */
+
+       OsSysLog::add(FAC_MP, PRI_DEBUG,
+          "MpRtpOutputConnection::handleMessage: installed outbound %s key, cryptoSuite=%d",
+          MpSrtpKeyUseString(keyUse), pMsg->getCryptoSuite());
     }
     break;
 
@@ -158,7 +189,29 @@ UtlBoolean MpRtpOutputConnection::handleMessage(MpResourceMsg& message)
     {
        handled = TRUE;
        MpSetDtlsParamsMsg* pMsg = (MpSetDtlsParamsMsg*)&message;
-       mpToNet->setDtls(pMsg->getDtls());
+
+       // MprToNet gates outbound MEDIA on its engine being active, so only the
+       // RTP transport's engine belongs here. The RTCP association is driven
+       // entirely through MprFromNet and the RTCP renderer.
+       if (!pMsg->isForRtcpTransport())
+       {
+          mpToNet->setDtls(pMsg->getDtls());
+       }
+
+#ifdef INCLUDE_RTCP /* [ */
+       // With DTLS-SRTP the keys do not exist until the handshake completes,
+       // which can be several reporting intervals after the renderer starts.
+       // Tell the RTCP connection to hold its reports until then instead of
+       // putting unprotected ones on the wire -- the same rule
+       // MprToNet::writeRtp applies to media during that window.
+       //
+       // Either engine implies the connection is DTLS-keyed, and the RTCP
+       // renderer is unlatched only by the key that actually protects RTCP.
+       if(mpiRTCPConnection && pMsg->getDtls() != NULL)
+       {
+           mpiRTCPConnection->SetSrtpRequired(true);
+       }
+#endif /* INCLUDE_RTCP ] */
     }
     break;
 

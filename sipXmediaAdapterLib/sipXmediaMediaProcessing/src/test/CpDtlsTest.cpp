@@ -25,10 +25,19 @@
 #include <os/OsTask.h>
 #include <os/OsSocket.h>
 #include <os/OsNatDatagramSocket.h>
+#include <os/OsDatagramSocket.h>
 #include <os/OsMsgDispatcher.h>
 #include <os/OsSysLog.h>
 
 #include <utl/UtlSList.h>
+
+#ifndef EXCLUDE_RTCP
+// Test hook exported by RTCPConnection.cpp under DEBUGGING_RTCP_REPORTS.  The
+// production cadence is 5 seconds; the RTCP tests below shorten it so they do
+// not have to sit through it.  The period is sampled when a connection is
+// constructed, so it must be set before createConnection().
+extern "C" { extern int adjustRtcpPeriod(int x); }
+#endif
 
 
 // Defaults for Media Interface Factory and Media Interface initialization.
@@ -39,6 +48,14 @@
 // Test ports. Picked to not collide with the existing CpCryptoTest range.
 #define DTLS_TEST_PORT_A    16000
 #define DTLS_TEST_PORT_B    17000
+
+// Stand-in for a peer's RTCP port, used by the RTCP tests to inspect what a
+// DTLS-SRTP connection actually puts on the wire.  Kept clear of both
+// endpoints' own RTP/RTCP pairs.
+#define DTLS_TEST_RTCP_COLLECTOR_PORT  16500
+
+// Shortened RTCP reporting period for the RTCP tests.
+#define DTLS_TEST_REPORT_PERIOD_MS     300
 
 // How long to wait for a handshake to complete in tests where it should
 // succeed quickly (loopback).
@@ -150,6 +167,10 @@ class CpDtlsTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testFingerprintMismatchFailsAndNotifies);
    CPPUNIT_TEST(testProfileNegotiationIntersection);
    CPPUNIT_TEST(testHandshakeAndAudioFlow);
+#ifndef EXCLUDE_RTCP
+   CPPUNIT_TEST(testRtcpWithheldWhileHandshakePending);
+   CPPUNIT_TEST(testRtcpHandshakesOverRtcpTransport);
+#endif
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -1027,9 +1048,290 @@ public:
       }
       delete[] codecs;
    }
+
+
+#ifndef EXCLUDE_RTCP
+   /* ============== RTCP under DTLS-SRTP ============================ */
+   //
+   // DTLS-SRTP is the awkward case for RTCP: the reporting timer starts when
+   // the connection's sockets are set, but the keys that protect those reports
+   // do not exist until the handshake completes, which can be several
+   // reporting intervals later.  MpRtpOutputConnection responds to
+   // MPRM_SET_DTLS_PARAMS by telling the RTCP connection to hold its reports
+   // until keys arrive, mirroring what MprToNet::writeRtp does with media.
+   //
+   // These two tests cover both sides of that latch.  Neither can decrypt what
+   // it captures -- the DTLS-derived key is never exposed to the application
+   // -- so the protected case relies on the same "a plaintext compound
+   // accounts for its whole datagram, a protected one cannot" discriminator
+   // CpSrtcpTest uses, where it is corroborated by a full decrypt.
+
+   /// Read one RTCP datagram from the collector, skipping STUN, media, and
+   /// anything else the NAT socket emits.  First-byte demux as in RFC 7983 and
+   /// MprFromNet::pushPacket, then narrowed to RTCP by packet type per RFC 5761
+   /// section 4 -- RTP shares the 128-191 first-byte range, so the range test
+   /// alone would let a media packet through.  Returns the byte count, or 0 on
+   /// timeout.
+   static int collectOneRtcpDatagram(OsDatagramSocket& collector,
+                                     unsigned char* buf,
+                                     int bufSize,
+                                     int timeoutMs)
+   {
+      int elapsed = 0;
+      const int slice = 50;
+      while (elapsed < timeoutMs)
+      {
+         if (collector.isReadyToRead(slice))
+         {
+            int n = collector.read((char*)buf, bufSize);
+            if (n > 0)
+            {
+               if (n >= 2 && buf[0] >= 128 && buf[0] <= 191 &&
+                   buf[1] >= 192 && buf[1] <= 223)
+               {
+                  return n;
+               }
+               continue;      // STUN, media, or similar; keep waiting
+            }
+         }
+         elapsed += slice;
+      }
+      return 0;
+   }
+
+   // With DTLS configured and no peer to handshake with, the connection must
+   // emit no RTCP at all rather than reports in the clear.  Before SRTCP
+   // support this endpoint would have cheerfully published its SSRC, CNAME and
+   // reception statistics unprotected for the entire handshake window.
+   void testRtcpWithheldWhileHandshakePending()
+   {
+      UtlString localAddress("127.0.0.1");
+      OsSocket::getHostIp(&localAddress);
+
+      CpTopologyGraphInterface::setDtlsSrtpProfiles(0, NULL);
+      // Long enough that the handshake is still pending for the whole
+      // observation window below, so this tests the withholding latch rather
+      // than the failure path.
+      CpTopologyGraphInterface::setDtlsHandshakeTimeout(20);
+
+      int savedPeriod = adjustRtcpPeriod(DTLS_TEST_REPORT_PERIOD_MS);
+
+      OsDatagramSocket collector(0, NULL,
+                                 DTLS_TEST_RTCP_COLLECTOR_PORT, localAddress.data());
+      CPPUNIT_ASSERT_MESSAGE("could not bind RTCP collector socket",
+                             collector.isOk());
+
+      UtlString fp;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         CpTopologyGraphInterface::getLocalDtlsFingerprint(fp));
+
+      CpTopologyGraphInterface* tiA;
+      int connIdA;
+      buildEndpoint(DTLS_TEST_PORT_A, localAddress, tiA, connIdA);
+
+      // DTLS client pointed at a port with nobody on it: the handshake can
+      // never complete, so keys never arrive.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->setDtlsSrtpParams(connIdA, CpMediaInterface::AUDIO_STREAM, fp, "SHA-256",
+                                SdpMediaLine::TCP_SETUP_ATTRIBUTE_ACTIVE));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->setConnectionDestination(connIdA, localAddress.data(),
+                                       DTLS_TEST_PORT_B,
+                                       DTLS_TEST_RTCP_COLLECTOR_PORT,
+                                       0, 0));
+
+      SdpCodecList      codecList;
+      int               numCodecs = 0;
+      SdpCodec**        codecs = NULL;
+      UtlString         capAddr;
+      int               capRtpPort = 0, capRtcpPort = 0;
+      int               capVideoRtp = 0, capVideoRtcp = 0;
+      SdpSrtpParameters capSrtp;
+      int               capVideoBw = 0, capVideoFr = 0;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->getCapabilities(connIdA, capAddr, capRtpPort, capRtcpPort,
+            capVideoRtp, capVideoRtcp, codecList, capSrtp,
+            /*bandWidth=*/0, capVideoBw, capVideoFr));
+      codecList.getCodecs(numCodecs, codecs);
+
+      // startRtpSend is what starts the RTCP renderer.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->startRtpSend(connIdA, numCodecs, codecs));
+
+      // Watch for several reporting periods.  Nothing may appear.
+      unsigned char datagram[1500];
+      int captured = collectOneRtcpDatagram(collector, datagram, sizeof(datagram),
+                                            DTLS_TEST_REPORT_PERIOD_MS * 6);
+
+      // Confirm the premise: the handshake really is still outstanding, so a
+      // zero capture means "withheld" and not "the test raced the handshake".
+      UtlBoolean complete = FALSE, verified = FALSE;
+      SdpMediaLine::SdpCryptoSuiteType suite = SdpMediaLine::CRYPTO_SUITE_TYPE_NONE;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->getDtlsSrtpStatus(connIdA, CpMediaInterface::AUDIO_STREAM,
+                                complete, verified, suite));
+      CPPUNIT_ASSERT_MESSAGE("handshake unexpectedly completed with no peer",
+                             !complete);
+
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "RTCP was emitted before DTLS-SRTP keys were available",
+         0, captured);
+
+      tiA->deleteConnection(connIdA);
+      tiA->release();
+      adjustRtcpPeriod(savedPeriod);
+
+      for (int i = 0; i < numCodecs; i++)
+      {
+         delete codecs[i];
+      }
+      delete[] codecs;
+   }
+
+   // The other side of the latch: both associations must actually complete,
+   // and completion must depend on the one running over the RTCP socket.
+   //
+   // This cannot be checked by pointing A's RTCP at a passive collector the
+   // way CpSrtcpTest does for SDES.  Under RFC 5764 the RTCP port must host a
+   // real DTLS peer, so a socket that never answers a ClientHello leaves that
+   // association handshaking forever -- which is precisely the behaviour under
+   // test.  A and B therefore talk to each other on both transports, and the
+   // observable is getDtlsSrtpStatus(), which folds both associations together:
+   // it reports complete only when BOTH have finished, and fingerprintVerified
+   // only when the peer certificate checked out on BOTH.  Before this change
+   // there was no second handshake at all, so neither flag could depend on the
+   // RTCP transport and this test could not pass.
+   //
+   // Wire-level proof that a report decrypts under the negotiated key lives in
+   // CpSrtcpTest (SDES, where the key is ours to use); the DTLS-derived keys
+   // are never exposed to the application.
+   void testRtcpHandshakesOverRtcpTransport()
+   {
+      UtlString localAddress("127.0.0.1");
+      OsSocket::getHostIp(&localAddress);
+
+      CpTopologyGraphInterface::setDtlsSrtpProfiles(0, NULL);
+      CpTopologyGraphInterface::setDtlsHandshakeTimeout(20);
+
+      int savedPeriod = adjustRtcpPeriod(DTLS_TEST_REPORT_PERIOD_MS);
+
+      UtlString fp;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         CpTopologyGraphInterface::getLocalDtlsFingerprint(fp));
+
+      // GCM is missing from libsrtp builds without an external crypto backend,
+      // so pin the suite the way testHandshakeAndAudioFlow does.
+      SdpMediaLine::SdpCryptoSuiteType aesOnly[] = {
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80
+      };
+
+      CpTopologyGraphInterface* tiA;
+      int connIdA;
+      buildEndpoint(DTLS_TEST_PORT_A, localAddress, tiA, connIdA);
+
+      CpTopologyGraphInterface* tiB;
+      int connIdB;
+      buildEndpoint(DTLS_TEST_PORT_B, localAddress, tiB, connIdB);
+
+      SdpCodecList      codecList;
+      int               numCodecs = 0;
+      SdpCodec**        codecs = NULL;
+      UtlString         capAddr;
+      int               capRtpPort = 0, capRtcpPort = 0;
+      int               capVideoRtp = 0, capVideoRtcp = 0;
+      SdpSrtpParameters capSrtp;
+      int               capVideoBw = 0, capVideoFr = 0;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->getCapabilities(connIdA, capAddr, capRtpPort, capRtcpPort,
+            capVideoRtp, capVideoRtcp, codecList, capSrtp,
+            /*bandWidth=*/0, capVideoBw, capVideoFr));
+      codecList.getCodecs(numCodecs, codecs);
+
+      // Passive side first so it is listening for both ClientHellos.  Each
+      // endpoint points RTP at the peer's RTP port and RTCP at the peer's RTCP
+      // port: two separate 5-tuples, hence two separate associations.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiB->setDtlsSrtpParams(connIdB, CpMediaInterface::AUDIO_STREAM, fp, "SHA-256",
+                                SdpMediaLine::TCP_SETUP_ATTRIBUTE_PASSIVE,
+                                1, aesOnly));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiB->setConnectionDestination(connIdB, localAddress.data(),
+            DTLS_TEST_PORT_A, DTLS_TEST_PORT_A + 1, 0, 0));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, tiB->startRtpReceive(connIdB, numCodecs, codecs));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, tiB->startRtpSend(connIdB, numCodecs, codecs));
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->setDtlsSrtpParams(connIdA, CpMediaInterface::AUDIO_STREAM, fp, "SHA-256",
+                                SdpMediaLine::TCP_SETUP_ATTRIBUTE_ACTIVE,
+                                1, aesOnly));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->setConnectionDestination(connIdA, localAddress.data(),
+            DTLS_TEST_PORT_B, DTLS_TEST_PORT_B + 1, 0, 0));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, tiA->startRtpReceive(connIdA, numCodecs, codecs));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, tiA->startRtpSend(connIdA, numCodecs, codecs));
+
+      // "Complete" here means all FOUR handshakes finished: RTP and RTCP on
+      // each endpoint.  If the RTCP association were missing, never started, or
+      // fed records from the wrong socket, these would time out.
+      UtlBoolean completeA = FALSE, verifiedA = FALSE;
+      UtlBoolean completeB = FALSE, verifiedB = FALSE;
+      SdpMediaLine::SdpCryptoSuiteType suiteA = SdpMediaLine::CRYPTO_SUITE_TYPE_NONE;
+      SdpMediaLine::SdpCryptoSuiteType suiteB = SdpMediaLine::CRYPTO_SUITE_TYPE_NONE;
+
+      CPPUNIT_ASSERT_MESSAGE("A did not complete both DTLS associations in time",
+         waitForTerminalState(tiA, connIdA, HANDSHAKE_SUCCESS_TIMEOUT_MS,
+                              completeA, verifiedA, suiteA));
+      CPPUNIT_ASSERT_MESSAGE("B did not complete both DTLS associations in time",
+         waitForTerminalState(tiB, connIdB, HANDSHAKE_SUCCESS_TIMEOUT_MS,
+                              completeB, verifiedB, suiteB));
+
+      // fingerprintVerified is ANDed across both associations, so this only
+      // holds if the peer certificate was verified over the RTCP socket too.
+      CPPUNIT_ASSERT_MESSAGE("A: peer not verified on both transports", verifiedA);
+      CPPUNIT_ASSERT_MESSAGE("B: peer not verified on both transports", verifiedB);
+
+      CPPUNIT_ASSERT_EQUAL_MESSAGE("A and B negotiated different suites",
+                                   suiteA, suiteB);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE("suite must be AES_CM_128_HMAC_SHA1_80",
+                                   SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80,
+                                   suiteA);
+
+      // Let SRTCP flow both ways for several reporting periods.  Reports are
+      // now protected under the RTCP association's keys and unprotected with
+      // the peer's matching context; a mismatch would show up as failures in
+      // the log rather than an assertion here, but a regression that tore an
+      // association down would move it out of ACTIVE, which is checked below.
+      OsTask::delay(DTLS_TEST_REPORT_PERIOD_MS * 8);
+
+      UtlBoolean stillCompleteA = FALSE, stillVerifiedA = FALSE;
+      UtlBoolean stillCompleteB = FALSE, stillVerifiedB = FALSE;
+      SdpMediaLine::SdpCryptoSuiteType s2A = SdpMediaLine::CRYPTO_SUITE_TYPE_NONE;
+      SdpMediaLine::SdpCryptoSuiteType s2B = SdpMediaLine::CRYPTO_SUITE_TYPE_NONE;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->getDtlsSrtpStatus(connIdA, CpMediaInterface::AUDIO_STREAM,
+                                stillCompleteA, stillVerifiedA, s2A));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiB->getDtlsSrtpStatus(connIdB, CpMediaInterface::AUDIO_STREAM,
+                                stillCompleteB, stillVerifiedB, s2B));
+      CPPUNIT_ASSERT_MESSAGE("A regressed while RTCP was flowing", stillVerifiedA);
+      CPPUNIT_ASSERT_MESSAGE("B regressed while RTCP was flowing", stillVerifiedB);
+
+      tiA->deleteConnection(connIdA);
+      tiB->deleteConnection(connIdB);
+      tiA->release();
+      tiB->release();
+      adjustRtcpPeriod(savedPeriod);
+
+      for (int i = 0; i < numCodecs; i++)
+      {
+         delete codecs[i];
+      }
+      delete[] codecs;
+   }
+#endif  // !EXCLUDE_RTCP
 };
 
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CpDtlsTest);
 
-#endif  // ENABLE_SRTP
+#endif  // ENABLE_SRTP && HAVE_SSL

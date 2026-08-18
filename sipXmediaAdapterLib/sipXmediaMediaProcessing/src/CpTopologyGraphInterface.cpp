@@ -138,6 +138,7 @@ public:
     , mRtpVideoReceiving(FALSE)
     , mpVideoCodec(NULL)
     , mpVideoDtls(NULL)
+    , mpVideoRtcpDtls(NULL)
 #endif
     , mRtpAudioSendHostPort(0)
     , mRtcpAudioSendHostPort(0)
@@ -150,6 +151,7 @@ public:
     , mContactType(CONTACT_AUTO)
     , mbAlternateDestinations(FALSE)
     , mpAudioDtls(NULL)
+    , mpAudioRtcpDtls(NULL)
     , mpAudioIceNominationContext(NULL)
 #ifdef VIDEO
     , mpVideoIceNominationContext(NULL)
@@ -225,6 +227,12 @@ public:
             mpAudioCodec = NULL; 
         }
 
+        if (mpAudioRtcpDtls)
+        {
+           delete mpAudioRtcpDtls;
+           mpAudioRtcpDtls = NULL;
+        }
+
         if (mpAudioDtls)
         {
            delete mpAudioDtls;
@@ -245,6 +253,12 @@ public:
             delete mpVideoCodec;
             mpVideoCodec = NULL;
         }
+        if (mpVideoRtcpDtls)
+        {
+           delete mpVideoRtcpDtls;
+           mpVideoRtcpDtls = NULL;
+        }
+
         if (mpVideoDtls)
         {
            delete mpVideoDtls;
@@ -278,6 +292,9 @@ public:
     UtlBoolean mRtpVideoReceiving;
     SdpCodec* mpVideoCodec;
     MpDtls* mpVideoDtls;
+    /// Second DTLS association, handshaking over the video RTCP socket.
+    /// NULL when rtcp-mux collapses the two transports into one.
+    MpDtls* mpVideoRtcpDtls;
 #endif
 
     int mRtpAudioSendHostPort;
@@ -295,6 +312,12 @@ public:
 
     // Per-connection DTLS-SRTP handshake engine.
     MpDtls* mpAudioDtls;
+    /// Second DTLS association, handshaking over the audio RTCP socket.
+    ///
+    /// RFC 5764 section 3 requires one association per source/destination port
+    /// pair, so without rtcp-mux a DTLS-SRTP connection needs two: this one
+    /// keys SRTCP, mpAudioDtls keys SRTP. NULL when rtcp-mux is in use.
+    MpDtls* mpAudioRtcpDtls;
 
     // ICE nomination callback contexts — one per stream. Allocated in
     // setIceCredentials, freed in the destructor. Owned by this struct.
@@ -1315,6 +1338,19 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                   pMediaConnection->mRtpAudioSendHostAddress,
                   pMediaConnection->mRtpAudioSendHostPort);
             }
+
+            // The RTCP association is a separate 5-tuple, so it gets the RTCP
+            // socket and the peer's RTCP port. Both handshakes then run
+            // concurrently and complete independently.
+            if (pMediaConnection->mpAudioRtcpDtls &&
+                pMediaConnection->mpRtcpAudioSocket &&
+                pMediaConnection->mRtcpAudioSendHostPort > 0)
+            {
+               pMediaConnection->mpAudioRtcpDtls->setDestination(
+                  pMediaConnection->mpRtcpAudioSocket,
+                  pMediaConnection->mRtpAudioSendHostAddress,
+                  pMediaConnection->mRtcpAudioSendHostPort);
+            }
         }
 
         else if(mediaType == CpMediaInterface::VIDEO_STREAM)
@@ -1608,32 +1644,41 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
    // Pick the right slot, resource names, socket, and destination based
    // on stream type.
    MpDtls**   ppDtls;
+   MpDtls**   ppRtcpDtls;
    UtlString  inResourceName;
    UtlString  outResourceName;
    OsSocket*  pRtpSocket;
+   OsSocket*  pRtcpSocket;
    UtlString* pSendAddr;
    int*       pSendPort;
+   int*       pRtcpSendPort;
    UtlBoolean destinationSet;
 
    if (mediaType == CpMediaInterface::AUDIO_STREAM)
    {
       ppDtls          = &mediaConnection->mpAudioDtls;
+      ppRtcpDtls      = &mediaConnection->mpAudioRtcpDtls;
       inResourceName  = DEFAULT_RTP_INPUT_RESOURCE_NAME;
       outResourceName = DEFAULT_RTP_OUTPUT_RESOURCE_NAME;
       pRtpSocket      = mediaConnection->mpRtpAudioSocket;
+      pRtcpSocket     = mediaConnection->mpRtcpAudioSocket;
       pSendAddr       = &mediaConnection->mRtpAudioSendHostAddress;
       pSendPort       = &mediaConnection->mRtpAudioSendHostPort;
+      pRtcpSendPort   = &mediaConnection->mRtcpAudioSendHostPort;
       destinationSet  = mediaConnection->mAudioDestinationSet;
    }
    else  // VIDEO_STREAM
    {
 #ifdef VIDEO
       ppDtls          = &mediaConnection->mpVideoDtls;
+      ppRtcpDtls      = &mediaConnection->mpVideoRtcpDtls;
       inResourceName  = DEFAULT_VIDEO_RTP_INPUT_RESOURCE_NAME;
       outResourceName = DEFAULT_VIDEO_RTP_OUTPUT_RESOURCE_NAME;
       pRtpSocket      = mediaConnection->mpRtpVideoSocket;
+      pRtcpSocket     = mediaConnection->mpRtcpVideoSocket;
       pSendAddr       = &mediaConnection->mRtpVideoSendHostAddress;
       pSendPort       = &mediaConnection->mRtpVideoSendHostPort;
+      pRtcpSendPort   = &mediaConnection->mRtcpVideoSendHostPort;
       destinationSet  = mediaConnection->mVideoDestinationSet;
 #else
       return OS_NOT_SUPPORTED;
@@ -1643,7 +1688,20 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
    MpResourceTopology::replaceNumInName(inResourceName,  connectionId);
    MpResourceTopology::replaceNumInName(outResourceName, connectionId);
 
-   // Lazy-construct the per-stream MpDtls.
+   // Lazy-construct the per-stream MpDtls engines.
+   //
+   // A connection needs TWO of them. RFC 5764 section 3: "There MUST be a
+   // separate DTLS-SRTP session for each distinct pair of source and
+   // destination ports used by a media session", and section 4.2 has each
+   // association discard the key material for the traffic it does not carry.
+   // With RTP and RTCP on separate ports that means one handshake over each
+   // socket, producing unrelated master keys -- the RTP one keying SRTP, the
+   // RTCP one keying SRTCP. Protecting RTCP with the RTP association's keys
+   // produces SRTCP no conformant peer can authenticate.
+   //
+   // (Once rtcp-mux is supported there is a single port, hence a single
+   // association with DTLS_TRANSPORT_MUXED, and this second engine is not
+   // built at all.)
    bool newMpDtlsCreated = false;
    if (*ppDtls == NULL)
    {
@@ -1652,45 +1710,82 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
    }
    MpDtls* pDtls = *ppDtls;
 
+   bool newRtcpDtlsCreated = false;
+   if (*ppRtcpDtls == NULL)
+   {
+      *ppRtcpDtls = new MpDtls();
+      newRtcpDtlsCreated = true;
+   }
+   MpDtls* pRtcpDtls = *ppRtcpDtls;
+
    MpDtls::DtlsRole dtlsRole =
       (role == SdpMediaLine::TCP_SETUP_ATTRIBUTE_ACTIVE)
          ? MpDtls::DTLS_ROLE_CLIENT
          : MpDtls::DTLS_ROLE_SERVER;
 
+   // Both associations use the same identity, peer fingerprint, hash and
+   // a=setup role -- they are the same call, just on two transports.
    OsStatus status = pDtls->setParams(remoteFingerprint, hashAlgorithm,
                                       dtlsRole,
                                       numProfilesOverride, profilesOverride);
-   if (status != OS_SUCCESS)
+   OsStatus rtcpStatus = pRtcpDtls->setParams(remoteFingerprint, hashAlgorithm,
+                                              dtlsRole,
+                                              numProfilesOverride, profilesOverride);
+   if (status != OS_SUCCESS || rtcpStatus != OS_SUCCESS)
    {
       if (newMpDtlsCreated) delete *ppDtls;
       *ppDtls = NULL;
-      return status;
+      if (newRtcpDtlsCreated) delete *ppRtcpDtls;
+      *ppRtcpDtls = NULL;
+      return (status != OS_SUCCESS) ? status : rtcpStatus;
    }
 
+   pDtls->setTransport(MpDtls::DTLS_TRANSPORT_RTP);
    pDtls->setSrtpInstallTargets(inResourceName, outResourceName,
                                 mpTopologyGraph->getMsgQ());
    pDtls->setNotificationDispatcher(mpTopologyGraph->getNotificationDispatcher());
    pDtls->setConnectionId(connectionId);
 
+   pRtcpDtls->setTransport(MpDtls::DTLS_TRANSPORT_RTCP);
+   pRtcpDtls->setSrtpInstallTargets(inResourceName, outResourceName,
+                                    mpTopologyGraph->getMsgQ());
+   pRtcpDtls->setNotificationDispatcher(mpTopologyGraph->getNotificationDispatcher());
+   pRtcpDtls->setConnectionId(connectionId);
+
    // If destination is already known for this stream type, hand it over now.
+   // Each engine gets its own transport: RTP socket to the peer RTP port,
+   // RTCP socket to the peer RTCP port.
    if (destinationSet && pRtpSocket)
    {
       pDtls->setDestination(pRtpSocket, *pSendAddr, *pSendPort);
    }
+   if (destinationSet && pRtcpSocket && *pRtcpSendPort > 0)
+   {
+      pRtcpDtls->setDestination(pRtcpSocket, *pSendAddr, *pRtcpSendPort);
+   }
 
    // Post the wire-up message to both From-Net and To-Net resources for
-   // this stream type.
-   OsStatus sIn  = MpDtls::setDtlsParams(inResourceName,
-                                         *(mpTopologyGraph->getMsgQ()),
-                                         pDtls);
-   OsStatus sOut = MpDtls::setDtlsParams(outResourceName,
-                                         *(mpTopologyGraph->getMsgQ()),
-                                         pDtls);
-   if (sIn != OS_SUCCESS || sOut != OS_SUCCESS)
+   // this stream type, once per engine. The messages carry the transport so
+   // the resources can keep the two associations apart.
+   OsStatus sIn      = MpDtls::setDtlsParams(inResourceName,
+                                             *(mpTopologyGraph->getMsgQ()),
+                                             pDtls);
+   OsStatus sOut     = MpDtls::setDtlsParams(outResourceName,
+                                             *(mpTopologyGraph->getMsgQ()),
+                                             pDtls);
+   OsStatus sRtcpIn  = MpDtls::setDtlsParams(inResourceName,
+                                             *(mpTopologyGraph->getMsgQ()),
+                                             pRtcpDtls);
+   OsStatus sRtcpOut = MpDtls::setDtlsParams(outResourceName,
+                                             *(mpTopologyGraph->getMsgQ()),
+                                             pRtcpDtls);
+   if (sIn != OS_SUCCESS || sOut != OS_SUCCESS ||
+       sRtcpIn != OS_SUCCESS || sRtcpOut != OS_SUCCESS)
    {
       OsSysLog::add(FAC_CP, PRI_ERR,
          "CpTopologyGraphInterface::setDtlsSrtpParams: post failed "
-         "(in=%d, out=%d, mediaType=%d)", sIn, sOut, mediaType);
+         "(in=%d, out=%d, rtcpIn=%d, rtcpOut=%d, mediaType=%d)",
+         sIn, sOut, sRtcpIn, sRtcpOut, mediaType);
       return OS_FAILED;
    }
 
@@ -1854,6 +1949,13 @@ OsStatus CpTopologyGraphInterface::getDtlsSrtpStatus(int connectionId,
 #else
       : NULL;
 #endif
+   MpDtls* pRtcpDtls = (mediaType == CpMediaInterface::AUDIO_STREAM)
+      ? mediaConnection->mpAudioRtcpDtls
+#ifdef VIDEO
+      : mediaConnection->mpVideoRtcpDtls;
+#else
+      : NULL;
+#endif
    if (pDtls == NULL)
    {
       // DTLS-SRTP not configured on this connection.
@@ -1871,6 +1973,47 @@ OsStatus CpTopologyGraphInterface::getDtlsSrtpStatus(int connectionId,
       // FALSE before it even started.
       handshakeComplete = (state == MpDtls::DTLS_STATE_ACTIVE ||
          state == MpDtls::DTLS_STATE_FAILED) ? TRUE : FALSE;
+   }
+
+   // Without rtcp-mux the connection has two associations, so fold the RTCP
+   // one into the answer.  The rule is NOT a plain AND:
+   //
+   //   - SUCCESS is conjunctive.  The connection is only usable once both
+   //     associations are up, so fingerprintVerified requires the peer
+   //     certificate to have checked out on both transports, and "complete"
+   //     waits for both.  Reporting complete early would let a caller conclude
+   //     SRTCP is ready when its keys have not been derived yet.
+   //
+   //   - FAILURE is disjunctive.  One failed association dooms the connection,
+   //     and the other may still be grinding through DTLS retransmits until
+   //     the hard timeout seconds later.  Making the caller wait for that
+   //     would turn a prompt, decisive failure into a long stall -- and left
+   //     "complete" FALSE for a connection that is already dead.
+   if (status == OS_SUCCESS && pRtcpDtls != NULL)
+   {
+      MpDtls::DtlsState                rtcpState;
+      MpDtls::FailureReason            rtcpReason;
+      SdpMediaLine::SdpCryptoSuiteType rtcpSuite = SdpMediaLine::CRYPTO_SUITE_TYPE_NONE;
+      UtlBoolean                       rtcpVerified = FALSE;
+
+      if (pRtcpDtls->getStatus(rtcpState, rtcpReason, rtcpSuite, rtcpVerified) == OS_SUCCESS)
+      {
+         UtlBoolean rtpFailed  = (state == MpDtls::DTLS_STATE_FAILED) ? TRUE : FALSE;
+         UtlBoolean rtcpFailed = (rtcpState == MpDtls::DTLS_STATE_FAILED) ? TRUE : FALSE;
+         UtlBoolean rtcpDone   = (rtcpState == MpDtls::DTLS_STATE_ACTIVE ||
+                                  rtcpFailed) ? TRUE : FALSE;
+
+         if (rtpFailed || rtcpFailed)
+         {
+            handshakeComplete = TRUE;
+         }
+         else
+         {
+            handshakeComplete = (handshakeComplete && rtcpDone) ? TRUE : FALSE;
+         }
+
+         fingerprintVerified = (fingerprintVerified && rtcpVerified) ? TRUE : FALSE;
+      }
    }
 
    return status;
@@ -2098,6 +2241,50 @@ OsStatus CpTopologyGraphInterface::startRtpSendImpl(int connectionId,
          if (!mediaConnection->mpAudioDtls)
          {
             MpSrtp::setSrtpParams(outConnectionName, *(mpTopologyGraph->getMsgQ()), cryptoSuite, cryptoKey);
+
+#ifdef INCLUDE_RTCP /* [ */
+            // Latch the RTCP renderer closed before it is started below.
+            //
+            // The key install above only POSTS a message, drained on the media
+            // thread, while setSockets() runs on this thread and starts the RTCP
+            // reporting timer -- an OsTimer independent of the flowgraph.  The
+            // first alarm is a full reporting period out (CRTCPTimer arms with
+            // periodicEvery(period, period)), so at the production 5 second
+            // cadence the key normally lands hundreds of frames early.
+            //
+            // "Normally" is not "always": if the media thread is not draining --
+            // flowgraph not yet ticking, a stalled frame, a debugger break -- the
+            // timer fires regardless, and one composite report carrying our SSRC,
+            // CNAME and reception statistics goes out in the clear.  That is
+            // exactly the metadata SRTCP exists to hide, and one packet is all a
+            // passive observer needs.
+            //
+            // So withhold reports until the keys arrive, exactly as the DTLS-SRTP
+            // path does via MPRM_SET_DTLS_PARAMS.
+            //
+            // The test is "can this suite actually be keyed", not merely "was a
+            // suite asked for".  Latching on a suite that will never produce a
+            // session would withhold every report for the life of the
+            // connection, trading "media is not encrypted" -- which is logged
+            // loudly by MpSrtp::setSrtpParams -- for "RTCP silently stopped",
+            // which is not.  Two ways that happens: sipXmediaLib built without
+            // ENABLE_SRTP, and a suite the linked-in libsrtp lacks the cipher
+            // for (typically GCM without an external crypto backend).
+            //
+            // isCryptoSuiteSupported() answers both at runtime, and returns
+            // false for CRYPTO_SUITE_TYPE_NONE, so an unencrypted connection
+            // keeps emitting plain RTCP.  Asking sipXmediaLib rather than
+            // testing ENABLE_SRTP here keeps that define out of this project,
+            // where it otherwise has no effect.
+            if (MpSrtp::isCryptoSuiteSupported(cryptoSuite))
+            {
+               IRTCPConnection* pRtcpConnection = pConnection->getRTCPConnection();
+               if (pRtcpConnection)
+               {
+                  pRtcpConnection->SetSrtpRequired(true);
+               }
+            }
+#endif /* INCLUDE_RTCP ] */
          }
 
          // Set sockets to send to.
@@ -4656,6 +4843,21 @@ OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnecti
 
    if(mediaConnection->getValue() >= 0)
    {
+       // Silence the DTLS engines BEFORE the resources go away.  The
+       // synchronize() below fences everything queued up to the destroy, but a
+       // retransmit or handshake-timeout timer firing after that fence would
+       // post a message naming a resource that no longer exists, and
+       // MpFlowGraphBase::processMessages asserts when the lookup fails.  Most
+       // likely to bite when a handshake is still outstanding at teardown,
+       // which is exactly the case for the RTCP association when the peer
+       // never answered.
+       if (mediaConnection->mpAudioDtls)     mediaConnection->mpAudioDtls->shutdown();
+       if (mediaConnection->mpAudioRtcpDtls) mediaConnection->mpAudioRtcpDtls->shutdown();
+#ifdef VIDEO
+       if (mediaConnection->mpVideoDtls)     mediaConnection->mpVideoDtls->shutdown();
+       if (mediaConnection->mpVideoRtcpDtls) mediaConnection->mpVideoRtcpDtls->shutdown();
+#endif
+
        mpTopologyGraph->destroyResources(*mediaConnection->mpResourceTopology,
                                          mediaConnection->getValue());
        mediaConnection->setValue(-1);

@@ -50,7 +50,8 @@ CRTCPRender::CRTCPRender(ssrc_t ulSSRC,
           m_ulReportCount(0),
           m_ulRemoteSSRC(0),
           m_iRemoteSSRCFound(0),
-          mPacketCount(0)
+          mPacketCount(0),
+          m_bSrtpRequired(false)
 {
 
     // Store the arguments passed in the constructor as internal data members
@@ -259,6 +260,62 @@ void CRTCPRender::GetSenderStatInterface(
     (*ppiSetSenderStats)->AddRef(ADD_RELEASE_CALL_ARGS(__LINE__));
 
 }
+
+/**
+ *
+ * Method Name:  SetSrtpParams
+ *
+ *
+ * Inputs:    SdpMediaLine::SdpCryptoSuiteType cryptoSuite - Crypto suite
+ *            const UtlString&                 cryptoKey   - Key || salt
+ *
+ * Outputs:   None
+ *
+ * Returns:   void
+ *
+ * Description:  Installs (or clears) the outbound SRTCP context used by
+ *               GenerateRTCPReports().
+ *
+ * Usage Notes:  Runs on the media thread; MpSrtp serializes against the
+ *               CRTCManager thread that consumes the context.
+ *
+ */
+void CRTCPRender::SetSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                const UtlString& cryptoKey)
+{
+    if(!m_oSrtp.setSrtpParams(cryptoSuite, cryptoKey, FALSE /* forUnprotect? */))
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+            "CRTCPRender::SetSrtpParams: failed to install SRTCP context, "
+            "cryptoSuite=%d, SSRC=0x%08X -- RTCP will be withheld",
+            cryptoSuite, m_ulLocalSSRC);
+    }
+}
+
+
+/**
+ *
+ * Method Name:  SetSrtpRequired
+ *
+ *
+ * Inputs:    bool bRequired - TRUE to withhold unprotected reports
+ *
+ * Outputs:   None
+ *
+ * Returns:   void
+ *
+ * Description:  Marks this connection as SRTP-protected so that reports are
+ *               not emitted in the clear before the keys show up.
+ *
+ * Usage Notes:  Used by the DTLS-SRTP path, where key material only exists
+ *               after the handshake completes.
+ *
+ */
+void CRTCPRender::SetSrtpRequired(bool bRequired)
+{
+    m_bSrtpRequired = bRequired;
+}
+
 
 /**
  *
@@ -519,11 +576,48 @@ unsigned long CRTCPRender::GenerateRTCPReports(unsigned char *puchAppendReport,
 
     // OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP: sending report (size is %d) thru %p", ulReportLength, m_piNetworkRender);
 
+    // Turn the composite report into SRTCP if this connection is keyed.
+    // Done only when there is somewhere to send it, so that a connection with
+    // no network render does not burn SRTCP indices on reports that are
+    // dropped anyway.
+    if(m_piNetworkRender)
+    {
+        if(m_bSrtpRequired && !m_oSrtp.isSessionCreated())
+        {
+            // DTLS-SRTP is configured but the handshake has not yielded keys
+            // yet.  Sending now would put an unprotected report on the wire,
+            // so drop it -- the next reporting interval picks up once the
+            // keys are installed.  This mirrors what MprToNet::writeRtp does
+            // with media during the same window.
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                "CRTCPRender::GenerateRTCPReports: dropping %d byte report, "
+                "waiting for DTLS-SRTP handshake to finish", (int)ulReportLength);
+            return(0);
+        }
+
+        // Note: Will NoOp and return TRUE if ENABLE_SRTP is not defined, or if
+        // no crypto suite has been negotiated for this connection.
+        int iProtectedLength = (int)ulReportLength;
+        if(!m_oSrtp.srtpProtectIfNeeded(uchRTCPReport, &iProtectedLength,
+                                        TRUE /* rtcp? */, MAX_BUFFER_SIZE))
+        {
+            // Unlike the RTP path, do not fall back to sending in the clear:
+            // an RTCP report the peer cannot authenticate is worthless to it,
+            // and emitting one would leak the very statistics SRTCP exists to
+            // protect.
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                "CRTCPRender::GenerateRTCPReports: SRTCP protect failed, "
+                "dropping %d byte report", (int)ulReportLength);
+            return(0);
+        }
+        ulReportLength = (uint32_t)iProtectedLength;
+    }
+
     // Let's take the formatted octet string and transmit it to a deserving
     // recipient through use of the Network Render object's service interface.
     if(m_piNetworkRender &&
                       !(sendRet=m_piNetworkRender->Send(uchRTCPReport, ulReportLength)))
-    
+
     {
         // Log a meaningful error
         OsSysLog::add(FAC_MP, PRI_DEBUG, "CRTCPRender::GenerateRTCPReports: could not send or Send failed: %p, %d, %d", m_piNetworkRender, sendRet, ulReportLength);

@@ -17,6 +17,7 @@
 #include <utl/UtlBool.h>
 #include <os/OsStatus.h>
 #include <os/OsMsgQ.h>
+#include <os/OsMutex.h>
 
 // DEFINES
 // MACROS
@@ -37,6 +38,49 @@ extern "C" {
 // STRUCTS
 // TYPEDEFS
 
+/// Which of a connection's two protected streams a given piece of SRTP key
+/// material applies to.
+///
+/// This is not a stylistic distinction -- it follows the keying protocol:
+///
+///   - SDES (RFC 4568) carries ONE master key per media line, and it protects
+///     both SRTP and SRTCP no matter how the ports are laid out.  That is
+///     MP_SRTP_KEY_USE_RTP_AND_RTCP.
+///
+///   - DTLS-SRTP (RFC 5764) keys a DTLS association, and section 3 requires a
+///     separate association for each source/destination port pair.  Without
+///     rtcp-mux that means two handshakes and two unrelated master keys, and
+///     section 4.2 is explicit that each association discards the half it does
+///     not need: the RTP association's SRTCP keys, and the RTCP association's
+///     SRTP keys.  Those are MP_SRTP_KEY_USE_RTP_ONLY and
+///     MP_SRTP_KEY_USE_RTCP_ONLY respectively.
+///
+///   - With rtcp-mux there is one association covering one port and both
+///     halves are used -- MP_SRTP_KEY_USE_RTP_AND_RTCP again.
+enum MpSrtpKeyUse
+{
+   MP_SRTP_KEY_USE_RTP_AND_RTCP = 0,  ///< SDES, or DTLS-SRTP with rtcp-mux
+   MP_SRTP_KEY_USE_RTP_ONLY,          ///< DTLS-SRTP, RTP transport association
+   MP_SRTP_KEY_USE_RTCP_ONLY          ///< DTLS-SRTP, RTCP transport association
+};
+
+/// Human readable name, for logging.
+const char* MpSrtpKeyUseString(MpSrtpKeyUse keyUse);
+
+
+/// Per-direction SRTP/SRTCP context.
+///
+/// Instances are thread-safe: every method that touches the underlying
+/// libsrtp session takes an internal lock.  libsrtp itself provides no
+/// serialization for a single srtp_t, and each of the three instances in
+/// the media stack is genuinely shared across threads:
+///
+///   - MprFromNet's instance unprotects on the NetInTask thread while the
+///     media thread installs keys.
+///   - MprToNet's instance protects RTP on the media thread, which is also
+///     where keys are installed.
+///   - CRTCPRender's instance protects RTCP on the CRTCManager thread while
+///     the media thread installs keys.
 class MpSrtp
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -88,7 +132,8 @@ public:
    static OsStatus setSrtpParams(const UtlString& resourceName, 
       OsMsgQ& flowgraphMessageQueue, 
       SdpMediaLine::SdpCryptoSuiteType cryptoSuite, 
-      const UtlString& cryptoKey);
+      const UtlString& cryptoKey,
+      MpSrtpKeyUse keyUse = MP_SRTP_KEY_USE_RTP_AND_RTCP);
 
    // Set the SRTP parameters for this Srtp session.  Note:  You use a seperate instance of this 
    // class for each direction (Protect/Outbound/ToNet vs. Unprotect/Inbound/FromNet). The instance
@@ -97,7 +142,7 @@ public:
    //        the cryptoKey for protect comes from our local SDP offer/answer.
    UtlBoolean setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey, UtlBoolean forUnprotect);
 
-   UtlBoolean isSessionCreated() { return mSrtpSessionCreated; }
+   UtlBoolean isSessionCreated();
 
    // Note: The passed in buffer is modified in place to contain the unprotected data.
    //       The returned size will always be <= the passed in size.
@@ -133,7 +178,7 @@ public:
    static bool isValidSrtp(const uint8_t* buf, size_t len);
 
    // Fast-path validation for Inbound SRTCP (Control)
-   // 1. Minimum length for AES - 128_HMAC_SHA1_32 is 20 bytes
+   // 1. Minimum length for AES - 128_HMAC_SHA1_32 is 16 bytes
    //    - 8 bytes : Fixed RTCP Header(Header + SSRC)
    //    - 4 bytes : SRTCP Index(Mandatory 31 - bit index + 1 - bit E - flag)
    //    - 4 bytes : Authentication Tag(Truncated HMAC - SHA1 - 32)
@@ -150,12 +195,19 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+     /// Serializes access to mSrtpSession and the parameters describing it.
+     /// Declared first so it is constructed before -- and destroyed after --
+     /// everything it guards.
+   OsMutex mLock;
+
    SdpMediaLine::SdpCryptoSuiteType mCryptoSuite;
    UtlString mCryptoKey;
 
    UtlBoolean mSrtpSessionCreated;
    srtp_t mSrtpSession;
 
+     /// Tear down the libsrtp session.  Caller must hold mLock (or be the
+     /// destructor, where no other thread may still be using the object).
    void deallocateSrtpSession();
 
      /// Copy constructor (not implemented for this class)

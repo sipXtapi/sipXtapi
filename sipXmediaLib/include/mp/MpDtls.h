@@ -13,6 +13,7 @@
 
 // APPLICATION INCLUDES
 #include <sdp/SdpMediaLine.h>
+#include <mp/MpSrtp.h>
 #include <utl/UtlString.h>
 #include <utl/UtlBool.h>
 #include <os/OsStatus.h>
@@ -83,6 +84,25 @@ public:
    {
       DTLS_ROLE_CLIENT,    ///< "active" in SDP a=setup
       DTLS_ROLE_SERVER     ///< "passive" in SDP a=setup
+   };
+
+     /// Which of the connection's transports this engine handshakes over.
+     ///
+     /// RFC 5764 section 3 requires a separate DTLS-SRTP association for each
+     /// source/destination port pair, so a connection without rtcp-mux runs
+     /// TWO engines: one over the RTP socket and one over the RTCP socket.
+     /// Section 4.2 then has each association discard the key material it does
+     /// not need -- the RTP association's SRTCP keys and the RTCP
+     /// association's SRTP keys -- which is why the transport determines the
+     /// MpSrtpKeyUse this engine publishes on completion.
+     ///
+     /// With rtcp-mux there is a single association covering the one port, and
+     /// both halves of its key material are used.
+   enum DtlsTransport
+   {
+      DTLS_TRANSPORT_RTP = 0,  ///< Handshakes over the RTP socket; keys RTP only.
+      DTLS_TRANSPORT_RTCP,     ///< Handshakes over the RTCP socket; keys RTCP only.
+      DTLS_TRANSPORT_MUXED     ///< rtcp-mux: one socket, keys both.
    };
 
    enum DtlsState
@@ -191,6 +211,37 @@ public:
      /// the connectionId field of dispatched notifications so the app
      /// can correlate them with calls.
    void setConnectionId(int connectionId);
+
+     /// Stop this engine posting anything further to the flowgraph.
+     ///
+     /// Must be called BEFORE the connection's resources are destroyed.
+     /// MpFlowGraphBase::synchronize() fences the messages queued up to the
+     /// destroy, but a retransmit or handshake-timeout timer that fires AFTER
+     /// that fence would still post an MpResourceMsg naming a resource that no
+     /// longer exists, and MpFlowGraphBase::processMessages asserts when
+     /// lookupResource fails.  The window is wide whenever a handshake is
+     /// still outstanding at teardown -- a DTLS client with no peer keeps
+     /// retransmitting until the hard timeout -- and a connection without
+     /// rtcp-mux runs two engines, so there are two sets of timers to silence.
+     ///
+     /// Stops the timers and drops the queue pointer, so a callback already
+     /// in flight finds nothing to post to. Safe to call more than once, and
+     /// safe to call on an engine that never started a handshake.
+   void shutdown();
+
+     /// Select which transport this engine handshakes over. Determines the
+     /// MpSrtpKeyUse published when the handshake completes, and tags the
+     /// timer messages this engine posts so MprFromNet can route them back to
+     /// the right engine. Defaults to DTLS_TRANSPORT_RTP.
+     ///
+     /// Must be set before the handshake starts.
+   void setTransport(DtlsTransport transport);
+
+     /// The transport this engine handshakes over.
+   DtlsTransport getTransport() const;
+
+     /// The MpSrtpKeyUse implied by this engine's transport.
+   MpSrtpKeyUse getSrtpKeyUse() const;
 
      /// Configure the DTLS-SRTP parameters for this connection.
      ///
@@ -392,6 +443,7 @@ private:
 
    // Configuration.
    DtlsRole    mRole;                ///< client vs server
+   DtlsTransport mTransport;         ///< RTP socket, RTCP socket, or muxed
    UtlString   mRemoteFingerprint;   ///< upper-case hex with colons
    UtlString   mHashAlgorithm;       ///< canonical "SHA-256" etc.
    UtlString   mProfileList;         ///< OpenSSL-format colon list

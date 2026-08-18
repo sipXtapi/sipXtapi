@@ -25,6 +25,7 @@
 #include <mp/MpDtlsIdentity.h>
 #include <mp/MpSetDtlsParamsMsg.h>
 #include <mp/MpSrtp.h>
+#include <mp/MpIntResourceMsg.h>
 #include <mp/MpResourceMsg.h>
 #include <mp/MpResNotificationMsg.h>
 #include <mp/MprnIntMsg.h>
@@ -174,6 +175,7 @@ MpDtls::MpDtls()
    , mpInBio(NULL)
    , mpOutBio(NULL)
    , mRole(DTLS_ROLE_CLIENT)
+   , mTransport(DTLS_TRANSPORT_RTP)
    , mParamsSet(FALSE)
    , mDestinationSet(FALSE)
    , mpRtpSocket(NULL)
@@ -237,7 +239,10 @@ OsStatus MpDtls::setDtlsParams(const UtlString& targetResourceName,
                                OsMsgQ& flowgraphMessageQueue,
                                MpDtls* pDtls)
 {
-   MpSetDtlsParamsMsg message(targetResourceName, pDtls);
+   MpSetDtlsParamsMsg message(targetResourceName, pDtls,
+                              (pDtls != NULL &&
+                               pDtls->getTransport() == DTLS_TRANSPORT_RTCP)
+                              ? TRUE : FALSE);
    return flowgraphMessageQueue.send(message, OsTime::OS_INFINITY);
 }
 
@@ -337,6 +342,59 @@ void MpDtls::setNotificationDispatcher(OsMsgDispatcher* pDispatcher)
 {
    OsLock lock(mLock);
    mpNotificationDispatcher = pDispatcher;
+}
+
+void MpDtls::shutdown()
+{
+   // Stop timers before taking mLock, for the reason spelled out in
+   // ~MpDtls: OsTimer::stop() waits for an in-flight callback, and that
+   // callback may itself be waiting on mLock.
+   if (mpRetransmitTimer != NULL)
+   {
+      mpRetransmitTimer->stop();
+   }
+   if (mpHandshakeTimeoutTimer != NULL)
+   {
+      mpHandshakeTimeoutTimer->stop();
+   }
+
+   {
+      OsLock lock(mLock);
+
+      // postTimerMessage() already treats a NULL queue as "nothing to do", so
+      // dropping it here closes the race for any callback that slipped past
+      // the stop() above.  The resource names go too, so nothing can address
+      // a destroyed resource.
+      mpFlowgraphQueue = NULL;
+      mFromNetResourceName = UtlString::Empty;
+      mToNetResourceName = UtlString::Empty;
+   }
+
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpDtls::shutdown: timers stopped, flowgraph queue detached (transport=%d)",
+      (int)mTransport);
+}
+
+void MpDtls::setTransport(DtlsTransport transport)
+{
+   OsLock lock(mLock);
+   mTransport = transport;
+}
+
+MpDtls::DtlsTransport MpDtls::getTransport() const
+{
+   return mTransport;
+}
+
+MpSrtpKeyUse MpDtls::getSrtpKeyUse() const
+{
+   switch (mTransport)
+   {
+      case DTLS_TRANSPORT_RTP:   return MP_SRTP_KEY_USE_RTP_ONLY;
+      case DTLS_TRANSPORT_RTCP:  return MP_SRTP_KEY_USE_RTCP_ONLY;
+      case DTLS_TRANSPORT_MUXED: return MP_SRTP_KEY_USE_RTP_AND_RTCP;
+      default:                   return MP_SRTP_KEY_USE_RTP_AND_RTCP;
+   }
 }
 
 void MpDtls::setConnectionId(int connectionId)
@@ -1014,7 +1072,13 @@ OsStatus MpDtls::onHandshakeComplete()
       return OS_FAILED;
    }
 
-   OsStatus status = MpSrtp::setSrtpParams(mFromNetResourceName, *mpFlowgraphQueue, suite, inboundKey);
+   // RFC 5764 section 4.2: an association only uses the half of its derived
+   // key material that matches the traffic on its transport.  getSrtpKeyUse()
+   // encodes that -- RTP-only, RTCP-only, or both when rtcp-mux collapses the
+   // two transports into one.
+   const MpSrtpKeyUse keyUse = getSrtpKeyUse();
+
+   OsStatus status = MpSrtp::setSrtpParams(mFromNetResourceName, *mpFlowgraphQueue, suite, inboundKey, keyUse);
    if (status != OS_SUCCESS)
    {
       OsSysLog::add(FAC_MP, PRI_ERR,
@@ -1023,7 +1087,7 @@ OsStatus MpDtls::onHandshakeComplete()
       return OS_FAILED;
    }
 
-   status = MpSrtp::setSrtpParams(mToNetResourceName, *mpFlowgraphQueue, suite, outboundKey);
+   status = MpSrtp::setSrtpParams(mToNetResourceName, *mpFlowgraphQueue, suite, outboundKey, keyUse);
    if (status != OS_SUCCESS)
    {
       OsSysLog::add(FAC_MP, PRI_ERR,
@@ -1411,7 +1475,10 @@ void MpDtls::postTimerMessage(int msgType)
    {
       return;
    }
-   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)msgType, resourceName);
+   // Carry the transport so MprFromNet routes the callback to this engine and
+   // not to the connection's other association.
+   MpIntResourceMsg msg((MpResourceMsg::MpResourceMsgType)msgType, resourceName,
+                        (int)mTransport);
    queue->send(msg, OsTime::OS_INFINITY);
 }
 

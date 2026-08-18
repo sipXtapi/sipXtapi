@@ -25,6 +25,8 @@
 #include "IRTPDispatch.h"
 #include "INetDispatch.h"
 #include "ISetSenderStatistics.h"
+#include <sdp/SdpMediaLine.h>
+#include <utl/UtlString.h>
 
 // Pingtel extension
 #ifdef PINGTEL_OSSOCKET
@@ -169,6 +171,52 @@ public:
  *
  */
     virtual bool StopRenderer(void) = 0;
+
+/**
+ *
+ * Method Name:  SetSrtpParams
+ *
+ *
+ * Inputs:   SdpMediaLine::SdpCryptoSuiteType cryptoSuite
+ *                                        - Negotiated SRTP crypto suite
+ *           const UtlString&                 cryptoKey
+ *                                        - Outbound master key || master salt
+ *
+ * Outputs:  None
+ *
+ * Returns:  void
+ *
+ * Description: Installs the outbound key material used to protect this
+ *              connection's RTCP reports as SRTCP.  Passing
+ *              CRYPTO_SUITE_TYPE_NONE reverts the connection to plain RTCP.
+ *
+ * Usage Notes: Fed from MpRtpOutputConnection with the same outbound key that
+ *              MprToNet uses for RTP.  Both the SDES and DTLS-SRTP key paths
+ *              arrive here.
+ *
+ */
+    virtual void SetSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                               const UtlString& cryptoKey) = 0;
+
+/**
+ *
+ * Method Name:  SetSrtpRequired
+ *
+ *
+ * Inputs:   bool bRequired  - TRUE to withhold unprotected reports
+ *
+ * Outputs:  None
+ *
+ * Returns:  void
+ *
+ * Description: Tells the connection that its keys arrive after the renderer
+ *              starts, so reports must be withheld rather than sent in the
+ *              clear until SetSrtpParams() has been called.
+ *
+ * Usage Notes: Set for DTLS-SRTP connections only.
+ *
+ */
+    virtual void SetSrtpRequired(bool bRequired) = 0;
 
 /**
  *

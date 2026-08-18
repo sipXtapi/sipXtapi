@@ -26,6 +26,7 @@
 #include "IRTCPRender.h"
 #include "IRTCPStatistics.h"
 #include "IRTCPNotify.h"
+#include "mp/MpSrtp.h"
 
 
 
@@ -222,6 +223,66 @@ public:
  *
  */
     void ClearNetworkRender(void);
+
+/**
+ *
+ * Method Name:  SetSrtpParams()
+ *
+ *
+ * Inputs:      SdpMediaLine::SdpCryptoSuiteType cryptoSuite
+ *                                - Negotiated SRTP crypto suite
+ *              const UtlString&                 cryptoKey
+ *                                - Outbound master key || master salt
+ *
+ * Outputs:     None
+ *
+ * Returns:     None
+ *
+ * Description: Installs the outbound (protect direction) SRTP key material
+ *              used to turn the composite RTCP reports this object generates
+ *              into SRTCP before they go on the wire.  Passing
+ *              CRYPTO_SUITE_TYPE_NONE tears the SRTCP context back down and
+ *              returns the connection to plain RTCP.
+ *
+ * Usage Notes: The key material is the same outbound key handed to MprToNet;
+ *              this object keeps its own libsrtp session because RTCP is
+ *              rendered on the CRTCManager thread rather than the media
+ *              thread.  RFC 3711 derives the SRTCP session keys from the
+ *              master key with different labels than the SRTP ones, so a
+ *              session used exclusively for RTCP behaves identically to the
+ *              RTCP half of a session shared with RTP -- without needing the
+ *              two threads to contend on one srtp_t for every media packet.
+ *
+ *              Called on the media thread (from
+ *              MpRtpOutputConnection::handleMessage) for both the SDES and
+ *              the DTLS-SRTP key paths.
+ *
+ */
+    void SetSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                       const UtlString& cryptoKey);
+
+/**
+ *
+ * Method Name:  SetSrtpRequired()
+ *
+ *
+ * Inputs:      bool bRequired  - TRUE to withhold unprotected reports
+ *
+ * Outputs:     None
+ *
+ * Returns:     None
+ *
+ * Description: Marks this connection as one whose keys arrive later than the
+ *              renderer starts -- i.e. DTLS-SRTP, where key material only
+ *              exists once the handshake completes.  While set and no SRTCP
+ *              context has been installed yet, generated reports are dropped
+ *              rather than sent in the clear.
+ *
+ * Usage Notes: Not needed for SDES, where the key is posted to the flowgraph
+ *              before the renderer is ever started.
+ *
+ */
+    void SetSrtpRequired(bool bRequired);
 
 /**
  *
@@ -601,6 +662,35 @@ private:        // Private Data Members
       int m_iRemoteSSRCFound;
 
       int mPacketCount;
+
+/**
+ *
+ * Attribute Name:  m_oSrtp
+ *
+ * Type:            MpSrtp
+ *
+ * Description:  This member protects outbound RTCP reports as SRTCP.  It is
+ *               a no-op until SetSrtpParams() installs key material, so
+ *               plain-RTCP connections are unaffected.  MpSrtp is internally
+ *               locked, which matters here: reports are rendered on the
+ *               CRTCManager thread while keys are installed on the media
+ *               thread.
+ *
+ */
+      MpSrtp m_oSrtp;
+
+/**
+ *
+ * Attribute Name:  m_bSrtpRequired
+ *
+ * Type:            bool
+ *
+ * Description:  When TRUE, reports are withheld until m_oSrtp has a session.
+ *               Set for DTLS-SRTP connections, whose keys do not exist until
+ *               the handshake completes.
+ *
+ */
+      bool m_bSrtpRequired;
 
 };
 

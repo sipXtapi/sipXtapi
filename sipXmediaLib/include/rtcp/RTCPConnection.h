@@ -304,6 +304,50 @@ public:
 
 /**
  *
+ * Method Name:  SetSrtpParams
+ *
+ *
+ * Inputs:       SdpMediaLine::SdpCryptoSuiteType cryptoSuite
+ *               const UtlString&                 cryptoKey
+ *
+ * Outputs:      None
+ *
+ * Returns:      void
+ *
+ * Description:  Forwards the outbound SRTP key material to the RTCP Render
+ *               object, which protects the reports it generates as SRTCP.
+ *
+ * Usage Notes:  Safe to call before StartRenderer(): the render object exists
+ *               from Initialize() onward, independently of whether a network
+ *               render has been attached yet.
+ *
+ */
+    void SetSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                       const UtlString& cryptoKey);
+
+
+/**
+ *
+ * Method Name:  SetSrtpRequired
+ *
+ *
+ * Inputs:       bool bRequired
+ *
+ * Outputs:      None
+ *
+ * Returns:      void
+ *
+ * Description:  Tells the RTCP Render object to withhold reports until SRTP
+ *               key material has been installed.
+ *
+ * Usage Notes:  Used for DTLS-SRTP, whose keys only exist post-handshake.
+ *
+ */
+    void SetSrtpRequired(bool bRequired);
+
+
+/**
+ *
  * Method Name:  Terminate
  *
  *

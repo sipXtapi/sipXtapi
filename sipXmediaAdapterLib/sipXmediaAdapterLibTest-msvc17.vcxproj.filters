@@ -27,5 +27,8 @@
     <ClCompile Include="sipXmediaMediaProcessing\src\test\CpDtlsTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sipXmediaMediaProcessing\src\test\CpSrtcpTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -48,6 +48,7 @@
 #include <mp/NetInTask.h>
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MpDtlsPacketMsg.h>
+#include <mp/MpIntResourceMsg.h>
 #include <mp/MpDtls.h>
 
 // EXTERNAL FUNCTIONS
@@ -75,6 +76,7 @@ MprFromNet::MprFromNet()
 , mDiscardedSSRC(0)
 , mpFlowGraph(NULL)
 , mpDtls(NULL)
+, mpDtlsRtcp(NULL)
 #ifdef INCLUDE_RTCP /* [ */
 , mpiRTCPDispatch(NULL)
 , mpiRTPDispatch(NULL)
@@ -199,21 +201,27 @@ UtlBoolean MprFromNet::handleMessage(MpResourceMsg& rMsg)
 
        case MpResourceMsg::MPRM_DTLS_PACKET:
        {
-          if (mpDtls != NULL)
+          MpDtlsPacketMsg* pMsg = (MpDtlsPacketMsg*)&rMsg;
+          MpDtls* pDtls = pMsg->isFromRtcpTransport() ? mpDtlsRtcp : mpDtls;
+          if (pDtls != NULL)
           {
-             MpDtlsPacketMsg* pMsg = (MpDtlsPacketMsg*)&rMsg;
              const UtlString& packet = pMsg->getPacket();
-             mpDtls->processIncomingPacket(packet.data(), packet.length());
+             pDtls->processIncomingPacket(packet.data(), packet.length());
           }
           handled = TRUE;
        }
        break;
 
+       // The retransmit and hard-timeout timers belong to one association, so
+       // the engine posts its transport as the message data (see
+       // MpDtls::postTimerMessage).  Driving the wrong engine here would stall
+       // one handshake while spuriously re-arming the other.
        case MpResourceMsg::MPRM_DTLS_RETRANSMIT:
        {
-          if (mpDtls != NULL)
+          MpDtls* pDtls = dtlsEngineForTimerMsg(rMsg);
+          if (pDtls != NULL)
           {
-             mpDtls->handleRetransmit();
+             pDtls->handleRetransmit();
           }
           handled = TRUE;
        }
@@ -221,9 +229,10 @@ UtlBoolean MprFromNet::handleMessage(MpResourceMsg& rMsg)
 
        case MpResourceMsg::MPRM_DTLS_HANDSHAKE_TIMEOUT:
        {
-          if (mpDtls != NULL)
+          MpDtls* pDtls = dtlsEngineForTimerMsg(rMsg);
+          if (pDtls != NULL)
           {
-             mpDtls->handleHandshakeTimeout();
+             pDtls->handleHandshakeTimeout();
           }
           handled = TRUE;
        }
@@ -239,14 +248,52 @@ UtlBoolean MprFromNet::handleMessage(MpResourceMsg& rMsg)
    return(handled);
 }
 
-UtlBoolean MprFromNet::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey)
+MpDtls* MprFromNet::dtlsEngineForTimerMsg(const MpResourceMsg& rMsg) const
 {
-   return mSrtp.setSrtpParams(cryptoSuite, cryptoKey, TRUE /* forUnprotect? */);
+   // MpDtls posts its transport as the int payload; anything else came from
+   // an older sender and is assumed to be the RTP association.
+   const MpIntResourceMsg* pMsg =
+      dynamic_cast<const MpIntResourceMsg*>(&rMsg);
+   if (pMsg != NULL && pMsg->getData() == MpDtls::DTLS_TRANSPORT_RTCP)
+   {
+      return mpDtlsRtcp;
+   }
+   return mpDtls;
 }
 
-void MprFromNet::setDtls(MpDtls* pDtls, const UtlString& resourceName)
+UtlBoolean MprFromNet::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                                    const UtlString& cryptoKey,
+                                    MpSrtpKeyUse keyUse)
 {
-   mpDtls = pDtls;
+   UtlBoolean ok = TRUE;
+
+   if (keyUse != MP_SRTP_KEY_USE_RTCP_ONLY)
+   {
+      ok = mSrtp.setSrtpParams(cryptoSuite, cryptoKey, TRUE /* forUnprotect? */) && ok;
+   }
+   if (keyUse != MP_SRTP_KEY_USE_RTP_ONLY)
+   {
+      ok = mSrtcp.setSrtpParams(cryptoSuite, cryptoKey, TRUE /* forUnprotect? */) && ok;
+   }
+
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MprFromNet::setSrtpParams: installed inbound keys for %s, cryptoSuite=%d, ok=%d",
+      MpSrtpKeyUseString(keyUse), cryptoSuite, ok);
+
+   return ok;
+}
+
+void MprFromNet::setDtls(MpDtls* pDtls, const UtlString& resourceName,
+                         UtlBoolean forRtcpTransport)
+{
+   if (forRtcpTransport)
+   {
+      mpDtlsRtcp = pDtls;
+   }
+   else
+   {
+      mpDtls = pDtls;
+   }
    mDtlsResourceName = resourceName;
 }
 
@@ -313,21 +360,33 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
    int packetSize = udpBuf->getPacketSize();
 
    // RFC 7983 demultiplex when DTLS-SRTP is configured for this connection.
-   // This runs on the NetInTask thread; for DTLS records we ferry the
-   // bytes to the media thread via MpDtlsPacketMsg, where MpDtls actually
-   // processes them. Note: RTCP traffic is not currently DTLS-demuxed.
-   if (mpDtls != NULL && !isRtcp && packetSize > 0)
+   //
+   // Each transport carries its own DTLS association.  Without rtcp-mux, RFC
+   // 5764 section 3 requires a separate association for each source and
+   // destination port pair, so the RTP socket and the RTCP socket each run
+   // their own handshake and end up with unrelated master keys.  Pick the
+   // engine and the unprotect context belonging to the socket this packet
+   // arrived on, and never cross them.
+   //
+   // This runs on the NetInTask thread; for DTLS records we ferry the bytes
+   // to the media thread via MpDtlsPacketMsg, where MpDtls processes them.
+   MpDtls* pDtls = isRtcp ? mpDtlsRtcp : mpDtls;
+   MpSrtp& rSrtp = isRtcp ? mSrtcp     : mSrtp;
+
+   if (pDtls != NULL && packetSize > 0)
    {
       unsigned char firstByte = (unsigned char)packetData[0];
 
       if (firstByte >= 20 && firstByte <= 63)
       {
-         // DTLS record. Post to media thread for MpDtls processing.
-         // Don't fall through to the SRTP unprotect path.
+         // DTLS record. Post to media thread for MpDtls processing, tagged
+         // with the transport it arrived on so it reaches the right engine.
+         // Do not fall through to the SRTP unprotect path.
          ret = OS_FAILED;
          if (mpFlowGraph != NULL && !mDtlsResourceName.isNull())
          {
-            MpDtlsPacketMsg msg(mDtlsResourceName, packetData, packetSize);
+            MpDtlsPacketMsg msg(mDtlsResourceName, packetData, packetSize,
+                                isRtcp ? TRUE : FALSE);
             ret = mpFlowGraph->getMsgQ()->send(msg, OsTime::OS_INFINITY);
          }
          if (ret != OS_SUCCESS)
@@ -343,14 +402,14 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
       }
       else if (firstByte >= 128 && firstByte <= 191)
       {
-         // RTP/RTCP. Pre-handshake-or-pre-keyed we drop -- packets can't be
-         // authenticated yet. Once both DTLS is active AND SRTP keys have
-         // been installed via MpSetSrtpParamsMsg, fall through to the
-         // existing srtpUnprotectIfNeeded path.
-         if (!mpDtls->isActive() || !mSrtp.isSessionCreated())
+         // RTP/RTCP. Pre-handshake-or-pre-keyed we drop -- packets cannot be
+         // authenticated yet. Once this transport's DTLS is active AND its
+         // keys have been installed via MpSetSrtpParamsMsg, fall through to
+         // the srtpUnprotectIfNeeded path below.
+         if (!pDtls->isActive() || !rSrtp.isSessionCreated())
          {
-            OsSysLog::add(FAC_MP, PRI_DEBUG, "MprFromNet::pushPacket payload of size: %d dropped while waiting for DTLS-SRTP handshake to finish",
-               packetSize);
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "MprFromNet::pushPacket %s payload of size: %d dropped while waiting for DTLS-SRTP handshake to finish",
+               isRtcp ? "RTCP" : "RTP", packetSize);
             return OS_INVALID;
          }
          // fall through
@@ -364,7 +423,7 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
    }
 
    // Note: Will NoOp and return OS_SUCCESS if ENABLE_SRTP is not defined
-   if (!mSrtp.srtpUnprotectIfNeeded((const uint8_t*)packetData, &packetSize, isRtcp))
+   if (!rSrtp.srtpUnprotectIfNeeded((const uint8_t*)packetData, &packetSize, isRtcp))
    {
       return OS_INVALID;
    }

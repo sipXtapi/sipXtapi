@@ -206,25 +206,67 @@ following:
 
 SRTP Support
 ============
-SDES SRTP and DTLS SRTP are both supported in sipXmediaLib / sipXmediaAdpaterLib
+SDES SRTP and DTLS SRTP are both supported in sipXmediaLib / sipXmediaAdapterLib
 However this support is disabled in the default builds.
 
-At this time SRTP support for RTCP has NOT been implemented and it is required
-to disable RTCP support in sipXmediaLib in order to enable SRTP support.
+SRTP and RTCP may be enabled together.  When RTCP is enabled (the default --
+i.e. EXCLUDE_RTCP is not defined), outbound RTCP reports are protected as
+SRTCP and inbound SRTCP is unprotected, under the negotiated crypto suite.
+Both the SDES and the DTLS-SRTP key paths are supported.
+
+Where the SRTCP key comes from depends on the keying protocol, and the two
+differ:
+  - SDES (RFC 4568) carries one master key per media line, and it protects
+    both SRTP and SRTCP however the ports are laid out.
+  - DTLS-SRTP (RFC 5764) keys a DTLS association, and without rtcp-mux RTP
+    and RTCP are separate associations with unrelated master keys.
+
+Notes on the SRTCP implementation:
+- Outbound RTCP is rendered on the RTCP manager thread rather than the media
+  thread, so the RTCP renderer keeps its own libsrtp session, separate from
+  MprToNet's.  MprFromNet likewise keeps separate unprotect contexts for RTP
+  and RTCP.
+  Under SDES both contexts hold the same master key, and that is sound because
+  RFC 3711 derives the SRTP and SRTCP session keys from it with different
+  labels -- an RTCP-only session is equivalent to the RTCP half of a shared
+  one.  Under DTLS-SRTP without rtcp-mux they hold genuinely different master
+  keys, one per association, so the split is mandatory rather than merely
+  convenient.
+- With DTLS-SRTP, keys do not exist until the handshake completes.  RTCP
+  reports generated before that are dropped rather than sent unprotected,
+  and inbound RTCP received before that is discarded.  Both mirror what the
+  media path already does during the handshake window.
+- DTLS-SRTP runs TWO handshakes per connection, one over the RTP socket and
+  one over the RTCP socket.  RFC 5764 section 3 requires a separate DTLS
+  association for each source/destination port pair, and section 4.2 has each
+  association discard the key material for traffic it does not carry.  So the
+  RTP association keys SRTP and the RTCP association keys SRTCP, from two
+  unrelated master keys.  Both must complete before getDtlsSrtpStatus()
+  reports the connection complete and verified.
+- Once rtcp-mux (RFC 5761) is supported there will be a single port and hence
+  a single association keying both; that work is not done yet.
 
 The following requirements are needed to enable SRTP support in sipXtapi:
-- The preprocessor defines: ENABLE_SRTP and EXCLUDE_RTCP must be defined in the
-  following components:
-  - sipXmediaLib
-  - sipXmediaLibTest
-  - sipXmediaAdapterLib
-  - sipXmediaAdpaterLibTest
-  - mstream sample program
-- for DTLS SRTP support, HAVE_SSL must be defined in the following components:
-  - sipXportLib
-  - sipXmediaLib
-  - sipXtackLib
-  - sipXmediaAdpaterLibTest
+- The preprocessor define ENABLE_SRTP must be defined in:
+  - sipXmediaLib                 (the SRTP/SRTCP implementation itself)
+  - sipXmediaLibTest             (to compile MpSrtpTest)
+  - sipXmediaAdapterLibTest      (to compile CpDtlsTest and CpSrtcpTest)
+  Defining it elsewhere has no effect: no public header is conditional on it,
+  and callers such as CpTopologyGraphInterface simply call into sipXmediaLib
+  (see the "Will NoOp if ENABLE_SRTP is not defined" call sites).
+- libsrtp (sipXmediaLib/contrib/libsrtp) must be built and linked into
+  sipXmediaLib and anything that links it.
+- For DTLS SRTP support, HAVE_SSL must be defined, and the OpenSSL headers and
+  import libraries must be on the include and link paths, in:
+  - sipXmediaLib                 (MpDtls, MpDtlsIdentity)
+  - sipXmediaAdapterLibTest      (to compile CpDtlsTest)
+  - sipXportLib                  (not used by DTLS SRTP itself, but enabling
+                                  HAVE_SSL in sipXmediaAdapterLibTest also
+                                  compiles CpCryptoTest, which links
+                                  UtlCryptoKeySym and OsSocketCryptoProxy --
+                                  classes wholly inside #ifdef HAVE_SSL)
+  sipXtackLib also has HAVE_SSL code, but it is for SIP and HTTP over TLS and
+  is unrelated to DTLS SRTP.
 
 Application Use
 ---------------

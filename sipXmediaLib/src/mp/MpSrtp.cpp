@@ -8,13 +8,6 @@
 // SYSTEM INCLUDES
 
 #ifdef ENABLE_SRTP
-  // Note: RTCP is sent from RTCPManager thread, and not yet implemented for SRTP encryption.
-  //       It needs to share the same mSrtp session (ideally) as MpToNet, which is not thread-safe, so 
-  //       we need to do some locking.  Since RTCP logic is currently buggy and typically disabled,
-  //       we will leave this for later.
-  #ifndef EXCLUDE_RTCP
-    #error "Conflict detected: ENABLE_SRTP defined without EXCLUDE_RTCP.  Both SRTP and RTCP cannot both be enabled, since SRTP is not implemented for RTCP sending. Please choose one.  Define EXCLUDE_RTCP to disable RTCP."
-  #endif
 #ifdef WIN32
 #include <srtp.h>
 #else
@@ -24,6 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
+#include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #include "mp/MpSrtp.h"
 #include "mp/MpSetSrtpParamsMsg.h"
@@ -166,18 +160,34 @@ namespace
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
+const char* MpSrtpKeyUseString(MpSrtpKeyUse keyUse)
+{
+   switch (keyUse)
+   {
+      case MP_SRTP_KEY_USE_RTP_AND_RTCP: return "RTP+RTCP";
+      case MP_SRTP_KEY_USE_RTP_ONLY:     return "RTP";
+      case MP_SRTP_KEY_USE_RTCP_ONLY:    return "RTCP";
+      default:                           return "unknown";
+   }
+}
+
 /* ============================ CREATORS ================================== */
 
 // Constructor
 MpSrtp::MpSrtp() :
+   mLock(OsMutex::Q_PRIORITY | OsMutex::INVERSION_SAFE),
    mCryptoSuite(SdpMediaLine::CRYPTO_SUITE_TYPE_NONE),
-   mSrtpSessionCreated(FALSE)
+   mSrtpSessionCreated(FALSE),
+   mSrtpSession(NULL)
 {
 }
 
 // Destructor
 MpSrtp::~MpSrtp()
 {
+   // No lock: the object is being destroyed, so no other thread may still
+   // hold a reference to it.  Taking mLock here would only mask a caller
+   // bug (and destroying a held mutex is undefined anyway).
    deallocateSrtpSession();
 }
 
@@ -190,6 +200,7 @@ void MpSrtp::deallocateSrtpSession()
 #ifdef ENABLE_SRTP
       srtp_dealloc(mSrtpSession);
 #endif
+      mSrtpSession = NULL;
 
       // Reset members
       mSrtpSessionCreated = FALSE;
@@ -276,11 +287,11 @@ bool MpSrtp::isCryptoSuiteSupported(SdpMediaLine::SdpCryptoSuiteType suite)
    return sSuiteSupported[suite];
 }
 
-OsStatus MpSrtp::setSrtpParams(const UtlString& resourceName, OsMsgQ& flowgraphMessageQueue, SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey)
+OsStatus MpSrtp::setSrtpParams(const UtlString& resourceName, OsMsgQ& flowgraphMessageQueue, SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey, MpSrtpKeyUse keyUse)
 {
 #ifdef ENABLE_SRTP
    // Note:  this message is handled in MpRtp(Input/Output)Connection::handleMessage and relayed to Mpr(From/To)Net::setSrtpParams
-   MpSetSrtpParamsMsg message(resourceName, cryptoSuite, cryptoKey);
+   MpSetSrtpParamsMsg message(resourceName, cryptoSuite, cryptoKey, keyUse);
    return(flowgraphMessageQueue.send(message, OsTime::OS_INFINITY /*sOperationQueueTimeout*/));
 #else
    if (cryptoSuite != SdpMediaLine::CRYPTO_SUITE_TYPE_NONE)
@@ -291,9 +302,16 @@ OsStatus MpSrtp::setSrtpParams(const UtlString& resourceName, OsMsgQ& flowgraphM
 #endif
 }
 
+UtlBoolean MpSrtp::isSessionCreated()
+{
+   OsLock lock(mLock);
+   return mSrtpSessionCreated;
+}
+
 UtlBoolean MpSrtp::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey, UtlBoolean forUnprotect)
 {
 #ifdef ENABLE_SRTP
+   OsLock lock(mLock);
    srtp_err_status_t status;
    srtp_policy_t srtpPolicy;
 
@@ -435,15 +453,19 @@ bool MpSrtp::isValidSrtp(const uint8_t* buf, size_t len)
 }
 
 // Fast-path validation for Inbound SRTCP (Control)
-// 1. Minimum length for AES - 128_HMAC_SHA1_32 is 20 bytes
+// 1. Minimum length for AES - 128_HMAC_SHA1_32 is 16 bytes
 //    - 8 bytes : Fixed RTCP Header(Header + SSRC)
 //    - 4 bytes : SRTCP Index(Mandatory 31 - bit index + 1 - bit E - flag)
 //    - 4 bytes : Authentication Tag(Truncated HMAC - SHA1 - 32)
+//    That is the size of a bare Receiver Report with no report blocks, which
+//    is what a peer sends when it has nothing to report.  The floor used to
+//    be 20, which does not match the breakdown above and silently discarded
+//    those packets.
 // 2. Version must be 2 (0x80 mask)
 // 3. Packet Type (Byte 1) must be in the RTCP range (192-223)
 bool MpSrtp::isValidSrtcp(const uint8_t* buf, size_t len)
 {
-   if (len < 20) return false;
+   if (len < 16) return false;
 
    // Byte 0: Version check (must be 2)
    if ((buf[0] & 0xC0) != 0x80) return false;
@@ -459,6 +481,7 @@ bool MpSrtp::isValidSrtcp(const uint8_t* buf, size_t len)
 UtlBoolean MpSrtp::srtpUnprotectIfNeeded(const uint8_t* data, int* size, UtlBoolean rtcp)
 {
 #ifdef ENABLE_SRTP
+   OsLock lock(mLock);
    srtp_err_status_t status;
    if (!mSrtpSessionCreated)
    {
@@ -501,6 +524,7 @@ UtlBoolean MpSrtp::srtpUnprotectIfNeeded(const uint8_t* data, int* size, UtlBool
 UtlBoolean MpSrtp::srtpProtectIfNeeded(const uint8_t* data, int* size, UtlBoolean rtcp, int maxBufferSize)
 {
 #ifdef ENABLE_SRTP
+   OsLock lock(mLock);
    srtp_err_status_t status;
    if (!mSrtpSessionCreated)
    {

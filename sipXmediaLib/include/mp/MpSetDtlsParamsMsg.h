@@ -49,15 +49,18 @@ public:
 
      /// Constructor
     MpSetDtlsParamsMsg(const UtlString& targetResourceName,
-                       MpDtls* pDtls)
+                       MpDtls* pDtls,
+                       UtlBoolean forRtcpTransport = FALSE)
       : MpResourceMsg(MPRM_SET_DTLS_PARAMS, targetResourceName)
       , mpDtls(pDtls)
+      , mForRtcpTransport(forRtcpTransport)
    {};
 
      /// Copy constructor
     MpSetDtlsParamsMsg(const MpSetDtlsParamsMsg& resourceMsg)
       : MpResourceMsg(resourceMsg)
       , mpDtls(resourceMsg.mpDtls)
+      , mForRtcpTransport(resourceMsg.mForRtcpTransport)
    {};
 
      /// Create a copy of this msg object (which may be of a derived type)
@@ -85,6 +88,7 @@ public:
 
       MpResourceMsg::operator=(rhs);
       mpDtls = rhs.mpDtls;
+      mForRtcpTransport = rhs.mForRtcpTransport;
 
       return *this;
    }
@@ -96,6 +100,11 @@ public:
 //@{
 
    MpDtls* getDtls() const {return mpDtls;}
+
+     /// TRUE if this engine handshakes over the connection's RTCP socket.
+     /// Without rtcp-mux a connection runs two associations (RFC 5764
+     /// section 3); this says which one is being wired in.
+   UtlBoolean isForRtcpTransport() const {return mForRtcpTransport;}
 
 //@}
 
@@ -112,6 +121,7 @@ protected:
 private:
 
     MpDtls* mpDtls;
+    UtlBoolean mForRtcpTransport;
 };
 
 /* ============================ INLINE METHODS ============================ */

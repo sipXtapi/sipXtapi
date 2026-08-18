@@ -59,6 +59,7 @@ testsuite_SOURCES = \
     mp/MpOutputManagerTest.cpp \
     mp/MpMMTimerTest.cpp \
     mp/MpWBInputOutputDeviceTest.cpp \
+    mp/MpSrtpTest.cpp \
     mp/RtcpParserTest.cpp \
     mp/RtcpStressTest.cpp \
     mp/TLinkedListTest.cpp

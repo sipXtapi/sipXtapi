@@ -284,7 +284,10 @@ UtlBoolean MpRtpInputConnection::handleMessage(MpResourceMsg& rMsg)
    case MpResourceMsg::MPRM_SET_SRTP_PARAMS:
    {
        MpSetSrtpParamsMsg* pMsg = (MpSetSrtpParamsMsg*)&rMsg;
-       mpFromNet->setSrtpParams(pMsg->getCryptoSuite(), pMsg->getCryptoKey());
+       // MprFromNet keeps separate unprotect contexts for RTP and RTCP; the
+       // key use says which one (or both) this key belongs in.
+       mpFromNet->setSrtpParams(pMsg->getCryptoSuite(), pMsg->getCryptoKey(),
+                                pMsg->getKeyUse());
        msgHandled = TRUE;
    }
    break;
@@ -292,7 +295,11 @@ UtlBoolean MpRtpInputConnection::handleMessage(MpResourceMsg& rMsg)
    case MpResourceMsg::MPRM_SET_DTLS_PARAMS:
    {
       MpSetDtlsParamsMsg* pMsg = (MpSetDtlsParamsMsg*)&rMsg;
-      mpFromNet->setDtls(pMsg->getDtls(), pMsg->getDestResourceName());
+      // A non-muxed connection wires in two engines, one per transport;
+      // MprFromNet keeps them apart so records from each socket reach the
+      // association that owns it.
+      mpFromNet->setDtls(pMsg->getDtls(), pMsg->getDestResourceName(),
+                         pMsg->isForRtcpTransport());
       msgHandled = TRUE;
    }
    break;

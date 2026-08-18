@@ -49,15 +49,18 @@ public:
      /// Constructor. Copies `dataLen` bytes from `data` into the message.
     MpDtlsPacketMsg(const UtlString& targetResourceName,
                     const char* data,
-                    int dataLen)
+                    int dataLen,
+                    UtlBoolean fromRtcpTransport = FALSE)
       : MpResourceMsg(MPRM_DTLS_PACKET, targetResourceName)
       , mPacket(data, dataLen)
+      , mFromRtcpTransport(fromRtcpTransport)
    {};
 
      /// Copy constructor
     MpDtlsPacketMsg(const MpDtlsPacketMsg& resourceMsg)
       : MpResourceMsg(resourceMsg)
       , mPacket(resourceMsg.mPacket)
+      , mFromRtcpTransport(resourceMsg.mFromRtcpTransport)
    {};
 
      /// Create a copy of this msg object (which may be of a derived type)
@@ -85,6 +88,7 @@ public:
 
       MpResourceMsg::operator=(rhs);
       mPacket = rhs.mPacket;
+      mFromRtcpTransport = rhs.mFromRtcpTransport;
 
       return *this;
    }
@@ -96,6 +100,12 @@ public:
 //@{
 
    const UtlString& getPacket() const {return mPacket;}
+
+     /// TRUE if this record arrived on the RTCP socket, and so belongs to the
+     /// RTCP transport's DTLS association rather than the RTP one.  Without
+     /// rtcp-mux a connection runs two independent associations (RFC 5764
+     /// section 3) and records must not be crossed between them.
+   UtlBoolean isFromRtcpTransport() const {return mFromRtcpTransport;}
 
 //@}
 
@@ -112,6 +122,7 @@ protected:
 private:
 
     UtlString mPacket;
+    UtlBoolean mFromRtcpTransport;
 };
 
 /* ============================ INLINE METHODS ============================ */

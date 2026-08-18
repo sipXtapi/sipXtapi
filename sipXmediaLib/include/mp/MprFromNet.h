@@ -118,15 +118,30 @@ public:
      *  @note Must be called right after object construction!
      */
 
-   UtlBoolean setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, const UtlString& cryptoKey);
+   /// Install inbound (unprotect) key material.
+   ///
+   /// keyUse selects which of the two receive contexts it lands in.  RTP and
+   /// RTCP are kept in separate MpSrtp instances because DTLS-SRTP without
+   /// rtcp-mux runs a separate association per port (RFC 5764 section 3), so
+   /// the two streams genuinely have unrelated master keys.  With SDES, or
+   /// with rtcp-mux, the same key is simply installed in both.
+   UtlBoolean setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
+                            const UtlString& cryptoKey,
+                            MpSrtpKeyUse keyUse = MP_SRTP_KEY_USE_RTP_AND_RTCP);
 
-   /// Wire in the per-connection DTLS-SRTP handshake engine. After
+   /// Wire in a per-connection DTLS-SRTP handshake engine. After
    /// this is called, inbound packets that are DTLS records (per RFC
    /// 7983 first-byte demux) are fed to the engine instead of the
    /// SRTP unprotect path. The pointer is borrowed.
    /// Posted from MpRtpInputConnection::handleMessage in response to
    /// an MpSetDtlsParamsMsg. Always runs on the media thread.
-   void setDtls(MpDtls* pDtls, const UtlString& resourceName);
+   ///
+   /// forRtcpTransport selects which engine this is.  Without rtcp-mux a
+   /// connection has two: one handshaking over the RTP socket, one over the
+   /// RTCP socket.  Records are routed to whichever engine owns the socket
+   /// they arrived on.
+   void setDtls(MpDtls* pDtls, const UtlString& resourceName,
+                UtlBoolean forRtcpTransport = FALSE);
 
 //@}
 
@@ -168,8 +183,16 @@ private:
    UtlBoolean       mDiscardSelectedStream;
    RtpSRC           mDiscardedSSRC;
    MpFlowGraphBase* mpFlowGraph;
-   MpSrtp           mSrtp;
-   MpDtls*          mpDtls;   ///< Borrowed; NULL until DTLS-SRTP configured.
+     /// Pick the DTLS engine a retransmit / handshake-timeout message is for.
+     /// See MpDtls::postTimerMessage for how the transport is carried.
+   MpDtls* dtlsEngineForTimerMsg(const MpResourceMsg& rMsg) const;
+
+   MpSrtp           mSrtp;    ///< Inbound RTP unprotect context.
+   MpSrtp           mSrtcp;   ///< Inbound RTCP unprotect context. Separate from
+                              ///< mSrtp because DTLS-SRTP without rtcp-mux keys
+                              ///< the two transports independently.
+   MpDtls*          mpDtls;   ///< Borrowed; NULL until DTLS-SRTP configured. Handshakes over the RTP socket.
+   MpDtls*          mpDtlsRtcp; ///< Borrowed; NULL unless a second association is running over the RTCP socket (non-muxed DTLS-SRTP).
    UtlString        mDtlsResourceName; ///< Set by setDtls; used to address MpDtlsPacketMsg from the NetInTask thread back to ourselves on the media thread.
 
 #ifdef INCLUDE_RTCP /* [ */
