@@ -119,6 +119,8 @@ public:
     , mpResourceTopology(NULL)
     , mRtpAudioSendHostAddress()
     , mAudioDestinationSet(FALSE)
+    , mAudioRtcpMux(FALSE)
+    , mVideoRtcpMux(FALSE)
     , mIsMulticast(FALSE)
     , mIsCustomSockets(FALSE)
     , mNumRtpStreams(0)
@@ -272,6 +274,10 @@ public:
     MpResourceTopology *mpResourceTopology;
     UtlString mRtpAudioSendHostAddress;
     UtlBoolean mAudioDestinationSet;
+    /// RFC 5761: audio RTP and RTCP share one port. Set via setRtcpMux()
+    /// once negotiated; decides how many DTLS associations are needed.
+    UtlBoolean mAudioRtcpMux;
+    UtlBoolean mVideoRtcpMux;
     UtlBoolean mIsMulticast;
     UtlBoolean mIsCustomSockets;
     int mNumRtpStreams;
@@ -1343,6 +1349,7 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
             // socket and the peer's RTCP port. Both handshakes then run
             // concurrently and complete independently.
             if (pMediaConnection->mpAudioRtcpDtls &&
+                !pMediaConnection->mAudioRtcpMux &&
                 pMediaConnection->mpRtcpAudioSocket &&
                 pMediaConnection->mRtcpAudioSendHostPort > 0)
             {
@@ -1653,6 +1660,7 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
    int*       pSendPort;
    int*       pRtcpSendPort;
    UtlBoolean destinationSet;
+   UtlBoolean rtcpMux = FALSE;
 
    if (mediaType == CpMediaInterface::AUDIO_STREAM)
    {
@@ -1666,6 +1674,7 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
       pSendPort       = &mediaConnection->mRtpAudioSendHostPort;
       pRtcpSendPort   = &mediaConnection->mRtcpAudioSendHostPort;
       destinationSet  = mediaConnection->mAudioDestinationSet;
+      rtcpMux         = mediaConnection->mAudioRtcpMux;
    }
    else  // VIDEO_STREAM
    {
@@ -1680,6 +1689,7 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
       pSendPort       = &mediaConnection->mRtpVideoSendHostPort;
       pRtcpSendPort   = &mediaConnection->mRtcpVideoSendHostPort;
       destinationSet  = mediaConnection->mVideoDestinationSet;
+      rtcpMux         = mediaConnection->mVideoRtcpMux;
 #else
       return OS_NOT_SUPPORTED;
 #endif
@@ -1710,11 +1720,24 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
    }
    MpDtls* pDtls = *ppDtls;
 
+   // With rtcp-mux there is a single port, hence a single 5-tuple, hence a
+   // single association -- RFC 5764 section 3 only demands one per distinct
+   // port pair.  That association carries both kinds of traffic, so it keeps
+   // both halves of its derived key material (DTLS_TRANSPORT_MUXED publishes
+   // MP_SRTP_KEY_USE_RTP_AND_RTCP).  No second engine is built at all.
    bool newRtcpDtlsCreated = false;
-   if (*ppRtcpDtls == NULL)
+   if (!rtcpMux && *ppRtcpDtls == NULL)
    {
       *ppRtcpDtls = new MpDtls();
       newRtcpDtlsCreated = true;
+   }
+   else if (rtcpMux && *ppRtcpDtls != NULL)
+   {
+      // Multiplexing was turned on after an engine had been created for the
+      // RTCP transport (params set twice across a renegotiation). Drop it.
+      (*ppRtcpDtls)->shutdown();
+      delete *ppRtcpDtls;
+      *ppRtcpDtls = NULL;
    }
    MpDtls* pRtcpDtls = *ppRtcpDtls;
 
@@ -1728,9 +1751,10 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
    OsStatus status = pDtls->setParams(remoteFingerprint, hashAlgorithm,
                                       dtlsRole,
                                       numProfilesOverride, profilesOverride);
-   OsStatus rtcpStatus = pRtcpDtls->setParams(remoteFingerprint, hashAlgorithm,
-                                              dtlsRole,
-                                              numProfilesOverride, profilesOverride);
+   OsStatus rtcpStatus = (pRtcpDtls != NULL)
+      ? pRtcpDtls->setParams(remoteFingerprint, hashAlgorithm, dtlsRole,
+                             numProfilesOverride, profilesOverride)
+      : OS_SUCCESS;
    if (status != OS_SUCCESS || rtcpStatus != OS_SUCCESS)
    {
       if (newMpDtlsCreated) delete *ppDtls;
@@ -1740,17 +1764,21 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
       return (status != OS_SUCCESS) ? status : rtcpStatus;
    }
 
-   pDtls->setTransport(MpDtls::DTLS_TRANSPORT_RTP);
+   pDtls->setTransport(rtcpMux ? MpDtls::DTLS_TRANSPORT_MUXED
+                               : MpDtls::DTLS_TRANSPORT_RTP);
    pDtls->setSrtpInstallTargets(inResourceName, outResourceName,
                                 mpTopologyGraph->getMsgQ());
    pDtls->setNotificationDispatcher(mpTopologyGraph->getNotificationDispatcher());
    pDtls->setConnectionId(connectionId);
 
-   pRtcpDtls->setTransport(MpDtls::DTLS_TRANSPORT_RTCP);
-   pRtcpDtls->setSrtpInstallTargets(inResourceName, outResourceName,
-                                    mpTopologyGraph->getMsgQ());
-   pRtcpDtls->setNotificationDispatcher(mpTopologyGraph->getNotificationDispatcher());
-   pRtcpDtls->setConnectionId(connectionId);
+   if (pRtcpDtls != NULL)
+   {
+      pRtcpDtls->setTransport(MpDtls::DTLS_TRANSPORT_RTCP);
+      pRtcpDtls->setSrtpInstallTargets(inResourceName, outResourceName,
+                                       mpTopologyGraph->getMsgQ());
+      pRtcpDtls->setNotificationDispatcher(mpTopologyGraph->getNotificationDispatcher());
+      pRtcpDtls->setConnectionId(connectionId);
+   }
 
    // If destination is already known for this stream type, hand it over now.
    // Each engine gets its own transport: RTP socket to the peer RTP port,
@@ -1759,7 +1787,7 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
    {
       pDtls->setDestination(pRtpSocket, *pSendAddr, *pSendPort);
    }
-   if (destinationSet && pRtcpSocket && *pRtcpSendPort > 0)
+   if (pRtcpDtls != NULL && destinationSet && pRtcpSocket && *pRtcpSendPort > 0)
    {
       pRtcpDtls->setDestination(pRtcpSocket, *pSendAddr, *pRtcpSendPort);
    }
@@ -1773,12 +1801,17 @@ OsStatus CpTopologyGraphInterface::setDtlsSrtpParams(int connectionId,
    OsStatus sOut     = MpDtls::setDtlsParams(outResourceName,
                                              *(mpTopologyGraph->getMsgQ()),
                                              pDtls);
-   OsStatus sRtcpIn  = MpDtls::setDtlsParams(inResourceName,
-                                             *(mpTopologyGraph->getMsgQ()),
-                                             pRtcpDtls);
-   OsStatus sRtcpOut = MpDtls::setDtlsParams(outResourceName,
-                                             *(mpTopologyGraph->getMsgQ()),
-                                             pRtcpDtls);
+   OsStatus sRtcpIn  = OS_SUCCESS;
+   OsStatus sRtcpOut = OS_SUCCESS;
+   if (pRtcpDtls != NULL)
+   {
+      sRtcpIn  = MpDtls::setDtlsParams(inResourceName,
+                                       *(mpTopologyGraph->getMsgQ()),
+                                       pRtcpDtls);
+      sRtcpOut = MpDtls::setDtlsParams(outResourceName,
+                                       *(mpTopologyGraph->getMsgQ()),
+                                       pRtcpDtls);
+   }
    if (sIn != OS_SUCCESS || sOut != OS_SUCCESS ||
        sRtcpIn != OS_SUCCESS || sRtcpOut != OS_SUCCESS)
    {
@@ -1923,6 +1956,81 @@ void CpTopologyGraphInterface::handleIceNomination(
       MprnIceNominatedMsg msg(resourceName, connectionId, UtlString(remoteIp), remotePort);
       pDispatcher->post(msg);
    }
+}
+
+OsStatus CpTopologyGraphInterface::setRtcpMux(int connectionId,
+                                             CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                                             UtlBoolean enabled)
+{
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+   if (mediaConnection == NULL)
+   {
+      return OS_NOT_FOUND;
+   }
+
+   UtlString   inResourceName;
+   UtlBoolean* pMuxFlag;
+   UtlBoolean  alreadyStarted;
+
+   if (mediaType == CpMediaInterface::AUDIO_STREAM)
+   {
+      inResourceName  = DEFAULT_RTP_INPUT_RESOURCE_NAME;
+      pMuxFlag        = &mediaConnection->mAudioRtcpMux;
+      alreadyStarted  = (mediaConnection->mRtpAudioSending ||
+                         mediaConnection->mRtpAudioReceiving) ? TRUE : FALSE;
+   }
+   else  // VIDEO_STREAM
+   {
+#ifdef VIDEO
+      inResourceName  = DEFAULT_VIDEO_RTP_INPUT_RESOURCE_NAME;
+      pMuxFlag        = &mediaConnection->mVideoRtcpMux;
+      alreadyStarted  = (mediaConnection->mRtpVideoSending ||
+                         mediaConnection->mRtpVideoReceiving) ? TRUE : FALSE;
+#else
+      return OS_NOT_SUPPORTED;
+#endif
+   }
+
+   // Changing the socket layout under a running stream would leave the
+   // renderer writing to one port while the peer listens on another, and
+   // would strand any DTLS association already handshaking on the RTCP
+   // transport. Refuse rather than half-apply.
+   if (alreadyStarted && *pMuxFlag != enabled)
+   {
+      OsSysLog::add(FAC_CP, PRI_ERR,
+         "CpTopologyGraphInterface::setRtcpMux: RTP already started on "
+         "connectionId=%d mediaType=%d; too late to change multiplexing",
+         connectionId, mediaType);
+      return OS_INVALID_STATE;
+   }
+
+   *pMuxFlag = enabled;
+
+   MpResourceTopology::replaceNumInName(inResourceName, connectionId);
+
+   // Only the receive side needs telling by message: it has to classify
+   // inbound packets by type rather than by which socket delivered them.
+   // Ordering is safe because MprFromNet::setSockets() is posted to this same
+   // queue by startRtpReceive(), so FIFO puts this first.
+   //
+   // The send side is NOT messaged. Its renderer is started synchronously by
+   // MpRtpOutputConnection::setSockets(), which takes the flag as an argument
+   // -- a queued message would still be sitting in the queue at that point and
+   // the first reports would leave on the wrong port.
+   OsStatus sIn = MprFromNet::setRtcpMux(inResourceName,
+                                         *(mpTopologyGraph->getMsgQ()), enabled);
+   if (sIn != OS_SUCCESS)
+   {
+      OsSysLog::add(FAC_CP, PRI_ERR,
+         "CpTopologyGraphInterface::setRtcpMux: post failed (in=%d)", sIn);
+      return OS_FAILED;
+   }
+
+   OsSysLog::add(FAC_CP, PRI_INFO,
+      "CpTopologyGraphInterface::setRtcpMux: connectionId=%d mediaType=%d "
+      "multiplexing %s", connectionId, mediaType, enabled ? "enabled" : "disabled");
+
+   return OS_SUCCESS;
 }
 
 OsStatus CpTopologyGraphInterface::getDtlsSrtpStatus(int connectionId,
@@ -2288,8 +2396,12 @@ OsStatus CpTopologyGraphInterface::startRtpSendImpl(int connectionId,
          }
 
          // Set sockets to send to.
+         // Hand the multiplexing decision over synchronously: setSockets()
+         // starts the RTCP renderer right here, before any queued message
+         // could have been drained.
          pConnection->setSockets(*mediaConnection->mpRtpAudioSocket,
-                                 *mediaConnection->mpRtcpAudioSocket);
+                                 *mediaConnection->mpRtcpAudioSocket,
+                                 mediaConnection->mAudioRtcpMux);
 
          // Tell encoder which codecs to use (data codec and signaling codec)
          // and enable it.

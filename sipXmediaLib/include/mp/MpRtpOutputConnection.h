@@ -76,7 +76,15 @@ public:
 //@{
 
      /// Set sockets to which data will be sent.
-   void setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
+     /// Attach the connection's sockets and start the RTCP renderer.
+     ///
+     /// rtcpMux selects which socket the renderer writes reports to. It is an
+     /// argument rather than a queued message on purpose: this method is called
+     /// synchronously from the application thread and starts the renderer
+     /// immediately, so a flag posted to the flowgraph queue would not have
+     /// been drained yet and the first reports would go to the wrong port.
+   void setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket,
+                   UtlBoolean rtcpMux = FALSE);
      /**<
      *  @warning This method is not synchronous! I.e. it directly modifies
      *           resource structure without message passing.
@@ -128,6 +136,7 @@ public:
 protected:
 
    MprToNet*          mpToNet;         ///< Outbound component: ToNet
+   UtlBoolean         mRtcpMux;        ///< RFC 5761: render RTCP over the RTP socket
    UtlBoolean         mOutRtpStarted;  ///< Are we currently sending RTP stream?
 
 #ifdef INCLUDE_RTCP /* [ */

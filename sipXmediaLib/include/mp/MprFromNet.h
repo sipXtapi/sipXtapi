@@ -129,6 +129,25 @@ public:
                             const UtlString& cryptoKey,
                             MpSrtpKeyUse keyUse = MP_SRTP_KEY_USE_RTP_AND_RTCP);
 
+   /// Post an MPRM_SET_RTCP_MUX to the named resource.
+   static OsStatus setRtcpMux(const UtlString& resourceName,
+                              OsMsgQ& flowgraphMessageQueue,
+                              UtlBoolean enabled);
+
+   /// Enable RFC 5761 RTP/RTCP multiplexing on this connection.
+   ///
+   /// When enabled, RTCP no longer arrives on its own socket, so a packet's
+   /// kind can no longer be inferred from which socket delivered it.
+   /// pushPacket classifies by packet type instead.
+   ///
+   /// The RTCP socket stays registered with NetInTask on purpose: RFC 5761
+   /// section 5.1.1 requires an offerer that proposed rtcp-mux to keep
+   /// receiving RTCP on the separate port until the answer settles the
+   /// question, and a peer that declined will keep using it.
+   ///
+   /// Runs on the media thread, from MpRtpInputConnection::handleMessage.
+   void setRtcpMux(UtlBoolean enabled);
+
    /// Wire in a per-connection DTLS-SRTP handshake engine. After
    /// this is called, inbound packets that are DTLS records (per RFC
    /// 7983 first-byte demux) are fed to the engine instead of the
@@ -187,6 +206,7 @@ private:
      /// See MpDtls::postTimerMessage for how the transport is carried.
    MpDtls* dtlsEngineForTimerMsg(const MpResourceMsg& rMsg) const;
 
+   UtlBoolean       mRtcpMux; ///< RFC 5761: RTP and RTCP share one port.
    MpSrtp           mSrtp;    ///< Inbound RTP unprotect context.
    MpSrtp           mSrtcp;   ///< Inbound RTCP unprotect context. Separate from
                               ///< mSrtp because DTLS-SRTP without rtcp-mux keys

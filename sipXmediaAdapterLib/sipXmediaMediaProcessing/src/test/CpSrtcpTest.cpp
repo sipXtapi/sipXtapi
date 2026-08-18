@@ -113,6 +113,8 @@ class CpSrtcpTest : public SIPX_UNIT_BASE_CLASS
 
    CPPUNIT_TEST(testPlainRtcpIsUnprotectedWithoutSrtp);
    CPPUNIT_TEST(testOutboundRtcpIsProtectedWithSdesKeys);
+   CPPUNIT_TEST(testMuxedRtcpArrivesOnRtpPort);
+   CPPUNIT_TEST(testMuxedRtcpIsProtectedWithSdesKeys);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -284,10 +286,15 @@ public:
    /// Drive one connection that sends RTCP to the collector socket, with the
    /// given crypto suite and key (NONE / empty for plain RTCP).  Fills buf
    /// with the first report captured and returns its length, 0 on timeout.
+   ///
+   /// With rtcpMux set, the collector stands in for the peer's RTP port and the
+   /// endpoint is told multiplexing was negotiated, so reports must show up
+   /// there rather than on the separate RTCP port.
    int runEndpointAndCaptureReport(SdpMediaLine::SdpCryptoSuiteType cryptoSuite,
                                    const UtlString& cryptoKey,
                                    unsigned char* buf,
-                                   int bufSize)
+                                   int bufSize,
+                                   UtlBoolean rtcpMux = FALSE)
    {
       UtlString localAddress("127.0.0.1");
       OsSocket::getHostIp(&localAddress);
@@ -302,6 +309,14 @@ public:
       CpTopologyGraphInterface* ti;
       int connId;
       buildEndpoint(SRTCP_TEST_ENDPOINT_PORT, localAddress, ti, connId);
+
+      // Must be set before startRtpSend(): that call starts the RTCP renderer,
+      // which needs to know which socket to write reports to.
+      if (rtcpMux)
+      {
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+            ti->setRtcpMux(connId, CpMediaInterface::AUDIO_STREAM, TRUE));
+      }
 
       SdpCodecList      codecList;
       int               numCodecs = 0;
@@ -320,10 +335,15 @@ public:
       // RTP goes to a port nobody is listening on; only the RTCP destination
       // matters here.  RTCP reports are emitted whether or not media flows --
       // a Receiver Report plus SDES goes out every period regardless.
+      // Muxed: RTP destination IS the collector, and the RTCP port argument is
+      // ignored -- deliberately pointed somewhere else to prove it is unused.
+      // Unmuxed: RTP goes to a dead port and RTCP to the collector.
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
          ti->setConnectionDestination(connId, localAddress.data(),
-                                      SRTCP_TEST_RTP_SINK_PORT,
-                                      SRTCP_TEST_COLLECTOR_PORT,
+                                      rtcpMux ? SRTCP_TEST_COLLECTOR_PORT
+                                              : SRTCP_TEST_RTP_SINK_PORT,
+                                      rtcpMux ? SRTCP_TEST_RTP_SINK_PORT
+                                              : SRTCP_TEST_COLLECTOR_PORT,
                                       0, 0));
 
       // startRtpSend is what starts the RTCP renderer (via setSockets) and,
@@ -430,6 +450,73 @@ public:
 
       // And what comes out is a well formed RTCP compound, so the renderer
       // protected a real report rather than something malformed.
+      CPPUNIT_ASSERT_MESSAGE("decrypted payload is not RTCP",
+                             looksLikeRtcp(report, size));
+      CPPUNIT_ASSERT_EQUAL_MESSAGE("decrypted compound is malformed",
+                                   size, rtcpDeclaredLength(report, size));
+   }
+
+   /* ============== rtcp-mux, unencrypted =========================== */
+
+   // The point of RFC 5761: reports leave on the RTP port, not a second one.
+   // The collector here is bound to what the endpoint was told is the peer's
+   // RTP port, and the RTCP port it was given points elsewhere -- so a capture
+   // proves the renderer switched sockets rather than merely still working.
+   void testMuxedRtcpArrivesOnRtpPort()
+   {
+      unsigned char report[1500];
+      int len = runEndpointAndCaptureReport(SdpMediaLine::CRYPTO_SUITE_TYPE_NONE,
+                                           UtlString(), report, sizeof(report),
+                                           TRUE /* rtcpMux */);
+
+      CPPUNIT_ASSERT_MESSAGE("no RTCP arrived on the RTP port with rtcp-mux",
+                             len > 0);
+      CPPUNIT_ASSERT_MESSAGE("capture is not RTCP shaped",
+                             looksLikeRtcp(report, len));
+
+      // Unprotected, so the compound accounts for the whole datagram.
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "muxed plain RTCP datagram has unexpected trailing bytes",
+         len, rtcpDeclaredLength(report, len));
+   }
+
+   /* ============== rtcp-mux, SDES keyed ============================ */
+
+   // Both concerns at once: reports go to the RTP port AND are still SRTCP.
+   // With multiplexing the receiver can no longer tell RTP from RTCP by
+   // socket, so getting the protection right depends on the packet-type
+   // classification rather than on which port delivered the packet.
+   void testMuxedRtcpIsProtectedWithSdesKeys()
+   {
+      const SdpMediaLine::SdpCryptoSuiteType suite =
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80;
+      CPPUNIT_ASSERT_MESSAGE("libsrtp lacks AES_CM_128_HMAC_SHA1_80",
+                             MpSrtp::isCryptoSuiteSupported(suite));
+
+      const UtlString key = makeKey(0x7b);
+
+      unsigned char report[1500];
+      int len = runEndpointAndCaptureReport(suite, key, report, sizeof(report),
+                                           TRUE /* rtcpMux */);
+
+      CPPUNIT_ASSERT_MESSAGE("no RTCP arrived on the RTP port with rtcp-mux",
+                             len > 0);
+      CPPUNIT_ASSERT_MESSAGE("capture is not RTCP shaped",
+                             looksLikeRtcp(report, len));
+      CPPUNIT_ASSERT_MESSAGE("muxed RTCP was sent unprotected",
+                             rtcpDeclaredLength(report, len) != len);
+
+      MpSrtp receiver;
+      CPPUNIT_ASSERT(receiver.setSrtpParams(suite, key, TRUE /* forUnprotect */));
+
+      int size = len;
+      CPPUNIT_ASSERT_MESSAGE("captured muxed report did not authenticate under "
+                             "the negotiated SDES key",
+         receiver.srtpUnprotectIfNeeded(report, &size, TRUE /* rtcp */));
+
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "unexpected SRTCP trailer size (want 4 byte index + 10 byte tag)",
+         14, len - size);
       CPPUNIT_ASSERT_MESSAGE("decrypted payload is not RTCP",
                              looksLikeRtcp(report, size));
       CPPUNIT_ASSERT_EQUAL_MESSAGE("decrypted compound is malformed",

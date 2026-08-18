@@ -59,6 +59,9 @@ public:
       MPRM_DTLS_RETRANSMIT,     ///< DTLS timer from MpDtls
       MPRM_DTLS_HANDSHAKE_TIMEOUT, ///< DTLS timer from MpDtls
 
+      MPRM_SET_RTCP_MUX,        ///< MprFromNet and MpRtpOutputConnection: RTP/RTCP
+                                ///<  multiplexed on one port (RFC 5761)
+
       // Add new built in resource operation messages above
 
       // Non-builtin resource messages

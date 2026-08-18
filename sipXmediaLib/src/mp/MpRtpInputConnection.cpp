@@ -292,6 +292,14 @@ UtlBoolean MpRtpInputConnection::handleMessage(MpResourceMsg& rMsg)
    }
    break;
 
+   case MpResourceMsg::MPRM_SET_RTCP_MUX:
+   {
+      MpIntResourceMsg* pMsg = (MpIntResourceMsg*)&rMsg;
+      mpFromNet->setRtcpMux(pMsg->getData() ? TRUE : FALSE);
+      msgHandled = TRUE;
+   }
+   break;
+
    case MpResourceMsg::MPRM_SET_DTLS_PARAMS:
    {
       MpSetDtlsParamsMsg* pMsg = (MpSetDtlsParamsMsg*)&rMsg;

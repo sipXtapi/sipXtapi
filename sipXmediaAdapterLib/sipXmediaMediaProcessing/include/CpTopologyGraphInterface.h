@@ -335,6 +335,46 @@ public:
                                       SdpMediaLine::SdpTcpSetupAttribute role,
                                       int numProfilesOverride = 0,
                                       const SdpMediaLine::SdpCryptoSuiteType* profilesOverride = NULL);
+
+   /// Enable RFC 5761 RTP/RTCP multiplexing on a connection: RTCP is sent to,
+   /// and expected on, the RTP port instead of a separate one.
+   ///
+   /// Call this only once multiplexing is NEGOTIATED, never merely proposed.
+   /// RFC 5761 section 5.1.1: "If the answer does not contain an
+   /// 'a=rtcp-mux' attribute, the offerer MUST NOT multiplex RTP and RTCP
+   /// packets on a single port."  So:
+   ///   - As offerer: put a=rtcp-mux in the offer, then call this only if the
+   ///     answer echoes it.  Nothing needs to be called at offer time; the
+   ///     connection keeps listening on both ports meanwhile, which is what
+   ///     section 5.1.1 requires.
+   ///   - As answerer: call this before generating an answer that echoes
+   ///     a=rtcp-mux.
+   ///
+   /// @note Ordering matters, in two ways:
+   ///       - Call before startRtpSend() / startRtpReceive(). Those bind the
+   ///         sockets into the flowgraph and start the RTCP renderer, and the
+   ///         renderer needs to know which socket to write to.
+   ///       - Call before the DTLS-SRTP handshake is triggered, i.e. before
+   ///         whichever of setDtlsSrtpParams() / setConnectionDestination()
+   ///         completes that pair. Multiplexing decides whether one DTLS
+   ///         association suffices or two are required (RFC 5764 section 3),
+   ///         and that cannot be changed once handshakes are under way.
+   ///
+   /// @note Once enabled, the rtcpPort argument of setConnectionDestination()
+   ///       is ignored: RTCP goes to the peer's RTP port.
+   ///
+   /// @param[in] connectionId - connection to configure.
+   /// @param[in] mediaType - AUDIO_STREAM or VIDEO_STREAM; audio and video are
+   ///            separate m-lines and negotiate multiplexing independently.
+   /// @param[in] enabled - TRUE to multiplex.
+   /// @retval OS_SUCCESS - applied.
+   /// @retval OS_NOT_FOUND - no such connection.
+   /// @retval OS_NOT_SUPPORTED - VIDEO_STREAM in a build without VIDEO.
+   /// @retval OS_INVALID_STATE - RTP is already started on this connection, so
+   ///            it is too late to change the socket layout.
+   virtual OsStatus setRtcpMux(int connectionId,
+                               CpMediaInterface::MEDIA_STREAM_TYPE mediaType,
+                               UtlBoolean enabled);
    /**
    *  The DTLS handshake begins when this method AND
    *  setConnectionDestination() have both been called for the given

@@ -170,6 +170,7 @@ class CpDtlsTest : public SIPX_UNIT_BASE_CLASS
 #ifndef EXCLUDE_RTCP
    CPPUNIT_TEST(testRtcpWithheldWhileHandshakePending);
    CPPUNIT_TEST(testRtcpHandshakesOverRtcpTransport);
+   CPPUNIT_TEST(testMuxedDtlsUsesOneAssociation);
 #endif
    CPPUNIT_TEST_SUITE_END();
 
@@ -1315,6 +1316,129 @@ public:
                                 stillCompleteB, stillVerifiedB, s2B));
       CPPUNIT_ASSERT_MESSAGE("A regressed while RTCP was flowing", stillVerifiedA);
       CPPUNIT_ASSERT_MESSAGE("B regressed while RTCP was flowing", stillVerifiedB);
+
+      tiA->deleteConnection(connIdA);
+      tiB->deleteConnection(connIdB);
+      tiA->release();
+      tiB->release();
+      adjustRtcpPeriod(savedPeriod);
+
+      for (int i = 0; i < numCodecs; i++)
+      {
+         delete codecs[i];
+      }
+      delete[] codecs;
+   }
+   // With rtcp-mux there is one port, one 5-tuple, and therefore one DTLS
+   // association -- RFC 5764 section 3 only requires one per distinct port
+   // pair. That association keeps BOTH halves of its exported key material
+   // (section 4.2), so it protects RTP and RTCP alike.
+   //
+   // The observable is the same getDtlsSrtpStatus() used by the non-muxed
+   // test, but the meaning differs: there it could only report complete once
+   // two handshakes finished, here it must do so with only one running. If the
+   // RTCP-transport engine were still being built, it would sit handshaking
+   // against a port with no DTLS peer on it (the peer is muxing, so nothing
+   // answers there) and completion would never be reported.
+   void testMuxedDtlsUsesOneAssociation()
+   {
+      UtlString localAddress("127.0.0.1");
+      OsSocket::getHostIp(&localAddress);
+
+      CpTopologyGraphInterface::setDtlsSrtpProfiles(0, NULL);
+      CpTopologyGraphInterface::setDtlsHandshakeTimeout(20);
+
+      int savedPeriod = adjustRtcpPeriod(DTLS_TEST_REPORT_PERIOD_MS);
+
+      UtlString fp;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         CpTopologyGraphInterface::getLocalDtlsFingerprint(fp));
+
+      SdpMediaLine::SdpCryptoSuiteType aesOnly[] = {
+         SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80
+      };
+
+      CpTopologyGraphInterface* tiA;
+      int connIdA;
+      buildEndpoint(DTLS_TEST_PORT_A, localAddress, tiA, connIdA);
+
+      CpTopologyGraphInterface* tiB;
+      int connIdB;
+      buildEndpoint(DTLS_TEST_PORT_B, localAddress, tiB, connIdB);
+
+      // Both ends multiplex. Set before setDtlsSrtpParams so the engine count
+      // is decided before any handshake is armed.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->setRtcpMux(connIdA, CpMediaInterface::AUDIO_STREAM, TRUE));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiB->setRtcpMux(connIdB, CpMediaInterface::AUDIO_STREAM, TRUE));
+
+      SdpCodecList      codecList;
+      int               numCodecs = 0;
+      SdpCodec**        codecs = NULL;
+      UtlString         capAddr;
+      int               capRtpPort = 0, capRtcpPort = 0;
+      int               capVideoRtp = 0, capVideoRtcp = 0;
+      SdpSrtpParameters capSrtp;
+      int               capVideoBw = 0, capVideoFr = 0;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->getCapabilities(connIdA, capAddr, capRtpPort, capRtcpPort,
+            capVideoRtp, capVideoRtcp, codecList, capSrtp,
+            /*bandWidth=*/0, capVideoBw, capVideoFr));
+      codecList.getCodecs(numCodecs, codecs);
+
+      // Muxed, so each end aims everything at the peer's RTP port. The RTCP
+      // port argument is ignored; passing the peer's RTP port makes that
+      // explicit rather than relying on it being unused.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiB->setDtlsSrtpParams(connIdB, CpMediaInterface::AUDIO_STREAM, fp, "SHA-256",
+                                SdpMediaLine::TCP_SETUP_ATTRIBUTE_PASSIVE,
+                                1, aesOnly));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiB->setConnectionDestination(connIdB, localAddress.data(),
+            DTLS_TEST_PORT_A, DTLS_TEST_PORT_A, 0, 0));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, tiB->startRtpReceive(connIdB, numCodecs, codecs));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, tiB->startRtpSend(connIdB, numCodecs, codecs));
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->setDtlsSrtpParams(connIdA, CpMediaInterface::AUDIO_STREAM, fp, "SHA-256",
+                                SdpMediaLine::TCP_SETUP_ATTRIBUTE_ACTIVE,
+                                1, aesOnly));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->setConnectionDestination(connIdA, localAddress.data(),
+            DTLS_TEST_PORT_B, DTLS_TEST_PORT_B, 0, 0));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, tiA->startRtpReceive(connIdA, numCodecs, codecs));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, tiA->startRtpSend(connIdA, numCodecs, codecs));
+
+      UtlBoolean completeA = FALSE, verifiedA = FALSE;
+      UtlBoolean completeB = FALSE, verifiedB = FALSE;
+      SdpMediaLine::SdpCryptoSuiteType suiteA = SdpMediaLine::CRYPTO_SUITE_TYPE_NONE;
+      SdpMediaLine::SdpCryptoSuiteType suiteB = SdpMediaLine::CRYPTO_SUITE_TYPE_NONE;
+
+      CPPUNIT_ASSERT_MESSAGE("A did not complete its single DTLS association",
+         waitForTerminalState(tiA, connIdA, HANDSHAKE_SUCCESS_TIMEOUT_MS,
+                              completeA, verifiedA, suiteA));
+      CPPUNIT_ASSERT_MESSAGE("B did not complete its single DTLS association",
+         waitForTerminalState(tiB, connIdB, HANDSHAKE_SUCCESS_TIMEOUT_MS,
+                              completeB, verifiedB, suiteB));
+
+      CPPUNIT_ASSERT_MESSAGE("A: peer not verified", verifiedA);
+      CPPUNIT_ASSERT_MESSAGE("B: peer not verified", verifiedB);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE("A and B negotiated different suites",
+                                   suiteA, suiteB);
+
+      // Let muxed SRTP and SRTCP share the port for a few reporting periods.
+      // Both are keyed from the one association, and the receiver separates
+      // them by packet type rather than by socket.
+      OsTask::delay(DTLS_TEST_REPORT_PERIOD_MS * 8);
+
+      UtlBoolean stillCompleteA = FALSE, stillVerifiedA = FALSE;
+      SdpMediaLine::SdpCryptoSuiteType s2A = SdpMediaLine::CRYPTO_SUITE_TYPE_NONE;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+         tiA->getDtlsSrtpStatus(connIdA, CpMediaInterface::AUDIO_STREAM,
+                                stillCompleteA, stillVerifiedA, s2A));
+      CPPUNIT_ASSERT_MESSAGE("A regressed while muxed media and RTCP flowed",
+                             stillVerifiedA);
 
       tiA->deleteConnection(connIdA);
       tiB->deleteConnection(connIdB);

@@ -50,6 +50,7 @@ MpRtpOutputConnection::MpRtpOutputConnection(const UtlString& resourceName,
                                              IRTCPSession *piRTCPSession)
 : MpResource(resourceName, 1, 1, 0, 0)
 ,mpToNet(NULL)
+, mRtcpMux(FALSE)
 , mOutRtpStarted(FALSE)
 #ifdef INCLUDE_RTCP /* [ */
 , mpiRTCPConnection(NULL)
@@ -90,18 +91,27 @@ MpRtpOutputConnection::~MpRtpOutputConnection()
 /* ============================ MANIPULATORS ============================== */
 
 void MpRtpOutputConnection::setSockets(OsSocket& rRtpSocket,
-                                                OsSocket& rRtcpSocket)
+                                       OsSocket& rRtcpSocket,
+                                       UtlBoolean rtcpMux)
 {
+   mRtcpMux = rtcpMux;
+
    mpToNet->setSockets(rRtpSocket, rRtcpSocket);
    // TODO: mpFromNet->setDestIp(rRtpSocket);
 
 #ifdef INCLUDE_RTCP /* [ */
-// Associate the RTCP socket to be used by the RTCP Render portion of the
-// connection to write reports to the network
+// Associate the socket to be used by the RTCP Render portion of the
+// connection to write reports to the network.
+//
+// With rtcp-mux (RFC 5761) reports go out over the RTP socket -- one port for
+// both, which is the point of the extension -- so the renderer is handed that
+// socket instead.  The RTCP socket is left open rather than closed: an offerer
+// that proposed mux must still be able to receive on the separate port until
+// the answer settles the question (section 5.1.1).
    if(mpiRTCPConnection)
    {
        // OsSysLog::add(FAC_MP, PRI_DEBUG, "MpRtpOutputConnection::setSockets: call mpiRTCPConnection->StartRenderer(%p)", &rRtcpSocket);
-       mpiRTCPConnection->StartRenderer(rRtcpSocket);
+       mpiRTCPConnection->StartRenderer(mRtcpMux ? rRtpSocket : rRtcpSocket);
    }
 #endif /* INCLUDE_RTCP ] */
 

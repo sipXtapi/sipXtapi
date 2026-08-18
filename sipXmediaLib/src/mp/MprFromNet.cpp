@@ -75,6 +75,7 @@ MprFromNet::MprFromNet()
 , mDiscardSelectedStream(FALSE)
 , mDiscardedSSRC(0)
 , mpFlowGraph(NULL)
+, mRtcpMux(FALSE)
 , mpDtls(NULL)
 , mpDtlsRtcp(NULL)
 #ifdef INCLUDE_RTCP /* [ */
@@ -283,6 +284,24 @@ UtlBoolean MprFromNet::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuit
    return ok;
 }
 
+OsStatus MprFromNet::setRtcpMux(const UtlString& resourceName,
+                               OsMsgQ& flowgraphMessageQueue,
+                               UtlBoolean enabled)
+{
+   MpIntResourceMsg message(MpResourceMsg::MPRM_SET_RTCP_MUX, resourceName,
+                            enabled ? 1 : 0);
+   return flowgraphMessageQueue.send(message, OsTime::OS_INFINITY);
+}
+
+void MprFromNet::setRtcpMux(UtlBoolean enabled)
+{
+   mRtcpMux = enabled;
+
+   OsSysLog::add(FAC_MP, PRI_INFO,
+      "MprFromNet::setRtcpMux: RTP/RTCP multiplexing %s",
+      enabled ? "enabled" : "disabled");
+}
+
 void MprFromNet::setDtls(MpDtls* pDtls, const UtlString& resourceName,
                          UtlBoolean forRtcpTransport)
 {
@@ -358,6 +377,26 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
 
    const char* packetData = udpBuf->getDataPtr();
    int packetSize = udpBuf->getPacketSize();
+
+   // With rtcp-mux (RFC 5761) both kinds of packet arrive on the RTP socket,
+   // so which socket delivered this one says nothing about what it is.
+   // Classify by packet type instead: section 4 guarantees RTP payload types
+   // never collide with the RTCP packet types 192-223, which is why sipXtapi's
+   // dynamic payload IDs start at 96 (SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC
+   // + 1) and stay clear of the 64-95 range that would alias.
+   //
+   // Only the RTP/RTCP first-byte range is reclassified; STUN and DTLS records
+   // are left alone so the demux below still sees them.  SRTCP leaves both of
+   // these header bytes in the clear, so this works protected or not.
+   if (mRtcpMux && packetSize >= 2)
+   {
+      unsigned char b0 = (unsigned char)packetData[0];
+      unsigned char b1 = (unsigned char)packetData[1];
+      if (b0 >= 128 && b0 <= 191)
+      {
+         isRtcp = (b1 >= 192 && b1 <= 223);
+      }
+   }
 
    // RFC 7983 demultiplex when DTLS-SRTP is configured for this connection.
    //
