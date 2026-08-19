@@ -62,6 +62,8 @@ int SipxPortUnitTestEnvironment::sLastExceptionTestPointIndex = -1;
 void (*SipxPortUnitTestEnvironment::sLogHookBegin)(const char* testName) = NULL;
 void (*SipxPortUnitTestEnvironment::sLogHookEnd)(const char* testName) = NULL;
 
+const char* SipxPortUnitTestEnvironment::sTestMethodFilter = NULL;
+
 SipxUnitStringOutputter SipxPortUnitTestEnvironment::sStringOutputMethod = defaultPrintOut;
 
 // Stack to recover to if something bad happens in a test
@@ -213,6 +215,7 @@ void SipxPortUnitTestEnvironment::runTests(const char* testClassFilterName)
             if(testClassFilterName[classNameLength + 1] == ':')
             {
                 testMethodName = &(testClassFilterName[classNameLength + 2]);
+                sTestMethodFilter = testMethodName;
             }
         }
         else
@@ -337,7 +340,7 @@ void SipxPortUnitTestEnvironment::runTests(const char* testClassFilterName)
         signal(SIGILL, SIG_DFL);
     }
 
-    delete testClassName;
+    delete[] testClassName;
 }
 
 void SipxPortUnitTestEnvironment::listTests(const char* testClassName)
@@ -621,6 +624,11 @@ void SipxPortUnitTestEnvironment::setLogHookBegin(void (*logBeginFunc)(const cha
 void SipxPortUnitTestEnvironment::setLogHookEnd(void (*logEndFunc)(const char* testClassName))
 {
     sLogHookEnd = logEndFunc;
+}
+
+const char* SipxPortUnitTestEnvironment::getTestMethodFilter()
+{
+    return(sTestMethodFilter);
 }
 
 

@@ -1,6 +1,6 @@
 // 
 //
-// Copyright (C) 2010-2014 SIPez LLC  All rights reserved.
+// Copyright (C) 2010-2026 SIPez LLC  All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -159,6 +159,9 @@ public:
     static void setLogHookBegin(void (*logBeginFunc)(const char* testClassName));
     static void setLogHookEnd(void (*logEndFunc)(const char* testClassName));
 
+    /// Get the test method name from the command line filter, NULL if none
+    static const char* getTestMethodFilter();
+
 /* ============================ I N Q U I R Y ============================= */
 
 //__________________________________________________________________________//
@@ -218,6 +221,8 @@ private:
 
     static void (*sLogHookBegin)(const char* testName);
     static void (*sLogHookEnd)(const char* testName);
+
+    static const char* sTestMethodFilter;
 
 };
 
