@@ -30,6 +30,7 @@ testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 #             any test that uses any UtlContainer.
 testsuite_SOURCES = \
     os/UnitTestLogHooks.cpp \
+    os/UnitTestLogHooksTest.cpp \
     os/OsAdapterInfoTest.cpp \
     os/OsCallbackTest.cpp \
     os/OsConfigDbTest.cpp \

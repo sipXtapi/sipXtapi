@@ -286,6 +286,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\test\os\OsAdapterInfoTest.cpp" />
     <ClCompile Include="src\test\os\OsCallbackTest.cpp" />
     <ClCompile Include="src\test\os\OsConfigDbTest.cpp" />
     <ClCompile Include="src\test\os\OsContactListTest.cpp" />
@@ -313,6 +314,8 @@
     <ClCompile Include="src\test\os\OsTimerTest.cpp" />
     <ClCompile Include="src\test\os\OsTimeTest.cpp" />
     <ClCompile Include="src\test\os\UnitTestLogHooks.cpp" />
+    <ClCompile Include="src\test\os\UnitTestLogHooksTest.cpp" />
+    <ClCompile Include="src\test\utl\CircularBufferTest.cpp" />
     <ClCompile Include="src\test\utl\UtlChainTest.cpp" />
     <ClCompile Include="src\test\utl\UtlContainableTestStub.cpp" />
     <ClCompile Include="src\test\utl\UtlCrc32Test.cpp" />
