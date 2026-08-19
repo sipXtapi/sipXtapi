@@ -46,6 +46,7 @@ class MpSrtpTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testSrtcpIndexAdvances);
     CPPUNIT_TEST(testSplitSenderMatchesSharedReceiver);
     CPPUNIT_TEST(testBareReceiverReportSurvives);
+    CPPUNIT_TEST(test32SuiteTruncatesSrtpOnly);
     CPPUNIT_TEST(testSrtcpRejectsTamperedPacket);
     CPPUNIT_TEST(testSrtcpRejectsForeignKey);
 
@@ -351,12 +352,16 @@ public:
 
     /* ============== Smallest legal report =========================== */
 
-    // Regression test.  MpSrtp::isValidSrtcp used to require 20 bytes, though
-    // its own comment derives the floor as 8 (header + SSRC) + 4 (index) +
-    // 4 (HMAC_SHA1_32 tag) = 16.  A bare Receiver Report with no report blocks
-    // under a _32 suite lands on exactly 16 bytes and was silently discarded
-    // before it ever reached srtp_unprotect_rtcp.  Nothing caught it while
-    // SRTCP was unreachable.
+    // Regression test.  MpSrtp::isValidSrtcp used to require 20 bytes, which is
+    // above the smallest packet a peer can legitimately send: a bare Receiver
+    // Report with no report blocks.  Those were silently discarded before they
+    // ever reached srtp_unprotect_rtcp, and nothing caught it while SRTCP was
+    // unreachable.
+    //
+    // The floor stays at 16 rather than tracking the sizes below.  It is a
+    // sanity check meant to keep obvious non-SRTCP out of libsrtp, not a
+    // conformance test, so it is deliberately permissive - libsrtp does its own
+    // exact length validation against the negotiated policy.
     void testBareReceiverReportSurvives()
     {
         const UtlString key = makeKey(0x44);
@@ -376,17 +381,65 @@ public:
         int size = len;
         CPPUNIT_ASSERT(sender.srtpProtectIfNeeded(packet, &size, TRUE, BUF_SIZE));
 
-        // 8 + 4 byte index + 4 byte truncated tag.  This is the number the
-        // length floor has to accept.
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("bare RR did not protect to 16 bytes",
-                                     16, size);
-        CPPUNIT_ASSERT_MESSAGE("16 byte SRTCP rejected by the length check",
+        // 8 byte header + 4 byte index + 10 byte tag.  The tag is 10 and not 4
+        // even under a _32 suite: those truncate SRTP only and leave SRTCP at
+        // 80 bits per RFC 4568 section 6.2, which is what setSrtpParams()
+        // installs on the .rtcp policy.  22 is therefore the smallest SRTCP
+        // packet any of our AES-CM suites can produce, and the length floor has
+        // to accept it.
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("bare RR did not protect to 22 bytes",
+                                     22, size);
+        CPPUNIT_ASSERT_MESSAGE("22 byte SRTCP rejected by the length check",
                                MpSrtp::isValidSrtcp(packet, (size_t)size));
 
         CPPUNIT_ASSERT_MESSAGE("bare RR failed to unprotect",
             receiver.srtpUnprotectIfNeeded(packet, &size, TRUE));
         CPPUNIT_ASSERT_EQUAL(len, size);
         CPPUNIT_ASSERT(memcmp(original, packet, len) == 0);
+    }
+
+    /* ============== _32 suites truncate SRTP only =================== */
+
+    // The _32 suites are asymmetric: 32 bit tag on SRTP, 80 bit tag on SRTCP.
+    // RFC 4568 section 6.2 states it for AES_CM_128_HMAC_SHA1_32, RFC 6188
+    // sections 3.2 and 3.4 repeat it for the 192 and 256 bit variants, and
+    // RFC 3711 section 7.5 gives the reasoning -- a forged RTCP BYE or report
+    // is worth far more to an attacker than a forged media packet.  libsrtp
+    // will not do this for you: srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32
+    // sets a 4 byte tag on whichever policy it is handed, and its own header
+    // says "intended for use in SRTP, but not in SRTCP".
+    //
+    // setSrtpParams() therefore installs the _80 policy on .rtcp for the _32
+    // suites.  It previously installed _32 on both, which produced a 40 bit
+    // SRTCP tag that no conformant peer would authenticate, in either
+    // direction.  Growth-on-protect is the observable form of that, so this
+    // asserts it directly rather than through a round trip -- a round trip
+    // passes happily when both ends are wrong in the same way.
+    void test32SuiteTruncatesSrtpOnly()
+    {
+        static const SdpMediaLine::SdpCryptoSuiteType suite =
+            SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_32;
+
+        const UtlString key = makeKey(0x66);
+
+        MpSrtp sender;
+        CPPUNIT_ASSERT(sender.setSrtpParams(suite, key, FALSE));
+
+        unsigned char packet[BUF_SIZE];
+
+        // SRTP: 32 bit tag, so 4 bytes of growth and nothing else.
+        int rtpLen = buildRtpPacket(packet, 0x0a0b0c0d, 7);
+        int size = rtpLen;
+        CPPUNIT_ASSERT(sender.srtpProtectIfNeeded(packet, &size, FALSE, BUF_SIZE));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("SRTP tag under a _32 suite is not 4 bytes",
+                                     rtpLen + 4, size);
+
+        // SRTCP: 80 bit tag plus the mandatory 4 byte index, so 14 bytes.
+        int rtcpLen = buildReceiverReport(packet, 0x0a0b0c0d);
+        size = rtcpLen;
+        CPPUNIT_ASSERT(sender.srtpProtectIfNeeded(packet, &size, TRUE, BUF_SIZE));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("SRTCP tag under a _32 suite is not 10 bytes",
+                                     rtcpLen + 4 + 10, size);
     }
 
     /* ============== Authentication actually authenticates =========== */

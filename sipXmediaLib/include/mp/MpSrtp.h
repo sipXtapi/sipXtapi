@@ -226,6 +226,9 @@ private:
    UtlBoolean mSrtpSessionCreated;
    srtp_t mSrtpSession;
 
+   /// One-shot latch for the unkeyed pass-through log below.
+   UtlBoolean mLoggedUnkeyedPassthrough;
+
      /// Tear down the libsrtp session.  Caller must hold mLock (or be the
      /// destructor, where no other thread may still be using the object).
    void deallocateSrtpSession();

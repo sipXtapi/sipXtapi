@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIP Spectrum Inc.  All rights reserved.
+//
 // Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -12,11 +14,10 @@
 
 
     // Includes
-#if defined(_WIN32) && !defined(WINCE)
-#   include <process.h>
-#endif
-
 #include "rtcp/RTCPTimer.h"
+#include "os/OsSysLog.h"
+#include "os/OsTask.h"
+#include "os/OsTimerTask.h"
 #ifdef INCLUDE_RTCP /* [ */
 
 /**
@@ -38,13 +39,7 @@
  *
  */
 CRTCPTimer::CRTCPTimer(unsigned long ulTimerPeriod)
-#ifdef WIN32
-           : m_hTerminateEvent(NULL), m_hTimerThread(NULL)
-#elif defined(_VXWORKS)
-           : m_tTimer(NULL)
-#elif defined(__pingtel_on_posix__)
            : m_pTimeout(NULL), m_pCallback(NULL), m_pTimer(NULL)
-#endif
 {
 
     // Store the arguments passed in the constructor as internal data members
@@ -101,57 +96,16 @@ CRTCPTimer::~CRTCPTimer(void)
 bool CRTCPTimer::Initialize(void)
 {
 
-#ifdef WIN32 /* [ */
-    // Create Timer Thread
-    if(!CreateTimerThread())
-    {
-        osPrintf("**** FAILURE **** CRTCPTimer::Initialize() -"
-                                   " Unable to Create Timer Thread\n");
-        return(FALSE);
-    }
+    // Re-initializing is allowed, so drop anything a previous call left behind.
+    Shutdown();
 
-#elif defined(_VXWORKS) /* ] [ */
-    // Create VxWorks Timer
-    if(timer_create(CLOCK_REALTIME, NULL, &m_tTimer) == ERROR)
-    {
-        osPrintf("**** FAILURE **** CRTCPTimer::Initialize() -"
-                                 " Unable to Establish VxWorks Timer\n");
-        return(FALSE);
-    }
-
-    // Associate a callback with an established vxWorks Timer
-    if(timer_connect(m_tTimer, (VOIDFUNCPTR) ReportingAlarm, (int)this)
-                                                                     == ERROR)
-    {
-        // Failure.  Let's deallocate all vxWorks timer related resources
-        osPrintf("**** FAILURE **** CRTCPTimer::Initialize() -"
-                        " Unable to Establish VxWorks Timer Callback\n");
-        return(FALSE);
-    }
-
-    // Install RTCP Alarm clock to fire after the given timer period
-    if (ERROR == timer_settime(m_tTimer, CLOCK_REALTIME, &m_stTimeout, NULL))
-    {
-        osPrintf("RTCPTimer::Initialize: timer_settime() returned"
-            " ERROR, errno = %d = 0x%X\n", errno);
-        return(FALSE);
-    }
-#elif defined(__pingtel_on_posix__) /* ] [ */
-    /* use OSAL like all well-behaved Pingtel code should */
-    if(m_pTimeout != NULL)
-        delete m_pTimeout;
-    m_pTimeout = new OsTime(m_ulTimerPeriod / 1000, (m_ulTimerPeriod % 1000) * 1000);
-    
-    if(m_pCallback != NULL)
-        delete m_pCallback;
+    // OsTime takes seconds and microseconds; m_ulTimerPeriod is milliseconds.
+    m_pTimeout  = new OsTime(m_ulTimerPeriod / 1000,          // whole seconds
+                             (m_ulTimerPeriod % 1000) * 1000); // remainder as usec
     m_pCallback = new OsCallback((intptr_t)this, ReportingAlarm);
-    
-    if(m_pTimer != NULL)
-        delete m_pTimer;
-    m_pTimer = new OsTimer(*m_pCallback);
-    
+    m_pTimer    = new OsTimer(*m_pCallback);
+
     m_pTimer->periodicEvery(*m_pTimeout, *m_pTimeout);
-#endif /* ] */
 
     return(TRUE);
 
@@ -179,214 +133,85 @@ bool CRTCPTimer::Initialize(void)
 bool CRTCPTimer::Shutdown( void )
 {
 
-#ifdef WIN32
-    // Send a signal to instruct the Net Thread to Terminate
-    if(m_hTerminateEvent && m_hTimerThread)
-    {
-        SetEvent(m_hTerminateEvent);
-
-        // Wait for thread to terminate
-        WaitForSingleObject(m_hTimerThread, INFINITE);
-    }
-
-    // Close Events
-    if(m_hTerminateEvent)
-    {
-        CloseHandle(m_hTerminateEvent);
-        m_hTerminateEvent = NULL;
-    }
-
-    // Close RTP Thread Handle
-    if(m_hTimerThread)
-    {
-        CloseHandle(m_hTimerThread);
-        m_hTimerThread = NULL;
-    }
-
-#elif defined(_VXWORKS)
-    // Delete a previously installed vxWorks timer.  The assumption is
-    // that deleting the timer will, be default, cancel any established
-    // alarm.
-    if(m_tTimer)
-    {
-        timer_delete(m_tTimer);
-        m_tTimer = NULL;
-    }
-#elif defined(__pingtel_on_posix__)
     if(m_pTimer)
     {
-        m_pTimer->stop();
-        delete m_pTimer;
-        delete m_pCallback;
-        delete m_pTimeout;
+        // A synchronous stop does not return until any ReportingAlarm() call
+        // already in progress has finished, which is what makes it safe to
+        // free this object afterwards.  It gets that guarantee by blocking on
+        // the timer task, so calling it FROM the timer task deadlocks.
+        //
+        // That is a reachable path, not a theoretical one: ReportingAlarm()
+        // runs on the timer task and reaches code that can tear the connection
+        // down, which lands here by way of ~CRTCPTimer().  In that case the
+        // only callback in flight is the one calling us and it is about to
+        // return -- precisely the state a synchronous stop would have waited
+        // for -- so an asynchronous stop is equivalent.  OsTimer::deleteAsync()
+        // exists for the same reason, the destructor blocking on the timer task
+        // just as a synchronous stop does.
+        const bool bOnTimerTask =
+            (OsTask::getCurrentTask() == (OsTaskBase *)OsTimerTask::getTimerTask());
+
+        if(bOnTimerTask)
+        {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+               "CRTCPTimer::Shutdown(%p): running on the timer task, stopping asynchronously",
+               this);
+            m_pTimer->stop(FALSE);
+            m_pTimer->deleteAsync();
+        }
+        else
+        {
+            m_pTimer->stop(TRUE);
+            delete m_pTimer;
+        }
         m_pTimer = NULL;
-        m_pCallback = NULL;
-        m_pTimeout = NULL;
     }
-#endif
+
+    // Safe to free once the timer is stopped: the callback reaches these only
+    // by way of the timer, and deleteAsync() has already stopped it.
+    delete m_pCallback;
+    m_pCallback = NULL;
+    delete m_pTimeout;
+    m_pTimeout = NULL;
 
     return (TRUE);
 }
 
 
-#ifdef WIN32 /* [ */
-/**
- *
- * Method Name: CRTCPTimer::CreateTimerThread
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     Boolean True/False
- *
- * Description: Creates the Timer Processing Thread.  This thread shall be
- *              responsible for generating a periodic event to signal the
- *              commencement of a new reporting period.
- *
- * Usage Notes:
- *
- *
- */
-bool CRTCPTimer::CreateTimerThread(void)
-{
-
-    unsigned long iThreadID;
-
-
-    // Create the thread terminate Event object.  The primary thread
-    // will set it when it wants the worker thread to process an event.
-    m_hTerminateEvent = CreateEvent (NULL,  // No Special Security attributes
-                                     TRUE,  // Manually Resetable
-                                     FALSE, // Not signalled at creation
-                                     NULL); // No name
-
-    // Return an appropriate Error to the caller if event creation fails.
-    if (m_hTerminateEvent == NULL)
-        return (FALSE);
-
-    // We need to create a separate thread for managing the message queue
-//    m_hTimerThread = (void *)_beginthreadex(
-    m_hTimerThread = (void *)CreateThread(
-                          NULL,             // No Special Security Attributes
-                          0,                // Default Stack Size
-                          (LPTHREAD_START_ROUTINE) TimerThreadProc,  // Thread Function
-                          this,             // Argument to the thread function
-                          0,                // Run immediately
-                          &iThreadID);      // Thread identifier returned
-
-
-    // Return an appropriate Error to the caller if Message
-    //  thread creation fails.
-    if (m_hTimerThread == NULL)
-        return (FALSE);
-
-
-    return(TRUE);
-
-}
-
-
-/**
- *
- * Method Name: CRTCPTimer::TimerThreadProc
- *
- *
- * Inputs:      void * lpParameter   - An opaque element
- *
- * Outputs:     None
- *
- * Returns:     unsigned long
- *
- * Description: A static method that shall wake up periodically and perform
- *              some unit of work.
- *
- * Usage Notes:
- *
- *
- */
-unsigned int __stdcall CRTCPTimer::TimerThreadProc(void * lpParameter)
-{
-    // NetThreadProc is a static method requiring the 'this' object to be
-    // passed as an argument to gain access to internal data members.
-    CRTCPTimer *poRTCPTimer = (CRTCPTimer *)lpParameter;
-
-    // Loop until a terminate signal is received
-    while (1)
-    {
-
-        // Wait for Terminate Event or timeout
-        unsigned long dwRetValue =
-                   WaitForSingleObject(poRTCPTimer->m_hTerminateEvent,
-                       poRTCPTimer->m_ulTimerPeriod);    // Poll for Terminate
-
-        if (dwRetValue == WAIT_FAILED)
-            // Bail on an error so we don't loop infinitly
-            break;
-
-        // An Event was Detected.  It must be time to terminate.
-        if (dwRetValue  == WAIT_OBJECT_0)
-            break;
-
-        // The timer must have expired.
-        // Let's call the RTCPConnection processing routine
-        poRTCPTimer->RTCPReportingAlarm();
-
-    }
-
-
-    // osPrintf(">>>>>  CRTCPTimer::RTPThreadProc() - Exiting <<<<<< \n");
-    ExitThread(0);
-
-    return 0;
-}
-
-#elif defined(_VXWORKS) /* ] [ */
 /**
  *
  * Method Name: CRTCPTimer::ReportingAlarm
  *
  *
- * Inputs:      timer_t tTimer     - Timer Handle
- *  int     iArgument  - Argument associated with alarming timer
+ * Inputs:      const intptr_t userData   - The CRTCPTimer this alarm belongs to
+ *              const intptr_t eventData  - Unused
  *
  * Outputs:     None
  *
  * Returns:     None
  *
- * Description: A static method that be called by a vxWorks timer object when
- *              a previously espablished time has expired and is alarming.
+ * Description: Called by the timer task each time the report period elapses.
  *
- * Usage Notes:
- *
+ * Usage Notes: Runs on the shared OsTimerTask thread.  Shutdown() cannot
+ *              complete a synchronous stop while this is running, so the object
+ *              is guaranteed to still be alive for the duration of the call.
  *
  */
-void  CRTCPTimer::ReportingAlarm(timer_t tTimer, intptr_t iArgument)
-{
-    CRTCPTimer   *poRTCPTimer = (CRTCPTimer  *)iArgument;
-
-    // The argument is set to the associated Connection interface pointer.
-    // Call the overloaded RTCP Reporting event notification method
-    poRTCPTimer->RTCPReportingAlarm();
-}
-#elif defined(__pingtel_on_posix__) /* ] [ */
-
-#ifdef RTCP_LINUX_DEBUG /* [ */
-#include <sys/time.h>
-#endif /* ] */
-
 void CRTCPTimer::ReportingAlarm(const intptr_t userData, const intptr_t eventData)
 {
-#ifdef RTCP_LINUX_DEBUG /* [ */
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    osPrintf("DEBUG: RTCP Timer expired! (64-second time = %02d.06%d)\n", tv.tv_sec & 63, tv.tv_usec);
-#endif /* ] */
-    /* see comments in VXWORKS version of this call */
-    CRTCPTimer * poRTCPTimer = (CRTCPTimer *) userData;
+
+    CRTCPTimer *poRTCPTimer = (CRTCPTimer *) userData;
+
+    // One line per report period, so a handful per call.  Nothing else on the
+    // report generation path logs, which makes a silently unarmed timer look
+    // exactly like a healthy one -- outbound RTCP simply stops and no error is
+    // reported anywhere.  The log header carries the task name, so this also
+    // shows which thread the reports are being generated on.
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+       "CRTCPTimer::ReportingAlarm(%p): report period elapsed", poRTCPTimer);
+
     poRTCPTimer->RTCPReportingAlarm();
+
 }
 
-#endif /* ] */
 #endif /* INCLUDE_RTCP ] */

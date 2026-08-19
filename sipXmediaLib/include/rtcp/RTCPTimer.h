@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIP Spectrum Inc.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -23,11 +25,11 @@
 #include "IRTCPConnection.h"
 #include "IRTCPSession.h"
 
-#ifdef __pingtel_on_posix__
+// OsTimer carries no platform conditionals of its own and is built on every
+// target, which is what lets this class have a single timing implementation.
 #include "os/OsTime.h"
 #include "os/OsCallback.h"
 #include "os/OsTimer.h"
-#endif
 
 
 //  Defines
@@ -211,79 +213,30 @@ protected:  // Protected Methods
 
 private:    // Private Methods
 
-#ifdef WIN32 /* [ */
-/**
- *
- * Method Name: CRTCPTimer::CreateTimerThread
- *
- *
- * Inputs:      None
- *
- * Outputs:     None
- *
- * Returns:     Boolean True/False
- *
- * Description: Creates the Timer Processing Thread.  This thread shall be
- *      responsible for generating a periodic event to signal the
- *      commencement of a new reporting period.
- *
- * Usage Notes:
- *
- *
- */
-    bool CreateTimerThread(void);
-
-
-
-/**
- *
- * Method Name: CRTCPTimer::TimerThreadProc
- *
- *
- * Inputs:      void * lpParameter   - An opaque element
- *
- * Outputs:     None
- *
- * Returns:     unsigned long
- *
- * Description: A static method that shall wake up periodically and perform
- *              some unit of work.
- *
- * Usage Notes:
- *
- *
- */
-    static unsigned int __stdcall TimerThreadProc(void * lpParameter);
-
-#elif defined(_VXWORKS) /* ] [ */
-
 /**
  *
  * Method Name: ReportingAlarm
  *
  *
- * Inputs:  timer_t tTimer     - Timer Handle
- *      int     iArgument  - Argument associated with alarming timer
+ * Inputs:      const intptr_t userData   - The CRTCPTimer this alarm belongs to
+ *              const intptr_t eventData  - Unused
  *
- * Outputs: None
+ * Outputs:     None
  *
- * Returns: None
+ * Returns:     None
  *
- * Description: A static method that be called by a vxWorks timer object when
- *              a previously established time has expired and is alarming.
+ * Description: Static method handed to OsCallback, called by the timer task
+ *              each time the report period elapses.  Recovers the object from
+ *              userData and forwards to the virtual RTCPReportingAlarm().
  *
- * Usage Notes:
- *
+ * Usage Notes: Runs on the shared OsTimerTask thread, not a thread of this
+ *              object's own.  Shutdown() performs a synchronous OsTimer::stop(),
+ *              which does not return until any call in progress here has
+ *              finished, so this cannot still be running once teardown has got
+ *              past that point.
  *
  */
-    static void ReportingAlarm(timer_t tTimer, intptr_t iArgument);
-
-#elif defined(__pingtel_on_posix__) /* ] [ */
-
     static void ReportingAlarm(const intptr_t userData, const intptr_t eventData);
-
-#endif /* ] */
-
 
 private:    // Private Data Members
 
@@ -298,54 +251,21 @@ private:    // Private Data Members
  *
  */
     unsigned long    m_ulTimerPeriod;
-#ifdef _VXWORKS /* [ */
-    struct itimerspec m_stTimeout;
-#endif /* ] */
-
-
-#ifdef WIN32 /* [ */
-/**
- *
- * Attribute Name:  m_hTerminateEvent
- *
- * Type:            HANDLE
- *
- * Description:  Event Handle used to signal the termination of the timer
- *               thread created when running in a Windows environment.
- *
- */
-    HANDLE           m_hTerminateEvent;
 
 /**
  *
- * Attribute Name:  m_hTimerThread
+ * Attribute Names: m_pTimeout / m_pCallback / m_pTimer
  *
- * Type:            HANDLE
+ * Type:            OsTime * / OsCallback * / OsTimer *
  *
- * Description:     Thread Handle used to identify the timer thread
- *                  created when running in a Windows environment.
- *
- */
-    HANDLE           m_hTimerThread;
-
-#elif defined(_VXWORKS) /* ] [ */
-
-/**
- *
- * Attribute Name:  m_tTimer
- *
- * Type:            timer_t
- *
- * Description:     Timer ID used to identify a timer resource under vxWorks.
+ * Description:     The periodic timer, the callback it fires, and the period it
+ *                  fires at.  Allocated by Initialize() and torn down by
+ *                  Shutdown().
  *
  */
-    timer_t          m_tTimer;
-
-#elif defined(__pingtel_on_posix__)
-    OsTime * m_pTimeout;
-    OsCallback * m_pCallback;
-    OsTimer * m_pTimer;
-#endif /* ] */
+    OsTime         * m_pTimeout;
+    OsCallback     * m_pCallback;
+    OsTimer        * m_pTimer;
 
 };
 
@@ -371,15 +291,6 @@ inline void CRTCPTimer::SetReportTimer(unsigned long ulTimerPeriod)
 {
 
     m_ulTimerPeriod = ulTimerPeriod;
-#ifdef _VXWORKS /* [ */
-    // Set the next fire value
-    m_stTimeout.it_value.tv_sec = ulTimerPeriod / MILLI2SECS;
-    m_stTimeout.it_value.tv_nsec = (ulTimerPeriod % MILLI2SECS) * MILLI2NANO;
-
-    // Set the next fire interval (period timer) as the value
-    m_stTimeout.it_interval.tv_sec = ulTimerPeriod / MILLI2SECS;
-    m_stTimeout.it_interval.tv_nsec = (ulTimerPeriod % MILLI2SECS) * MILLI2NANO;
-#endif /* ] */
 
 }
 

@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2022 SIP Spectrum, Inc.  All rights reserved.
-// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+// Copyright (C) 2022-2026 SIP Spectrum, Inc.  All rights reserved.
 //  
 // Copyright (C) 2006-2023 SIPez LLC.  All rights reserved.
 //
@@ -89,6 +88,11 @@ MpJitterBuffer::MpJitterBuffer(MpDecoderPayloadMap *pPayloadMap,
 , mpVad(NULL)
 , mpAgc(NULL)
 , mpFlowGraph(NULL)
+, mNumPacketsIn(0)
+, mNumLateDropped(0)
+, mNumNoDecoder(0)
+, mNumDecoded(0)
+, mNumZeroSamples(0)
 {
    mpVad = MpVadBase::createVad();
    mpVad->setName(resourceName);
@@ -107,6 +111,12 @@ void MpJitterBuffer::init(unsigned int samplesPerSec, unsigned int samplesPerFra
 
 MpJitterBuffer::~MpJitterBuffer()
 {
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MpJitterBuffer::~MpJitterBuffer: packets in=%d, late dropped=%d, "
+      "no decoder=%d, decoded=%d, zero samples=%d",
+      mNumPacketsIn, mNumLateDropped, mNumNoDecoder, mNumDecoded,
+      mNumZeroSamples);
+
    delete mpResampler;
    delete mpPlc;
    delete mpVad;
@@ -168,6 +178,8 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       return OS_FAILED;
    }
 
+   mNumPacketsIn++;
+
    // Initialize variables we have to return.
    adjustment = 0;
    decodedSamples = 0;
@@ -204,6 +216,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
          && (int)(mStreamSeq - rtpSeq) > mpPlc->getMaxDelayedFramesNum())
       {
          dprintf(" drop");
+         mNumLateDropped++;
          RTL_EVENT("MpJitterBuffer_packet_vad", -1);
          return OS_SUCCESS;
       }
@@ -230,6 +243,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    {
       // Ignore it, if we can't decode it.
       dprintf(" can't decode");
+      mNumNoDecoder++;
       return OS_FAILED;
    }
    RTL_EVENT("MpJitterBuffer_loss_pattern", !rtpPacket.isValid());
@@ -263,6 +277,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
                                        mDecodedData);
       if (decodedSamples > 0)
       {
+         mNumDecoded++;
          // TODO:: For now we do not support samplerate change in the middle
          //        of a stream.
          assert(mStreamSampleRate == (int)decoder->getInfo()->getSampleRate());
@@ -304,6 +319,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       else
       {
          // Something is definitely wrong here.
+         mNumZeroSamples++;
          UtlString socketIpAddress;
          OsSocket::inet_ntoa_pt(rtpPacket->getIP(), socketIpAddress);
          OsSysLog::add(FAC_MP, PRI_ERR,

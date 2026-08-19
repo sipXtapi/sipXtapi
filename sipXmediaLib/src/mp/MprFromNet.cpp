@@ -398,28 +398,58 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
       }
    }
 
-   // RFC 7983 demultiplex when DTLS-SRTP is configured for this connection.
+   // Pick the DTLS engine and the unprotect context belonging to the socket
+   // this packet arrived on, and never cross them.  Both are per transport:
+   // without rtcp-mux, RFC 5764 section 3 requires a separate DTLS association
+   // for each source and destination port pair, so the RTP and RTCP sockets run
+   // their own handshakes and end up with unrelated master keys.  SDES derives a
+   // single master key for the whole media line, but RTP and RTCP still get
+   // their own contexts from it, since RFC 3711 derives their session keys with
+   // different labels.
    //
-   // Each transport carries its own DTLS association.  Without rtcp-mux, RFC
-   // 5764 section 3 requires a separate association for each source and
-   // destination port pair, so the RTP socket and the RTCP socket each run
-   // their own handshake and end up with unrelated master keys.  Pick the
-   // engine and the unprotect context belonging to the socket this packet
-   // arrived on, and never cross them.
-   //
-   // This runs on the NetInTask thread; for DTLS records we ferry the bytes
-   // to the media thread via MpDtlsPacketMsg, where MpDtls processes them.
+   // Either can legitimately be absent.  pDtls is NULL on an SDES or plain RTP
+   // session, and on the RTCP transport when rtcp-mux collapsed the two
+   // associations into one.  rSrtp is unkeyed until a key arrives.
    MpDtls* pDtls = isRtcp ? mpDtlsRtcp : mpDtls;
    MpSrtp& rSrtp = isRtcp ? mSrtcp     : mSrtp;
 
-   if (pDtls != NULL && packetSize > 0)
+   // RFC 7983 demultiplex.  This runs for every connection, whatever keying was
+   // negotiated: what a packet IS does not depend on how the session was keyed,
+   // and a media socket can see DTLS records, STUN and RTP/RTCP either way.
+   // Gating the classification itself on an engine being present is what
+   // previously let a peer's stray DTLS handshake fall through to
+   // CRTCPHeader::VetPacket, which reported the record as a malformed RTCP
+   // packet once per retransmission.
+   //
+   // Runs on the NetInTask thread; DTLS records are ferried to the media thread
+   // via MpDtlsPacketMsg, where MpDtls processes them.
+   if (packetSize > 0)
    {
       unsigned char firstByte = (unsigned char)packetData[0];
 
       if (firstByte >= 20 && firstByte <= 63)
       {
-         // DTLS record. Post to media thread for MpDtls processing, tagged
-         // with the transport it arrived on so it reaches the right engine.
+         // DTLS record.
+         if (pDtls == NULL)
+         {
+            // Nothing on this transport can service it.  Reached when rtcp-mux
+            // is negotiated: there is deliberately no RTCP engine, because RFC
+            // 5764 section 3 wants one association per distinct port pair and
+            // muxing leaves exactly one.  A peer that offered both a=rtcp: and
+            // a=rtcp-mux (legal, RFC 5761 section 5.1.3 -- the a=rtcp: is the
+            // fallback for an answerer that will not mux) may still open a
+            // handshake on the RTCP port it offered.  Answering it would mean
+            // running a second association the negotiation ruled out, so drop
+            // and let the peer's handshake time out.
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+               "MprFromNet::pushPacket: DTLS record of size %d on the %s transport, "
+               "which has no DTLS association - dropping",
+               packetSize, isRtcp ? "RTCP" : "RTP");
+            return OS_SUCCESS;
+         }
+
+         // Post to media thread for MpDtls processing, tagged with the
+         // transport it arrived on so it reaches the right engine.
          // Do not fall through to the SRTP unprotect path.
          ret = OS_FAILED;
          if (mpFlowGraph != NULL && !mDtlsResourceName.isNull())
@@ -441,13 +471,21 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
       }
       else if (firstByte >= 128 && firstByte <= 191)
       {
-         // RTP/RTCP. Pre-handshake-or-pre-keyed we drop -- packets cannot be
-         // authenticated yet. Once this transport's DTLS is active AND its
-         // keys have been installed via MpSetSrtpParamsMsg, fall through to
-         // the srtpUnprotectIfNeeded path below.
-         if (!pDtls->isActive() || !rSrtp.isSessionCreated())
+         // RTP or RTCP: the ordinary media path for every session, keyed or
+         // not.  Falls through to srtpUnprotectIfNeeded() below, which is a
+         // no-op on an unkeyed session and decrypts on an SDES or DTLS-SRTP one.
+         //
+         // The single exception is a transport whose keys come from DTLS whose
+         // handshake has not finished, or has finished but whose keys have not
+         // yet arrived via MpSetSrtpParamsMsg.  Nothing can authenticate the
+         // packet in that window, so drop it rather than hand ciphertext to the
+         // RTP parser.  SDES and plain RTP have no handshake to wait on and so
+         // never take this branch -- pDtls is NULL for them.
+         if (pDtls != NULL && (!pDtls->isActive() || !rSrtp.isSessionCreated()))
          {
-            OsSysLog::add(FAC_MP, PRI_DEBUG, "MprFromNet::pushPacket %s payload of size: %d dropped while waiting for DTLS-SRTP handshake to finish",
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+               "MprFromNet::pushPacket: %s packet of size %d dropped while waiting "
+               "for the DTLS-SRTP handshake to finish",
                isRtcp ? "RTCP" : "RTP", packetSize);
             return OS_INVALID;
          }
@@ -455,13 +493,21 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
       }
       else
       {
-         // Unrecognized first byte - drop.
-         OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::pushPacket: Unrecognized first byte (0x%02x)", firstByte);
+         // Unrecognized first byte - drop.  RTP and RTCP both carry version 2
+         // in the top two bits, so nothing outside 128-191 can be either.
+         //
+         // Warning rather than error for the same reason as the unprotect
+         // failures in MpSrtp: this is inbound traffic being rejected, which is
+         // the demux doing its job, and anything that can reach the media port
+         // can provoke it.
+         OsSysLog::add(FAC_MP, PRI_WARNING,
+            "MprFromNet::pushPacket: Unrecognized first byte (0x%02x) on the %s transport, dropping",
+            firstByte, isRtcp ? "RTCP" : "RTP");
          return OS_INVALID;
       }
    }
 
-   // Note: Will NoOp and return OS_SUCCESS if ENABLE_SRTP is not defined
+   // Note: Will NoOp and return OS_SUCCESS if ENABLE_SRTP is not defined, or if SRTP isn't used
    if (!rSrtp.srtpUnprotectIfNeeded((const uint8_t*)packetData, &packetSize, isRtcp))
    {
       return OS_INVALID;
@@ -650,7 +696,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const char* packetData, int packetLength,
 
    if (packetLength < (int)sizeof(RtpHeader)) {
       // INVALID: shorter than an RTP packet header.
-      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: packet too short (%d)", packetLength);
+      OsSysLog::add(FAC_MP, PRI_WARNING, "MprFromNet::parseRtpPacket: packet too short (%d)", packetLength);
       return rtpBuf; // contained pointer is still NULL
    }
 
@@ -666,8 +712,13 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const char* packetData, int packetLength,
    offset = sizeof(RtpHeader);
 
    if (2 != rtpBuf->getRtpVersion()) {
-      // INVALID: we have only heard of version 2
-      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: RTP version is not 2 (%d)", rtpBuf->getRtpVersion());
+      // INVALID: we have only heard of version 2.
+      //
+      // Unreachable from pushPacket(), whose demux only lets a first byte of
+      // 128-191 through, and that range IS version 2 in the top two bits.  Kept
+      // because parseRtpPacket() is also public API and cannot assume its caller
+      // screened the packet.
+      OsSysLog::add(FAC_MP, PRI_WARNING, "MprFromNet::parseRtpPacket: RTP version is not 2 (%d)", rtpBuf->getRtpVersion());
       rtpBuf.release();
       return rtpBuf;
    }
@@ -678,7 +729,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const char* packetData, int packetLength,
 
       if ((padBytes > 3) || (padBytes == 0)) {
          // INVALID: padding count is greater than 3.
-         OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: improper RTP padding (%d)", padBytes);
+         OsSysLog::add(FAC_MP, PRI_WARNING, "MprFromNet::parseRtpPacket: improper RTP padding (%d)", padBytes);
          rtpBuf.release();
          return rtpBuf;
       }
@@ -692,7 +743,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const char* packetData, int packetLength,
    csrcSize = csrcCount * sizeof(RtpSRC);
    if ((offset + csrcSize) > packetLength) {
       // INVALID: CSRC count indicates more CSRCs than remaining packet data
-      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: packet too short (%d) for CSRC count (%d)", packetLength, csrcCount);
+      OsSysLog::add(FAC_MP, PRI_WARNING, "MprFromNet::parseRtpPacket: packet too short (%d) for CSRC count (%d)", packetLength, csrcCount);
       rtpBuf.release();
       return rtpBuf;
    }
@@ -723,7 +774,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const char* packetData, int packetLength,
       offset += (sizeof(uint32_t) * (1 + xLen));
       if (offset > packetLength) {
          // INVALID: we have moved beyond the end of data before reaching payload
-         OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: packet too short (%d) CSRC count=%d, extLen=%d", packetLength, csrcCount, (int)(sizeof(uint32_t) * (1 + xLen)));
+         OsSysLog::add(FAC_MP, PRI_WARNING, "MprFromNet::parseRtpPacket: packet too short (%d) CSRC count=%d, extLen=%d", packetLength, csrcCount, (int)(sizeof(uint32_t) * (1 + xLen)));
          rtpBuf.release();
          return rtpBuf;
       }
@@ -731,7 +782,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const char* packetData, int packetLength,
    }
 
    if (!rtpBuf->setPayloadSize(packetLength - offset)) {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromNet::parseRtpPacket: RTP buffer size is too small: %d (need %d)\n", rtpBuf->getPayloadSize(), packetLength - offset);
+      OsSysLog::add(FAC_MP, PRI_WARNING, "MprFromNet::parseRtpPacket: RTP buffer size is too small: %d (need %d)\n", rtpBuf->getPayloadSize(), packetLength - offset);
       rtpBuf.release();
       return rtpBuf;
    }
@@ -748,6 +799,16 @@ UtlBoolean MprFromNet::resetSocketsInternal(OsEvent *pEvent)
    {
       return FALSE;
    }
+
+   // What this connection actually took off the wire, logged once at teardown.
+   // mNumPushed counts datagrams handed over by NetInTask; the RTP and RTCP
+   // counts are incremented only after a packet has survived the demux and been
+   // unprotected, so comparing them says whether packets were lost before or
+   // after that point without needing per-packet logging.
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+      "MprFromNet::resetSockets(%p): datagrams=%d, accepted RTP=%d, accepted RTCP=%d, "
+      "dropped(noKey)=%d, dropped(loopback)=%d",
+      this, mNumPushed, mNumPktsRtp, mNumPktsRtcp, mNumEncDropped, mNumLoopDropped);
 
    OsStatus res;
 

@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+//  
 // Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -207,6 +209,15 @@ private:
    /// Similar list of all codecs that have ever been listed on mpCurrentCodecs.
    MpDecoderBase** mpPrevCodecs;
    int             mNumPrevCodecs; ///< Length of mpPrevCodecs array.
+
+   /// Packets handed to pushPacket() by the RTP dispatcher, reported once by
+   /// the destructor.  Pairs with the MprFromNet and MpJitterBuffer counters to
+   /// show where packets stop flowing along the receive path.
+   int             mNumPacketsPushed;
+
+   /// Consecutive frames that pulled nothing while the dejitter held packets.
+   /// Drives the stuck-stream recovery in doProcessFrame().
+   int             mConsecutiveEmptyPulls;
 
    MpDecoderPayloadMap mDecoderMap; ///< Mapping of payload types to decoder instances.
 

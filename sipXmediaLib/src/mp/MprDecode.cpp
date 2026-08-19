@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+//  
 // Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -74,6 +76,12 @@
 static void dprintf(const char *, ...) {};
 #endif // DEBUG_PRINT ]
 
+// Frames of pulling nothing, while the dejitter still holds packets, before
+// doProcessFrame() treats the stream position as stuck and jumps it forward.
+// One frame is normally 10ms, so this allows well over the reordering and
+// jitter a healthy stream produces before intervening.
+static const int sStuckStreamFrames = 10;
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -100,6 +108,8 @@ MprDecode::MprDecode(const UtlString& rName,
 , mG722HackPayloadType(-1)
 , mpPrevCodecs(NULL)
 , mNumPrevCodecs(0)
+, mNumPacketsPushed(0)
+, mConsecutiveEmptyPulls(0)
 {
    assert(mpJB != NULL);
    mpJB->setPlc(plcName);
@@ -154,8 +164,8 @@ MprDecode::~MprDecode()
    deletePriorCodecs();
 
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "MprDecode::~MprDecode exit %s flowgraph: %p",
-                 data(), mpFlowGraph);
+                 "MprDecode::~MprDecode exit %s flowgraph: %p, packets from dispatcher=%d",
+                 data(), mpFlowGraph, mNumPacketsPushed);
 }
 
 void MprDecode::deletePriorCodecs()
@@ -249,6 +259,8 @@ OsStatus MprDecode::pushPacket(MpRtpBufPtr &pRtp)
    // Lock access to dejitter and m*Codecs data
    OsLock lock(mLock);
 
+   mNumPacketsPushed++;
+
 #ifdef RTL_ENABLED // [
    UtlString str_fg(getFlowGraph()->getFlowgraphName());
    str_fg.append("_");
@@ -259,6 +271,26 @@ OsStatus MprDecode::pushPacket(MpRtpBufPtr &pRtp)
    dprintf("> %" PRIu16 " %" PRIu32 " %d",
            pRtp->getRtpSequenceNumber(), pRtp->getRtpTimestamp(),
            pRtp->getRtpPayloadType());
+
+   // Drop packets that carry no payload before they can reach the dejitter.
+   //
+   // pjmedia and others send a bare RTP header as a stream keep-alive, which
+   // shows up whenever the far end has media set up but nothing to send yet --
+   // most reliably during a DTLS-SRTP handshake.  There is no audio in one, so
+   // it decodes to zero samples, and doProcessFrame() only advances
+   // mStreamState.rtpStreamPosition when decodedLength > 0.  Left in the
+   // stream, such a packet is pulled from the dejitter, yields nothing, and
+   // leaves the pull position pinned to its timestamp forever: every later
+   // packet stays queued at a position the stream never reaches again, and the
+   // connection plays silence for the rest of the call.
+   //
+   // Dropping here rather than in MpJitterBuffer::pushPacket() is the point --
+   // by the time the jitter buffer sees a packet it has already been pulled,
+   // and skipping the decode at that stage is what pins the position.
+   if (pRtp->getPayloadSize() == 0)
+   {
+      return OS_SUCCESS;
+   }
 
    // Get decoder info for this packet.
    int pt = pRtp->getRtpPayloadType();
@@ -503,6 +535,49 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       else
       {
             mLastPulledSeq = rtp->getRtpSequenceNumber();
+      }
+
+      // Last-resort unstick.  Every pull above is by timestamp, and the code
+      // below only advances rtpStreamPosition when a packet decodes to samples
+      // (decodedLength > 0).  A packet that yields none therefore leaves the
+      // position pinned to its own timestamp: it has already been consumed, so
+      // no later pull can ever match, every packet queued behind it becomes
+      // unreachable, and the connection plays silence for the rest of the call
+      // with nothing logged.  The discontinuity recovery above does not cover
+      // it, because that requires the queued packet to be sequentially next.
+      //
+      // Failing to pull while the dejitter is EMPTY is ordinary -- the next
+      // packet simply has not arrived and PLC covers the gap -- so only a run
+      // of failures with packets actually queued means the position is stuck.
+      if (rtp.isValid())
+      {
+         mConsecutiveEmptyPulls = 0;
+      }
+      else if (mStreamState.isFirstRtpPulled && mpMyDJ->getNumPackets() > 0)
+      {
+         mConsecutiveEmptyPulls++;
+         if (mConsecutiveEmptyPulls >= sStuckStreamFrames)
+         {
+            RtpSeq stuckSeq;
+            RtpTimestamp stuckTime;
+            if (mpMyDJ->getFirstPacketInfo(stuckSeq, stuckTime) == OS_SUCCESS)
+            {
+               OsSysLog::add(FAC_MP, PRI_WARNING,
+                  "MprDecode::doProcessFrame %s: pulled nothing for %d frames with %d "
+                  "packets queued, stream position %" PRIu32 " is stuck - resuming at %"
+                  PRIu32 " (seq %" PRIu16 ")",
+                  data(), mConsecutiveEmptyPulls, mpMyDJ->getNumPackets(),
+                  mStreamState.rtpStreamPosition, stuckTime, stuckSeq);
+
+               mStreamState.rtpStreamPosition = stuckTime;
+               rtp = mpMyDJ->pullPacket(stuckTime, &nextPacketAvailable);
+               if (rtp.isValid())
+               {
+                  mLastPulledSeq = rtp->getRtpSequenceNumber();
+               }
+            }
+            mConsecutiveEmptyPulls = 0;
+         }
       }
 
       if (rtp.isValid())
@@ -995,6 +1070,7 @@ UtlBoolean MprDecode::handleReset()
    }
 
    mIsStreamInitialized = FALSE;
+   mConsecutiveEmptyPulls = 0;
 
    OsSysLog::add(FAC_MP, PRI_DEBUG,
                  "MprDecode::handleReset %s flowgraph: %p",

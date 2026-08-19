@@ -65,8 +65,11 @@ namespace
             srtp_crypto_policy_set_aes_cm_128_hmac_sha1_80(&policy.rtcp);
             break;
          case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_32:
+            // 80 bit tag on .rtcp mirrors setSrtpParams() - see the RFC 4568 /
+            // RFC 6188 note there.  The probe has to build the same policy it
+            // is vouching for.
             srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32(&policy.rtp);
-            srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32(&policy.rtcp);
+            srtp_crypto_policy_set_aes_cm_128_hmac_sha1_80(&policy.rtcp);
             break;
          case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_80:
             srtp_crypto_policy_set_aes_cm_192_hmac_sha1_80(&policy.rtp);
@@ -74,7 +77,7 @@ namespace
             break;
          case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_32:
             srtp_crypto_policy_set_aes_cm_192_hmac_sha1_32(&policy.rtp);
-            srtp_crypto_policy_set_aes_cm_192_hmac_sha1_32(&policy.rtcp);
+            srtp_crypto_policy_set_aes_cm_192_hmac_sha1_80(&policy.rtcp);
             break;
          case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_80:
             srtp_crypto_policy_set_aes_cm_256_hmac_sha1_80(&policy.rtp);
@@ -82,7 +85,7 @@ namespace
             break;
          case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_32:
             srtp_crypto_policy_set_aes_cm_256_hmac_sha1_32(&policy.rtp);
-            srtp_crypto_policy_set_aes_cm_256_hmac_sha1_32(&policy.rtcp);
+            srtp_crypto_policy_set_aes_cm_256_hmac_sha1_80(&policy.rtcp);
             break;
          case SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_128_GCM:
             srtp_crypto_policy_set_aes_gcm_128_16_auth(&policy.rtp);
@@ -155,6 +158,91 @@ namespace
          "MpSrtp: libsrtp crypto suite capabilities: %s",
          summary.data());
    }
+
+   /// Human readable name for the libsrtp statuses that can come back from
+   /// srtp_unprotect()/srtp_unprotect_rtcp().  The numeric value is logged
+   /// alongside this, so a status not listed here still identifies itself.
+   const char* srtpStatusName(srtp_err_status_t status)
+   {
+      switch (status)
+      {
+         case srtp_err_status_ok:          return "ok";
+         case srtp_err_status_fail:        return "fail";
+         case srtp_err_status_bad_param:   return "bad_param";
+         case srtp_err_status_auth_fail:   return "auth_fail";
+         case srtp_err_status_cipher_fail: return "cipher_fail";
+         case srtp_err_status_replay_fail: return "replay_fail";
+         case srtp_err_status_replay_old:  return "replay_old";
+         case srtp_err_status_no_ctx:      return "no_ctx";
+         case srtp_err_status_cant_check:  return "cant_check";
+         case srtp_err_status_key_expired: return "key_expired";
+         case srtp_err_status_nonce_bad:   return "nonce_bad";
+         case srtp_err_status_bad_mki:     return "bad_mki";
+         case srtp_err_status_pkt_idx_old: return "pkt_idx_old";
+         case srtp_err_status_pkt_idx_adv: return "pkt_idx_adv";
+         default:                          return "unknown";
+      }
+   }
+
+   /// Read a 32-bit big-endian (network order) field.
+   uint32_t readUint32(const uint8_t* buf)
+   {
+      return ((uint32_t)buf[0] << 24) | ((uint32_t)buf[1] << 16) |
+             ((uint32_t)buf[2] <<  8) |  (uint32_t)buf[3];
+   }
+
+   bool isAeadSuite(SdpMediaLine::SdpCryptoSuiteType suite)
+   {
+      return suite == SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_128_GCM ||
+             suite == SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_256_GCM;
+   }
+
+   /// Length of the authentication tag libsrtp appends to SRTCP, for the .rtcp
+   /// policy setSrtpParams() installs.  Only used to locate the SRTCP index for
+   /// logging -- if it is ever wrong the index reads as garbage, it has no
+   /// bearing on what libsrtp itself does with the packet.
+   ///
+   /// Note this is the SRTCP tag, so the _32 suites report 10 and not 4: they
+   /// truncate SRTP only and keep SRTCP at 80 bits.  See setSrtpParams().
+   int srtcpAuthTagLen(SdpMediaLine::SdpCryptoSuiteType suite)
+   {
+      switch (suite)
+      {
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80:
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_80:
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_80:
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_32:
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_32:
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_32:
+            return 10;
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_128_GCM:
+         case SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_256_GCM:
+            return 16;
+         default:
+            return 0;
+      }
+   }
+
+   /// Pull the 31-bit SRTCP index out of the packet trailer.  For the AES-CM
+   /// suites the trailer sits ahead of the auth tag; for the AEAD suites it is
+   /// the last four octets of the packet (RFC 7714 section 9.3).  Returns false
+   /// when the packet is too short to hold one.
+   bool srtcpIndexFromPacket(SdpMediaLine::SdpCryptoSuiteType suite,
+                             const uint8_t* buf, int len, uint32_t& index)
+   {
+      const int tagLen = srtcpAuthTagLen(suite);
+      const int trailerOffset = isAeadSuite(suite) ? len - 4 : len - tagLen - 4;
+
+      // Needs to leave room for the fixed 8 byte RTCP header ahead of it.
+      if (trailerOffset < 8)
+      {
+         return false;
+      }
+
+      // Top bit of the trailer is the E (encrypted) flag, not part of the index.
+      index = readUint32(buf + trailerOffset) & 0x7FFFFFFF;
+      return true;
+   }
 }
 #endif
 
@@ -178,6 +266,7 @@ MpSrtp::MpSrtp() :
    mLock(OsMutex::Q_PRIORITY | OsMutex::INVERSION_SAFE),
    mCryptoSuite(SdpMediaLine::CRYPTO_SUITE_TYPE_NONE),
    mSrtpSessionCreated(FALSE),
+   mLoggedUnkeyedPassthrough(FALSE),
    mSrtpSession(NULL)
 {
 }
@@ -340,6 +429,19 @@ UtlBoolean MpSrtp::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, c
    memset(&srtpPolicy, 0, sizeof(srtp_policy_t));
 
    // Load default srtp/srtcp policy settings.
+   //
+   // The _32 suites are asymmetric on purpose: they truncate the SRTP tag to 32
+   // bits but leave SRTCP at 80.  RFC 4568 section 6.2 spells that out for
+   // AES_CM_128_HMAC_SHA1_32, RFC 6188 sections 3.2 and 3.4 repeat it for the
+   // 192 and 256 bit variants, and it follows from RFC 3711 section 7.5, which
+   // argues against short tags on control traffic because a forged RTCP BYE or
+   // report costs far more than a forged media packet.  libsrtp says the same in
+   // the header comment on srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32:
+   // "This crypto policy is intended for use in SRTP, but not in SRTCP."
+   //
+   // So the _32 cases deliberately install the matching _80 policy on .rtcp.
+   // Handing .rtcp the _32 policy produces a 40 bit SRTCP tag that no conformant
+   // peer will authenticate, in either direction.
    switch (cryptoSuite)
    {
       case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_80:
@@ -348,7 +450,7 @@ UtlBoolean MpSrtp::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, c
          break;
       case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_128_HMAC_SHA1_32:
          srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32(&srtpPolicy.rtp);
-         srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32(&srtpPolicy.rtcp);
+         srtp_crypto_policy_set_aes_cm_128_hmac_sha1_80(&srtpPolicy.rtcp);
          break;
       case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_80:
          srtp_crypto_policy_set_aes_cm_192_hmac_sha1_80(&srtpPolicy.rtp);
@@ -356,7 +458,7 @@ UtlBoolean MpSrtp::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, c
          break;
       case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_192_HMAC_SHA1_32:
          srtp_crypto_policy_set_aes_cm_192_hmac_sha1_32(&srtpPolicy.rtp);
-         srtp_crypto_policy_set_aes_cm_192_hmac_sha1_32(&srtpPolicy.rtcp);
+         srtp_crypto_policy_set_aes_cm_192_hmac_sha1_80(&srtpPolicy.rtcp);
          break;
       case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_80:
          srtp_crypto_policy_set_aes_cm_256_hmac_sha1_80(&srtpPolicy.rtp);
@@ -364,7 +466,7 @@ UtlBoolean MpSrtp::setSrtpParams(SdpMediaLine::SdpCryptoSuiteType cryptoSuite, c
          break;
       case SdpMediaLine::CRYPTO_SUITE_TYPE_AES_CM_256_HMAC_SHA1_32:
          srtp_crypto_policy_set_aes_cm_256_hmac_sha1_32(&srtpPolicy.rtp);
-         srtp_crypto_policy_set_aes_cm_256_hmac_sha1_32(&srtpPolicy.rtcp);
+         srtp_crypto_policy_set_aes_cm_256_hmac_sha1_80(&srtpPolicy.rtcp);
          break;
       case SdpMediaLine::CRYPTO_SUITE_TYPE_AEAD_AES_128_GCM:
          // RFC 7714 - AES-128 GCM with 16-byte auth tag (128-bit tag).
@@ -453,14 +555,18 @@ bool MpSrtp::isValidSrtp(const uint8_t* buf, size_t len)
 }
 
 // Fast-path validation for Inbound SRTCP (Control)
-// 1. Minimum length for AES - 128_HMAC_SHA1_32 is 16 bytes
+// 1. Minimum length is 16 bytes
 //    - 8 bytes : Fixed RTCP Header(Header + SSRC)
 //    - 4 bytes : SRTCP Index(Mandatory 31 - bit index + 1 - bit E - flag)
-//    - 4 bytes : Authentication Tag(Truncated HMAC - SHA1 - 32)
-//    That is the size of a bare Receiver Report with no report blocks, which
-//    is what a peer sends when it has nothing to report.  The floor used to
-//    be 20, which does not match the breakdown above and silently discarded
-//    those packets.
+//    - 4 bytes : Authentication Tag
+//    The smallest packet the suites in setSrtpParams() can actually produce is
+//    22 bytes -- a bare Receiver Report with no report blocks, under an 80 bit
+//    SRTCP tag, which is what every AES-CM suite here uses including the _32
+//    ones.  This floor is left below that on purpose: it is a cheap screen to
+//    keep obviously-not-SRTCP out of libsrtp, not a conformance check, and
+//    libsrtp validates the exact length against the negotiated policy itself.
+//    The floor used to be 20, which was above the real minimum at the time and
+//    silently discarded bare Receiver Reports.
 // 2. Version must be 2 (0x80 mask)
 // 3. Packet Type (Byte 1) must be in the RTCP range (192-223)
 bool MpSrtp::isValidSrtcp(const uint8_t* buf, size_t len)
@@ -503,9 +609,29 @@ UtlBoolean MpSrtp::srtpUnprotectIfNeeded(const uint8_t* data, int* size, UtlBool
    srtp_err_status_t status;
    if (!mSrtpSessionCreated)
    {
-      // No SRTP configured for this session
+      // No SRTP configured -- the packet is handed on untouched.  Worth saying
+      // once, because downstream this is indistinguishable from a successful
+      // unprotect and yet means the opposite: on a session that IS meant to be
+      // encrypted, it passes ciphertext (and the auth tag) to the RTP parser.
+      if (!mLoggedUnkeyedPassthrough)
+      {
+         mLoggedUnkeyedPassthrough = TRUE;
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MpSrtp::srtpUnprotectIfNeeded: no SRTP session on this context, "
+            "passing %s through unmodified (size=%d)",
+            rtcp ? "RTCP" : "RTP", *size);
+      }
       return TRUE;
    }
+   // Captured before the unprotect call, which rewrites the buffer in place and
+   // shrinks *size.  Both are needed to make sense of a failure: libsrtp keys
+   // its stream lookup and its replay window off the SSRC, and the index is
+   // what the replay window actually rejects.
+   const int protectedSize = *size;
+   uint32_t ssrc = 0;
+   uint32_t index = 0;
+   bool haveIndex = false;
+
    if (rtcp == FALSE)
    {
       if (!isValidSrtp(data, *size))
@@ -514,6 +640,11 @@ UtlBoolean MpSrtp::srtpUnprotectIfNeeded(const uint8_t* data, int* size, UtlBool
          // Avoid srtp_err_status_bad_param error in srtp_unprotect
          return TRUE;
       }
+      // isValidSrtp() guarantees at least a full 12 byte RTP header.
+      ssrc = readUint32(data + 8);
+      index = (uint32_t)((data[2] << 8) | data[3]);   // RTP sequence number
+      haveIndex = true;
+
       status = srtp_unprotect(mSrtpSession, (void*)data, size);
    }
    else
@@ -524,12 +655,43 @@ UtlBoolean MpSrtp::srtpUnprotectIfNeeded(const uint8_t* data, int* size, UtlBool
          // Avoid srtp_err_status_bad_param error in srtp_unprotect_rtcp
          return TRUE;
       }
+      // isValidSrtcp() guarantees at least a full 8 byte RTCP header.
+      ssrc = readUint32(data + 4);
+      haveIndex = srtcpIndexFromPacket(mCryptoSuite, data, protectedSize, index);
+
       status = srtp_unprotect_rtcp(mSrtpSession, (void*)data, size);
    }
+
    if (status)
    {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MpSrtp::srtpUnprotectIfNeeded: srtp_unprotect error = %d", status);
+      // Warning rather than error: a rejected inbound packet is this function
+      // working, not failing.  Anything that can reach the media port can
+      // provoke one, so treating each as an error both overstates a peer's
+      // one-off quirk and hands anyone who can send us a datagram a way to fill
+      // the log.  The protect side stays at error, since a failure there is
+      // ours.
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+         "MpSrtp::srtpUnprotectIfNeeded: %s error = %s (%d), suite=%s, ssrc=0x%08x, %s=%u, size=%d",
+         rtcp ? "srtp_unprotect_rtcp" : "srtp_unprotect",
+         srtpStatusName(status), status,
+         SdpMediaLine::SdpCryptoSuiteTypeString[mCryptoSuite],
+         ssrc,
+         rtcp ? "srtcpIndex" : "rtpSeq",
+         haveIndex ? index : 0,
+         protectedSize);
       return FALSE;
+   }
+
+   if (rtcp)
+   {
+      // RTCP arrives on the order of one packet every few seconds, so logging
+      // every accepted one costs nothing and gives the successful indexes to
+      // compare a rejected one against -- an index that repeats or jumps
+      // backwards is what separates a duplicated packet from a peer that
+      // restarted its SRTP context out from under our replay window.
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "MpSrtp::srtpUnprotectIfNeeded: srtp_unprotect_rtcp ok, ssrc=0x%08x, srtcpIndex=%u, size=%d->%d",
+         ssrc, haveIndex ? index : 0, protectedSize, *size);
    }
 #endif
    return TRUE;
@@ -570,7 +732,12 @@ UtlBoolean MpSrtp::srtpProtectIfNeeded(const uint8_t* data, int* size, UtlBoolea
    }
    if (status)
    {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MpSrtp::srtpProtectIfNeeded: srtp_protect error = %d", status);
+      OsSysLog::add(FAC_MP, PRI_ERR,
+         "MpSrtp::srtpProtectIfNeeded: %s error = %s (%d), suite=%s, size=%d",
+         rtcp ? "srtp_protect_rtcp" : "srtp_protect",
+         srtpStatusName(status), status,
+         SdpMediaLine::SdpCryptoSuiteTypeString[mCryptoSuite],
+         *size);
       return FALSE;
    }
 #endif

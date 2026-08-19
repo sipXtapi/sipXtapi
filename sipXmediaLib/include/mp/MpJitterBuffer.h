@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc.  All rights reserved.
+//  
 // Copyright (C) 2006-2014 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2008 SIPfoundry Inc.
@@ -211,6 +213,15 @@ private:
                                     ///< Note, we do not own instance of this map,
                                     ///< we only store pointer to it.
    unsigned mSamplesPerPacket;      ///< Number of samples in RTP packet.
+
+   /// Diagnostic counters, reported once by the destructor.  This is the last
+   /// stage before decoded audio reaches the bridge, and every way a packet can
+   /// be dropped here is otherwise silent.
+   int mNumPacketsIn;               ///< Packets handed to pushPacket().
+   int mNumLateDropped;             ///< Dropped: sequence too far behind stream.
+   int mNumNoDecoder;               ///< Dropped: no decoder for the payload type.
+   int mNumDecoded;                 ///< Decoded to one or more samples.
+   int mNumZeroSamples;             ///< Decoder returned no samples.
 //@}
 
    UtlString  mPlcName;             ///< Packet Loss Concealer algorithm name.
