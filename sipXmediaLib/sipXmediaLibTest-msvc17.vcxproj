@@ -231,7 +231,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>..\..\pcre\include;..\sipXportLib\src\test;..\sipXportLib\include;include;..\sipXtackLib\include;..\sipXsdpLib\include;src\test;../sipXportLib/src/test;contrib\libopus\opusfile\include;contrib\libopus\libopusenc\include;contrib\libopus\opus\include;contrib\libopus\libogg\include;../sipXportLib/src/test/sipxportunit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;OPUS_FILE_RECORD_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;OPUS_FILE_RECORD_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -247,7 +247,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
@@ -282,7 +282,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>..\..\pcre\include;..\sipXportLib\src\test;..\sipXportLib\include;include;..\sipXtackLib\include;..\sipXsdpLib\include;src\test;../sipXportLib/src/test;contrib\libopus\opusfile\include;contrib\libopus\libopusenc\include;contrib\libopus\opus\include;contrib\libopus\libogg\include;../sipXportLib/src/test/sipxportunit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;OPUS_FILE_RECORD_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;OPUS_FILE_RECORD_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -297,7 +297,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
