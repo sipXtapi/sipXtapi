@@ -382,6 +382,7 @@
     <ClCompile Include="..\sipXportLib\src\test\os\UnitTestLogHooks.cpp" />
     <ClCompile Include="sipXmediaMediaProcessing\src\test\CpCryptoTest.cpp" />
     <ClCompile Include="sipXmediaMediaProcessing\src\test\CpDtlsTest.cpp" />
+    <ClCompile Include="sipXmediaMediaProcessing\src\test\CpRtcpMuxTest.cpp" />
     <ClCompile Include="sipXmediaMediaProcessing\src\test\CpSrtcpTest.cpp" />
     <ClCompile Include="sipXmediaMediaProcessing\src\test\CpPhoneMediaInterfaceTest.cpp" />
   </ItemGroup>

@@ -41,6 +41,7 @@ testsuite_SOURCES = \
     ../../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp \
     CpCryptoTest.cpp \
     CpDtlsTest.cpp \
+    CpRtcpMuxTest.cpp \
     CpSrtcpTest.cpp \
     CpPhoneMediaInterfaceTest.cpp
 
