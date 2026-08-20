@@ -28,7 +28,8 @@ testsuite_SOURCES = \
     jnibutton.cpp \
     cp/CpTestSupport.cpp \
     cp/CpTestSupport.h \
-    cp/CallManagerTest.cpp 
+    cp/CallManagerTest.cpp \
+    ../../../sipXportLib/src/test/os/UnitTestLogHooks.cpp
 
 regression_CPPFLAGS = @CPPUNIT_CFLAGS@
 

@@ -403,6 +403,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\test\cp\CallManagerTest.cpp" />
+    <ClCompile Include="..\sipXportLib\src\test\os\UnitTestLogHooks.cpp" />
     <ClCompile Include="src\test\cp\CpTestSupport.cpp" />
   </ItemGroup>
   <ItemGroup>
