@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2026 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -29,6 +29,9 @@
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType OsTimer::TYPE = "OsTimer" ;
 
+// Ids start at 1 so that 0 can be used to mean "no timer".
+OsAtomicULong OsTimer::sNextId(1);
+
 #ifdef VALGRIND_TIMER_ERROR
 // Dummy static variable to receive values from tracking variables.
 static char dummy;
@@ -42,8 +45,14 @@ static char dummy;
 // Timer expiration event notification happens using the 
 // newly created OsQueuedEvent object
 
-OsTimer::OsTimer(OsMsgQ* pQueue, intptr_t userData) :
+OsTimer::OsTimer(OsMsgQ* pQueue, intptr_t userData,
+                 const char* callerFunction, const char* callerFile,
+                 int callerLine) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
+   mId(sNextId++),
+   mCallerFunction(callerFunction ? callerFunction : ""),
+   mCallerFile(callerFile ? callerFile : ""),
+   mCallerLine(callerLine),
    mApplicationState(0),
    mWasFired(FALSE),
    mTaskState(0),
@@ -63,8 +72,14 @@ OsTimer::OsTimer(OsMsgQ* pQueue, intptr_t userData) :
 
 // The address of "this" OsTimer object is the eventData that is
 // conveyed to the Listener when the notification is signaled.
-OsTimer::OsTimer(OsNotification& rNotifier) :
+OsTimer::OsTimer(OsNotification& rNotifier,
+                 const char* callerFunction, const char* callerFile,
+                 int callerLine) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
+   mId(sNextId++),
+   mCallerFunction(callerFunction ? callerFunction : ""),
+   mCallerFile(callerFile ? callerFile : ""),
+   mCallerLine(callerLine),
    mApplicationState(0),
    mWasFired(FALSE),
    mTaskState(0),
@@ -266,6 +281,31 @@ OsStatus OsTimer::stop(UtlBoolean synchronous)
 OsNotification* OsTimer::getNotifier(void) const
 {
    return mpNotifier;
+}
+
+unsigned long OsTimer::getId() const
+{
+   return mId;
+}
+
+const char* OsTimer::getCallerFunction() const
+{
+   return mCallerFunction;
+}
+
+const char* OsTimer::getCallerFile() const
+{
+   return mCallerFile;
+}
+
+int OsTimer::getCallerLine() const
+{
+   return mCallerLine;
+}
+
+unsigned long OsTimer::getNextId()
+{
+   return sNextId;
 }
 
 unsigned OsTimer::hash() const

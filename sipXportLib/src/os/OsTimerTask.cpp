@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2005-2026 SIPez LLC.  All rights reserved.
 // 
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -34,6 +34,12 @@ volatile OsTimerTask* OsTimerTask::spInstance = 0;
 // which can lead to problems with the ordering of destructors.
 OsBSem*      OsTimerTask::sLock = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
 const int    OsTimerTask::TIMER_MAX_REQUEST_MSGS = 10000;
+
+OsTimerTask::OsTimerCensusEntry OsTimerTask::sCensus[OsTimerTask::TIMER_CENSUS_MAX_ENTRIES];
+int OsTimerTask::sCensusCount = 0;
+int OsTimerTask::sCensusOverflowCount = 0;
+int OsTimerTask::sCensusPendingMessageCount = 0;
+int OsTimerTask::sCensusShutdownCount = 0;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -103,6 +109,39 @@ OsTimerTask::~OsTimerTask()
 /* ============================ MANIPULATORS ============================== */
 
 /* ============================ ACCESSORS ================================= */
+
+int OsTimerTask::getCensusCount()
+{
+   return sCensusCount;
+}
+
+const OsTimerTask::OsTimerCensusEntry* OsTimerTask::getCensusEntry(int index)
+{
+   return (index >= 0 && index < sCensusCount) ? &sCensus[index] : NULL;
+}
+
+int OsTimerTask::getCensusOverflowCount()
+{
+   return sCensusOverflowCount;
+}
+
+int OsTimerTask::getCensusPendingMessageCount()
+{
+   return sCensusPendingMessageCount;
+}
+
+int OsTimerTask::getCensusShutdownCount()
+{
+   return sCensusShutdownCount;
+}
+
+void OsTimerTask::clearCensus()
+{
+   sCensusCount = 0;
+   sCensusOverflowCount = 0;
+   sCensusPendingMessageCount = 0;
+   sCensusShutdownCount = 0;
+}
 
 /* ============================ INQUIRY =================================== */
 
@@ -241,6 +280,11 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       // Verify that there are no other requests in the timer task's queue.
       assert(getMessageQueue()->isEmpty());
 
+      // Record which timers are about to be force stopped.  See getCensusCount().
+      int censusStart = sCensusCount;
+      sCensusShutdownCount++;
+      sCensusPendingMessageCount += getMessageQueue()->numMsgs();
+
       // Stop all the timers in the timer queue.
       OsTimer* link;
       for (OsTimer* timer = mTimerQueue; timer; timer = link)
@@ -248,6 +292,21 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
          // This lock should never block, since the application should not
          // be accessing the timer.
          OsLock lock(timer->mBSem);
+
+         if (sCensusCount < TIMER_CENSUS_MAX_ENTRIES)
+         {
+            sCensus[sCensusCount].mId = timer->mId;
+            sCensus[sCensusCount].mCallerFunction = timer->mCallerFunction;
+            sCensus[sCensusCount].mCallerFile = timer->mCallerFile;
+            sCensus[sCensusCount].mCallerLine = timer->mCallerLine;
+            sCensus[sCensusCount].mPeriodic = timer->mQueuedPeriodic;
+            sCensus[sCensusCount].mPeriodMsec = (int) timer->mQueuedPeriod.cvtToMsecs();
+            sCensusCount++;
+         }
+         else
+         {
+            sCensusOverflowCount++;
+         }
 
          // Check that the application and task states are the same.
          // If they aren't, the application is mucking with the timer.
@@ -264,6 +323,26 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       }
       // Empty the timer queue.
       mTimerQueue = 0;
+
+      // Report outside the loop so that nothing logs while holding a timer lock.
+      if (sCensusCount > censusStart || sCensusOverflowCount > 0)
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                       "OsTimerTask::handleMessage OS_TIMER_SHUTDOWN force stopped %d started timer(s), %d not recorded, %d request(s) still queued",
+                       sCensusCount - censusStart, sCensusOverflowCount,
+                       getMessageQueue()->numMsgs());
+         for (int censusIndex = censusStart; censusIndex < sCensusCount; censusIndex++)
+         {
+            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                          "OsTimerTask::handleMessage started timer id=%lu periodic=%d period=%dms from %s (%s:%d)",
+                          sCensus[censusIndex].mId,
+                          sCensus[censusIndex].mPeriodic,
+                          sCensus[censusIndex].mPeriodMsec,
+                          sCensus[censusIndex].mCallerFunction,
+                          sCensus[censusIndex].mCallerFile,
+                          sCensus[censusIndex].mCallerLine);
+         }
+      }
 
       // Change mState so the main loop will exit.
       requestShutdown();

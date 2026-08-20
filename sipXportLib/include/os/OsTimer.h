@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2026 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -26,6 +26,7 @@
 #include <os/OsTime.h>
 #include <utl/UtlContainable.h>
 #include <os/OsBSem.h>
+#include <os/OsAtomics.h>
 
 
 // DEFINES
@@ -35,6 +36,19 @@
 /// methods.
 #define CHECK_VALIDITY(x) \
             assert((x)->getContainableType() == OsTimer::TYPE)
+
+/// Capture the calling function, file and line where an OsTimer is constructed.
+/// Used as default argument values, these expand in the caller's context, so
+/// existing call sites are tagged without being changed.
+#if defined(__GNUC__) || (defined(_MSC_VER) && _MSC_VER >= 1929)
+#  define OS_TIMER_CALLER_FUNCTION __builtin_FUNCTION()
+#  define OS_TIMER_CALLER_FILE     __builtin_FILE()
+#  define OS_TIMER_CALLER_LINE     __builtin_LINE()
+#else
+#  define OS_TIMER_CALLER_FUNCTION ""
+#  define OS_TIMER_CALLER_FILE     ""
+#  define OS_TIMER_CALLER_LINE     0
+#endif
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -137,7 +151,10 @@ public:
     *  rNotifier.signal((int) this)
     *  @endcode
     */
-   OsTimer(OsNotification& rNotifier ///< OsNotification object to report event
+   OsTimer(OsNotification& rNotifier, ///< OsNotification object to report event
+           const char* callerFunction = OS_TIMER_CALLER_FUNCTION,
+           const char* callerFile = OS_TIMER_CALLER_FILE,
+           int callerLine = OS_TIMER_CALLER_LINE
       );
 
    /** Construct a timer that signals by calling
@@ -146,7 +163,10 @@ public:
     *  @endcode
     */
    OsTimer(OsMsgQ* pQueue,      ///< Queue to send OsEventMsg::NOTIFY message
-           intptr_t userData    ///< userData value to store in OsQueuedEvent
+           intptr_t userData,   ///< userData value to store in OsQueuedEvent
+           const char* callerFunction = OS_TIMER_CALLER_FUNCTION,
+           const char* callerFile = OS_TIMER_CALLER_FILE,
+           int callerLine = OS_TIMER_CALLER_LINE
       );
 
    /// @}
@@ -239,6 +259,30 @@ public:
     * Note that stop fails on a stopped timer.
     */
 
+   /// Get the unique id assigned to this timer when it was constructed
+   unsigned long getId() const;
+   /**
+    * Ids are never reused, so an id identifies a timer even after the
+    * address has been recycled by a later allocation.
+    */
+
+   /// Get the function that constructed this timer, "" if not available
+   const char* getCallerFunction() const;
+
+   /// Get the file that constructed this timer, "" if not available
+   const char* getCallerFile() const;
+
+   /// Get the line that constructed this timer, 0 if not available
+   int getCallerLine() const;
+
+   /// Get the id that the next OsTimer constructed will be given
+   static unsigned long getNextId();
+   /**
+    * Sample this before an operation to later tell which timers the
+    * operation created:  those are the timers whose getId() is >= the
+    * sampled value.
+    */
+
 /* ============================ INQUIRY =================================== */
 
    /// Compare the this object to another like-objects.
@@ -256,6 +300,11 @@ public:
 protected:
 
    OsBSem          mBSem;      ///< Semaphore to lock access to members.
+
+   unsigned long   mId;        ///< Unique, never reused id for this timer.
+   const char*     mCallerFunction; ///< Function that constructed this timer.
+   const char*     mCallerFile; ///< File that constructed this timer.
+   int             mCallerLine; ///< Line that constructed this timer.
 
    unsigned int    mApplicationState;
    UtlBoolean      mWasFired;  ///< TRUE if timer is stopped because it was fired
@@ -288,6 +337,9 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
+
+   /// Source of mId values, incremented by each constructor.
+   static OsAtomicULong sNextId;
 
    /// Copy constructor (not implemented for this class)
    OsTimer(const OsTimer& rOsTimer);

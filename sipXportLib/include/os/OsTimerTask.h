@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -43,6 +43,19 @@ class OsTimerTask : public OsServerTask
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   enum { TIMER_CENSUS_MAX_ENTRIES = 32 };
+
+   /// Signature of one timer found still started when the timer task was destroyed
+   struct OsTimerCensusEntry
+   {
+      unsigned long mId;             ///< OsTimer::getId of the timer.
+      const char*   mCallerFunction; ///< Function that constructed the timer.
+      const char*   mCallerFile;     ///< File that constructed the timer.
+      int           mCallerLine;     ///< Line that constructed the timer.
+      UtlBoolean    mPeriodic;       ///< TRUE if the timer fires repetitively.
+      int           mPeriodMsec;     ///< Repetition period, 0 if not periodic.
+   };
+
 /* ============================ CREATORS ================================== */
 
    static OsTimerTask* getTimerTask(void);
@@ -61,6 +74,35 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
 /* ============================ ACCESSORS ================================= */
+
+   /// Number of started timers recorded since the census was last cleared
+   static int getCensusCount();
+   /**
+    * destroyTimerTask() stops every timer still in the timer queue, whether
+    * or not its owner is finished with it.  The census records those timers
+    * so that a caller can tell whether a teardown was clean.  It accumulates
+    * across destructions, as sipxUnInitialize destroys the task more than
+    * once.
+    *
+    * The census is written on the timer task thread while handling the
+    * shutdown message, and ~OsTimerTask waits for that message to be
+    * handled, so these values are stable once destroyTimerTask() returns.
+    */
+
+   /// Get a recorded timer, index must be < getCensusCount()
+   static const OsTimerCensusEntry* getCensusEntry(int index);
+
+   /// Number of started timers that did not fit in the census
+   static int getCensusOverflowCount();
+
+   /// Number of requests still queued when the timer task was destroyed
+   static int getCensusPendingMessageCount();
+
+   /// Number of times the timer task was destroyed since the census was cleared
+   static int getCensusShutdownCount();
+
+   /// Discard everything recorded in the census
+   static void clearCensus();
 
 /* ============================ INQUIRY =================================== */
 
@@ -103,6 +145,13 @@ private:
 
    /// Semaphore used to protect manipulations of spInstance.
    static OsBSem *sLock;
+
+   /// Census of timers still started when the timer task was destroyed.
+   static OsTimerCensusEntry sCensus[TIMER_CENSUS_MAX_ENTRIES];
+   static int sCensusCount;
+   static int sCensusOverflowCount;
+   static int sCensusPendingMessageCount;
+   static int sCensusShutdownCount;
 
    /// The queue of timer requests, ordered by increasing firing time.
    OsTimer* mTimerQueue;
