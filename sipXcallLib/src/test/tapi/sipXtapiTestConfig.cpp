@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -32,6 +32,8 @@ extern EventRecorder g_recorder2 ;
 
 extern SIPX_INST g_hInst3;
 extern EventRecorder g_recorder3 ;
+
+extern SIPX_INST g_hInst4;
 
 extern bool g_bCallbackCalled;
 
@@ -543,6 +545,67 @@ void sipXtapiTestSuite::testTeardown()
 
     checkForLeaks() ;
 } 
+
+void sipXtapiTestSuite::testLoggingSurvivesOtherInstanceUninit()
+{
+// sipXtapi is a DLL and sipXportLib is static, so this executable has
+    // its own copy of the OsSysLog statics, separate from the DLL's.  The
+    // DLL's log state cannot be read from here.  What is observable is
+    // sipXtapi.log, which sipxInitialize opens (LOG_TO_FILE) in unbounded
+    // mode with a flush per entry, so growth appears immediately.
+    SIPX_INST hInstB = NULL ;
+    SIPX_RESULT rc ;
+    SIPX_LINE hLine = SIPX_LINE_NULL ;
+
+    rc = sipxInitialize(&hInstB, 14000, 14000, 14001, 14050, 32, NULL, "127.0.0.1") ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+    rc = sipxUnInitialize(hInstB) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+    // The DLL holds sipXtapi.log open for append and Windows does not
+    // refresh the directory entry size while it is open, so stat() cannot
+    // be used to detect growth.  Read the file instead, from the offset
+    // recorded before the probe, and look for the marker.
+    char probeUri[128] ;
+    sprintf(probeUri, "sip:logprobe%u@127.0.0.1:8000",
+            (unsigned) OsDateTime::getSecsSinceEpoch()) ;
+
+    FILE* logBefore = fopen("sipXtapi.log", "rb") ;
+    CPPUNIT_ASSERT_MESSAGE("sipXtapi.log not found", logBefore != NULL) ;
+    fseek(logBefore, 0, SEEK_END) ;
+    long probeStartOffset = ftell(logBefore) ;
+    fclose(logBefore) ;
+
+    // Exercise a surviving instance through APIs that log at PRI_INFO.
+    rc = sipxLineAdd(g_hInst, probeUri, &hLine) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    rc = sipxLineRemove(hLine) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+    // Search only what was appended after the offset above.
+    FILE* logAfter = fopen("sipXtapi.log", "rb") ;
+    CPPUNIT_ASSERT_MESSAGE("sipXtapi.log not found", logAfter != NULL) ;
+    fseek(logAfter, probeStartOffset, SEEK_SET) ;
+
+    UtlBoolean foundProbe = FALSE ;
+    char logLine[2048] ;
+    while (fgets(logLine, sizeof(logLine), logAfter) != NULL)
+    {
+        if (strstr(logLine, probeUri) != NULL)
+        {
+            foundProbe = TRUE ;
+            break ;
+        }
+    }
+    fclose(logAfter) ;
+
+    CPPUNIT_ASSERT_MESSAGE("no log output after another instance uninitialized -- "
+                           "OsSysLog was shut down while instances were still live",
+                           foundProbe) ;
+
+    checkForLeaks() ;
+}
 
 void sipXtapiTestSuite::testReinitializeSimple() 
 {

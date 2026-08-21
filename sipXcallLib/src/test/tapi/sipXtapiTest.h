@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2010 SIPfoundry Inc. All rights reserved.
 // Licensed by SIPfoundry under the LGPL license.
@@ -279,6 +279,7 @@ class sipXtapiTestSuite : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testTeardown);
     CPPUNIT_TEST(testTeardown);
     CPPUNIT_TEST(testTeardown);
+    CPPUNIT_TEST(testLoggingSurvivesOtherInstanceUninit);
     CPPUNIT_TEST(testReinitializeSimple);
     CPPUNIT_TEST(testReinitializeCall);
     CPPUNIT_TEST(testReinitializeLine);    
@@ -337,6 +338,8 @@ public:
 
 
     void testNothing() ;
+
+    void testLoggingSurvivesOtherInstanceUninit();
 
     void testGainAPI() ;
     void testMuteAPI() ;
