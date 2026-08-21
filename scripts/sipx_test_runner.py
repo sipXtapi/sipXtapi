@@ -326,13 +326,14 @@ def remove_sipxtapi_log(work_dir):
     fresh log for the run while preserving log output across all the
     sipXtapi tests within that single run.
     """
-    log_path = os.path.join(work_dir, "sipXtapi.log")
-    try:
-        if os.path.isfile(log_path):
-            os.remove(log_path)
-            print("  Removed stale sipXtapi log: %s" % log_path)
-    except OSError as exc:
-        print("  Warning: could not remove %s: %s" % (log_path, exc))
+    for log_name in ("sipXtapi.log", "sipXtapiTests.txt"):
+        log_path = os.path.join(work_dir, log_name)
+        try:
+            if os.path.isfile(log_path):
+                os.remove(log_path)
+                print("  Removed stale sipXtapi log: %s" % log_path)
+        except OSError as exc:
+            print("  Warning: could not remove %s: %s" % (log_path, exc))
 
 def run_project_tests(
     repo_root, project, config, timeout,
