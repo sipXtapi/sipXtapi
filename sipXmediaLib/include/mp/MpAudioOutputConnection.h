@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -358,7 +358,13 @@ MpOutputDeviceDriver* MpAudioOutputConnection::getDeviceDriver() const
 
 MpFrameTime MpAudioOutputConnection::getMixerBufferLength() const
 {
-   return mMixerBufferLength*1000/getDeviceDriver()->getSamplesPerSec();
+   // WARNING: no lock taken!
+   // TODO: This needs investigation.
+
+   // If the output device is disabled, the sample rate gets set to
+   // zero.  Check so that we do not divide by zero.
+   unsigned samplesPerSec = getDeviceDriver()->getSamplesPerSec();
+   return samplesPerSec ? (mMixerBufferLength*1000/samplesPerSec) : 0;
 }
 
 unsigned MpAudioOutputConnection::getUseCount() const
