@@ -315,17 +315,18 @@ def apply_filters(test_list, include_filter, exclude_list):
 def remove_sipxtapi_log(work_dir):
     """Delete the shared sipXtapi log file before the first sipXtapi test runs.
 
-    The sipXtapi test suite hardcodes its log filename to sipXtapiTests.txt
-    (set via sipxConfigSetLogFile in sipXtapiTestSuite::setUp), and unlike
-    the other projects' per-class hooks, nothing truncates this file
-    between runs.  Without this cleanup the file grows without bound
-    across runs (observed at 1+ GB).
+    sipxInitialize hardcodes the filename sipXtapi.log when sipXtapi is
+    built with LOG_TO_FILE, which it is in every Windows configuration.
+    sipxConfigSetLogFile is compiled out under the same define, so the
+    name sipXtapiTestSuite::setUp asks for is silently ignored.  Nothing
+    truncates the file between runs, so without this cleanup it grows
+    without bound (observed at 1.29 GB).
 
     Removing it once per run, before the first sipXtapi test, gives a
     fresh log for the run while preserving log output across all the
     sipXtapi tests within that single run.
     """
-    log_path = os.path.join(work_dir, "sipXtapiTests.txt")
+    log_path = os.path.join(work_dir, "sipXtapi.log")
     try:
         if os.path.isfile(log_path):
             os.remove(log_path)
