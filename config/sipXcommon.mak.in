@@ -1,8 +1,15 @@
 # -*-makefile-*-
 
+# The configure command line is recorded in config.log with shell quoting,
+# so any argument holding spaces -- CPPFLAGS=... or CXXFLAGS=... -- arrives
+# wrapped in single quotes.  LocalizeSipXconfig interpolates this straight
+# into a single-quoted sed expression, where an embedded quote closes that
+# expression early and sed dies with "unterminated `s' command".  Drop the
+# quotes here; what is recorded in config.properties is informational.
 ConfigureArgs=$(shell sed \
 	-e '/^ *\$$ .*\/configure/!d' \
 	-e 's/^ *\$$ .*\/configure *//' \
+	-e "s/'//g" \
 	$(top_builddir)/config.log \
 	)
 
