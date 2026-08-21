@@ -548,11 +548,22 @@ void sipXtapiTestSuite::testTeardown()
 
 void sipXtapiTestSuite::testLoggingSurvivesOtherInstanceUninit()
 {
-// sipXtapi is a DLL and sipXportLib is static, so this executable has
-    // its own copy of the OsSysLog statics, separate from the DLL's.  The
-    // DLL's log state cannot be read from here.  What is observable is
-    // sipXtapi.log, which sipxInitialize opens (LOG_TO_FILE) in unbounded
-    // mode with a flush per entry, so growth appears immediately.
+    // This method's own assertions pass, but the suite's tearDown crashes
+    // in CpMediaInterfaceFactory::removeDispatcher, so the runner may
+    // report this test as failed regardless.  See the dispatcher defect
+    // introduced by uncommenting that call.
+
+    // Uninitialize a bystander instance while the four suite globals stay
+    // up.  sipxUnInitialize used to call OsSysLog::shutdown() regardless of
+    // how many instances remained, and after that OsSysLog::add() silently
+    // drops every entry, so all surviving instances lose logging.
+    //
+
+    // Check the log file rather than OsSysLog's state directly.  On Windows
+    // sipXtapi is a DLL and sipXportLib is static, so this executable has
+    // its own copy of the OsSysLog statics and cannot see the DLL's.  The
+    // file is observable from either side on both platforms.
+
     SIPX_INST hInstB = NULL ;
     SIPX_RESULT rc ;
     SIPX_LINE hLine = SIPX_LINE_NULL ;
@@ -563,19 +574,10 @@ void sipXtapiTestSuite::testLoggingSurvivesOtherInstanceUninit()
     rc = sipxUnInitialize(hInstB) ;
     CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
 
-    // The DLL holds sipXtapi.log open for append and Windows does not
-    // refresh the directory entry size while it is open, so stat() cannot
-    // be used to detect growth.  Read the file instead, from the offset
-    // recorded before the probe, and look for the marker.
+    // Unique per run, so a marker from an earlier run cannot be matched.
     char probeUri[128] ;
     sprintf(probeUri, "sip:logprobe%u@127.0.0.1:8000",
             (unsigned) OsDateTime::getSecsSinceEpoch()) ;
-
-    FILE* logBefore = fopen("sipXtapi.log", "rb") ;
-    CPPUNIT_ASSERT_MESSAGE("sipXtapi.log not found", logBefore != NULL) ;
-    fseek(logBefore, 0, SEEK_END) ;
-    long probeStartOffset = ftell(logBefore) ;
-    fclose(logBefore) ;
 
     // Exercise a surviving instance through APIs that log at PRI_INFO.
     rc = sipxLineAdd(g_hInst, probeUri, &hLine) ;
@@ -583,26 +585,63 @@ void sipXtapiTestSuite::testLoggingSurvivesOtherInstanceUninit()
     rc = sipxLineRemove(hLine) ;
     CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
 
-    // Search only what was appended after the offset above.
-    FILE* logAfter = fopen("sipXtapi.log", "rb") ;
-    CPPUNIT_ASSERT_MESSAGE("sipXtapi.log not found", logAfter != NULL) ;
-    fseek(logAfter, probeStartOffset, SEEK_SET) ;
-
+    // Scan the whole file.  Seeking to an offset recorded before the probe
+    // does not work: the DLL holds this file open and ftell on a separate
+    // handle has been observed to report a position past entries that were
+    // later found earlier in the file.
+    //
+    // Poll, because OsSysLog::add only queues the entry; the log task
+    // thread writes and flushes it, and this executable cannot flush the
+    // DLL's log task.
     UtlBoolean foundProbe = FALSE ;
+    long logSize = 0 ;
     char logLine[2048] ;
-    while (fgets(logLine, sizeof(logLine), logAfter) != NULL)
+    int probeAttempt ;
+
+    for (probeAttempt = 0; probeAttempt < 20 && !foundProbe; probeAttempt++)
     {
-        if (strstr(logLine, probeUri) != NULL)
+// The log filename depends on the build.  With LOG_TO_FILE, which
+        // only the Windows projects define, sipxInitialize hardcodes
+        // sipXtapi.log and sipxConfigSetLogFile is compiled out.  Without
+        // it, the name setUp passes to sipxConfigSetLogFile is used.
+        FILE* logFile = fopen("sipXtapi.log", "rb") ;
+        if (logFile == NULL)
         {
-            foundProbe = TRUE ;
-            break ;
+            logFile = fopen("sipXtapiTests.txt", "rb") ;
+        }
+
+        if (logFile == NULL)
+        {
+            OsTask::delay(100) ;
+            continue ;
+        }
+
+        while (fgets(logLine, sizeof(logLine), logFile) != NULL)
+        {
+            if (strstr(logLine, probeUri) != NULL)
+            {
+                foundProbe = TRUE ;
+                break ;
+            }
+        }
+
+        fseek(logFile, 0, SEEK_END) ;
+        logSize = ftell(logFile) ;
+        fclose(logFile) ;
+
+        if (!foundProbe)
+        {
+            OsTask::delay(100) ;
         }
     }
-    fclose(logAfter) ;
 
-    CPPUNIT_ASSERT_MESSAGE("no log output after another instance uninitialized -- "
-                           "OsSysLog was shut down while instances were still live",
-                           foundProbe) ;
+    char probeMsg[512] ;
+    sprintf(probeMsg,
+            "no log output after another instance uninitialized -- OsSysLog "
+            "was shut down while instances were still live; probeUri=%s "
+            "attempts=%d logSize=%ld",
+            probeUri, probeAttempt, logSize) ;
+    CPPUNIT_ASSERT_MESSAGE(probeMsg, foundProbe) ;
 
     checkForLeaks() ;
 }
