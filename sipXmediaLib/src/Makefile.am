@@ -34,7 +34,8 @@ libsipXmedia_la_CXXFLAGS = \
 	@GSM_CXXFLAGS@ \
 	@OPUS_INCLUDE@ \
 	@OPUS_CFLAGS@ \
-	@SPEEX_CFLAGS@
+	@SPEEX_CFLAGS@ \
+	@SRTP_CXXFLAGS@
 
 libsipXmedia_la_LIBADD = \
 	@SIPXTACK_LIBS@ \
@@ -45,6 +46,7 @@ libsipXmedia_la_LIBADD = \
 	@OPUS_STATIC_LIB@ \
 	@SPEEXDSP_LIBS@ \
 	@STATIC_CODEC_LIBS@ \
+	@SRTP_LIBS@ \
 	-Lmp/codecs/ \
 	-lasound \
 	-lstdc++

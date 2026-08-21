@@ -73,6 +73,9 @@ CHECK_CPPUNIT
 # Check for SpanDSP library
 CHECK_SPANDSP
 
+# Check for libsrtp2, for SRTP/SRTCP support (--enable-srtp)
+CHECK_SRTP
+
 # Enable use of code that uses speex dsp library
 ENABLE_SPEEX_DSP
 

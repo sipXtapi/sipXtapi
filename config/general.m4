@@ -1436,6 +1436,43 @@ AC_DEFUN([DECLARE_CODECS_STAFF],
 ])dnl
 
 
+## libsrtp2 -- Secure RTP/RTCP (RFC 3711).  MpSrtp uses it for both the SDES
+## and the DTLS-SRTP key paths, covering SRTP and SRTCP alike.
+##
+## Off by default.  Without it every MpSrtp method compiles to a pass-through
+## stub and the stack builds and behaves exactly as it did before, so turning
+## it on is opt-in rather than something a missing library silently disables.
+##
+## Only a system libsrtp2 is considered.  sipXmediaLib/contrib/libsrtp is
+## carried for the MSVC build and is deliberately not built here.
+AC_DEFUN([CHECK_SRTP],
+[
+   AC_ARG_ENABLE(srtp,
+                 [AS_HELP_STRING([--enable-srtp],
+                                 [Enable SRTP/SRTCP support using a system libsrtp2. (no)])],
+                 [], [enable_srtp=no])
+
+   AC_MSG_CHECKING([whether to enable SRTP])
+   AC_MSG_RESULT(${enable_srtp})
+
+   SRTP_CXXFLAGS=
+
+   if test "x$enable_srtp" = "xyes"
+   then
+      # Sets SRTP_CFLAGS and SRTP_LIBS.  MpSrtp.cpp includes <srtp2/srtp.h> on
+      # non-WIN32, which a default include path already resolves; SRTP_CFLAGS
+      # is carried anyway for installations outside the usual prefixes.
+      PKG_CHECK_MODULES([SRTP], [libsrtp2 >= 2.0.0], [],
+         [AC_MSG_ERROR([--enable-srtp was given, but pkg-config could not find libsrtp2 >= 2.0.0.  Install it (libsrtp2-dev on Debian/Ubuntu, libsrtp2-devel on Fedora), or omit --enable-srtp.])])
+
+      SRTP_CXXFLAGS="-DENABLE_SRTP $SRTP_CFLAGS"
+   fi
+
+   AC_SUBST(SRTP_CXXFLAGS)
+   AC_SUBST(SRTP_LIBS)
+   AM_CONDITIONAL(ENABLE_SRTP, test x$enable_srtp = xyes)
+])
+
 AC_DEFUN([CHECK_SPANDSP],
 [
     AC_MSG_CHECKING([for libspandsp >= 0.0.2pre26])

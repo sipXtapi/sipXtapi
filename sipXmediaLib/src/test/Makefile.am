@@ -15,7 +15,8 @@ testsuite_LDADD = \
     @SPEEXDSP_LIBS@ \
     ../libsipXmedia.la \
     $(GIPS_OBJS) \
-    @OPUS_STATIC_LIB@
+    @OPUS_STATIC_LIB@ \
+    @SRTP_LIBS@
 
 # Had to add the following as AM_CPPFLAGS gets inserted in the Makefile after
 # the initial declairation of CXXCOMPILE
@@ -24,7 +25,8 @@ testsuite_CXXFLAGS = -I$(SIPXUNITINC) \
                      -DMP_CODECS_DIR=\"$(datadir)/@PACKAGE@\" \
                      @CPPUNIT_CFLAGS@ \
                      @OPUS_INCLUDE@ \
-                     @OPUS_CFLAGS@
+                     @OPUS_CFLAGS@ \
+                     @SRTP_CXXFLAGS@
 
 testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 

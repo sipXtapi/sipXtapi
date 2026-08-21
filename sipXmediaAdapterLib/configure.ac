@@ -85,6 +85,10 @@ CHECK_SPEEX
 CHECK_PCRE
 CHECK_SIPX_SSL
 
+# Must match how sipXmediaLib itself was configured: CpSrtcpTest is
+# compiled out without this, and libsipXmedia does the actual SRTP work.
+CHECK_SRTP
+
 # sipX dependencies
 SFAC_INIT_FLAGS
 

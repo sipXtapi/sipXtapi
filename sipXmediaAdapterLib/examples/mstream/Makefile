@@ -19,9 +19,17 @@ endif
 
 INCDIRS = $(SIPX_BUILD_DIR_INC)
 
+# libsrtp2 is required only when sipXmediaLib was configured with
+# --enable-srtp.  This Makefile links the sipX libraries directly rather
+# than through their libtool .la files, so it does not inherit that
+# dependency the way the rest of the tree does.  Build with:
+#
+#   make SRTP_LIBS=-lsrtp2
+SRTP_LIBS =
+
 LIBS =  $(SIPX_BUILD_DIR_LIB) \
        -Wl,-Bstatic -lsipXmediaProcessing -lsipXmedia -lsipXsdp -lsipXport -lspeex \
-       -Wl,-Bdynamic -lpcre -lcrypto -lssl
+       -Wl,-Bdynamic -lpcre -lcrypto -lssl $(SRTP_LIBS)
 
 DEFINES = -D__pingtel_on_posix__
 
