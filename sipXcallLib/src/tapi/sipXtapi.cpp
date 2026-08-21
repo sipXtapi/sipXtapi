@@ -121,11 +121,22 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 #endif /* defined(_WIN32) */
 
+// TRUE if sipXtapi created the OsSysLog task.  When the host application
+// or the unit test framework started logging before sipxInitialize,
+// sipXtapi does not own the log and must not shut it down.
+static UtlBoolean gbSipXtapiOwnsSysLog = FALSE;
+
 // jaro: CHECKED
 static void initLogger()
 {
-   OsSysLog::initialize(0, // do not cache any log messages in memory
-                        "sipXtapi"); // name for messages from this program
+   // initialize returns OS_SUCCESS only when it actually created the task.
+   // A second instance gets OS_UNSPECIFIED, which must not clear ownership
+   // established by the first.
+   if (OS_SUCCESS == OsSysLog::initialize(0, // do not cache any log messages in memory
+                                          "sipXtapi")) // name for messages from this program
+   {
+      gbSipXtapiOwnsSysLog = TRUE ;
+   }
 }
 
 // jaro: CHECKED, external lock on mutex is assumed
@@ -881,7 +892,15 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             delete pInst;
             pInst = NULL;
 
-            OsSysLog::shutdown() ;
+            // Only tear down logging if sipXtapi started it and no other
+            // instance is still running.  After shutdown, OsSysLog::add()
+            // silently drops every entry with no console fallback, so an
+            // early shutdown blinds all surviving instances.
+            if (gbSipXtapiOwnsSysLog && sipxGetSessionCount() == 0)
+            {
+                OsSysLog::shutdown() ;
+                gbSipXtapiOwnsSysLog = FALSE ;
+            }
 
             // Destroy the timer task once more -- some of the destructors (SipUserAgent)
             // mistakenly re-creates them when terminating.
