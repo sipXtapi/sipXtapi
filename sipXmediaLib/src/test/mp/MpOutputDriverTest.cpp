@@ -375,6 +375,7 @@ void testMultipleEnableDisableCyclesAfterFallback()
          OsTask::delay(50);
 
          driver.disableDevice();
+         CPPUNIT_ASSERT_EQUAL(0, driver.getPushInFlightCount());
          CPPUNIT_ASSERT_MESSAGE(cycleMsg.data(), !driver.isEnabled());
       }
 
@@ -512,6 +513,8 @@ void testMultipleEnableDisableCyclesAfterFallback()
                              t));
          t += samplesPerFrame;
       }
+
+      CPPUNIT_ASSERT_EQUAL(0, driver.getPushInFlightCount());
 
       // Also push a zero-length frame -- another path through pushFrame.
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.pushFrame(0, NULL, t));
@@ -1021,6 +1024,8 @@ void testMultipleEnableDisableCyclesAfterFallback()
 
          // Driver goes out of scope here, destructor runs while
          // isEnabled() is true. Must not crash.
+
+         CPPUNIT_ASSERT_EQUAL(0, driver.getPushInFlightCount());
       }
 
       // If we got here, the destructor succeeded. The test passes
@@ -1062,6 +1067,8 @@ void testMultipleEnableDisableCyclesAfterFallback()
          CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
 
          OsTask::delay(50);
+
+         CPPUNIT_ASSERT_EQUAL(0, driver.getPushInFlightCount());
 
          // Driver goes out of scope here, destructor runs while
          // both isEnabled() and isUsingFallbackTimer() are true.

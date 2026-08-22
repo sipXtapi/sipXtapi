@@ -154,6 +154,14 @@ public:
    /// @brief Frames discarded in the current fallback episode, 0 if none.
    inline int getFallbackDiscardCount() const { return mFallbackDiscardCount; }
 
+   /// @brief Count of pushFrame calls past the isEnabled() check.
+   /**
+   *  Non-zero means a push may be inside a wave call or writing into
+   *  mpWaveBuffers. Must be zero at every point where those buffers
+   *  are freed.
+   */
+   inline int getPushInFlightCount() const { return (int)mPushInFlight; }
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -236,6 +244,12 @@ protected:
                                ///< getFramePeriod() asserts on a zeroed
                                ///< mSamplesPerSec, and disableDevice()
                                ///< zeroes it while the timer keeps running.
+   volatile LONG mPushInFlight; ///< Count of pushFrame calls that have
+                               ///< passed the isEnabled() check and may
+                               ///< still be inside a wave call or writing
+                               ///< into mpWaveBuffers. disableDevice must
+                               ///< not free those buffers while this is
+                               ///< non-zero.
 
 #ifndef DONTUSE_SLIST
      /// Structure used to pass WMM message data to processing thread.

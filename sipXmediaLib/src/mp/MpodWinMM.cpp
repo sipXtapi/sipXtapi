@@ -402,6 +402,7 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mFallbackSignalCount(0)
 , mFallbackDiscardCount(0)
 , mFallbackFramePeriodMs(0)
+, mPushInFlight(0)
 , mDeviceEnumeratorPtr(NULL)
 {
     OsSysLog::add(FAC_MP, PRI_DEBUG,
@@ -543,23 +544,35 @@ MpodWinMM::~MpodWinMM()
 
    // Delete the sample headers and sample buffer pointers..
    unsigned i;
-   int freedCount = 0;
-   for ( i = 0; i < mNumOutBuffers; i++ )
+   if (mPushInFlight == 0)
    {
-       if (mpWaveBuffers[i] != NULL)
-       {
-           delete[] mpWaveBuffers[i];
-           mpWaveBuffers[i] = NULL;
-           freedCount++;
-       }
+      int freedCount = 0;
+      for ( i = 0; i < mNumOutBuffers; i++ )
+      {
+          if (mpWaveBuffers[i] != NULL)
+          {
+              delete[] mpWaveBuffers[i];
+              mpWaveBuffers[i] = NULL;
+              freedCount++;
+          }
+      }
+      if (freedCount)
+      {
+          OsSysLog::add(FAC_MP, PRI_WARNING,
+              "MpodWinMM::~MpodWinMM %d mpWaveBuffers not NULL", freedCount);
+      }
+      delete[] mpWaveBuffers;
+      delete[] mpWaveHeaders;
+      mpWaveBuffers = NULL;
+      mpWaveHeaders = NULL;
    }
-   if (freedCount)
+   else
    {
-       OsSysLog::add(FAC_MP, PRI_WARNING,
-           "MpodWinMM::~MpodWinMM %d mpWaveBuffers not NULL", freedCount);
+      OsSysLog::add(FAC_MP, PRI_CRIT,
+         "MpodWinMM::~MpodWinMM '%s' leaking wave buffers: %d push(es) still "
+         "in flight, likely blocked in a wave call on a removed device",
+         getDeviceName().data(), (int)mPushInFlight);
    }
-   delete[] mpWaveBuffers;
-   delete[] mpWaveHeaders;
 
    // Delete synchronization thread
    mExitFlag = TRUE;
@@ -673,7 +686,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    wavFormat.nSamplesPerSec = (DWORD)mSamplesPerSec;
    wavFormat.nAvgBytesPerSec = 
       nChannels * mSamplesPerSec * sizeof(MpAudioSample);
-   wavFormat.nBlockAlign = nChannels * sizeof(MpAudioSample);
+   wavFormat.nBlockAlign = (WORD)(nChannels * sizeof(MpAudioSample));
    wavFormat.wBitsPerSample = sizeof(MpAudioSample) * 8;
    wavFormat.cbSize = 0;
 
@@ -884,11 +897,26 @@ OsStatus MpodWinMM::disableDevice()
       }
    }
 
-   // Delete the buffers that were allocated in enableDevice()
-   for (int i = 0; i < mNumOutBuffers; i++ )
+   // Delete the buffers that were allocated in enableDevice(), unless a
+   // push is still in flight. A push that passed the isEnabled() check
+   // before it was cleared may be blocked inside a wave call on a removed
+   // device and will write into these buffers if it ever returns. Leaking
+   // them is bounded and safe; freeing them under a blocked writer is not.
+   // Do not wait here: the writer may never make progress.
+   if (mPushInFlight == 0)
    {
-      delete[] mpWaveBuffers[i];
-      mpWaveBuffers[i] = NULL;
+      for (unsigned i = 0; i < mNumOutBuffers; i++ )
+      {
+         delete[] mpWaveBuffers[i];
+         mpWaveBuffers[i] = NULL;
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_MP, PRI_CRIT,
+         "MpodWinMM::disableDevice '%s' leaking %d wave buffers: %d push(es) "
+         "still in flight, likely blocked in a wave call on a removed device",
+         getDeviceName().data(), mNumOutBuffers, (int)mPushInFlight);
    }
 
    // set the device handle to NULL, since it no longer is valid.
@@ -940,7 +968,7 @@ OsStatus MpodWinMM::resetDevice()
     // during fallback) leaves the next enable with a starved
     // mUnusedVPtrList and a NULL deref in the buffer-alloc loop.
     mEmptyHdrVPtrListsMutex.acquire();
-    unsigned nEmpties = mEmptyHeaderList.entries();
+    size_t nEmpties = mEmptyHeaderList.entries();
     unsigned i;
     for (i = 0; i < nEmpties; i++)
     {
@@ -1050,6 +1078,11 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
       return OS_FAILED;
    }
 
+   // From here on this call may write into mpWaveBuffers and enter wave
+   // calls that can block indefinitely if the device has been removed.
+   // disableDevice checks this count before freeing those buffers.
+   InterlockedIncrement(&mPushInFlight);
+
    // Only full frames are supported right now.
    // If samples == NULL, then silent (full) frame should be inserted.
    assert(mSamplesPerFrame == numSamples);
@@ -1100,7 +1133,7 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
 
       // Write out some statistics, if enabled.
       DWORD drvLatencyNSamp = mTotSampleCount - mmt.u.sample;
-      int numBuffersInPlay = mUnusedVPtrList.entries();
+      int numBuffersInPlay = (int)mUnusedVPtrList.entries();
       RTL_EVENT("MpodWinMM::pushFrame::driverLatencyNSamples", drvLatencyNSamp);
       RTL_EVENT("MpodWinMM::pushFrame::emptyHeaders", mEmptyHeaderList.entries());
       RTL_EVENT("MpodWinMM::pushFrame::numBuffersInPlay", numBuffersInPlay);
@@ -1138,6 +1171,8 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
          status = internalPushFrame(getSamplesPerFrame(), NULL, mCurFrameTime);
       }
    }
+
+   InterlockedDecrement(&mPushInFlight);
 
    return status;
 }
