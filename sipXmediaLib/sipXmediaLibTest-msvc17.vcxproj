@@ -421,6 +421,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\sipXportLib\src\test\os\UnitTestLogHooks.cpp" />
     <ClCompile Include="src\test\mp\MpAudioBufTest.cpp" />
     <ClCompile Include="src\test\mp\MpBufTest.cpp" />
     <ClCompile Include="src\test\mp\MpCodecsPerformanceTest.cpp" />
