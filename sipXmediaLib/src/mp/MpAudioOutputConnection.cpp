@@ -1,5 +1,4 @@
-//  
-// Copyright (C) 2007-2021 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -39,6 +38,12 @@
 // STATIC VARIABLE INITIALIZATIONS
 // PRIVATE CLASSES
 // DEFINES
+
+// Largest frame copied out of the mixer buffer onto the stack in
+// readyForDataCallback. 48 kHz at 20 ms is 960 samples, so this leaves
+// generous headroom.
+#define MAX_FRAME_COPY_SAMPLES 4096
+
 // MACROS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -473,7 +478,14 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
    MpAudioOutputConnection *pConnection = (MpAudioOutputConnection*)userData;
    RTL_BLOCK("MpAudioOutputConnection::tickerCallBack");
 
-
+   // The frame is copied out of the mixer buffer while the lock is held so
+   // that the driver call below can be made without it. A driver call can
+   // block for an unbounded time when the device has been removed, and
+   // holding mMutex across it blocks the media task and teardown as well.
+   MpAudioSample frameCopy[MAX_FRAME_COPY_SAMPLES];
+   unsigned frameSamples = 0;
+   MpFrameTime frameTime = 0;
+   UtlBoolean haveFrame = FALSE;
 
 
 #ifdef LOG_HEART_BEAT_PERIOD
@@ -497,41 +509,36 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
 
    if (acquireStatus == OS_SUCCESS)
    {
-      // Push data to device driver and forget.
-      result = pConnection->mpDeviceDriver->pushFrame(
-                     pConnection->mpDeviceDriver->getSamplesPerFrame(),
-                     pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin,
-                     pConnection->mCurrentFrameTime);
+      frameSamples = pConnection->mpDeviceDriver->getSamplesPerFrame();
+      unsigned samplesPerSec = pConnection->mpDeviceDriver->getSamplesPerSec();
 
-#ifdef LOG_HEART_BEAT_PERIOD
-      if(pConnection->mCurrentFrameTime % LOG_HEART_BEAT_PERIOD == 0)
+      if (frameSamples == 0 || samplesPerSec == 0
+          || pConnection->mpMixerBuffer == NULL)
       {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                      "MpAudioOutputConnection::readyForDataCallback()"
-                      " frame=%d, pushFrame result=%d\n",
-                      pConnection->mCurrentFrameTime, result);
+         // Device was disabled underneath us. Nothing to push.
       }
-#else
-      SIPX_UNUSED(result);
-#endif
-      // TODO: THis potentially should be fixed in the device driver.
-      // For a quick fix and testing purposes, log and ignore this assert
-      if (result != OS_SUCCESS)
+      else if (frameSamples > MAX_FRAME_COPY_SAMPLES)
       {
-          OsSysLog::add(FAC_MP, PRI_ERR,
-              "MpAudioOutputConnection::readyForDataCallback()"
-              " frame: %d, pushFrame failed result=%d\n",
-              pConnection->mCurrentFrameTime, result);
+         OsSysLog::add(FAC_MP, PRI_CRIT,
+            "MpAudioOutputConnection::readyForDataCallback frame of %d "
+            "samples exceeds MAX_FRAME_COPY_SAMPLES (%d), dropping frame",
+            frameSamples, MAX_FRAME_COPY_SAMPLES);
       }
-      //assert(result == OS_SUCCESS);
+      else
+      {
+         // mMixerBufferLength is a multiple of the frame size, so the
+         // frame never wraps and a single copy is correct.
+         memcpy(frameCopy,
+                pConnection->mpMixerBuffer + pConnection->mMixerBufferBegin,
+                frameSamples * sizeof(MpAudioSample));
+         frameTime = pConnection->mCurrentFrameTime;
 
-      // Advance mixer buffer and frame time.
-      pConnection->advanceMixerBuffer(pConnection->mpDeviceDriver->getSamplesPerFrame());
-      pConnection->mCurrentFrameTime +=
-                           pConnection->mpDeviceDriver->getSamplesPerFrame() * 1000
-                           / pConnection->mpDeviceDriver->getSamplesPerSec();
-      RTL_EVENT("MpAudioOutputConnection::tickerCallBack_currentFrameTime",
-                pConnection->mCurrentFrameTime);
+         pConnection->advanceMixerBuffer(frameSamples);
+         pConnection->mCurrentFrameTime += frameSamples * 1000 / samplesPerSec;
+         RTL_EVENT("MpAudioOutputConnection::tickerCallBack_currentFrameTime",
+                   pConnection->mCurrentFrameTime);
+         haveFrame = TRUE;
+      }
 
       pConnection->mMutex.release();
 #ifdef TRACE_LOCKS
@@ -543,6 +550,21 @@ void MpAudioOutputConnection::readyForDataCallback(const intptr_t userData,
        OsSysLog::add(FAC_MP, PRI_ERR,
            "MpAudioOutputConnection::readyForDataCallback failed to acquire connection mutex, status: %d",
            acquireStatus);
+   }
+
+   // Push outside the lock. This call can block indefinitely on a removed
+   // device; nothing the media task or teardown needs is held here.
+   if (haveFrame)
+   {
+      result = pConnection->mpDeviceDriver->pushFrame(frameSamples,
+                                                      frameCopy,
+                                                      frameTime);
+      if (result != OS_SUCCESS)
+      {
+         OsSysLog::add(FAC_MP, PRI_ERR,
+            "MpAudioOutputConnection::readyForDataCallback()"
+            " frame: %d, pushFrame failed result=%d", frameTime, result);
+      }
    }
 
    // Signal frame processing interval start if requested.
