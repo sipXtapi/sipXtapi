@@ -375,7 +375,6 @@ void testMultipleEnableDisableCyclesAfterFallback()
          OsTask::delay(50);
 
          driver.disableDevice();
-         CPPUNIT_ASSERT_EQUAL(0, driver.getPushInFlightCount());
          CPPUNIT_ASSERT_MESSAGE(cycleMsg.data(), !driver.isEnabled());
       }
 
@@ -390,6 +389,15 @@ void testMultipleEnableDisableCyclesAfterFallback()
 
       driver.disableDevice();
       CPPUNIT_ASSERT(!driver.isEnabled());
+      // Every increment must be matched by a decrement. An in-flight
+      // push is legitimate momentarily; one that never drains is a
+      // missed decrement and would disable the buffer guard for good.
+      UtlString drainMsg;
+      drainMsg.appendFormat("pushInFlight failed to drain after %d cycles: %d",
+                            CYCLES, driver.getPushInFlightCount());
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(drainMsg.data(), 0,
+                                   waitForPushDrain(driver, 500));
+
 #  else
       printf("Skipping testMultipleEnableDisableCyclesAfterFallback on non-Windows platform\n");
 #  endif
@@ -513,8 +521,6 @@ void testMultipleEnableDisableCyclesAfterFallback()
                              t));
          t += samplesPerFrame;
       }
-
-      CPPUNIT_ASSERT_EQUAL(0, driver.getPushInFlightCount());
 
       // Also push a zero-length frame -- another path through pushFrame.
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.pushFrame(0, NULL, t));
@@ -688,6 +694,9 @@ void testMultipleEnableDisableCyclesAfterFallback()
       {
          SIPX_TEST_SKIP("no valid output audio device available");
       }
+
+      // No callback has run yet, so nothing can be in flight.
+      CPPUNIT_ASSERT_EQUAL(0, driver.getPushInFlightCount());
 
       userData.mDriver = &driver;
       userData.mTickTime = NULL;
@@ -1024,8 +1033,6 @@ void testMultipleEnableDisableCyclesAfterFallback()
 
          // Driver goes out of scope here, destructor runs while
          // isEnabled() is true. Must not crash.
-
-         CPPUNIT_ASSERT_EQUAL(0, driver.getPushInFlightCount());
       }
 
       // If we got here, the destructor succeeded. The test passes
@@ -1067,8 +1074,6 @@ void testMultipleEnableDisableCyclesAfterFallback()
          CPPUNIT_ASSERT(driver.isUsingFallbackTimer());
 
          OsTask::delay(50);
-
-         CPPUNIT_ASSERT_EQUAL(0, driver.getPushInFlightCount());
 
          // Driver goes out of scope here, destructor runs while
          // both isEnabled() and isUsingFallbackTimer() are true.
@@ -1328,6 +1333,22 @@ protected:
       frameInCallback++;
       frameTime += samplesPerFrame;
    }
+
+#  ifdef WIN32
+   /// Poll until no push is in flight, up to timeoutMs. Returns the
+   /// final count so the caller can report it.
+   static int waitForPushDrain(MpodWinMM& driver, int timeoutMs)
+   {
+      const int POLL_MS = 5;
+      int waited = 0;
+      while (driver.getPushInFlightCount() > 0 && waited < timeoutMs)
+      {
+         OsTask::delay(POLL_MS);
+         waited += POLL_MS;
+      }
+      return driver.getPushInFlightCount();
+   }
+#  endif
 
    MpBufPool *mpPool;         ///< Pool for data buffers
    MpBufPool *mpHeadersPool;  ///< Pool for buffers headers
