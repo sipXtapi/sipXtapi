@@ -37,7 +37,8 @@ on:
         default: '5'
 
 env:
-  VS2019_CMD: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\Tools\VsMSBuildCmd.bat'
+  VS2019_MSBUILD: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\Tools\VsMSBuildCmd.bat'
+  VS2019_VCVARS: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat'
 
 jobs:
   viability:
@@ -67,7 +68,12 @@ jobs:
       - name: compile probe tools with VS 2019
         shell: cmd
         run: |
-          call "%VS2019_CMD%" -arch=x64
+          if not exist "%VS2019_VCVARS%" (
+            echo MISSING: %VS2019_VCVARS%
+            dir "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build"
+            exit /b 1
+          )
+          call "%VS2019_VCVARS%"
           cl.exe
           mkdir "%GITHUB_WORKSPACE%\tools"
           cd sipXmediaLib\src\test\mp
@@ -81,7 +87,7 @@ jobs:
         if: ${{ inputs.build_full }}
         shell: cmd
         run: |
-          call "%VS2019_CMD%" -arch=x64
+          call "%VS2019_MSBUILD%" -arch=x64
           msbuild.exe sipX-msvc16.sln /t:Build /p:Configuration=Release /p:Platform=x64
 
       - name: driver package into store
