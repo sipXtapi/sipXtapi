@@ -12,6 +12,11 @@
 
 name: Windows audio device viability
 on:
+  # Temporary: workflow_dispatch alone is not visible or dispatchable
+  # while this file exists only on a feature branch. Remove this push
+  # trigger before merging.
+  push:
+    branches: [win_device_changes]
   workflow_dispatch:
     inputs:
       build_full:
