@@ -68,11 +68,11 @@ jobs:
       - name: compile probe tools with VS 2019
         shell: cmd
         run: |
-          if not exist "%VS2019_VCVARS%" (
-            echo MISSING: %VS2019_VCVARS%
-            dir "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build"
-            exit /b 1
-          )
+          if exist "%VS2019_VCVARS%" goto :haveVcvars
+          echo MISSING: %VS2019_VCVARS%
+          dir "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build"
+          exit /b 1
+          :haveVcvars
           call "%VS2019_VCVARS%"
           cl.exe
           mkdir "%GITHUB_WORKSPACE%\tools"
