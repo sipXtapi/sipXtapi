@@ -15,7 +15,7 @@
 //    pnputil /add-driver vbMmeCable64_win10.inf /install
 //
 // Build:
-//    cl /EHsc /W3 swdevice_audio.cpp cfgmgr32.lib
+//    cl /EHsc /W3 swdevice_audio.cpp SwDevice.lib cfgmgr32.lib advapi32.lib
 //
 // Usage:
 //    swdevice_audio.exe --hold 60

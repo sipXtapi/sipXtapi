@@ -79,7 +79,7 @@ jobs:
           cd sipXmediaLib\src\test\mp
           cl /EHsc /W3 /Fe:"%GITHUB_WORKSPACE%\tools\wavelock_probe.exe" wavelock_probe.cpp winmm.lib cfgmgr32.lib advapi32.lib ole32.lib uuid.lib
           if errorlevel 1 exit /b 1
-          cl /EHsc /W3 /Fe:"%GITHUB_WORKSPACE%\tools\swdevice_audio.exe" swdevice_audio.cpp cfgmgr32.lib
+          cl /EHsc /W3 /Fe:"%GITHUB_WORKSPACE%\tools\swdevice_audio.exe" swdevice_audio.cpp SwDevice.lib cfgmgr32.lib advapi32.lib
           if errorlevel 1 exit /b 1
           dir "%GITHUB_WORKSPACE%\tools"
 
