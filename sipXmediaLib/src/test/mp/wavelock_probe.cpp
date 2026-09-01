@@ -975,6 +975,19 @@ static int modeRemoved(int iterations)
           iterations);
    printf("         deferred=%d  device=%d\n", deferred, g_deviceId);
 
+   {
+      UINT preDevs = waveInGetNumDevs();
+      WAVEINCAPSA caps;
+      memset(&caps, 0, sizeof(caps));
+      MMRESULT capRes = (g_deviceId >= 0)
+                      ? waveInGetDevCapsA((UINT_PTR) g_deviceId, &caps, sizeof(caps))
+                      : MMSYSERR_NOERROR;
+      printf("         waveInGetNumDevs=%u  devCaps(%d)=%u name='%s'\n",
+             preDevs, g_deviceId, capRes,
+             (capRes == MMSYSERR_NOERROR) ? caps.szPname : "?");
+      fflush(stdout);
+   }
+
    InCtx* victim = openInputCtx(deferred);
    if (!victim) return 1;
 
