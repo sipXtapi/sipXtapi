@@ -1,0 +1,148 @@
+# Copyright (C) 2026 SIPez LLC.  All rights reserved.
+#
+# Manual viability check for Windows audio device testing on GitHub
+# runners. Per runner image and driver it answers:
+#   1. Do the VS 2019 Build Tools install and compile on the image?
+#   2. Does the driver give WinMM a capture endpoint when a devnode is
+#      created with SwDeviceCreate?
+#   3. Does SwDeviceClose under a live capture stream return, wedge,
+#      or take the runner down?
+# Question 3 runs in a separate job so a bugcheck cannot lose the
+# answers to 1 and 2. Nothing here runs on push.
+
+name: Windows audio device viability
+on:
+  workflow_dispatch:
+    inputs:
+      build_full:
+        description: 'Also build sipX-msvc16.sln with VS 2019 (slow)'
+        type: boolean
+        default: false
+      vbcable_url:
+        description: 'VB-Cable driver pack zip URL'
+        default: 'https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack45.zip'
+      vad_tag:
+        description: 'Virtual-Audio-Driver release tag'
+        default: '25.7.14'
+      vad_hwid:
+        description: 'VAD hardware id, must match its INF model line'
+        default: 'Root\VirtualAudioDriver'
+      offset_seconds:
+        description: 'Seconds of live capture before SwDeviceClose'
+        default: '5'
+
+env:
+  VS2019_CMD: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\Tools\VsMSBuildCmd.bat'
+
+jobs:
+  viability:
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [windows-2022, windows-2025]
+        driver: [vbcable, vad]
+    runs-on: ${{ matrix.image }}
+    timeout-minutes: 90
+    steps:
+      - name: system info
+        shell: cmd
+        run: systeminfo | findstr /B /C:"OS Name" /B /C:"OS Version"
+
+      - name: install VS 2019 Build Tools
+        shell: cmd
+        run: |
+          choco install -y visualstudio2019buildtools
+          choco install -y visualstudio2019-workload-vctools
+          choco list visualstudio2019buildtools
+          choco list visualstudio2019-workload-vctools
+
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: compile probe tools with VS 2019
+        shell: cmd
+        run: |
+          call "%VS2019_CMD%" -arch=x64
+          cl.exe
+          mkdir "%GITHUB_WORKSPACE%\tools"
+          cd sipXmediaLib\src\test\mp
+          cl /EHsc /W3 /Fe:"%GITHUB_WORKSPACE%\tools\wavelock_probe.exe" wavelock_probe.cpp winmm.lib cfgmgr32.lib advapi32.lib ole32.lib uuid.lib
+          if errorlevel 1 exit /b 1
+          cl /EHsc /W3 /Fe:"%GITHUB_WORKSPACE%\tools\swdevice_audio.exe" swdevice_audio.cpp cfgmgr32.lib
+          if errorlevel 1 exit /b 1
+          dir "%GITHUB_WORKSPACE%\tools"
+
+      - name: full VS 2019 solution build
+        if: ${{ inputs.build_full }}
+        shell: cmd
+        run: |
+          call "%VS2019_CMD%" -arch=x64
+          msbuild.exe sipX-msvc16.sln /t:Build /p:Configuration=Release /p:Platform=x64
+
+      - name: driver package into store
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Set-ExecutionPolicy -Scope Process Bypass -Force
+          & .\scripts\ci\audio_driver_store.ps1 -Driver ${{ matrix.driver }} -VbCableUrl '${{ inputs.vbcable_url }}' -VadTag '${{ inputs.vad_tag }}' -VadHwid '${{ inputs.vad_hwid }}'
+
+      - name: create device and list endpoints
+        shell: powershell
+        run: |
+          Set-ExecutionPolicy -Scope Process Bypass -Force
+          & .\scripts\ci\audio_device_test.ps1 -Mode list -Tools tools -Hwid $env:SIPX_HWID -CaptureMatch $env:SIPX_CAPTURE_MATCH
+
+      - name: upload tools and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audio-viability-${{ matrix.image }}-${{ matrix.driver }}
+          path: |
+            tools/*.exe
+            audio-logs/
+          if-no-files-found: warn
+
+  removal:
+    needs: viability
+    if: always()
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [windows-2022, windows-2025]
+        driver: [vbcable, vad]
+    runs-on: ${{ matrix.image }}
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: download tools from viability job
+        uses: actions/download-artifact@v4
+        with:
+          name: audio-viability-${{ matrix.image }}-${{ matrix.driver }}
+          path: .
+
+      - name: driver package into store
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Set-ExecutionPolicy -Scope Process Bypass -Force
+          & .\scripts\ci\audio_driver_store.ps1 -Driver ${{ matrix.driver }} -VbCableUrl '${{ inputs.vbcable_url }}' -VadTag '${{ inputs.vad_tag }}' -VadHwid '${{ inputs.vad_hwid }}'
+
+      - name: SwDeviceClose under live capture
+        shell: powershell
+        run: |
+          Set-ExecutionPolicy -Scope Process Bypass -Force
+          & .\scripts\ci\audio_device_test.ps1 -Mode removal -Tools tools -Hwid $env:SIPX_HWID -CaptureMatch $env:SIPX_CAPTURE_MATCH -Offset ${{ inputs.offset_seconds }}
+
+      - name: upload removal logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audio-removal-${{ matrix.image }}-${{ matrix.driver }}
+          path: audio-logs/
+          if-no-files-found: warn
+
