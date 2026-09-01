@@ -116,7 +116,6 @@ jobs:
           name: audio-viability-${{ matrix.image }}-${{ matrix.driver }}
           path: |
             tools/*.exe
-            audio-logs/
           if-no-files-found: warn
 
   removal:
