@@ -39,6 +39,11 @@ on:
 env:
   VS2019_MSBUILD: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\Tools\VsMSBuildCmd.bat'
   VS2019_VCVARS: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat'
+  # Defaults resolved here because the push trigger provides no inputs.
+  VBCABLE_URL: ${{ inputs.vbcable_url || 'https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack45.zip' }}
+  VAD_TAG: ${{ inputs.vad_tag || '25.7.14' }}
+  VAD_HWID: ${{ inputs.vad_hwid || 'Root\VirtualAudioDriver' }}
+  OFFSET_SECONDS: ${{ inputs.offset_seconds || '5' }}
 
 jobs:
   viability:
@@ -96,7 +101,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           Set-ExecutionPolicy -Scope Process Bypass -Force
-          & .\scripts\ci\audio_driver_store.ps1 -Driver ${{ matrix.driver }} -VbCableUrl '${{ inputs.vbcable_url }}' -VadTag '${{ inputs.vad_tag }}' -VadHwid '${{ inputs.vad_hwid }}'
+          & .\scripts\ci\audio_driver_store.ps1 -Driver ${{ matrix.driver }} -VbCableUrl $env:VBCABLE_URL -VadTag $env:VAD_TAG -VadHwid $env:VAD_HWID
 
       - name: create device and list endpoints
         shell: powershell
@@ -141,13 +146,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           Set-ExecutionPolicy -Scope Process Bypass -Force
-          & .\scripts\ci\audio_driver_store.ps1 -Driver ${{ matrix.driver }} -VbCableUrl '${{ inputs.vbcable_url }}' -VadTag '${{ inputs.vad_tag }}' -VadHwid '${{ inputs.vad_hwid }}'
+          & .\scripts\ci\audio_driver_store.ps1 -Driver ${{ matrix.driver }} -VbCableUrl $env:VBCABLE_URL -VadTag $env:VAD_TAG -VadHwid $env:VAD_HWID
 
       - name: SwDeviceClose under live capture
         shell: powershell
         run: |
           Set-ExecutionPolicy -Scope Process Bypass -Force
-          & .\scripts\ci\audio_device_test.ps1 -Mode removal -Tools tools -Hwid $env:SIPX_HWID -CaptureMatch $env:SIPX_CAPTURE_MATCH -Offset ${{ inputs.offset_seconds }}
+          & .\scripts\ci\audio_device_test.ps1 -Mode removal -Tools tools -Hwid $env:SIPX_HWID -CaptureMatch $env:SIPX_CAPTURE_MATCH -Offset $env:OFFSET_SECONDS
 
       - name: upload removal logs
         if: always()
