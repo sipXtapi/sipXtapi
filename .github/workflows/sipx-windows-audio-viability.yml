@@ -136,16 +136,12 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: audio-viability-${{ matrix.image }}-${{ matrix.driver }}
-          path: .
+          path: tools
 
-      - name: driver package into store
+      - name: show downloaded layout
         shell: powershell
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          Set-ExecutionPolicy -Scope Process Bypass -Force
-          & .\scripts\ci\audio_driver_store.ps1 -Driver ${{ matrix.driver }} -VbCableUrl $env:VBCABLE_URL -VadTag $env:VAD_TAG -VadHwid $env:VAD_HWID
-
+          Get-ChildItem -Recurse -File -Filter *.exe | ForEach-Object { Write-Host $_.FullName }
       - name: SwDeviceClose under live capture
         shell: powershell
         run: |
