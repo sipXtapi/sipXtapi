@@ -94,7 +94,7 @@ jobs:
 
       - name: checkout ${{ github.ref }}
         # Downloads a copy of the code in your repository before running CI tests
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: sipXtapi/sipXtapi
 
@@ -237,7 +237,7 @@ jobs:
 
       - name: upload test summary artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: test-summary-vs${{ matrix.msvs_year }}
           path: test_summary_*.json

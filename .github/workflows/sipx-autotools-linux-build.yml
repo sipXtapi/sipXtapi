@@ -37,7 +37,7 @@ jobs:
 
       - name: checkout ${{ github.ref }}
       # Downloads a copy of the code in your repository before running CI tests
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         #with:
         #  repository: sipXtapi/sipXtapi
 
@@ -208,7 +208,7 @@ jobs:
 
       - name: upload test runner log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: test-runner-log-${{ matrix.os }}
           path: test_runner_output.txt
