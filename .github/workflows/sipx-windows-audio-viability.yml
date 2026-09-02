@@ -130,7 +130,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: download tools from viability job
         uses: actions/download-artifact@v7
@@ -142,6 +142,15 @@ jobs:
         shell: powershell
         run: |
           Get-ChildItem -Recurse -File -Filter *.exe | ForEach-Object { Write-Host $_.FullName }
+
+      - name: driver package into store
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Set-ExecutionPolicy -Scope Process Bypass -Force
+          & .\scripts\ci\audio_driver_store.ps1 -Driver ${{ matrix.driver }} -VbCableUrl $env:VBCABLE_URL -VadTag $env:VAD_TAG -VadHwid $env:VAD_HWID
+
       - name: SwDeviceClose under live capture
         shell: powershell
         run: |
@@ -150,7 +159,7 @@ jobs:
 
       - name: upload removal logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: audio-removal-${{ matrix.image }}-${{ matrix.driver }}
           path: audio-logs/
