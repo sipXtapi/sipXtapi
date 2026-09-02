@@ -88,6 +88,16 @@ Start-Service -Name AudioEndpointBuilder -ErrorAction SilentlyContinue
 Start-Service -Name audiosrv -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 5
 Get-Service AudioEndpointBuilder, audiosrv | Format-Table Name, Status -AutoSize | Out-String | Write-Host
+# IAudioClient::Initialize returns E_ACCESSDENIED for capture when the
+# microphone privacy policy denies it. Runner images ship with this unset,
+# which blocks every waveInOpen while enumeration still works.
+foreach ($key in @(
+  'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone',
+  'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone\NonPackaged')) {
+  New-Item -Path $key -Force | Out-Null
+  Set-ItemProperty -Path $key -Name 'Value' -Value 'Allow' -Type String
+  Write-Host "$key Value = $((Get-ItemProperty -Path $key -Name Value).Value)"
+}
 Get-Process audiodg -ErrorAction SilentlyContinue |
   Format-Table Id, ProcessName -AutoSize | Out-String | Write-Host
 Show-Devices
