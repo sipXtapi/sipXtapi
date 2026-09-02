@@ -50,6 +50,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <mmdeviceapi.h>
+#include <audioclient.h>
 #include <functiondiscoverykeys_devpkey.h>
 
 #define NUM_BUFFERS       8
@@ -1005,6 +1006,47 @@ static int modeRemoved(int iterations)
       mr = waveInOpen(&hTest, (UINT) g_deviceId, &wfx, 0, 0, CALLBACK_NULL);
       printf("         device %d open 8k mono   = %u\n", g_deviceId, mr);
       if (mr == MMSYSERR_NOERROR) waveInClose(hTest);
+      fflush(stdout);
+   }
+
+   // WinMM returns MMSYSERR_ERROR (1) with no detail. WASAPI returns a real
+   // HRESULT, which names the cause: AUDCLNT_E_SERVICE_NOT_RUNNING,
+   // E_ACCESSDENIED, AUDCLNT_E_ENDPOINT_CREATE_FAILED all point elsewhere.
+   {
+      IMMDeviceEnumerator* pEnum = NULL;
+      IMMDevice*           pDev  = NULL;
+      IAudioClient*        pCli  = NULL;
+      WAVEFORMATEX*        pMix  = NULL;
+      HRESULT hr;
+
+      CoInitializeEx(NULL, COINIT_MULTITHREADED);
+      hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL,
+                            __uuidof(IMMDeviceEnumerator), (void**) &pEnum);
+      printf("         WASAPI CoCreateInstance     = 0x%08lX\n", (unsigned long) hr);
+      if (SUCCEEDED(hr))
+      {
+         hr = pEnum->GetDefaultAudioEndpoint(eCapture, eConsole, &pDev);
+         printf("         WASAPI GetDefaultEndpoint   = 0x%08lX\n", (unsigned long) hr);
+      }
+      if (SUCCEEDED(hr))
+      {
+         hr = pDev->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**) &pCli);
+         printf("         WASAPI Activate             = 0x%08lX\n", (unsigned long) hr);
+      }
+      if (SUCCEEDED(hr))
+      {
+         hr = pCli->GetMixFormat(&pMix);
+         printf("         WASAPI GetMixFormat         = 0x%08lX\n", (unsigned long) hr);
+      }
+      if (SUCCEEDED(hr))
+      {
+         hr = pCli->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, 10000000, 0, pMix, NULL);
+         printf("         WASAPI Initialize           = 0x%08lX\n", (unsigned long) hr);
+      }
+      if (pMix)  CoTaskMemFree(pMix);
+      if (pCli)  pCli->Release();
+      if (pDev)  pDev->Release();
+      if (pEnum) pEnum->Release();
       fflush(stdout);
    }
 

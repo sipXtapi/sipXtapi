@@ -80,7 +80,12 @@ $list | ForEach-Object { Write-Host $_ }
 Write-Host "WinMM capture devices after $i s: $count"
 # The image ships with audio disabled, so audiosrv may have started
 # before any endpoint existed. Restart it now that one is present.
-Restart-Service -Name audiosrv -Force -ErrorAction SilentlyContinue
+# Restart in dependency order: audiosrv depends on AudioEndpointBuilder,
+# and both started before any endpoint existed on this image.
+Stop-Service  -Name audiosrv -Force -ErrorAction SilentlyContinue
+Stop-Service  -Name AudioEndpointBuilder -Force -ErrorAction SilentlyContinue
+Start-Service -Name AudioEndpointBuilder -ErrorAction SilentlyContinue
+Start-Service -Name audiosrv -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 5
 Get-Service AudioEndpointBuilder, audiosrv | Format-Table Name, Status -AutoSize | Out-String | Write-Host
 Get-Process audiodg -ErrorAction SilentlyContinue |
