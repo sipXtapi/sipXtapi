@@ -988,6 +988,26 @@ static int modeRemoved(int iterations)
       fflush(stdout);
    }
 
+   {
+      WAVEFORMATEX wfx;
+      HWAVEIN      hTest = NULL;
+      MMRESULT     mr;
+      memset(&wfx, 0, sizeof(wfx));
+      wfx.wFormatTag      = WAVE_FORMAT_PCM;
+      wfx.nChannels       = 1;
+      wfx.nSamplesPerSec  = 8000;
+      wfx.wBitsPerSample  = 16;
+      wfx.nBlockAlign     = 2;
+      wfx.nAvgBytesPerSec = 16000;
+      mr = waveInOpen(&hTest, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
+      printf("         WAVE_MAPPER open 8k mono = %u\n", mr);
+      if (mr == MMSYSERR_NOERROR) waveInClose(hTest);
+      mr = waveInOpen(&hTest, (UINT) g_deviceId, &wfx, 0, 0, CALLBACK_NULL);
+      printf("         device %d open 8k mono   = %u\n", g_deviceId, mr);
+      if (mr == MMSYSERR_NOERROR) waveInClose(hTest);
+      fflush(stdout);
+   }
+
    InCtx* victim = openInputCtx(deferred);
    if (!victim) return 1;
 

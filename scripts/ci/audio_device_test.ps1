@@ -24,6 +24,8 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
+Write-Host "session id: $((Get-Process -Id $PID).SessionId)"
+Write-Host "interactive: $([Environment]::UserInteractive)"
 $eventName = 'Global\sipx_swdev_kill'
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 function Find-Tool($name) {
