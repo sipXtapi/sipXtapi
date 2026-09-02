@@ -78,6 +78,13 @@ for ($i = 1; $i -le 30; $i++) {
 $list | Set-Content (Join-Path $LogDir "probe_list_$Mode.log")
 $list | ForEach-Object { Write-Host $_ }
 Write-Host "WinMM capture devices after $i s: $count"
+# The image ships with audio disabled, so audiosrv may have started
+# before any endpoint existed. Restart it now that one is present.
+Restart-Service -Name audiosrv -Force -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 5
+Get-Service AudioEndpointBuilder, audiosrv | Format-Table Name, Status -AutoSize | Out-String | Write-Host
+Get-Process audiodg -ErrorAction SilentlyContinue |
+  Format-Table Id, ProcessName -AutoSize | Out-String | Write-Host
 Show-Devices
 Show-Log 'swdevice' $swLog
 
