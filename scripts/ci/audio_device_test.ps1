@@ -26,8 +26,15 @@ param(
 $ErrorActionPreference = 'Continue'
 $eventName = 'Global\sipx_swdev_kill'
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
-$swdev = (Resolve-Path (Join-Path $Tools 'swdevice_audio.exe')).Path
-$probe = (Resolve-Path (Join-Path $Tools 'wavelock_probe.exe')).Path
+function Find-Tool($name) {
+  $hit = Get-ChildItem -Path . -Recurse -File -Filter $name -ErrorAction SilentlyContinue |
+         Select-Object -First 1
+  if (-not $hit) { throw "$name not found under $(Get-Location)" }
+  Write-Host "using $($hit.FullName)"
+  return $hit.FullName
+}
+$swdev = Find-Tool 'swdevice_audio.exe'
+$probe = Find-Tool 'wavelock_probe.exe'
 $swLog = Join-Path $LogDir "swdevice_$Mode.log"
 
 function Signal-Kill {
