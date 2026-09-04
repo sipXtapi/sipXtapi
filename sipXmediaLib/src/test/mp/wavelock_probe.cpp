@@ -86,6 +86,7 @@ static int g_deviceId = 0;   // WinMM device index; -1 == WAVE_MAPPER
 // Overridable so the real duration of a wedge can be measured rather than
 // truncated by the harness. RESET_TIMEOUT_MS is the default.
 static int g_resetTimeoutMs = RESET_TIMEOUT_MS;
+static int g_closeAfterMs = -1;   // -1 == wait for silence instead
 
 // ---------------------------------------------------------------- privilege
 
@@ -1053,25 +1054,132 @@ static int modeRemoved(int iterations)
    InCtx* victim = openInputCtx(deferred);
    if (!victim) return 1;
 
-   // Wait for the device to die: callbacks stop arriving.
-   int lastCb = -1, quietSeconds = 0, waited = 0;
-   while (waited < 120)
+   if (g_closeAfterMs >= 0)
    {
-      Sleep(1000); waited++;
-      int cb = (int)victim->dataCallbacks;
-      printf("  [%3d s] callbacks=%-6d (+%d)\n", waited, cb,
-             (lastCb < 0) ? cb : cb - lastCb);
-      if (lastCb >= 0 && cb == lastCb) quietSeconds++; else quietSeconds = 0;
-      lastCb = cb;
-      if (quietSeconds >= 3) break;
+      // Close at a fixed offset from the moment the callbacks first
+      // falter, rather than after three seconds of silence.
+      //
+      // Silence means the engine has already finished with the stream,
+      // so a reset then is a different measurement from one taken while
+      // the teardown is still running. The customer's reset ran six
+      // seconds after the unplug with the stream state unknown. A
+      // Bluetooth unplug takes roughly a second and a half to go from
+      // full rate to silent, so the interesting resets are inside that
+      // window, and reaching them needs an offset from the start of the
+      // transition rather than from its end.
+      //
+      // Faltering is a poll delivering less than a quarter of the
+      // established rate. Polls are 50 ms, so an offset lands to about
+      // that accuracy.
+      const int pollMs = 50;
+      const int baselinePolls = 40;        // 2 s to establish the rate
+      int   lastCb = (int) victim->dataCallbacks;
+      int   baseline = 0;
+      DWORD startTick = GetTickCount();
+      DWORD falterTick = 0;
+      int   poll = 0;
+      int   quietPolls = 0;
+
+      printf("  measuring the callback rate for %d ms\n",
+             baselinePolls * pollMs);
+      fflush(stdout);
+
+      while ((GetTickCount() - startTick) < 120000)
+      {
+         Sleep(pollMs);
+         poll++;
+         int cb = (int) victim->dataCallbacks;
+         int delta = cb - lastCb;
+         lastCb = cb;
+
+         if (poll <= baselinePolls)
+         {
+            if (delta > baseline) baseline = delta;
+            if (poll == baselinePolls)
+            {
+               printf("  baseline %d callback(s) per %d ms, waiting for the "
+                      "trigger\n", baseline, pollMs);
+               fflush(stdout);
+               if (baseline == 0)
+               {
+                  printf("  no callbacks at all -- is the device streaming?\n");
+                  closeInputCtx(victim, NULL);
+                  return 1;
+               }
+            }
+            continue;
+         }
+
+         if (falterTick == 0)
+         {
+            // Two consecutive near-silent polls, not one low one.  At
+            // these buffer sizes a single tick below a quarter of the
+            // rate is ordinary jitter and fires on most runs with no
+            // trigger at all.
+            if (delta * 4 < baseline)
+            {
+               quietPolls++;
+            }
+            else
+            {
+               quietPolls = 0;
+            }
+
+            if (quietPolls >= 2)
+            {
+               falterTick = GetTickCount();
+               printf("  [%6lu ms] faltered (+%d of %d), closing in %d ms\n",
+                      (unsigned long) (falterTick - startTick), delta,
+                      baseline, g_closeAfterMs);
+               fflush(stdout);
+            }
+            continue;
+         }
+
+         // Inside the transition. Trace it, so the shape of the teardown
+         // is visible next to whatever the reset does.
+         printf("  [%6lu ms] +%d\n",
+                (unsigned long) (GetTickCount() - falterTick), delta);
+         fflush(stdout);
+
+         if ((long) (GetTickCount() - falterTick) >= (long) g_closeAfterMs)
+         {
+            break;
+         }
+      }
+
+      if (falterTick == 0)
+      {
+         printf("  callbacks never faltered -- was the trigger run?\n");
+         closeInputCtx(victim, NULL);
+         return 1;
+      }
+
+      printf("  closing %lu ms after the callbacks faltered\n",
+             (unsigned long) (GetTickCount() - falterTick));
    }
-   if (quietSeconds < 3)
+   else
    {
-      printf("  device never went quiet -- is the removal harness running?\n");
-      closeInputCtx(victim, NULL);
-      return 1;
+      // Wait for the device to die: callbacks stop arriving.
+      int lastCb = -1, quietSeconds = 0, waited = 0;
+      while (waited < 120)
+      {
+         Sleep(1000); waited++;
+         int cb = (int)victim->dataCallbacks;
+         printf("  [%3d s] callbacks=%-6d (+%d)\n", waited, cb,
+                (lastCb < 0) ? cb : cb - lastCb);
+         if (lastCb >= 0 && cb == lastCb) quietSeconds++; else quietSeconds = 0;
+         lastCb = cb;
+         if (quietSeconds >= 3) break;
+      }
+      if (quietSeconds < 3)
+      {
+         printf("  device never went quiet -- is the removal harness running?\n");
+         closeInputCtx(victim, NULL);
+         return 1;
+      }
+      printf("  device is gone (quiet for %d s)\n", quietSeconds);
    }
-   printf("  device is gone (quiet for %d s)\n", quietSeconds);
 
    double ms = 0.0;
    int clean = closeInputCtx(victim, &ms);
@@ -1130,6 +1238,14 @@ static void usage(void)
           "  --reset-timeout N  ms to wait for reset before abandoning it,\n"
           "              default 3000. Raise it to measure how long a wedge\n"
           "              actually lasts; the default truncates the answer.\n"
+          "  --close-after N  in removed mode, reset N ms after the\n"
+          "              callbacks first falter, instead of after three\n"
+          "              seconds of silence. Silence means the engine has\n"
+          "              already finished tearing the stream down, so a\n"
+          "              reset then is not the same measurement as one\n"
+          "              taken during the teardown. Sweep N across the\n"
+          "              transition window to find whether any offset\n"
+          "              wedges.\n"
           "  modes: list suspend sweep reopen deferred removed\n"
           "         removed-deferred hold parent\n\n"
           "  list      print WinMM devices and MMDevice endpoints side by\n"
@@ -1165,6 +1281,7 @@ int main(int argc, char** argv)
       else if (!strcmp(argv[i], "--iterations")) iterations = atoi(argv[++i]);
       else if (!strcmp(argv[i], "--device"))     g_deviceId = atoi(argv[++i]);
       else if (!strcmp(argv[i], "--reset-timeout")) g_resetTimeoutMs = atoi(argv[++i]);
+      else if (!strcmp(argv[i], "--close-after")) g_closeAfterMs = atoi(argv[++i]);
    }
 
    int isInput = !strcmp(dir, "in");
