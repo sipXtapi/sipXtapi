@@ -87,6 +87,12 @@ static int g_deviceId = 0;   // WinMM device index; -1 == WAVE_MAPPER
 // truncated by the harness. RESET_TIMEOUT_MS is the default.
 static int g_resetTimeoutMs = RESET_TIMEOUT_MS;
 static int g_closeAfterMs = -1;   // -1 == wait for silence instead
+static int g_resetContext = 1;   // 1 == stop/join the recycler before reset
+                                 // (the fix shape, and today's behavior);
+                                 // 0 == reset while it is live (sipX today)
+static int g_skipTeardown = 0;   // 1 == on trigger: no reset/unprepare/close,
+                                 // leak the victim, go straight to health
+static int g_healthDevice = 0;   // second device for the open2 health check
 
 // ---------------------------------------------------------------- privilege
 
@@ -285,9 +291,16 @@ static int closeInputCtx(InCtx* c, double* msOut)
    LARGE_INTEGER f, t0, t1;
    QueryPerformanceFrequency(&f);
 
-   c->stop = 1;
-   if (c->evt) SetEvent(c->evt);
-   if (c->worker) WaitForSingleObject(c->worker, 2000);
+   if (g_resetContext)
+   {
+      c->stop = 1;
+      if (c->evt) SetEvent(c->evt);
+      if (c->worker)
+      {
+         int joined = (WaitForSingleObject(c->worker, 2000) == WAIT_OBJECT_0);
+         printf("  worker join %s\n", joined ? "ok" : "TIMED OUT");
+      }
+   }
 
    g_hIn = c->hIn;
    InterlockedExchange(&g_resetIsInput, 1);
@@ -301,6 +314,13 @@ static int closeInputCtx(InCtx* c, double* msOut)
    g_hIn = NULL;
    if (w == WAIT_TIMEOUT) return 0;      // rt and c leaked on purpose
    CloseHandle(rt);
+
+   if (!g_resetContext)
+   {
+      c->stop = 1;
+      if (c->evt) SetEvent(c->evt);
+      if (c->worker) WaitForSingleObject(c->worker, 2000);
+   }
 
    for (int n = 0; n < NUM_BUFFERS; n++)
       waveInUnprepareHeader(c->hIn, &c->hdr[n], sizeof(WAVEHDR));
@@ -962,6 +982,127 @@ static int modeList(void)
    return 0;
 }
 
+static DWORD WINAPI numDevsProc(LPVOID p)
+{
+   // +1 so 0 still means "not finished"
+   InterlockedExchange((volatile LONG*)p, (LONG)waveInGetNumDevs() + 1);
+   return 0;
+}
+
+// Prints the health: lines the sweep script greps. Runs after every
+// trigger, wedged or not. The count is heap-allocated and leaked on
+// timeout because a blocked waveInGetNumDevs may write it much later.
+static void healthPhase(void)
+{
+   LARGE_INTEGER f, t0, t1;
+   QueryPerformanceFrequency(&f);
+
+   volatile LONG* count = new LONG(0);
+   QueryPerformanceCounter(&t0);
+   HANDLE nt = CreateThread(NULL, 0, numDevsProc, (LPVOID)count, 0, NULL);
+   DWORD w = WaitForSingleObject(nt, 5000);
+   QueryPerformanceCounter(&t1);
+   double ms = (double)(t1.QuadPart - t0.QuadPart) * 1000.0 / (double)f.QuadPart;
+   if (w == WAIT_TIMEOUT)
+   {
+      printf("  health: numdevs BLOCKED\n");
+   }
+   else
+   {
+      printf("  health: numdevs OK %.1f ms (%ld devices)\n", ms, *count - 1);
+      CloseHandle(nt);
+      delete (LONG*)count;
+   }
+   fflush(stdout);
+
+   // Fresh open on a second, healthy device. openInputCtx already runs
+   // the open on a watchdog thread, so a blocked open reports rather
+   // than hangs. Force joined context for our own close so the health
+   // check cannot wedge itself in inflight cells.
+   int savedDev = g_deviceId;
+   int savedCtx = g_resetContext;
+   g_deviceId = g_healthDevice;
+   g_resetContext = 1;
+   QueryPerformanceCounter(&t0);
+   InCtx* c = openInputCtx((int)g_deferMode);
+   QueryPerformanceCounter(&t1);
+   ms = (double)(t1.QuadPart - t0.QuadPart) * 1000.0 / (double)f.QuadPart;
+   if (!c)
+   {
+      printf("  health: open2 FAIL\n");
+   }
+   else
+   {
+      Sleep(300);
+      int audio = (c->dataCallbacks > 0 && c->nonEmpty > 0 && c->contentVaried > 0);
+      int clean = closeInputCtx(c, NULL);
+      printf("  health: open2 %s %.1f ms audio=%d%s\n",
+             (audio && clean) ? "OK" : "FAIL", ms, audio,
+             clean ? "" : " (close WEDGED)");
+   }
+   g_deviceId = savedDev;
+   g_resetContext = savedCtx;
+   fflush(stdout);
+}
+
+// Post-reconnect reopen check, invoked as its own probe run by the sweep
+// script after the device is back: --method health --device N
+static int modeHealth(void)
+{
+   LARGE_INTEGER f, t0, t1;
+   QueryPerformanceFrequency(&f);
+   // Identity first: --device N may not be the same hardware after a
+   // reconnect. Report what N resolves to rather than assuming.
+   WAVEINCAPSA caps;
+   memset(&caps, 0, sizeof(caps));
+   MMRESULT capRes = waveInGetDevCapsA((UINT_PTR)g_deviceId, &caps, sizeof(caps));
+   printf("  health: device %d resolves to '%s' (res=%u, %u devices)\n",
+          g_deviceId, (capRes == MMSYSERR_NOERROR) ? caps.szPname : "?",
+          capRes, waveInGetNumDevs());
+   fflush(stdout);
+   int savedCtx = g_resetContext;
+   g_resetContext = 1;
+   QueryPerformanceCounter(&t0);
+   InCtx* c = openInputCtx(0);
+   QueryPerformanceCounter(&t1);
+   double ms = (double)(t1.QuadPart - t0.QuadPart) * 1000.0 / (double)f.QuadPart;
+   if (!c)
+   {
+      printf("  health: reopen FAIL\n");
+      g_resetContext = savedCtx;
+      return 1;
+   }
+
+   // Poll up to 5 s: a just-reconnected Bluetooth capture link can take
+   // seconds before data flows. Progress lines make the silent-stream
+   // case (callbacks flowing, content never varying) visible.
+   int audioMs = -1;
+   for (int waited = 0; waited < 5000; waited += 100)
+   {
+      Sleep(100);
+      if (c->dataCallbacks > 0 && c->nonEmpty > 0 && c->contentVaried > 0)
+      {
+         audioMs = waited + 100;
+         break;
+      }
+      if ((waited % 1000) == 900)
+      {
+         printf("  health: at %d ms callbacks=%d nonEmpty=%d varied=%d\n",
+                waited + 100, (int)c->dataCallbacks, (int)c->nonEmpty,
+                (int)c->contentVaried);
+         fflush(stdout);
+      }
+   }
+
+   int audio = (audioMs >= 0);
+   int clean = closeInputCtx(c, NULL);
+   g_resetContext = savedCtx;
+   printf("  health: reopen %s %.1f ms firstAudioMs=%d%s\n",
+          (audio && clean) ? "OK" : "FAIL", ms, audioMs,
+          clean ? "" : " (close WEDGED)");
+   return (audio && clean) ? 0 : 1;
+}
+
 // As modeReopen, but the wedge comes from a real device removal driven
 // externally (swdevice_audio) rather than from SuspendThread. Waits for
 // the callbacks to stop, then does the reset and the reopen loop.
@@ -1182,8 +1323,17 @@ static int modeRemoved(int iterations)
    }
 
    double ms = 0.0;
-   int clean = closeInputCtx(victim, &ms);
-   printf("  reset %s after %.1f ms\n", clean ? "returned" : "WEDGED", ms);
+   int clean;
+   if (g_skipTeardown)
+   {
+      printf("  teardown skipped -- victim leaked with device gone\n");
+      clean = 1;
+   }
+   else
+   {
+      clean = closeInputCtx(victim, &ms);
+      printf("  reset %s after %.1f ms\n", clean ? "returned" : "WEDGED", ms);
+   }
 
    // Continue either way. A clean close is the expected result when the
    // wave call runs on our own thread, and we still want to confirm that
@@ -1195,11 +1345,9 @@ static int modeRemoved(int iterations)
    // Reopen on device 0, which is always present. The question is whether
    // WinMM input still works in this process at all, and device 0 answers
    // that as well as the removed device would.
-   int reopenDevice = 0;
-   printf("  calling waveInGetNumDevs\n"); fflush(stdout);
-   UINT nDevs = waveInGetNumDevs();
-   printf("  reopening on device %d (%u capture devices present)\n",
-          reopenDevice, nDevs);
+   healthPhase();
+   int reopenDevice = g_healthDevice;
+   printf("  reopening on device %d\n", reopenDevice);
 
    int good = 0, deaf = 0;
    for (int i = 1; i <= iterations; i++)
@@ -1246,6 +1394,13 @@ static void usage(void)
           "              taken during the teardown. Sweep N across the\n"
           "              transition window to find whether any offset\n"
           "              wedges.\n"
+          "  --callback-shape reopen|deferred  where waveInAddBuffer runs\n"
+          "  --reset-context inflight|joined   joined (default) stops and\n"
+          "              joins the recycler before reset; inflight resets\n"
+          "              while it is live, as sipX does today\n"
+          "  --skip-teardown  on trigger: no reset/close, straight to the\n"
+          "              health phase\n"
+          "  --health-device N  second device for the open2 check, default 0\n"
           "  modes: list suspend sweep reopen deferred removed\n"
           "         removed-deferred hold parent\n\n"
           "  list      print WinMM devices and MMDevice endpoints side by\n"
@@ -1276,12 +1431,18 @@ int main(int argc, char** argv)
       if (!strcmp(argv[i], "--help")) { usage(); return 0; }
       if (i >= argc - 1) break;
       if (!strcmp(argv[i], "--dir"))             dir = argv[++i];
+      if (!strcmp(argv[i], "--skip-teardown")) { g_skipTeardown = 1; continue; }
       else if (!strcmp(argv[i], "--method"))     method = argv[++i];
       else if (!strcmp(argv[i], "--instance"))   instanceId = argv[++i];
       else if (!strcmp(argv[i], "--iterations")) iterations = atoi(argv[++i]);
       else if (!strcmp(argv[i], "--device"))     g_deviceId = atoi(argv[++i]);
       else if (!strcmp(argv[i], "--reset-timeout")) g_resetTimeoutMs = atoi(argv[++i]);
       else if (!strcmp(argv[i], "--close-after")) g_closeAfterMs = atoi(argv[++i]);
+      else if (!strcmp(argv[i], "--callback-shape"))
+         g_deferMode = !strcmp(argv[++i], "deferred");
+      else if (!strcmp(argv[i], "--reset-context"))
+         g_resetContext = !strcmp(argv[++i], "joined");
+      else if (!strcmp(argv[i], "--health-device")) g_healthDevice = atoi(argv[++i]);
    }
 
    int isInput = !strcmp(dir, "in");
@@ -1296,6 +1457,7 @@ int main(int argc, char** argv)
    if (!strcmp(method, "hold"))   return modeHold(isInput, iterations);
    if (!strcmp(method, "parent")) return modeParent(isInput, iterations, instanceId);
    if (!strcmp(method, "list"))   return modeList();
+   if (!strcmp(method, "health")) return modeHealth();
    if (!strcmp(method, "removed"))          return modeRemoved(iterations);
    if (!strcmp(method, "removed-deferred")) { g_deferMode = 1; return modeRemoved(iterations); }
 

@@ -51,6 +51,25 @@ Repeated twice each. After a wedge, the process's WinMM input path is
 unusable: subsequent calls into WinMM from that process block indefinitely,
 reproduced three times.
 
+Measured 2026-09-08 on the laptop against real Bluetooth departure (SB510,
+driven by `btaudio_ctl.exe`, 3 runs per cell per offset at 250 and 5000 ms):
+
+| Cell | Wedged | WinMM after | Fresh audio |
+| --- | --- | --- | --- |
+| reopen + inflight (sipX today) | 6/6 | `waveInGetNumDevs` blocked | none |
+| deferred + joined (the fix) | 0/6 | healthy | yes |
+| deferred + inflight | 0/6 | healthy | yes |
+| skip-teardown (fire escape) | 0/6 | healthy | yes |
+
+First audio after a fresh open on the reconnected device: ~700 ms.
+
+This corrects an earlier conclusion. A 2026-09-04 sweep in the `reopen`
+shape wedged 28 of 30 runs at offsets from 47 ms to 20 s and was read as
+"closing a departing capture device wedges regardless of timing." The
+matrix shows that result was a property of the callback-shape violation,
+not of Windows: with no thread inside a wave call from the callback
+context, teardown during departure is clean at every offset tested.
+
 This is the evidence that restructuring `MpidWinMM` to defer the wave call
 prevents the deadlock outright, rather than merely making it survivable.
 
@@ -59,7 +78,7 @@ prevents the deadlock outright, rather than merely making it survivable.
 From a VS2019 x64 native tools prompt:
 
 ```
-cl /EHsc /W3 wavelock_probe.cpp winmm.lib cfgmgr32.lib advapi32.lib ole32.lib
+cl /EHsc /W3 wavelock_probe.cpp winmm.lib cfgmgr32.lib advapi32.lib ole32.lib uuid.lib
 ```
 
 `ole32.lib` is needed for the MMDevice enumeration in `--method list`.
@@ -71,7 +90,7 @@ form of the vcvars path. It contains no spaces, parentheses or quotes, so
 nothing needs escaping:
 
 ```bash
-cd ~/dev/sipXtapi/sipXmediaLib/src/test/mp && cmd /C "call $(cygpath -d '/cygdrive/c/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat') && cl /EHsc /W3 wavelock_probe.cpp winmm.lib cfgmgr32.lib advapi32.lib ole32.lib"
+cd ~/dev/sipXtapi/sipXmediaLib/src/test/mp && cmd /C "call $(cygpath -d '/cygdrive/c/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat') && cl /EHsc /W3 wavelock_probe.cpp winmm.lib cfgmgr32.lib advapi32.lib ole32.lib uuid.lib"
 ```
 
 If `cygpath -d` returns the long path unchanged, 8.3 name generation is
@@ -83,6 +102,8 @@ file invoked by name.
 ```
 wavelock_probe --dir in|out --method <mode> [--device N] [--iterations N]
                [--reset-timeout MS] [--instance "<PnP instance id>"]
+               [--callback-shape reopen|deferred] [--reset-context inflight|joined]
+               [--skip-teardown] [--health-device N]
 ```
 
 **`list`** -- prints the WinMM device list and the MMDevice endpoint list
@@ -95,11 +116,20 @@ change does to a live stream. `--iterations` is the number of seconds.
 
 **`removed`** -- waits for an external device removal (see below), then times
 `waveInReset` and tries to reopen. This is the mode that reproduces the
-customer's hang.
+customer's hang. Every `removed` run now ends with a health phase:
+`waveInGetNumDevs` and a fresh open on `--health-device`, both under
+watchdog threads, printed as `health:` lines. A wedged run therefore
+reports its aftermath and exits on its own instead of hanging the harness.
 
 **`removed-deferred`** -- as `removed`, but the wave call runs on a thread
 the probe owns instead of in the callback. This is the mode that shows the
 restructure working.
+
+**`health`** -- opens `--device`, polls up to 5 s for verified audio, closes,
+and prints one `health: reopen` line with the time to first audio. Prints an
+identity line first showing what the index currently resolves to, because
+WinMM indices move when devices come and go. Used by `bt_wedge_sweep.sh` as
+the post-reconnect check.
 
 **`suspend`** -- suspends the recycling thread and times the reset. Repeatable
 on output; wedges the process on input. A proxy for removal, superseded by
@@ -128,6 +158,28 @@ sipX opens a specific index, so a specific index is what should be tested.
 abandoning it, default 3000. The default truncates the answer: a wedge
 reported as "3006 ms" is the harness giving up, not WinMM returning. Raise it
 when measuring how long a wedge actually lasts.
+
+**`--callback-shape reopen|deferred`** -- where `waveInAddBuffer` runs during
+a `removed` run: `reopen` is inside the WinMM callback (what sipX does
+today), `deferred` is on a worker thread the probe owns (the `MpodWinMM`
+pattern and the proposed `MpidWinMM` fix). Supersedes choosing between
+`removed` and `removed-deferred`.
+
+**`--reset-context inflight|joined`** -- whether the close path stops and
+joins the recycling worker before `waveInReset` (`joined`, the default and
+the fix's teardown sequence) or issues the reset while the worker is live
+(`inflight`). In the `reopen` shape there is no worker to join; the stop
+flag only prevents the callback from entering new wave calls -- a callback
+already blocked inside one cannot be joined, which is the asymmetry the
+restructure exists to remove.
+
+**`--skip-teardown`** -- on trigger, issue no reset, unprepare, close or
+free: leak the victim context and go straight to the health phase. Models
+the fire-escape path where teardown is skipped because a worker will not
+join.
+
+**`--health-device N`** -- device index for the health phase's fresh-open
+check, default 0. Use a stable wired device, not the one being removed.
 
 ## Reproducing the deadlock
 
@@ -159,9 +211,17 @@ its own root devnode must be disabled before `SwDeviceCreate` can start one.
 Confirm the device index with `--method list` while `swdevice_audio` is
 running -- do not assume it is 1.
 
-The `removed` run will hang after printing the wedge result, because the
-process's WinMM path is by then unusable. Ctrl-C is expected. Substitute
-`removed-deferred` for the case that completes cleanly.
+For real-hardware departure runs against a Bluetooth device, use
+`bt_wedge_sweep.sh`, which drives connect/disconnect via `btaudio_ctl.exe`
+and runs the full cell matrix; see `bt_wedge_sweep.md`. The Bluetooth
+harness does not involve VB-Cable and is free of the bugcheck described
+below.
+
+A wedged `removed` run reports `health: numdevs BLOCKED`, records the
+failed reopen, and exits on its own; the health-phase watchdogs replaced
+the old behaviour of hanging after the wedge line. Substitute
+`removed-deferred` (or `--callback-shape deferred`) for the case that
+wedges nothing.
 
 ## What does not work, and why
 
