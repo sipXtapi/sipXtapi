@@ -45,7 +45,7 @@ jobs:
         run: |
           ls -l
 
-      - name: configure wget for 3gpp downloads 
+      - name: configure wget for 3gpp downloads
         run: |
           # www.3gpp.org is behind a bot filter that 403s the default
           # wget User-Agent. Confirmed by probe: same egress IP, same
@@ -60,14 +60,37 @@ jobs:
           EOF
           cat ~/.wgetrc
 
-          # Fail fast with a clear message if the bot filter changes,
-          # rather than surfacing as a wget 403 deep inside a recursive
-          # make. Cache-buster so we measure the origin, not the edge.
-          wget -q -O /tmp/3gpp-probe.zip \
-               "https://www.3gpp.org/ftp/Specs/archive/26_series/26.104/26104-700.zip?cb=$RANDOM"
-          unzip -t /tmp/3gpp-probe.zip > /dev/null
-          echo "3gpp download OK"
-          rm -f /tmp/3gpp-probe.zip
+      - name: restore 3gpp codec zip cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/3gpp
+          key: 3gpp-amr-zips
+
+      - name: download and verify 3gpp codec zips
+        run: |
+          mkdir -p /tmp/3gpp
+          # Both zips are frozen historical artifacts (spec release 7.0.0)
+          # that never change, so the cache key is static.
+          # wget UA is set in ~/.wgetrc above for the cold-cache download case.
+          for spec in \
+              "26_series/26.104/26104-700.zip" \
+              "26_series/26.204/26204-700.zip" ; do
+            fname=$(basename "$spec")
+            if [ -f "/tmp/3gpp/$fname" ] && unzip -t "/tmp/3gpp/$fname" > /dev/null 2>&1 ; then
+              echo "Cache hit: $fname"
+            else
+              echo "Downloading $fname ..."
+              wget -q -O "/tmp/3gpp/$fname" \
+                  "https://www.3gpp.org/ftp/Specs/archive/$spec"
+              if ! unzip -t "/tmp/3gpp/$fname" > /dev/null 2>&1 ; then
+                echo "ERROR: $fname failed integrity check after download"
+                exit 1
+              fi
+              echo "Downloaded and verified: $fname"
+            fi
+          done
+          cp /tmp/3gpp/26104-700.zip sipXmediaLib/contrib/libamrnb/
+          cp /tmp/3gpp/26204-700.zip sipXmediaLib/contrib/libamrwb/
 
       - name: detect autoconf version and select patch
         id: patch
