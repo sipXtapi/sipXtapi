@@ -745,7 +745,7 @@ OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
    // 10ms over 100ms seems reasonable.
    int checkInUseTries = 10;
    
-   for (int i = 0; i < checkInUseTries; i--)
+   for (int i = 0; i < checkInUseTries; i++)
    {
       connectionFound =
          (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
