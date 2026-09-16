@@ -17,6 +17,8 @@
  *              no-ops on null and free_response() skips null question slots.
  */
 
+#include        <stdlib.h>
+
 #include        "resparse/rr.h"
 
         /*

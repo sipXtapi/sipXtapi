@@ -31,6 +31,7 @@
  *              one byte past the last valid byte of the response.
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include "resparse/rr.h"
 #ifdef __pingtel_on_posix__
 #include <resolv.h>

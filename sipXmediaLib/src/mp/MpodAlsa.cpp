@@ -284,7 +284,7 @@ OsStatus MpodAlsa::canEnable()
                      getDeviceName(),
 		     SND_PCM_STREAM_PLAYBACK,
 		     SND_PCM_NONBLOCK);
-    OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA::canEnable snd_pcm_open(%s) returned: %p %d", getDeviceName(), pcmOut, ret);
+    OsSysLog::add(FAC_MP, PRI_DEBUG, "ALSA::canEnable snd_pcm_open(%s) returned: %p %d", getDeviceName().data(), pcmOut, openStatus);
     switch(openStatus)
     {
     case 0:
