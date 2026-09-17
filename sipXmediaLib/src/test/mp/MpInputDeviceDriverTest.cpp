@@ -11,6 +11,8 @@
 #include <mp/MpBufPool.h>
 #include <mp/MpArrayBuf.h>
 #include <mp/MpAudioBuf.h>
+#include <mp/MpAudioDeviceWatcher.h>
+#include <mp/MpAudioDeviceChangeObserver.h>
 #include <mp/MpInputDeviceManager.h>
 #ifdef WIN32
 #   include <mp/MpidWinMM.h>
@@ -33,9 +35,211 @@
 #define MIDDT_SAMPLES_PER_FRAME 80
 #define MIDDT_NBUFS 20
 
+/**
+ * Records what a watcher told it, in order, so a test can assert on the
+ * whole sequence rather than a count.
+ *
+ * Assertions about absence matter as much as assertions about presence
+ * here: the bug this exists to pin is a device being reported that
+ * should have been silent.  A recorder that only counted could not tell
+ * "nothing happened" from "something happened that I did not check for".
+ */
+class MpTestDeviceChangeObserver : public MpAudioDeviceChangeObserver
+{
+public:
+ 
+   MpTestDeviceChangeObserver()
+   : mOwnDeviceLostCount(0)
+   , mNoDefaultCount(0)
+   {
+   };
+ 
+   virtual ~MpTestDeviceChangeObserver()
+   {
+      mEvents.destroyAll();
+   };
+ 
+   void onDevicePresent(const UtlString& deviceId,
+                        const UtlString& deviceName)
+   {
+      record("present", deviceId, deviceName);
+   };
+ 
+   void onDeviceNotPresent(const UtlString& deviceId,
+                           const UtlString& deviceName)
+   {
+      record("notPresent", deviceId, deviceName);
+   };
+ 
+   void onOwnDeviceLost()
+   {
+      mOwnDeviceLostCount++;
+   };
+ 
+   void onDefaultDeviceChanged(const UtlString& deviceId,
+                               const UtlString& deviceName)
+   {
+      record("default", deviceId, deviceName);
+   };
+ 
+   void onNoDefaultDevice()
+   {
+      mNoDefaultCount++;
+      record("noDefault", "", "");
+   };
+ 
+      /// Number of events recorded so far.
+   int getCount() const
+   {
+      return (int) mEvents.entries();
+   };
+ 
+      /// One event, as "kind|id|name".  Empty if the index is past the end.
+   UtlString getEvent(int index) const
+   {
+      UtlString empty;
+      if (index < 0 || index >= (int) mEvents.entries())
+      {
+         return empty;
+      }
+      return *((UtlString*) mEvents.at(index));
+   };
+ 
+   void clear()
+   {
+      mEvents.destroyAll();
+      mOwnDeviceLostCount = 0;
+      mNoDefaultCount = 0;
+   };
+ 
+   int mOwnDeviceLostCount;
+   int mNoDefaultCount;
+ 
+private:
+ 
+   void record(const char* kind,
+               const UtlString& deviceId,
+               const UtlString& deviceName)
+   {
+      UtlString* event = new UtlString(kind);
+      event->append("|");
+      event->append(deviceId);
+      event->append("|");
+      event->append(deviceName);
+      mEvents.append(event);
+   };
+ 
+   UtlSList mEvents;
+};
+ 
+ 
+/**
+ * A watcher whose seed is whatever the test says it is.
+ *
+ * The cases worth testing are devices arriving and departing on cue,
+ * and a machine that was already in a particular state when we started.
+ * No test machine can be relied on to provide either.  Seeding by hand
+ * and driving onDeviceChanged directly exercises exactly the logic that
+ * decides what an application gets told, with no COM, no drivers and no
+ * hardware, so these run on the build machine and on Linux alike.
+ */
+class MpTestAudioDeviceWatcher : public MpAudioDeviceWatcher
+{
+public:
+ 
+   MpTestAudioDeviceWatcher(MpDeviceFlow flow,
+                            MpAudioDeviceChangeObserver* observer)
+   : MpAudioDeviceWatcher(flow, observer)
+   , mRegisterCount(0)
+   , mUnregisterCount(0)
+   {
+   };
+ 
+      /// Add a device to the seed, to be applied when start() is called.
+   void addToSeed(const char* deviceId,
+                  const char* displayName,
+                  const char* apiName)
+   {
+      UtlString* seed = new UtlString(deviceId);
+      seed->append("|");
+      seed->append(displayName);
+      seed->append("|");
+      seed->append(apiName);
+      mSeed.append(seed);
+   };
+ 
+   void setSeedDefaultDevice(const char* deviceId, const char* displayName)
+   {
+      mSeedDefaultId = deviceId;
+      mSeedDefaultName = displayName;
+   };
+ 
+   int mRegisterCount;
+   int mUnregisterCount;
+ 
+protected:
+ 
+   OsStatus seedAvailableDevices()
+   {
+      UtlSListIterator iterator(mSeed);
+      UtlString* seed = NULL;
+      while ((seed = (UtlString*) iterator()))
+      {
+         UtlString deviceId;
+         UtlString displayName;
+         UtlString apiName;
+         split(*seed, deviceId, displayName, apiName);
+         addSeedDevice(deviceId, displayName, apiName);
+      }
+ 
+      if (!mSeedDefaultId.isNull())
+      {
+         setSeedDefault(mSeedDefaultId, mSeedDefaultName);
+      }
+ 
+      return OS_SUCCESS;
+   };
+ 
+   OsStatus registerForChanges()
+   {
+      mRegisterCount++;
+      return OS_SUCCESS;
+   };
+ 
+   OsStatus unregisterForChanges()
+   {
+      mUnregisterCount++;
+      return OS_SUCCESS;
+   };
+ 
+private:
+ 
+   static void split(const UtlString& packed,
+                     UtlString& first,
+                     UtlString& second,
+                     UtlString& third)
+   {
+      // A local copy because UtlString::operator() is not const, and
+      // plain int rather than ssize_t, which is not defined here.
+      UtlString work(packed);
+      int firstBar = (int) work.index("|");
+      int secondBar = (int) work.index("|", firstBar + 1);
+
+      first = work(0, firstBar);
+      second = work(firstBar + 1, secondBar - firstBar - 1);
+      third = work(secondBar + 1, (int) work.length() - secondBar - 1);
+   };
+ 
+   UtlSList  mSeed;
+   UtlString mSeedDefaultId;
+   UtlString mSeedDefaultName;
+};
+
+
 class MpInputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
 {
    CPPUNIT_TEST_SUITE(MpInputDeviceDriverTest);
+
    CPPUNIT_TEST(testSetup);
    CPPUNIT_TEST(testNonexistentInputDevice);
    CPPUNIT_TEST(testReEnableInputDevice);
@@ -46,6 +250,18 @@ class MpInputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testCaptureEndpointsMatchWinMM);
    CPPUNIT_TEST(testRenderEndpointsMatchWinMM);
    CPPUNIT_TEST(testGetEndpointDataFlow);
+
+   CPPUNIT_TEST(testWatcherSeedIsSilent);
+   CPPUNIT_TEST(testWatcherReportsArrival);
+   CPPUNIT_TEST(testWatcherIgnoresRepeatArrival);
+   CPPUNIT_TEST(testWatcherReportsDeparture);
+   CPPUNIT_TEST(testWatcherIgnoresDepartureOfUnknownDevice);
+   CPPUNIT_TEST(testWatcherReportsCachedNameOnDeparture);
+   CPPUNIT_TEST(testWatcherReportsTwoDeparturesInOrder);
+   CPPUNIT_TEST(testWatcherDeduplicatesDefaultChange);
+   CPPUNIT_TEST(testWatcherReportsNoDefaultSeparately);
+   CPPUNIT_TEST(testWatcherFindsDeviceByEitherName);
+
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -780,6 +996,253 @@ collectActiveEndpointNames(enumerator,
        SIPX_TEST_SKIP("MpidWinMM is Windows-only");
 #endif
    }
+
+
+   void testWatcherSeedIsSilent()
+   {
+      // Establishing what was already true is not an observation that
+      // anything changed.  If seeding fired events, every device on the
+      // machine would look like it had just been plugged in.
+      MpTestDeviceChangeObserver observer;
+      MpTestAudioDeviceWatcher watcher(
+         MpAudioDeviceWatcher::MP_DEVICE_FLOW_CAPTURE, &observer);
+ 
+      watcher.addToSeed("{0.0.1.0}.{aaa}", "Microphone (Intel Array)",
+                        "Microphone (Intel Array)");
+      watcher.addToSeed("{0.0.1.0}.{bbb}", "Headset (EPOS)", "Headset (EPOS)");
+ 
+      CPPUNIT_ASSERT(watcher.start() == OS_SUCCESS);
+ 
+      CPPUNIT_ASSERT_EQUAL(0, observer.getCount());
+      CPPUNIT_ASSERT_EQUAL(2, watcher.getNumDevices());
+      CPPUNIT_ASSERT_EQUAL(1, watcher.mRegisterCount);
+ 
+      CPPUNIT_ASSERT(watcher.stop() == OS_SUCCESS);
+      CPPUNIT_ASSERT_EQUAL(1, watcher.mUnregisterCount);
+   };
+ 
+ 
+   void testWatcherReportsArrival()
+   {
+      MpTestDeviceChangeObserver observer;
+      MpTestAudioDeviceWatcher watcher(
+         MpAudioDeviceWatcher::MP_DEVICE_FLOW_CAPTURE, &observer);
+      CPPUNIT_ASSERT(watcher.start() == OS_SUCCESS);
+ 
+      watcher.onDeviceChanged("{0.0.1.0}.{sanas}",
+                              "Microphone (Sanas Audio)",
+                              "Microphone (Sanas Audio",
+                              TRUE);
+ 
+      CPPUNIT_ASSERT_EQUAL(1, observer.getCount());
+ 
+      // The API name is reported, not the display name: an application
+      // hands this straight back to sipxAudioSetCallInputDevice.
+      UtlString expected("present|{0.0.1.0}.{sanas}|Microphone (Sanas Audio");
+      CPPUNIT_ASSERT_EQUAL(expected, observer.getEvent(0));
+ 
+      CPPUNIT_ASSERT_EQUAL(1, watcher.getNumDevices());
+   };
+ 
+ 
+   void testWatcherIgnoresRepeatArrival()
+   {
+      // A platform may report a device as available more than once, for
+      // reasons of its own.  Only the first is news.
+      MpTestDeviceChangeObserver observer;
+      MpTestAudioDeviceWatcher watcher(
+         MpAudioDeviceWatcher::MP_DEVICE_FLOW_CAPTURE, &observer);
+      CPPUNIT_ASSERT(watcher.start() == OS_SUCCESS);
+ 
+      watcher.onDeviceChanged("{id}", "Mic", "Mic", TRUE);
+      watcher.onDeviceChanged("{id}", "Mic", "Mic", TRUE);
+      watcher.onDeviceChanged("{id}", "Mic", "Mic", TRUE);
+ 
+      CPPUNIT_ASSERT_EQUAL(1, observer.getCount());
+      CPPUNIT_ASSERT_EQUAL(1, watcher.getNumDevices());
+   };
+ 
+ 
+   void testWatcherReportsDeparture()
+   {
+      // The DELL monitor case from the 2026-08-20 customer log: a device
+      // that was available goes unplugged.  A real departure, and the
+      // code as it stood said nothing at all, because it handled only
+      // one of the several states that mean gone.
+      MpTestDeviceChangeObserver observer;
+      MpTestAudioDeviceWatcher watcher(
+         MpAudioDeviceWatcher::MP_DEVICE_FLOW_RENDER, &observer);
+ 
+      watcher.addToSeed("{0.0.0.0}.{dell}", "DELL S2721HN", "DELL S2721HN");
+      CPPUNIT_ASSERT(watcher.start() == OS_SUCCESS);
+ 
+      watcher.onDeviceChanged("{0.0.0.0}.{dell}", "DELL S2721HN",
+                              "DELL S2721HN", FALSE);
+ 
+      CPPUNIT_ASSERT_EQUAL(1, observer.getCount());
+      UtlString expected("notPresent|{0.0.0.0}.{dell}|DELL S2721HN");
+      CPPUNIT_ASSERT_EQUAL(expected, observer.getEvent(0));
+      CPPUNIT_ASSERT_EQUAL(0, watcher.getNumDevices());
+   };
+ 
+ 
+   void testWatcherIgnoresDepartureOfUnknownDevice()
+   {
+      // The DOSS headset case from the same log.  It was already
+      // unplugged when we started, then moved to another state that
+      // also means gone.  The application never saw it available, so
+      // there is nothing to tell anyone about.  The code as it stood
+      // reported this twice.
+      MpTestDeviceChangeObserver observer;
+      MpTestAudioDeviceWatcher watcher(
+         MpAudioDeviceWatcher::MP_DEVICE_FLOW_CAPTURE, &observer);
+ 
+      watcher.addToSeed("{0.0.1.0}.{intel}", "Microphone (Intel Array)",
+                        "Microphone (Intel Array)");
+      CPPUNIT_ASSERT(watcher.start() == OS_SUCCESS);
+ 
+      watcher.onDeviceChanged("{0.0.1.0}.{doss}", "Headset (DOSS)",
+                              "Headset (DOSS)", FALSE);
+      watcher.onDeviceChanged("{0.0.1.0}.{doss}", "Headset (DOSS)",
+                              "Headset (DOSS)", FALSE);
+ 
+      CPPUNIT_ASSERT_EQUAL(0, observer.getCount());
+      CPPUNIT_ASSERT_EQUAL(1, watcher.getNumDevices());
+   };
+ 
+ 
+   void testWatcherReportsCachedNameOnDeparture()
+   {
+      // A device that has gone away often cannot be asked for its name
+      // any more, so the platform passes an empty one.  The name cached
+      // when it arrived is reported instead; an event carrying an empty
+      // name is no use to an application.
+      MpTestDeviceChangeObserver observer;
+      MpTestAudioDeviceWatcher watcher(
+         MpAudioDeviceWatcher::MP_DEVICE_FLOW_CAPTURE, &observer);
+      CPPUNIT_ASSERT(watcher.start() == OS_SUCCESS);
+ 
+      watcher.onDeviceChanged("{id}", "Microphone (C-Media USB Audio Device   )",
+                              "Microphone (C-Media USB Audio D", TRUE);
+      observer.clear();
+ 
+      watcher.onDeviceChanged("{id}", "", "", FALSE);
+ 
+      CPPUNIT_ASSERT_EQUAL(1, observer.getCount());
+      UtlString expected("notPresent|{id}|Microphone (C-Media USB Audio D");
+      CPPUNIT_ASSERT_EQUAL(expected, observer.getEvent(0));
+   };
+ 
+ 
+   void testWatcherReportsTwoDeparturesInOrder()
+   {
+      // Sanas takes its capture and render endpoints away 752 ms apart.
+      // Both are reported, in the order they happened.
+      MpTestDeviceChangeObserver observer;
+      MpTestAudioDeviceWatcher watcher(
+         MpAudioDeviceWatcher::MP_DEVICE_FLOW_CAPTURE, &observer);
+ 
+      watcher.addToSeed("{mic}", "Microphone (Sanas Audio)",
+                        "Microphone (Sanas Audio");
+      watcher.addToSeed("{spk}", "Speakers (Sanas Audio)",
+                        "Speakers (Sanas Audio)");
+      CPPUNIT_ASSERT(watcher.start() == OS_SUCCESS);
+ 
+      watcher.onDeviceChanged("{mic}", "", "", FALSE);
+      watcher.onDeviceChanged("{spk}", "", "", FALSE);
+ 
+      CPPUNIT_ASSERT_EQUAL(2, observer.getCount());
+      UtlString firstExpected("notPresent|{mic}|Microphone (Sanas Audio");
+      UtlString secondExpected("notPresent|{spk}|Speakers (Sanas Audio)");
+      CPPUNIT_ASSERT_EQUAL(firstExpected, observer.getEvent(0));
+      CPPUNIT_ASSERT_EQUAL(secondExpected, observer.getEvent(1));
+      CPPUNIT_ASSERT_EQUAL(0, watcher.getNumDevices());
+   };
+ 
+ 
+   void testWatcherDeduplicatesDefaultChange()
+   {
+      // One device change produces a default notification for each role
+      // the platform keeps.  Only a change of device is news.
+      MpTestDeviceChangeObserver observer;
+      MpTestAudioDeviceWatcher watcher(
+         MpAudioDeviceWatcher::MP_DEVICE_FLOW_CAPTURE, &observer);
+      CPPUNIT_ASSERT(watcher.start() == OS_SUCCESS);
+ 
+      watcher.onDefaultChanged("{sanas}", "Microphone (Sanas Audio)");
+      watcher.onDefaultChanged("{sanas}", "Microphone (Sanas Audio)");
+      watcher.onDefaultChanged("{sanas}", "Microphone (Sanas Audio)");
+ 
+      CPPUNIT_ASSERT_EQUAL(1, observer.getCount());
+      UtlString expected("default|{sanas}|Microphone (Sanas Audio)");
+      CPPUNIT_ASSERT_EQUAL(expected, observer.getEvent(0));
+ 
+      // A different device is news again.
+      watcher.onDefaultChanged("{epos}", "Headset (EPOS)");
+      CPPUNIT_ASSERT_EQUAL(2, observer.getCount());
+   };
+ 
+ 
+   void testWatcherReportsNoDefaultSeparately()
+   {
+      // No default device at all is a different thing from a default
+      // whose name could not be resolved, and gets its own callback so
+      // that an application never has to guess which it is looking at.
+      MpTestDeviceChangeObserver observer;
+      MpTestAudioDeviceWatcher watcher(
+         MpAudioDeviceWatcher::MP_DEVICE_FLOW_CAPTURE, &observer);
+ 
+      watcher.setSeedDefaultDevice("{sanas}", "Microphone (Sanas Audio)");
+      CPPUNIT_ASSERT(watcher.start() == OS_SUCCESS);
+ 
+      watcher.onDefaultChanged("", "");
+ 
+      CPPUNIT_ASSERT_EQUAL(1, observer.mNoDefaultCount);
+      CPPUNIT_ASSERT_EQUAL(1, observer.getCount());
+ 
+      UtlString deviceId;
+      UtlString displayName;
+      CPPUNIT_ASSERT(!watcher.getDefaultDevice(deviceId, displayName));
+   };
+ 
+ 
+   void testWatcherFindsDeviceByEitherName()
+   {
+      // An application may have taken the display name from an event
+      // and the API name from the device list, or the other way round,
+      // and has no reason to know they are different strings.
+      MpTestDeviceChangeObserver observer;
+      MpTestAudioDeviceWatcher watcher(
+         MpAudioDeviceWatcher::MP_DEVICE_FLOW_CAPTURE, &observer);
+ 
+      watcher.addToSeed("{cmedia}",
+                        "Microphone (C-Media USB Audio Device   )",
+                        "Microphone (C-Media USB Audio D");
+      CPPUNIT_ASSERT(watcher.start() == OS_SUCCESS);
+ 
+      UtlString found;
+      UtlString byDisplay("Microphone (C-Media USB Audio Device   )");
+      UtlString byApi("Microphone (C-Media USB Audio D");
+      UtlString expectedId("{cmedia}");
+ 
+      CPPUNIT_ASSERT(watcher.findDeviceByName(byDisplay, found));
+      CPPUNIT_ASSERT_EQUAL(expectedId, found);
+ 
+      CPPUNIT_ASSERT(watcher.findDeviceByName(byApi, found));
+      CPPUNIT_ASSERT_EQUAL(expectedId, found);
+ 
+      UtlString absent("No Such Device");
+      CPPUNIT_ASSERT(!watcher.findDeviceByName(absent, found));
+      CPPUNIT_ASSERT(found.isNull());
+ 
+      // Both names are retrievable by id.
+      UtlString displayName;
+      UtlString apiName;
+      CPPUNIT_ASSERT(watcher.getDeviceInfo(expectedId, displayName, apiName));
+      CPPUNIT_ASSERT_EQUAL(byDisplay, displayName);
+      CPPUNIT_ASSERT_EQUAL(byApi, apiName);
+   };
+
 
    void tearDown()
    {

@@ -223,6 +223,7 @@
     <ClCompile Include="src\mp\MpArrayBuf.cpp" />
     <ClCompile Include="src\mp\mpau.cpp" />
     <ClCompile Include="src\mp\MpAudioAbstract.cpp" />
+    <ClCompile Include="src\mp\MpAudioDeviceWatcher.cpp" />
     <ClCompile Include="src\mp\MpAudioBuf.cpp" />
     <ClCompile Include="src\mp\MpAudioFileDecompress.cpp" />
     <ClCompile Include="src\mp\MpAudioFileOpen.cpp" />
@@ -371,6 +372,8 @@
     <ClInclude Include="include\mp\mpau.h" />
     <ClInclude Include="include\mp\MpAudioAbstract.h" />
     <ClInclude Include="include\mp\MpAudioBuf.h" />
+    <ClInclude Include="include\mp\MpAudioDeviceChangeObserver.h" />
+    <ClInclude Include="include\mp\MpAudioDeviceWatcher.h" />
     <ClInclude Include="include\mp\MpAudioFileDecompress.h" />
     <ClInclude Include="include\mp\MpAudioFileOpen.h" />
     <ClInclude Include="include\mp\MpAudioFileUtils.h" />
