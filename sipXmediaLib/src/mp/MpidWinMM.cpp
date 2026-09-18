@@ -561,6 +561,20 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
 {
     OsStatus status = OS_SUCCESS;
 
+    // A driver whose disable took the fire-escape path is permanently
+    // damaged: it holds a leaked, never-closed session whose callback
+    // still references this object. It must never run again; recovery
+    // is a new driver instance on the same device (the factory's
+    // normal path).
+    if (mLastDisableEscaped)
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+            "MpidWinMM::enableDevice '%s' refused: driver previously "
+            "escaped teardown and is retired",
+            getDeviceName().data());
+        return OS_FAILED;
+    }
+
     // reset the number of addBuffer failures, as we're starting fresh now.
     mnAddBufferFailures = 0;
 
@@ -598,19 +612,6 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
         return OS_FAILED;
     }
 
-    // A driver whose disable took the fire-escape path is permanently
-    // damaged: it holds a leaked, never-closed session whose callback
-    // still references this object. It must never run again; recovery
-    // is a new driver instance on the same device (the factory's
-    // normal path).
-    if (mLastDisableEscaped)
-    {
-        OsSysLog::add(FAC_MP, PRI_ERR,
-            "MpidWinMM::enableDevice '%s' refused: driver previously "
-            "escaped teardown and is retired",
-            getDeviceName().data());
-        return OS_FAILED;
-    }
 
     // New capture session: advance the generation so any work still
     // queued from a previous session is discarded by the worker, allow
@@ -973,7 +974,10 @@ MpidWinMM::waveInCallbackStatic(HWAVEIN hwi,
 {
     assert(dwInstance != NULL);
     MpidWinMM* iddWntPtr = (MpidWinMM*)dwInstance;
-    assert((uMsg == WIM_OPEN) || (hwi == iddWntPtr->mDevHandle));
+    // After a fire escape mDevHandle is NULL while the leaked session
+    // keeps delivering; that is expected, not a mismatch.
+    assert((uMsg == WIM_OPEN) || (iddWntPtr->mDevHandle == NULL)
+           || (hwi == iddWntPtr->mDevHandle));
 
     // MSDN permits only SetEvent, the Interlocked family and a short
     // list of other calls from this callback; wave calls, locks,

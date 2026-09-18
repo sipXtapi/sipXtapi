@@ -184,7 +184,8 @@ protected:
       /**<
       *  This static method is called by the windows waveform audio functions
       *  passing incoming audio data to be processed.
-      *  This function then passes the results on to processAudioInput()
+      *  It queues the completed header for ThreadWMMInProc and sets the
+      *  event; nothing else may run in this context (see the .cpp).
       */
 
     static bool nameIsSame(const UtlString& a, const UtlString& b);

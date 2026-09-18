@@ -97,9 +97,11 @@ LIBS='winmm.lib cfgmgr32.lib advapi32.lib ole32.lib uuid.lib' ;\
 cmd /C "call $V && cl /EHsc /W3 wavelock_probe.cpp $LIBS"
 ```
 
-If `cygpath -d` returns the long path unchanged, 8.3 name generation is
-disabled on the volume and this will not work; fall back to a small `.bat`
-file invoked by name.
+Each line stays under 76 columns on purpose: copying a longer line out
+of a terminal editor inserts hard newlines at the visual wraps, and the
+command then fails inside cygpath with "cannot create short name". If
+cygpath reports that with the command intact, check 8.3 name creation
+with `fsutil 8dot3name query c:`.
 
 ## Modes
 
