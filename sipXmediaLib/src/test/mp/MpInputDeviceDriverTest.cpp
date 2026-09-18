@@ -936,9 +936,49 @@ void testIsDeviceHardwareDetached()
             "Generation must advance by exactly one per enable.",
             genBefore + cycle + 1, (LONG)pDriver->mGeneration);
 
-         // Let real callbacks flow through callback -> SLIST ->
-         // worker -> pushFrame -> waveInAddBuffer.
-         OsTask::delay(50);
+         // Let several capture bursts land: the WinMM path delivers in
+         // batches tens of ms apart, so a short window sees nothing.
+         OsTask::delay(500);
+
+         // Pull frames back out of the manager -- the same path
+         // MprFromInputDevice uses -- and prove this session delivered
+         // real audio, not just correctly timed buffers of zeros.
+         {
+            MpFrameTime frameTime = inDevMgr.getCurrentFrameTime(iDrvHnd)
+                                    - (MIDDT_SAMPLES_PER_FRAME * 1000
+                                       / mSamplesPerSecond) * 4;
+            unsigned framesGot = 0;
+            unsigned framesNonSilent = 0;
+            for (int f = 0; f < 4; f++)
+            {
+               MpBufPtr buffer;
+               unsigned before = 0, after = 0;
+               if (inDevMgr.getFrame(iDrvHnd, frameTime, buffer, before, after)
+                   == OS_SUCCESS && buffer.isValid())
+               {
+                  framesGot++;
+                  MpAudioBufPtr audio = buffer;
+                  const MpAudioSample* s = audio->getSamplesPtr();
+                  unsigned n = audio->getSamplesNumber();
+                  for (unsigned i = 0; i < n; i++)
+                  {
+                     if (s[i] != 0)
+                     {
+                        framesNonSilent++;
+                        break;
+                     }
+                  }
+               }
+               frameTime += MIDDT_SAMPLES_PER_FRAME * 1000 / mSamplesPerSecond;
+            }
+            CPPUNIT_ASSERT_MESSAGE(
+               "Frames must reach the manager in every session.",
+               framesGot > 0);
+            CPPUNIT_ASSERT_MESSAGE(
+               "Captured frames must contain audio, not only zeros. A mic "
+               "delivering pure silence is a real finding, not a flake.",
+               framesNonSilent > 0);
+         }
 
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.disableDevice(iDrvHnd));
          CPPUNIT_ASSERT(!pDriver->isEnabled());
