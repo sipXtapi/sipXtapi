@@ -72,21 +72,27 @@ jobs:
           # Both zips are frozen historical artifacts (spec release 7.0.0)
           # that never change, so the cache key is static.
           # wget UA is set in ~/.wgetrc above for the cold-cache download case.
-          for spec in \
-              "26_series/26.104/26104-700.zip" \
-              "26_series/26.204/26204-700.zip" ; do
-            fname=$(basename "$spec")
-            if [ -f "/tmp/3gpp/$fname" ] && unzip -t "/tmp/3gpp/$fname" > /dev/null 2>&1 ; then
-              echo "Cache hit: $fname"
+          mkdir -p /tmp/3gpp
+          for file in 26104-700.zip 26204-700.zip; do
+            if [ -f "/tmp/3gpp/$file" ] && unzip -t "/tmp/3gpp/$file" > /dev/null 2>&1 ; then
+              echo "Cache hit: $file"
             else
-              echo "Downloading $fname ..."
-              wget -q -O "/tmp/3gpp/$fname" \
-                  "https://www.3gpp.org/ftp/Specs/archive/$spec"
-              if ! unzip -t "/tmp/3gpp/$fname" > /dev/null 2>&1 ; then
-                echo "ERROR: $fname failed integrity check after download"
-                exit 1
+              echo "Downloading $file from release assets..."
+              wget -q -O "/tmp/3gpp/$file" \
+                  "https://github.com/sipXtapi/sipXtapi/releases/download/build_assets/$file"
+              if ! unzip -t "/tmp/3gpp/$file" > /dev/null 2>&1 ; then
+                echo "Release asset failed, trying 3gpp.org..."
+                spec_26104="26_series/26.104/26104-700.zip"
+                spec_26204="26_series/26.204/26204-700.zip"
+                if [ "$file" = "26104-700.zip" ]; then spec="$spec_26104"; else spec="$spec_26204"; fi
+                wget -q -O "/tmp/3gpp/$file" \
+                    "https://www.3gpp.org/ftp/Specs/archive/$spec"
+                if ! unzip -t "/tmp/3gpp/$file" > /dev/null 2>&1 ; then
+                  echo "ERROR: $file failed from both sources"
+                  exit 1
+                fi
               fi
-              echo "Downloaded and verified: $fname"
+              echo "Downloaded and verified: $file"
             fi
           done
           cp /tmp/3gpp/26104-700.zip sipXmediaLib/contrib/libamrnb/
