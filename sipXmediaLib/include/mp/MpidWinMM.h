@@ -15,7 +15,7 @@
 
 // SYSTEM INCLUDES
 #define WIN32_LEAN_AND_MEAN
-//#include <Windows.h>
+#include <Windows.h>
 #include <MMSystem.h>
 
 // APPLICATION INCLUDES
@@ -23,6 +23,18 @@
 
 // DEFINES
 #define DEFAULT_N_INPUT_BUFS 32
+
+// Bound on waiting for the worker to leave its wave call during
+// disableDevice. Legitimate joins complete in single-digit ms; a
+// driver that will not return (measured: never, 60 s+) trips the
+// fire-escape path instead of blocking the caller forever.
+#define MPID_WINMM_JOIN_TIMEOUT_MS 100
+
+// The worker handoff requires the interlocked SLIST API (Vista+).
+// No DONTUSE_SLIST fallback is provided on the input side.
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
+#  error MpidWinMM requires _WIN32_WINNT >= 0x0600 for SLIST support
+#endif
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -128,6 +140,9 @@ public:
      /// @brief Returns TRUE if enabled but the wave device has been lost (mIsOpen FALSE).
    virtual UtlBoolean isDeviceHardwareDetached() const;
 
+     /// @brief TRUE if the most recent disable took the fire-escape path.
+   virtual UtlBoolean lastDisableEscaped() const { return mLastDisableEscaped; }
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -142,14 +157,22 @@ protected:
       *  @returns a pointer to the wave header that was initialized.
       */
 
-      /// @brief Processes incoming audio data.
-    void processAudioInput(HWAVEIN hwi, 
-                           UINT uMsg, 
-                           void* dwParam1);
+      /// @brief Worker thread: all wave calls and pushFrame happen here.
+    static DWORD WINAPI ThreadWMMInProc(LPVOID lpMessage);
       /**<
-      *  This method, called by the static callback function 
-      *  waveInCallbackStatic, processes audio input data from the windows
-      *  waveform audio functions, passing the results to the input manager.
+      *  WinMM messages are queued by waveInCallbackStatic and processed
+      *  on this thread (MpodWinMM pattern). MSDN forbids wave calls from
+      *  the callback context; violating that deadlocks waveInReset
+      *  against a departing device.
+      */
+
+      /// @brief Worker-side handling of one completed wave header.
+    void finalizeProcessedHeader(WAVEHDR* pWaveHdr);
+      /**<
+      *  Pushes the frame to the input device manager, then recycles the
+      *  buffer with waveInAddBuffer. Discards the header untouched if
+      *  the stop flag or a generation mismatch says it belongs to an
+      *  ended session.
       */
 
       /// @brief Callback function for receiving data from windows audio.
@@ -194,6 +217,42 @@ private:
     UtlBoolean mIsOpen;       ///< Boolean indicating waveInOpen() completed.
     unsigned mnAddBufferFailures;  ///< The number of times that addBuffer called 
                               ///< within the callback has failed since last enabled.
+    // ---- Worker-thread handoff (MpodWinMM pattern) ----
+    // The WinMM callback only queues the completed header and sets the
+    // event; the worker recycles buffers and pushes frames.
+
+      /// Chain entry carrying one WinMM callback message to the worker.
+    struct WinInAudioDataChain
+    {
+       SLIST_ENTRY ItemEntry;
+       UINT mCbParamMsg;
+       WAVEHDR* mCbParamHdr;
+       LONG mGeneration;      ///< Session generation at queue time.
+    };
+    SLIST_HEADER mPoolSignaled; ///< Completed messages awaiting the worker.
+    SLIST_HEADER mPoolFree;     ///< Free chain entries.
+    HANDLE mCallbackEvent;      ///< Set by the callback when work is queued.
+    HANDLE mWorkerThread;       ///< Constructor-lifetime worker thread.
+    volatile LONG mWorkerExit;  ///< 1 == worker exits at next wakeup
+                                ///< (destructor only).
+    volatile LONG mWorkerStop;  ///< 1 == worker must make no further wave or
+                                ///< manager calls. Set by disableDevice
+                                ///< before the join; cleared by enableDevice.
+    volatile LONG mWorkerInWaveCall; ///< 1 while the worker is inside
+                                ///< waveInAddBuffer. disableDevice waits
+                                ///< on this, not the thread handle: the
+                                ///< worker is constructor-lifetime and
+                                ///< must not exit per-disable.
+    volatile LONG mGeneration;  ///< Incremented by each enableDevice. Queued
+                                ///< work stamped with an older generation is
+                                ///< discarded, so a late writer from a prior
+                                ///< session can never recycle a buffer into
+                                ///< the current handle.
+    UtlBoolean mLastDisableEscaped; ///< TRUE if the most recent disable took
+                                ///< the fire-escape path: worker join timed
+                                ///< out, teardown skipped, handle and
+                                ///< buffers leaked. Read by tests via
+                                ///< friendship.
     IMMNotificationClient* mWinAudioDeviceChangeCallback; ///< Callback interface for audio
                               ///< device state changes.
     IMMDeviceEnumerator* mDeviceEnumeratorPtr;

@@ -15,6 +15,7 @@
 //#include <initguid.h>
 #include <mmdeviceapi.h>
 #include <MMSystem.h>
+#include <malloc.h>
 #include <Functiondiscoverykeys_devpkey.h>
 // APPLICATION INCLUDES
 #include <mp/MpidWinMM.h>
@@ -330,6 +331,13 @@ MpidWinMM::MpidWinMM(const UtlString& name,
 , mWaveBufSize(0)  // Unknown until enableDevice()
 , mIsOpen(FALSE)
 , mnAddBufferFailures(0)
+, mCallbackEvent(NULL)
+, mWorkerThread(NULL)
+, mWorkerExit(0)
+, mWorkerStop(0)
+, mWorkerInWaveCall(0)
+, mGeneration(0)
+, mLastDisableEscaped(FALSE)
 , mWinAudioDeviceChangeCallback(NULL)
 , mDeviceEnumeratorPtr(NULL)
 {
@@ -353,7 +361,7 @@ MpidWinMM::MpidWinMM(const UtlString& name,
         {
             result = winDeviceCollection->GetCount(&winDeviceCount);
             
-            for (int devIndex = 0; devIndex < winDeviceCount; devIndex++)
+            for (UINT devIndex = 0; devIndex < winDeviceCount; devIndex++)
             {
                 IMMDevice* winDevicePtr = NULL;
                 result = winDeviceCollection->Item(devIndex, &winDevicePtr);
@@ -419,6 +427,41 @@ MpidWinMM::MpidWinMM(const UtlString& name,
     {
         mpWaveBuffers[i] = NULL;
     }
+
+    // Worker-thread handoff (MpodWinMM pattern). Pools and worker live
+    // for the object's lifetime; enable/disable only gate what the
+    // worker may do. Entry pool is sized for every wave buffer in
+    // flight plus OPEN/CLOSE messages.
+    InitializeSListHead(&mPoolSignaled);
+    InitializeSListHead(&mPoolFree);
+    for (unsigned n = 0; n < mNumInBuffers + 4; n++)
+    {
+        WinInAudioDataChain* entry = (WinInAudioDataChain*)
+            _aligned_malloc(sizeof(*entry), MEMORY_ALLOCATION_ALIGNMENT);
+        if (entry)
+        {
+            entry->mCbParamMsg = 0;
+            entry->mCbParamHdr = NULL;
+            entry->mGeneration = 0;
+            InterlockedPushEntrySList(&mPoolFree, &entry->ItemEntry);
+        }
+    }
+
+    mCallbackEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    mWorkerThread = CreateThread(NULL, 0, ThreadWMMInProc, this, 0, NULL);
+    if (mWorkerThread)
+    {
+        // Note: not REALTIME_PRIORITY_CLASS as MpodWinMM passes; that
+        // is a process priority class value and is not valid here.
+        SetThreadPriority(mWorkerThread, THREAD_PRIORITY_TIME_CRITICAL);
+    }
+    else
+    {
+        OsSysLog::add(FAC_AUDIO, PRI_CRIT,
+            "MpidWinMM::MpidWinMM '%s' failed to create worker thread; "
+            "device will capture nothing",
+            getDeviceName().data());
+    }
 }
 
 // Destructor
@@ -435,6 +478,56 @@ MpidWinMM::~MpidWinMM()
         disableDevice();
     }
 
+    // Stop the worker before anything it references is freed. The join
+    // is bounded: a worker stuck inside a wave call on a dead device
+    // must not block process shutdown (the customer's sipxUnInitialize
+    // hang). On timeout everything the worker can touch is leaked.
+    //
+    // SetEvent and the interlocked SLIST are the only signaling MSDN
+    // permits from the wave callback; OsEvent/UtlSList must not be used on that path
+    UtlBoolean workerJoined = TRUE;
+    if (mWorkerThread)
+    {
+        InterlockedExchange(&mWorkerStop, 1);
+        InterlockedExchange(&mWorkerExit, 1);
+        if (mCallbackEvent)
+        {
+            SetEvent(mCallbackEvent);
+        }
+        workerJoined = (WaitForSingleObject(mWorkerThread,
+                            MPID_WINMM_JOIN_TIMEOUT_MS) == WAIT_OBJECT_0);
+        if (workerJoined)
+        {
+            CloseHandle(mWorkerThread);
+            mWorkerThread = NULL;
+            if (mCallbackEvent)
+            {
+                CloseHandle(mCallbackEvent);
+                mCallbackEvent = NULL;
+            }
+            // Drain and free both chains.
+            WinInAudioDataChain* entry;
+            while ((entry = (WinInAudioDataChain*)
+                    InterlockedPopEntrySList(&mPoolSignaled)) != NULL)
+            {
+                _aligned_free(entry);
+            }
+            while ((entry = (WinInAudioDataChain*)
+                    InterlockedPopEntrySList(&mPoolFree)) != NULL)
+            {
+                _aligned_free(entry);
+            }
+        }
+        else
+        {
+            OsSysLog::add(FAC_AUDIO, PRI_CRIT,
+                "MpidWinMM::~MpidWinMM '%s' worker did not exit in %d ms "
+                "(stuck in a wave call on a removed device?); leaking "
+                "thread, event, message pools and wave buffers",
+                getDeviceName().data(), MPID_WINMM_JOIN_TIMEOUT_MS);
+        }
+    }
+
     unregisterDeviceEnumerator(mDeviceEnumeratorPtr, mWinAudioDeviceChangeCallback);
     delete mWinAudioDeviceChangeCallback;
     mWinAudioDeviceChangeCallback = NULL;
@@ -442,18 +535,21 @@ MpidWinMM::~MpidWinMM()
     // TODO: need to unallocate mDeviceEnumeratorPtr?
 
     // Delete the sample headers and sample buffer pointers..
-    unsigned i;
-    for (i = 0; i < mNumInBuffers; i++)
+    if (workerJoined)
     {
-        assert(mpWaveBuffers[i] == NULL);
-        if (mpWaveBuffers[i] != NULL)
+        unsigned i;
+        for (i = 0; i < mNumInBuffers; i++)
         {
-            delete[] mpWaveBuffers[i];
-            mpWaveBuffers[i] = NULL;
+            assert(mpWaveBuffers[i] == NULL);
+            if (mpWaveBuffers[i] != NULL)
+            {
+                delete[] mpWaveBuffers[i];
+                mpWaveBuffers[i] = NULL;
+            }
         }
+        delete[] mpWaveBuffers;
+        delete[] mpWaveHeaders;
     }
-    delete[] mpWaveBuffers;
-    delete[] mpWaveHeaders;
 }
 
 
@@ -502,6 +598,36 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
         return OS_FAILED;
     }
 
+    // A driver whose disable took the fire-escape path is permanently
+    // damaged: it holds a leaked, never-closed session whose callback
+    // still references this object. It must never run again; recovery
+    // is a new driver instance on the same device (the factory's
+    // normal path).
+    if (mLastDisableEscaped)
+    {
+        OsSysLog::add(FAC_MP, PRI_ERR,
+            "MpidWinMM::enableDevice '%s' refused: driver previously "
+            "escaped teardown and is retired",
+            getDeviceName().data());
+        return OS_FAILED;
+    }
+
+    // New capture session: advance the generation so any work still
+    // queued from a previous session is discarded by the worker, allow
+    // the worker to act again, and reclaim any signaled entries so the
+    // free pool is at full depth before buffers are added. Order
+    // matters: the generation moves before the stop flag clears, so a
+    // worker that wakes between the two still discards stale entries.
+    InterlockedIncrement(&mGeneration);
+    InterlockedExchange(&mWorkerStop, 0);
+    PSLIST_ENTRY stale = InterlockedFlushSList(&mPoolSignaled);
+    while (stale)
+    {
+        PSLIST_ENTRY next = stale->Next;
+        InterlockedPushEntrySList(&mPoolFree, stale);
+        stale = next;
+    }
+
     // Set some wave header stat information.
     mSamplesPerFrame = samplesPerFrame;
     mSamplesPerSec = samplesPerSec;
@@ -515,8 +641,8 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
     wavFormat.nSamplesPerSec = mSamplesPerSec;
     wavFormat.nAvgBytesPerSec = 
         nChannels * mSamplesPerSec * sizeof(MpAudioSample);
-    wavFormat.nBlockAlign = nChannels * sizeof(MpAudioSample);
-    wavFormat.wBitsPerSample = sizeof(MpAudioSample) * 8;
+    wavFormat.nBlockAlign = (WORD)(nChannels * sizeof(MpAudioSample));
+    wavFormat.wBitsPerSample = (WORD)(sizeof(MpAudioSample) * 8);
     wavFormat.cbSize = 0;
 
     // Tell windows to open the input audio device.  This doesn't
@@ -629,6 +755,57 @@ OsStatus MpidWinMM::disableDevice()
     // as the callback will continue to add and process buffers
     // while waveInReset is called causing a deadlock.
     mIsEnabled = FALSE;
+
+    // Stop the worker and join it before any wave teardown call. The
+    // measured failure (customer dump; probe matrix 2026-09-08): a
+    // reset issued while another thread is inside a wave call wedges
+    // WinMM process-wide. With the worker joined, reset during a real
+    // device departure returns in under a millisecond (12/12 clean).
+    InterlockedExchange(&mWorkerStop, 1);
+    SetEvent(mCallbackEvent);
+    UtlBoolean workerIdle =
+        (mWorkerThread == NULL)
+        || (WaitForSingleObject(mWorkerThread, 0) == WAIT_OBJECT_0);
+    if (!workerIdle)
+    {
+        // The worker is live; wait for it to see the stop flag and
+        // park. It cannot be joined (it is constructor-lifetime), so
+        // wait for it to drain: it processes nothing after mWorkerStop
+        // and makes no wave call after seeing it, so one bounded wait
+        // covers the longest legitimate stay -- one waveInAddBuffer
+        // plus one pushFrame under manager-lock contention.
+        DWORD waited = 0;
+        while (waited < MPID_WINMM_JOIN_TIMEOUT_MS)
+        {
+            if (InterlockedCompareExchange(&mWorkerInWaveCall, 0, 0) == 0)
+            {
+                break;
+            }
+            Sleep(5);
+            waited += 5;
+        }
+        if (waited >= MPID_WINMM_JOIN_TIMEOUT_MS)
+        {
+            // Fire escape: the worker is stuck inside a wave call on
+            // this device (misbehaving driver). Issuing waveInReset
+            // now would wedge WinMM for the whole process (measured:
+            // 6/6, unrecoverable). Skip all teardown, leak the handle
+            // and buffers, and mark this driver for retirement -- it
+            // must never be deleted (see
+            // MpInputDeviceManager::removeAllDevices).
+            mLastDisableEscaped = TRUE;
+            OsSysLog::add(FAC_MP, PRI_CRIT,
+                "MpidWinMM::disableDevice '%s' worker stuck in a wave "
+                "call for %d ms; skipping waveInReset/waveInClose, "
+                "leaking handle %p and %d buffers; driver must be "
+                "retired, not deleted",
+                getDeviceName().data(), MPID_WINMM_JOIN_TIMEOUT_MS,
+                (void*)mDevHandle, mNumInBuffers);
+            mDevHandle = NULL;
+            // mWinMMDeviceId intentionally NOT cleared.
+            return OS_SUCCESS;
+        }
+    }
 
     // The wave calls below can block indefinitely when the underlying
     // device has been removed. Log around each one so a stall can be
@@ -786,101 +963,6 @@ WAVEHDR* MpidWinMM::initWaveHeader(int n)
 
     return pWave_hdr;
 }
-void MpidWinMM::processAudioInput(HWAVEIN hwi,
-                                  UINT uMsg,
-                                  void* dwParam1)
-{
-    if(!mIsOpen)
-    {
-        if(uMsg == WIM_DATA)
-        {
-            OsSysLog::add(FAC_MP, PRI_WARNING,
-                "MpidWinMM::processAudioInput received WIM_DATA while !mIsOpen");
-        }
-        else if(uMsg == WIM_OPEN)
-        {
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MpidWinMM::processAudioInput received WIM_OPEN");
-            mIsOpen = TRUE;
-        }
-        else if(uMsg == WIM_CLOSE)
-        {
-            OsSysLog::add(FAC_MP, PRI_WARNING,
-                "MpidWinMM::processAudioInput received WIM_CLOSE while !mIsOpen");
-        }
-        else
-        {
-            OsSysLog::add(FAC_MP, PRI_ERR,
-                "MpidWinMM::processAudioInput received unexpected uMsg: %d", uMsg);
-            OsSysLog::flush();
-            assert(uMsg != 0);
-        }
-    }
-    else if (uMsg == WIM_DATA)
-    {
-//        printf("received WIM_DATA\n"); fflush(stdout);
-        WAVEHDR* pWaveHdr = (WAVEHDR*)dwParam1;
-        assert(pWaveHdr->dwBufferLength 
-               == (mSamplesPerFrame*sizeof(MpAudioSample)));
-        assert(pWaveHdr->lpData != NULL);
-
-        // Only process if we're enabled..
-        if(mIsEnabled)
-        {
-#ifdef TEST_PRINT
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MpidWinMM::processAudioInput got frame device: %d (%s)", 
-                getDeviceId(), getDeviceName().data());
-#endif
-           mpInputDeviceManager->pushFrame(mDeviceId,
-                                           mSamplesPerFrame,
-                                           (MpAudioSample*)pWaveHdr->lpData,
-                                           mCurrentFrameTime);
-
-           // Ok, we have received and pushed a frame to the manager,
-           // Now we advance the frame time.
-           mCurrentFrameTime += (mSamplesPerFrame*1000)/mSamplesPerSec;
-        }
-        else
-        {
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
-                "MpidWinMM::processAudioInput input device: %d (%s) disabled", 
-                getDeviceId(), getDeviceName().data());
-        }
-
-        if(mIsEnabled)
-        {
-           // Put the wave header back in the pool..
-           MMRESULT res = MMSYSERR_NOERROR;
-
-           res = waveInAddBuffer(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
-           if (res != MMSYSERR_NOERROR)
-           {
-              showWaveError("waveInAddBuffer", res, -1, __LINE__);
-              mnAddBufferFailures++;
-              if(mnAddBufferFailures >= mNumInBuffers)
-              {
-                 waveInClose(mDevHandle);
-                 mDevHandle = NULL;
-                 // mWinMMDeviceId intentionally NOT cleared.
-              }
-
-              if (res == MMSYSERR_NODRIVER)
-              {
-                  mIsOpen = FALSE;
-                  MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT, getDeviceName());
-                  /*OsStatus status =*/ mpInputDeviceManager->postNotification(msg);
-              }
-           }
-        }
-    }
-    else if (uMsg == WIM_CLOSE)
-    {
-        OsSysLog::add(FAC_MP, PRI_DEBUG,
-            "MpidWinMM::processAudioInput received WIM_CLOSE");
-        mIsOpen = FALSE;
-    }
-}
 
 void CALLBACK 
 MpidWinMM::waveInCallbackStatic(HWAVEIN hwi,
@@ -892,7 +974,155 @@ MpidWinMM::waveInCallbackStatic(HWAVEIN hwi,
     assert(dwInstance != NULL);
     MpidWinMM* iddWntPtr = (MpidWinMM*)dwInstance;
     assert((uMsg == WIM_OPEN) || (hwi == iddWntPtr->mDevHandle));
-    iddWntPtr->processAudioInput(hwi, uMsg, dwParam1);
+
+    // MSDN permits only SetEvent, the Interlocked family and a short
+    // list of other calls from this callback; wave calls, locks,
+    // allocation and logging are forbidden here and deadlock
+    // waveInReset against a departing device. That is why this path
+    // uses raw SetEvent and the interlocked SLIST rather than
+    // OsEvent/UtlSList: the portable wrappers are not callback-safe,
+    // and the restriction is the entire reason ThreadWMMInProc exists.
+    if (uMsg == WIM_OPEN)
+    {
+        iddWntPtr->mIsOpen = TRUE;
+    }
+    else if (uMsg == WIM_CLOSE)
+    {
+        iddWntPtr->mIsOpen = FALSE;
+    }
+    else if (uMsg == WIM_DATA && iddWntPtr->mIsOpen)
+    {
+        WinInAudioDataChain* entry = (WinInAudioDataChain*)
+            InterlockedPopEntrySList(&iddWntPtr->mPoolFree);
+        if (entry)
+        {
+            entry->mCbParamMsg = uMsg;
+            entry->mCbParamHdr = (WAVEHDR*)dwParam1;
+            entry->mGeneration = iddWntPtr->mGeneration;
+            InterlockedPushEntrySList(&iddWntPtr->mPoolSignaled,
+                                      &entry->ItemEntry);
+            SetEvent(iddWntPtr->mCallbackEvent);
+        }
+        // else: free pool exhausted, which cannot happen with the pool
+        // sized mNumInBuffers+4; the header stays with WinMM until
+        // reset reclaims it.
+    }
+}
+
+// Worker thread. All wave calls and all pushFrame calls happen here,
+// never on WinMM's callback thread (MpodWinMM pattern; see the comment
+// in waveInCallbackStatic). The thread lives for the driver object's
+// lifetime; mWorkerStop gates activity per enable/disable session and
+// mWorkerExit ends the thread at destruction.
+DWORD WINAPI MpidWinMM::ThreadWMMInProc(LPVOID lpMessage)
+{
+    MpidWinMM* pDrv = (MpidWinMM*)lpMessage;
+    assert(pDrv != NULL);
+
+    while (InterlockedCompareExchange(&pDrv->mWorkerExit, 0, 0) == 0)
+    {
+        WaitForSingleObject(pDrv->mCallbackEvent, INFINITE);
+        if (InterlockedCompareExchange(&pDrv->mWorkerExit, 0, 0) != 0)
+        {
+            break;
+        }
+
+        // Detach everything queued so far in one atomic operation,
+        // then reverse the LIFO chain so frames are pushed in arrival
+        // order. Entries pushed during processing land in the next
+        // flush, so each entry is reversed exactly once and batch
+        // order is arrival order.
+        PSLIST_ENTRY chain = InterlockedFlushSList(&pDrv->mPoolSignaled);
+        PSLIST_ENTRY reversed = NULL;
+        while (chain)
+        {
+            PSLIST_ENTRY next = chain->Next;
+            chain->Next = reversed;
+            reversed = chain;
+            chain = next;
+        }
+
+        while (reversed)
+        {
+            WinInAudioDataChain* entry = (WinInAudioDataChain*)reversed;
+            reversed = reversed->Next;
+
+            if (InterlockedCompareExchange(&pDrv->mWorkerStop, 0, 0) == 0
+                && entry->mGeneration
+                   == InterlockedCompareExchange(&pDrv->mGeneration, 0, 0)
+                && entry->mCbParamMsg == WIM_DATA)
+            {
+                pDrv->finalizeProcessedHeader(entry->mCbParamHdr);
+            }
+            // Stale-generation, post-stop and non-DATA entries fall
+            // through untouched: the header is never recycled into a
+            // handle it did not come from.
+            entry->mCbParamMsg = 0;
+            entry->mCbParamHdr = NULL;
+            InterlockedPushEntrySList(&pDrv->mPoolFree, &entry->ItemEntry);
+        }
+    }
+    return 0;
+}
+
+void MpidWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
+{
+    assert(pWaveHdr != NULL);
+    assert(pWaveHdr->lpData != NULL);
+    assert(pWaveHdr->dwBufferLength
+           == (mSamplesPerFrame*sizeof(MpAudioSample)));
+
+    if (!mIsEnabled)
+    {
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "MpidWinMM::finalizeProcessedHeader input device: %d (%s) disabled",
+            getDeviceId(), getDeviceName().data());
+        return;
+    }
+
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_MP, PRI_DEBUG,
+        "MpidWinMM::finalizeProcessedHeader got frame device: %d (%s)",
+        getDeviceId(), getDeviceName().data());
+#endif
+
+    mpInputDeviceManager->pushFrame(mDeviceId,
+                                    mSamplesPerFrame,
+                                    (MpAudioSample*)pWaveHdr->lpData,
+                                    mCurrentFrameTime);
+    mCurrentFrameTime += (mSamplesPerFrame*1000)/mSamplesPerSec;
+
+    // disableDevice may have set the stop flag while pushFrame was
+    // blocked on manager locks. Teardown has begun: make no wave call
+    // and touch no device state.
+    if (InterlockedCompareExchange(&mWorkerStop, 0, 0) != 0)
+    {
+        return;
+    }
+
+    InterlockedExchange(&mWorkerInWaveCall, 1);
+    MMRESULT res = waveInAddBuffer(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
+    InterlockedExchange(&mWorkerInWaveCall, 0);
+    if (res != MMSYSERR_NOERROR
+        && InterlockedCompareExchange(&mWorkerStop, 0, 0) == 0)
+    {
+        showWaveError("waveInAddBuffer", res, -1, __LINE__);
+        mnAddBufferFailures++;
+        if (mnAddBufferFailures >= mNumInBuffers)
+        {
+            waveInClose(mDevHandle);
+            mDevHandle = NULL;
+            // mWinMMDeviceId intentionally NOT cleared.
+        }
+        if (res == MMSYSERR_NODRIVER)
+        {
+            mIsOpen = FALSE;
+            MpResNotificationMsg msg(
+                MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT,
+                getDeviceName());
+            /*OsStatus status =*/ mpInputDeviceManager->postNotification(msg);
+        }
+    }
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -1173,8 +1403,8 @@ bool MpidWinMM::getEndpointDataFlow(IMMDeviceEnumerator* deviceEnumeratorPtr,
 bool MpidWinMM::nameIsSame(const UtlString& a, const UtlString& b)
 {
     bool nameSame = false;
-    int lenA = a.length();
-    int lenB = b.length();
+    int lenA = (int)a.length();
+    int lenB = (int)b.length();
 
     if (lenA > 1 && lenB > 1)
     {

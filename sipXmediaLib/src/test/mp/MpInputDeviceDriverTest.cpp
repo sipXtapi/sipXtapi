@@ -251,6 +251,10 @@ class MpInputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testRenderEndpointsMatchWinMM);
    CPPUNIT_TEST(testGetEndpointDataFlow);
 
+   CPPUNIT_TEST(testEscapedDriverRefusesReenable);
+   CPPUNIT_TEST(testFireEscapeOnStuckWorker);
+   CPPUNIT_TEST(testGenerationAdvancesAcrossSessions);
+
    CPPUNIT_TEST(testWatcherSeedIsSilent);
    CPPUNIT_TEST(testWatcherReportsArrival);
    CPPUNIT_TEST(testWatcherIgnoresRepeatArrival);
@@ -752,6 +756,204 @@ void testIsDeviceHardwareDetached()
    }
 
 #ifdef WIN32
+   void testEscapedDriverRefusesReenable()
+   {
+#  ifdef WIN32
+      // A driver whose disable took the fire-escape path is permanently
+      // damaged and must refuse to run again; recovery in the field is
+      // a new driver instance. Cheapest contract test: force the flag
+      // via friendship, assert enable is refused and the manager
+      // retires rather than deletes.
+
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME,
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames,
+                                    *mpBufPool);
+
+      MpidWinMM* pDriver = new MpidWinMM(MpidWinMM::getDefaultDeviceName(),
+                                         inDevMgr);
+      if (!pDriver->isDeviceValid())
+      {
+         delete pDriver;
+         SIPX_TEST_SKIP("no valid input audio device available");
+      }
+
+      MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pDriver);
+      CPPUNIT_ASSERT(iDrvHnd > 0);
+
+      pDriver->mLastDisableEscaped = TRUE;
+
+      CPPUNIT_ASSERT_MESSAGE(
+         "enableDevice must be refused for an escaped driver.",
+         inDevMgr.enableDevice(iDrvHnd) != OS_SUCCESS);
+      CPPUNIT_ASSERT(!pDriver->isEnabled());
+
+      // removeAllDevices must retire the escaped driver, not delete it.
+      // The object staying readable afterwards is the assertion.
+      inDevMgr.removeAllDevices();
+      CPPUNIT_ASSERT_MESSAGE(
+         "Escaped driver must survive removeAllDevices (retired, not "
+         "deleted).",
+         pDriver->lastDisableEscaped() == TRUE);
+
+      // pDriver intentionally NOT deleted: it is on the process-lifetime
+      // retire list. One object leaked per run of this test, by design.
+#  else
+      SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
+   }
+
+   void testFireEscapeOnStuckWorker()
+   {
+#  ifdef WIN32
+      // The customer failure: a worker that never returns from a wave
+      // call. disableDevice must return within its bound, take the
+      // fire-escape path, and the driver must then be retire-only.
+      //
+      // The stuck-in-wave-call condition is asserted via the flag with
+      // the worker parked; see the comment at the suspend for why it
+      // must never be frozen inside a wave call.
+      //
+      // Same-device recovery after an escape is deliberately NOT
+      // asserted here: on a healthy device the leaked session still
+      // holds the device open, a conflict that cannot occur in the
+      // field (the device departed). Field recovery -- fresh driver on
+      // the returned device -- is validated on the Bluetooth bench.
+
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME,
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames,
+                                    *mpBufPool);
+
+      MpidWinMM* pDriver = new MpidWinMM(MpidWinMM::getDefaultDeviceName(),
+                                         inDevMgr);
+      if (!pDriver->isDeviceValid())
+      {
+         delete pDriver;
+         SIPX_TEST_SKIP("no valid input audio device available");
+      }
+      if (pDriver->mWorkerThread == NULL)
+      {
+         delete pDriver;
+         SIPX_TEST_SKIP("worker thread was not created");
+      }
+
+      MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pDriver);
+      CPPUNIT_ASSERT(iDrvHnd > 0);
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.enableDevice(iDrvHnd));
+
+      // Attempt the physical catch: suspend while the worker is inside
+      // waveInAddBuffer.
+      // Establish the stuck-in-wave-call condition deterministically.
+      // The worker must be frozen ONLY while parked in its event wait:
+      // frozen inside waveInAddBuffer it holds winmmbase's lock (mid-RPC
+      // to audiosrv) and every later WinMM call in the process blocks --
+      // that is what SuspendThread does, not what a stuck driver does
+      // (the customer dump shows the stuck thread waiting for that lock,
+      // not holding it). So quiesce, suspend parked, then assert the
+      // condition through the flag disableDevice actually reads.
+      InterlockedExchange(&pDriver->mWorkerStop, 1);
+      OsTask::delay(30);
+      SuspendThread(pDriver->mWorkerThread);
+      InterlockedExchange(&pDriver->mWorkerStop, 0);
+      InterlockedExchange(&pDriver->mWorkerInWaveCall, 1);
+
+      DWORD t0 = GetTickCount();
+      OsStatus disableStat = inDevMgr.disableDevice(iDrvHnd);
+      DWORD elapsed = GetTickCount() - t0;
+
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(
+         "disableDevice must return success on the escape path.",
+         OS_SUCCESS, disableStat);
+      CPPUNIT_ASSERT_MESSAGE(
+         "disableDevice must return within its bound, not block. "
+         "(Bound: join timeout plus manager in-use retries plus "
+         "scheduling slack.)",
+         elapsed < (DWORD)(MPID_WINMM_JOIN_TIMEOUT_MS * 5));
+      CPPUNIT_ASSERT_MESSAGE(
+         "The escape must be recorded.",
+         pDriver->lastDisableEscaped() == TRUE);
+      CPPUNIT_ASSERT(!pDriver->isEnabled());
+
+      // Escaped driver must refuse re-enable.
+      CPPUNIT_ASSERT_MESSAGE(
+         "Re-enable of an escaped driver must be refused.",
+         inDevMgr.enableDevice(iDrvHnd) != OS_SUCCESS);
+
+      // Let the worker run again. A real caught worker completes its
+      // wave call against the still-open handle, sees mWorkerStop, and
+      // parks; a forced one just resumes its event wait.
+      InterlockedExchange(&pDriver->mWorkerInWaveCall, 0);
+      ResumeThread(pDriver->mWorkerThread);
+      OsTask::delay(50);
+
+      // Retirement instead of deletion, with the worker live again:
+      // the object must survive removeAllDevices untouched.
+      inDevMgr.removeAllDevices();
+      CPPUNIT_ASSERT_MESSAGE(
+         "Escaped driver must survive removeAllDevices (retired, not "
+         "deleted).",
+         pDriver->lastDisableEscaped() == TRUE);
+
+      // pDriver and its worker thread intentionally leaked: retired,
+      // process-lifetime, by design.
+#  else
+      SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
+   }
+
+   void testGenerationAdvancesAcrossSessions()
+   {
+#  ifdef WIN32
+      // Each enable is a new session: the generation must advance so
+      // queued work from an old session can never recycle a buffer
+      // into a new handle, and cycling must stay clean with the
+      // constructor-lifetime worker parked between sessions.
+
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME,
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames,
+                                    *mpBufPool);
+
+      MpidWinMM* pDriver = new MpidWinMM(MpidWinMM::getDefaultDeviceName(),
+                                         inDevMgr);
+      if (!pDriver->isDeviceValid())
+      {
+         delete pDriver;
+         SIPX_TEST_SKIP("no valid input audio device available");
+      }
+
+      MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pDriver);
+      CPPUNIT_ASSERT(iDrvHnd > 0);
+
+      LONG genBefore = pDriver->mGeneration;
+      for (int cycle = 0; cycle < 3; cycle++)
+      {
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(
+            "enableDevice must succeed on every cycle.",
+            OS_SUCCESS, inDevMgr.enableDevice(iDrvHnd));
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(
+            "Generation must advance by exactly one per enable.",
+            genBefore + cycle + 1, (LONG)pDriver->mGeneration);
+
+         // Let real callbacks flow through callback -> SLIST ->
+         // worker -> pushFrame -> waveInAddBuffer.
+         OsTask::delay(50);
+
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.disableDevice(iDrvHnd));
+         CPPUNIT_ASSERT(!pDriver->isEnabled());
+         CPPUNIT_ASSERT_MESSAGE(
+            "Clean disable must not set the escape flag.",
+            pDriver->lastDisableEscaped() == FALSE);
+      }
+
+      inDevMgr.removeDevice(iDrvHnd);
+      delete pDriver;
+#  else
+      SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
+   }
+
    // Collect friendly names of all MMDevice endpoints in the ACTIVE
    // state for the given flow. Caller owns the UtlString entries.
    void collectActiveEndpointNames(IMMDeviceEnumerator* enumerator,

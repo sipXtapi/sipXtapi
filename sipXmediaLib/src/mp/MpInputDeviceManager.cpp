@@ -41,6 +41,12 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+// Drivers whose disable took the fire-escape path are parked here for
+// the life of the process instead of being deleted: a stuck worker
+// thread may still reference them. Never drained. See
+// MpidWinMM::disableDevice and lastDisableEscaped().
+static UtlSList sRetiredDrivers;
+
 // PRIVATE CLASSES
 /**
 *  @brief Private class container for input device buffer and related info
@@ -667,10 +673,29 @@ int MpInputDeviceManager::removeAllDevices()
             // Remove device
             MpInputDeviceDriver* deviceDriver = removeDevice(deviceId);
 
-            // Need to delete the device as it is not in removeDevice
+            // Need to delete the device as it is not in removeDevice.
+            // Exception: a driver whose last disable took the fire-
+            // escape path has a worker thread that may still be inside
+            // a wave call referencing the object. It must never be
+            // freed; park it on a process-lifetime retire list instead
+            // (intentional leak, one object per misbehaving-driver
+            // incident).
             if(deviceDriver)
             {
-                delete deviceDriver;
+                if (deviceDriver->lastDisableEscaped())
+                {
+                    OsSysLog::add(FAC_MP, PRI_CRIT,
+                        "MpInputDeviceManager::removeAllDevices retiring "
+                        "driver '%s' instead of deleting: its disable "
+                        "escaped teardown and a stuck thread may still "
+                        "reference it",
+                        deviceDriver->getDeviceName().data());
+                    sRetiredDrivers.append(deviceDriver);
+                }
+                else
+                {
+                    delete deviceDriver;
+                }
                 deviceDriver = NULL;
             }
 

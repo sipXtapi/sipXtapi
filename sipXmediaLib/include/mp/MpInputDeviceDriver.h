@@ -160,6 +160,12 @@ public:
      ///        Base class always returns FALSE; platform drivers override as needed.
    virtual UtlBoolean isDeviceHardwareDetached() const { return FALSE; }
 
+      /// @brief TRUE if the most recent disableDevice abandoned its
+      /// platform teardown (fire-escape path) and leaked resources a
+      /// stuck thread may still reference. Such a driver must be
+      /// retired, never deleted. Platform-neutral; base returns FALSE.
+    virtual UtlBoolean lastDisableEscaped() const { return FALSE; }
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
