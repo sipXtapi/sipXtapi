@@ -90,7 +90,11 @@ form of the vcvars path. It contains no spaces, parentheses or quotes, so
 nothing needs escaping:
 
 ```bash
-cd ~/dev/sipXtapi/sipXmediaLib/src/test/mp && cmd /C "call $(cygpath -d '/cygdrive/c/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat') && cl /EHsc /W3 wavelock_probe.cpp winmm.lib cfgmgr32.lib advapi32.lib ole32.lib uuid.lib"
+cd ~/dev/sipXtapi/sipXmediaLib/src/test/mp ;\
+VS='/cygdrive/c/Program Files (x86)/Microsoft Visual Studio/2019/Community' ;\
+V=$(cygpath -d "$VS/VC/Auxiliary/Build/vcvars64.bat") ;\
+LIBS='winmm.lib cfgmgr32.lib advapi32.lib ole32.lib uuid.lib' ;\
+cmd /C "call $V && cl /EHsc /W3 wavelock_probe.cpp $LIBS"
 ```
 
 If `cygpath -d` returns the long path unchanged, 8.3 name generation is

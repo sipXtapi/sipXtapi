@@ -25,6 +25,12 @@
 //             (the MpodWinMM pattern) instead of in the callback.
 //   hold      Just hold the device open and report per second. For
 //             observing an externally triggered device change.
+//   escape-reopen
+//             Unattended: leak an open capture handle (the fire-escape
+//             state), drive btaudio_ctl to disconnect and reconnect the
+//             device, and report whether later opens block, fail, or
+//             deliver audio -- with the device gone, returned at the
+//             same index, and re-resolved by name.
 //   parent    Full automated cycle: open, disable the USB parent devnode,
 //             time the reset, re-enable, verify audio returns. Needs
 //             elevation and --instance set to the PARENT devnode.
@@ -1103,6 +1109,619 @@ static int modeHealth(void)
    return (audio && clean) ? 0 : 1;
 }
 
+// ---------------------------------------------------------------- escape-reopen
+//
+// One-shot, UNATTENDED answer to: after a fire escape leaves a capture
+// handle open on a device, does a later open block, and does it depend
+// on the device being absent, returned, or re-resolved by name?
+//
+// Sequence, all device control driven in-process through btaudio_ctl:
+//   0. precheck: btaudio_ctl present, --match resolves, capture ACTIVE
+//   1. open + leak (escape state: handle open, never closed)
+//   2. disconnect, wait for UNPLUGGED capture, settle
+//   3. reopen A: enumeration and open of whatever the index resolves to
+//      now, with the device gone
+//   4. reconnect, wait for ACTIVE capture
+//   5. reopen B: same index, device returned
+//   6. reopen C: index re-resolved by name, device returned
+//
+// Every WinMM call after the leak runs on a watchdog thread that records
+// which call it is in, so a block reports "BLOCKED at <call>" and the run
+// continues on a fresh thread. The main thread prints a heartbeat while
+// waiting so silence is never ambiguous. Each cell ends in exactly one of:
+//   OK / FAIL / BLOCKED / SKIPPED, always with a reason.
+//
+// No stdin is read anywhere: getchar() does not reliably return when a
+// Windows console program is run from a Cygwin ssh pty.
+
+static const char* g_match = "SB510";   // --match: btaudio_ctl name match
+static int g_settleMs = 3000;           // --settle: ms after UNPLUGGED
+                                        //           before reopen A
+
+#define ESC_JOB_TIMEOUT_MS   10000      // per reopen cell
+#define ESC_HEARTBEAT_MS     5000
+#define ESC_RECONNECT_MS     30000      // wait for ACTIVE capture
+#define ESC_DISCONNECT_MS    20000      // wait for UNPLUGGED capture
+#define ESC_AUDIO_WAIT_MS    3000
+
+enum EscStage
+{
+   ESC_NONE = 0, ESC_GETNUMDEVS, ESC_GETDEVCAPS, ESC_RESOLVE_BY_NAME,
+   ESC_OPEN, ESC_PREPARE, ESC_ADDBUFFER, ESC_START, ESC_WAITAUDIO,
+   ESC_STOPWORKER, ESC_RESET, ESC_UNPREPARE, ESC_CLOSE, ESC_DONE
+};
+
+static const char* escStageName(LONG s)
+{
+   switch (s)
+   {
+      case ESC_NONE:            return "not started";
+      case ESC_GETNUMDEVS:      return "waveInGetNumDevs";
+      case ESC_GETDEVCAPS:      return "waveInGetDevCaps";
+      case ESC_RESOLVE_BY_NAME: return "waveInGetDevCaps (name scan)";
+      case ESC_OPEN:            return "waveInOpen";
+      case ESC_PREPARE:         return "waveInPrepareHeader";
+      case ESC_ADDBUFFER:       return "waveInAddBuffer";
+      case ESC_START:           return "waveInStart";
+      case ESC_WAITAUDIO:       return "waiting for audio";
+      case ESC_STOPWORKER:      return "stopping recycler";
+      case ESC_RESET:           return "waveInReset";
+      case ESC_UNPREPARE:       return "waveInUnprepareHeader";
+      case ESC_CLOSE:           return "waveInClose";
+      case ESC_DONE:            return "done";
+      default:                  return "?";
+   }
+}
+
+// Heap-allocated per cell and deliberately leaked if its thread blocks,
+// so a late-returning WinMM call never writes into a dead frame.
+struct EscJob
+{
+   // inputs
+   int   deviceId;         // index to open; -1 == resolve by name first
+   int   keepOpen;         // 1 == never close (the leak cell)
+   int   deferred;
+   // progress, readable by the main thread while the job runs
+   volatile LONG stage;
+   volatile LONG bufIndex;
+   // results
+   UINT     numDevs;
+   MMRESULT capRes;
+   char     name[MAXPNAMELEN + 1];
+   int      resolvedId;    // index actually opened
+   int      nameMatches;   // resolved name contains g_match
+   MMRESULT openRes;
+   double   openMs;
+   int      audioMs;       // -1 == none within ESC_AUDIO_WAIT_MS
+   LONG     callbacks;
+   int      resetClean;    // 1 clean, 0 wedged, -1 not attempted
+   double   resetMs;
+   InCtx*   ctx;
+};
+
+static int escNameMatches(const char* name)
+{
+   return (name && g_match && strstr(name, g_match) != NULL) ? 1 : 0;
+}
+
+static DWORD WINAPI escJobProc(LPVOID p)
+{
+   EscJob* j = (EscJob*)p;
+   LARGE_INTEGER f, t0, t1;
+   QueryPerformanceFrequency(&f);
+
+   j->stage = ESC_GETNUMDEVS;
+   j->numDevs = waveInGetNumDevs();
+
+   if (j->deviceId < 0)
+   {
+      // Cell C: re-resolve by name across the current enumeration.
+      j->stage = ESC_RESOLVE_BY_NAME;
+      j->resolvedId = -1;
+      for (UINT i = 0; i < j->numDevs; i++)
+      {
+         WAVEINCAPSA c; memset(&c, 0, sizeof(c));
+         if (waveInGetDevCapsA(i, &c, sizeof(c)) == MMSYSERR_NOERROR
+             && escNameMatches(c.szPname))
+         {
+            j->resolvedId = (int)i;
+            strncpy(j->name, c.szPname, MAXPNAMELEN);
+            j->name[MAXPNAMELEN] = 0;
+            break;
+         }
+      }
+      if (j->resolvedId < 0)
+      {
+         strcpy(j->name, "(no device matches --match)");
+         j->capRes = MMSYSERR_NODRIVER;
+         j->openRes = MMSYSERR_NODRIVER;
+         j->stage = ESC_DONE;
+         return 0;
+      }
+      j->capRes = MMSYSERR_NOERROR;
+   }
+   else
+   {
+      j->stage = ESC_GETDEVCAPS;
+      j->resolvedId = j->deviceId;
+      WAVEINCAPSA c; memset(&c, 0, sizeof(c));
+      j->capRes = waveInGetDevCapsA((UINT_PTR)j->deviceId, &c, sizeof(c));
+      if (j->capRes == MMSYSERR_NOERROR)
+      {
+         strncpy(j->name, c.szPname, MAXPNAMELEN);
+         j->name[MAXPNAMELEN] = 0;
+      }
+      else
+      {
+         strcpy(j->name, "(index not present)");
+      }
+   }
+   j->nameMatches = escNameMatches(j->name);
+
+   InCtx* c = new InCtx;
+   memset(c, 0, sizeof(InCtx));
+   c->deferred = j->deferred ? 1 : 0;
+   c->evt = CreateEvent(NULL, FALSE, FALSE, NULL);
+   if (c->deferred) c->worker = CreateThread(NULL, 0, deferProcCtx, c, 0, NULL);
+   j->ctx = c;
+
+   WAVEFORMATEX fmt;
+   memset(&fmt, 0, sizeof(fmt));
+   fmt.wFormatTag = WAVE_FORMAT_PCM;
+   fmt.nChannels = 1;
+   fmt.nSamplesPerSec = 8000;
+   fmt.wBitsPerSample = 16;
+   fmt.nBlockAlign = 2;
+   fmt.nAvgBytesPerSec = 16000;
+
+   j->stage = ESC_OPEN;
+   QueryPerformanceCounter(&t0);
+   j->openRes = waveInOpen(&c->hIn, (UINT)j->resolvedId, &fmt,
+                           (DWORD_PTR)waveInProcCtx, (DWORD_PTR)c,
+                           CALLBACK_FUNCTION);
+   QueryPerformanceCounter(&t1);
+   j->openMs = (double)(t1.QuadPart - t0.QuadPart) * 1000.0 / (double)f.QuadPart;
+   if (j->openRes != MMSYSERR_NOERROR)
+   {
+      c->stop = 1;
+      if (c->evt) SetEvent(c->evt);
+      j->audioMs = -1;
+      j->resetClean = -1;
+      j->stage = ESC_DONE;
+      return 0;
+   }
+
+   for (int n = 0; n < NUM_BUFFERS; n++)
+   {
+      c->hdr[n].lpData = c->buf[n];
+      c->hdr[n].dwBufferLength = BYTES_PER_FRAME;
+      c->hdr[n].dwUser = n;
+      j->bufIndex = n;
+      j->stage = ESC_PREPARE;
+      waveInPrepareHeader(c->hIn, &c->hdr[n], sizeof(WAVEHDR));
+      j->stage = ESC_ADDBUFFER;
+      waveInAddBuffer(c->hIn, &c->hdr[n], sizeof(WAVEHDR));
+   }
+   j->stage = ESC_START;
+   waveInStart(c->hIn);
+
+   j->stage = ESC_WAITAUDIO;
+   j->audioMs = -1;
+   for (int w = 0; w < ESC_AUDIO_WAIT_MS; w += 100)
+   {
+      Sleep(100);
+      if (c->dataCallbacks > 0 && c->nonEmpty > 0 && c->contentVaried > 0)
+      {
+         j->audioMs = w + 100;
+         break;
+      }
+   }
+   j->callbacks = c->dataCallbacks;
+
+   if (j->keepOpen)
+   {
+      // The leak cell: walk away with the handle open and streaming.
+      j->resetClean = -1;
+      j->stage = ESC_DONE;
+      return 0;
+   }
+
+   // Close cleanly: stop the recycler first (the fix shape), then reset.
+   j->stage = ESC_STOPWORKER;
+   c->stop = 1;
+   if (c->evt) SetEvent(c->evt);
+   if (c->worker) WaitForSingleObject(c->worker, 2000);
+
+   j->stage = ESC_RESET;
+   QueryPerformanceCounter(&t0);
+   MMRESULT rr = waveInReset(c->hIn);
+   QueryPerformanceCounter(&t1);
+   j->resetMs = (double)(t1.QuadPart - t0.QuadPart) * 1000.0 / (double)f.QuadPart;
+   j->resetClean = (rr == MMSYSERR_NOERROR) ? 1 : 0;
+
+   j->stage = ESC_UNPREPARE;
+   for (int n = 0; n < NUM_BUFFERS; n++)
+   {
+      j->bufIndex = n;
+      waveInUnprepareHeader(c->hIn, &c->hdr[n], sizeof(WAVEHDR));
+   }
+   j->stage = ESC_CLOSE;
+   waveInClose(c->hIn);
+   if (c->worker) CloseHandle(c->worker);
+   if (c->evt) CloseHandle(c->evt);
+   delete c;
+   j->ctx = NULL;
+   j->stage = ESC_DONE;
+   return 0;
+}
+
+static void escStamp(void)
+{
+   SYSTEMTIME st;
+   GetLocalTime(&st);
+   printf("[%02d:%02d:%02d.%03d] ", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+}
+
+// Runs one cell on a watchdog thread. Returns the job (leaked if it
+// blocked) so the caller can inspect it; prints exactly one verdict line
+// plus an identity line. blocked set to 1 if the thread never finished.
+static EscJob* escRunCell(const char* label, int deviceId, int keepOpen,
+                          int* blocked)
+{
+   EscJob* j = new EscJob;
+   memset(j, 0, sizeof(EscJob));
+   j->deviceId = deviceId;
+   j->keepOpen = keepOpen;
+   j->deferred = (int)g_deferMode;
+   j->audioMs = -1;
+   j->resetClean = -1;
+   *blocked = 0;
+
+   escStamp(); printf("cell %s: starting (index %s)\n", label,
+                      deviceId < 0 ? "by name" : "fixed"); fflush(stdout);
+
+   HANDLE t = CreateThread(NULL, 0, escJobProc, j, 0, NULL);
+   if (!t)
+   {
+      escStamp(); printf("cell %s: SKIPPED (CreateThread failed %lu)\n",
+                         label, GetLastError()); fflush(stdout);
+      j->openRes = MMSYSERR_ERROR;
+      return j;
+   }
+
+   DWORD waited = 0;
+   while (WaitForSingleObject(t, ESC_HEARTBEAT_MS) == WAIT_TIMEOUT)
+   {
+      waited += ESC_HEARTBEAT_MS;
+      escStamp();
+      printf("cell %s: ... still in %s", label, escStageName(j->stage));
+      if (j->stage == ESC_PREPARE || j->stage == ESC_ADDBUFFER
+          || j->stage == ESC_UNPREPARE)
+         printf("[%ld]", j->bufIndex);
+      printf(" after %lu ms\n", waited); fflush(stdout);
+      if (waited >= ESC_JOB_TIMEOUT_MS) break;
+   }
+
+   if (j->stage != ESC_DONE)
+   {
+      *blocked = 1;
+      escStamp();
+      printf("cell %s: BLOCKED at %s", label, escStageName(j->stage));
+      if (j->stage == ESC_PREPARE || j->stage == ESC_ADDBUFFER
+          || j->stage == ESC_UNPREPARE)
+         printf("[%ld]", j->bufIndex);
+      printf(" (index %d -> '%s', %u devices)\n",
+             j->resolvedId, j->name[0] ? j->name : "?", j->numDevs);
+      fflush(stdout);
+      // t and j leaked on purpose: the thread is inside WinMM.
+      return j;
+   }
+   CloseHandle(t);
+
+   escStamp();
+   printf("cell %s: index %d resolves to '%s'%s (%u devices)\n",
+          label, j->resolvedId, j->name,
+          j->nameMatches ? "" : "  <-- NOT the --match device",
+          j->numDevs);
+
+   escStamp();
+   if (j->openRes != MMSYSERR_NOERROR)
+   {
+      printf("cell %s: open FAIL mmres=%u after %.1f ms\n",
+             label, j->openRes, j->openMs);
+   }
+   else if (keepOpen)
+   {
+      printf("cell %s: open OK %.1f ms, firstAudioMs=%d, callbacks=%ld,"
+             " handle LEAKED (never closed)\n",
+             label, j->openMs, j->audioMs, j->callbacks);
+   }
+   else
+   {
+      printf("cell %s: open OK %.1f ms, firstAudioMs=%d, callbacks=%ld,"
+             " reset %s %.1f ms\n",
+             label, j->openMs, j->audioMs, j->callbacks,
+             j->resetClean == 1 ? "clean" : "FAILED", j->resetMs);
+   }
+   fflush(stdout);
+   return j;
+}
+
+// --- btaudio_ctl driving, all through cmd; nothing read from our stdin.
+
+static int escCtl(const char* verb)
+{
+   char cmd[512];
+   _snprintf(cmd, sizeof(cmd) - 1, "btaudio_ctl.exe --%s \"%s\" --quiet",
+             verb, g_match);
+   cmd[sizeof(cmd) - 1] = 0;
+   escStamp(); printf("ctl: %s\n", cmd); fflush(stdout);
+   int rc = system(cmd);
+   escStamp(); printf("ctl: %s exit %d\n", verb, rc); fflush(stdout);
+   return rc;
+}
+
+// Returns 1 if a "<state> capture" line for --match is present, 0 if the
+// status ran but no such line, -1 if btaudio_ctl produced no output at all
+// (missing exe, or --match matches nothing).
+static int escCaptureIs(const char* state, int echo)
+{
+   char cmd[512];
+   _snprintf(cmd, sizeof(cmd) - 1, "btaudio_ctl.exe --status \"%s\"", g_match);
+   cmd[sizeof(cmd) - 1] = 0;
+   FILE* p = _popen(cmd, "rt");
+   if (!p) return -1;
+   char line[512];
+   int any = 0, hit = 0;
+   while (fgets(line, sizeof(line), p))
+   {
+      any = 1;
+      if (echo) { printf("   status: %s", line); }
+      if (strncmp(line, state, strlen(state)) == 0 && strstr(line, "capture"))
+         hit = 1;
+   }
+   _pclose(p);
+   if (!any) return -1;
+   return hit;
+}
+
+// Polls until the capture endpoint reaches state or timeout. Returns 1 on
+// reached, 0 on timeout, -1 on no output from the tool.
+static int escWaitCapture(const char* state, int timeoutMs)
+{
+   int waited = 0;
+   for (;;)
+   {
+      int r = escCaptureIs(state, 0);
+      if (r != 0) return r;
+      if (waited >= timeoutMs) return 0;
+      Sleep(1000);
+      waited += 1000;
+      if ((waited % 5000) == 0)
+      {
+         escStamp(); printf("waiting for capture %s ... %d ms\n", state, waited);
+         fflush(stdout);
+      }
+   }
+}
+
+// Polls until no ACTIVE capture line remains (UNPLUGGED or NOTPRESENT
+// both count as gone: a headset that powers off goes NOTPRESENT, not
+// UNPLUGGED). Returns 1 gone, 0 timeout, -1 no tool output.
+static int escWaitCaptureGone(int timeoutMs)
+{
+   int waited = 0;
+   for (;;)
+   {
+      int r = escCaptureIs("ACTIVE", 0);
+      if (r < 0) return -1;
+      if (r == 0) return 1;
+      if (waited >= timeoutMs) return 0;
+      Sleep(1000);
+      waited += 1000;
+      if ((waited % 5000) == 0)
+      {
+         escStamp(); printf("waiting for capture to leave ACTIVE ... %d ms\n", waited);
+         fflush(stdout);
+      }
+   }
+}
+
+static int modeEscapeReopen(void)
+{
+   int blocked = 0;
+   int anyBlocked = 0;
+   int st = 0, gone = 0, back = 0;
+   const char* verdictA = "SKIPPED (not reached)";
+   const char* verdictB = "SKIPPED (not reached)";
+   const char* verdictC = "SKIPPED (not reached)";
+
+   escStamp();
+   printf("escape-reopen: unattended run, device %d, match '%s', shape %s\n",
+          g_deviceId, g_match, g_deferMode ? "deferred" : "reopen");
+   fflush(stdout);
+
+   // 0. precheck: tool present, capture ACTIVE, --device is the --match device
+   st = escCaptureIs("ACTIVE", 1);
+   if (st < 0)
+   {
+      escStamp();
+      printf("ABORT: btaudio_ctl.exe gave no output for --status \"%s\"\n"
+             "       (not in the current directory, or --match matches nothing)\n",
+             g_match);
+      return 2;
+   }
+   if (st == 0)
+   {
+      escStamp(); printf("precheck: capture not ACTIVE; connecting\n"); fflush(stdout);
+      escCtl("connect");
+      st = escWaitCapture("ACTIVE", ESC_RECONNECT_MS);
+      if (st != 1)
+      {
+         escStamp();
+         printf("ABORT: capture endpoint for '%s' did not reach ACTIVE\n", g_match);
+         return 2;
+      }
+   }
+   escStamp(); printf("precheck: capture ACTIVE\n"); fflush(stdout);
+
+   // Identity, checked before any handle is leaked: WinMM is healthy here,
+   // so these calls are safe on the main thread. A wrong --device would
+   // otherwise leak a handle to the wrong device and poison the run.
+   {
+      WAVEINCAPSA c; memset(&c, 0, sizeof(c));
+      UINT n = waveInGetNumDevs();
+      MMRESULT r = waveInGetDevCapsA((UINT_PTR)g_deviceId, &c, sizeof(c));
+      escStamp();
+      printf("precheck: %u WinMM capture devices; index %d is '%s'\n",
+             n, g_deviceId, r == MMSYSERR_NOERROR ? c.szPname : "(not present)");
+      if (r != MMSYSERR_NOERROR || !escNameMatches(c.szPname))
+      {
+         int found = -1;
+         for (UINT i = 0; i < n; i++)
+         {
+            WAVEINCAPSA d; memset(&d, 0, sizeof(d));
+            if (waveInGetDevCapsA(i, &d, sizeof(d)) == MMSYSERR_NOERROR
+                && escNameMatches(d.szPname))
+            { found = (int)i; break; }
+         }
+         escStamp();
+         if (found >= 0)
+            printf("ABORT: --device %d is not the '%s' device; use --device %d\n",
+                   g_deviceId, g_match, found);
+         else
+            printf("ABORT: no WinMM capture device name contains '%s'\n", g_match);
+         fflush(stdout);
+         return 2;
+      }
+      fflush(stdout);
+   }
+
+   // 1. leak
+   EscJob* leak = escRunCell("1-leak", g_deviceId, 1, &blocked);
+   if (blocked || leak->openRes != MMSYSERR_NOERROR)
+   {
+      escStamp();
+      printf("ABORT: could not establish the escape state (leak cell %s)\n",
+             blocked ? "BLOCKED" : "open failed");
+      printf("       %s; no cells run\n",
+             blocked ? "a thread is stuck in WinMM before any leak was intended"
+                     : "nothing was leaked");
+      fflush(stdout);
+      ExitProcess(3);
+   }
+   if (!leak->nameMatches)
+   {
+      escStamp();
+      printf("ABORT: index %d is '%s', not the --match device; fix --device\n",
+             g_deviceId, leak->name);
+      printf("       (a handle to the wrong device is now leaked; restart the probe)\n");
+      fflush(stdout);
+      ExitProcess(3);
+   }
+   if (leak->audioMs < 0)
+   {
+      escStamp();
+      printf("note: leaked session delivered no audio in %d ms; the escape\n"
+             "      state is an open handle either way, continuing\n",
+             ESC_AUDIO_WAIT_MS);
+   }
+   fflush(stdout);
+
+   // 2. disconnect
+   escCtl("disconnect");
+   gone = escWaitCaptureGone(ESC_DISCONNECT_MS);
+   if (gone != 1)
+   {
+      escStamp();
+      printf("capture never left ACTIVE after disconnect (%s); cells A/B/C SKIPPED\n",
+             gone < 0 ? "no tool output" : "timeout");
+      escCaptureIs("ACTIVE", 1);
+      verdictA = verdictB = verdictC = "SKIPPED (disconnect failed)";
+      goto summary;
+   }
+   escStamp(); printf("device gone; settling %d ms\n", g_settleMs); fflush(stdout);
+   Sleep((DWORD)g_settleMs);
+
+   // 3. cell A: device gone. Whatever the index resolves to now is
+   //    reported; the open exercises WinMM health, not the same device.
+   {
+      EscJob* a = escRunCell("A-gone", g_deviceId, 0, &blocked);
+      if (blocked) { verdictA = "BLOCKED"; anyBlocked = 1; }
+      else if (a->openRes == MMSYSERR_NOERROR)
+         verdictA = a->nameMatches ? "OK (device still enumerated at index)"
+                                   : "OK (index now another device; WinMM responsive)";
+      else verdictA = "FAIL (open error; WinMM responsive)";
+   }
+
+   // 4. reconnect
+   escCtl("connect");
+   back = escWaitCapture("ACTIVE", ESC_RECONNECT_MS);
+   if (back != 1)
+   {
+      escStamp(); printf("first connect did not reach ACTIVE capture; retrying\n");
+      fflush(stdout);
+      escCtl("connect");
+      back = escWaitCapture("ACTIVE", ESC_RECONNECT_MS);
+   }
+   if (back != 1)
+   {
+      escStamp();
+      printf("device did not return with ACTIVE capture; cells B/C SKIPPED\n");
+      verdictB = verdictC = "SKIPPED (device did not return)";
+      goto summary;
+   }
+   escStamp(); printf("device back with ACTIVE capture; settling 2000 ms for\n"
+                      "  WinMM to re-enumerate it\n"); fflush(stdout);
+   Sleep(2000);
+
+   // 5. cell B: same index as the leak
+   {
+      EscJob* b = escRunCell("B-returned-same-index", g_deviceId, 0, &blocked);
+      if (blocked) { verdictB = "BLOCKED"; anyBlocked = 1; }
+      else if (b->openRes != MMSYSERR_NOERROR) verdictB = "FAIL (open error)";
+      else if (!b->nameMatches) verdictB = "OK but index DRIFTED to another device";
+      else if (b->audioMs < 0) verdictB = "OPEN OK, NO AUDIO";
+      else verdictB = "OK with audio";
+   }
+
+   // 6. cell C: re-resolve by name (the factory's new-driver path)
+   {
+      EscJob* cc = escRunCell("C-returned-by-name", -1, 0, &blocked);
+      if (!blocked && cc->resolvedId < 0)
+      {
+         // The endpoint is ACTIVE but WinMM may not have re-enumerated it
+         // yet; one bounded retry before calling it a failure.
+         escStamp(); printf("cell C: no name match yet; retrying in 3000 ms\n");
+         fflush(stdout);
+         Sleep(3000);
+         cc = escRunCell("C-retry-by-name", -1, 0, &blocked);
+      }
+      if (blocked) { verdictC = "BLOCKED"; anyBlocked = 1; }
+      else if (cc->resolvedId < 0) verdictC = "FAIL (no device matched by name)";
+      else if (cc->openRes != MMSYSERR_NOERROR) verdictC = "FAIL (open error)";
+      else if (cc->audioMs < 0) verdictC = "OPEN OK, NO AUDIO";
+      else verdictC = "OK with audio";
+   }
+
+summary:
+   printf("\n");
+   escStamp(); printf("SUMMARY  leak handle: open, never closed\n");
+   escStamp(); printf("SUMMARY  A-gone:                 %s\n", verdictA);
+   escStamp(); printf("SUMMARY  B-returned-same-index:  %s\n", verdictB);
+   escStamp(); printf("SUMMARY  C-returned-by-name:     %s\n", verdictC);
+   if (anyBlocked)
+   {
+      escStamp();
+      printf("SUMMARY  at least one thread is stuck in WinMM; exiting via\n"
+             "         ExitProcess so a hung CRT shutdown cannot mask the result\n");
+   }
+   fflush(stdout);
+   ExitProcess(anyBlocked ? 4 : 0);
+   return 0;
+}
+
+
 // As modeReopen, but the wedge comes from a real device removal driven
 // externally (swdevice_audio) rather than from SuspendThread. Waits for
 // the callbacks to stop, then does the reset and the reopen loop.
@@ -1401,8 +2020,11 @@ static void usage(void)
           "  --skip-teardown  on trigger: no reset/close, straight to the\n"
           "              health phase\n"
           "  --health-device N  second device for the open2 check, default 0\n"
+          "  --match STR  btaudio_ctl name match for escape-reopen, default SB510\n"
+          "  --settle N   escape-reopen: ms after UNPLUGGED before cell A,\n"
+          "              default 3000\n"
           "  modes: list suspend sweep reopen deferred removed\n"
-          "         removed-deferred hold parent\n\n"
+          "         removed-deferred hold parent health escape-reopen\n\n"
           "  list      print WinMM devices and MMDevice endpoints side by\n"
           "            side, with endpoint states and what WAVE_MAPPER\n"
           "            resolves to. Takes no other arguments.\n"
@@ -1416,7 +2038,13 @@ static void usage(void)
           "            as removed, with the wave call on our own thread.\n"
           "  hold      hold the device open, report per second\n"
           "  parent    disable/enable the USB parent devnode per cycle\n"
-          "            (needs elevation and --instance)\n");
+          "            (needs elevation and --instance)\n"
+          "  health    open --device, report time to first audio, close\n"
+          "  escape-reopen\n"
+          "            unattended: leak an open handle, drive btaudio_ctl to\n"
+          "            disconnect/reconnect --match, then report whether\n"
+          "            reopens block, fail, or deliver audio. Needs\n"
+          "            btaudio_ctl.exe in the current directory.\n");
 }
 
 int main(int argc, char** argv)
@@ -1429,9 +2057,10 @@ int main(int argc, char** argv)
    for (int i = 1; i < argc; i++)
    {
       if (!strcmp(argv[i], "--help")) { usage(); return 0; }
+      // Boolean flags first: a trailing one has no value to consume.
+      if (!strcmp(argv[i], "--skip-teardown")) { g_skipTeardown = 1; continue; }
       if (i >= argc - 1) break;
       if (!strcmp(argv[i], "--dir"))             dir = argv[++i];
-      if (!strcmp(argv[i], "--skip-teardown")) { g_skipTeardown = 1; continue; }
       else if (!strcmp(argv[i], "--method"))     method = argv[++i];
       else if (!strcmp(argv[i], "--instance"))   instanceId = argv[++i];
       else if (!strcmp(argv[i], "--iterations")) iterations = atoi(argv[++i]);
@@ -1443,6 +2072,8 @@ int main(int argc, char** argv)
       else if (!strcmp(argv[i], "--reset-context"))
          g_resetContext = !strcmp(argv[++i], "joined");
       else if (!strcmp(argv[i], "--health-device")) g_healthDevice = atoi(argv[++i]);
+      else if (!strcmp(argv[i], "--match"))      g_match = argv[++i];
+      else if (!strcmp(argv[i], "--settle"))     g_settleMs = atoi(argv[++i]);
    }
 
    int isInput = !strcmp(dir, "in");
@@ -1458,6 +2089,7 @@ int main(int argc, char** argv)
    if (!strcmp(method, "parent")) return modeParent(isInput, iterations, instanceId);
    if (!strcmp(method, "list"))   return modeList();
    if (!strcmp(method, "health")) return modeHealth();
+   if (!strcmp(method, "escape-reopen")) return modeEscapeReopen();
    if (!strcmp(method, "removed"))          return modeRemoved(iterations);
    if (!strcmp(method, "removed-deferred")) { g_deferMode = 1; return modeRemoved(iterations); }
 
