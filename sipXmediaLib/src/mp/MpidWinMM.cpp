@@ -338,6 +338,9 @@ MpidWinMM::MpidWinMM(const UtlString& name,
 , mWorkerInWaveCall(0)
 , mGeneration(0)
 , mLastDisableEscaped(FALSE)
+, mEscapeTick(0)
+, mFramesPushed(0)
+, mStaleDiscarded(0)
 , mWinAudioDeviceChangeCallback(NULL)
 , mDeviceEnumeratorPtr(NULL)
 {
@@ -569,9 +572,10 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
     if (mLastDisableEscaped)
     {
         OsSysLog::add(FAC_MP, PRI_ERR,
-            "MpidWinMM::enableDevice '%s' refused: driver previously "
-            "escaped teardown and is retired",
-            getDeviceName().data());
+            "MpidWinMM::enableDevice '%s' refused: driver escaped teardown "
+            "%lu ms ago and is retired",
+            getDeviceName().data(),
+            (unsigned long)(GetTickCount() - mEscapeTick));
         return OS_FAILED;
     }
 
@@ -601,6 +605,16 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
     }
     mWinMMDeviceId = currentId;
 
+    {
+        UtlString endpointState;
+        getEndpointStateForName(mDeviceEnumeratorPtr, getDeviceName(), endpointState);
+        OsSysLog::add(FAC_MP, PRI_INFO,
+            "MpidWinMM::enableDevice '%s' winMMId: %d of %u, endpoint %s, "
+            "starting session %ld",
+            getDeviceName().data(), mWinMMDeviceId, waveInGetNumDevs(),
+            endpointState.data(), (long)mGeneration + 1);
+    }
+
     // If the device is not valid, let the user know it's bad.
     if (!isDeviceValid())
     {
@@ -628,6 +642,9 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
         InterlockedPushEntrySList(&mPoolFree, stale);
         stale = next;
     }
+
+    InterlockedExchange(&mFramesPushed, 0);
+    InterlockedExchange(&mStaleDiscarded, 0);
 
     // Set some wave header stat information.
     mSamplesPerFrame = samplesPerFrame;
@@ -757,6 +774,21 @@ OsStatus MpidWinMM::disableDevice()
     // while waveInReset is called causing a deadlock.
     mIsEnabled = FALSE;
 
+    // Forensic entry line. MMDevice state only -- no WinMM call here,
+    // because a stuck worker could make one block before the escape
+    // logic below ever runs.
+    {
+        UtlString endpointState;
+        getEndpointStateForName(mDeviceEnumeratorPtr, getDeviceName(), endpointState);
+        OsSysLog::add(FAC_MP, PRI_INFO,
+            "MpidWinMM::disableDevice '%s' winMMId: %d, endpoint %s, "
+            "session %ld: frames pushed %ld, addBuffer failures %u, "
+            "stale discarded %ld",
+            getDeviceName().data(), mWinMMDeviceId, endpointState.data(),
+            (long)mGeneration, (long)mFramesPushed, mnAddBufferFailures,
+            (long)mStaleDiscarded);
+    }
+
     // Stop the worker and join it before any wave teardown call. The
     // measured failure (customer dump; probe matrix 2026-09-08): a
     // reset issued while another thread is inside a wave call wedges
@@ -785,6 +817,17 @@ OsStatus MpidWinMM::disableDevice()
             Sleep(5);
             waited += 5;
         }
+
+        if (waited > 0)
+        {
+            OsSysLog::add(FAC_MP, PRI_WARNING,
+                "MpidWinMM::disableDevice '%s' worker was inside a wave call "
+                "at disable; waited %lu ms (%s)",
+                getDeviceName().data(), (unsigned long)waited,
+                waited >= MPID_WINMM_JOIN_TIMEOUT_MS ? "did not return; escaping"
+                                                     : "returned");
+        }
+
         if (waited >= MPID_WINMM_JOIN_TIMEOUT_MS)
         {
             // Fire escape: the worker is stuck inside a wave call on
@@ -795,6 +838,7 @@ OsStatus MpidWinMM::disableDevice()
             // must never be deleted (see
             // MpInputDeviceManager::removeAllDevices).
             mLastDisableEscaped = TRUE;
+            mEscapeTick = GetTickCount();
             OsSysLog::add(FAC_MP, PRI_CRIT,
                 "MpidWinMM::disableDevice '%s' worker stuck in a wave "
                 "call for %d ms; skipping waveInReset/waveInClose, "
@@ -1058,6 +1102,11 @@ DWORD WINAPI MpidWinMM::ThreadWMMInProc(LPVOID lpMessage)
             {
                 pDrv->finalizeProcessedHeader(entry->mCbParamHdr);
             }
+            else
+            {
+                InterlockedIncrement(&pDrv->mStaleDiscarded);
+            }
+
             // Stale-generation, post-stop and non-DATA entries fall
             // through untouched: the header is never recycled into a
             // handle it did not come from.
@@ -1095,6 +1144,7 @@ void MpidWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
                                     (MpAudioSample*)pWaveHdr->lpData,
                                     mCurrentFrameTime);
     mCurrentFrameTime += (mSamplesPerFrame*1000)/mSamplesPerSec;
+    InterlockedIncrement(&mFramesPushed);
 
     // disableDevice may have set the stop flag while pushFrame was
     // blocked on manager locks. Teardown has begun: make no wave call
@@ -1402,6 +1452,75 @@ bool MpidWinMM::getEndpointDataFlow(IMMDeviceEnumerator* deviceEnumeratorPtr,
         flow = MP_FLOW_CAPTURE;
 
     return true;
+}
+
+void MpidWinMM::getEndpointStateForName(IMMDeviceEnumerator* deviceEnumeratorPtr,
+                                        const UtlString& name,
+                                        UtlString& stateText)
+{
+    stateText = "not-enumerated";
+    if (!deviceEnumeratorPtr)
+    {
+        stateText = "no-enumerator";
+        return;
+    }
+
+    IMMDeviceCollection* collection = NULL;
+    HRESULT hr = deviceEnumeratorPtr->EnumAudioEndpoints(eCapture,
+                     DEVICE_STATEMASK_ALL, &collection);
+    if (hr != S_OK || !collection)
+    {
+        stateText = "enum-failed";
+        return;
+    }
+
+    UINT count = 0;
+    collection->GetCount(&count);
+    int bestRank = 0;
+    int matches = 0;
+    for (UINT i = 0; i < count; i++)
+    {
+        IMMDevice* device = NULL;
+        if (collection->Item(i, &device) != S_OK || !device)
+        {
+            continue;
+        }
+        LPWSTR id = NULL;
+        if (device->GetId(&id) == S_OK && id)
+        {
+            UtlString friendly;
+            getWinNameForDevice(deviceEnumeratorPtr, id, friendly);
+            if (nameIsSame(friendly, name))
+            {
+                DWORD state = 0;
+                device->GetState(&state);
+                int rank = (state == DEVICE_STATE_ACTIVE)     ? 4
+                         : (state == DEVICE_STATE_UNPLUGGED)  ? 3
+                         : (state == DEVICE_STATE_DISABLED)   ? 2
+                         : (state == DEVICE_STATE_NOTPRESENT) ? 1 : 0;
+                if (rank > bestRank) bestRank = rank;
+                matches++;
+            }
+            CoTaskMemFree(id);
+        }
+        SAFE_RELEASE(device);
+    }
+    SAFE_RELEASE(collection);
+
+    if (matches == 0)
+    {
+        return;
+    }
+    stateText = (bestRank == 4) ? "ACTIVE"
+              : (bestRank == 3) ? "UNPLUGGED"
+              : (bestRank == 2) ? "DISABLED"
+              : (bestRank == 1) ? "NOTPRESENT" : "UNKNOWN";
+    if (matches > 1)
+    {
+        char suffix[48];
+        sprintf(suffix, " (%d endpoints share the name)", matches);
+        stateText.append(suffix);
+    }
 }
 
 bool MpidWinMM::nameIsSame(const UtlString& a, const UtlString& b)

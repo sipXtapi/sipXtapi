@@ -202,6 +202,16 @@ protected:
 
     enum MpAudioEndpointFlow { MP_FLOW_UNKNOWN, MP_FLOW_RENDER, MP_FLOW_CAPTURE };
     static bool getEndpointDataFlow(IMMDeviceEnumerator* deviceEnumeratorPtr, LPCWSTR deviceId, MpAudioEndpointFlow& flow);
+      /// @brief Forensic: MMDevice state of the capture endpoint(s) with this name.
+    static void getEndpointStateForName(IMMDeviceEnumerator* deviceEnumeratorPtr,
+                                        const UtlString& name,
+                                        UtlString& stateText);
+      /**
+      *  Enumerates all states and matches with nameIsSame. stateText is
+      *  ACTIVE / UNPLUGGED / DISABLED / NOTPRESENT / not-enumerated, with
+      *  a count when several endpoints share the name (Bluetooth leaves
+      *  NOTPRESENT ghosts). Logging aid only; MMDevice API, no WinMM.
+      */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -254,6 +264,10 @@ private:
                                 ///< out, teardown skipped, handle and
                                 ///< buffers leaked. Read by tests via
                                 ///< friendship.
+    DWORD mEscapeTick;          ///< GetTickCount at the fire escape.
+    volatile LONG mFramesPushed;///< Frames pushed this session (worker).
+    volatile LONG mStaleDiscarded;///< Queued entries dropped as stale or
+                                ///< post-stop this session (worker).
     IMMNotificationClient* mWinAudioDeviceChangeCallback; ///< Callback interface for audio
                               ///< device state changes.
     IMMDeviceEnumerator* mDeviceEnumeratorPtr;
