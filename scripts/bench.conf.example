@@ -1,0 +1,36 @@
+# Copyright (C) 2026 SIPez LLC.  All rights reserved.
+#
+# Example bench configuration for scripts/bench_trigger.py.
+#
+# The live copy is NOT in the repo. Put it at:
+#     ~/.sipx_bench/bench.conf
+# and the vSphere password at the file named by password_file, mode 600:
+#     chmod 600 ~/.sipx_bench/esxi.pw
+#
+# When the config or password file is missing, unit tests skip with a
+# loud "BENCH SKIPPED:" line and the soak refuses to run.
+
+[bench]
+# vmware_usb | btaudio | none
+trigger = vmware_usb
+# minimum seconds between two device changes (the soak's pacing floor)
+min_interval_s = 5
+# how long to wait for the guest to notice a change before reporting
+# exit 3 (wrong state)
+settle_s = 10
+
+[vmware]
+host = 192.168.0.243
+user = sipxbench
+vm_name = Win10-vs2019-sipx-build
+# backing name of the passed-through USB device, from the VM's config
+usb_backing = path:7/1 version:2
+# substring of the device's WinMM capture name inside the guest
+guest_match = C-Media
+password_file = ~/.sipx_bench/esxi.pw
+
+[btaudio]
+# laptop only: btaudio_ctl.exe and the device name match it takes
+ctl_path = ~/dev/sipXtapi/sipXmediaLib/src/test/mp/btaudio_ctl.exe
+match = SB510
+
