@@ -429,6 +429,7 @@ xcopy /D /y $(SolutionDir)$(Platform)\$(Configuration)\codec_*.dll $(ProjectDir)
     <ClCompile Include="src\test\mp\MpFlowGraphTest.cpp" />
     <ClCompile Include="src\test\mp\MpGenericResourceTest.cpp" />
     <ClCompile Include="src\test\mp\MpInputDeviceDriverTest.cpp" />
+    <ClCompile Include="src\test\mp\MpInputOutputFrameworkTest.cpp" />
     <ClCompile Include="src\test\mp\MpMediaTaskTest.cpp" />
     <ClCompile Include="src\test\mp\MpMMTimerTest.cpp" />
     <ClCompile Include="src\test\mp\MpOutputDriverTest.cpp" />
