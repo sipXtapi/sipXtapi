@@ -50,10 +50,12 @@
 #define DEFAULT_BUFFER_ON_OUTPUT_MS   (BUFFERS_TO_BUFFER_ON_OUTPUT*TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND)
                                             ///< Buffer size in output manager in milliseconds.
 
-#ifdef ANDROID // [
-#  define try 
-#endif // !ANDROID ]
-
+// The sipxportunit harness (Android, Windows) has no CppUnit exceptions:
+// // compile the try blocks as plain blocks and drop the catch handlers.
+#if defined(ANDROID) || defined(WIN32) // [
+#  define try
+#  define SIPX_NO_CPPUNIT_EXCEPTIONS
+#endif // ]
 
 //#define USE_TEST_INPUT_DRIVER
 //#define USE_TEST_OUTPUT_DRIVER
@@ -159,6 +161,11 @@ class MpInputOutputFrameworkTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testManyOutputDevices);
    CPPUNIT_TEST(testManyInputDevices);
    CPPUNIT_TEST(testManyInputDevicesToOneOutputDevice);
+   // Bench tests: real device departure driven by scripts/bench_trigger.py.
+   // Skip loudly when the bench is not configured on this machine.
+   CPPUNIT_TEST(testBenchDisableDuringDeparture);
+   CPPUNIT_TEST(testBenchUninitializeAfterDeparture);
+   CPPUNIT_TEST(testBenchRecoveryAfterReturn);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -235,7 +242,16 @@ public:
       {
          MpInputDeviceDriver *pDriver = mpInputDeviceManager->removeDevice(mInputDeviceNumber);
          CPPUNIT_ASSERT(pDriver != NULL);
-         delete pDriver;
+         if (pDriver->lastDisableEscaped())
+         {
+            // A stuck thread may still reference it: retire, never delete.
+            printf("tearDown: input driver '%s' escaped teardown; leaking it\n",
+                   pDriver->getDeviceName().data());
+         }
+         else
+         {
+            delete pDriver;
+         }
       }
 
       // Free all output device drivers
@@ -334,7 +350,7 @@ public:
                                  mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
                                                                                  NULL));
          }
-#ifndef ANDROID // [
+#ifndef SIPX_NO_CPPUNIT_EXCEPTIONS // [
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
@@ -365,7 +381,7 @@ public:
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sourceResource));
          mpFlowGraph->processNextFrame();
       }
-#ifndef ANDROID // [
+#ifndef SIPX_NO_CPPUNIT_EXCEPTIONS // [
       catch (CppUnit::Exception& e)
       {
          // Remove resources from flowgraph. We should remove them explicitly
@@ -447,7 +463,7 @@ public:
                                  mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
                                                                                  NULL));
          }
-#ifndef ANDROID // [
+#ifndef SIPX_NO_CPPUNIT_EXCEPTIONS // [
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
@@ -476,7 +492,7 @@ public:
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sourceResource));
          mpFlowGraph->processNextFrame();
       }
-#ifndef ANDROID // [
+#ifndef SIPX_NO_CPPUNIT_EXCEPTIONS // [
       catch (CppUnit::Exception& e)
       {
          // Remove resources from flowgraph. We should remove them explicitly
@@ -578,7 +594,7 @@ public:
                                                                                  NULL));
 
          }
-#ifndef ANDROID // [
+#ifndef SIPX_NO_CPPUNIT_EXCEPTIONS // [
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
@@ -613,7 +629,7 @@ public:
          }
          mpFlowGraph->processNextFrame();
       }
-#ifndef ANDROID // [
+#ifndef SIPX_NO_CPPUNIT_EXCEPTIONS // [
       catch (CppUnit::Exception& e)
       {
          // Remove resources from flowgraph. We should remove them explicitly
@@ -725,7 +741,7 @@ public:
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                  mpOutputDeviceManager->disableDevice(tickerDeviceId));
          }
-#ifndef ANDROID // [
+#ifndef SIPX_NO_CPPUNIT_EXCEPTIONS // [
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
@@ -761,7 +777,7 @@ public:
          }
          mpFlowGraph->processNextFrame();
       }
-#ifndef ANDROID // [
+#ifndef SIPX_NO_CPPUNIT_EXCEPTIONS // [
       catch (CppUnit::Exception& e)
       {
          // Remove resources from flowgraph. We should remove them explicitly
@@ -870,7 +886,7 @@ public:
                                  mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE,
                                                                                  NULL));
          }
-#ifndef ANDROID // [
+#ifndef SIPX_NO_CPPUNIT_EXCEPTIONS // [
          catch (CppUnit::Exception& e)
          {
             // Clear flowgraph ticker if assert failed.
@@ -906,7 +922,7 @@ public:
          }
          mpFlowGraph->processNextFrame();
       }
-#ifndef ANDROID // [
+#ifndef SIPX_NO_CPPUNIT_EXCEPTIONS // [
       catch (CppUnit::Exception& e)
       {
          // Remove resources from flowgraph. We should remove them explicitly
@@ -1001,6 +1017,373 @@ protected:
          manageInputDevice(pDriver);
       }
 #endif // USE_TEST_INPUT_DRIVER ]
+   }
+
+   // ------------------------------------------------------------ bench helpers
+   //
+   // These drive scripts/bench_trigger.py, which makes the bench capture
+   // device go away and come back (VMware USB detach on the VM, btaudio_ctl
+   // on the laptop). Config lives outside the repo; when it is missing the
+   // script exits 2 and the tests skip with a loud BENCH SKIPPED line.
+
+   /// Run one trigger action. Returns the script's exit code; the single
+   /// output line goes to outLine.
+   int benchTrigger(const char* action, UtlString& outLine)
+   {
+      outLine = "";
+#ifdef WIN32
+      // The runner starts us in x64/Release; a manual run is from the
+      // repo root. Find the script from either.
+      const char* script = "scripts/bench_trigger.py";
+      if (_access(script, 0) != 0)
+      {
+         script = "../../scripts/bench_trigger.py";
+      }
+      char cmd[256];
+      _snprintf(cmd, sizeof(cmd) - 1,
+                "sh -c \"python3 %s %s\"", script, action);
+      cmd[sizeof(cmd) - 1] = 0;
+      FILE* p = _popen(cmd, "rt");
+      if (!p)
+      {
+         outLine = "FAILED: could not run bench_trigger.py";
+         return 1;
+      }
+      char line[512];
+      while (fgets(line, sizeof(line), p))
+      {
+         outLine.append(line);
+      }
+      outLine.strip(UtlString::both, '\n');
+      outLine.strip(UtlString::both, '\r');
+      int rc = _pclose(p);
+      printf("bench_trigger %s -> %d: %s\n", action, rc, outLine.data());
+      fflush(stdout);
+      return rc;
+#else
+      outLine = "BENCH NOT CONFIGURED: bench tests are Windows-only";
+      return 2;
+#endif
+   }
+
+   /// Skip loudly unless the bench is configured and the device is ready.
+   /// Fills match (guest device-name substring), runs and the offset list.
+   void benchGate(UtlString& match, int& runs, UtlString& offsets)
+   {
+      UtlString line;
+      int rc = benchTrigger("info", line);
+      if (rc == 2)
+      {
+         printf("BENCH SKIPPED: %s\n", line.isNull() ? "bench_trigger.py not found or not runnable" : line.data());
+         fflush(stdout);
+         SIPX_TEST_SKIP("BENCH SKIPPED: bench not configured (see line above)");
+      }
+      CPPUNIT_ASSERT_MESSAGE(line.data(), rc == 0);
+
+      // INFO trigger=... match=<m> runs=<n> offsets_ms=<a,b,c>
+      match = "";
+      runs = 3;
+      offsets = "0,250,5000";
+      const char* s = strstr(line.data(), "match=");
+      if (s)
+      {
+         s += 6;
+         const char* e = strchr(s, ' ');
+         match.append(s, e ? (size_t)(e - s) : strlen(s));
+      }
+      s = strstr(line.data(), "runs=");
+      if (s) runs = atoi(s + 5);
+      s = strstr(line.data(), "offsets_ms=");
+      if (s) offsets = s + 11;
+      CPPUNIT_ASSERT_MESSAGE("bench info gave no device match", !match.isNull());
+
+      rc = benchTrigger("status", line);
+      if (rc == 3)
+      {
+         benchTrigger("connect", line);
+         rc = benchTrigger("status", line);
+      }
+      if (rc != 0)
+      {
+         printf("BENCH SKIPPED: device not ready: %s\n", line.data());
+         fflush(stdout);
+         SIPX_TEST_SKIP("BENCH SKIPPED: bench device not ready (see line above)");
+      }
+   }
+
+   /// Nth offset from the comma list, cycling.
+   int benchOffsetMs(const UtlString& offsets, int iteration)
+   {
+      int values[16];
+      int n = 0;
+      const char* s = offsets.data();
+      while (*s && n < 16)
+      {
+         values[n++] = atoi(s);
+         const char* c = strchr(s, ',');
+         if (!c) break;
+         s = c + 1;
+      }
+      return n ? values[iteration % n] : 0;
+   }
+
+#ifdef WIN32
+   /// Full WinMM capture name whose text contains match, or empty.
+   UtlBoolean benchFindCaptureName(const UtlString& match, UtlString& fullName)
+   {
+      UINT n = waveInGetNumDevs();
+      for (UINT i = 0; i < n; i++)
+      {
+         WAVEINCAPSA caps;
+         memset(&caps, 0, sizeof(caps));
+         if (waveInGetDevCapsA(i, &caps, sizeof(caps)) == MMSYSERR_NOERROR
+             && strstr(caps.szPname, match.data()))
+         {
+            fullName = caps.szPname;
+            return TRUE;
+         }
+      }
+      fullName = "";
+      return FALSE;
+   }
+
+   /// Pull the most recent frames back from the manager and count the
+   /// ones that carry audio (any non-zero sample). Proves capture is live
+   /// from the consumer's side, not the driver's.
+   int benchNonSilentFrames(MpInputDeviceHandle deviceId, int frames)
+   {
+      MpFrameTime frameTime = mpInputDeviceManager->getCurrentFrameTime(deviceId)
+                              - (TEST_SAMPLES_PER_FRAME * 1000 / TEST_SAMPLES_PER_SECOND) * frames;
+      int nonSilent = 0;
+      for (int f = 0; f < frames; f++)
+      {
+         MpBufPtr buffer;
+         unsigned before = 0, after = 0;
+         if (mpInputDeviceManager->getFrame(deviceId, frameTime, buffer, before, after)
+             == OS_SUCCESS && buffer.isValid())
+         {
+            MpAudioBufPtr audio = buffer;
+            const MpAudioSample* s = audio->getSamplesPtr();
+            unsigned n = audio->getSamplesNumber();
+            for (unsigned i = 0; i < n; i++)
+            {
+               if (s[i] != 0) { nonSilent++; break; }
+            }
+         }
+         frameTime += TEST_SAMPLES_PER_FRAME * 1000 / TEST_SAMPLES_PER_SECOND;
+      }
+      return nonSilent;
+   }
+
+   /// Create a fresh MpidWinMM for the bench device by name (the factory's
+   /// path), add it, and return its handle. The driver is NOT counted in
+   /// mInputDeviceNumber; the caller owns removal.
+   MpInputDeviceHandle benchAddDevice(const UtlString& fullName, MpidWinMM*& pDriver)
+   {
+      pDriver = new MpidWinMM(fullName, *mpInputDeviceManager);
+      CPPUNIT_ASSERT(pDriver != NULL);
+      CPPUNIT_ASSERT_MESSAGE("bench device is not valid for WinMM", pDriver->isDeviceValid());
+      MpInputDeviceHandle id = mpInputDeviceManager->addDevice(*pDriver);
+      CPPUNIT_ASSERT(id > 0);
+      return id;
+   }
+
+   /// Run a live graph bench device -> default output for ms, and assert
+   /// audio-bearing frames reached the manager.
+   void benchStreamAndVerify(MpInputDeviceHandle inId, MpOutputDeviceHandle outId,
+                             MprFromInputDevice& source, MprToOutputDevice& sink,
+                             int ms, const char* phase)
+   {
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(source));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(sink));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addLink(source, 0, sink, 0));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpInputDeviceManager->enableDevice(inId));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpOutputDeviceManager->enableDevice(outId));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           mpOutputDeviceManager->setFlowgraphTickerSource(outId, mpTicker));
+      CPPUNIT_ASSERT(source.enable());
+      CPPUNIT_ASSERT(sink.enable());
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->manageFlowGraph(*mpFlowGraph));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->startFlowGraph(*mpFlowGraph));
+      OsTask::delay(ms);
+      int nonSilent = benchNonSilentFrames(inId, 8);
+      printf("bench %s: %d of 8 recent frames carry audio\n", phase, nonSilent);
+      fflush(stdout);
+      CPPUNIT_ASSERT_MESSAGE("no audio reached the manager from the bench device",
+                             nonSilent > 0);
+   }
+
+   /// Tear the graph down (not the input device: that is the operation
+   /// under test and the caller does it).
+   void benchStopGraph(MpOutputDeviceHandle outId,
+                       MprFromInputDevice& source, MprToOutputDevice& sink)
+   {
+      mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE, NULL);
+      mpMediaTask->unmanageFlowGraph(*mpFlowGraph);
+      MpMediaTask::signalFrameStart();
+      OsTask::delay(20);
+      mpOutputDeviceManager->disableDevice(outId);
+      mpFlowGraph->removeResource(sink);
+      mpFlowGraph->removeResource(source);
+      mpFlowGraph->processNextFrame();
+   }
+#endif // WIN32
+
+   // Path 1: the device departs mid-stream, then the app disables it.
+   // Expected on a real departure: clean, bounded teardown, no escape.
+   void testBenchDisableDuringDeparture()
+   {
+#ifdef WIN32
+      UtlString match, offsets, line, fullName;
+      int runs;
+      benchGate(match, runs, offsets);
+      MpOutputDeviceHandle outId;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           mpOutputDeviceManager->getDeviceId(outputDriverNames[0], outId));
+
+      for (int it = 0; it < runs; it++)
+      {
+         int offset = benchOffsetMs(offsets, it);
+         CPPUNIT_ASSERT_MESSAGE("bench device not enumerated",
+                                benchFindCaptureName(match, fullName));
+         MpidWinMM* pDriver = NULL;
+         MpInputDeviceHandle inId = benchAddDevice(fullName, pDriver);
+         MprFromInputDevice source("BenchFromInput", mpInputDeviceManager, inId);
+         MprToOutputDevice sink("BenchToOutput", mpOutputDeviceManager, outId);
+         benchStreamAndVerify(inId, outId, source, sink, 1500, "before departure");
+
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(line.data(), 0, benchTrigger("disconnect", line));
+         OsTask::delay(offset);
+
+         DWORD t0 = GetTickCount();
+         OsStatus st = mpInputDeviceManager->disableDevice(inId);
+         DWORD elapsed = GetTickCount() - t0;
+         printf("bench iteration %d offset %d ms: disableDevice -> %d in %lu ms, escaped=%d\n",
+                it, offset, (int)st, (unsigned long)elapsed, (int)pDriver->lastDisableEscaped());
+         fflush(stdout);
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, st);
+         CPPUNIT_ASSERT_MESSAGE("disableDevice not bounded during departure", elapsed < 2000);
+         CPPUNIT_ASSERT_MESSAGE("real departure should tear down cleanly, not escape",
+                                !pDriver->lastDisableEscaped());
+
+         benchStopGraph(outId, source, sink);
+         mpInputDeviceManager->removeDevice(inId);
+         if (!pDriver->lastDisableEscaped()) delete pDriver;
+
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(line.data(), 0, benchTrigger("connect", line));
+      }
+#else
+      SIPX_TEST_SKIP("BENCH SKIPPED: bench tests are Windows-only");
+#endif
+   }
+
+   // Path 2: the customer's crash path. Device departs with input still
+   // enabled and the graph running; the app then tears everything down
+   // the way sipxUnInitialize does, ending in removeAllDevices.
+   void testBenchUninitializeAfterDeparture()
+   {
+#ifdef WIN32
+      UtlString match, offsets, line, fullName;
+      int runs;
+      benchGate(match, runs, offsets);
+      MpOutputDeviceHandle outId;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           mpOutputDeviceManager->getDeviceId(outputDriverNames[0], outId));
+
+      for (int it = 0; it < runs; it++)
+      {
+         int offset = benchOffsetMs(offsets, it);
+         CPPUNIT_ASSERT_MESSAGE("bench device not enumerated",
+                                benchFindCaptureName(match, fullName));
+         MpidWinMM* pDriver = NULL;
+         MpInputDeviceHandle inId = benchAddDevice(fullName, pDriver);
+         MprFromInputDevice source("BenchFromInput", mpInputDeviceManager, inId);
+         MprToOutputDevice sink("BenchToOutput", mpOutputDeviceManager, outId);
+         benchStreamAndVerify(inId, outId, source, sink, 1500, "before departure");
+
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(line.data(), 0, benchTrigger("disconnect", line));
+         OsTask::delay(offset);
+
+         // No disable. Stop the graph, then removeAllDevices with the input
+         // still enabled: the uninitialize sequence.
+         benchStopGraph(outId, source, sink);
+         DWORD t0 = GetTickCount();
+         int removed = mpInputDeviceManager->removeAllDevices();
+         DWORD elapsed = GetTickCount() - t0;
+         printf("bench iteration %d offset %d ms: removeAllDevices removed %d in %lu ms\n",
+                it, offset, removed, (unsigned long)elapsed);
+         fflush(stdout);
+         CPPUNIT_ASSERT_MESSAGE("removeAllDevices not bounded after departure", elapsed < 3000);
+         // removeAllDevices deleted (or retired) every driver, including
+         // setUp's; tearDown must not touch them again.
+         mInputDeviceNumber = 0;
+
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(line.data(), 0, benchTrigger("connect", line));
+
+         // Re-create setUp's default driver so the next iteration (and
+         // tearDown) see the state they expect.
+         if (it + 1 < runs)
+         {
+            MpidWinMM* pDefault = new MpidWinMM(sInputDriverNames[0], *mpInputDeviceManager);
+            CPPUNIT_ASSERT(pDefault != NULL);
+            manageInputDevice(pDefault);
+         }
+      }
+#else
+      SIPX_TEST_SKIP("BENCH SKIPPED: bench tests are Windows-only");
+#endif
+   }
+
+   // Path 3: recovery. After a departure cycle, the device returns and a
+   // fresh driver (the factory's path) must deliver audio.
+   void testBenchRecoveryAfterReturn()
+   {
+#ifdef WIN32
+      UtlString match, offsets, line, fullName;
+      int runs;
+      benchGate(match, runs, offsets);
+      MpOutputDeviceHandle outId;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           mpOutputDeviceManager->getDeviceId(outputDriverNames[0], outId));
+
+      for (int it = 0; it < runs; it++)
+      {
+         // Departure with a live driver, clean disable, device returns.
+         CPPUNIT_ASSERT_MESSAGE("bench device not enumerated",
+                                benchFindCaptureName(match, fullName));
+         MpidWinMM* pOld = NULL;
+         MpInputDeviceHandle oldId = benchAddDevice(fullName, pOld);
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpInputDeviceManager->enableDevice(oldId));
+         OsTask::delay(500);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(line.data(), 0, benchTrigger("disconnect", line));
+         OsTask::delay(250);
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpInputDeviceManager->disableDevice(oldId));
+         mpInputDeviceManager->removeDevice(oldId);
+         if (!pOld->lastDisableEscaped()) delete pOld;
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(line.data(), 0, benchTrigger("connect", line));
+
+         // Fresh driver on the returned device: must stream real audio.
+         CPPUNIT_ASSERT_MESSAGE("bench device did not re-enumerate",
+                                benchFindCaptureName(match, fullName));
+         MpidWinMM* pNew = NULL;
+         MpInputDeviceHandle newId = benchAddDevice(fullName, pNew);
+         MprFromInputDevice source("BenchFromInput", mpInputDeviceManager, newId);
+         MprToOutputDevice sink("BenchToOutput", mpOutputDeviceManager, outId);
+         DWORD t0 = GetTickCount();
+         benchStreamAndVerify(newId, outId, source, sink, 2000, "after return");
+         printf("bench iteration %d: recovery verified %lu ms after re-enable\n",
+                it, (unsigned long)(GetTickCount() - t0));
+         fflush(stdout);
+
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpInputDeviceManager->disableDevice(newId));
+         CPPUNIT_ASSERT(!pNew->lastDisableEscaped());
+         benchStopGraph(outId, source, sink);
+         mpInputDeviceManager->removeDevice(newId);
+         delete pNew;
+      }
+#else
+      SIPX_TEST_SKIP("BENCH SKIPPED: bench tests are Windows-only");
+#endif
    }
 
    void createWntInputDrivers()
@@ -1106,7 +1489,7 @@ protected:
       outputDriverNames[0] = MpodWinMM::getDefaultDeviceName();
 
       // Create driver
-      MpodWinMM *pDriver = new MpodWinMM(outputDriverNames[0]);
+      MpodWinMM *pDriver = new MpodWinMM(outputDriverNames[0], mpOutputDeviceManager);
       CPPUNIT_ASSERT(pDriver != NULL);
 
       // Add driver to manager
