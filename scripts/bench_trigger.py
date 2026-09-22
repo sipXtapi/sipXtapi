@@ -116,6 +116,97 @@ def wait_guest(match, want_present, timeout_s):
             return False
         time.sleep(0.5)
 
+# ---------------------------------------------------------------- readiness
+
+WAVE_FORMAT_PCM = 1
+CALLBACK_EVENT = 0x00050000
+WHDR_DONE = 0x00000001
+WAIT_OBJECT_0 = 0
+
+
+class WAVEFORMATEX(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [("wFormatTag", ctypes.c_ushort), ("nChannels", ctypes.c_ushort),
+                ("nSamplesPerSec", ctypes.c_uint), ("nAvgBytesPerSec", ctypes.c_uint),
+                ("nBlockAlign", ctypes.c_ushort), ("wBitsPerSample", ctypes.c_ushort),
+                ("cbSize", ctypes.c_ushort)]
+
+
+class WAVEHDR(ctypes.Structure):
+    _fields_ = [("lpData", ctypes.c_void_p), ("dwBufferLength", ctypes.c_uint),
+                ("dwBytesRecorded", ctypes.c_uint), ("dwUser", ctypes.c_void_p),
+                ("dwFlags", ctypes.c_uint), ("dwLoops", ctypes.c_uint),
+                ("lpNext", ctypes.c_void_p), ("reserved", ctypes.c_void_p)]
+
+
+def guest_capture_index(match):
+    names = guest_capture_names()
+    if not names:
+        return -1
+    for i, nm in enumerate(names):
+        if match in nm:
+            return i
+    return -1
+
+
+def guest_capture_streams(match, timeout_s):
+    """'streaming' if the device delivers a buffer within timeout_s,
+    'silent' if it opens but delivers nothing, 'absent' if not enumerated,
+    'open-failed' otherwise. Enumerated is not the same as usable."""
+    idx = guest_capture_index(match)
+    if idx < 0:
+        return "absent"
+    try:
+        winmm = ctypes.CDLL("winmm.dll")
+        k32 = ctypes.CDLL("kernel32.dll")
+    except OSError:
+        return "open-failed"
+    k32.CreateEventA.restype = ctypes.c_void_p
+    k32.WaitForSingleObject.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+    k32.CloseHandle.argtypes = [ctypes.c_void_p]
+    winmm.waveInOpen.argtypes = [ctypes.POINTER(ctypes.c_void_p), ctypes.c_uint,
+                                 ctypes.POINTER(WAVEFORMATEX), ctypes.c_void_p,
+                                 ctypes.c_void_p, ctypes.c_uint]
+    for fn in ("waveInPrepareHeader", "waveInAddBuffer", "waveInUnprepareHeader"):
+        getattr(winmm, fn).argtypes = [ctypes.c_void_p, ctypes.POINTER(WAVEHDR), ctypes.c_uint]
+    for fn in ("waveInStart", "waveInReset", "waveInClose"):
+        getattr(winmm, fn).argtypes = [ctypes.c_void_p]
+
+    fmt = WAVEFORMATEX(WAVE_FORMAT_PCM, 1, 8000, 16000, 2, 16, 0)
+    evt = k32.CreateEventA(None, 0, 0, None)
+    h = ctypes.c_void_p()
+    if winmm.waveInOpen(ctypes.byref(h), idx, ctypes.byref(fmt), evt, None,
+                        CALLBACK_EVENT) != 0:
+        k32.CloseHandle(evt)
+        return "open-failed"
+    bufs = [ctypes.create_string_buffer(320) for _ in range(4)]
+    hdrs = [WAVEHDR() for _ in range(4)]
+    for b, hd in zip(bufs, hdrs):
+        hd.lpData = ctypes.cast(b, ctypes.c_void_p)
+        hd.dwBufferLength = 320
+        winmm.waveInPrepareHeader(h, ctypes.byref(hd), ctypes.sizeof(WAVEHDR))
+        winmm.waveInAddBuffer(h, ctypes.byref(hd), ctypes.sizeof(WAVEHDR))
+    winmm.waveInStart(h)
+    deadline = time.time() + timeout_s
+    got = False
+    while time.time() < deadline and not got:
+        k32.WaitForSingleObject(evt, 200)
+        got = any(hd.dwFlags & WHDR_DONE for hd in hdrs)
+    winmm.waveInReset(h)
+    for hd in hdrs:
+        winmm.waveInUnprepareHeader(h, ctypes.byref(hd), ctypes.sizeof(WAVEHDR))
+    winmm.waveInClose(h)
+    k32.CloseHandle(evt)
+    return "streaming" if got else "silent"
+
+
+def wait_streaming(match, timeout_s):
+    deadline = time.time() + timeout_s
+    while True:
+        state = guest_capture_streams(match, 2.0)
+        if state == "streaming" or time.time() >= deadline:
+            return state
+        time.sleep(1.0)
 
 # ---------------------------------------------------------------- pacing/lock
 
@@ -209,11 +300,11 @@ def vmware_wait_task(task, what):
 def vmware_status(cfg):
     si, vim = vmware_connect(cfg)
     vm, dev, backing = vmware_find(cfg, si, vim)
-    guest = guest_has(cfg.get("vmware", "guest_match", fallback=backing))
+    match = cfg.get("vmware", "guest_match", fallback=backing)
     hyp = "attached" if dev is not None else "detached"
-    g = "unknown" if guest is None else ("enumerated" if guest else "absent")
-    code = EXIT_OK if (dev is not None and guest) else EXIT_WRONG_STATE
-    out("STATUS vmware_usb: hypervisor %s, guest %s" % (hyp, g), code)
+    g = guest_capture_streams(match, 2.0) if dev is not None else "absent"
+    code = EXIT_OK if (dev is not None and g == "streaming") else EXIT_WRONG_STATE
+    out("STATUS vmware_usb: hypervisor %s, guest %s, match %s" % (hyp, g, match), code)
 
 
 def vmware_disconnect(cfg):
@@ -256,11 +347,12 @@ def vmware_connect_dev(cfg):
     spec.deviceChange = [change]
     vmware_wait_task(vm.ReconfigVM_Task(spec=spec), "attach")
     stamp()
-    back = wait_guest(match, True, cfg.getfloat("bench", "settle_s", fallback=10.0))
-    if back is False:
-        out("ATTACHED at hypervisor but guest does not enumerate '%s'" % match,
+    settle = cfg.getfloat("bench", "settle_s", fallback=10.0)
+    state = wait_streaming(match, settle)
+    if state != "streaming":
+        out("ATTACHED at hypervisor but guest device is %s after %.0f s" % (state, settle),
             EXIT_WRONG_STATE)
-    out("ATTACHED %s" % backing, EXIT_OK)
+    out("ATTACHED %s (streaming)" % backing, EXIT_OK)
 
 
 # ---------------------------------------------------------------- btaudio
@@ -280,9 +372,10 @@ def bt_capture_active(cfg):
 
 
 def bt_status(cfg):
-    active = bt_capture_active(cfg)
-    out("STATUS btaudio: capture %s" % ("ACTIVE" if active else "not active"),
-        EXIT_OK if active else EXIT_WRONG_STATE)
+    match = cfg.get("btaudio", "match")
+    state = guest_capture_streams(match, 2.0) if bt_capture_active(cfg) else "absent"
+    out("STATUS btaudio: capture %s, match %s" % (state, match),
+        EXIT_OK if state == "streaming" else EXIT_WRONG_STATE)
 
 
 def bt_disconnect(cfg):
@@ -303,19 +396,27 @@ def bt_connect(cfg):
     timeout = int(cfg.getfloat("bench", "settle_s", fallback=45.0))
     rc, _ = bt_ctl(cfg, ["--connect", match, "--timeout", str(timeout), "--quiet"])
     stamp()
-    if not bt_capture_active(cfg):
-        out("CONNECT sent but capture not ACTIVE for '%s'" % match, EXIT_WRONG_STATE)
+    state = wait_streaming(match, timeout) if bt_capture_active(cfg) else "absent"
+    if state != "streaming":
+        out("CONNECT sent but capture is %s for '%s'" % (state, match), EXIT_WRONG_STATE)
     out("ATTACHED %s" % match, EXIT_OK)
 
 
 # ---------------------------------------------------------------- main
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("status", "disconnect", "connect"):
-        print("usage: bench_trigger.py status | disconnect | connect")
+    if len(sys.argv) != 2 or sys.argv[1] not in ("status", "disconnect", "connect", "info"):
+        print("usage: bench_trigger.py status | disconnect | connect | info")
         sys.exit(EXIT_FAILED)
     action = sys.argv[1]
     cfg, trigger = load_config()
+    if action == "info":
+        # What the tests need to pick the device and size their loops.
+        section = "vmware" if trigger == "vmware_usb" else "btaudio"
+        match = cfg.get(section, "guest_match", fallback=cfg.get(section, "match", fallback=""))
+        out("INFO trigger=%s match=%s runs=%d offsets_ms=%s" % (
+            trigger, match, cfg.getint("bench", "runs", fallback=3),
+            cfg.get("bench", "offsets_ms", fallback="0,250,5000")), EXIT_OK)
     table = {
         "vmware_usb": (vmware_status, vmware_disconnect, vmware_connect_dev),
         "btaudio": (bt_status, bt_disconnect, bt_connect),
