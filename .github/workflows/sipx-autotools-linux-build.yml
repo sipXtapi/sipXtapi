@@ -45,6 +45,9 @@ jobs:
         run: |
           ls -l
 
+      - name: disk space after checkout
+        run: df -h /
+
       - name: configure wget for 3gpp downloads
         run: |
           # www.3gpp.org is behind a bot filter that 403s the default
@@ -184,6 +187,9 @@ jobs:
           make $MAKE_USE_CPUS
           make tests
 
+      - name: disk space after builds
+        run: df -h /
+
       - name: provide a virtual audio device
         run: |
           if sudo modprobe snd-aloop 2>/dev/null; then
@@ -228,7 +234,7 @@ jobs:
           SIPX_ALSA_DEVICE_NAME: default
         run: |
           ulimit -a
-          stdbuf -oL bash -c 'while true; do echo "=== RESOURCES $(date -u +%H:%M:%S) ==="; free -m; ps -e | wc -l; sleep 30; done' &
+          stdbuf -oL bash -c 'while true; do echo "=== RESOURCES $(date -u +%H:%M:%S) ==="; free -m; df -h /; ps -e | wc -l; sleep 30; done' &
           MONITOR_PID=$!
           echo "=== START: $(date -u +%Y-%m-%dT%H:%M:%S) ==="
           python3 scripts/sipx_test_runner.py --timeout 30 2>&1 | tee test_runner_output.txt || true
