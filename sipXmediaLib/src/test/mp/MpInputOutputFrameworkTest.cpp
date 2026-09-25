@@ -1041,7 +1041,7 @@ protected:
       }
       char cmd[256];
       _snprintf(cmd, sizeof(cmd) - 1,
-                "sh -c \"python3 %s %s\"", script, action);
+                "sh -c \"python3 %s %s 2>&1\"", script, action);
       cmd[sizeof(cmd) - 1] = 0;
       FILE* p = _popen(cmd, "rt");
       if (!p)
@@ -1068,7 +1068,8 @@ protected:
 
    /// Skip loudly unless the bench is configured and the device is ready.
    /// Fills match (guest device-name substring), runs and the offset list.
-   void benchGate(UtlString& match, int& runs, UtlString& offsets)
+   /// Returns FALSE when the test must return (bench skipped).
+   UtlBoolean benchGate(UtlString& match, int& runs, UtlString& offsets)
    {
       UtlString line;
       int rc = benchTrigger("info", line);
@@ -1076,7 +1077,10 @@ protected:
       {
          printf("BENCH SKIPPED: %s\n", line.isNull() ? "bench_trigger.py not found or not runnable" : line.data());
          fflush(stdout);
-         SIPX_TEST_SKIP("BENCH SKIPPED: bench not configured (see line above)");
+         printf("SIPX_TEST_SKIP: BENCH SKIPPED: bench not configured (see line above)\n");
+         fflush(stdout);
+         CPPUNIT_ASSERT_MESSAGE("SIPX_TEST_SKIP: BENCH SKIPPED: bench not configured", 0);
+         return FALSE;
       }
       CPPUNIT_ASSERT_MESSAGE(line.data(), rc == 0);
 
@@ -1107,8 +1111,12 @@ protected:
       {
          printf("BENCH SKIPPED: device not ready: %s\n", line.data());
          fflush(stdout);
-         SIPX_TEST_SKIP("BENCH SKIPPED: bench device not ready (see line above)");
+         printf("SIPX_TEST_SKIP: BENCH SKIPPED: bench not configured (see line above)\n");
+         fflush(stdout);
+         CPPUNIT_ASSERT_MESSAGE("SIPX_TEST_SKIP: BENCH SKIPPED: bench not configured", 0);
+         return FALSE;
       }
+      return TRUE;
    }
 
    /// Nth offset from the comma list, cycling.
@@ -1236,7 +1244,7 @@ protected:
 #ifdef WIN32
       UtlString match, offsets, line, fullName;
       int runs;
-      benchGate(match, runs, offsets);
+      if (!benchGate(match, runs, offsets)) return;
       MpOutputDeviceHandle outId;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            mpOutputDeviceManager->getDeviceId(outputDriverNames[0], outId));
@@ -1285,7 +1293,7 @@ protected:
 #ifdef WIN32
       UtlString match, offsets, line, fullName;
       int runs;
-      benchGate(match, runs, offsets);
+      if (!benchGate(match, runs, offsets)) return;
       MpOutputDeviceHandle outId;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            mpOutputDeviceManager->getDeviceId(outputDriverNames[0], outId));
@@ -1341,7 +1349,7 @@ protected:
 #ifdef WIN32
       UtlString match, offsets, line, fullName;
       int runs;
-      benchGate(match, runs, offsets);
+      if (!benchGate(match, runs, offsets)) return;
       MpOutputDeviceHandle outId;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            mpOutputDeviceManager->getDeviceId(outputDriverNames[0], outId));
