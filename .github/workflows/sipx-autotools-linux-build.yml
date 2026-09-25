@@ -241,6 +241,13 @@ jobs:
           echo "=== END: $(date -u +%Y-%m-%dT%H:%M:%S) ==="
           kill $MONITOR_PID 2>/dev/null || true
 
+      - name: find large files after tests
+        if: always()
+        run: |
+          df -h /
+          du -xh --max-depth=4 /home/runner/work 2>/dev/null | sort -rh | head -20
+          find /home/runner/work -type f -size +100M -exec ls -lh {} \; 2>/dev/null | sort -k5 -rh | head -20
+
       - name: upload test runner log
         if: always()
         uses: actions/upload-artifact@v6
