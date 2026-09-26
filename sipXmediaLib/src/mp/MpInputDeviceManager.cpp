@@ -45,7 +45,10 @@
 // the life of the process instead of being deleted: a stuck worker
 // thread may still reference them. Never drained. See
 // MpidWinMM::disableDevice and lastDisableEscaped().
-static UtlSList sRetiredDrivers;
+// Allocated on first use and never freed: it holds objects we leak on
+// purpose, and a file-scope container would be destroyed at DLL detach
+// after the static lock its destructor needs, crashing process exit.
+static UtlSList* spRetiredDrivers = NULL;
 
 // PRIVATE CLASSES
 /**
@@ -690,7 +693,12 @@ int MpInputDeviceManager::removeAllDevices()
                         "escaped teardown and a stuck thread may still "
                         "reference it",
                         deviceDriver->getDeviceName().data());
-                    sRetiredDrivers.append(deviceDriver);
+
+                    if (spRetiredDrivers == NULL)
+                    {
+                        spRetiredDrivers = new UtlSList();
+                    }
+                    spRetiredDrivers->append(deviceDriver);
                 }
                 else
                 {
