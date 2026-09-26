@@ -1260,14 +1260,19 @@ protected:
          MprToOutputDevice sink("BenchToOutput", mpOutputDeviceManager, outId);
          benchStreamAndVerify(inId, outId, source, sink, 1500, "before departure");
 
-         CPPUNIT_ASSERT_EQUAL_MESSAGE(line.data(), 0, benchTrigger("disconnect", line));
+         // Even iterations: disable after the guest has lost the device.
+         // Odd iterations: disable while the removal is still in flight,
+         // which is the window a real unplug races against.
+         const char* how = (it % 2) ? "disconnect nowait" : "disconnect";
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(line.data(), 0, benchTrigger(how, line));
          OsTask::delay(offset);
 
          DWORD t0 = GetTickCount();
          OsStatus st = mpInputDeviceManager->disableDevice(inId);
          DWORD elapsed = GetTickCount() - t0;
-         printf("bench iteration %d offset %d ms: disableDevice -> %d in %lu ms, escaped=%d\n",
-                it, offset, (int)st, (unsigned long)elapsed, (int)pDriver->lastDisableEscaped());
+         printf("bench iteration %d (%s) offset %d ms: disableDevice -> %d in %lu ms, escaped=%d\n",
+                it, (it % 2) ? "in-flight" : "post-removal", offset,
+                (int)st, (unsigned long)elapsed, (int)pDriver->lastDisableEscaped());
          fflush(stdout);
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, st);
          CPPUNIT_ASSERT_MESSAGE("disableDevice not bounded during departure", elapsed < 2000);
