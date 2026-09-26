@@ -20,7 +20,7 @@ min_interval_s = 5
 settle_s = 10
 # integration tests: iterations per path, and ms between departure and
 # the operation under test, cycled per iteration
-runs = 3
+runs = 4
 offsets_ms = 0,250,5000
 
 [vmware]

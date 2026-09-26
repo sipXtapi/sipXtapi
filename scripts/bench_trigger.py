@@ -307,7 +307,7 @@ def vmware_status(cfg):
     out("STATUS vmware_usb: hypervisor %s, guest %s, match %s" % (hyp, g, match), code)
 
 
-def vmware_disconnect(cfg):
+def vmware_disconnect(cfg, nowait=False):
     si, vim = vmware_connect(cfg)
     vm, dev, backing = vmware_find(cfg, si, vim)
     match = cfg.get("vmware", "guest_match", fallback=backing)
@@ -320,6 +320,10 @@ def vmware_disconnect(cfg):
     spec.deviceChange = [change]
     vmware_wait_task(vm.ReconfigVM_Task(spec=spec), "detach")
     stamp()
+    if nowait:
+        # Removal has begun at the hypervisor; return before the guest has
+        # processed it so the caller can race it.
+        out("DETACHING %s (nowait)" % backing, EXIT_OK)
     gone = wait_guest(match, False, cfg.getfloat("bench", "settle_s", fallback=10.0))
     if gone is False:
         out("DETACHED at hypervisor but guest still enumerates '%s'" % match,
@@ -378,10 +382,12 @@ def bt_status(cfg):
         EXIT_OK if state == "streaming" else EXIT_WRONG_STATE)
 
 
-def bt_disconnect(cfg):
+def bt_disconnect(cfg, nowait=False):
     match = cfg.get("btaudio", "match")
     rc, _ = bt_ctl(cfg, ["--disconnect", match, "--quiet"])
     stamp()
+    if nowait:
+        out("DETACHING %s (nowait)" % match, EXIT_OK)
     deadline = time.time() + cfg.getfloat("bench", "settle_s", fallback=20.0)
     while bt_capture_active(cfg):
         if time.time() >= deadline:
@@ -405,10 +411,12 @@ def bt_connect(cfg):
 # ---------------------------------------------------------------- main
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("status", "disconnect", "connect", "info"):
-        print("usage: bench_trigger.py status | disconnect | connect | info")
+    if len(sys.argv) not in (2, 3) or sys.argv[1] not in ("status", "disconnect", "connect", "info") \
+            or (len(sys.argv) == 3 and sys.argv[2] != "nowait"):
+        print("usage: bench_trigger.py status | disconnect [nowait] | connect | info")
         sys.exit(EXIT_FAILED)
     action = sys.argv[1]
+    nowait = len(sys.argv) == 3
     cfg, trigger = load_config()
     if action == "info":
         # What the tests need to pick the device and size their loops.
@@ -426,7 +434,10 @@ def main():
         status(cfg)
     with Lock():
         pace(cfg)
-        (disconnect if action == "disconnect" else connect)(cfg)
+        if action == "disconnect":
+            disconnect(cfg, nowait)
+        else:
+            connect(cfg)
 
 
 if __name__ == "__main__":
