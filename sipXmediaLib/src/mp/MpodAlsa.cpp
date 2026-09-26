@@ -257,6 +257,10 @@ const char* MpodAlsa::getDefaultDeviceName()
             defaultDevice ? defaultDevice->data() : "",
             MAX_DEVICE_NAME_SIZE);
 
+    OsSysLog::add(FAC_MP, PRI_INFO,
+                  "MpodAlsa::getDefaultDeviceName selected \"%s\" from %d enumerated device(s)",
+                  spDefaultDeviceName, (int)deviceNames.entries());
+
     deviceNames.destroyAll();
 
     return(spDefaultDeviceName);
