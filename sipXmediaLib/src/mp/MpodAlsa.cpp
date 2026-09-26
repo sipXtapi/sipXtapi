@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2018 SIPez LLC. All rights reserved
+// Copyright (C) 2007-2026 SIPez LLC. All rights reserved
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -328,7 +328,6 @@ OsStatus MpodAlsa::signalForNextFrame()
 
    if (NULL != ticker) {
       ret = ticker->signal(mCurrentFrameTime);
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpodAlsa::signalForNextFrame %s", data());
       if (mNullTickers) {
          OsSysLog::add(FAC_MP, PRI_WARNING, "MpodAlsa::signalForNextFrame: called with NULL %d times", mNullTickers);
          mNullTickers = 0;
