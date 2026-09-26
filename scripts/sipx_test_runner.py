@@ -351,6 +351,7 @@ def run_project_tests(
         "failed": 0,
         "aborts": 0,
         "hangs": 0,
+        "benchSkipped": {},
     }
 
     if not os.path.isfile(exe_path):
@@ -408,6 +409,15 @@ def run_project_tests(
         ]
 
         outcome = test_result["outcome"]
+
+        # A bench test that found no bench config records one failure
+        # point and prints BENCH SKIPPED; surface it separately so it is
+        # never read as a real failure or, worse, overlooked.
+        for out_line in test_result["stdout"].splitlines():
+            if out_line.lstrip().startswith("BENCH SKIPPED:"):
+                proj_result["benchSkipped"][test_name] = out_line.strip()[len("BENCH SKIPPED:"):].strip()
+                break
+
         if outcome not in ("hangs", "aborts"):
             proj_result["ran"] += test_result["ran"]
             proj_result["passed"] += test_result["passed"]
@@ -623,6 +633,11 @@ def print_summary(project_results):
         # List individual failures
         for test_name, failure in proj["testFailures"].items():
             print("    %s  %s" % (test_name, failure))
+
+        if proj["benchSkipped"]:
+            reasons = sorted(set(proj["benchSkipped"].values()))
+            print("    BENCH TESTS SKIPPED: %d  (%s)" % (
+                len(proj["benchSkipped"]), "; ".join(reasons)))
 
     print("-" * 60)
     print("  %-25s %4d ran  %4d passed  %4d failed  %d hangs  %d aborts" % (
