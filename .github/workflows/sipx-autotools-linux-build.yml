@@ -192,7 +192,7 @@ jobs:
 
       - name: provide a virtual audio device
         run: |
-          if sudo modprobe snd-aloop 2>/dev/null; then
+          if sudo modprobe snd-aloop; then
             echo "Using snd-aloop loopback device"
             cat > ~/.asoundrc <<'EOF'
           pcm.!default {
@@ -228,6 +228,28 @@ jobs:
           echo "audio endpoint OK at 48000 Hz"
           timeout 5 aplay -D default -q -d 1 -t raw -f S16_LE -r 16000 -c 1 /dev/zero
           echo "audio endpoint OK at 16000 Hz"
+
+      - name: alsa device diagnostics
+        if: always()
+        run: |
+          echo "--- uname / modules ---"
+          uname -r
+          ls /lib/modules/$(uname -r)/kernel/sound/drivers/ 2>&1 || true
+          apt-cache policy linux-modules-extra-$(uname -r) 2>&1 || true
+          echo "--- asoundrc ---"
+          cat ~/.asoundrc 2>&1 || true
+          echo "--- aplay -l (cards) ---"
+          aplay -l 2>&1 || true
+          echo "--- aplay -L (PCM names) ---"
+          aplay -L 2>&1 || true
+          echo "--- arecord -L (PCM names) ---"
+          arecord -L 2>&1 || true
+          echo "--- name resolution ---"
+          for d in default sysdefault null plughw:0,0 ; do
+            echo "== $d =="
+            timeout 5 aplay -D "$d" -q -d 1 -t raw -f S16_LE -r 8000 -c 1 /dev/zero 2>&1 \
+              && echo "  OK" || echo "  FAILED"
+          done
 
       - name: run unit tests
         env:
