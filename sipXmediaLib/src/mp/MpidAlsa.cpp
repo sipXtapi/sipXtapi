@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007-2018 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC. All rights reserved.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <time.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
