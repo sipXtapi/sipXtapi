@@ -239,18 +239,50 @@ const char* MpodAlsa::getDefaultDeviceName()
     // Get the list of available output devices
     getDeviceNames(deviceNames);
 
-    // The first one is the default if no plughw* device names are found
-    UtlString* defaultDevice = (UtlString*) deviceNames.get();
+    // Selection order: SIPX_ALSA_DEVICE_NAME if set and present, then
+    // any plughw* name (correct on real hardware), then "default"
+    // (routes to the system sound server), then the first enumerated
+    // name that is not "null".  ALSA enumerates "null" first on hosts
+    // with no sound card; it discards samples and provides no clock,
+    // which free-runs the frame ticker.
+    UtlString* defaultDevice = NULL;
+    UtlString* firstNonNull = NULL;
+    UtlString* pulseDefault = NULL;
+    UtlString* envDevice = NULL;
+    const char* envName = getenv("SIPX_ALSA_DEVICE_NAME");
     UtlSListIterator nameIterator(deviceNames);
     UtlString* deviceName = NULL;
     while((deviceName = (UtlString*) nameIterator()))
     {
-        if(deviceName->index("plughw") == 0)
+        if(envName && deviceName->compareTo(envName) == 0)
+        {
+            envDevice = deviceName;
+        }
+        else if(deviceName->index("plughw") == 0 && defaultDevice == NULL)
         {
             defaultDevice = deviceName;
-            // The first device name that begins with plughw is the default
-            break;
         }
+        else if(deviceName->compareTo("default") == 0)
+        {
+            pulseDefault = deviceName;
+        }
+        else if(firstNonNull == NULL && deviceName->compareTo("null") != 0)
+        {
+            firstNonNull = deviceName;
+        }
+    }
+    if(envDevice)
+    {
+        defaultDevice = envDevice;
+    }
+    else if(defaultDevice == NULL)
+    {
+        defaultDevice = pulseDefault ? pulseDefault : firstNonNull;
+    }
+    if(defaultDevice == NULL)
+    {
+        // Nothing but "null", or nothing at all.
+        defaultDevice = (UtlString*) deviceNames.get();
     }
 
     strncpy(spDefaultDeviceName, 
