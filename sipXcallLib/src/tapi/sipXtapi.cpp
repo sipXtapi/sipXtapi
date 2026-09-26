@@ -917,10 +917,6 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
         }
     }
     
-    // sipxDestroyMediaFactoryFactory is now being called regardless of the return code
-    // failure to do so could cause a hang, at least it does using the VoiceEngine media adapter
-    sipxDestroyMediaFactoryFactory() ;
-    
     return rc ;
 }
 /****************************************************************************
