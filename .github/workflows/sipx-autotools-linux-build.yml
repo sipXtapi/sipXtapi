@@ -248,6 +248,29 @@ jobs:
           du -xh --max-depth=4 /home/runner/work 2>/dev/null | sort -rh | head -20
           find /home/runner/work -type f -size +100M -exec ls -lh {} \; 2>/dev/null | sort -k5 -rh | head -20
 
+      - name: sample tapi log for analysis
+        if: always()
+        run: |
+          f=sipXcallLib/src/test/tapi/sipXtapiTests.txt
+          [ -f "$f" ] || exit 0
+          ls -lh "$f"
+          mkdir -p /tmp/logsample
+          head -c 50000000 "$f" > /tmp/logsample/tapi-head.txt
+          tail -c 50000000 "$f" > /tmp/logsample/tapi-tail.txt
+          g=sipXmediaAdapterLib/sipXmediaMediaProcessing/src/test/logs/CpPhoneMediaInterfaceTest/testTones.log
+          [ -f "$g" ] && head -c 50000000 "$g" > /tmp/logsample/tones-head.txt
+          gzip /tmp/logsample/*.txt
+          ls -lh /tmp/logsample
+
+      - name: upload log sample
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tapi-log-sample-${{ matrix.os }}
+          path: /tmp/logsample/*.gz
+          retention-days: 30
+          if-no-files-found: ignore
+
       - name: upload test runner log
         if: always()
         uses: actions/upload-artifact@v6
