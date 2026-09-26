@@ -25,7 +25,6 @@
 
 import configparser
 import ctypes
-import fcntl
 import os
 import ssl
 import subprocess
@@ -227,24 +226,42 @@ def stamp():
 
 
 class Lock:
+    """Exclusive-create lock file: works on every Python, no fcntl.
+    Two triggers never legitimately overlap; this makes overlap loud.
+    A lock older than STALE_S is assumed abandoned and is broken."""
+    STALE_S = 600
+
     def __enter__(self):
         os.makedirs(CONF_DIR, exist_ok=True)
-        self.f = open(LOCK_PATH, "w")
         deadline = time.time() + 60
         while True:
             try:
-                fcntl.flock(self.f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fd = os.open(LOCK_PATH, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(fd, ("%d\n" % os.getpid()).encode())
+                os.close(fd)
                 return self
-            except OSError:
+            except FileExistsError:
+                try:
+                    age = time.time() - os.stat(LOCK_PATH).st_mtime
+                except OSError:
+                    continue
+                if age > self.STALE_S:
+                    print("note: breaking stale lock %s (%.0f s old)" % (LOCK_PATH, age))
+                    try:
+                        os.unlink(LOCK_PATH)
+                    except OSError:
+                        pass
+                    continue
                 if time.time() >= deadline:
                     out("FAILED: another trigger has held %s for 60 s" % LOCK_PATH,
                         EXIT_FAILED)
                 time.sleep(0.5)
 
     def __exit__(self, *a):
-        fcntl.flock(self.f, fcntl.LOCK_UN)
-        self.f.close()
-
+        try:
+            os.unlink(LOCK_PATH)
+        except OSError:
+            pass
 
 # ---------------------------------------------------------------- vmware_usb
 
