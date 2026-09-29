@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2026 SIPez LLC.  All rights reserved.
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -1275,6 +1275,15 @@ protected:
                 (int)st, (unsigned long)elapsed, (int)pDriver->lastDisableEscaped());
          fflush(stdout);
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, st);
+         // KNOWN FAILURE (phase 2): in-flight iterations intermittently
+         // take 2.6-4.6 s. Attributed by the disable log triple: lookup
+         // 0 ms, NOTICE entry -> exit carries all of it -- waveInReset
+         // waiting on the USB stack's own cancellation while the removal
+         // is still in progress. Bounded (a wedge is 60 s+), but the app
+         // thread stalls. Fix is teardown off the app thread (worker
+         // executes reset/close, disable returns immediately) together
+         // with the watcher's deferred disable, which avoids the window
+         // by construction. Do not raise this bound to make it pass.
          CPPUNIT_ASSERT_MESSAGE("disableDevice not bounded during departure", elapsed < 2000);
          CPPUNIT_ASSERT_MESSAGE("real departure should tear down cleanly, not escape",
                                 !pDriver->lastDisableEscaped());
