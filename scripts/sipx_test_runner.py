@@ -41,7 +41,7 @@ PROJECTS = [
     "sipXtapi",
 ]
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 # Default timeout per test in seconds
 DEFAULT_TIMEOUT = 90
@@ -195,21 +195,27 @@ def load_test_list(path):
 
 
 def is_crash_code(return_code):
-    """Check if a return code indicates a crash/abort."""
-    if not IS_WINDOWS:
-        # Linux: killed by signal shows as negative return code
-        # SIGSEGV = -11, SIGABRT = -6
-        # Or as 128+signal: 139 = SIGSEGV, 134 = SIGABRT
-        if return_code < 0:
-            return True
-        if return_code in (139, 134):
-            return True
-        return False
-    else:
-        # Windows: crash codes are large unsigned values
-        # Python on Windows returns them as negative signed int32
+    """Check if a return code indicates a crash/abort.
+
+    A signal death shows as a negative code (-11 SIGSEGV, -6 SIGABRT) on
+    Linux and on Cygwin Python alike, or as 128+signal when a shell sat
+    between us and the child. Windows native crashes are the NTSTATUS
+    codes in WINDOWS_CRASH_CODES, which Python reports as negative int32
+    (far outside the small-negative signal range).
+
+    Cygwin caveat: Cygwin Python does not report non-zero exit codes
+    faithfully (an exit of 2 has been seen as 1), so the exit code is
+    only ever used here for zero / non-zero / crash. Failure counts come
+    from the test's own stdout. The harness's own abort line is checked
+    by the caller before this function is consulted at all."""
+    if -64 <= return_code < 0:
+        return True
+    if return_code in (134, 139):
+        return True
+    if IS_WINDOWS:
         unsigned = return_code & 0xFFFFFFFF if return_code < 0 else return_code
         return unsigned in WINDOWS_CRASH_CODES
+    return False
 
 
 def parse_succeeded_line(output, test_name):
@@ -270,10 +276,32 @@ def run_single_test(exe_path, test_name, work_dir, timeout):
 
         result["stdout"] = stdout_bytes.decode("utf-8", errors="replace") if stdout_bytes else ""
 
-        if proc.returncode == 0:
-            result["outcome"] = "success"
-        elif is_crash_code(proc.returncode):
+        # The harness's own abort report is authoritative: it catches the
+        # signal, prints this line, and may then exit by re-raising or by
+        # an exit code that Cygwin Python cannot be trusted to relay.
+        harness_abort = ("ABORT: due to caught signal" in result["stdout"]
+                         or "buffer overflow detected" in result["stdout"])
+
+        # SIPX_TEST_SKIP takes a string literal, so tests print any
+        # dynamic detail (which file is missing, which device is not
+        # ready) on a preceding "BENCH SKIPPED:" line. Prefer that.
+        skip_reason = None
+        detail = None
+        for out_line in result["stdout"].splitlines():
+            stripped = out_line.strip()
+            if stripped.startswith("BENCH SKIPPED:") and detail is None:
+                detail = stripped
+            if stripped.startswith("SIPX_TEST_SKIP:"):
+                skip_reason = detail or stripped[len("SIPX_TEST_SKIP:"):].strip()
+                break
+
+        if harness_abort or is_crash_code(proc.returncode):
             result["outcome"] = "aborts"
+        elif skip_reason is not None:
+            result["outcome"] = "skipped"
+            result["skipReason"] = skip_reason
+        elif proc.returncode == 0:
+            result["outcome"] = "success"
         else:
             result["outcome"] = "fail"
 
@@ -292,9 +320,23 @@ def run_single_test(exe_path, test_name, work_dir, timeout):
 
         if result["outcome"] == "fail":
             result["failures"] = result["ran"] - result["passed"]
+            if result["failures"] == 0:
+                # Non-zero exit with no failed test points: the process
+                # ended abnormally after the test body (exit-time crash,
+                # static destructor) without the harness catching it.
+                # That is an abort, never a pass.
+                result["outcome"] = "aborts"
+                result["stdout"] += ("\n[runner] exit code %d with no failed "
+                                     "test points: scored as abort\n"
+                                     % proc.returncode)
+        if result["outcome"] == "skipped":
+            # A skipped test contributes no points either way.
+            result["ran"] = 0
+            result["passed"] = 0
 
     except (FileNotFoundError, OSError) as exc:
-        result["outcome"] = "error"
+        # Could not run it at all: also an abort, with the reason echoed.
+        result["outcome"] = "aborts"
         result["stdout"] = str(exc)
         result["ran"] = 1
         result["passed"] = 0
@@ -351,7 +393,8 @@ def run_project_tests(
         "failed": 0,
         "aborts": 0,
         "hangs": 0,
-        "benchSkipped": {},
+        "skipped": 0,
+        "testSkipped": {},
     }
 
     if not os.path.isfile(exe_path):
@@ -410,15 +453,7 @@ def run_project_tests(
 
         outcome = test_result["outcome"]
 
-        # A bench test that found no bench config records one failure
-        # point and prints BENCH SKIPPED; surface it separately so it is
-        # never read as a real failure or, worse, overlooked.
-        for out_line in test_result["stdout"].splitlines():
-            if out_line.lstrip().startswith("BENCH SKIPPED:"):
-                proj_result["benchSkipped"][test_name] = out_line.strip()[len("BENCH SKIPPED:"):].strip()
-                break
-
-        if outcome not in ("hangs", "aborts"):
+        if outcome not in ("hangs", "aborts", "skipped"):
             proj_result["ran"] += test_result["ran"]
             proj_result["passed"] += test_result["passed"]
 
@@ -436,12 +471,18 @@ def run_project_tests(
             elif outcome == "fail":
                 print("  [FAIL: %s]" % test_result["failures"])
                 proj_result["testFailures"][test_name] = test_result["failures"]
+            elif outcome == "skipped":
+                print("  [SKIP: %s]" % test_result["skipReason"])
+                proj_result["skipped"] += 1
+                proj_result["testSkipped"][test_name] = test_result["skipReason"]
             else:
-                print("  [ERROR]")
-                proj_result["testFailures"][test_name] = "error"
+                print("  [UNKNOWN OUTCOME: %s]" % outcome)
+                proj_result["aborts"] += 1
+                proj_result["testFailures"][test_name] = "aborts"
 
-            # Print test output for any non-success outcome
-            if test_result["stdout"]:
+            # Print test output for any non-success outcome. A skip's
+            # reason is already on its line; its stdout is noise.
+            if test_result["stdout"] and outcome != "skipped":
                 for out_line in test_result["stdout"].splitlines():
                     if not out_line.rstrip().endswith("succeeded"):
                         print("    | %s" % out_line)
@@ -611,6 +652,7 @@ def print_summary(project_results):
     total_failed = 0
     total_hangs = 0
     total_aborts = 0
+    total_skipped = 0
 
     for proj_name in PROJECTS:
         if proj_name not in project_results:
@@ -621,12 +663,13 @@ def print_summary(project_results):
         total_failed += proj["failed"]
         total_hangs += proj["hangs"]
         total_aborts += proj["aborts"]
+        total_skipped += proj["skipped"]
 
         status = "PASS" if proj["failed"] == 0 and proj["hangs"] == 0 and proj["aborts"] == 0 else "FAIL"
-        print("  %-25s %4d ran  %4d passed  %4d failed  %d hangs  %d aborts  [%s]" % (
+        print("  %-25s %4d ran  %4d passed  %4d failed  %d hangs  %d aborts  %d skipped  [%s]" % (
             proj_name,
             proj["ran"], proj["passed"], proj["failed"],
-            proj["hangs"], proj["aborts"],
+            proj["hangs"], proj["aborts"], proj["skipped"],
             status,
         ))
 
@@ -634,16 +677,20 @@ def print_summary(project_results):
         for test_name, failure in proj["testFailures"].items():
             print("    %s  %s" % (test_name, failure))
 
-        if proj["benchSkipped"]:
-            reasons = sorted(set(proj["benchSkipped"].values()))
-            print("    BENCH TESTS SKIPPED: %d  (%s)" % (
-                len(proj["benchSkipped"]), "; ".join(reasons)))
+        # Skips never affect PASS/FAIL but must never go unnoticed:
+        # one line per distinct reason, with a count.
+        if proj["testSkipped"]:
+            reasons = {}
+            for reason in proj["testSkipped"].values():
+                reasons[reason] = reasons.get(reason, 0) + 1
+            for reason, n in sorted(reasons.items()):
+                print("    SKIPPED %d: %s" % (n, reason))
 
     print("-" * 60)
-    print("  %-25s %4d ran  %4d passed  %4d failed  %d hangs  %d aborts" % (
+    print("  %-25s %4d ran  %4d passed  %4d failed  %d hangs  %d aborts  %d skipped" % (
         "TOTAL",
         total_ran, total_passed, total_failed,
-        total_hangs, total_aborts,
+        total_hangs, total_aborts, total_skipped,
     ))
     print("=" * 60)
 
