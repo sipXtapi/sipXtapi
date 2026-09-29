@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2014 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -86,6 +86,8 @@ MprFromInputDevice::MprFromInputDevice(const UtlString& rName,
 , mpInputDeviceManager(deviceManager)
 , mFrameTimeInitialized(FALSE)
 , mPreviousFrameTime(0)
+, mGetFrameFailing(FALSE)
+, mRateLookupFailing(FALSE)
 , mDeviceId(deviceId)
 , mpResampler(MpResamplerBase::createResampler(1, 8000, 8000))
 , mGain(MP_BRIDGE_GAIN_PASSTHROUGH)
@@ -230,10 +232,22 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
       RTL_EVENT("MprFromInputDevice::advance", numAdvances);
    }
 
+   // Log the failure once when it starts and once when it clears. A
+   // departed device fails every frame; per-frame logging is a flood.
    if(getResult != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame getFrame(mDeviceId=%d, frameToFetch=%d, inAudioBuffer=xx, numFramesNotPlayed=%d, numFramedBufferedBehind=%d) returned: %d",
-                    mDeviceId, frameToFetch, numFramesNotPlayed, numFramedBufferedBehind, getResult);
+      if(!mGetFrameFailing)
+      {
+         mGetFrameFailing = TRUE;
+         OsSysLog::add(FAC_MP, PRI_WARNING, "MprFromInputDevice::doProcessFrame getFrame(mDeviceId=%d, frameToFetch=%d, numFramesNotPlayed=%d, numFramedBufferedBehind=%d) returned: %d; silence until it recovers",
+                       mDeviceId, frameToFetch, numFramesNotPlayed, numFramedBufferedBehind, getResult);
+      }
+   }
+   else if(mGetFrameFailing)
+   {
+      mGetFrameFailing = FALSE;
+      OsSysLog::add(FAC_MP, PRI_INFO, "MprFromInputDevice::doProcessFrame getFrame(mDeviceId=%d) recovered",
+                    mDeviceId);
    }
 #ifdef ENABLE_FILE_LOGGING
    else
@@ -262,17 +276,29 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
 #else
    stat = mpInputDeviceManager->getDeviceSamplesPerSec(mDeviceId, devSampleRate);
 #endif
+
    if(stat != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame "
-         "- Couldn't get device sample rate from input device manager!  "
-         "Device - \"%s\" deviceId: %d", devName.data(), mDeviceId);
-      OsSysLog::flush();
-      assert(stat == OS_SUCCESS);
-#ifdef ANDROID
-      disable();
-#endif
-      return FALSE;
+      // No sample rate means no enabled device behind this id: it was
+      // never enabled, or it departed. That is a runtime condition, not
+      // a programming error; behave as a disabled device and emit
+      // silence so the call stays up and a re-enable restores audio.
+      if(!mRateLookupFailing)
+      {
+         mRateLookupFailing = TRUE;
+         OsSysLog::add(FAC_MP, PRI_WARNING, "MprFromInputDevice::doProcessFrame "
+            "no sample rate for input device \"%s\" deviceId: %d (not enabled "
+            "or departed); treating as disabled",
+            devName.data(), mDeviceId);
+      }
+      devSampleRate = samplesPerSecond;
+   }
+   else if(mRateLookupFailing)
+   {
+      mRateLookupFailing = FALSE;
+      OsSysLog::add(FAC_MP, PRI_INFO, "MprFromInputDevice::doProcessFrame "
+         "input device \"%s\" deviceId: %d sample rate available again",
+         devName.data(), mDeviceId);
    }
 
    // If the input device is disabled, don't resample to save the CPU cycles

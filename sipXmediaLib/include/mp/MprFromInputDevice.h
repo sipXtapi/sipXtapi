@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2013 SIPez LLC.  All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -126,6 +126,8 @@ private:
    MpInputDeviceManager* mpInputDeviceManager;
    UtlBoolean mFrameTimeInitialized;
    MpFrameTime mPreviousFrameTime;
+   UtlBoolean mGetFrameFailing;   ///< Logged once per transition, not per frame.
+   UtlBoolean mRateLookupFailing; ///< Same, for the device sample-rate lookup.
    MpInputDeviceHandle mDeviceId;
    MpResamplerBase *mpResampler;
    MpBridgeGain mGain;
