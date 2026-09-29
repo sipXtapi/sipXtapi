@@ -779,14 +779,16 @@ OsStatus MpidWinMM::disableDevice()
     // logic below ever runs.
     {
         UtlString endpointState;
+        DWORD lookupStart = GetTickCount();
         getEndpointStateForName(mDeviceEnumeratorPtr, getDeviceName(), endpointState);
+        DWORD lookupMs = GetTickCount() - lookupStart;
         OsSysLog::add(FAC_MP, PRI_INFO,
-            "MpidWinMM::disableDevice '%s' winMMId: %d, endpoint %s, "
-            "session %ld: frames pushed %ld, addBuffer failures %u, "
-            "stale discarded %ld",
+            "MpidWinMM::disableDevice '%s' winMMId: %d, endpoint %s "
+            "(lookup %lu ms), session %ld: frames pushed %ld, "
+            "addBuffer failures %u, stale discarded %ld",
             getDeviceName().data(), mWinMMDeviceId, endpointState.data(),
-            (long)mGeneration, (long)mFramesPushed, mnAddBufferFailures,
-            (long)mStaleDiscarded);
+            (unsigned long)lookupMs, (long)mGeneration, (long)mFramesPushed,
+            mnAddBufferFailures, (long)mStaleDiscarded);
     }
 
     // Stop the worker and join it before any wave teardown call. The
