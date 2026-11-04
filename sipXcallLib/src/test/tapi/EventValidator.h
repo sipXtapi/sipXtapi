@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2026 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -38,6 +38,7 @@ protected:
     int  m_iDefaultTimeoutInSecs ;
     bool m_bIgnoreMessages ;
     int  m_iMaxLookAhead ;
+    bool m_ignoredMediaEvents[64];   // indexed by (event - MEDIA_LOCAL_START)
 
     UtlSList   m_unprocessedEvents ;
     UtlSList   m_processedEvents ;
@@ -56,6 +57,9 @@ public:
     void ignoreEventCategory(SIPX_EVENT_CATEGORY category) ;
     bool isIgnoredCateogry(SIPX_EVENT_CATEGORY category) ;    
     void ignoreMessages() ;
+    /// Drop one media event type at intake (e.g. energy levels, which a
+    /// real microphone fires continuously and no script can count).
+    void ignoreMediaEvent(SIPX_MEDIA_EVENT event);
     bool isMessageIgnored() ;
     void setDefaultTimeout(int iTimeoutInSecs) ;
     void setMaxLookhead(int iMaxLookAhead) ;

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -279,11 +279,21 @@ void sipXtapiTestSuite::doCallBasic(SIPX_INST              hCallingInst,
                                     const char*            szCalledParty,
                                     const char*            szCalledLine,
                                     ADDITIONALCALLTESTPROC pAdditionalProc,
-                                    bool                   bDisableRtcp)
+                                    bool                   bDisableRtcp,
+                                    bool bIgnoreEnergyEvents)
 {
     bool bRC;
     EventValidator validatorCalling("doCallBasic.calling");
     EventValidator validatorCalled("doCallBasic.called");
+
+    if (bIgnoreEnergyEvents)
+    {
+        // A real microphone fires energy-level events continuously.
+        validatorCalling.ignoreMediaEvent(MEDIA_MIC_ENERGY_LEVEL);
+        validatorCalling.ignoreMediaEvent(MEDIA_SPEAKER_ENERGY_LEVEL);
+        validatorCalled.ignoreMediaEvent(MEDIA_MIC_ENERGY_LEVEL);
+        validatorCalled.ignoreMediaEvent(MEDIA_SPEAKER_ENERGY_LEVEL);
+    }
 
     SIPX_RESULT rc;
     SIPX_CALL hCall;

@@ -376,7 +376,8 @@ public:
                      const char* szCalledParty,
                      const char* szCalledLine,
                      ADDITIONALCALLTESTPROC pAdditionalProc,
-					 bool bDisableRtcp = false);
+                     bool bDisableRtcp = false,
+                     bool bIgnoreEnergyEvents = false);
 
     void doCallBasicSetup(SIPX_INST   hCallingInst,
                           const char* szCallingParty,

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -9,6 +9,8 @@
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
+
+#include <string.h>
 
 #include "sipXtapiTest.h"
 #include "EventValidator.h"
@@ -26,7 +28,8 @@ EventValidator::EventValidator(const char* szTitle)
 {
     m_title = szTitle ;
     m_pUnfoundEvent = NULL ;
-    m_bIgnoreMessages = false ;
+    m_bIgnoreMessages = false;
+    memset(m_ignoredMediaEvents, 0, sizeof(m_ignoredMediaEvents));
     reset() ;
 }
 
@@ -55,6 +58,14 @@ bool EventValidator::isIgnoredCateogry(SIPX_EVENT_CATEGORY category)
 void EventValidator::ignoreMessages() 
 {
     m_bIgnoreMessages = true ;
+}
+
+
+void EventValidator::ignoreMediaEvent(SIPX_MEDIA_EVENT event)
+{
+    int slot = (int) event - (int) MEDIA_LOCAL_START;
+    assert((slot >= 0) && (slot < 64));
+    m_ignoredMediaEvents[slot] = true;
 }
 
 bool EventValidator::isMessageIgnored() 
@@ -639,6 +650,11 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
             case EVENT_CATEGORY_MEDIA:
                 {
                     SIPX_MEDIA_INFO* pMediaInfo = (SIPX_MEDIA_INFO*) pInfo;
+                    int slot = (int) pMediaInfo->event - (int) MEDIA_LOCAL_START;
+                    if ((slot >= 0) && (slot < 64) && m_ignoredMediaEvents[slot])
+                    {
+                        break;
+                    }
 
                     UtlString* pString = allocMediaEvent(pMediaInfo->event,
                                                          pMediaInfo->cause,
