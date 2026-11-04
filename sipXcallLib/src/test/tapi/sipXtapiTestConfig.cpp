@@ -546,6 +546,33 @@ void sipXtapiTestSuite::testTeardown()
     checkForLeaks() ;
 } 
 
+// The shared media factory is refcounted across instances; it must
+// survive until the last one is gone. The double-release bug deleted it
+// on the first uninitialize with two instances alive.
+void sipXtapiTestSuite::testMultiInstanceUninitKeepsMediaFactory()
+{
+   SIPX_INST hA = NULL, hB = NULL, hC = NULL;
+   CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+      sipxInitialize(&hA, 14000, 14000, 14001, 14050, 32, "sip:a@127.0.0.1:14000", "127.0.0.1",
+                     false, NULL, NULL, NULL, true, INTERNAL_SAMPLE_RATE, DEVICE_SAMPLE_RATE));
+   CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+      sipxInitialize(&hB, 14100, 14100, 14101, 14150, 32, "sip:b@127.0.0.1:14100", "127.0.0.1",
+                     false, NULL, NULL, NULL, true, INTERNAL_SAMPLE_RATE, DEVICE_SAMPLE_RATE));
+   CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+      sipxInitialize(&hC, 14200, 14200, 14201, 14250, 32, "sip:c@127.0.0.1:14200", "127.0.0.1",
+                     false, NULL, NULL, NULL, true, INTERNAL_SAMPLE_RATE, DEVICE_SAMPLE_RATE));
+
+   size_t n = 0;
+   CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxUnInitialize(hA, true));
+   // B must still reach the media factory after A is gone.
+   CPPUNIT_ASSERT_EQUAL_MESSAGE("media factory gone after first instance uninitialized",
+                                SIPX_RESULT_SUCCESS, sipxAudioGetNumInputDevices(hB, n));
+   CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxUnInitialize(hB, true));
+   CPPUNIT_ASSERT_EQUAL_MESSAGE("media factory gone after second instance uninitialized",
+                                SIPX_RESULT_SUCCESS, sipxAudioGetNumInputDevices(hC, n));
+   CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxUnInitialize(hC, true));
+}
+
 void sipXtapiTestSuite::testLoggingSurvivesOtherInstanceUninit()
 {
     // This method's own assertions pass, but the suite's tearDown crashes

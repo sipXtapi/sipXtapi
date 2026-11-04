@@ -18,14 +18,6 @@
 #include "os/OsDatagramSocket.h"
 
 
-#ifdef ANDROID
-#  define INTERNAL_SAMPLE_RATE 8000
-#  define DEVICE_SAMPLE_RATE 8000
-#else
-#  define INTERNAL_SAMPLE_RATE 16000
-#  define DEVICE_SAMPLE_RATE 48000
-#endif
-
 #ifdef PURIFY
     #include "pure.h"
 #endif

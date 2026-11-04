@@ -49,6 +49,16 @@
 #define HINST3_ADDRESS      "sip:hinst3@127.0.0.1:10000" 
 #define HINST4_ADDRESS      "sip:hinst4@127.0.0.1:12070" 
 
+// Sample rates every sipxInitialize in this suite uses, so tests that
+// re-create an instance match setUp exactly.
+#ifdef ANDROID
+#  define INTERNAL_SAMPLE_RATE 8000
+#  define DEVICE_SAMPLE_RATE 8000
+#else
+#  define INTERNAL_SAMPLE_RATE 16000
+#  define DEVICE_SAMPLE_RATE 48000
+#endif
+
 #ifdef _WIN32
   #define TEST_AUDIO              1
   #define TEST_LINE               1
@@ -323,6 +333,8 @@ class sipXtapiTestSuite : public SIPX_UNIT_BASE_CLASS
     void testCallRapidCallAndHangup();
 #endif /* TEST_PROBLEMATIC_CASES ] */
 
+    CPPUNIT_TEST(testMultiInstanceUninitKeepsMediaFactory) ;
+
 CPPUNIT_TEST_SUITE_END() ;
 
 public:
@@ -525,6 +537,7 @@ public:
     void testConfigLog() ;
     void testConfigOutOfBand() ;
     void testTeardown() ;
+    void testMultiInstanceUninitKeepsMediaFactory() ;
     void testReinitializeSimple() ;
     void testReinitializeLine() ;
     void testReinitializeCall() ;
