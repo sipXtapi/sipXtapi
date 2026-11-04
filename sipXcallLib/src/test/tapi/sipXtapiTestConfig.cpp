@@ -238,10 +238,10 @@ void sipXtapiTestSuite::testAudioSettings()
         CPPUNIT_ASSERT_EQUAL( sipxAudioGetNumInputDevices(g_hInst, numOfDevices), SIPX_RESULT_SUCCESS);
         for(i = 0; i < numOfDevices; i++) 
         {
-            CPPUNIT_ASSERT_EQUAL( sipxAudioGetInputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
+            CPPUNIT_ASSERT_EQUAL( sipxAudioGetInputDevice(g_hInst, (int)i, szDevice), SIPX_RESULT_SUCCESS);
         }
         //checks if there are no more devices
-        CPPUNIT_ASSERT_EQUAL( sipxAudioGetInputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetInputDevice(g_hInst, (int)i, szDevice), SIPX_RESULT_SUCCESS);
         //szDevice should be NULL
         CPPUNIT_ASSERT_EQUAL(szDevice, checker);
         numOfDevices = 0;
@@ -249,10 +249,10 @@ void sipXtapiTestSuite::testAudioSettings()
         CPPUNIT_ASSERT_EQUAL( sipxAudioGetNumOutputDevices(g_hInst, numOfDevices), SIPX_RESULT_SUCCESS);
         for(i = 0; i < numOfDevices; i++) 
         {
-            CPPUNIT_ASSERT_EQUAL( sipxAudioGetOutputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
+            CPPUNIT_ASSERT_EQUAL( sipxAudioGetOutputDevice(g_hInst, (int)i, szDevice), SIPX_RESULT_SUCCESS);
         }
         //checks if there are no more devices
-        CPPUNIT_ASSERT_EQUAL( sipxAudioGetOutputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetOutputDevice(g_hInst, (int)i, szDevice), SIPX_RESULT_SUCCESS);
         //checker is NULL
         CPPUNIT_ASSERT_EQUAL(szDevice, checker);
     }
