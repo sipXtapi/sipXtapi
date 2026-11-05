@@ -24,6 +24,7 @@ testsuite_SOURCES = \
   EventValidator.cpp \
   sipXtapiTest.cpp \
   sipXtapiTestCall.cpp \
+  sipXtapiTestDeviceDeparture.cpp \
   sipXtapiTestConference.cpp \
   sipXtapiTestConferenceAdv.cpp \
   sipXtapiTestConfig.cpp \

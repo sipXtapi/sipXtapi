@@ -263,6 +263,7 @@
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
     </ClCompile>
     <ClCompile Include="src\test\tapi\sipXtapiTestConferenceAdv.cpp" />
+    <ClCompile Include="src\test\tapi\sipXtapiTestDeviceDeparture.cpp" />
     <ClCompile Include="src\test\tapi\sipXtapiTestConfig.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>

@@ -334,6 +334,9 @@ class sipXtapiTestSuite : public SIPX_UNIT_BASE_CLASS
 #endif /* TEST_PROBLEMATIC_CASES ] */
 
     CPPUNIT_TEST(testMultiInstanceUninitKeepsMediaFactory) ;
+    CPPUNIT_TEST(testDeviceDepartureThenHangup) ;
+    CPPUNIT_TEST(testDeviceDepartureThenUninitialize) ;
+    CPPUNIT_TEST(testDeviceReturnRecovery) ;
 
 CPPUNIT_TEST_SUITE_END() ;
 
@@ -539,6 +542,10 @@ public:
     void testConfigOutOfBand() ;
     void testTeardown() ;
     void testMultiInstanceUninitKeepsMediaFactory() ;
+    // Device departure during a call (sipXtapiTestDeviceDeparture.cpp)
+    void testDeviceDepartureThenHangup() ;
+    void testDeviceDepartureThenUninitialize() ;
+    void testDeviceReturnRecovery() ;
     void testReinitializeSimple() ;
     void testReinitializeLine() ;
     void testReinitializeCall() ;
