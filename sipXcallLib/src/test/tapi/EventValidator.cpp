@@ -30,6 +30,12 @@ EventValidator::EventValidator(const char* szTitle)
     m_pUnfoundEvent = NULL ;
     m_bIgnoreMessages = false;
     memset(m_ignoredMediaEvents, 0, sizeof(m_ignoredMediaEvents));
+    // Energy level events arrive once a second for as long as a microphone
+    // delivers frames, so no test script can count them; with a live
+    // capture device they land between the events a test does expect.
+    // Ignore them by default. No sipXtapi test expects them.
+    ignoreMediaEvent(MEDIA_MIC_ENERGY_LEVEL);
+    ignoreMediaEvent(MEDIA_SPEAKER_ENERGY_LEVEL);
     reset() ;
 }
 
