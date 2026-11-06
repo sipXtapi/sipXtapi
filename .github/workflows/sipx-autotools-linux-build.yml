@@ -71,32 +71,48 @@ jobs:
 
       - name: download and verify 3gpp codec zips
         run: |
+          # Both zips are frozen historical artifacts (spec release 7.0.0),
+          # so the cache key is static and the checksums are pinned. Sources
+          # in order: cache, the build_assets release (primary; the zips are
+          # real release assets), 3gpp.org (bot-filtered; UA from ~/.wgetrc).
+          # Every wget is inside an if: under bash -e a bare failing wget
+          # ends the step before the next source is tried.
           mkdir -p /tmp/3gpp
-          # Both zips are frozen historical artifacts (spec release 7.0.0)
-          # that never change, so the cache key is static.
-          # wget UA is set in ~/.wgetrc above for the cold-cache download case.
-          mkdir -p /tmp/3gpp
+          sha_ok() {
+            case "$1" in
+              26104-700.zip) want=d17e4e65b6f8138ff6243f194cefa6f2b39450075cdb2e9bb431e2dc5a43f541 ;;
+              26204-700.zip) want=1b8ba234f5ac520650cb66aee1079491681afb7dba78eb717dca9534ae3598f0 ;;
+              *) return 1 ;;
+            esac
+            [ -f "/tmp/3gpp/$1" ] && [ "$(sha256sum "/tmp/3gpp/$1" | cut -d' ' -f1)" = "$want" ]
+          }
           for file in 26104-700.zip 26204-700.zip; do
-            if [ -f "/tmp/3gpp/$file" ] && unzip -t "/tmp/3gpp/$file" > /dev/null 2>&1 ; then
+            if sha_ok "$file"; then
               echo "Cache hit: $file"
-            else
-              echo "Downloading $file from release assets..."
-              wget -q -O "/tmp/3gpp/$file" \
-                  "https://github.com/sipXtapi/sipXtapi/releases/download/build_assets/$file"
-              if ! unzip -t "/tmp/3gpp/$file" > /dev/null 2>&1 ; then
-                echo "Release asset failed, trying 3gpp.org..."
-                spec_26104="26_series/26.104/26104-700.zip"
-                spec_26204="26_series/26.204/26204-700.zip"
-                if [ "$file" = "26104-700.zip" ]; then spec="$spec_26104"; else spec="$spec_26204"; fi
-                wget -q -O "/tmp/3gpp/$file" \
-                    "https://www.3gpp.org/ftp/Specs/archive/$spec"
-                if ! unzip -t "/tmp/3gpp/$file" > /dev/null 2>&1 ; then
-                  echo "ERROR: $file failed from both sources"
-                  exit 1
-                fi
-              fi
-              echo "Downloaded and verified: $file"
+              continue
             fi
+            series="${file%%-*}"
+            urls=("https://github.com/sipXtapi/sipXtapi/releases/download/build_assets/$file"
+                  "https://www.3gpp.org/ftp/Specs/archive/26_series/${series:0:2}.${series:2}/$file")
+            got=""
+            for url in "${urls[@]}"; do
+              echo "Downloading $file from $url"
+              if wget -q -O "/tmp/3gpp/$file" "$url"; then
+                if sha_ok "$file"; then
+                  got="$url"
+                  break
+                fi
+                echo "  checksum mismatch from $url"
+              else
+                echo "  wget exit $? from $url"
+              fi
+            done
+            if [ -z "$got" ]; then
+              rm -f "/tmp/3gpp/$file"
+              echo "ERROR: no source gave $file with the pinned checksum"
+              exit 1
+            fi
+            echo "Downloaded and verified: $file from $got"
           done
           cp /tmp/3gpp/26104-700.zip sipXmediaLib/contrib/libamrnb/
           cp /tmp/3gpp/26204-700.zip sipXmediaLib/contrib/libamrwb/
