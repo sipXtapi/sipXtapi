@@ -105,8 +105,9 @@ static int benchTrigger(const char* action, UtlString& outLine)
 }
 
 /// Skip loudly unless the bench is configured and streaming. Returns
-/// FALSE when the test must return. Fills match, runs, offsets.
-static UtlBoolean benchGate(UtlString& match, int& runs, UtlString& offsets)
+/// FALSE when the test must return. Fills match, outMatch (the output
+/// device match; defaults to match), runs, offsets.
+static UtlBoolean benchGate(UtlString& match, UtlString& outMatch, int& runs, UtlString& offsets)
 {
    UtlString line;
    int rc = benchTrigger("info", line);
@@ -119,19 +120,32 @@ static UtlBoolean benchGate(UtlString& match, int& runs, UtlString& offsets)
       return FALSE;
    }
    match = "";
+   outMatch = "";
    runs = 3;
    offsets = "0,250,5000";
-   const char* s = strstr(line.data(), "match=");
+   const char* s = strstr(line.data(), " match=");
    if (s)
    {
-      s += 6;
+      s += 7;
       const char* e = strchr(s, ' ');
       match.append(s, e ? (size_t)(e - s) : strlen(s));
    }
    s = strstr(line.data(), "runs=");
    if (s) runs = atoi(s + 5);
    s = strstr(line.data(), "offsets_ms=");
-   if (s) offsets = s + 11;
+   if (s)
+   {
+      // offsets_ms is no longer the last field; stop at the next space.
+      s += 11;
+      const char* e = strchr(s, ' ');
+      offsets = "";
+      offsets.append(s, e ? (size_t)(e - s) : strlen(s));
+   }
+   // output_match is the last field and may contain spaces (a WinMM
+   // name such as "XB13 Hand"), so it takes the rest of the line.
+   s = strstr(line.data(), " output_match=");
+   if (s) outMatch = s + 14;
+   if (outMatch.isNull()) outMatch = match;
    CPPUNIT_ASSERT_MESSAGE("bench info gave no device match", !match.isNull());
 
    rc = benchTrigger("status", line);
@@ -248,9 +262,9 @@ static void benchRecreateInstance(SIPX_INST& hInst, int sipPort, int tlsPort,
 // here), so the calling-side assertion fails until dispatch is fixed.
 void sipXtapiTestSuite::testDeviceDepartureThenHangup()
 {
-   UtlString match, offsets, line, chosen, chosenOut;
+   UtlString match, outMatch, offsets, line, chosen, chosenOut;
    int runs;
-   if (!benchGate(match, runs, offsets)) return;
+   if (!benchGate(match, outMatch, runs, offsets)) return;
 
    for (int it = 0; it < runs; it++)
    {
@@ -262,7 +276,7 @@ void sipXtapiTestSuite::testDeviceDepartureThenHangup()
       // Reselect the output every iteration so each starts from the same
       // state: after a departure the output stays on the fallback timer
       // until it is reselected (KNOWN DEFECT 4).
-      if (!benchSelectOutputDevice(g_hInst, match, chosenOut))
+      if (!benchSelectOutputDevice(g_hInst, outMatch, chosenOut))
       {
          CPPUNIT_ASSERT_MESSAGE("bench device not selectable as call output device", 0);
          return;
@@ -389,9 +403,9 @@ void sipXtapiTestSuite::testDeviceDepartureThenHangup()
 // as in a single-instance application.
 void sipXtapiTestSuite::testDeviceDepartureThenUninitialize()
 {
-   UtlString match, offsets, line, chosen, chosenOut;
+   UtlString match, outMatch, offsets, line, chosen, chosenOut;
    int runs;
-   if (!benchGate(match, runs, offsets)) return;
+   if (!benchGate(match, outMatch, runs, offsets)) return;
 
    for (int it = 0; it < runs; it++)
    {
@@ -403,7 +417,7 @@ void sipXtapiTestSuite::testDeviceDepartureThenUninitialize()
       // Reselect the output every iteration so each starts from the same
       // state: after a departure the output stays on the fallback timer
       // until it is reselected (KNOWN DEFECT 4).
-      if (!benchSelectOutputDevice(g_hInst, match, chosenOut))
+      if (!benchSelectOutputDevice(g_hInst, outMatch, chosenOut))
       {
          CPPUNIT_ASSERT_MESSAGE("bench device not selectable as call output device", 0);
          return;
@@ -504,9 +518,9 @@ void sipXtapiTestSuite::testDeviceDepartureThenUninitialize()
 // on a freshly selected device must bring media up on both sides.
 void sipXtapiTestSuite::testDeviceReturnRecovery()
 {
-   UtlString match, offsets, line, chosen, chosenOut;
+   UtlString match, outMatch, offsets, line, chosen, chosenOut;
    int runs;
-   if (!benchGate(match, runs, offsets)) return;
+   if (!benchGate(match, outMatch, runs, offsets)) return;
 
    for (int it = 0; it < runs; it++)
    {
@@ -523,7 +537,7 @@ void sipXtapiTestSuite::testDeviceReturnRecovery()
       // Reselecting the output by the same name is the app-side recovery
       // for KNOWN DEFECT 4 (output stays on the fallback timer after the
       // device returns until it is reselected).
-      if (!benchSelectOutputDevice(g_hInst, match, chosenOut))
+      if (!benchSelectOutputDevice(g_hInst, outMatch, chosenOut))
       {
          CPPUNIT_ASSERT_MESSAGE("bench device not re-selectable as output after return", 0);
          return;

@@ -439,9 +439,12 @@ def main():
         # What the tests need to pick the device and size their loops.
         section = "vmware" if trigger == "vmware_usb" else "btaudio"
         match = cfg.get(section, "guest_match", fallback=cfg.get(section, "match", fallback=""))
-        out("INFO trigger=%s match=%s runs=%d offsets_ms=%s" % (
+        # The tests select the call output device with this; it defaults to
+        # match. Last field on the line: it may contain spaces.
+        output_match = cfg.get(section, "output_match", fallback=match)
+        out("INFO trigger=%s match=%s runs=%d offsets_ms=%s output_match=%s" % (
             trigger, match, cfg.getint("bench", "runs", fallback=3),
-            cfg.get("bench", "offsets_ms", fallback="0,250,5000")), EXIT_OK)
+            cfg.get("bench", "offsets_ms", fallback="0,250,5000"), output_match), EXIT_OK)
     table = {
         "vmware_usb": (vmware_status, vmware_disconnect, vmware_connect_dev),
         "btaudio": (bt_status, bt_disconnect, bt_connect),

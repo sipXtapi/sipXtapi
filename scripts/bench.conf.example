@@ -38,3 +38,10 @@ password_file = ~/.sipx_bench/esxi.pw
 ctl_path = ~/dev/sipXtapi/sipXmediaLib/src/test/mp/btaudio_ctl.exe
 match = SB510
 
+# optional (here or in [vmware]): substring of the WinMM render name the
+# tests select as the call output device; defaults to match. Needed when
+# match hits more than one render endpoint, as with a Bluetooth device's
+# Stereo and Hands-Free endpoints (WinMM names are cut to 31 characters).
+# Spaces are allowed.
+output_match = SB510 Hand
+
