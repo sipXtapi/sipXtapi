@@ -345,6 +345,27 @@ void sipXtapiTestSuite::testDeviceDepartureThenHangup()
              it, calledIn ? "yes" : "no", calledOut ? "yes" : "no");
       fflush(stdout);
 
+      // One input notification per departure, wherever it lands (KNOWN
+      // DEFECT 1 decides which instance). Drain and count any further
+      // ones still queued on either side.
+      int extraIn = 0;
+      while (extraIn < 64 && validatorCalled.waitForMediaEvent(MEDIA_INPUT_DEVICE_NOT_PRESENT,
+                    MEDIA_CAUSE_DEVICE_UNAVAILABLE, MEDIA_TYPE_AUDIO, false, 1))
+      {
+         extraIn++;
+      }
+      while (extraIn < 64 && validatorCalling.waitForMediaEvent(MEDIA_INPUT_DEVICE_NOT_PRESENT,
+                    MEDIA_CAUSE_DEVICE_UNAVAILABLE, MEDIA_TYPE_AUDIO, false, 1))
+      {
+         extraIn++;
+      }
+      int totalIn = (bRC ? 1 : 0) + (calledIn ? 1 : 0) + extraIn;
+      printf("bench iteration %d: INPUT_DEVICE_NOT_PRESENT delivered %d time(s) in all\n",
+             it, totalIn);
+      fflush(stdout);
+      CPPUNIT_ASSERT_MESSAGE("more than one MEDIA_INPUT_DEVICE_NOT_PRESENT for one departure",
+                             totalIn <= 1);
+
       OsTask::delay(offset);
 
       // Hang up: the normal sequence must complete on both sides.
