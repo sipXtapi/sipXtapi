@@ -1170,7 +1170,12 @@ void MpidWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
             mDevHandle = NULL;
             // mWinMMDeviceId intentionally NOT cleared.
         }
-        if (res == MMSYSERR_NODRIVER)
+        // Post once per departure: every buffer still queued fails the
+        // same way (32 per departure on a Bluetooth disconnect), and the
+        // watcher may already have cleared mIsOpen and posted for a
+        // NOTPRESENT departure. WIM_OPEN sets mIsOpen again on the next
+        // enable.
+        if (res == MMSYSERR_NODRIVER && mIsOpen)
         {
             mIsOpen = FALSE;
             MpResNotificationMsg msg(
