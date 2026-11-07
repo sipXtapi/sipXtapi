@@ -337,6 +337,7 @@ class sipXtapiTestSuite : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testDeviceDepartureThenHangup) ;
     CPPUNIT_TEST(testDeviceDepartureThenUninitialize) ;
     CPPUNIT_TEST(testDeviceReturnRecovery) ;
+    CPPUNIT_TEST(testDeviceDepartureSoak) ;
 
 CPPUNIT_TEST_SUITE_END() ;
 
@@ -546,6 +547,7 @@ public:
     void testDeviceDepartureThenHangup() ;
     void testDeviceDepartureThenUninitialize() ;
     void testDeviceReturnRecovery() ;
+    void testDeviceDepartureSoak() ;
     void testReinitializeSimple() ;
     void testReinitializeLine() ;
     void testReinitializeCall() ;

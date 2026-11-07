@@ -26,6 +26,7 @@
 #include <os/OsTask.h>
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
+#include <os/OsProcess.h>
 #include <utl/UtlString.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -107,12 +108,21 @@ static int benchTrigger(const char* action, UtlString& outLine)
 /// Skip loudly unless the bench is configured and streaming. Returns
 /// FALSE when the test must return. Fills match, outMatch (the output
 /// device match; defaults to match), runs, offsets.
-static UtlBoolean benchGate(UtlString& match, UtlString& outMatch, int& runs, UtlString& offsets)
+/// With mustRun (the soak) an unusable bench is a failure, not a skip.
+static UtlBoolean benchGate(UtlString& match, UtlString& outMatch, int& runs, UtlString& offsets,
+                            UtlBoolean mustRun = FALSE)
 {
    UtlString line;
    int rc = benchTrigger("info", line);
    if (rc != 0)
    {
+      if (mustRun)
+      {
+         printf("SOAK FAILED: bench not configured: %s\n", line.isNull() ? "bench_trigger.py not runnable" : line.data());
+         fflush(stdout);
+         CPPUNIT_ASSERT_MESSAGE("soak requested but the bench is not configured", 0);
+         return FALSE;
+      }
       printf("BENCH SKIPPED: %s\n", line.isNull() ? "bench_trigger.py not runnable" : line.data());
       printf("SIPX_TEST_SKIP: BENCH SKIPPED: bench not configured (see line above)\n");
       fflush(stdout);
@@ -156,6 +166,13 @@ static UtlBoolean benchGate(UtlString& match, UtlString& outMatch, int& runs, Ut
    }
    if (rc != 0)
    {
+      if (mustRun)
+      {
+         printf("SOAK FAILED: bench device not ready: %s\n", line.data());
+         fflush(stdout);
+         CPPUNIT_ASSERT_MESSAGE("soak requested but the bench device is not ready", 0);
+         return FALSE;
+      }
       printf("BENCH SKIPPED: device not ready: %s\n", line.data());
       printf("SIPX_TEST_SKIP: BENCH SKIPPED: bench device not ready (see line above)\n");
       fflush(stdout);
@@ -575,3 +592,443 @@ void sipXtapiTestSuite::testDeviceReturnRecovery()
    checkForLeaks();
 }
 
+
+// ---------------------------------------------------------------- soak
+
+/// Media events a soak cycle checks, counted from the raw event stream of
+/// one instance. Raw counting (not EventValidator) makes the checks
+/// independent of which instance KNOWN DEFECT 1 delivers a device
+/// notification to, and of the validator's look-ahead.
+struct SoakCounters
+{
+   volatile long inputNotPresent;
+   volatile long micEnergy;
+};
+
+static bool SIPX_CALLING_CONVENTION soakEventCounter(SIPX_EVENT_CATEGORY category,
+                                                     void* pInfo, void* pUserData)
+{
+   if (category == EVENT_CATEGORY_MEDIA && pInfo && pUserData)
+   {
+      SIPX_MEDIA_INFO* pMedia = (SIPX_MEDIA_INFO*)pInfo;
+      SoakCounters* pCount = (SoakCounters*)pUserData;
+      if (pMedia->event == MEDIA_INPUT_DEVICE_NOT_PRESENT)
+      {
+         pCount->inputNotPresent++;
+      }
+      else if (pMedia->event == MEDIA_MIC_ENERGY_LEVEL)
+      {
+         pCount->micEnergy++;
+      }
+   }
+   return true;
+}
+
+/// Run scripts/bench_sample.py for this process: handle, thread and
+/// memory counts, and CRIT log lines added since the previous call.
+/// Returns its exit code; its output (one line, two when a new CRIT line
+/// was found) goes to outLine.
+static int benchSample(int pid, const char* logPath, const char* statePath,
+                       UtlString& outLine)
+{
+   outLine = "";
+   const char* candidates[] = {
+      "scripts/bench_sample.py",
+      "../../scripts/bench_sample.py",
+      "../../../../scripts/bench_sample.py",
+      NULL
+   };
+   const char* script = NULL;
+   for (int i = 0; candidates[i]; i++)
+   {
+      FILE* probe = fopen(candidates[i], "r");
+      if (probe)
+      {
+         fclose(probe);
+         script = candidates[i];
+         break;
+      }
+   }
+   if (!script)
+   {
+      outLine = "FAILED: bench_sample.py not found from cwd";
+      return 1;
+   }
+   char cmd[1024];
+   snprintf(cmd, sizeof(cmd), "sh -c \"python3 %s %d %s %s 2>&1\"",
+            script, pid, logPath, statePath);
+   FILE* p = BENCH_POPEN(cmd, "r");
+   if (!p)
+   {
+      outLine = "FAILED: could not run bench_sample.py";
+      return 1;
+   }
+   char line[512];
+   while (fgets(line, sizeof(line), p))
+   {
+      outLine.append(line);
+   }
+   outLine.strip(UtlString::both, '\n');
+   outLine.strip(UtlString::both, '\r');
+   int rc = BENCH_PCLOSE(p);
+#ifndef WIN32
+   if (rc > 255) rc = rc >> 8;   // wait status -> exit code
+#endif
+   return rc;
+}
+
+/// Integer value of key (e.g. " crit_new=") in a sample line, or -1.
+static int benchSampleField(const UtlString& sample, const char* key)
+{
+   const char* s = strstr(sample.data(), key);
+   return s ? atoi(s + strlen(key)) : -1;
+}
+
+// Soak: many departure/return cycles in one process, looking for what
+// builds up -- leaks, damaged drivers, rare teardown races, recovery
+// decay.
+//
+// Runs only when SIPX_SOAK_CYCLES=N is set; SIPX_SOAK_RESULTS names the
+// results file (from a Cygwin shell, a Windows path: $(cygpath -w ...)).
+// SIPX_SOAK_LOG overrides the sipX log the sampler watches (default
+// sipXtapi.log in the test's working directory). Without
+// SIPX_SOAK_CYCLES it skips; asked for but without a usable bench it
+// fails.
+//
+// Each cycle rotates the outcome, and the device always returns:
+//   0  hang-up:  departure mid-call, the app hangs up
+//   1  uninit:   departure mid-call, forced sipxUnInitialize, re-create
+//   2  idle:     departure with no call up
+// Departures alternate post-removal and in-flight; offsets come from
+// bench.conf. Hard failures stop the run: a CRIT log line (escape,
+// retire, stuck worker), sipxUnInitialize failing or taking 10 s, a
+// hang-up not completing within 10 s, a departure mid-call not reported
+// exactly once, no microphone energy on a call (media not flowing).
+// A bench trigger failure stops the run as a bench failure. Trends
+// (handles, threads, memory) are read from the results file afterwards.
+void sipXtapiTestSuite::testDeviceDepartureSoak()
+{
+   const char* cyclesEnv = getenv("SIPX_SOAK_CYCLES");
+   int cycles = cyclesEnv ? atoi(cyclesEnv) : 0;
+   if (cycles <= 0)
+   {
+      printf("SIPX_TEST_SKIP: SOAK NOT REQUESTED (set SIPX_SOAK_CYCLES=N)\n");
+      fflush(stdout);
+      CPPUNIT_ASSERT_MESSAGE("SIPX_TEST_SKIP: SOAK NOT REQUESTED", 0);
+      return;
+   }
+   const char* resultsPath = getenv("SIPX_SOAK_RESULTS");
+   CPPUNIT_ASSERT_MESSAGE("soak requested but SIPX_SOAK_RESULTS is not set",
+                          resultsPath != NULL);
+   if (!resultsPath) return;
+   FILE* results = fopen(resultsPath, "w");
+   CPPUNIT_ASSERT_MESSAGE("soak cannot write the SIPX_SOAK_RESULTS file", results != NULL);
+   if (!results) return;
+   const char* logPath = getenv("SIPX_SOAK_LOG");
+   if (!logPath) logPath = "sipXtapi.log";
+   int pid = (int)OsProcess::getCurrentPID();
+   char statePath[128];
+   snprintf(statePath, sizeof(statePath), "/tmp/sipx_soak_%d.state", pid);
+
+   UtlString match, outMatch, offsets, line, chosen, chosenOut, sample;
+   int runs;
+   if (!benchGate(match, outMatch, runs, offsets, TRUE))
+   {
+      fprintf(results, "STOP before cycle 0: bench not usable (see test output)\n");
+      fclose(results);
+      return;
+   }
+
+   // INFO keeps the departure and teardown evidence (session summaries
+   // INFO, buffer failures ERR, escapes CRIT) at about 0.1 MB a cycle.
+   sipxConfigSetLogLevel(LOG_LEVEL_INFO);
+
+   int rc = benchSample(pid, logPath, statePath, sample);
+   fprintf(results, "soak start: %d cycles, pid %d, input match '%s', output match '%s', log %s\n",
+           cycles, pid, match.data(), outMatch.data(), logPath);
+   fprintf(results, "baseline rc %d %s\n", rc, sample.data());
+   fflush(results);
+   CPPUNIT_ASSERT_EQUAL_MESSAGE("soak sampler failed at baseline", 0, rc);
+   if (rc != 0)
+   {
+      fclose(results);
+      sipxConfigSetLogLevel(LOG_LEVEL_DEBUG);
+      return;
+   }
+
+   static const char* variantName[] = { "hang-up", "uninit", "idle" };
+   const char* stopReason = NULL;
+   UtlBoolean benchFailure = FALSE;
+   int knownDefect2 = 0;
+   int done = 0;
+   unsigned long soakStart = benchNowMs();
+
+   for (int cycle = 0; cycle < cycles && !stopReason; cycle++)
+   {
+      int variant = cycle % 3;
+      int pass = cycle / 3;
+      int offset = benchOffsetMs(offsets, pass);
+      int nowait = pass % 2;
+      unsigned long cycleStart = benchNowMs();
+      long notif = -1;
+      long energy = -1;
+      unsigned long opMs = 0;
+
+      SoakCounters callingCount = { 0, 0 };
+      SoakCounters calledCount = { 0, 0 };
+      UtlBoolean callingCounting = FALSE;
+      UtlBoolean calledCounting = FALSE;
+      UtlBoolean departed = FALSE;
+      UtlBoolean callingGone = FALSE;
+
+      SIPX_CALL hCallingCall = SIPX_CALL_NULL;
+      SIPX_LINE hCallingLine = SIPX_LINE_NULL;
+      SIPX_CALL hCalledCall = SIPX_CALL_NULL;
+      SIPX_LINE hCalledLine = SIPX_LINE_NULL;
+      // A fresh calling line URI every cycle: after a forced uninitialize
+      // the dead instance's line stays in the global map (KNOWN DEFECT 2)
+      // and would capture the events of a line with the same URI.
+      char callingUri[64];
+      snprintf(callingUri, sizeof(callingUri), "sip:soak%d@127.0.0.1:8000", cycle);
+
+      EventValidator validatorCalling("soak.calling");
+      EventValidator validatorCalled("soak.called");
+      validatorCalling.ignoreMediaEvent(MEDIA_INPUT_DEVICE_NOT_PRESENT);
+      validatorCalling.ignoreMediaEvent(MEDIA_OUTPUT_DEVICE_NOT_PRESENT);
+      validatorCalled.ignoreMediaEvent(MEDIA_INPUT_DEVICE_NOT_PRESENT);
+      validatorCalled.ignoreMediaEvent(MEDIA_OUTPUT_DEVICE_NOT_PRESENT);
+      UtlBoolean callingValidating = FALSE;
+      UtlBoolean calledValidating = FALSE;
+
+      if (!benchSelectInputDevice(g_hInst, match, chosen)
+          || !benchSelectOutputDevice(g_hInst, outMatch, chosenOut))
+      {
+         stopReason = "bench device not selectable";
+      }
+      if (!stopReason)
+      {
+         callingCounting = (sipxEventListenerAdd(g_hInst, soakEventCounter, &callingCount)
+                            == SIPX_RESULT_SUCCESS);
+         calledCounting = (sipxEventListenerAdd(g_hInst2, soakEventCounter, &calledCount)
+                           == SIPX_RESULT_SUCCESS);
+         if (!callingCounting || !calledCounting)
+         {
+            stopReason = "could not add the soak event listeners";
+         }
+      }
+
+      // Call up, and media flowing on it.
+      if (!stopReason && variant != 2)
+      {
+         doCallBasicSetup(g_hInst, callingUri, callingUri,
+                          g_hInst2, "sip:called@127.0.0.1:9100", "sip:called@127.0.0.1:9100",
+                          hCallingCall, hCallingLine, hCalledCall, hCalledLine);
+         callingValidating = (sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback,
+                                                   &validatorCalling) == SIPX_RESULT_SUCCESS);
+         calledValidating = (sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback,
+                                                  &validatorCalled) == SIPX_RESULT_SUCCESS);
+         OsTask::delay(2500);
+         // Mic energy is only sent for the call in focus, and the process
+         // has one focus: here the called call, answered last. Both calls
+         // capture from the factory-wide microphone device, so count
+         // energy from either instance.
+         energy = callingCount.micEnergy + calledCount.micEnergy;
+         if (energy <= 0)
+         {
+            stopReason = "no microphone energy on the call (media not flowing)";
+         }
+      }
+
+      // Departure, and the application told exactly once.
+      if (!stopReason)
+      {
+         rc = benchTrigger(nowait ? "disconnect nowait" : "disconnect", line);
+         if (rc != 0)
+         {
+            stopReason = "bench disconnect failed";
+            benchFailure = TRUE;
+         }
+         else
+         {
+            departed = TRUE;
+            for (int waited = 0;
+                 waited < 10000 && callingCount.inputNotPresent + calledCount.inputNotPresent == 0;
+                 waited += 100)
+            {
+               OsTask::delay(100);
+            }
+            // Duplicates follow within milliseconds; give them time to show.
+            OsTask::delay(2000);
+            notif = callingCount.inputNotPresent + calledCount.inputNotPresent;
+            // With no call up nothing is capturing, so the driver cannot
+            // notice the departure; only the watcher can, and it reports
+            // NOTPRESENT but not UNPLUGGED. Recorded, not a hard failure.
+            if (variant != 2 && notif != 1)
+            {
+               stopReason = "departure mid-call not reported exactly once";
+            }
+         }
+      }
+
+      if (!stopReason && variant != 2)
+      {
+         OsTask::delay(offset);
+      }
+
+      // Outcome: hang-up.
+      if (!stopReason && variant == 0)
+      {
+         SIPX_CALL hDestroyedCall = hCallingCall;
+         unsigned long t0 = benchNowMs();
+         bool ok = (sipxCallDestroy(hCallingCall) == SIPX_RESULT_SUCCESS);
+         ok = ok && validatorCalling.waitForCallEvent(hCallingLine, hDestroyedCall,
+                       CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
+         ok = ok && validatorCalled.waitForCallEvent(hCalledLine, g_hAutoAnswerCallbackCall,
+                       CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false, 10);
+         ok = ok && (sipxCallDestroy(hCalledCall) == SIPX_RESULT_SUCCESS);
+         ok = ok && validatorCalled.waitForCallEvent(hCalledLine, g_hAutoAnswerCallbackCall,
+                       CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
+         opMs = benchNowMs() - t0;
+         if (!ok)
+         {
+            stopReason = "hang-up did not complete within 10 s per step";
+         }
+      }
+
+      // Outcome: forced uninitialize with the call up.
+      if (!stopReason && variant == 1)
+      {
+         unsigned long t0 = benchNowMs();
+         SIPX_RESULT urc = sipxUnInitialize(g_hInst, true);
+         opMs = benchNowMs() - t0;
+         // The calling instance and its listeners are gone.
+         callingGone = TRUE;
+         callingCounting = FALSE;
+         callingValidating = FALSE;
+         if (urc != SIPX_RESULT_SUCCESS)
+         {
+            stopReason = "sipxUnInitialize failed";
+         }
+         else if (opMs >= 10000)
+         {
+            stopReason = "sipxUnInitialize not bounded (10 s)";
+         }
+
+         // KNOWN DEFECT 2 (phase 2): the dead instance's line handle is
+         // still valid. Counted and asserted, not a hard failure.
+         char uriBuf[128];
+         size_t uriLen = 0;
+         if (sipxLineGetURI(hCallingLine, uriBuf, sizeof(uriBuf), uriLen) == SIPX_RESULT_SUCCESS)
+         {
+            knownDefect2++;
+            CPPUNIT_ASSERT_MESSAGE("KNOWN DEFECT 2: line handle still valid after forced sipxUnInitialize", 0);
+         }
+
+         if (!stopReason)
+         {
+            // The called side is still up on g_hInst2; drop it and wait for
+            // its DESTROYED, so it cannot leak into the next cycle.
+            SIPX_CALL hEndedCall = hCalledCall;
+            bool ok = (sipxCallDestroy(hCalledCall) == SIPX_RESULT_SUCCESS);
+            ok = ok && validatorCalled.waitForCallEvent(hCalledLine, hEndedCall,
+                          CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
+            if (!ok)
+            {
+               stopReason = "called side not DESTROYED within 10 s after uninitialize";
+            }
+         }
+      }
+
+      // Clean up this cycle's listeners and lines, whatever happened.
+      if (callingValidating)
+      {
+         sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling);
+      }
+      if (calledValidating)
+      {
+         sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled);
+      }
+      if (callingCounting)
+      {
+         sipxEventListenerRemove(g_hInst, soakEventCounter, &callingCount);
+      }
+      if (calledCounting)
+      {
+         sipxEventListenerRemove(g_hInst2, soakEventCounter, &calledCount);
+      }
+      if (!callingGone && hCallingLine != SIPX_LINE_NULL)
+      {
+         sipxLineRemove(hCallingLine);
+      }
+      if (hCalledLine != SIPX_LINE_NULL)
+      {
+         sipxLineRemove(hCalledLine);
+      }
+
+      // Return. Reconnect before re-creating: sipXtapi copies the device
+      // list once, in sipxInitialize (KNOWN DEFECT 3).
+      if (departed)
+      {
+         rc = benchTrigger("connect", line);
+         if (rc != 0 && !stopReason)
+         {
+            stopReason = "bench connect failed";
+            benchFailure = TRUE;
+         }
+      }
+      if (callingGone)
+      {
+         benchRecreateInstance(g_hInst, 8000, 8001, 8050, HINST_ADDRESS);
+         if (g_hInst == NULL && !stopReason)
+         {
+            stopReason = "could not re-create the calling instance";
+         }
+      }
+
+      // Sample, and look for new CRIT lines in the log.
+      rc = benchSample(pid, logPath, statePath, sample);
+      if (rc != 0 && !stopReason)
+      {
+         stopReason = "soak sampler failed";
+      }
+      else if (benchSampleField(sample, " crit_new=") > 0 && !stopReason)
+      {
+         stopReason = "CRIT line in the sipX log (escape, retire or stuck worker)";
+      }
+
+      fprintf(results, "cycle %d %s %s offset %d notif %ld energy %ld op_ms %lu cycle_ms %lu %s%s%s\n",
+              cycle, variantName[variant], nowait ? "in-flight" : "post-removal", offset,
+              notif, energy, opMs, benchNowMs() - cycleStart, sample.data(),
+              stopReason ? " STOP: " : "", stopReason ? stopReason : "");
+      fflush(results);
+      printf("soak cycle %d %s: notif %ld energy %ld op_ms %lu%s%s\n",
+             cycle, variantName[variant], notif, energy, opMs,
+             stopReason ? " STOP: " : "", stopReason ? stopReason : "");
+      fflush(stdout);
+      if (!stopReason)
+      {
+         done++;
+      }
+   }
+
+   if (stopReason)
+   {
+      // Best effort: leave the device attached for whatever runs next.
+      benchTrigger("connect", line);
+   }
+   sipxConfigSetLogLevel(LOG_LEVEL_DEBUG);
+   fprintf(results, "soak end: %d of %d cycles completed in %lu s; known defect 2 hits %d; %s%s\n",
+           done, cycles, (benchNowMs() - soakStart) / 1000, knownDefect2,
+           stopReason ? (benchFailure ? "STOPPED (BENCH FAILURE): " : "STOPPED: ") : "no hard failure",
+           stopReason ? stopReason : "");
+   fclose(results);
+   printf("soak end: %d of %d cycles completed\n", done, cycles);
+   fflush(stdout);
+
+   CPPUNIT_ASSERT_MESSAGE("soak stopped on a bench failure (see results file)",
+                          !(stopReason && benchFailure));
+   CPPUNIT_ASSERT_MESSAGE("soak stopped on a hard failure (see results file)",
+                          !(stopReason && !benchFailure));
+   OsTask::delay(TEST_DELAY);
+   checkForLeaks();
+}
