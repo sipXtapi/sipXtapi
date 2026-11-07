@@ -62,10 +62,12 @@ public:
     MpWinInputAudioDeviceNotifier(const UtlString& deviceName, 
         MpInputDeviceManager& inputManager,
         UtlBoolean* isOpenPtr,
+        volatile LONG* notPresentPostedPtr,
         IMMDeviceEnumerator* deviceEnumeratorPtr) : IMMNotificationClient(),
         mName(deviceName),
         mpInputDeviceManager(&inputManager),
         mpIsOpen(isOpenPtr),
+        mpNotPresentPosted(notPresentPostedPtr),
         mDeviceEnumeratorPtr(deviceEnumeratorPtr),
         mRefCount(1)
     {
@@ -275,6 +277,14 @@ public:
             }
             if (mpInputDeviceManager)
             {
+                // Our own device: post only if the driver has not already
+                // posted for this session, and stop it posting later.
+                // Other capture devices are reported as before.
+                if (posted
+                    && InterlockedExchange(mpNotPresentPosted, 1) != 0)
+                {
+                    break;
+                }
                 MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT, deviceName);
                 status = mpInputDeviceManager->postNotification(msg);
             }
@@ -315,6 +325,7 @@ public:
     UtlString mName;
     MpInputDeviceManager* mpInputDeviceManager;
     UtlBoolean* mpIsOpen;
+    volatile LONG* mpNotPresentPosted; ///< The driver's mNotPresentPosted.
     IMMDeviceEnumerator* mDeviceEnumeratorPtr;
     LONG mRefCount;
 };
@@ -337,6 +348,7 @@ MpidWinMM::MpidWinMM(const UtlString& name,
 , mWorkerStop(0)
 , mWorkerInWaveCall(0)
 , mGeneration(0)
+, mNotPresentPosted(0)
 , mLastDisableEscaped(FALSE)
 , mEscapeTick(0)
 , mFramesPushed(0)
@@ -405,7 +417,7 @@ MpidWinMM::MpidWinMM(const UtlString& name,
 
     // Register derived handler from IMMNotificationClient
     // Register for notification of device hardware availablity
-    mWinAudioDeviceChangeCallback = new MpWinInputAudioDeviceNotifier(name, deviceManager, &mIsOpen, mDeviceEnumeratorPtr);
+    mWinAudioDeviceChangeCallback = new MpWinInputAudioDeviceNotifier(name, deviceManager, &mIsOpen, &mNotPresentPosted, mDeviceEnumeratorPtr);
     registerDeviceEnumerator(mDeviceEnumeratorPtr, mWinAudioDeviceChangeCallback);
 
     OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
@@ -635,6 +647,8 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
     // worker that wakes between the two still discards stale entries.
     InterlockedIncrement(&mGeneration);
     InterlockedExchange(&mWorkerStop, 0);
+    // New session: the next departure gets its one notification.
+    InterlockedExchange(&mNotPresentPosted, 0);
     PSLIST_ENTRY stale = InterlockedFlushSList(&mPoolSignaled);
     while (stale)
     {
@@ -1170,18 +1184,23 @@ void MpidWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
             mDevHandle = NULL;
             // mWinMMDeviceId intentionally NOT cleared.
         }
-        // Post once per departure: every buffer still queued fails the
-        // same way (32 per departure on a Bluetooth disconnect), and the
-        // watcher may already have cleared mIsOpen and posted for a
-        // NOTPRESENT departure. WIM_OPEN sets mIsOpen again on the next
-        // enable.
-        if (res == MMSYSERR_NODRIVER && mIsOpen)
+        if (res == MMSYSERR_NODRIVER)
         {
             mIsOpen = FALSE;
-            MpResNotificationMsg msg(
-                MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT,
-                getDeviceName());
-            /*OsStatus status =*/ mpInputDeviceManager->postNotification(msg);
+            // Post once per departure. Every buffer still queued fails the
+            // same way (32 per departure on a Bluetooth disconnect), and
+            // mIsOpen cannot say whether anyone has posted: WinMM may
+            // already have cleared it through WIM_CLOSE. Whoever flips
+            // mNotPresentPosted first -- this path, or the watcher for a
+            // NOTPRESENT departure of this device -- posts; enableDevice
+            // re-arms it.
+            if (InterlockedExchange(&mNotPresentPosted, 1) == 0)
+            {
+                MpResNotificationMsg msg(
+                    MpResNotificationMsg::MPRNM_INPUT_DEVICE_NOT_PRESENT,
+                    getDeviceName());
+                /*OsStatus status =*/ mpInputDeviceManager->postNotification(msg);
+            }
         }
     }
 }

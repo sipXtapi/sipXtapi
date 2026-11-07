@@ -259,6 +259,10 @@ private:
                                 ///< discarded, so a late writer from a prior
                                 ///< session can never recycle a buffer into
                                 ///< the current handle.
+    volatile LONG mNotPresentPosted; ///< 1 once INPUT_DEVICE_NOT_PRESENT has
+                                ///< been posted for this session, by the
+                                ///< worker or by the watcher; reset by
+                                ///< enableDevice. Exactly one per departure.
     UtlBoolean mLastDisableEscaped; ///< TRUE if the most recent disable took
                                 ///< the fire-escape path: worker join timed
                                 ///< out, teardown skipped, handle and
