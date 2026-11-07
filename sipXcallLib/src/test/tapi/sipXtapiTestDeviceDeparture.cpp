@@ -363,8 +363,8 @@ void sipXtapiTestSuite::testDeviceDepartureThenHangup()
       printf("bench iteration %d: INPUT_DEVICE_NOT_PRESENT delivered %d time(s) in all\n",
              it, totalIn);
       fflush(stdout);
-      CPPUNIT_ASSERT_MESSAGE("more than one MEDIA_INPUT_DEVICE_NOT_PRESENT for one departure",
-                             totalIn <= 1);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE("not exactly one MEDIA_INPUT_DEVICE_NOT_PRESENT for one departure",
+                                   1, totalIn);
 
       OsTask::delay(offset);
 
