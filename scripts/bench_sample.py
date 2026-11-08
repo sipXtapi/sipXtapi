@@ -8,7 +8,7 @@
 #
 # Prints one line:
 #
-#   SAMPLE handles=N threads=N private_kb=N working_kb=N crit_new=N crit_total=N
+#   SAMPLE handles=N threads=N private_kb=N working_kb=N crit_new=N crit_total=N flowgraphs=N
 #
 # and, when crit_new > 0, a second line with the first new CRIT log line.
 #
@@ -22,6 +22,14 @@
 #       The read position and running total live in <state file>; the
 #       first call (no state file) starts counting from the current end
 #       of the log and reports crit_new=0.
+#   flowgraphs
+#       the flowgraph count from the last "MpMediaTask::sendToAllFlowgraphs
+#       sent message[n] to N flowgraphs" line added to the log since the
+#       previous call; -1 when there is none, and always on the first call.
+#       sipX logs it at DEBUG each time a call device is selected. The soak
+#       selects with no call up, so anything above 0 is a flowgraph an
+#       earlier cycle left running. Needs DEBUG in the log; this build's
+#       LOG_TO_FILE forces it.
 #
 # The soak calls this from inside the test process at each cycle
 # boundary, passing its own pid, so samples line up with cycles. The
@@ -41,6 +49,7 @@ import sys
 EXIT_OK, EXIT_FAILED, EXIT_UNSUPPORTED = 0, 1, 2
 
 CRIT_RE = re.compile(r'^"[^"]*":\d+:[A-Z_]+:CRIT:')
+FLOWGRAPHS_RE = re.compile(r'MpMediaTask::sendToAllFlowgraphs sent message\[\d+\] to (\d+) flowgraphs')
 
 
 def out(msg, code):
@@ -127,7 +136,7 @@ def process_counts(pid):
 
 
 def new_crit_lines(log_path, state_path):
-    """(new count, total count, first new line) since the last call."""
+    """(new CRIT count, total CRIT count, first new CRIT line, last flowgraph count) since the last call."""
     if not os.path.isfile(log_path):
         out("FAILED: log file %s not found from %s" % (log_path, os.getcwd()), EXIT_FAILED)
     size = os.path.getsize(log_path)
@@ -142,7 +151,7 @@ def new_crit_lines(log_path, state_path):
     if size < offset:
         # The log was truncated or replaced: read it from the start.
         offset = 0
-    new, first = 0, None
+    new, first, flowgraphs = 0, None, -1
     if not first_call:
         with open(log_path, "rb") as f:
             f.seek(offset)
@@ -152,11 +161,15 @@ def new_crit_lines(log_path, state_path):
                     new += 1
                     if first is None:
                         first = ln.strip()[:300]
+                if "sendToAllFlowgraphs" in ln:
+                    m = FLOWGRAPHS_RE.search(ln)
+                    if m:
+                        flowgraphs = int(m.group(1))
             offset = f.tell()
     total += new
     with open(state_path, "w") as f:
         f.write("%d %d\n" % (offset, total))
-    return new, total, first
+    return new, total, first, flowgraphs
 
 
 def main():
@@ -167,9 +180,9 @@ def main():
     except ValueError:
         out("FAILED: bad pid %s" % sys.argv[1], EXIT_FAILED)
     handles, threads, private_kb, working_kb = process_counts(pid)
-    new, total, first = new_crit_lines(sys.argv[2], sys.argv[3])
-    print("SAMPLE handles=%d threads=%d private_kb=%d working_kb=%d crit_new=%d crit_total=%d"
-          % (handles, threads, private_kb, working_kb, new, total))
+    new, total, first, flowgraphs = new_crit_lines(sys.argv[2], sys.argv[3])
+    print("SAMPLE handles=%d threads=%d private_kb=%d working_kb=%d crit_new=%d crit_total=%d flowgraphs=%d"
+          % (handles, threads, private_kb, working_kb, new, total, flowgraphs))
     if first:
         print("FIRST_NEW_CRIT %s" % first)
     sys.stdout.flush()

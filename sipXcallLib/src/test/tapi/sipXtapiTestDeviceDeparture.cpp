@@ -15,6 +15,12 @@
 //   3. device returns, a new call must bring up media through a fresh
 //      driver
 //
+// The two instances share one media factory, and only the called call's
+// flowgraph captures from the microphone (the calling call never posts
+// mic energy). So the called call is the one using the bench device, and
+// it is the one each test hangs up or uninitializes. Every test checks
+// that with a mic energy precondition rather than assuming it.
+//
 // Bench config lives outside the repo (~/.sipx_bench/bench.conf). When it
 // is missing the trigger exits 2 and each bench test records one
 // "BENCH SKIPPED" point, which the runner reports as a skip.
@@ -270,6 +276,35 @@ static void benchRecreateInstance(SIPX_INST& hInst, int sipPort, int tlsPort,
    }
 }
 
+/// Media events counted from the raw event stream of one instance, for
+/// the bench tests and the soak. Raw counting (not EventValidator) makes
+/// the counts independent of which instance KNOWN DEFECT 1 delivers a
+/// device notification to, and of the validator's look-ahead.
+struct SoakCounters
+{
+   volatile long inputNotPresent;
+   volatile long micEnergy;
+};
+
+static bool SIPX_CALLING_CONVENTION soakEventCounter(SIPX_EVENT_CATEGORY category,
+                                                     void* pInfo, void* pUserData)
+{
+   if (category == EVENT_CATEGORY_MEDIA && pInfo && pUserData)
+   {
+      SIPX_MEDIA_INFO* pMedia = (SIPX_MEDIA_INFO*)pInfo;
+      SoakCounters* pCount = (SoakCounters*)pUserData;
+      if (pMedia->event == MEDIA_INPUT_DEVICE_NOT_PRESENT)
+      {
+         pCount->inputNotPresent++;
+      }
+      else if (pMedia->event == MEDIA_MIC_ENERGY_LEVEL)
+      {
+         pCount->micEnergy++;
+      }
+   }
+   return true;
+}
+
 // ---------------------------------------------------------------- tests
 
 // Path 1: the device departs mid-call and the app hangs up. Asserts the
@@ -277,6 +312,9 @@ static void benchRecreateInstance(SIPX_INST& hInst, int sipPort, int tlsPort,
 // hang-up sequence on both sides. KNOWN DEFECT 1: the notification reaches
 // only the most recently created media interface (the called instance
 // here), so the calling-side assertion fails until dispatch is fixed.
+// The hang-up comes from the called call: in this two-instance setup only
+// its flowgraph captures from the microphone, so it is the call using the
+// device, as in the customer's application. A precondition checks that.
 void sipXtapiTestSuite::testDeviceDepartureThenHangup()
 {
    UtlString match, outMatch, offsets, line, chosen, chosenOut;
@@ -307,6 +345,9 @@ void sipXtapiTestSuite::testDeviceDepartureThenHangup()
       SIPX_LINE hCallingLine = SIPX_LINE_NULL;
       SIPX_CALL hCalledCall = SIPX_CALL_NULL;
       SIPX_LINE hCalledLine = SIPX_LINE_NULL;
+      SoakCounters calledCount = { 0, 0 };
+      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+         sipxEventListenerAdd(g_hInst2, soakEventCounter, &calledCount));
       doCallBasicSetup(g_hInst, "sip:calling@127.0.0.1:8000", "sip:calling@127.0.0.1:8000",
                        g_hInst2, "sip:called@127.0.0.1:9100", "sip:called@127.0.0.1:9100",
                        hCallingCall, hCallingLine, hCalledCall, hCalledLine);
@@ -324,6 +365,21 @@ void sipXtapiTestSuite::testDeviceDepartureThenHangup()
 
       // Let media run on a live stream before the departure.
       OsTask::delay(1500);
+
+      // Precondition: the called call is the one using the bench device.
+      // If not, this test does not exercise the customer's case.
+      printf("bench iteration %d: mic energy on called call %ld\n", it, calledCount.micEnergy);
+      fflush(stdout);
+      if (calledCount.micEnergy <= 0)
+      {
+         sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling);
+         sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled);
+         sipxEventListenerRemove(g_hInst2, soakEventCounter, &calledCount);
+         sipxCallDestroy(hCallingCall);
+         sipxCallDestroy(hCalledCall);
+         CPPUNIT_ASSERT_MESSAGE("called call has no microphone energy: it is not the call using the bench device", 0);
+         return;
+      }
 
       // Always nowait: control must return before the media task fires
       // the not-present event, or the validator misses it. The offset
@@ -385,43 +441,42 @@ void sipXtapiTestSuite::testDeviceDepartureThenHangup()
 
       OsTask::delay(offset);
 
-      // Hang up: the normal sequence must complete on both sides.
-      SIPX_CALL hDestroyedCall = hCallingCall;
+      // Hang up from the called call, the one using the device; the normal
+      // sequence must complete on both sides. doCallBasicSetup returns the
+      // auto-answer callback's handle as hCalledCall; the called waits use
+      // the global because sipxCallDestroy clears hCalledCall.
+      SIPX_CALL hPeerCall = hCallingCall;
       t0 = benchNowMs();
-      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallDestroy(hCallingCall));
-
-      bRC = validatorCalling.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
-      CPPUNIT_ASSERT_MESSAGE("calling: no MEDIA_LOCAL_STOP after hang-up", bRC);
-      bRC = validatorCalling.waitForMediaEvent(MEDIA_REMOTE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
-      CPPUNIT_ASSERT_MESSAGE("calling: no MEDIA_REMOTE_STOP after hang-up", bRC);
-      bRC = validatorCalling.waitForCallEvent(hCallingLine, hDestroyedCall, CALLSTATE_DISCONNECTED,
-                                              CALLSTATE_CAUSE_NORMAL, false);
-      CPPUNIT_ASSERT_MESSAGE("calling: no DISCONNECTED after hang-up", bRC);
-      bRC = validatorCalling.waitForCallEvent(hCallingLine, hDestroyedCall, CALLSTATE_DESTROYED,
-                                              CALLSTATE_CAUSE_NORMAL, false);
-      CPPUNIT_ASSERT_MESSAGE("calling: no DESTROYED after hang-up", bRC);
+      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallDestroy(hCalledCall));
 
       bRC = validatorCalled.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
       CPPUNIT_ASSERT_MESSAGE("called: no MEDIA_LOCAL_STOP after hang-up", bRC);
       bRC = validatorCalled.waitForMediaEvent(MEDIA_REMOTE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
       CPPUNIT_ASSERT_MESSAGE("called: no MEDIA_REMOTE_STOP after hang-up", bRC);
-      // doCallBasicSetup returns the auto-answer callback's handle as
-      // hCalledCall; the waits use the global because sipxCallDestroy below
-      // clears hCalledCall.
       bRC = validatorCalled.waitForCallEvent(hCalledLine, g_hAutoAnswerCallbackCall,
-                    CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false, 10);
+                    CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false);
       CPPUNIT_ASSERT_MESSAGE("called: no DISCONNECTED after hang-up", bRC);
-      // doCallBasicSetup removed its AutoAnswerCallback, which is what
-      // destroys the called call in doCallBasic; destroy it here.
-      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallDestroy(hCalledCall));
       bRC = validatorCalled.waitForCallEvent(hCalledLine, g_hAutoAnswerCallbackCall,
-                    CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
+                    CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false);
       CPPUNIT_ASSERT_MESSAGE("called: no DESTROYED after hang-up", bRC);
+
+      bRC = validatorCalling.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
+      CPPUNIT_ASSERT_MESSAGE("calling: no MEDIA_LOCAL_STOP after remote hang-up", bRC);
+      bRC = validatorCalling.waitForMediaEvent(MEDIA_REMOTE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
+      CPPUNIT_ASSERT_MESSAGE("calling: no MEDIA_REMOTE_STOP after remote hang-up", bRC);
+      bRC = validatorCalling.waitForCallEvent(hCallingLine, hPeerCall, CALLSTATE_DISCONNECTED,
+                                              CALLSTATE_CAUSE_NORMAL, false, 10);
+      CPPUNIT_ASSERT_MESSAGE("calling: no DISCONNECTED after remote hang-up", bRC);
+      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallDestroy(hCallingCall));
+      bRC = validatorCalling.waitForCallEvent(hCallingLine, hPeerCall, CALLSTATE_DESTROYED,
+                                              CALLSTATE_CAUSE_NORMAL, false, 10);
+      CPPUNIT_ASSERT_MESSAGE("calling: no DESTROYED after remote hang-up", bRC);
       printf("bench iteration %d: hang-up sequence complete in %lu ms\n", it, benchNowMs() - t0);
       fflush(stdout);
 
       sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling);
       sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled);
+      sipxEventListenerRemove(g_hInst2, soakEventCounter, &calledCount);
       sipxLineRemove(hCallingLine);
       sipxLineRemove(hCalledLine);
 
@@ -436,9 +491,16 @@ void sipXtapiTestSuite::testDeviceDepartureThenHangup()
 
 // Path 2: the reported failure. Device departs mid-call; the app then calls
 // sipxUnInitialize with the call still up. Must return, bounded, no crash.
-// The last iteration also uninitializes the other instances, so the shared
-// media factory and its output driver are torn down after the departure,
-// as in a single-instance application.
+// The instance uninitialized is the called one: in this two-instance setup
+// only the called call's flowgraph captures from the microphone (the
+// calling call never posts mic energy), so it is the call using the
+// departing device, as in the customer's application. A precondition
+// checks that every iteration. The last iteration first releases g_hInst3
+// and g_hInst4, and after the departure force-uninitializes the calling
+// instance (a forced uninitialize sends no BYE, so the called call stays
+// up). The called instance is then the last one, and its forced
+// uninitialize tears down the media factory with the device-owning call up
+// and the device gone: the customer's single-instance case.
 void sipXtapiTestSuite::testDeviceDepartureThenUninitialize()
 {
    UtlString match, outMatch, offsets, line, chosen, chosenOut;
@@ -463,97 +525,134 @@ void sipXtapiTestSuite::testDeviceDepartureThenUninitialize()
       int offset = benchOffsetMs(offsets, it);
       int nowait = (it % 2);
       const bool lastIt = (it == runs - 1);
+      unsigned long t0;
+      unsigned long elapsed;
+      SIPX_RESULT rc;
+
+      // Last iteration: release the idle instances first, so once the
+      // calling instance is gone the called one is the last in the process.
+      if (lastIt)
+      {
+         SIPX_INST* idle[] = { &g_hInst3, &g_hInst4 };
+         for (int i = 0; i < 2; i++)
+         {
+            rc = sipxUnInitialize(*idle[i], true);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE("sipxUnInitialize of an idle instance must succeed",
+                                         SIPX_RESULT_SUCCESS, rc);
+            *idle[i] = NULL;
+         }
+      }
+
+      // Fresh line URIs every iteration: a forced uninitialize leaves the
+      // dead instance's line in the global map (KNOWN DEFECT 2), where it
+      // would capture the events of a later line with the same URI.
+      char callingUri[64];
+      char calledUri[64];
+      snprintf(callingUri, sizeof(callingUri), "sip:uninitcalling%d@127.0.0.1:8000", it);
+      snprintf(calledUri, sizeof(calledUri), "sip:uninitcalled%d@127.0.0.1:9100", it);
 
       SIPX_CALL hCallingCall = SIPX_CALL_NULL;
       SIPX_LINE hCallingLine = SIPX_LINE_NULL;
       SIPX_CALL hCalledCall = SIPX_CALL_NULL;
       SIPX_LINE hCalledLine = SIPX_LINE_NULL;
-      doCallBasicSetup(g_hInst, "sip:calling@127.0.0.1:8000", "sip:calling@127.0.0.1:8000",
-                       g_hInst2, "sip:called@127.0.0.1:9100", "sip:called@127.0.0.1:9100",
+      SoakCounters calledCount = { 0, 0 };
+      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+         sipxEventListenerAdd(g_hInst2, soakEventCounter, &calledCount));
+      doCallBasicSetup(g_hInst, callingUri, callingUri,
+                       g_hInst2, calledUri, calledUri,
                        hCallingCall, hCallingLine, hCalledCall, hCalledLine);
       OsTask::delay(1500);
+
+      // Precondition: the call about to be uninitialized is the one using
+      // the bench device. If not, this test does not exercise the
+      // customer's case.
+      printf("bench iteration %d: mic energy on called call %ld\n", it, calledCount.micEnergy);
+      fflush(stdout);
+      if (calledCount.micEnergy <= 0)
+      {
+         sipxEventListenerRemove(g_hInst2, soakEventCounter, &calledCount);
+         sipxCallDestroy(hCallingCall);
+         sipxCallDestroy(hCalledCall);
+         CPPUNIT_ASSERT_MESSAGE("called call has no microphone energy: it is not the call using the bench device", 0);
+         return;
+      }
 
       CPPUNIT_ASSERT_EQUAL_MESSAGE("bench disconnect failed", 0,
                                    benchTrigger(nowait ? "disconnect nowait" : "disconnect", line));
       OsTask::delay(offset);
 
-      // The customer's sequence: uninitialize with the call up and the
-      // input device gone.
-      unsigned long t0 = benchNowMs();
-      SIPX_RESULT rc = sipxUnInitialize(g_hInst, true);
-      unsigned long elapsed = benchNowMs() - t0;
-      printf("bench iteration %d (%s) offset %d ms: sipxUnInitialize -> %d in %lu ms\n",
-             it, nowait ? "in-flight" : "post-removal", offset, (int)rc, elapsed);
+      if (lastIt)
+      {
+         // The peer goes first, forced: no BYE, so the called call stays up.
+         t0 = benchNowMs();
+         rc = sipxUnInitialize(g_hInst, true);
+         elapsed = benchNowMs() - t0;
+         printf("bench iteration %d: sipxUnInitialize(calling) -> %d in %lu ms\n",
+                it, (int)rc, elapsed);
+         fflush(stdout);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE("sipxUnInitialize of the calling instance must succeed",
+                                      SIPX_RESULT_SUCCESS, rc);
+         CPPUNIT_ASSERT_MESSAGE("sipxUnInitialize of the calling instance not bounded",
+                                elapsed < 10000);
+      }
+
+      // The customer's sequence: uninitialize the instance whose call is
+      // using the departed device, with that call up. Its listeners go
+      // with it.
+      t0 = benchNowMs();
+      rc = sipxUnInitialize(g_hInst2, true);
+      elapsed = benchNowMs() - t0;
+      printf("bench iteration %d (%s) offset %d ms: sipxUnInitialize(called, call up) -> %d in %lu ms%s\n",
+             it, nowait ? "in-flight" : "post-removal", offset, (int)rc, elapsed,
+             lastIt ? " (last instance, factory teardown)" : "");
       fflush(stdout);
-      CPPUNIT_ASSERT_EQUAL_MESSAGE("sipxUnInitialize with the call up must succeed",
+      CPPUNIT_ASSERT_EQUAL_MESSAGE("sipxUnInitialize with the device-owning call up must succeed",
                                    SIPX_RESULT_SUCCESS, rc);
       CPPUNIT_ASSERT_MESSAGE("sipxUnInitialize not bounded after device departure",
                              elapsed < 10000);
 
-      // The called side is still up on g_hInst2; drop it and its line.
-      // Wait for the called call's DESTROYED before leaving the iteration.
-      // It arrives seconds after sipxCallDestroy; if it lands after the next
-      // iteration's resetAutoAnswerCallback, AutoAnswerCallback latches this
-      // stale handle and the next iteration validates and destroys the
-      // wrong call.
-      EventValidator validatorCalledEnd("departure.called.end");
-      validatorCalledEnd.ignoreMediaEvent(MEDIA_MIC_ENERGY_LEVEL);
-      validatorCalledEnd.ignoreMediaEvent(MEDIA_SPEAKER_ENERGY_LEVEL);
-      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
-         sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalledEnd));
-      SIPX_CALL hEndedCall = hCalledCall;
-      t0 = benchNowMs();
-      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallDestroy(hCalledCall));
-      bool bDestroyed = validatorCalledEnd.waitForCallEvent(hCalledLine, hEndedCall,
-                    CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
-      printf("bench iteration %d: called call DESTROYED %s after %lu ms\n",
-             it, bDestroyed ? "received" : "MISSING", benchNowMs() - t0);
-      fflush(stdout);
-      CPPUNIT_ASSERT_MESSAGE("called: no DESTROYED within 10 s of sipxCallDestroy", bDestroyed);
-      sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalledEnd);
-      sipxLineRemove(hCalledLine);
-
-      // Last iteration: also release every other instance, so the media
-      // factory and its output driver are destroyed after the departure.
-      // That is the single-instance application's teardown; while
-      // g_hInst2..4 are alive the factory survives the uninitialize above.
-      if (lastIt)
+      if (!lastIt)
       {
-         SIPX_INST* others[] = { &g_hInst2, &g_hInst3, &g_hInst4 };
-         for (int i = 0; i < 3; i++)
-         {
-            t0 = benchNowMs();
-            rc = sipxUnInitialize(*others[i], true);
-            elapsed = benchNowMs() - t0;
-            printf("bench iteration %d: sipxUnInitialize(g_hInst%d) -> %d in %lu ms%s\n",
-                   it, i + 2, (int)rc, elapsed, (i == 2) ? " (last instance, factory teardown)" : "");
-            fflush(stdout);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE("sipxUnInitialize of remaining instance must succeed",
-                                         SIPX_RESULT_SUCCESS, rc);
-            CPPUNIT_ASSERT_MESSAGE("sipxUnInitialize of remaining instance not bounded",
-                                   elapsed < 10000);
-            *others[i] = NULL;
-         }
+         // The calling side is still up; end it and wait for its DESTROYED
+         // before the next iteration. The validator is added only now so
+         // its look-ahead covers just the teardown events.
+         EventValidator validatorCallingEnd("departure.calling.end");
+         validatorCallingEnd.ignoreMediaEvent(MEDIA_INPUT_DEVICE_NOT_PRESENT);
+         validatorCallingEnd.ignoreMediaEvent(MEDIA_OUTPUT_DEVICE_NOT_PRESENT);
+         CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+            sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCallingEnd));
+         SIPX_CALL hEndedCall = hCallingCall;
+         t0 = benchNowMs();
+         CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallDestroy(hCallingCall));
+         bool bDestroyed = validatorCallingEnd.waitForCallEvent(hCallingLine, hEndedCall,
+                       CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
+         printf("bench iteration %d: calling call DESTROYED %s after %lu ms\n",
+                it, bDestroyed ? "received" : "MISSING", benchNowMs() - t0);
+         fflush(stdout);
+         CPPUNIT_ASSERT_MESSAGE("calling: no DESTROYED within 10 s of sipxCallDestroy", bDestroyed);
+         sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCallingEnd);
+         sipxLineRemove(hCallingLine);
       }
 
       // Reconnect before re-creating: sipXtapi copies the device list once,
       // in sipxInitialize (KNOWN DEFECT 3), so an instance created while the
       // device is gone never sees it.
       CPPUNIT_ASSERT_EQUAL_MESSAGE("bench connect failed", 0, benchTrigger("connect", line));
+      benchRecreateInstance(g_hInst2, 9100, 9101, 9050, HINST2_ADDRESS);
       if (lastIt)
       {
-         benchRecreateInstance(g_hInst2, 9100, 9101, 9050, HINST2_ADDRESS);
          benchRecreateInstance(g_hInst3, 10000, 10001, 10050, HINST3_ADDRESS);
          benchRecreateInstance(g_hInst4, 12070, 12071, 12050, HINST4_ADDRESS);
+         benchRecreateInstance(g_hInst, 8000, 8001, 8050, HINST_ADDRESS);
       }
-      benchRecreateInstance(g_hInst, 8000, 8001, 8050, HINST_ADDRESS);
    }
    OsTask::delay(TEST_DELAY);
    checkForLeaks();
 }
 
 // Path 3: recovery. After a departure cycle the device is back; a new call
-// on a freshly selected device must bring media up on both sides.
+// on a freshly selected device must carry audio from it (mic energy on the
+// called call), then hang up from the called call.
 void sipXtapiTestSuite::testDeviceReturnRecovery()
 {
    UtlString match, outMatch, offsets, line, chosen, chosenOut;
@@ -580,13 +679,52 @@ void sipXtapiTestSuite::testDeviceReturnRecovery()
          CPPUNIT_ASSERT_MESSAGE("bench device not re-selectable as output after return", 0);
          return;
       }
+      // The post-return call must carry audio from the returned device, not
+      // just signal: the called call (the one capturing from the device)
+      // must show mic energy. doCallBasic hangs up too soon for that.
+      SoakCounters calledCount = { 0, 0 };
+      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+         sipxEventListenerAdd(g_hInst2, soakEventCounter, &calledCount));
+      SIPX_CALL hCallingCall = SIPX_CALL_NULL;
+      SIPX_LINE hCallingLine = SIPX_LINE_NULL;
+      SIPX_CALL hCalledCall = SIPX_CALL_NULL;
+      SIPX_LINE hCalledLine = SIPX_LINE_NULL;
       unsigned long t0 = benchNowMs();
-      doCallBasic(g_hInst, "sip:calling@127.0.0.1:8000", "sip:calling@127.0.0.1:8000",
-                  g_hInst2, "sip:called@127.0.0.1:9100", "sip:called@127.0.0.1:9100",
-                  NULL, false, true);
-      printf("bench iteration %d: post-return call completed in %lu ms on '%s' / '%s'\n",
-             it, benchNowMs() - t0, chosen.data(), chosenOut.data());
+      doCallBasicSetup(g_hInst, "sip:calling@127.0.0.1:8000", "sip:calling@127.0.0.1:8000",
+                       g_hInst2, "sip:called@127.0.0.1:9100", "sip:called@127.0.0.1:9100",
+                       hCallingCall, hCallingLine, hCalledCall, hCalledLine);
+      EventValidator validatorCalling("recovery.calling");
+      EventValidator validatorCalled("recovery.called");
+      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+         sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling));
+      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+         sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled));
+      OsTask::delay(2500);
+      long mic = calledCount.micEnergy;
+      printf("bench iteration %d: post-return call up in %lu ms on '%s' / '%s', mic energy on called call %ld\n",
+             it, benchNowMs() - t0, chosen.data(), chosenOut.data(), mic);
       fflush(stdout);
+      CPPUNIT_ASSERT_MESSAGE("no microphone energy on the called call after the device returned", mic > 0);
+
+      // Hang up from the called call, the one using the device.
+      SIPX_CALL hOwnerCall = hCalledCall;
+      SIPX_CALL hPeerCall = hCallingCall;
+      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallDestroy(hCalledCall));
+      CPPUNIT_ASSERT_MESSAGE("called: no DESTROYED after hang-up",
+         validatorCalled.waitForCallEvent(hCalledLine, hOwnerCall,
+                       CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10));
+      CPPUNIT_ASSERT_MESSAGE("calling: no DISCONNECTED after remote hang-up",
+         validatorCalling.waitForCallEvent(hCallingLine, hPeerCall,
+                       CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false, 10));
+      CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallDestroy(hCallingCall));
+      CPPUNIT_ASSERT_MESSAGE("calling: no DESTROYED after remote hang-up",
+         validatorCalling.waitForCallEvent(hCallingLine, hPeerCall,
+                       CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10));
+      sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling);
+      sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled);
+      sipxEventListenerRemove(g_hInst2, soakEventCounter, &calledCount);
+      sipxLineRemove(hCallingLine);
+      sipxLineRemove(hCalledLine);
    }
    OsTask::delay(TEST_DELAY);
    checkForLeaks();
@@ -594,35 +732,6 @@ void sipXtapiTestSuite::testDeviceReturnRecovery()
 
 
 // ---------------------------------------------------------------- soak
-
-/// Media events a soak cycle checks, counted from the raw event stream of
-/// one instance. Raw counting (not EventValidator) makes the checks
-/// independent of which instance KNOWN DEFECT 1 delivers a device
-/// notification to, and of the validator's look-ahead.
-struct SoakCounters
-{
-   volatile long inputNotPresent;
-   volatile long micEnergy;
-};
-
-static bool SIPX_CALLING_CONVENTION soakEventCounter(SIPX_EVENT_CATEGORY category,
-                                                     void* pInfo, void* pUserData)
-{
-   if (category == EVENT_CATEGORY_MEDIA && pInfo && pUserData)
-   {
-      SIPX_MEDIA_INFO* pMedia = (SIPX_MEDIA_INFO*)pInfo;
-      SoakCounters* pCount = (SoakCounters*)pUserData;
-      if (pMedia->event == MEDIA_INPUT_DEVICE_NOT_PRESENT)
-      {
-         pCount->inputNotPresent++;
-      }
-      else if (pMedia->event == MEDIA_MIC_ENERGY_LEVEL)
-      {
-         pCount->micEnergy++;
-      }
-   }
-   return true;
-}
 
 /// Run scripts/bench_sample.py for this process: handle, thread and
 /// memory counts, and CRIT log lines added since the previous call.
@@ -694,16 +803,25 @@ static int benchSampleField(const UtlString& sample, const char* key)
 // sipXtapi.log in the test's working directory). Without
 // SIPX_SOAK_CYCLES it skips; asked for but without a usable bench it
 // fails.
+// SIPX_SOAK_UNINIT=calling makes the uninit outcome uninitialize the
+// calling instance instead of the called one (the default).
+// SIPX_SOAK_NO_DEPARTURE=1 runs every cycle without the departure, as a
+// control for what the departure itself adds.
 //
 // Each cycle rotates the outcome, and the device always returns:
-//   0  hang-up:  departure mid-call, the app hangs up
+//   0  hang-up:  departure mid-call, the called call hangs up
 //   1  uninit:   departure mid-call, forced sipxUnInitialize, re-create
+//               the called instance. With two instances only the called
+//               call's flowgraph captures from the microphone, so it is
+//               the one using the departing device, as in the customer's
+//               single-instance application.
 //   2  idle:     departure with no call up
 // Departures alternate post-removal and in-flight; offsets come from
 // bench.conf. Hard failures stop the run: a CRIT log line (escape,
 // retire, stuck worker), sipxUnInitialize failing or taking 10 s, a
 // hang-up not completing within 10 s, a departure mid-call not reported
-// exactly once, no microphone energy on a call (media not flowing).
+// exactly once, no microphone energy on the called call (media not
+// flowing), a flowgraph still running between cycles.
 // A bench trigger failure stops the run as a bench failure. Trends
 // (handles, threads, memory) are read from the results file afterwards.
 void sipXtapiTestSuite::testDeviceDepartureSoak()
@@ -726,6 +844,10 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
    if (!results) return;
    const char* logPath = getenv("SIPX_SOAK_LOG");
    if (!logPath) logPath = "sipXtapi.log";
+   const char* uninitEnv = getenv("SIPX_SOAK_UNINIT");
+   const bool uninitCalled = !(uninitEnv && strcmp(uninitEnv, "calling") == 0);
+   const char* noDepEnv = getenv("SIPX_SOAK_NO_DEPARTURE");
+   const bool noDeparture = (noDepEnv && atoi(noDepEnv) != 0);
    int pid = (int)OsProcess::getCurrentPID();
    char statePath[128];
    snprintf(statePath, sizeof(statePath), "/tmp/sipx_soak_%d.state", pid);
@@ -739,20 +861,21 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
       return;
    }
 
-   // INFO keeps the departure and teardown evidence (session summaries
-   // INFO, buffer failures ERR, escapes CRIT) at about 0.1 MB a cycle.
-   sipxConfigSetLogLevel(LOG_LEVEL_INFO);
+   // No log level change: this build defines LOG_TO_FILE, so
+   // sipxConfigSetLogLevel does nothing and every sipxInitialize forces
+   // DEBUG into sipXtapi.log (about 0.9 MB a cycle). The flowgraph check
+   // depends on a DEBUG line.
 
    int rc = benchSample(pid, logPath, statePath, sample);
-   fprintf(results, "soak start: %d cycles, pid %d, input match '%s', output match '%s', log %s\n",
-           cycles, pid, match.data(), outMatch.data(), logPath);
+   fprintf(results, "soak start: %d cycles, pid %d, input match '%s', output match '%s', log %s, uninit %s, departures %s\n",
+           cycles, pid, match.data(), outMatch.data(), logPath,
+           uninitCalled ? "called" : "calling", noDeparture ? "off" : "on");
    fprintf(results, "baseline rc %d %s\n", rc, sample.data());
    fflush(results);
    CPPUNIT_ASSERT_EQUAL_MESSAGE("soak sampler failed at baseline", 0, rc);
    if (rc != 0)
    {
       fclose(results);
-      sipxConfigSetLogLevel(LOG_LEVEL_DEBUG);
       return;
    }
 
@@ -771,7 +894,8 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
       int nowait = pass % 2;
       unsigned long cycleStart = benchNowMs();
       long notif = -1;
-      long energy = -1;
+      long micCalling = -1;
+      long micCalled = -1;
       unsigned long opMs = 0;
 
       SoakCounters callingCount = { 0, 0 };
@@ -780,16 +904,19 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
       UtlBoolean calledCounting = FALSE;
       UtlBoolean departed = FALSE;
       UtlBoolean callingGone = FALSE;
+      UtlBoolean calledGone = FALSE;
 
       SIPX_CALL hCallingCall = SIPX_CALL_NULL;
       SIPX_LINE hCallingLine = SIPX_LINE_NULL;
       SIPX_CALL hCalledCall = SIPX_CALL_NULL;
       SIPX_LINE hCalledLine = SIPX_LINE_NULL;
-      // A fresh calling line URI every cycle: after a forced uninitialize
-      // the dead instance's line stays in the global map (KNOWN DEFECT 2)
-      // and would capture the events of a line with the same URI.
+      // Fresh line URIs every cycle: after a forced uninitialize the dead
+      // instance's line stays in the global map (KNOWN DEFECT 2) and would
+      // capture the events of a line with the same URI.
       char callingUri[64];
       snprintf(callingUri, sizeof(callingUri), "sip:soak%d@127.0.0.1:8000", cycle);
+      char calledUri[64];
+      snprintf(calledUri, sizeof(calledUri), "sip:soakcalled%d@127.0.0.1:9100", cycle);
 
       EventValidator validatorCalling("soak.calling");
       EventValidator validatorCalled("soak.called");
@@ -821,26 +948,26 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
       if (!stopReason && variant != 2)
       {
          doCallBasicSetup(g_hInst, callingUri, callingUri,
-                          g_hInst2, "sip:called@127.0.0.1:9100", "sip:called@127.0.0.1:9100",
+                          g_hInst2, calledUri, calledUri,
                           hCallingCall, hCallingLine, hCalledCall, hCalledLine);
          callingValidating = (sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback,
                                                    &validatorCalling) == SIPX_RESULT_SUCCESS);
          calledValidating = (sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback,
                                                   &validatorCalled) == SIPX_RESULT_SUCCESS);
          OsTask::delay(2500);
-         // Mic energy is only sent for the call in focus, and the process
-         // has one focus: here the called call, answered last. Both calls
-         // capture from the factory-wide microphone device, so count
-         // energy from either instance.
-         energy = callingCount.micEnergy + calledCount.micEnergy;
-         if (energy <= 0)
+         // Only the called call's flowgraph captures from the microphone
+         // (the calling call posts speaker energy, never mic energy), so
+         // media from the device shows up there.
+         micCalling = callingCount.micEnergy;
+         micCalled = calledCount.micEnergy;
+         if (micCalled <= 0)
          {
-            stopReason = "no microphone energy on the call (media not flowing)";
+            stopReason = "no microphone energy on the called call (media not flowing)";
          }
       }
 
       // Departure, and the application told exactly once.
-      if (!stopReason)
+      if (!stopReason && !noDeparture)
       {
          rc = benchTrigger(nowait ? "disconnect nowait" : "disconnect", line);
          if (rc != 0)
@@ -878,15 +1005,17 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
       // Outcome: hang-up.
       if (!stopReason && variant == 0)
       {
-         SIPX_CALL hDestroyedCall = hCallingCall;
+         // Hang up from the called call, the one using the device.
+         SIPX_CALL hOwnerCall = hCalledCall;
+         SIPX_CALL hPeerCall = hCallingCall;
          unsigned long t0 = benchNowMs();
-         bool ok = (sipxCallDestroy(hCallingCall) == SIPX_RESULT_SUCCESS);
-         ok = ok && validatorCalling.waitForCallEvent(hCallingLine, hDestroyedCall,
+         bool ok = (sipxCallDestroy(hCalledCall) == SIPX_RESULT_SUCCESS);
+         ok = ok && validatorCalled.waitForCallEvent(hCalledLine, hOwnerCall,
                        CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
-         ok = ok && validatorCalled.waitForCallEvent(hCalledLine, g_hAutoAnswerCallbackCall,
+         ok = ok && validatorCalling.waitForCallEvent(hCallingLine, hPeerCall,
                        CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false, 10);
-         ok = ok && (sipxCallDestroy(hCalledCall) == SIPX_RESULT_SUCCESS);
-         ok = ok && validatorCalled.waitForCallEvent(hCalledLine, g_hAutoAnswerCallbackCall,
+         ok = ok && (sipxCallDestroy(hCallingCall) == SIPX_RESULT_SUCCESS);
+         ok = ok && validatorCalling.waitForCallEvent(hCallingLine, hPeerCall,
                        CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
          opMs = benchNowMs() - t0;
          if (!ok)
@@ -895,16 +1024,28 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
          }
       }
 
-      // Outcome: forced uninitialize with the call up.
+      // Outcome: forced uninitialize with the call up. By default the
+      // called instance, whose flowgraph has the microphone (see above).
       if (!stopReason && variant == 1)
       {
+         SIPX_INST& hDead = uninitCalled ? g_hInst2 : g_hInst;
+         SIPX_LINE hDeadLine = uninitCalled ? hCalledLine : hCallingLine;
          unsigned long t0 = benchNowMs();
-         SIPX_RESULT urc = sipxUnInitialize(g_hInst, true);
+         SIPX_RESULT urc = sipxUnInitialize(hDead, true);
          opMs = benchNowMs() - t0;
-         // The calling instance and its listeners are gone.
-         callingGone = TRUE;
-         callingCounting = FALSE;
-         callingValidating = FALSE;
+         // That instance and its listeners are gone.
+         if (uninitCalled)
+         {
+            calledGone = TRUE;
+            calledCounting = FALSE;
+            calledValidating = FALSE;
+         }
+         else
+         {
+            callingGone = TRUE;
+            callingCounting = FALSE;
+            callingValidating = FALSE;
+         }
          if (urc != SIPX_RESULT_SUCCESS)
          {
             stopReason = "sipxUnInitialize failed";
@@ -918,7 +1059,7 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
          // still valid. Counted and asserted, not a hard failure.
          char uriBuf[128];
          size_t uriLen = 0;
-         if (sipxLineGetURI(hCallingLine, uriBuf, sizeof(uriBuf), uriLen) == SIPX_RESULT_SUCCESS)
+         if (sipxLineGetURI(hDeadLine, uriBuf, sizeof(uriBuf), uriLen) == SIPX_RESULT_SUCCESS)
          {
             knownDefect2++;
             CPPUNIT_ASSERT_MESSAGE("KNOWN DEFECT 2: line handle still valid after forced sipxUnInitialize", 0);
@@ -926,15 +1067,28 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
 
          if (!stopReason)
          {
-            // The called side is still up on g_hInst2; drop it and wait for
-            // its DESTROYED, so it cannot leak into the next cycle.
-            SIPX_CALL hEndedCall = hCalledCall;
-            bool ok = (sipxCallDestroy(hCalledCall) == SIPX_RESULT_SUCCESS);
-            ok = ok && validatorCalled.waitForCallEvent(hCalledLine, hEndedCall,
-                          CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
+            // The other side is still up; drop it and wait for its
+            // DESTROYED, so it cannot leak into the next cycle.
+            bool ok;
+            if (uninitCalled)
+            {
+               SIPX_CALL hEndedCall = hCallingCall;
+               ok = (sipxCallDestroy(hCallingCall) == SIPX_RESULT_SUCCESS);
+               ok = ok && validatorCalling.waitForCallEvent(hCallingLine, hEndedCall,
+                             CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
+            }
+            else
+            {
+               SIPX_CALL hEndedCall = hCalledCall;
+               ok = (sipxCallDestroy(hCalledCall) == SIPX_RESULT_SUCCESS);
+               ok = ok && validatorCalled.waitForCallEvent(hCalledLine, hEndedCall,
+                             CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
+            }
             if (!ok)
             {
-               stopReason = "called side not DESTROYED within 10 s after uninitialize";
+               stopReason = uninitCalled
+                  ? "calling side not DESTROYED within 10 s after uninitialize"
+                  : "called side not DESTROYED within 10 s after uninitialize";
             }
          }
       }
@@ -960,7 +1114,7 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
       {
          sipxLineRemove(hCallingLine);
       }
-      if (hCalledLine != SIPX_LINE_NULL)
+      if (!calledGone && hCalledLine != SIPX_LINE_NULL)
       {
          sipxLineRemove(hCalledLine);
       }
@@ -984,6 +1138,14 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
             stopReason = "could not re-create the calling instance";
          }
       }
+      if (calledGone)
+      {
+         benchRecreateInstance(g_hInst2, 9100, 9101, 9050, HINST2_ADDRESS);
+         if (g_hInst2 == NULL && !stopReason)
+         {
+            stopReason = "could not re-create the called instance";
+         }
+      }
 
       // Sample, and look for new CRIT lines in the log.
       rc = benchSample(pid, logPath, statePath, sample);
@@ -995,14 +1157,18 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
       {
          stopReason = "CRIT line in the sipX log (escape, retire or stuck worker)";
       }
+      else if (benchSampleField(sample, " flowgraphs=") > 0 && !stopReason)
+      {
+         stopReason = "flowgraph still running between cycles (left by an earlier cycle)";
+      }
 
-      fprintf(results, "cycle %d %s %s offset %d notif %ld energy %ld op_ms %lu cycle_ms %lu %s%s%s\n",
+      fprintf(results, "cycle %d %s %s offset %d notif %ld mic_calling %ld mic_called %ld op_ms %lu cycle_ms %lu %s%s%s\n",
               cycle, variantName[variant], nowait ? "in-flight" : "post-removal", offset,
-              notif, energy, opMs, benchNowMs() - cycleStart, sample.data(),
+              notif, micCalling, micCalled, opMs, benchNowMs() - cycleStart, sample.data(),
               stopReason ? " STOP: " : "", stopReason ? stopReason : "");
       fflush(results);
-      printf("soak cycle %d %s: notif %ld energy %ld op_ms %lu%s%s\n",
-             cycle, variantName[variant], notif, energy, opMs,
+      printf("soak cycle %d %s: notif %ld mic_called %ld op_ms %lu%s%s\n",
+             cycle, variantName[variant], notif, micCalled, opMs,
              stopReason ? " STOP: " : "", stopReason ? stopReason : "");
       fflush(stdout);
       if (!stopReason)
@@ -1016,7 +1182,6 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
       // Best effort: leave the device attached for whatever runs next.
       benchTrigger("connect", line);
    }
-   sipxConfigSetLogLevel(LOG_LEVEL_DEBUG);
    fprintf(results, "soak end: %d of %d cycles completed in %lu s; known defect 2 hits %d; %s%s\n",
            done, cycles, (benchNowMs() - soakStart) / 1000, knownDefect2,
            stopReason ? (benchFailure ? "STOPPED (BENCH FAILURE): " : "STOPPED: ") : "no hard failure",
