@@ -1,9 +1,9 @@
 //  
+// Copyright (C) 2007-2026 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//  
 // Copyright (C) 2007-2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2007-2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
@@ -21,6 +21,7 @@
 
 // APPLICATION INCLUDES
 #include <mp/MpResamplerSpeex.h>
+#include <os/OsSysLog.h>
 #include <speex/speex_resampler.h>
 
 // EXTERNAL FUNCTIONS
@@ -154,6 +155,13 @@ OsStatus MpResamplerSpeex::setInputRate(const uint32_t inputRate)
 
 OsStatus MpResamplerSpeex::setOutputRate(const uint32_t outputRate)
 {
+   // speex divides by the output rate; a 0 rate is never valid here.
+   if (outputRate == 0)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpResamplerSpeex::setOutputRate "
+         "rejected output rate 0 (input rate %u)", (unsigned)mInputRate);
+      return OS_INVALID_ARGUMENT;
+   }
    OsStatus stat = MpResamplerBase::setOutputRate(outputRate);
    if(stat == OS_SUCCESS)
    {

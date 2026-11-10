@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2007-2017 SIPez LLC. All rights reserved.
+// Copyright (C) 2007-2026 SIPez LLC. All rights reserved.
 //
 // Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -196,7 +196,18 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
 
    // If the output device is disabled, don't resample to save the CPU cycles
    UtlBoolean deviceDisabled = FALSE;
-   if(!mpOutputDeviceManager->isDeviceEnabled(mDeviceId))
+   // A rate of 0 means the device is being disabled or re-enabled on
+   // another thread: getDeviceSamplesPerSec and isDeviceEnabled are not
+   // read atomically. Treat it as disabled for this frame so a 0 rate
+   // never reaches the resampler (integer divide by zero in speex).
+   UtlBoolean deviceEnabled = mpOutputDeviceManager->isDeviceEnabled(mDeviceId);
+   if(deviceEnabled && devSampleRate == 0)
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING, "MprToOutputDevice::doProcessFrame "
+         "- output device %d reports sample rate 0 while enabled "
+         "(disable/re-enable in progress); frame not sent", (int)mDeviceId);
+   }
+   if(!deviceEnabled || devSampleRate == 0)
    {
        deviceDisabled = TRUE;
        devSampleRate = samplesPerSecond;
