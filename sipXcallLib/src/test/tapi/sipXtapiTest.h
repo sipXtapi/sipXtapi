@@ -334,6 +334,8 @@ class sipXtapiTestSuite : public SIPX_UNIT_BASE_CLASS
 #endif /* TEST_PROBLEMATIC_CASES ] */
 
     CPPUNIT_TEST(testMultiInstanceUninitKeepsMediaFactory) ;
+    CPPUNIT_TEST(testForcedUninitReleasesCallFlowgraph) ;
+    CPPUNIT_TEST(testForcedUninitReleasesLineHandles) ;
     CPPUNIT_TEST(testDeviceDepartureThenHangup) ;
     CPPUNIT_TEST(testDeviceDepartureThenUninitialize) ;
     CPPUNIT_TEST(testDeviceReturnRecovery) ;
@@ -543,6 +545,9 @@ public:
     void testConfigOutOfBand() ;
     void testTeardown() ;
     void testMultiInstanceUninitKeepsMediaFactory() ;
+    // KNOWN DEFECT 8 / KNOWN DEFECT 2 (sipXtapiTestConfig.cpp)
+    void testForcedUninitReleasesCallFlowgraph() ;
+    void testForcedUninitReleasesLineHandles() ;
     // Device departure during a call (sipXtapiTestDeviceDeparture.cpp)
     void testDeviceDepartureThenHangup() ;
     void testDeviceDepartureThenUninitialize() ;
@@ -637,3 +642,4 @@ private:
 } ;
 
 #endif
+

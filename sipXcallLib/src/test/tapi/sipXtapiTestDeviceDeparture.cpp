@@ -363,8 +363,9 @@ void sipXtapiTestSuite::testDeviceDepartureThenHangup()
       CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
          sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled));
 
-      // Let media run on a live stream before the departure.
-      OsTask::delay(1500);
+      // Let media run on a live stream before the departure. 2.5 s gives
+      // the mic energy precondition (one event per 1000 ms) some margin.
+      OsTask::delay(2500);
 
       // Precondition: the called call is the one using the bench device.
       // If not, this test does not exercise the customer's case.
@@ -561,7 +562,9 @@ void sipXtapiTestSuite::testDeviceDepartureThenUninitialize()
       doCallBasicSetup(g_hInst, callingUri, callingUri,
                        g_hInst2, calledUri, calledUri,
                        hCallingCall, hCallingLine, hCalledCall, hCalledLine);
-      OsTask::delay(1500);
+      // 2.5 s gives the mic energy precondition (one event per 1000 ms)
+      // some margin.
+      OsTask::delay(2500);
 
       // Precondition: the call about to be uninitialized is the one using
       // the bench device. If not, this test does not exercise the
@@ -574,8 +577,7 @@ void sipXtapiTestSuite::testDeviceDepartureThenUninitialize()
          sipxCallDestroy(hCallingCall);
          sipxCallDestroy(hCalledCall);
          CPPUNIT_ASSERT_MESSAGE("called call has no microphone energy: it is not the call using the bench device", 0);
-         return;
-      }
+         return;     }
 
       CPPUNIT_ASSERT_EQUAL_MESSAGE("bench disconnect failed", 0,
                                    benchTrigger(nowait ? "disconnect nowait" : "disconnect", line));
@@ -810,15 +812,20 @@ static int benchSampleField(const UtlString& sample, const char* key)
 //
 // Each cycle rotates the outcome, and the device always returns:
 //   0  hang-up:  departure mid-call, the called call hangs up
-//   1  uninit:   departure mid-call, forced sipxUnInitialize, re-create
-//               the called instance. With two instances only the called
-//               call's flowgraph captures from the microphone, so it is
-//               the one using the departing device, as in the customer's
-//               single-instance application.
+//   1  uninit:   departure mid-call, forced sipxUnInitialize of the
+//               called instance with its call up (with two instances only
+//               the called call's flowgraph captures from the microphone,
+//               so it is the one using the departing device, as in the
+//               customer's application), then a full restart: the calling
+//               instance (call up) and the idle g_hInst3/4 are
+//               uninitialized too, which destroys the media factory and
+//               the media task, and all four are re-created. Flowgraphs
+//               leaked by KNOWN DEFECT 8 therefore stop each cycle instead
+//               of piling up; the memory they hold shows in the trend.
 //   2  idle:     departure with no call up
 // Departures alternate post-removal and in-flight; offsets come from
 // bench.conf. Hard failures stop the run: a CRIT log line (escape,
-// retire, stuck worker), sipxUnInitialize failing or taking 10 s, a
+// retire, stuck worker), any sipxUnInitialize failing or taking 10 s, a
 // hang-up not completing within 10 s, a departure mid-call not reported
 // exactly once, no microphone energy on the called call (media not
 // flowing), a flowgraph still running between cycles.
@@ -882,7 +889,6 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
    static const char* variantName[] = { "hang-up", "uninit", "idle" };
    const char* stopReason = NULL;
    UtlBoolean benchFailure = FALSE;
-   int knownDefect2 = 0;
    int done = 0;
    unsigned long soakStart = benchNowMs();
 
@@ -905,6 +911,7 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
       UtlBoolean departed = FALSE;
       UtlBoolean callingGone = FALSE;
       UtlBoolean calledGone = FALSE;
+      UtlBoolean restarted = FALSE;
 
       SIPX_CALL hCallingCall = SIPX_CALL_NULL;
       SIPX_LINE hCallingLine = SIPX_LINE_NULL;
@@ -1024,72 +1031,49 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
          }
       }
 
-      // Outcome: forced uninitialize with the call up. By default the
-      // called instance, whose flowgraph has the microphone (see above).
+      //utcome: forced uninitialize with the call up, then a full restart
+      // (see the comment above the test). The device owner, by default the
+      // called instance, goes first; then the instance with the other call
+      // up (a forced uninitialize sends no BYE, so that call is still up
+      // too); then the idle g_hInst3/4. The last one destroys the media
+      // factory and the media task.
       if (!stopReason && variant == 1)
       {
-         SIPX_INST& hDead = uninitCalled ? g_hInst2 : g_hInst;
-         SIPX_LINE hDeadLine = uninitCalled ? hCalledLine : hCallingLine;
+         SIPX_INST& hOwner = uninitCalled ? g_hInst2 : g_hInst;
+         SIPX_INST& hPeer = uninitCalled ? g_hInst : g_hInst2;
          unsigned long t0 = benchNowMs();
-         SIPX_RESULT urc = sipxUnInitialize(hDead, true);
+         SIPX_RESULT urc = sipxUnInitialize(hOwner, true);
          opMs = benchNowMs() - t0;
-         // That instance and its listeners are gone.
-         if (uninitCalled)
-         {
-            calledGone = TRUE;
-            calledCounting = FALSE;
-            calledValidating = FALSE;
-         }
-         else
-         {
-            callingGone = TRUE;
-            callingCounting = FALSE;
-            callingValidating = FALSE;
-         }
+         t0 = benchNowMs();
+         SIPX_RESULT prc = sipxUnInitialize(hPeer, true);
+         unsigned long peerMs = benchNowMs() - t0;
+         SIPX_RESULT irc3 = sipxUnInitialize(g_hInst3, true);
+         SIPX_RESULT irc4 = sipxUnInitialize(g_hInst4, true);
+         g_hInst3 = NULL;
+         g_hInst4 = NULL;
+         restarted = TRUE;
+         // Every instance and its listeners are gone.
+         callingGone = TRUE;
+         calledGone = TRUE;
+         callingCounting = FALSE;
+         calledCounting = FALSE;
+         callingValidating = FALSE;
+         calledValidating = FALSE;
          if (urc != SIPX_RESULT_SUCCESS)
          {
-            stopReason = "sipxUnInitialize failed";
+            stopReason = "sipxUnInitialize of the device owner failed";
          }
          else if (opMs >= 10000)
          {
-            stopReason = "sipxUnInitialize not bounded (10 s)";
+            stopReason = "sipxUnInitialize of the device owner not bounded (10 s)";
          }
-
-         // KNOWN DEFECT 2 (phase 2): the dead instance's line handle is
-         // still valid. Counted and asserted, not a hard failure.
-         char uriBuf[128];
-         size_t uriLen = 0;
-         if (sipxLineGetURI(hDeadLine, uriBuf, sizeof(uriBuf), uriLen) == SIPX_RESULT_SUCCESS)
+         else if (prc != SIPX_RESULT_SUCCESS || peerMs >= 10000)
          {
-            knownDefect2++;
-            CPPUNIT_ASSERT_MESSAGE("KNOWN DEFECT 2: line handle still valid after forced sipxUnInitialize", 0);
+            stopReason = "sipxUnInitialize of the other call's instance failed or not bounded (10 s)";
          }
-
-         if (!stopReason)
+         else if (irc3 != SIPX_RESULT_SUCCESS || irc4 != SIPX_RESULT_SUCCESS)
          {
-            // The other side is still up; drop it and wait for its
-            // DESTROYED, so it cannot leak into the next cycle.
-            bool ok;
-            if (uninitCalled)
-            {
-               SIPX_CALL hEndedCall = hCallingCall;
-               ok = (sipxCallDestroy(hCallingCall) == SIPX_RESULT_SUCCESS);
-               ok = ok && validatorCalling.waitForCallEvent(hCallingLine, hEndedCall,
-                             CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
-            }
-            else
-            {
-               SIPX_CALL hEndedCall = hCalledCall;
-               ok = (sipxCallDestroy(hCalledCall) == SIPX_RESULT_SUCCESS);
-               ok = ok && validatorCalled.waitForCallEvent(hCalledLine, hEndedCall,
-                             CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false, 10);
-            }
-            if (!ok)
-            {
-               stopReason = uninitCalled
-                  ? "calling side not DESTROYED within 10 s after uninitialize"
-                  : "called side not DESTROYED within 10 s after uninitialize";
-            }
+            stopReason = "sipxUnInitialize of an idle instance failed";
          }
       }
 
@@ -1130,20 +1114,16 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
             benchFailure = TRUE;
          }
       }
-      if (callingGone)
-      {
-         benchRecreateInstance(g_hInst, 8000, 8001, 8050, HINST_ADDRESS);
-         if (g_hInst == NULL && !stopReason)
-         {
-            stopReason = "could not re-create the calling instance";
-         }
-      }
-      if (calledGone)
+      if (restarted)
       {
          benchRecreateInstance(g_hInst2, 9100, 9101, 9050, HINST2_ADDRESS);
-         if (g_hInst2 == NULL && !stopReason)
+         benchRecreateInstance(g_hInst3, 10000, 10001, 10050, HINST3_ADDRESS);
+         benchRecreateInstance(g_hInst4, 12070, 12071, 12050, HINST4_ADDRESS);
+         benchRecreateInstance(g_hInst, 8000, 8001, 8050, HINST_ADDRESS);
+         if ((g_hInst == NULL || g_hInst2 == NULL || g_hInst3 == NULL || g_hInst4 == NULL)
+             && !stopReason)
          {
-            stopReason = "could not re-create the called instance";
+            stopReason = "could not re-create the instances after the restart";
          }
       }
 
@@ -1182,8 +1162,8 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
       // Best effort: leave the device attached for whatever runs next.
       benchTrigger("connect", line);
    }
-   fprintf(results, "soak end: %d of %d cycles completed in %lu s; known defect 2 hits %d; %s%s\n",
-           done, cycles, (benchNowMs() - soakStart) / 1000, knownDefect2,
+   fprintf(results, "soak end: %d of %d cycles completed in %lu s; %s%s\n",
+           done, cycles, (benchNowMs() - soakStart) / 1000,
            stopReason ? (benchFailure ? "STOPPED (BENCH FAILURE): " : "STOPPED: ") : "no hard failure",
            stopReason ? stopReason : "");
    fclose(results);
@@ -1197,3 +1177,4 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
    OsTask::delay(TEST_DELAY);
    checkForLeaks();
 }
+

@@ -573,6 +573,280 @@ void sipXtapiTestSuite::testMultiInstanceUninitKeepsMediaFactory()
    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxUnInitialize(hC, true));
 }
 
+// Open the sipX log for reading. With LOG_TO_FILE, which only the Windows
+// projects define, sipxInitialize hardcodes sipXtapi.log; otherwise setUp's
+// sipxConfigSetLogFile name is used.
+static FILE* knownDefectOpenLog()
+{
+    FILE* logFile = fopen("sipXtapi.log", "rb") ;
+    if (logFile == NULL)
+    {
+        logFile = fopen("sipXtapiTests.txt", "rb") ;
+    }
+    return logFile ;
+}
+
+// Flowgraph count from the first "MpMediaTask::sendToAllFlowgraphs sent
+// message[n] to N flowgraphs" line after the line containing marker, plus
+// any "failed to send" lines in between (a flowgraph that exists but could
+// not take the message). -1 when the marker or the count line is not in
+// the log yet. The whole file is scanned each time: the DLL holds the log
+// open, and an offset taken on a separate handle is not reliable (see
+// testLoggingSurvivesOtherInstanceUninit).
+static int knownDefectFlowgraphCountAfter(const char* marker)
+{
+    FILE* logFile = knownDefectOpenLog() ;
+    if (logFile == NULL)
+    {
+        return -1 ;
+    }
+    char logLine[8192] ;
+    UtlBoolean seenMarker = FALSE ;
+    int failedSends = 0 ;
+    int count = -1 ;
+    while (count < 0 && fgets(logLine, sizeof(logLine), logFile) != NULL)
+    {
+        if (!seenMarker)
+        {
+            seenMarker = (strstr(logLine, marker) != NULL) ;
+            continue ;
+        }
+        if (strstr(logLine, "MpMediaTask::sendToAllFlowgraphs failed to send") != NULL)
+        {
+            failedSends++ ;
+            continue ;
+        }
+        const char* s = strstr(logLine, "MpMediaTask::sendToAllFlowgraphs sent message[") ;
+        if (s != NULL)
+        {
+            const char* t = strstr(s, "] to ") ;
+            if (t != NULL)
+            {
+                count = atoi(t + 5) + failedSends ;
+            }
+        }
+    }
+    fclose(logFile) ;
+    return count ;
+}
+
+// Initialize an instance on fixed ports, retrying briefly: ports can
+// linger in TIME_WAIT right after an uninitialize.
+static SIPX_RESULT knownDefectInitialize(SIPX_INST* phInst, int sipPort, int rtpPort,
+                                         const char* identity)
+{
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE ;
+    *phInst = NULL ;
+    for (int attempt = 0; attempt < 20; attempt++)
+    {
+        rc = sipxInitialize(phInst, sipPort, sipPort, sipPort + 1, rtpPort, 32, identity,
+                            "127.0.0.1", false, NULL, NULL, NULL, true,
+                            INTERNAL_SAMPLE_RATE, DEVICE_SAMPLE_RATE) ;
+        if (rc == SIPX_RESULT_SUCCESS && *phInst != NULL)
+        {
+            break ;
+        }
+        OsTask::delay(500) ;
+    }
+    return rc ;
+}
+
+// End the surviving side of a call whose other instance was
+// force-uninitialized, and wait for its DESTROYED.
+static bool knownDefectEndSurvivor(SIPX_INST hInst, SIPX_LINE hLine, SIPX_CALL& hCall)
+{
+    EventValidator validatorEnd("knownDefect.survivor.end") ;
+    validatorEnd.ignoreMediaEvent(MEDIA_INPUT_DEVICE_NOT_PRESENT) ;
+    validatorEnd.ignoreMediaEvent(MEDIA_OUTPUT_DEVICE_NOT_PRESENT) ;
+    if (sipxEventListenerAdd(hInst, UniversalEventValidatorCallback, &validatorEnd)
+        != SIPX_RESULT_SUCCESS)
+    {
+        return false ;
+    }
+    SIPX_CALL hEndedCall = hCall ;
+    bool ok = (sipxCallDestroy(hCall) == SIPX_RESULT_SUCCESS) ;
+    ok = ok && validatorEnd.waitForCallEvent(hLine, hEndedCall, CALLSTATE_DESTROYED,
+                                             CALLSTATE_CAUSE_NORMAL, false, 10) ;
+    sipxEventListenerRemove(hInst, UniversalEventValidatorCallback, &validatorEnd) ;
+    return ok ;
+}
+
+// KNOWN DEFECT 8 (phase 2, not fixed for delivery): a forced
+// sipxUnInitialize with a call up never deletes the in-focus call
+// (~CallManager deletes only the calls on its call stack), so the call's
+// media interface and flowgraph leak. While another instance keeps the
+// media factory alive, the leaked flowgraph keeps running. This test
+// asserts the contract -- no flowgraph left once both calls are gone --
+// and fails until the defect is fixed. Do not relax it.
+//
+// The flowgraph count comes from the DEBUG log line the media task writes
+// whenever a call device is selected; the test selects the first input
+// device to make it write one. No audio input device: skip, loudly.
+void sipXtapiTestSuite::testForcedUninitReleasesCallFlowgraph()
+{
+    SIPX_INST hA = NULL ;
+    SIPX_INST hB = NULL ;
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+        knownDefectInitialize(&hA, 14500, 14550, "sip:d8calling@127.0.0.1:14500")) ;
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+        knownDefectInitialize(&hB, 14600, 14650, "sip:d8called@127.0.0.1:14600")) ;
+
+    size_t numInputs = 0 ;
+    const char* inputName = NULL ;
+    if (sipxAudioGetNumInputDevices(hB, numInputs) != SIPX_RESULT_SUCCESS || numInputs == 0
+        || sipxAudioGetInputDevice(hB, 0, inputName) != SIPX_RESULT_SUCCESS || inputName == NULL)
+    {
+        sipxUnInitialize(hA, true) ;
+        sipxUnInitialize(hB, true) ;
+        printf("SIPX_TEST_SKIP: KNOWN DEFECT 8 test needs an audio input device to select\n") ;
+        fflush(stdout) ;
+        CPPUNIT_ASSERT_MESSAGE("SIPX_TEST_SKIP: no audio input device", 0) ;
+        return ;
+    }
+    UtlString inputDevice(inputName) ;
+
+    SIPX_CALL hCallingCall = SIPX_CALL_NULL ;
+    SIPX_LINE hCallingLine = SIPX_LINE_NULL ;
+    SIPX_CALL hCalledCall = SIPX_CALL_NULL ;
+    SIPX_LINE hCalledLine = SIPX_LINE_NULL ;
+    doCallBasicSetup(hA, "sip:d8calling@127.0.0.1:14500", "sip:d8calling@127.0.0.1:14500",
+                     hB, "sip:d8called@127.0.0.1:14600", "sip:d8called@127.0.0.1:14600",
+                     hCallingCall, hCallingLine, hCalledCall, hCalledLine) ;
+    OsTask::delay(1000) ;
+
+    // The customer's call: forced uninitialize with the call up.
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxUnInitialize(hA, true)) ;
+    hA = NULL ;
+
+    // End the other side normally; its flowgraph must go.
+    bool bEnded = knownDefectEndSurvivor(hB, hCalledLine, hCalledCall) ;
+    CPPUNIT_ASSERT_MESSAGE("called side not DESTROYED within 10 s after the other side's forced uninitialize",
+                           bEnded) ;
+    sipxLineRemove(hCalledLine) ;
+    // The call manager releases the media interface after DESTROYED.
+    OsTask::delay(1000) ;
+
+    // Marker in the log, unique per run, then a device select so the media
+    // task logs how many flowgraphs it still runs.
+    char marker[128] ;
+    sprintf(marker, "sip:d8probe%u@127.0.0.1:14600",
+            (unsigned) OsDateTime::getSecsSinceEpoch()) ;
+    SIPX_LINE hProbeLine = SIPX_LINE_NULL ;
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxLineAdd(hB, marker, &hProbeLine)) ;
+    sipxLineRemove(hProbeLine) ;
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+                         sipxAudioSetCallInputDevice(hB, inputDevice.data())) ;
+
+    int flowgraphs = -1 ;
+    for (int attempt = 0; attempt < 50 && flowgraphs < 0; attempt++)
+    {
+        OsTask::delay(100) ;
+        flowgraphs = knownDefectFlowgraphCountAfter(marker) ;
+    }
+    printf("KNOWN DEFECT 8 probe: flowgraphs still running after both calls ended: %d\n",
+           flowgraphs) ;
+    fflush(stdout) ;
+
+    sipxUnInitialize(hB, true) ;
+
+    CPPUNIT_ASSERT_MESSAGE("no flowgraph count line in the sipX log after a device select "
+                           "(log not at DEBUG, or log file not found)", flowgraphs >= 0) ;
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("KNOWN DEFECT 8: flowgraph still running after a forced "
+                                 "sipxUnInitialize with a call up", 0, flowgraphs) ;
+    OsTask::delay(TEST_DELAY) ;
+    checkForLeaks() ;
+}
+
+// Records the line handle of the first call event an instance reports.
+struct KnownDefectLineRecord
+{
+    volatile long events ;
+    SIPX_LINE firstLine ;
+} ;
+
+static bool SIPX_CALLING_CONVENTION knownDefectLineRecorder(SIPX_EVENT_CATEGORY category,
+                                                            void* pInfo, void* pUserData)
+{
+    if (category == EVENT_CATEGORY_CALLSTATE && pInfo && pUserData)
+    {
+        KnownDefectLineRecord* pRecord = (KnownDefectLineRecord*) pUserData ;
+        if (pRecord->events == 0)
+        {
+            pRecord->firstLine = ((SIPX_CALLSTATE_INFO*) pInfo)->hLine ;
+        }
+        pRecord->events++ ;
+    }
+    return true ;
+}
+
+// KNOWN DEFECT 2 (phase 2): a forced sipxUnInitialize with a call and line
+// up leaves the dead instance's line in the global line map. Call events
+// look their line up by URI across all instances
+// (sipxLineLookupHandleByURI), so after the instance is re-created and the
+// same line URI added again, the new line's call events carry the dead
+// line's handle. This test asserts the contract -- events carry the new
+// line's handle -- and fails until the defect is fixed. Do not relax it.
+void sipXtapiTestSuite::testForcedUninitReleasesLineHandles()
+{
+    const char* callingUri = "sip:d2calling@127.0.0.1:14700" ;
+    const char* calledUri = "sip:d2called@127.0.0.1:14800" ;
+    SIPX_INST hA = NULL ;
+    SIPX_INST hB = NULL ;
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, knownDefectInitialize(&hA, 14700, 14750, callingUri)) ;
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, knownDefectInitialize(&hB, 14800, 14850, calledUri)) ;
+
+    SIPX_CALL hCallingCall = SIPX_CALL_NULL ;
+    SIPX_LINE hCallingLine = SIPX_LINE_NULL ;
+    SIPX_CALL hCalledCall = SIPX_CALL_NULL ;
+    SIPX_LINE hCalledLine = SIPX_LINE_NULL ;
+    doCallBasicSetup(hA, callingUri, callingUri, hB, calledUri, calledUri,
+                     hCallingCall, hCallingLine, hCalledCall, hCalledLine) ;
+    SIPX_LINE hDeadLine = hCallingLine ;
+
+    // Forced uninitialize with the call and line up, as the customer does.
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxUnInitialize(hA, true)) ;
+    hA = NULL ;
+    bool bEnded = knownDefectEndSurvivor(hB, hCalledLine, hCalledCall) ;
+    CPPUNIT_ASSERT_MESSAGE("called side not DESTROYED within 10 s after the other side's forced uninitialize",
+                           bEnded) ;
+    sipxLineRemove(hCalledLine) ;
+
+    // Re-create the instance and add the same line URI again.
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, knownDefectInitialize(&hA, 14700, 14750, callingUri)) ;
+    SIPX_LINE hNewLine = SIPX_LINE_NULL ;
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxLineAdd(hA, callingUri, &hNewLine)) ;
+
+    // Any call event on the new line must name the new line.
+    KnownDefectLineRecord record = { 0, SIPX_LINE_NULL } ;
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+                         sipxEventListenerAdd(hA, knownDefectLineRecorder, &record)) ;
+    SIPX_CALL hCall = SIPX_CALL_NULL ;
+    CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxCallCreate(hA, hNewLine, &hCall)) ;
+    for (int attempt = 0; attempt < 50 && record.events == 0; attempt++)
+    {
+        OsTask::delay(100) ;
+    }
+    SIPX_LINE firstLine = record.firstLine ;
+    long events = record.events ;
+    printf("KNOWN DEFECT 2 probe: dead line %d, new line %d, first call event names line %d (%ld events)\n",
+           (int) hDeadLine, (int) hNewLine, (int) firstLine, events) ;
+    fflush(stdout) ;
+
+    sipxEventListenerRemove(hA, knownDefectLineRecorder, &record) ;
+    sipxCallDestroy(hCall) ;
+    sipxLineRemove(hNewLine) ;
+    OsTask::delay(500) ;
+    sipxUnInitialize(hA, true) ;
+    sipxUnInitialize(hB, true) ;
+
+    CPPUNIT_ASSERT_MESSAGE("no call event after sipxCallCreate on the new line", events > 0) ;
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("KNOWN DEFECT 2: call event names the dead instance's line "
+                                 "after a forced sipxUnInitialize and re-adding the same line URI",
+                                 (int) hNewLine, (int) firstLine) ;
+    OsTask::delay(TEST_DELAY) ;
+    checkForLeaks() ;
+}
+
 void sipXtapiTestSuite::testLoggingSurvivesOtherInstanceUninit()
 {
     // This method's own assertions pass, but the suite's tearDown crashes
