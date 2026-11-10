@@ -703,6 +703,15 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const char* packetData, int packetLength,
    // Get new RTP buffer
    rtpBuf = MpMisc.RtpPool->getBuffer();
 
+   // The header and the payload come from separate pools (RtpHeadersPool and
+   // RtpPool), so a valid header can still be missing its payload buffer.  If
+   // either pool is empty (MpBufPool::getBuffer has already logged it), drop
+   // the packet rather than dereference a NULL buffer below.
+   if (!rtpBuf.isValid() || !rtpBuf->getData().isValid()) {
+      rtpBuf.release();
+      return rtpBuf; // contained pointer is NULL - caller drops the packet
+   }
+
    // Copy source IP and port
    rtpBuf->setIP(ip);
    rtpBuf->setUdpPort(udpPort);

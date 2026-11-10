@@ -213,7 +213,10 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
 
    // Allocate new RTP packet.
    pRtpPacket = MpMisc.RtpPool->getBuffer();
-   assert(pRtpPacket.isValid());
+   // The header and the payload come from separate pools - if either is empty
+   // (MpBufPool::getBuffer has already logged it), drop this packet.
+   if (!pRtpPacket.isValid() || !pRtpPacket->getData().isValid())
+      return 0;
 
    // Label buf so we know which flowgraph is using it
    pRtpPacket.setFlowGraph(mpFlowGraph);
@@ -264,7 +267,10 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
 
    // Allocate UDP packet
    pUdpPacket = MpMisc.UdpPool->getBuffer();
-   
+   // As above - drop this packet if either pool is empty
+   if (!pUdpPacket.isValid() || !pUdpPacket->getData().isValid())
+      return 0;
+
    // Label buf so we know which flowgraph is using it
    pUdpPacket.setFlowGraph(mpFlowGraph);
 

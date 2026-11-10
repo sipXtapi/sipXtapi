@@ -1,4 +1,6 @@
 //  
+// Copyright (C) 2026 SIP Spectrum, Inc. https://www.sipspectrum.com
+//  
 // Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
 //
 //  
@@ -62,7 +64,9 @@ public:
     {
         if(!mpData.isValid())
         {
+            // No packet data buffer (UdpPool was empty) - nothing to size
             MpMisc.UdpPool->profileFlowgraphPoolUsage();
+            return false;
         }
         return mpData->setDataSize(size);
     }

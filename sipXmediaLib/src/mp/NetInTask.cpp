@@ -1,6 +1,6 @@
 //
-// Copyright (C) 2021 SIP Spectrum, Inc. www.sipspectrum.com  
-//
+// Copyright (C) 2021-2026 SIP Spectrum, Inc. https://www.sipspectrum.com
+//  
 // Copyright (C) 2006-2017 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -225,7 +225,10 @@ OsStatus NetInTask::get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, bool isRtcp, i
         // Get new buffer for incoming packet
         ib = MpMisc.UdpPool->getBuffer();
 
-        if (ib.isValid()) {
+        // The header and the packet data come from separate pools, so a valid
+        // header can still be missing its data buffer if UdpPool is empty - in
+        // which case the packet is flushed below, rather than read into NULL.
+        if (ib.isValid() && ib->getData().isValid()) {
             // Read packet data.
             // Note: nRead could not be greater then buffer size.
             nRead = pRxpSkt->read(ib->getDataWritePtr(), ib->getMaximumPacketSize(), &fromIP, &fromPort);
