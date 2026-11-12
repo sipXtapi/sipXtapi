@@ -20,6 +20,7 @@
 #include <os/OsTask.h>
 #include <os/OsMsgDispatcher.h>
 #include <utl/UtlInt.h>
+#include <utl/UtlSList.h>
 #include <utl/UtlVoidPtr.h>
 #include <utl/UtlDList.h>
 #include <utl/UtlDListIterator.h>
@@ -36,6 +37,14 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+// Drivers whose disable took the fire-escape path are parked here for
+// the life of the process instead of being deleted: a stuck callback
+// thread may still reference them. Never drained. See
+// MpodWinMM::disableDevice and lastDisableEscaped().
+// Allocated on first use and never freed: it holds objects we leak on
+// purpose, and a file-scope container would be destroyed at DLL detach
+// after the static lock its destructor needs, crashing process exit.
+static UtlSList* spRetiredDrivers = NULL;
 // PRIVATE CLASSES
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -177,10 +186,34 @@ int MpOutputDeviceManager::removeAllDevices()
             // Remove device
             MpOutputDeviceDriver* deviceDriver = removeDevice(deviceId);
 
-            // Need to delete the device as it is not in removeDevice
+            // Need to delete the device as it is not in removeDevice.
+            // Exception: a driver whose last disable took the fire-
+            // escape path has a callback thread that may still be inside
+            // a wave call referencing the object. It must never be
+            // freed; park it on a process-lifetime retire list instead
+            // (intentional leak, one object per misbehaving-driver
+            // incident).
             if(deviceDriver)
             {
-                delete deviceDriver;
+                if (deviceDriver->lastDisableEscaped())
+                {
+                    OsSysLog::add(FAC_MP, PRI_CRIT,
+                        "MpOutputDeviceManager::removeAllDevices retiring "
+                        "driver '%s' instead of deleting: its disable "
+                        "escaped teardown and a stuck thread may still "
+                        "reference it",
+                        deviceDriver->getDeviceName().data());
+
+                    if (spRetiredDrivers == NULL)
+                    {
+                        spRetiredDrivers = new UtlSList();
+                    }
+                    spRetiredDrivers->append(deviceDriver);
+                }
+                else
+                {
+                    delete deviceDriver;
+                }
                 deviceDriver = NULL;
             }
 

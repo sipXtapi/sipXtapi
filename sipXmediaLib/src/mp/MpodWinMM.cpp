@@ -403,6 +403,8 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mFallbackDiscardCount(0)
 , mFallbackFramePeriodMs(0)
 , mPushInFlight(0)
+, mLastDisableEscaped(FALSE)
+, mEscapeTick(0)
 , mDeviceEnumeratorPtr(NULL)
 {
     OsSysLog::add(FAC_MP, PRI_DEBUG,
@@ -574,6 +576,22 @@ MpodWinMM::~MpodWinMM()
          getDeviceName().data(), (int)mPushInFlight);
    }
 
+   // A driver whose disable escaped has its callback thread stuck inside a
+   // wave call (pushFrame runs on it via the ticker). Waiting for it would
+   // hang forever, and it may still touch the message pools, so skip the
+   // join and leak them. MpOutputDeviceManager retires such drivers rather
+   // than deleting them; this is the backstop for any other delete.
+   if (mLastDisableEscaped)
+   {
+      OsSysLog::add(FAC_MP, PRI_CRIT,
+         "MpodWinMM::~MpodWinMM '%s' deleted %lu ms after its disable "
+         "escaped; not waiting for the stuck callback thread, leaking "
+         "its message pools",
+         getDeviceName().data(),
+         (unsigned long)(GetTickCount() - mEscapeTick));
+      return;
+   }
+
    // Delete synchronization thread
    mExitFlag = TRUE;
    SetEvent(mCallbackEvent);
@@ -618,6 +636,20 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
 {
    OsSysLog::add(FAC_MP, PRI_DEBUG,
         "MpodWinMM::enableDevice");
+
+   // A driver whose disable escaped is permanently damaged: its callback
+   // thread is stuck inside a wave call on this object. It must never run
+   // again; recovery is a new driver instance.
+   if (mLastDisableEscaped)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR,
+         "MpodWinMM::enableDevice '%s' refused: driver escaped teardown "
+         "%lu ms ago and is retired",
+         getDeviceName().data(),
+         (unsigned long)(GetTickCount() - mEscapeTick));
+      return OS_FAILED;
+   }
+
    WMM_TRACE_PRINTF("WMM_TRACE: tid=%lu enableDevice ENTRY mIsEnabled=%d mDevHandle=%p mWinMMDeviceId=%d mpTickerTimer=%p\n",
          GetCurrentThreadId(), (int)mIsEnabled, mDevHandle, mWinMMDeviceId, mpTickerTimer);
 
@@ -902,7 +934,25 @@ OsStatus MpodWinMM::disableDevice()
    // before it was cleared may be blocked inside a wave call on a removed
    // device and will write into these buffers if it ever returns. Leaking
    // them is bounded and safe; freeing them under a blocked writer is not.
-   // Do not wait here: the writer may never make progress.
+   // Wait a bounded time for a push to drain: one that is merely running
+   // returns quickly, and the reset and close above can release one that
+   // was waiting in the driver. One still in flight after the bound is
+   // stuck and may never return.
+   DWORD drainWaited = 0;
+   while (InterlockedCompareExchange(&mPushInFlight, 0, 0) != 0
+          && drainWaited < MPOD_WINMM_PUSH_DRAIN_TIMEOUT_MS)
+   {
+      Sleep(5);
+      drainWaited += 5;
+   }
+   if (drainWaited > 0)
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+         "MpodWinMM::disableDevice '%s' push in flight at disable; "
+         "waited %lu ms (%s)",
+         getDeviceName().data(), (unsigned long)drainWaited,
+         mPushInFlight != 0 ? "did not return; escaping" : "returned");
+   }
    if (mPushInFlight == 0)
    {
       for (unsigned i = 0; i < mNumOutBuffers; i++ )
@@ -917,6 +967,18 @@ OsStatus MpodWinMM::disableDevice()
          "MpodWinMM::disableDevice '%s' leaking %d wave buffers: %d push(es) "
          "still in flight, likely blocked in a wave call on a removed device",
          getDeviceName().data(), mNumOutBuffers, (int)mPushInFlight);
+
+      // Fire escape: the callback thread is stuck in a wave call and
+      // references this object. Mark the driver so it is never re-enabled,
+      // its destructor does not wait on that thread, and
+      // MpOutputDeviceManager::removeAllDevices retires it instead of
+      // deleting it.
+      mLastDisableEscaped = TRUE;
+      mEscapeTick = GetTickCount();
+      OsSysLog::add(FAC_MP, PRI_CRIT,
+         "MpodWinMM::disableDevice '%s' push stuck in a wave call for "
+         "%d ms; driver must be retired, not deleted",
+         getDeviceName().data(), MPOD_WINMM_PUSH_DRAIN_TIMEOUT_MS);
    }
 
    // set the device handle to NULL, since it no longer is valid.

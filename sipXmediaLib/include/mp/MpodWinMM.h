@@ -31,6 +31,11 @@
 // DEFINES
 #define DEFAULT_N_OUTPUT_BUFS 32
 
+// How long disableDevice waits for an in-flight pushFrame to return before
+// declaring it stuck (fire escape). A healthy push returns in well under
+// this; one blocked inside a wave call on a removed device may never return.
+#define MPOD_WINMM_PUSH_DRAIN_TIMEOUT_MS 200
+
 //#define DONTUSE_SLIST
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0600)
 #  define DONTUSE_SLIST
@@ -162,6 +167,9 @@ public:
    */
    inline int getPushInFlightCount() const { return (int)mPushInFlight; }
 
+     /// @brief TRUE if the most recent disable took the fire-escape path.
+   virtual UtlBoolean lastDisableEscaped() const { return mLastDisableEscaped; }
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -250,6 +258,15 @@ protected:
                                ///< into mpWaveBuffers. disableDevice must
                                ///< not free those buffers while this is
                                ///< non-zero.
+   UtlBoolean mLastDisableEscaped; ///< TRUE if the most recent disable
+                               ///< found a push still in flight after
+                               ///< MPOD_WINMM_PUSH_DRAIN_TIMEOUT_MS. The
+                               ///< callback thread is stuck in a wave call;
+                               ///< the driver refuses re-enable, its
+                               ///< destructor does not wait for that thread,
+                               ///< and the manager retires it instead of
+                               ///< deleting it.
+   DWORD mEscapeTick;          ///< GetTickCount at the fire escape.
 
 #ifndef DONTUSE_SLIST
      /// Structure used to pass WMM message data to processing thread.
