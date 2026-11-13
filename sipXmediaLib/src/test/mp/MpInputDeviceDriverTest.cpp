@@ -8,6 +8,7 @@
 
 #include <os/OsIntTypes.h>
 #include <sipxunittests.h>
+#include <sipxunit/RscBracket.h>
 #include <mp/MpBufPool.h>
 #include <mp/MpArrayBuf.h>
 #include <mp/MpAudioBuf.h>
@@ -243,6 +244,7 @@ class MpInputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testSetup);
    CPPUNIT_TEST(testNonexistentInputDevice);
    CPPUNIT_TEST(testReEnableInputDevice);
+   CPPUNIT_TEST(testRscEnableDisable);
    CPPUNIT_TEST(testInputDriverWithEmptyName);
    CPPUNIT_TEST(testDoubleEnableInputDevice);
    CPPUNIT_TEST(testDoubleDisableInputDevice);
@@ -554,6 +556,51 @@ public:
 
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.disableDevice(iDrvHnd));
       CPPUNIT_ASSERT(!pDriver->isEnabled());
+
+      inDevMgr.removeDevice(iDrvHnd);
+      delete pDriver;
+#  else
+      SIPX_TEST_SKIP("MpidWinMM is Windows-only");
+#  endif
+   }
+
+   // Resource accounting: enable/disable cycles of the default input
+   // device through a manager, at two sizes. Report only (stage 1 of
+   // phase 2).
+   void testRscEnableDisable()
+   {
+#  ifdef WIN32
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME,
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames,
+                                    *mpBufPool);
+      MpidWinMM* pDriver = new MpidWinMM(MpidWinMM::getDefaultDeviceName(),
+                                         inDevMgr);
+      if (!pDriver->isDeviceValid())
+      {
+         delete pDriver;
+         SIPX_TEST_SKIP("no valid input audio device available");
+      }
+      MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pDriver);
+      CPPUNIT_ASSERT(iDrvHnd > 0);
+
+      // Warm-up cycle.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.enableDevice(iDrvHnd));
+      OsTask::delay(50);
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.disableDevice(iDrvHnd));
+
+      const int sizes[] = {10, 20};
+      for (int s = 0; s < 2; s++)
+      {
+         RscBracket bracket("input driver enable/disable");
+         for (int i = 0; i < sizes[s]; i++)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.enableDevice(iDrvHnd));
+            OsTask::delay(50);
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inDevMgr.disableDevice(iDrvHnd));
+         }
+         bracket.report(sizes[s], 200);
+      }
 
       inDevMgr.removeDevice(iDrvHnd);
       delete pDriver;

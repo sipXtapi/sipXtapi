@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2017 SIPez LLC.  ALrights Reserved.
+// Copyright (C) 2006-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -25,6 +25,7 @@
 #include "os/OsLock.h"
 #include "os/OsTask.h"
 #include "os/OsUtil.h"
+#include "utl/UtlRscTrace.h"
 
 // EXTERNAL FUNCTIONS
 
@@ -183,6 +184,7 @@ OsTaskBase::OsTaskBase(const UtlString& name,
     sprintf(nameBuffer, name.data(), taskCount++);
     mName.append(nameBuffer);
 
+   UtlRscCount::created(UtlRscCount::OSTASK);
    if (mName != "")
       OsUtil::insertKeyValue(TASK_PREFIX, mName, (intptr_t) this);
 }
@@ -194,6 +196,7 @@ OsTaskBase::~OsTaskBase()
 
    assert(isUnInitialized());
 
+   UtlRscCount::destroyed(UtlRscCount::OSTASK);
    if (mName != "")
    {
       res = OsUtil::deleteKeyValue(TASK_PREFIX, mName);

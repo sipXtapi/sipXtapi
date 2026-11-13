@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006-2017 SIPez LLC. 
+// Copyright (C) 2006-2026 SIPez LLC. 
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -18,6 +18,7 @@
 #include <mp/MpTestResource.h>
 #include <mp/MpMisc.h>
 #include <mp/MprToneGen.h>
+#include <sipxunit/RscBracket.h>
 #include <mp/MpMediaTask.h>
 #include <os/OsTask.h>
 
@@ -40,11 +41,41 @@ class MpFlowGraphTest : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testProcessNextFrame);
 
     CPPUNIT_TEST(testNewResourceEnableDisableMsgFlow);
+    CPPUNIT_TEST(testRscCreateDestroy);
 //    CPPUNIT_TEST(testNewResourceToneGenMsgFlow);
     CPPUNIT_TEST_SUITE_END();
 
 
 public:
+    // Resource accounting: create and destroy a flow graph with two linked
+    // resources, at two sizes. Report only (stage 1 of phase 2): the RSC
+    // lines show whether anything is left behind per flow graph.
+    void createAndDestroyFlowGraph()
+    {
+        MpFlowGraphBase* pFlowGraph = new MpFlowGraphBase(80, 8000);
+        MpTestResource* pResource1 = new MpTestResource("rsc1", 1, 1, 1, 1);
+        MpTestResource* pResource2 = new MpTestResource("rsc2", 1, 1, 1, 1);
+        CPPUNIT_ASSERT(pFlowGraph->addResource(*pResource1) == OS_SUCCESS);
+        CPPUNIT_ASSERT(pFlowGraph->addResource(*pResource2) == OS_SUCCESS);
+        CPPUNIT_ASSERT(pFlowGraph->addLink(*pResource1, 0, *pResource2, 0) == OS_SUCCESS);
+        delete pFlowGraph;
+    }
+
+    void testRscCreateDestroy()
+    {
+        createAndDestroyFlowGraph();   // warm-up
+        const int sizes[] = {20, 40};
+        for (int s = 0; s < 2; s++)
+        {
+            RscBracket bracket("flowgraph create/destroy");
+            for (int i = 0; i < sizes[s]; i++)
+            {
+                createAndDestroyFlowGraph();
+            }
+            bracket.report(sizes[s], 200);
+        }
+    }
+
     void testCreators()
     {
         MpFlowGraphBase*    pFlowGraph = 0;

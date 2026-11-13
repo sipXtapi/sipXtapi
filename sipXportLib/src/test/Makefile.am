@@ -77,6 +77,7 @@ testsuite_SOURCES = \
     utl/UtlLinkTest.cpp \
     utl/UtlLongLongInt.cpp \
     utl/UtlRegex.cpp \
+    utl/UtlRscTraceTest.cpp \
     utl/UtlSList.cpp \
     utl/UtlSListIteratorTest.cpp \
     utl/UtlSortedList.cpp \

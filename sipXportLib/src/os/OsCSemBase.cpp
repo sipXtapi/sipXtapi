@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -51,6 +53,7 @@ OsCSemBase::OsCSemBase(const int queueOptions, const int maxCount,
    mNumReleases(0)
 #endif
 {
+   UtlRscCount::created(UtlRscCount::OSCSEM);
 }
 
 /* ============================ INQUIRY =================================== */

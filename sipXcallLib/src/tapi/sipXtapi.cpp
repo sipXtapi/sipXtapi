@@ -57,6 +57,7 @@
 #include "os/OsMutex.h"
 #include "os/OsSysLog.h"
 #include "os/OsTimerTask.h"
+#include "utl/UtlRscTrace.h"
 #include "os/OsNatAgentTask.h"
 #include "net/TapiMgr.h"
 #include "net/SipSrvLookup.h"
@@ -7388,6 +7389,29 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVersion(char* szVersion,
         }
     }
     return rc;
+}
+
+SIPXTAPI_API SIPX_RESULT sipxDiagReadResourceCounts(long* live,
+                                                    int numTypes,
+                                                    long* tasksTerminated,
+                                                    char* names,
+                                                    int namesLen)
+{
+    if (live == NULL || numTypes < 0)
+    {
+        return SIPX_RESULT_INVALID_ARGS;
+    }
+    UtlRscRawCounts counts;
+    utlRscReadLocal(counts, names, names ? namesLen : 0);
+    for (int t = 0; t < numTypes; t++)
+    {
+        live[t] = (t < UtlRscCount::NUM_TYPES) ? counts.live[t] : 0;
+    }
+    if (tasksTerminated)
+    {
+        *tasksTerminated = counts.tasksTerminated;
+    }
+    return SIPX_RESULT_SUCCESS;
 }
 
 SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalSipUdpPort(SIPX_INST hInst, int* pPort) 

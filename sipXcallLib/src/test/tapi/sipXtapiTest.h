@@ -336,6 +336,9 @@ class sipXtapiTestSuite : public SIPX_UNIT_BASE_CLASS
     CPPUNIT_TEST(testMultiInstanceUninitKeepsMediaFactory) ;
     CPPUNIT_TEST(testForcedUninitReleasesCallFlowgraph) ;
     CPPUNIT_TEST(testForcedUninitReleasesLineHandles) ;
+    CPPUNIT_TEST(testRscCallSetupHangup) ;
+    CPPUNIT_TEST(testRscIdleInitUninit) ;
+    CPPUNIT_TEST(testRscCallGarbageCollection) ;
     CPPUNIT_TEST(testDeviceDepartureThenHangup) ;
     CPPUNIT_TEST(testDeviceDepartureThenUninitialize) ;
     CPPUNIT_TEST(testDeviceReturnRecovery) ;
@@ -548,6 +551,11 @@ public:
     // KNOWN DEFECT 8 / KNOWN DEFECT 2 (sipXtapiTestConfig.cpp)
     void testForcedUninitReleasesCallFlowgraph() ;
     void testForcedUninitReleasesLineHandles() ;
+    // Resource accounting brackets, report only (sipXtapiTestConfig.cpp)
+    void testRscCallSetupHangup() ;
+    void testRscIdleInitUninit() ;
+    void testRscCallGarbageCollection() ;
+    void rscCallOnce(int index) ;
     // Device departure during a call (sipXtapiTestDeviceDeparture.cpp)
     void testDeviceDepartureThenHangup() ;
     void testDeviceDepartureThenUninitialize() ;

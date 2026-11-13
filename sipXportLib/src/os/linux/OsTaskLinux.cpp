@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006-2012 SIPez LLC.  All rights reserved.
+// Copyright (C) 2006-2026 SIPez LLC.  All rights reserved.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -38,6 +38,7 @@
 #include "os/linux/OsLinuxDefs.h"
 #include "os/linux/OsTaskLinux.h"
 #include "os/linux/OsUtilLinux.h"
+#include "utl/UtlRscTrace.h"
 
 // DEFINES
 #ifdef ANDROID // [
@@ -706,6 +707,14 @@ void OsTaskLinux::doLinuxTerminateTask(UtlBoolean doForce)
       {
          if (savedTaskId != 0)
          {
+            // A cancelled thread can leave locks it holds owned by a
+            // thread that no longer exists. Say so, naming the task.
+            OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+               "OsTaskLinux::doLinuxTerminateTask task '%s' did not shut "
+               "down within 1000 ms; calling pthread_cancel. Any lock it "
+               "holds may now be orphaned",
+               mName.data());
+            UtlRscCount::taskTerminated();
             pthread_cancel(savedTaskId);
          }
       }

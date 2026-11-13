@@ -330,6 +330,7 @@
     <ClCompile Include="src\os\Wnt\OsMutexWnt.cpp" />
     <ClCompile Include="src\os\Wnt\OsPathWnt.cpp" />
     <ClCompile Include="src\os\Wnt\OsProcessIteratorWnt.cpp" />
+    <ClCompile Include="src\os\Wnt\OsProcessStatsWnt.cpp" />
     <ClCompile Include="src\os\Wnt\OsProcessWnt.cpp" />
     <ClCompile Include="src\os\Wnt\OsSharedLibMgrWnt.cpp" />
     <ClCompile Include="src\os\Wnt\OsTaskWnt.cpp" />

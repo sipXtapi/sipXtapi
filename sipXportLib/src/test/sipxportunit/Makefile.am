@@ -13,6 +13,7 @@ libsipXunit_la_SOURCES =  \
     SipxPortUnitTestClass.cpp \
     SipxPortUnitTestConstructor.cpp \
     SipxPortUnitTestEnvironment.cpp \
+    SipxPortUnitTestFaultReport.cpp \
     SipxPortUnitTestPointFailure.cpp \
     main.cpp \
     ../sipxunit/TestUtilities.cpp

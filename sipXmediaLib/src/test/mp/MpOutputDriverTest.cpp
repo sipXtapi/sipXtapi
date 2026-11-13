@@ -15,6 +15,7 @@
 
 #include <sipxunittests.h>
 #include <sipxunit/TestUtilities.h>
+#include <sipxunit/RscBracket.h>
 
 #include <mp/MpAudioBuf.h>
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
@@ -111,6 +112,7 @@ class MpOutputDeviceDriverTest : public SIPX_UNIT_BASE_CLASS
    CPPUNIT_TEST(testCreate);
    CPPUNIT_TEST(testEnableDisable);
    CPPUNIT_TEST(testEnableDisableFast);
+   CPPUNIT_TEST(testRscEnableDisable);
    CPPUNIT_TEST(testTickerNotification);
    CPPUNIT_TEST(testEnableAfterSwitchToMMTimer);
    CPPUNIT_TEST(testMultipleEnableDisableCyclesAfterFallback);
@@ -216,6 +218,42 @@ public:
 
          driver.disableDevice();
          CPPUNIT_ASSERT(!driver.isEnabled());
+      }
+   }
+
+   // Resource accounting: enable/disable cycles of the default output
+   // device at two sizes. Report only (stage 1 of phase 2).
+   void testRscEnableDisable()
+   {
+      CallbackUserData userData;
+      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+      userData.mDriver = &driver;
+      userData.mTickTime = NULL;
+      OsCallback notificationCallback((intptr_t)&userData, &driverCallback);
+      sampleDataSz = 0;
+
+      // Warm-up cycle; also tells us whether there is a device at all.
+      if (driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
+                              0, notificationCallback) != OS_SUCCESS)
+      {
+         SIPX_TEST_SKIP("no output audio device to enable");
+      }
+      OsTask::delay(50);
+      driver.disableDevice();
+
+      const int sizes[] = {10, 20};
+      for (int s = 0; s < 2; s++)
+      {
+         RscBracket bracket("output driver enable/disable");
+         for (int i = 0; i < sizes[s]; i++)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+               driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND,
+                                   0, notificationCallback));
+            OsTask::delay(50);
+            driver.disableDevice();
+         }
+         bracket.report(sizes[s], 200);
       }
    }
 

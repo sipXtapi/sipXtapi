@@ -82,6 +82,7 @@ libsipXport_la_SOURCES =  \
     utl/UtlHashBag.cpp \
     utl/UtlHashBagIterator.cpp \
     utl/UtlRscStore.cpp \
+    utl/UtlRscTrace.cpp \
     utl/UtlRegex.cpp \
     utl/UtlTokenizer.cpp \
     utl/XmlContent.cpp \
@@ -172,6 +173,7 @@ libsipXport_la_SOURCES =  \
     os/linux/OsPathLinux.cpp \
     os/linux/OsProcessIteratorLinux.cpp \
     os/linux/OsProcessLinux.cpp \
+    os/linux/OsProcessStatsLinux.cpp \
     os/linux/OsRWMutexLinux.cpp \
     os/linux/OsSharedLibMgrLinux.cpp \
     os/linux/OsTaskLinux.cpp \
@@ -202,6 +204,7 @@ EXTRA_DIST= \
     os/Wnt/OsPathWnt.cpp \
     os/Wnt/OsProcessIteratorWnt.cpp \
     os/Wnt/OsProcessWnt.cpp \
+    os/Wnt/OsProcessStatsWnt.cpp \
     os/Wnt/OsSharedLibMgrWnt.cpp \
     os/Wnt/OsTaskWnt.cpp \
     os/Wnt/OsTimerMessage.cpp \

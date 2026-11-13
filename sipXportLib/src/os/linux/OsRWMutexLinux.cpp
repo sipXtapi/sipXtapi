@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -15,6 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "os/linux/OsRWMutexLinux.h"
+#include "utl/UtlRscTrace.h"
 
 // DEFINES
 // MACROS
@@ -33,6 +36,7 @@ OsRWMutexLinux::OsRWMutexLinux(const int queueOptions)
    int res;
    res = pthread_rwlock_init(&mLockImp, NULL);
    assert(res == POSIX_OK);
+   UtlRscCount::created(UtlRscCount::OSRWMUTEX);
 }
 
 OsRWMutexLinux::~OsRWMutexLinux()
@@ -40,6 +44,7 @@ OsRWMutexLinux::~OsRWMutexLinux()
    int res;
    res = pthread_rwlock_destroy(&mLockImp);
    assert(res == POSIX_OK);
+   UtlRscCount::destroyed(UtlRscCount::OSRWMUTEX);
 }
 
 /* ============================ MANIPULATORS ============================== */

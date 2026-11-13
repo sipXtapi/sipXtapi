@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -29,6 +31,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class UtlString;
+class UtlSList;
 
 //:Name service maintaining mappings between string names and integer values
 // The OsNameDb is a singleton object that maintains a dictionary of
@@ -72,6 +75,12 @@ public:
 
    int numEntries();
      //: Return the number of key-value pairs in the name database
+
+   int getKeysWithPrefix(const UtlString& prefix, UtlSList& keys);
+     //:Append a copy of every key that starts with prefix to keys
+     // The copies are new UtlString objects owned by the caller (free
+     // them with keys.destroyAll()). Returns the number appended. Used
+     // by resource snapshots to list live named tasks and queues.
 
 /* ============================ INQUIRY =================================== */
 

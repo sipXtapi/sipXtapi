@@ -601,6 +601,11 @@ int SipxPortUnitTestEnvironment::getTestAbortCount()
     return(sNumExceptionsCaught);
 }
 
+long SipxPortUnitTestEnvironment::getProgressCount()
+{
+    return((long)sTestMethodsRun + sTestPointsPassed + sTestPointsFailed);
+}
+
 SipxPortUnitTestClass* SipxPortUnitTestEnvironment::getCurrentTestClass()
 {
     return(spCurrentTestClass);

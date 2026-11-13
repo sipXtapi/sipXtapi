@@ -3515,6 +3515,31 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVersion(char* szVersion,
 											  const size_t nBuffer) ;
 
 /**
+ * Diagnostics: read the resource counts kept by the copy of sipXportLib
+ * inside this library (see utl/UtlRscTrace.h): live OS objects by type,
+ * tasks force-terminated, and the names of live named tasks and message
+ * queues. Used by tests and soaks to measure what an operation leaves
+ * behind. On Windows sipXportLib is linked statically into this DLL and
+ * into the caller separately, so the caller's own counters do not see the
+ * objects sipXtapi creates; this function reads the DLL's.
+ *
+ * @param live Array of numTypes counts, indexed by UtlRscCount::RscType.
+ *        Entries for types not counted are 0. Must not be NULL.
+ * @param numTypes Number of entries in live.
+ * @param tasksTerminated If not NULL, receives the number of tasks
+ *        force-terminated since the process started.
+ * @param names If not NULL, receives the names of live named tasks and
+ *        message queues as '\n'-separated name-database keys (for
+ *        example "Task.MpMediaTask"), zero-terminated, truncated to fit.
+ * @param namesLen Size of names in bytes.
+ */
+SIPXTAPI_API SIPX_RESULT sipxDiagReadResourceCounts(long* live,
+                                                    int numTypes,
+                                                    long* tasksTerminated,
+                                                    char* names,
+                                                    int namesLen) ;
+
+/**
  * Get the local UDP port for SIP signaling.  The port is supplied in the 
  * call to sipXinitialize; however, the port may be allocated dynamically.
  * This method will return SIPX_RESULT_SUCCESS if able to return the port

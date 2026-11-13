@@ -18,6 +18,7 @@
 #include "EventRecorder.h"
 #include "EventValidator.h"
 #include "callbacks.h"
+#include <sipxunit/RscBracket.h>
 
 extern EventRecorder g_recorder ;
 bool g_bCallbackCalled = false;
@@ -845,6 +846,118 @@ void sipXtapiTestSuite::testForcedUninitReleasesLineHandles()
                                  (int) hNewLine, (int) firstLine) ;
     OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
+}
+
+// One call between the suite's first two instances, hung up from the
+// called side (the side that owns the input device in the device departure
+// tests), both calls destroyed and both lines removed.
+void sipXtapiTestSuite::rscCallOnce(int index)
+{
+    char callingUri[64] ;
+    char calledUri[64] ;
+    sprintf(callingUri, "sip:rsccalling%d@127.0.0.1:8000", index) ;
+    sprintf(calledUri, "sip:rsccalled%d@127.0.0.1:9100", index) ;
+
+    SIPX_CALL hCallingCall = SIPX_CALL_NULL ;
+    SIPX_LINE hCallingLine = SIPX_LINE_NULL ;
+    SIPX_CALL hCalledCall = SIPX_CALL_NULL ;
+    SIPX_LINE hCalledLine = SIPX_LINE_NULL ;
+    doCallBasicSetup(g_hInst, callingUri, callingUri, g_hInst2, calledUri, calledUri,
+                     hCallingCall, hCallingLine, hCalledCall, hCalledLine) ;
+    OsTask::delay(500) ;
+
+    CPPUNIT_ASSERT_MESSAGE("called side not DESTROYED within 10 s",
+                           knownDefectEndSurvivor(g_hInst2, hCalledLine, hCalledCall)) ;
+    CPPUNIT_ASSERT_MESSAGE("calling side not DESTROYED within 10 s",
+                           knownDefectEndSurvivor(g_hInst, hCallingLine, hCallingCall)) ;
+    sipxLineRemove(hCalledLine) ;
+    sipxLineRemove(hCallingLine) ;
+}
+
+// Resource accounting (phase 2, stage 1), report only: what does one call
+// setup and hang-up leave behind? The RSC lines are the measurement; this
+// test asserts only that the calls themselves worked. Run at two sizes: a
+// leak grows with the number of calls, background noise does not.
+void sipXtapiTestSuite::testRscCallSetupHangup()
+{
+    int index = 0 ;
+    rscCallOnce(index++) ;     // warm-up
+    const int sizes[] = {5, 10} ;
+    for (int s = 0; s < 2; s++)
+    {
+        RscBracket bracket("call setup/hangup") ;
+        for (int i = 0; i < sizes[s]; i++)
+        {
+            rscCallOnce(index++) ;
+        }
+        bracket.report(sizes[s], 1500) ;
+    }
+}
+
+// Resource accounting (phase 2, stage 2), report only: are the per-message
+// UDP SipClient objects ever freed while the instances stay up?
+//
+// Every UDP send currently creates a new SipClient (an OsTask with its own
+// semaphores and mutexes), about 7 per call. SipUserAgent garbage
+// collection deletes clients idle for 40 s or more, but it runs only while
+// the user agent is handling messages, at most every 40 s. This test makes
+// 10 calls and reports, then keeps SIP traffic going for about 60 s (one
+// call every 15 s) and reports again against the same starting snapshot.
+//
+// Reading the second RSC line (14 calls in all, about 7 clients each):
+//   OsTask near +98: garbage collection freed none of them; a process that
+//                    stays up accumulates them (a true leak).
+//   OsTask near +21 to +28: the clients of the first 10 calls were freed;
+//                    only the last 40 s or so of traffic is held.
+// The sipX log shows the collector's own lines ("removeOldClients
+// deleting N of M SipClients"). Takes about 100 s: run with --timeout 600.
+void sipXtapiTestSuite::testRscCallGarbageCollection()
+{
+    int index = 1000 ;
+    rscCallOnce(index++) ;     // warm-up
+
+    RscBracket bracket("call x10 then 60 s of traffic") ;
+    for (int i = 0; i < 10; i++)
+    {
+        rscCallOnce(index++) ;
+    }
+    bracket.report(10, 1500) ;
+
+    for (int i = 0; i < 4; i++)
+    {
+        OsTask::delay(15000) ;
+        rscCallOnce(index++) ;
+    }
+    bracket.report(14, 1500) ;
+}
+
+// Resource accounting (phase 2, stage 1), report only: what does
+// initializing and uninitializing an idle instance leave behind, while
+// the suite's other instances keep the media factory alive? Each cycle
+// uses its own ports to stay clear of TIME_WAIT.
+void sipXtapiTestSuite::testRscIdleInitUninit()
+{
+    int cycle = 0 ;
+    const int sizes[] = {0, 3, 6} ;     // 0: the warm-up cycle
+    for (int s = 0; s < 3; s++)
+    {
+        RscBracket bracket("idle instance init/uninit") ;
+        int count = (sizes[s] == 0) ? 1 : sizes[s] ;
+        for (int i = 0; i < count; i++, cycle++)
+        {
+            SIPX_INST hInst = NULL ;
+            int sipPort = 15100 + 20 * cycle ;
+            char identity[64] ;
+            sprintf(identity, "sip:rscidle%d@127.0.0.1:%d", cycle, sipPort) ;
+            CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS,
+                knownDefectInitialize(&hInst, sipPort, sipPort + 10, identity)) ;
+            CPPUNIT_ASSERT_EQUAL(SIPX_RESULT_SUCCESS, sipxUnInitialize(hInst, true)) ;
+        }
+        if (sizes[s] > 0)
+        {
+            bracket.report(sizes[s], 1000) ;
+        }
+    }
 }
 
 void sipXtapiTestSuite::testLoggingSurvivesOtherInstanceUninit()

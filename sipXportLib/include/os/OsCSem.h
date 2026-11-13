@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2026 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -99,7 +99,7 @@ protected:
                      const int initCount) ;
 
      /// Destructor
-   virtual ~OsCSemBase()  {  };
+   virtual ~OsCSemBase()  { UtlRscCount::destroyed(UtlRscCount::OSCSEM); };
 
 #ifdef OS_CSEM_DEBUG
      /// Update the statistics associated with acquiring a counting semaphore

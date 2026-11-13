@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -23,6 +25,8 @@
 #include "os/OsWriteLock.h"
 #include "utl/UtlIntPtr.h"
 #include "utl/UtlString.h"
+#include "utl/UtlSList.h"
+#include "utl/UtlHashMapIterator.h"
 
 // EXTERNAL FUNCTIONS
 
@@ -155,6 +159,24 @@ int OsNameDb::numEntries(void)
    OsReadLock lock(mRWLock);
 
    return mDict.entries();
+}
+
+// Append a copy of every key that starts with prefix to keys
+int OsNameDb::getKeysWithPrefix(const UtlString& prefix, UtlSList& keys)
+{
+   OsReadLock lock(mRWLock);
+   int appended = 0;
+   UtlHashMapIterator it(mDict);
+   UtlString* pKey;
+   while ((pKey = (UtlString*)it()) != NULL)
+   {
+      if (pKey->index(prefix) == 0)
+      {
+         keys.append(new UtlString(*pKey));
+         appended++;
+      }
+   }
+   return appended;
 }
 
 /* ============================ INQUIRY =================================== */

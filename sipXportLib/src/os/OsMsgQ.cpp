@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -42,6 +44,7 @@ OsMsgQBase::OsMsgQBase(const UtlString& name)
    mFlushHookFunc(NULL),
    mName(name)
 {
+   UtlRscCount::created(UtlRscCount::OSMSGQ);
    if (mName != "")
       OsUtil::insertKeyValue(MSGQ_PREFIX, mName, (intptr_t)this);
 }
@@ -50,6 +53,8 @@ OsMsgQBase::OsMsgQBase(const UtlString& name)
 OsMsgQBase::~OsMsgQBase()
 {
    OsStatus res;
+
+   UtlRscCount::destroyed(UtlRscCount::OSMSGQ);
 
    if (mName != "")
    {

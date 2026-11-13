@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2026 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -20,6 +20,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "os/OsSyncBase.h"
+#include "utl/UtlRscTrace.h"
 
 // DEFINES
 // MACROS
@@ -89,11 +90,11 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
      /// Default constructor
-   OsMutexBase() { };
+   OsMutexBase() { UtlRscCount::created(UtlRscCount::OSMUTEX); };
 
      /// Destructor
    virtual
-   ~OsMutexBase() { };
+   ~OsMutexBase() { UtlRscCount::destroyed(UtlRscCount::OSMUTEX); };
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

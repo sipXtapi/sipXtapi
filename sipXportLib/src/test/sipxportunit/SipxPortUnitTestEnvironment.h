@@ -149,6 +149,11 @@ public:
 
     static int getTestAbortCount();
 
+    /// Methods run plus test points passed and failed. Grows while tests
+    /// make progress; the hang watchdog (SipxPortUnitTestFaultReport)
+    /// polls it.
+    static long getProgressCount();
+
     static void dumpCurrentTestState();
 
     static SipxPortUnitTestClass* getCurrentTestClass();

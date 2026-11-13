@@ -16,6 +16,17 @@
 #include "EventValidator.h"
 #include "os/OsBSem.h"
 #include "os/OsDatagramSocket.h"
+#include "utl/UtlRscTrace.h"
+
+// Resource snapshots in this suite read sipXtapi's own counters: on
+// Windows the test executable and sipXtapi.dll each link their own copy
+// of sipXportLib, and calls, flow graphs and tasks are counted in the
+// DLL's (see sipxDiagReadResourceCounts).
+static void sipxtapiRscSource(UtlRscRawCounts& counts, char* names, int namesLen)
+{
+    sipxDiagReadResourceCounts(counts.live, UtlRscCount::NUM_TYPES,
+                               &counts.tasksTerminated, names, namesLen);
+}
 
 
 #ifdef PURIFY
@@ -107,6 +118,7 @@ void sipXtapiTestSuite::setUp()
 #endif
 
     suiteLock.acquire();
+    UtlRscSnapshot::setSource(sipxtapiRscSource);
     sipxConfigSetLogLevel(LOG_LEVEL_DEBUG);
     sipxConfigSetLogFile("sipXtapiTests.txt") ;
 

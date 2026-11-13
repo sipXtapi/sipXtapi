@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2010-2018 SIPez LLC All rights reserved.
+// Copyright (C) 2010-2026 SIPez LLC All rights reserved.
 //
 // $$
 // Author: Daniel Petrie
@@ -9,6 +9,7 @@
 
 
 #include <SipxPortUnitTestEnvironment.h>
+#include <SipxPortUnitTestFaultReport.h>
 
 void usage(const char* name)
 {
@@ -61,6 +62,7 @@ int main(int argc, char* argv[])
 
     if(result == 0)
     {
+        sipxUnitInstallFaultReporting();
         SipxPortUnitTestEnvironment::runTests(argc > testNameArgIndex ? argv[testNameArgIndex] : "");
 
         SipxPortUnitTestEnvironment::reportResults();

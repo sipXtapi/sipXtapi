@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2026 SIPez LLC.  All rights reserved.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -14,6 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "os/shared/OsRWMutexShared.h"
+#include "utl/UtlRscTrace.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -56,12 +59,13 @@ OsRWMutexShared::OsRWMutexShared(const int queueOptions) :
    mRunningWritersCnt(0)
 {
    // all of the work is done by the initializers
+   UtlRscCount::created(UtlRscCount::OSRWMUTEX);
 }
 
 // Destructor
 OsRWMutexShared::~OsRWMutexShared()
 {
-   // no work required
+   UtlRscCount::destroyed(UtlRscCount::OSRWMUTEX);
 }
 
 /* ============================ MANIPULATORS ============================== */

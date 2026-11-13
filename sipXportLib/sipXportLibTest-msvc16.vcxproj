@@ -330,6 +330,7 @@
     <ClCompile Include="src\test\utl\UtlLinkTest.cpp" />
     <ClCompile Include="src\test\utl\UtlLongLongInt.cpp" />
     <ClCompile Include="src\test\utl\UtlRegex.cpp" />
+    <ClCompile Include="src\test\utl\UtlRscTraceTest.cpp" />
     <ClCompile Include="src\test\utl\UtlSList.cpp" />
     <ClCompile Include="src\test\utl\UtlSListIteratorTest.cpp" />
     <ClCompile Include="src\test\utl\UtlSortedList.cpp" />

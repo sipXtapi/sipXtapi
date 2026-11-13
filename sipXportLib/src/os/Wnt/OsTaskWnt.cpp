@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2006 SIPez LLC.
+// Copyright (C) 2006-2026 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -22,6 +22,8 @@
 #include "os/OsDateTime.h"
 #include "os/Wnt/OsTaskWnt.h"
 #include "os/Wnt/OsUtilWnt.h"
+#include "os/OsSysLog.h"
+#include "utl/UtlRscTrace.h"
 #ifndef WINCE
 #   include <process.h>
 #endif
@@ -542,10 +544,22 @@ void OsTaskWnt::doWntTerminateTask(UtlBoolean force)
     }    
 
     if (ExitCode == STILL_ACTIVE)
+    {
+          // Killing a thread leaves every lock it holds owned by a thread
+          // that no longer exists (process heap, WinMM, COM, sipX mutexes);
+          // the next thread to need one of them blocks forever. Say so,
+          // naming the task, so such a hang can be traced to its cause.
+          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+             "OsTaskWnt::doWntTerminateTask task '%s' (thread id %lu) did "
+             "not exit within 5000 ms; calling TerminateThread. Any lock it "
+             "holds is now orphaned and later acquirers will block forever",
+             mName.data(), (unsigned long)mThreadId);
+          UtlRscCount::taskTerminated();
           TerminateThread(mThreadH, 0);          // first get rid of the thread
                                              //  ignore the return code since
                                              //  it's possible the thread has
                                              //  already terminated
+    }
 
       ntResult = CloseHandle(mThreadH);      // next we close the handle
       assert(ntResult == TRUE);

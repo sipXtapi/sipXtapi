@@ -34,6 +34,7 @@
 #include <os/OsSysLog.h>
 #include <os/OsProcess.h>
 #include <utl/UtlString.h>
+#include <utl/UtlRscTrace.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -891,6 +892,10 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
    UtlBoolean benchFailure = FALSE;
    int done = 0;
    unsigned long soakStart = benchNowMs();
+   // Resource accounting: one RSC line per cycle (this cycle's delta) and
+   // one at the end (the whole soak, per completed cycle). Report only.
+   UtlRscSnapshot rscStart;
+   UtlRscSnapshot rscPrev;
 
    for (int cycle = 0; cycle < cycles && !stopReason; cycle++)
    {
@@ -1146,6 +1151,15 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
               cycle, variantName[variant], nowait ? "in-flight" : "post-removal", offset,
               notif, micCalling, micCalled, opMs, benchNowMs() - cycleStart, sample.data(),
               stopReason ? " STOP: " : "", stopReason ? stopReason : "");
+      {
+         UtlRscSnapshot rscNow;
+         char rscLabel[64];
+         snprintf(rscLabel, sizeof(rscLabel), "soak cycle %d %s", cycle, variantName[variant]);
+         UtlString rscLine;
+         rscNow.formatDelta(rscPrev, rscLabel, rscLine);
+         fprintf(results, "%s\n", rscLine.data());
+         rscPrev.take();
+      }
       fflush(results);
       printf("soak cycle %d %s: notif %ld mic_called %ld op_ms %lu%s%s\n",
              cycle, variantName[variant], notif, micCalled, opMs,
@@ -1161,6 +1175,12 @@ void sipXtapiTestSuite::testDeviceDepartureSoak()
    {
       // Best effort: leave the device attached for whatever runs next.
       benchTrigger("connect", line);
+   }
+   {
+      UtlRscSnapshot rscEnd;
+      UtlString rscLine;
+      rscEnd.formatDelta(rscStart, "soak total", rscLine, done);
+      fprintf(results, "%s\n", rscLine.data());
    }
    fprintf(results, "soak end: %d of %d cycles completed in %lu s; %s%s\n",
            done, cycles, (benchNowMs() - soakStart) / 1000,

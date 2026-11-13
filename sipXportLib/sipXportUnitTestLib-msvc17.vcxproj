@@ -23,6 +23,7 @@
     <ClCompile Include="src\test\sipxportunit\SipxPortUnitTestClass.cpp" />
     <ClCompile Include="src\test\sipxportunit\SipxPortUnitTestConstructor.cpp" />
     <ClCompile Include="src\test\sipxportunit\SipxPortUnitTestEnvironment.cpp" />
+    <ClCompile Include="src\test\sipxportunit\SipxPortUnitTestFaultReport.cpp" />
     <ClCompile Include="src\test\sipxportunit\SipxPortUnitTestPointFailure.cpp" />
     <ClCompile Include="src\test\sipxunit\TestUtilities.cpp" />
   </ItemGroup>
@@ -32,6 +33,7 @@
     <ClInclude Include="src\test\sipxportunit\SipxPortUnitTestClass.h" />
     <ClInclude Include="src\test\sipxportunit\SipxPortUnitTestConstructor.h" />
     <ClInclude Include="src\test\sipxportunit\SipxPortUnitTestEnvironment.h" />
+    <ClInclude Include="src\test\sipxportunit\SipxPortUnitTestFaultReport.h" />
     <ClInclude Include="src\test\sipxportunit\SipxPortUnitTestPointFailure.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

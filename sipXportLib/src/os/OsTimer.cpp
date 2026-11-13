@@ -21,6 +21,7 @@
 #include "os/OsLock.h"
 #include "os/OsEvent.h"
 #include "os/OsTimerMsg.h"
+#include "utl/UtlRscTrace.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -68,6 +69,7 @@ OsTimer::OsTimer(OsMsgQ* pQueue, intptr_t userData,
    mLastStartBacktrace = NULL;
    mLastDestructorBacktrace = NULL;
 #endif /* VALGRIND_TIMER_ERROR */
+   UtlRscCount::created(UtlRscCount::OSTIMER);
 }
 
 // The address of "this" OsTimer object is the eventData that is
@@ -95,6 +97,7 @@ OsTimer::OsTimer(OsNotification& rNotifier,
    mLastStartBacktrace = NULL;
    mLastDestructorBacktrace = NULL;
 #endif /* VALGRIND_TIMER_ERROR */
+   UtlRscCount::created(UtlRscCount::OSTIMER);
 }
 
 // Destructor
@@ -145,6 +148,8 @@ OsTimer::~OsTimer()
    if (mbManagedNotifier) {
       delete mpNotifier;
    }
+
+   UtlRscCount::destroyed(UtlRscCount::OSTIMER);
 }
 
 // Non-blocking asynchronous delete operation

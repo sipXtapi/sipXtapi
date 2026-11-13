@@ -27,6 +27,7 @@ libsipXunit_la_LIBADD = \
 
 sipxincludedir = $(includedir)/sipxunit
 sipxinclude_HEADERS = \
+    RscBracket.h \
     TestUtilities.h
 
 
