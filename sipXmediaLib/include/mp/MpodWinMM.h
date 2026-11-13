@@ -267,6 +267,15 @@ protected:
                                ///< and the manager retires it instead of
                                ///< deleting it.
    DWORD mEscapeTick;          ///< GetTickCount at the fire escape.
+   UtlBoolean mWaveMemoryInWindows; ///< TRUE from a successful waveOutOpen
+                               ///< until waveOutClose on that handle
+                               ///< succeeds. While TRUE, Windows may still
+                               ///< hold mpWaveHeaders and the buffers they
+                               ///< point to (a handle dropped on an error
+                               ///< path without a close, or a close that
+                               ///< failed), so disableDevice leaks the
+                               ///< buffers and replaces the header array
+                               ///< instead of freeing them.
 
 #ifndef DONTUSE_SLIST
      /// Structure used to pass WMM message data to processing thread.

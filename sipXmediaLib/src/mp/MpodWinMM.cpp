@@ -96,6 +96,12 @@ extern HWAVEOUT audioOutCallH;
 //                                  doing so makes the device permanently
 //                                  unrecoverable, defeating USB
 //                                  unplug/replug recovery.
+//   mWaveMemoryInWindows       --> TRUE from a successful waveOutOpen
+//                                  until a successful waveOutClose. Error
+//                                  paths drop mDevHandle without closing
+//                                  it, so Windows can keep using our
+//                                  headers and buffers; while this is TRUE
+//                                  they are leaked, never freed.
 //   mpTickerTimer != NULL      --> in fallback mode due to a wave-API
 //                                  failure or device-removed COM event.
 //                                  enableDevice will reattempt waveOutOpen
@@ -405,6 +411,7 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mPushInFlight(0)
 , mLastDisableEscaped(FALSE)
 , mEscapeTick(0)
+, mWaveMemoryInWindows(FALSE)
 , mDeviceEnumeratorPtr(NULL)
 {
     OsSysLog::add(FAC_MP, PRI_DEBUG,
@@ -546,7 +553,7 @@ MpodWinMM::~MpodWinMM()
 
    // Delete the sample headers and sample buffer pointers..
    unsigned i;
-   if (mPushInFlight == 0)
+   if (mPushInFlight == 0 && !mWaveMemoryInWindows)
    {
       int freedCount = 0;
       for ( i = 0; i < mNumOutBuffers; i++ )
@@ -572,8 +579,10 @@ MpodWinMM::~MpodWinMM()
    {
       OsSysLog::add(FAC_MP, PRI_CRIT,
          "MpodWinMM::~MpodWinMM '%s' leaking wave buffers: %d push(es) still "
-         "in flight, likely blocked in a wave call on a removed device",
-         getDeviceName().data(), (int)mPushInFlight);
+         "in flight, wave handle %s",
+         getDeviceName().data(), (int)mPushInFlight,
+         mWaveMemoryInWindows ? "not closed (Windows may still use them)"
+                              : "closed");
    }
 
    // A driver whose disable escaped has its callback thread stuck inside a
@@ -755,6 +764,10 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    audioOutCallH = mDevHandle;
 #endif // USE_OLD_VOLUME_REGULATION_CODE ]
 
+   // From here until a successful waveOutClose, Windows may hold our
+   // headers and buffers. See mWaveMemoryInWindows.
+   mWaveMemoryInWindows = TRUE;
+
    // We'll be accessing the vptr and empty header lists, so acquire the mutex
    mEmptyHdrVPtrListsMutex.acquire();
 
@@ -927,6 +940,11 @@ OsStatus MpodWinMM::disableDevice()
       {
          showWaveError("waveOutClose", res, -1, __LINE__);
       }
+      else
+      {
+         // Windows has returned every header and buffer.
+         mWaveMemoryInWindows = FALSE;
+      }
    }
 
    // Delete the buffers that were allocated in enableDevice(), unless a
@@ -953,7 +971,32 @@ OsStatus MpodWinMM::disableDevice()
          getDeviceName().data(), (unsigned long)drainWaited,
          mPushInFlight != 0 ? "did not return; escaping" : "returned");
    }
-   if (mPushInFlight == 0)
+   if (mPushInFlight == 0 && mWaveMemoryInWindows)
+   {
+      // The wave handle was not closed: an error path dropped it, or
+      // waveOutClose failed (e.g. WAVERR_STILLPLAYING). Windows may still
+      // read these headers and buffers (measured: an access violation in
+      // wdmaud's worker after the device returned). Leak the buffers and
+      // the header array, and start the next session on a fresh header
+      // array so the dropped handle and a new one never share a header.
+      for (unsigned i = 0; i < mNumOutBuffers; i++ )
+      {
+         mpWaveBuffers[i] = NULL;
+      }
+      WAVEHDR* pFreshHeaders = new WAVEHDR[mNumOutBuffers];
+      mEmptyHdrVPtrListsMutex.acquire();
+      if (pFreshHeaders != NULL)
+      {
+         mpWaveHeaders = pFreshHeaders;
+      }
+      mEmptyHdrVPtrListsMutex.release();
+      mWaveMemoryInWindows = FALSE;
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+         "MpodWinMM::disableDevice '%s' wave handle was not closed; leaking "
+         "%d wave buffers and the header array, Windows may still use them",
+         getDeviceName().data(), mNumOutBuffers);
+   }
+   else if (mPushInFlight == 0)
    {
       for (unsigned i = 0; i < mNumOutBuffers; i++ )
       {
@@ -1674,8 +1717,17 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
 
    mEmptyHdrVPtrListsMutex.acquire();
 
+   // A WOM_DONE from a dropped handle can name a header from an array that
+   // has since been replaced (see disableDevice). It must not be queued
+   // for reuse on the current handle.
+   uintptr_t hdrAddr = (uintptr_t)pWaveHdr;
+   uintptr_t arrayAddr = (uintptr_t)mpWaveHeaders;
+   UtlBoolean currentHeader = (mpWaveHeaders != NULL
+      && hdrAddr >= arrayAddr
+      && hdrAddr < arrayAddr + mNumOutBuffers * sizeof(WAVEHDR));
+
    // Check to see if we have any free pointers, and if we're enabled.
-   if(isEnabled() && mUnusedVPtrList.entries() > 0)
+   if(isEnabled() && currentHeader && mUnusedVPtrList.entries() > 0)
    {
       // Grab an unused voidptr, set it's value to pWaveHdr,
       UtlVoidPtr* pvptr = (UtlVoidPtr*)(mUnusedVPtrList.get());
