@@ -694,7 +694,7 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
             }
             else
             {
-                pMediaConnection->mpRtcpAudioSocket->doConnect(remoteAudioRtpPort,
+                pMediaConnection->mpRtcpAudioSocket->doConnect(remoteAudioRtcpPort,
                                                                remoteRtpHostAddress,
                                                                TRUE);
             }

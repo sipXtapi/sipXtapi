@@ -1324,7 +1324,7 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
                     }
                     else
                     {
-                        ((OsDatagramSocket*)pMediaConnection->mpRtcpAudioSocket)->doConnect(remoteRtpPort,
+                        ((OsDatagramSocket*)pMediaConnection->mpRtcpAudioSocket)->doConnect(remoteRtcpPort,
                                                   remoteRtpHostAddress,
                                                   TRUE);
                     }
